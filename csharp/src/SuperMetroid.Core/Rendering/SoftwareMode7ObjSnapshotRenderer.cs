@@ -31,10 +31,7 @@ public static class SoftwareMode7ObjSnapshotRenderer
         {
             // The kernel preserves destination pixels for transparent samples, so it
             // can project directly over the backdrop without allocating a BG plane.
-            SnesMode7Renderer.CompositeViewport(pixels, vram, cgram,
-                bg.MatrixA, bg.MatrixB, bg.MatrixC, bg.MatrixD, bg.Center,
-                bg.Scroll,
-                fillOutsideWithCharacterZero: bg.FillOutsideWithCharacterZero, wrapOutsideMap: bg.WrapOutsideMap);
+            SnesMode7Renderer.CompositeViewport(pixels, vram, cgram, bg);
         }
         if (snapshot.Gradient.IsEmpty)
             SnesObjRenderer.CompositeUnfiltered(oam, vram, cgram, snapshot.ObjectSelection, pixels);

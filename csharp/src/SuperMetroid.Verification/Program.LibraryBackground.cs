@@ -88,9 +88,7 @@ static void VerifyKraidLibraryHudArtwork(
     LibraryBackgroundExecutionResult native = SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, stockVram,
         transfer.ListPointer, activeDoorPointer: 0);
     var installedVram = new SnesVram();
-    LibraryBackgroundExecutionResult installed = LibraryBackgroundLoader.Execute(bus, installedVram,
-        transfer.ListPointer, activeDoorPointer: 0, hudArt: Compile(pixels),
-        tilemapArt: RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps());
+    LibraryBackgroundExecutionResult installed = LibraryBackgroundLoader.Execute(bus, installedVram, transfer.ListPointer, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
     AssertEqual(native, installed, "Kraid command results stay unchanged with installed HUD art");
     int destinationByte = transfer.VramDestination!.Value * 2;
     for (int index = 0; index < planar.Length; index++)
@@ -100,8 +98,7 @@ static void VerifyKraidLibraryHudArtwork(
 
     pixels[0] = (byte)((pixels[0] + 1) & 3);
     var editedVram = new SnesVram();
-    LibraryBackgroundLoader.Execute(bus, editedVram, transfer.ListPointer,
-        activeDoorPointer: 0, hudArt: Compile(pixels), tilemapArt: RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps());
+    LibraryBackgroundLoader.Execute(bus, editedVram, transfer.ListPointer, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
     if (editedVram.ReadByte(destinationByte) == stockVram.ReadByte(destinationByte))
         throw new InvalidDataException("Edited HUD pixel did not reach Kraid's native VRAM destination.");
     Console.WriteLine("  Kraid BG list: installed HUD PNG matches stock VRAM, and an edit reaches VRAM.");
@@ -165,8 +162,7 @@ static void VerifyLibraryBackgroundLoader()
     bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     vram = new SnesVram();
     vram.ExecuteWordTransfer([0xffff], 0x4800, 1);
-    LibraryBackgroundLoader.ExecuteProgram(bus, vram,
-        SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.Read(bus, 0xe040), activeDoorPointer: 0);
+    LibraryBackgroundLoader.ExecuteProgram(bus, vram, SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.Read(bus, 0xe040), activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork());
     AssertEqual(0x0338, vram.ReadWord(0x4800), "library background clear first word");
     AssertEqual(0x0338, vram.ReadWord(0x4fff), "library background clear final word");
 

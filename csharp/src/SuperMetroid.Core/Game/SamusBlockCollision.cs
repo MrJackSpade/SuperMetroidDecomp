@@ -440,7 +440,7 @@ public static partial class SamusBlockCollision
             // Only the nonzero terrain entry $94:9763 clears this latch. A solid-enemy
             // stop bypasses that entry, and a zero movement does not clear it either.
             state.PositionAdjustedBySlope = false;
-            VerticalTerrainScan scan = ScanVerticalTerrain(terrain, state, new VerticalBlockMove { Displacement = acceptedDisplacement, ScanLeftToRight = move.ScanLeftToRight, CanBreakBombBlocks = move.CanBreakBombBlocks, PublishDoorSideEffects = move.PublishDoorSideEffects, BlockReactionDirection = move.BlockReactionDirection });
+            VerticalTerrainScan scan = ScanVerticalTerrain(terrain, state, new VerticalTerrainProbe { Displacement = acceptedDisplacement, ScanLeftToRight = move.ScanLeftToRight, CanBreakBombBlocks = move.CanBreakBombBlocks, PublishDoorSideEffects = move.PublishDoorSideEffects, BlockReactionDirection = move.BlockReactionDirection });
             acceptedDisplacement = scan.AcceptedDisplacement;
             collided = scan.Collided;
             sandContact = scan.SandContact;
@@ -469,7 +469,7 @@ public static partial class SamusBlockCollision
     /// (right to left): every block under the leading boundary, dispatched by collision type.
     /// A zero displacement scans downward from the current bottom boundary.
     /// </summary>
-    private static VerticalTerrainScan ScanVerticalTerrain(SamusTerrain terrain, SamusKinematicsState state, VerticalBlockMove move)
+    private static VerticalTerrainScan ScanVerticalTerrain(SamusTerrain terrain, SamusKinematicsState state, VerticalTerrainProbe move)
     {
         int acceptedDisplacement = move.Displacement;
         bool collided = false;
@@ -754,7 +754,7 @@ public static partial class SamusBlockCollision
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(state);
-        VerticalTerrainScan scan = ScanVerticalTerrain(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, state, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = scanLeftToRight, CanBreakBombBlocks = false, PublishDoorSideEffects = true, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
+        VerticalTerrainScan scan = ScanVerticalTerrain(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, state, new VerticalTerrainProbe { Displacement = displacement, ScanLeftToRight = scanLeftToRight, CanBreakBombBlocks = false, PublishDoorSideEffects = true, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         state.Position = state.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(scan.AcceptedDisplacement));
         return new BlockMoveResult(scan.AcceptedDisplacement, scan.Collided);
     }

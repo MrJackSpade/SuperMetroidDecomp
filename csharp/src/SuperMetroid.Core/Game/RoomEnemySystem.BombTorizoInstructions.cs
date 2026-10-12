@@ -11,18 +11,10 @@ public sealed partial class RoomEnemySystem
     /// points at the opcode on entry and at the next opcode/frame/branch target on return.
     /// A true <paramref name="pauseInterpreter"/> reproduces callbacks that return a null
     /// instruction pointer after scheduling a multi-frame delay in the common enemy slot.
-    /// <paramref name="frameCounterLow"/> is the low byte of <c>NMI_FrameCounter</c> ($05B6),
+    /// <see cref="TorizoInstructionInputs.FrameCounterLow"/> is the low byte of <c>NMI_FrameCounter</c> ($05B6),
     /// which both attack choosers ($AA:C5B9, $AA:D53B) add; only its bit 3 survives.
     /// </summary>
-    private bool TryProcessBombTorizoInstruction(
-        RoomEnemySlot torizo,
-        SamusState? samus,
-        RoomLevelData? level,
-        ushort opcode,
-        ref ushort cursor,
-        ushort controllerInput,
-        byte frameCounterLow,
-        out bool pauseInterpreter)
+    private bool TryProcessBombTorizoInstruction(RoomEnemySlot torizo, TorizoInstructionInputs inputs, ushort opcode, ref ushort cursor, out bool pauseInterpreter)
     {
         pauseInterpreter = false;
         if (torizo.EnemyDefinitionPointer is not (
@@ -227,11 +219,11 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstruction.Instruction_Torizo_BombTorizoWalkingMovement_Normal_IndexInY:
-                cursor = ProcessBombTorizoWalkInstruction(torizo, state, samus, RequireBombTorizoLevel(level), cursor, new TorizoWalkStep { TableOffset = ReadOperand0(), CollisionFacingRight = 0xb962, CollisionFacingLeft = 0xbdd8 });
+                cursor = ProcessBombTorizoWalkInstruction(torizo, state, inputs.Samus, RequireBombTorizoLevel(inputs.Level), cursor, new TorizoWalkStep { TableOffset = ReadOperand0(), CollisionFacingRight = 0xb962, CollisionFacingLeft = 0xbdd8 });
                 return true;
 
             case TorizoInstruction.Instruction_Torizo_BTWalkingMovement_Faceless_IndexInY:
-                cursor = ProcessBombTorizoWalkInstruction(torizo, state, samus, RequireBombTorizoLevel(level), cursor, new TorizoWalkStep { TableOffset = ReadOperand0(), CollisionFacingRight = 0xbd0e, CollisionFacingLeft = 0xc188 });
+                cursor = ProcessBombTorizoWalkInstruction(torizo, state, inputs.Samus, RequireBombTorizoLevel(inputs.Level), cursor, new TorizoWalkStep { TableOffset = ReadOperand0(), CollisionFacingRight = 0xbd0e, CollisionFacingLeft = 0xc188 });
                 return true;
 
             case TorizoInstruction.Instruction_Torizo_GotoY_IfRising:
@@ -244,7 +236,7 @@ public sealed partial class RoomEnemySystem
                 cursor = SelectBombTorizoCloseBehindBranch(
                     torizo,
                     state,
-                    samus,
+                    inputs.Samus,
                     cursor,
                     ReadOperand0());
                 return true;
@@ -253,20 +245,20 @@ public sealed partial class RoomEnemySystem
                 cursor = SelectBombTorizoCloseFrontJump(
                     torizo,
                     state,
-                    samus,
+                    inputs.Samus,
                     cursor,
                     ReadOperand0());
                 return true;
 
             case TorizoInstruction.Instruction_Torizo_CallY_OrY2_ForBombTorizoAttack:
             {
-                if (samus is null)
+                if (inputs.Samus is null)
                     throw new InvalidOperationException("Bomb Torizo attack selection requires Samus state.");
                 ushort operand1 = ReadEnemyInstructionMechanicsWord(
                     torizo, unchecked((ushort)(cursor + 4)));
                 state.ReturnInstruction = unchecked((ushort)(cursor + 6));
-                bool chooseFirst = samus.Missiles < 5 ||
-                    ((frameCounterLow + (samus.Position.X.Whole & 1) + (samus.Position.X.Whole >> 1)) & 8) != 0;
+                bool chooseFirst = inputs.Samus.Missiles < 5 ||
+                    ((inputs.FrameCounterLow + (inputs.Samus.Position.X.Whole & 1) + (inputs.Samus.Position.X.Whole >> 1)) & 8) != 0;
                 cursor = chooseFirst ? ReadOperand0() : operand1;
                 return true;
             }
@@ -384,7 +376,7 @@ public sealed partial class RoomEnemySystem
                 cursor = SelectGoldenTorizoMorphBallBranch(
                     torizo,
                     state,
-                    samus,
+                    inputs.Samus,
                     cursor,
                     ReadOperand0());
                 return true;
@@ -398,7 +390,7 @@ public sealed partial class RoomEnemySystem
                 cursor = SelectGoldenTorizoMediumRangeBranch(
                     torizo,
                     state,
-                    samus,
+                    inputs.Samus,
                     cursor,
                     ReadOperand0());
                 return true;
@@ -429,8 +421,8 @@ public sealed partial class RoomEnemySystem
                 cursor = SelectGoldenTorizoSpaceJumpCounter(
                     torizo,
                     state,
-                    samus,
-                    controllerInput,
+                    inputs.Samus,
+                    inputs.ControllerInput,
                     cursor,
                     ReadOperand0());
                 return true;
@@ -444,19 +436,19 @@ public sealed partial class RoomEnemySystem
                 cursor = SelectGoldenTorizoRepeatedJump(
                     torizo,
                     state,
-                    samus,
+                    inputs.Samus,
                     cursor,
                     ReadOperand0());
                 return true;
 
             case TorizoInstruction.Instruction_GoldenTorizo_CallY_OrY2_ForAttack:
             {
-                SamusState activeSamus = RequireGoldenTorizoSamus(samus);
+                SamusState activeSamus = RequireGoldenTorizoSamus(inputs.Samus);
                 ushort operand1 = ReadEnemyInstructionMechanicsWord(
                     torizo, unchecked((ushort)(cursor + 4)));
                 state.ReturnInstruction = unchecked((ushort)(cursor + 6));
                 bool chooseFirst = activeSamus.Missiles < 0x20 ||
-                    ((frameCounterLow + (activeSamus.Position.X.Whole & 1) +
+                    ((inputs.FrameCounterLow + (activeSamus.Position.X.Whole & 1) +
                         (activeSamus.Position.X.Whole >> 1)) & 8) != 0;
                 cursor = chooseFirst ? ReadOperand0() : operand1;
                 return true;
@@ -466,8 +458,8 @@ public sealed partial class RoomEnemySystem
                 cursor = ProcessGoldenTorizoWalkInstruction(
                     torizo,
                     state,
-                    samus,
-                    RequireBombTorizoLevel(level),
+                    inputs.Samus,
+                    RequireBombTorizoLevel(inputs.Level),
                     cursor,
                     ReadOperand0());
                 return true;

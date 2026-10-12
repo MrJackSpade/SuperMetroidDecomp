@@ -1281,48 +1281,21 @@ public sealed partial class IntroCinematicState
     private void CompositeScientistRoomPriority(Span<Rgba32> pixels, bool priority)
     {
         // Composited directly; transparent pixels leave the frame untouched, as a plane would.
-        SnesBgTilemapRenderer.Composite4BppViewport(
-            pixels,
-            vram,
-            cgram,
-            tilemapBaseWord: scientistCutscene?.TilemapBaseWord ??
-                IntroCinematicRomData.Layers.ScientistTilemapWord,
-            characterBaseWord: 0,
-            scroll: scientistCutscene?.Background.AsBgPlaneScroll() ?? default,
-            size: new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight),
-            tilemapSize: new Extent16<TilemapCells>(32, 32),
-            priority: priority);
+        SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = scientistCutscene?.TilemapBaseWord ??
+                IntroCinematicRomData.Layers.ScientistTilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = scientistCutscene?.Background.AsBgPlaneScroll() ?? default, Size = new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
     }
 
     private void CompositeBabyDiscoveryRoomPriority(Span<Rgba32> pixels, bool priority)
     {
         // Composited directly; transparent pixels leave the frame untouched, as a plane would.
-        SnesBgTilemapRenderer.Composite4BppViewport(
-            pixels,
-            vram,
-            cgram,
-            tilemapBaseWord: IntroCinematicRomData.Layers.SceneBg2TilemapWord,
-            characterBaseWord: 0,
-            scroll: new Position16<BgPlanePixels>(0, GameplayFlashbackBg1VerticalScroll),
-            size: new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight),
-            tilemapSize: new Extent16<TilemapCells>(32, 32),
-            priority: priority);
+        SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.SceneBg2TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, GameplayFlashbackBg1VerticalScroll), Size = new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
     }
 
     private void CompositeMotherBrainRoomPriority(Span<Rgba32> pixels, bool priority)
     {
         // Composited directly; transparent pixels leave the frame untouched, as a plane would.
-        SnesBgTilemapRenderer.Composite4BppViewport(
-            pixels,
-            vram,
-            cgram,
-            tilemapBaseWord: IntroCinematicRomData.Layers.SceneBg1TilemapWord,
-            characterBaseWord: 0,
-            scroll: new Position16<BgPlanePixels>(0, flashbackMotherBrain?.BackgroundVerticalScroll ??
-                GameplayFlashbackBg1VerticalScroll),
-            size: new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight),
-            tilemapSize: new Extent16<TilemapCells>(32, 32),
-            priority: priority);
+        SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.SceneBg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, flashbackMotherBrain?.BackgroundVerticalScroll ??
+                GameplayFlashbackBg1VerticalScroll), Size = new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
     }
 
     private Rgba32[] RenderFirstNarration()
@@ -1331,13 +1304,7 @@ public sealed partial class IntroCinematicState
         // select tilemap word $4C00 and 2-bpp character word $4000 respectively.
         // Opaque BG3 with no priority filter writes all 28 rows, i.e. the whole frame.
         Rgba32[] pixels = frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight];
-        SnesBgTilemapRenderer.Render2Bpp(
-            pixels,
-            vram,
-            cgram,
-            tilemapBaseWord: IntroCinematicRomData.Layers.NarrationTilemapWord,
-            characterBaseWord: IntroCinematicRomData.Layers.FontCharacterBaseWord,
-            rowCount: IntroCinematicRomData.Layers.NarrationRowCount);
+        SnesBgTilemapRenderer.Render2Bpp(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.NarrationTilemapWord, CharacterBaseWord = IntroCinematicRomData.Layers.FontCharacterBaseWord }, rowCount: IntroCinematicRomData.Layers.NarrationRowCount);
         return pixels;
     }
 
@@ -1382,16 +1349,7 @@ public sealed partial class IntroCinematicState
     private void CompositePortraitPriority(Span<Rgba32> pixels, bool priority)
     {
         // Composited directly; transparent pixels leave the frame untouched, as a plane would.
-        SnesBgTilemapRenderer.Composite4BppViewport(
-            pixels,
-            vram,
-            cgram,
-            tilemapBaseWord: IntroCinematicRomData.Layers.PortraitTilemapWord,
-            characterBaseWord: 0,
-            scroll: new Position16<BgPlanePixels>(0, 8),
-            size: new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight),
-            tilemapSize: new Extent16<TilemapCells>(32, 32),
-            priority: priority);
+        SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.PortraitTilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 8), Size = new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
     }
 
     // Raster scratch reused across draws; never part of saved state (restores reallocate it).
@@ -1403,15 +1361,7 @@ public sealed partial class IntroCinematicState
         // The renderer skips tiles of the other priority, so clear the reused plane first.
         Rgba32[] fullText = textScratch ??= new Rgba32[ScreenWidth * 32 * 8];
         fullText.AsSpan().Clear();
-        SnesBgTilemapRenderer.Render2Bpp(
-            fullText,
-            vram,
-            cgram,
-            tilemapBaseWord: IntroCinematicRomData.Layers.NarrationTilemapWord,
-            characterBaseWord: IntroCinematicRomData.Layers.FontCharacterBaseWord,
-            rowCount: 32,
-            transparentColorZero: true,
-            priority: priority);
+        SnesBgTilemapRenderer.Render2Bpp(fullText, vram, cgram, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.NarrationTilemapWord, CharacterBaseWord = IntroCinematicRomData.Layers.FontCharacterBaseWord }, rowCount: 32, transparentColorZero: true, priority: priority);
         SnesLayerCompositor.Composite(pixels, fullText.AsSpan(8 * ScreenWidth, ScreenWidth * ScreenHeight));
     }
 

@@ -48,7 +48,7 @@ internal static partial class Program
         foreach (var row in rows)
         for (int hold = 0; hold < row.Duration; hold++)
         {
-            fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             for (int color = 0; color < SnesCgram.ColorCount; color++)
             {
                 ushort expected = color >= destination && color < destination + row.Colors.Length
@@ -61,7 +61,7 @@ internal static partial class Program
         AssertEqual((int)Word(0x8beb71), ticks, "Native stars handoff matches complete foreground exposure");
         AssertEqual(Word(0x8beb71), EndingExplosionInstructionDefinitions.ReadWord(0xeb71), "Actual actor program retains the shared native handoff");
         AssertEqual(ticks, ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.CycleFrames, "Derived complete exposure");
-        fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "Foreground mechanics avoid live ROM reads");
         foreach (int invalid in new[] { -1, rows.Count, int.MaxValue })
@@ -159,7 +159,7 @@ internal static partial class Program
             foreach (var row in nativeRows)
             for (int hold = 0; hold < row.Duration; hold++)
             {
-                fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 for (int color = 0; color < SnesCgram.ColorCount; color++)
                 {
                     ushort expected = color >= destination && color < destination + row.Colors.Length
@@ -246,7 +246,7 @@ internal static partial class Program
                 fx.SpawnDefinition(guarded, program.DefinitionPointer, 0);
             for (int tick = 0; tick <= 80; tick++)
             {
-                fx.Step(guarded, cgram, selected, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                fx.Step(guarded, cgram, selected, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 ushort[] expected = document.Colors.Select(Pack).ToArray();
                 foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
                 {
@@ -388,8 +388,8 @@ internal static partial class Program
             installed.SpawnDefinition(installedBus, definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
             {
-                native.Step(nativeBus, nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(installedBus, installedCgram, stock, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(nativeBus, nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(installedBus, installedCgram, stock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed environmental cycle matches original colors each step");
             }
             AssertEqual(0, installedBusPresentationReads.Value, "installed environmental cycle performs zero live color reads");
@@ -463,8 +463,8 @@ internal static partial class Program
             installed.SpawnDefinition(installedBus, definition.DefinitionPointer, 0);
             for (int step = 0; step <= 24; step++)
             {
-                native.Step(nativeBus, nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(installedBus, installedCgram, stock, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(nativeBus, nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(installedBus, installedCgram, stock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed text fade matches native colors each step");
             }
             AssertEqual(0, installedBusPresentationReads.Value, "installed text fade makes zero live color reads");

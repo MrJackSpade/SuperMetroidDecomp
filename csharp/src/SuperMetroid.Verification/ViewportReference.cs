@@ -6,21 +6,13 @@ using SuperMetroid.Core.Rendering;
 internal static class ViewportReference
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    public static void Composite4BppViewport(
-        Span<Rgba32> output,
-        SnesVram vram,
-        SnesCgram cgram,
-        ushort tilemapBaseWord,
-        ushort characterBaseWord,
-        Position16<BgPlanePixels> scroll,
-        Extent16<ScreenPixels> size,
-        Extent16<TilemapCells> tilemapSize,
-        IReadOnlyList<ushort>? horizontalScrollByLine = null,
-        bool? priority = null)
+    public static void Composite4BppViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, BgVramAddresses addresses, BgViewport viewport, bool? priority = null)
     {
         // The frozen scalar body below reads the components under their original names.
-        ushort horizontalScroll = scroll.X, verticalScroll = scroll.Y;
-        int width = size.X, height = size.Y;
+        ushort horizontalScroll = viewport.Scroll.X, verticalScroll = viewport.Scroll.Y;
+        int width = viewport.Size.X, height = viewport.Size.Y;
+        Extent16<TilemapCells> tilemapSize = viewport.TilemapSize ??
+            throw new ArgumentException("The frozen reference requires an explicit tilemap size.", nameof(viewport));
         int tilemapWidthInTiles = tilemapSize.X, tilemapHeightInTiles = tilemapSize.Y;
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -36,8 +28,8 @@ internal static class ViewportReference
             throw new ArgumentOutOfRangeException(nameof(tilemapWidthInTiles));
         if (tilemapHeightInTiles is not (32 or 64))
             throw new ArgumentOutOfRangeException(nameof(tilemapHeightInTiles));
-        if (horizontalScrollByLine is not null && horizontalScrollByLine.Count != height)
-            throw new ArgumentException("Per-line scroll list must contain exactly one word per output line.", nameof(horizontalScrollByLine));
+        if (viewport.HorizontalScrollByLine is not null && viewport.HorizontalScrollByLine.Count != height)
+            throw new ArgumentException("Per-line scroll list must contain exactly one word per output line.", nameof(viewport.HorizontalScrollByLine));
 
         for (int screenY = 0; screenY < height; screenY++)
         {
@@ -48,9 +40,9 @@ internal static class ViewportReference
             int scrolledY = unchecked(verticalScroll + screenY) & yMask;
             int tileY = scrolledY >> 3;
             int pixelY = scrolledY & 7;
-            ushort lineHorizontalScroll = horizontalScrollByLine is null
+            ushort lineHorizontalScroll = viewport.HorizontalScrollByLine is null
                 ? horizontalScroll
-                : horizontalScrollByLine[screenY];
+                : viewport.HorizontalScrollByLine[screenY];
 
             for (int screenX = 0; screenX < width; screenX++)
             {
@@ -66,7 +58,7 @@ internal static class ViewportReference
                 int screensPerRow = tilemapWidthInTiles >> 5;
                 int screenWordOffset = (screenRow * screensPerRow + screenColumn) * 0x0400;
                 int mapWord = (
-                    tilemapBaseWord +
+                    addresses.TilemapBaseWord +
                     screenWordOffset +
                     (tileY & 31) * 32 +
                     (tileX & 31)) & 0x7fff;
@@ -81,7 +73,7 @@ internal static class ViewportReference
                 int palette = entry.PaletteIndex;
                 int sourceX = entry.FlipHorizontally ? 7 - pixelX : pixelX;
                 int sourceY = entry.FlipVertically ? 7 - pixelY : pixelY;
-                int characterByteAddress = ((characterBaseWord + character * 16) & 0x7fff) * 2;
+                int characterByteAddress = ((addresses.CharacterBaseWord + character * 16) & 0x7fff) * 2;
                 int mask = 1 << (7 - sourceX);
                 int rowAddress = characterByteAddress + sourceY * 2;
                 int color = ((vram.ReadByte(rowAddress) & mask) != 0 ? 1 : 0)

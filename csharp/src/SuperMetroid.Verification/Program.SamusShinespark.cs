@@ -341,14 +341,14 @@ static void VerifySamusStoredShineAndShinespark()
     // Four expansion calls, 32 separation calls, and four contraction calls comprise the
     // exact `$90:D383-$D3CC` orbit. One was consumed above, so 39 remain.
     StepFrames(39, frame =>
-        horizontal.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty }, horizontal, new ShinesparkFrame { NmiFrameCounter = (ushort)(7 + frame) }));
+        horizontal.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty }, horizontal, new ShinesparkFrame { NmiFrameCounter = unchecked((ushort)(7 + frame)) }));
     AssertEqual(ShinesparkPhase.CrashEchoCircle, horizontal.Shinespark.Phase,
         "crash orbit contracts into echo-circle hold");
     AssertEqual(30, horizontal.Shinespark.StartStopTimer,
         "echo circle begins at 30 frames");
 
     StepFrames(30, frame =>
-        horizontal.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty }, horizontal, new ShinesparkFrame { NmiFrameCounter = (ushort)(46 + frame) }));
+        horizontal.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty }, horizontal, new ShinesparkFrame { NmiFrameCounter = unchecked((ushort)(46 + frame)) }));
     AssertEqual(ShinesparkPhase.CrashFinish, horizontal.Shinespark.Phase,
         "thirtieth echo-circle frame installs finish handler");
     ShinesparkMovementResult finished = horizontal.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty }, horizontal, new ShinesparkFrame { NmiFrameCounter = 76 });

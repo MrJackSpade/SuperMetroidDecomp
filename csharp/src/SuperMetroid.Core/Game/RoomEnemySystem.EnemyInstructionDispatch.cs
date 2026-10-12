@@ -86,25 +86,17 @@ public sealed partial class RoomEnemySystem
     /// disjoint, so at most one handler can accept the word; the order mirrors the original
     /// single-switch interpreter. Returns false when no owner translates the word.
     /// </summary>
-    private bool TryProcessOwnedEnemyInstruction(
-        RoomEnemySlot slot,
-        SamusState? samus,
-        RoomLevelData? level,
-        ushort word,
-        ref ushort cursor,
-        Position16<RoomPixels> camera,
-        ushort controllerInput,
-        out bool yieldInterpreter)
+    private bool TryProcessOwnedEnemyInstruction(RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter)
     {
         yieldInterpreter = false;
         if (TryProcessBabyMetroidCutsceneInstruction(slot, word, ref cursor) ||
             TryProcessBoyonInstruction(slot, word, ref cursor) ||
             TryProcessStokeInstruction(slot, word, ref cursor) ||
-            TryProcessBabyTurtleInstruction(slot, samus, level, word, ref cursor) ||
+            TryProcessBabyTurtleInstruction(slot, context.Samus, context.Level, word, ref cursor) ||
             TryProcessMamaTurtleInstruction(slot, word, ref cursor) ||
             TryProcessDragonInstruction(slot, word, ref cursor) ||
             TryProcessKraidArmInstruction(slot, word, ref cursor) ||
-            TryProcessKraidFootInstruction(slot, level, word, ref cursor))
+            TryProcessKraidFootInstruction(slot, context.Level, word, ref cursor))
         {
             return true;
         }
@@ -112,11 +104,11 @@ public sealed partial class RoomEnemySystem
         if (TryProcessPhantoonPartInstruction(slot, word, ref cursor, out yieldInterpreter))
             return true;
 
-        if (TryProcessMotherBrainInstruction(slot, samus, word, ref cursor) ||
-            TryProcessDraygonInstruction(slot, samus, word, ref cursor) ||
-            TryProcessWallSpacePirateInstruction(slot, level, word, ref cursor) ||
-            TryProcessNinjaSpacePirateInstruction(slot, samus, word, ref cursor) ||
-            TryProcessWorkRobotInstruction(slot, samus, level, word, ref cursor, camera) ||
+        if (TryProcessMotherBrainInstruction(slot, context.Samus, word, ref cursor) ||
+            TryProcessDraygonInstruction(slot, context.Samus, word, ref cursor) ||
+            TryProcessWallSpacePirateInstruction(slot, context.Level, word, ref cursor) ||
+            TryProcessNinjaSpacePirateInstruction(slot, context.Samus, word, ref cursor) ||
+            TryProcessWorkRobotInstruction(slot, context.Samus, context.Level, word, ref cursor, context.Camera) ||
             TryProcessBeetomInstruction(slot, word, ref cursor) ||
             TryProcessYappingMawInstruction(slot, word, ref cursor) ||
             TryProcessCacatacInstruction(slot, word, ref cursor) ||
@@ -134,42 +126,34 @@ public sealed partial class RoomEnemySystem
             TryProcessMetareeInstruction(slot, word, ref cursor) ||
             TryProcessSkulteraInstruction(slot, word, ref cursor) ||
             TryProcessPlatformInstruction(slot, word, ref cursor) ||
-            TryProcessAlcoonInstruction(slot, level, word, ref cursor) ||
+            TryProcessAlcoonInstruction(slot, context.Level, word, ref cursor) ||
             TryProcessKiHunterInstruction(slot, word, ref cursor) ||
             TryProcessSparkInstruction(slot, word, ref cursor) ||
             TryProcessHibashiInstruction(slot, word, ref cursor) ||
-            TryProcessFakeKraidInstruction(slot, samus, level, word, ref cursor, camera) ||
-            TryProcessWalkingSpacePirateInstruction(slot, samus, word, ref cursor) ||
-            TryProcessRidleyInstruction(slot, samus, word, ref cursor) ||
+            TryProcessFakeKraidInstruction(slot, context.Samus, context.Level, word, ref cursor, context.Camera) ||
+            TryProcessWalkingSpacePirateInstruction(slot, context.Samus, word, ref cursor) ||
+            TryProcessRidleyInstruction(slot, context.Samus, word, ref cursor) ||
             TryProcessCeresSteamInstruction(slot, word, ref cursor) ||
-            TryProcessCeresDoorInstruction(slot, samus, word, ref cursor) ||
+            TryProcessCeresDoorInstruction(slot, context.Samus, word, ref cursor) ||
             TryProcessDeadSidehopperInstruction(slot, word, ref cursor) ||
             TryProcessShitroidInstruction(slot, word, ref cursor) ||
             TryProcessSporeSpawnInstruction(slot, word, ref cursor) ||
-            TryProcessCrocomireInstruction(slot, samus, level, word, ref cursor, camera.X) ||
+            TryProcessCrocomireInstruction(slot, context.Samus, context.Level, word, ref cursor, context.Camera.X) ||
             TryProcessRinkaInstruction(slot, word, ref cursor) ||
             TryProcessRioInstruction(slot, word, ref cursor) ||
             TryProcessNorfairLavaJumpingEnemyInstruction(slot, word, ref cursor) ||
             TryProcessNorfairRioInstruction(slot, word, ref cursor) ||
             TryProcessLowerNorfairRioInstruction(slot, word, ref cursor) ||
             TryProcessMaridiaLargeSnailInstruction(slot, word, ref cursor) ||
-            TryProcessMagdolliteInstruction(slot, word, ref cursor, camera) ||
+            TryProcessMagdolliteInstruction(slot, word, ref cursor, context.Camera) ||
             TryProcessBotwoonInstruction(slot, word, ref cursor) ||
             TryProcessShaktoolInstruction(slot, word, ref cursor) ||
-            TryProcessChozoStatueInstruction(slot, samus, level, word, ref cursor) ||
-            TryProcessEscapeAnimalInstruction(slot, samus, word, ref cursor))
+            TryProcessChozoStatueInstruction(slot, context.Samus, context.Level, word, ref cursor) ||
+            TryProcessEscapeAnimalInstruction(slot, context.Samus, word, ref cursor))
         {
             return true;
         }
 
-        return TryProcessBombTorizoInstruction(
-            slot,
-            samus,
-            level,
-            word,
-            ref cursor,
-            controllerInput,
-            unchecked((byte)_enemyFrameNmiFrameCounter),
-            out yieldInterpreter);
+        return TryProcessBombTorizoInstruction(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounterLow = unchecked((byte)_enemyFrameNmiFrameCounter) }, word, ref cursor, out yieldInterpreter);
     }
 }

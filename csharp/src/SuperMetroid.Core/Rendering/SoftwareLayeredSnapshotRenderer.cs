@@ -61,10 +61,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     if (sub.MainCoverage is { } coverage)
                     {
                         Rgba32[] mask = scratch.Colors(SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels);
-                        SnesBgTilemapRenderer.Composite4BppViewport(mask, memory.Vram, memory.Cgram,
-                            coverage.TilemapWord, coverage.CharacterWord, coverage.Scroll,
-                            SnesPpuLayout.ScreenSize,
-                            coverage.MapSize, priority: coverage.Priority);
+                        SnesBgTilemapRenderer.Composite4BppViewport(mask, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = coverage.TilemapWord, CharacterBaseWord = coverage.CharacterWord }, new BgViewport { Scroll = coverage.Scroll, Size = SnesPpuLayout.ScreenSize, TilemapSize = coverage.MapSize }, priority: coverage.Priority);
                         byte[]? palettes = null;
                         Rgba32[]? highMain = null;
                         if (sub.MainObjects)
@@ -73,9 +70,7 @@ public static class SoftwareLayeredSnapshotRenderer
                             SnesObjRenderer.CompositeUnfiltered(memory.Oam, memory.Vram, memory.Cgram,
                                 snapshot.ObjectSelection, scratch.Colors(subscreen.Length), palettes);
                             highMain = scratch.Colors(256 * 224);
-                            SnesBgTilemapRenderer.Composite4BppViewport(highMain, memory.Vram, memory.Cgram,
-                                coverage.TilemapWord, coverage.CharacterWord, coverage.Scroll,
-                                SnesPpuLayout.ScreenSize, coverage.MapSize, priority: true);
+                            SnesBgTilemapRenderer.Composite4BppViewport(highMain, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = coverage.TilemapWord, CharacterBaseWord = coverage.CharacterWord }, new BgViewport { Scroll = coverage.Scroll, Size = SnesPpuLayout.ScreenSize, TilemapSize = coverage.MapSize }, priority: true);
                         }
                         for (int i = 0; i < subscreen.Length; i++)
                         {
@@ -115,9 +110,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     break;
                 case Bg2BppViewportRenderLayer bg:
                     Rgba32[] plane = scratch.Colors(256 * 32 * 8);
-                    SnesBgTilemapRenderer.Render2Bpp(plane, memory.Vram, memory.Cgram,
-                        bg.TilemapWord, bg.CharacterWord, rowCount: 32,
-                        transparentColorZero: bg.TransparentColorZero, priority: bg.Priority);
+                    SnesBgTilemapRenderer.Render2Bpp(plane, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = bg.TilemapWord, CharacterBaseWord = bg.CharacterWord }, rowCount: 32, transparentColorZero: bg.TransparentColorZero, priority: bg.Priority);
                     for (int y = 0; y < SnesPpuLayout.ScreenHeightPixels; y++)
                         SnesLayerCompositor.Composite(output.AsSpan(y * SnesPpuLayout.ScreenWidthPixels,
                             SnesPpuLayout.ScreenWidthPixels), plane.AsSpan(
@@ -135,10 +128,7 @@ public static class SoftwareLayeredSnapshotRenderer
                 case Mode7RenderLayer mode7:
                     Mode7RenderRegisters m = mode7.Registers;
                     Rgba32[] mode7Pixels = scratch.Colors(SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels);
-                    SnesMode7Renderer.CompositeViewport(mode7Pixels,
-                        memory.Vram, memory.Cgram, m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD,
-                        m.Center, m.Scroll,
-                        fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero, wrapOutsideMap: m.WrapOutsideMap);
+                    SnesMode7Renderer.CompositeViewport(mode7Pixels, memory.Vram, memory.Cgram, m);
                     if (mode7.AddBg1Subscreen)
                     {
                         var palettes = scratch.Bytes(output.Length);
@@ -201,16 +191,11 @@ public static class SoftwareLayeredSnapshotRenderer
                         }
                     break;
                 case Bg4BppRenderLayer bg:
-                    SnesBgTilemapRenderer.Composite4BppViewport(output, memory.Vram, memory.Cgram,
-                        bg.TilemapWord, bg.CharacterWord, bg.Scroll,
-                        SnesPpuLayout.ScreenSize,
-                        bg.MapSize, priority: bg.Priority);
+                    SnesBgTilemapRenderer.Composite4BppViewport(output, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = bg.TilemapWord, CharacterBaseWord = bg.CharacterWord }, new BgViewport { Scroll = bg.Scroll, Size = SnesPpuLayout.ScreenSize, TilemapSize = bg.MapSize }, priority: bg.Priority);
                     break;
                 case Bg2BppRenderLayer bg:
                     Rgba32[] rows = scratch.Colors(256 * bg.RowCount * 8);
-                    SnesBgTilemapRenderer.Render2Bpp(rows,
-                        memory.Vram, memory.Cgram, bg.TilemapWord, bg.CharacterWord,
-                        rowCount: bg.RowCount, transparentColorZero: true, priority: bg.Priority);
+                    SnesBgTilemapRenderer.Render2Bpp(rows, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = bg.TilemapWord, CharacterBaseWord = bg.CharacterWord }, rowCount: bg.RowCount, transparentColorZero: true, priority: bg.Priority);
                     SnesLayerCompositor.Composite(output, rows);
                     break;
                 default:
@@ -227,13 +212,9 @@ public static class SoftwareLayeredSnapshotRenderer
         bool perLine = !layer.Scrolls.IsEmpty;
         Rgba32[] source = scratch.Colors(256 * (perLine ? 256 : 224));
         if (layer.FourBpp)
-            SnesBgTilemapRenderer.Composite4BppViewport(source, memory.Vram, memory.Cgram,
-                layer.TilemapWord, layer.CharacterWord, new Position16<BgPlanePixels>(0, perLine ? (ushort)0 : layer.VerticalScroll),
-                new Extent16<ScreenPixels>(256, checked((ushort)(perLine ? 256 : 224))), new Extent16<TilemapCells>(32, 32), priority: priority);
+            SnesBgTilemapRenderer.Composite4BppViewport(source, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = layer.TilemapWord, CharacterBaseWord = layer.CharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, perLine ? (ushort)0 : layer.VerticalScroll), Size = new Extent16<ScreenPixels>(256, checked((ushort)(perLine ? 256 : 224))), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
         else
-            SnesBgTilemapRenderer.Render2Bpp(source, memory.Vram, memory.Cgram,
-                layer.TilemapWord, layer.CharacterWord, rowCount: perLine ? 32 : 28,
-                transparentColorZero: true, priority: priority);
+            SnesBgTilemapRenderer.Render2Bpp(source, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = layer.TilemapWord, CharacterBaseWord = layer.CharacterWord }, rowCount: perLine ? 32 : 28, transparentColorZero: true, priority: priority);
         if (!perLine) return source;
         var result = scratch.Colors(256 * 224);
         for (int y = 0; y < 224; y++)

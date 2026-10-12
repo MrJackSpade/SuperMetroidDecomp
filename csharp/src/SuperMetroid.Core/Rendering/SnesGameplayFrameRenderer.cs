@@ -378,13 +378,7 @@ public static partial class SnesGameplayFrameRenderer
         SnesCgram cgram,
         ushort characterBaseWord = GameplayVramLayout.HudCharacterWord)
     {
-        SnesBgTilemapRenderer.Render2Bpp(
-            output[..(HudHeight * Width)],
-            vram,
-            cgram,
-            tilemapBaseWord: GameplayVramLayout.HudTilemapWord,
-            characterBaseWord,
-            rowCount: 4);
+        SnesBgTilemapRenderer.Render2Bpp(output[..(HudHeight * Width)], vram, cgram, new BgVramAddresses { TilemapBaseWord = GameplayVramLayout.HudTilemapWord, CharacterBaseWord = characterBaseWord }, rowCount: 4);
     }
 
     /// <summary>
@@ -397,30 +391,10 @@ public static partial class SnesGameplayFrameRenderer
     /// interleaved VRAM as Mode-1 4-bpp tiles produces regular one-pixel color stripes—the
     /// conspicuous failure this dedicated path prevents.
     /// </remarks>
-    public static Rgba32[] RenderHudMode7AndObjs(
-        SnesVram vram,
-        SnesCgram cgram,
-        OamBuffer oam,
-        short matrixA,
-        short matrixB,
-        short matrixC,
-        short matrixD,
-        Offset16<Mode7Pixels> center,
-        Offset16<Mode7Pixels> scroll,
-        byte obsel = 0x03,
-        Rgba32[]? outputBuffer = null)
+    public static Rgba32[] RenderHudMode7AndObjs(SnesVram vram, SnesCgram cgram, OamBuffer oam, Mode7RenderRegisters registers, byte obsel = 0x03, Rgba32[]? outputBuffer = null)
     {
         Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
-        SnesMode7Renderer.CompositeViewport(
-            output,
-            vram,
-            cgram,
-            matrixA,
-            matrixB,
-            matrixC,
-            matrixD,
-            center,
-            scroll);
+        SnesMode7Renderer.CompositeViewport(output, vram, cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
 
         // IRQ command four gives the upper 32 physical scanlines exclusively to BG3.
         // Mode 7 is projected at physical screen coordinates across the destination first;
@@ -436,20 +410,7 @@ public static partial class SnesGameplayFrameRenderer
     /// generic Mode-7 elevator path does not have: BG3 owns the HUD, Mode 7 owns the arena,
     /// and the final sixteen scanlines switch back to Mode 1 with only BG2 and OBJ enabled.
     /// </summary>
-    public static Rgba32[] RenderHudCeresRidleyGetawayAndObjs(
-        SnesVram vram,
-        SnesCgram cgram,
-        OamBuffer oam,
-        short matrixA,
-        short matrixB,
-        short matrixC,
-        short matrixD,
-        Offset16<Mode7Pixels> center,
-        Offset16<Mode7Pixels> scroll,
-        Position16<Bg2Pixels> bg2Scroll,
-        ushort bg2CharacterBaseWord,
-        byte obsel = 0x03,
-        Rgba32[]? outputBuffer = null)
+    public static Rgba32[] RenderHudCeresRidleyGetawayAndObjs(SnesVram vram, SnesCgram cgram, OamBuffer oam, Mode7RenderRegisters registers, CeresGetawayFloor floor, byte obsel = 0x03, Rgba32[]? outputBuffer = null)
     {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -460,16 +421,7 @@ public static partial class SnesGameplayFrameRenderer
         Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
         using var scratch = new RenderScratch();
         Rgba32[] mode7 = scratch.Colors(Width * Height);
-        SnesMode7Renderer.CompositeViewport(
-            mode7,
-            vram,
-            cgram,
-            matrixA,
-            matrixB,
-            matrixC,
-            matrixD,
-            center,
-            scroll);
+        SnesMode7Renderer.CompositeViewport(mode7, vram, cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
         ResolvedObjFrame objects = scratch.ResolveObjects(oam, vram, cgram, obsel);
 
         // IndirectHDMATable_CeresRidleyMode_BGTileSize and its matching TM table keep
@@ -498,7 +450,7 @@ public static partial class SnesGameplayFrameRenderer
         ExpandCgram(cgram, palette);
         for (int screenY = floorFirstScanline; screenY < Height; screenY++)
         {
-            int scrolledY = unchecked(bg2Scroll.Y + screenY) & 0xff;
+            int scrolledY = unchecked(floor.Bg2Scroll.Y + screenY) & 0xff;
             int tileY = scrolledY >> 3;
             int pixelY = scrolledY & 7;
             int previousTileX = -1;
@@ -509,7 +461,7 @@ public static partial class SnesGameplayFrameRenderer
                 int destination = screenY * Width + screenX;
                 Rgba32 winner = output[destination];
                 int winnerRank = 0;
-                int scrolledX = unchecked(bg2Scroll.X + screenX) & 0x01ff;
+                int scrolledX = unchecked(floor.Bg2Scroll.X + screenX) & 0x01ff;
                 int tileX = scrolledX >> 3;
                 if (tileX != previousTileX)
                 {
@@ -527,7 +479,7 @@ public static partial class SnesGameplayFrameRenderer
                         vramBytes,
                         palette,
                         bg2Entry,
-                        bg2CharacterBaseWord,
+                        floor.Bg2CharacterBaseWord,
                         new Position16<CharacterPixels>((ushort)(scrolledX & 7), (ushort)pixelY),
                         out Rgba32 bg2Color,
                         out bool bg2High))

@@ -27,7 +27,7 @@ internal static partial class Program
             for (int phase = 0; phase < holds.Length; phase++)
             for (int tick = 0; tick < holds[phase]; tick++)
             {
-                fx.Step(bus, colors, new ReferencePaletteFxColorSource(bus), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                fx.Step(bus, colors, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 int rampIndex = phase < 8 ? phase : 15 - phase;
                 AssertEqual(ramp[rampIndex], colors.Colors[stream.Destination / 2],
                     $"Norfair glow {stream.Definition:X4} cycle {cycle} phase {phase} tick {tick}");

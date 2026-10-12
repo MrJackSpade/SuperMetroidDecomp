@@ -144,7 +144,7 @@ public sealed class SamusCeresRidleyEjectionState
             samus.Kinematics.YSpeed = unchecked((ushort)(accelerated >> 16));
             samus.Kinematics.YSubspeed = unchecked((ushort)accelerated);
         }
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new VerticalBlockMove { Displacement = (int)samus.Kinematics.VerticalSpeedFixed, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new VerticalBlockMove { Displacement = unchecked((int)samus.Kinematics.VerticalSpeedFixed), ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
 
         return new CeresRidleyEjectionResult();
     }

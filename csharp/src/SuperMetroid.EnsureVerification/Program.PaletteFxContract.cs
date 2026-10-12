@@ -21,10 +21,10 @@ internal static partial class Program
         VerifyPaletteCall("explicit provider", "fx.Step(bus, cgram, colors, frame);");
         VerifyPaletteCall("old positional call", "fx.Step(bus, cgram, frame);", "CS7036");
         VerifyPaletteCall("omitted named provider",
-            "fx.Step(bus, cgram, frame: frame);",
+            "fx.Step(bus, cgram, conditions: frame);",
             "CS7036");
         VerifyPaletteCall("explicit named provider",
-            "fx.Step(bus, cgram, colors: colors, frame: frame);");
+            "fx.Step(bus, cgram, colors: colors, conditions: frame);");
         VerifyPaletteCall("wrong provider type", "fx.Step(bus, cgram, new object(), frame);", "CS1503");
         VerifyPaletteCall("null literal", "fx.Step(bus, cgram, null, frame);", "CS8625");
         VerifyPaletteCall("nullable provider", "fx.Step(bus, cgram, optionalColors, frame);", "CS8604");
@@ -48,7 +48,7 @@ internal static partial class Program
         fx.SpawnDefinition(bus, GunshipEngineDefinitionPointer, 0);
         try
         {
-            fx.Step(bus, cgram, null, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            fx.Step(bus, cgram, null, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             throw new InvalidOperationException("Expected the explicit null dependency to fail.");
         }
         catch (ArgumentNullException exception) when (exception.ParamName == "colors")
@@ -58,7 +58,7 @@ internal static partial class Program
         int colorIndex = CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineColorIndex / sizeof(ushort);
         if (cgram.Colors[colorIndex] != Bgr555.Black || fx.ActiveCount != 1)
             throw new InvalidOperationException("Rejected null colors mutated CGRAM or native slots.");
-        fx.Step(bus, cgram, new ContractPaletteColors(), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        fx.Step(bus, cgram, new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         if (cgram.Colors[colorIndex] != new Bgr555(31, 0, 0))
             throw new InvalidOperationException("Rejected null colors advanced the native palette instruction timer.");
         Console.WriteLine("#1152: eight compiler dependency contracts and pre-mutation null guard pass; no gameplay search.");
@@ -73,7 +73,7 @@ internal static partial class Program
             class PaletteCaller
             {
                 void Run(RoomPaletteFxSystem fx, ISnesAddressSpace bus, SnesCgram cgram,
-                    IPaletteFxColorSource colors, IPaletteFxColorSource? optionalColors, PaletteFxFrame frame)
+                    IPaletteFxColorSource colors, IPaletteFxColorSource? optionalColors, PaletteFxConditions frame)
                 {
                     {{statement}}
                 }

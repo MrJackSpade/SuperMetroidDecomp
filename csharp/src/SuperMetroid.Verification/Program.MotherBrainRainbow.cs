@@ -191,7 +191,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     while (attack.Phase is MotherBrainRainbowBeamAttackPhase.StartDrainingSamus or
            MotherBrainRainbowBeamAttackPhase.DrainingSamus)
     {
-        MotherBrainRainbowBeamAttackStepResult drain = attack.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = (ushort)drainCalls, MainEnemyExecutionCounter = (ushort)drainCalls });
+        MotherBrainRainbowBeamAttackStepResult drain = attack.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = unchecked((ushort)drainCalls), MainEnemyExecutionCounter = unchecked((ushort)drainCalls) });
         drainCalls++;
         if (drain.SoundQueued)
             queuedBeamSounds++;

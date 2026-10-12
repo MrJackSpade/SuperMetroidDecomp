@@ -24,18 +24,7 @@ public static class SnesMode7Renderer
     /// backdrop and avoid a second full-frame raster plus copy.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void CompositeViewport(
-        Span<Rgba32> output,
-        SnesVram vram,
-        SnesCgram cgram,
-        short matrixA,
-        short matrixB,
-        short matrixC,
-        short matrixD,
-        Offset16<Mode7Pixels> center,
-        Offset16<Mode7Pixels> scroll,
-        Extent16<ScreenPixels>? size = null,
-        bool fillOutsideWithCharacterZero = false, bool wrapOutsideMap = false)
+    public static void CompositeViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Mode7RenderRegisters registers, Extent16<ScreenPixels>? size = null)
     {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -61,10 +50,10 @@ public static class SnesMode7Renderer
             palette[color] = cgramColors[color].ToRgba32();
 
         // The PPU reads the low thirteen bits of each register as a signed value.
-        int signedCenterX = SignExtend13(center.X);
-        int signedCenterY = SignExtend13(center.Y);
-        int clippedH = SignExtend13(scroll.X) - signedCenterX;
-        int clippedV = SignExtend13(scroll.Y) - signedCenterY;
+        int signedCenterX = SignExtend13(registers.Center.X);
+        int signedCenterY = SignExtend13(registers.Center.Y);
+        int clippedH = SignExtend13(registers.Scroll.X) - signedCenterX;
+        int clippedV = SignExtend13(registers.Scroll.Y) - signedCenterY;
         clippedH = (clippedH & 0x2000) != 0 ? clippedH | ~1023 : clippedH & 1023;
         clippedV = (clippedV & 0x2000) != 0 ? clippedV | ~1023 : clippedV & 1023;
         for (int screenY = 0; screenY < height; screenY++)
@@ -72,17 +61,17 @@ public static class SnesMode7Renderer
             // Mode 7 uses physical scanline one for the first displayed row. Truncate
             // each start-product's low six bits before adding, as the PPU does; one
             // algebraically combined matrix expression loses these hardware roundings.
-            int startX = ((matrixA * clippedH) & ~63) + ((matrixB * (screenY + 1)) & ~63)
-                + ((matrixB * clippedV) & ~63) + (signedCenterX << 8);
-            int startY = ((matrixC * clippedH) & ~63) + ((matrixD * (screenY + 1)) & ~63)
-                + ((matrixD * clippedV) & ~63) + (signedCenterY << 8);
+            int startX = ((registers.MatrixA * clippedH) & ~63) + ((registers.MatrixB * (screenY + 1)) & ~63)
+                + ((registers.MatrixB * clippedV) & ~63) + (signedCenterX << 8);
+            int startY = ((registers.MatrixC * clippedH) & ~63) + ((registers.MatrixD * (screenY + 1)) & ~63)
+                + ((registers.MatrixD * clippedV) & ~63) + (signedCenterY << 8);
             for (int screenX = 0; screenX < width; screenX++)
             {
-                int sourceX = (startX + matrixA * screenX) >> 8;
-                int sourceY = (startY + matrixC * screenX) >> 8;
+                int sourceX = (startX + registers.MatrixA * screenX) >> 8;
+                int sourceY = (startY + registers.MatrixC * screenX) >> 8;
 
                 bool outside = (uint)sourceX >= 1024 || (uint)sourceY >= 1024;
-                if (outside && !wrapOutsideMap && !fillOutsideWithCharacterZero)
+                if (outside && !registers.WrapOutsideMap && !registers.FillOutsideWithCharacterZero)
                     continue;
 
                 // With M7SEL bit seven clear, even outside samples use the map's
@@ -92,7 +81,7 @@ public static class SnesMode7Renderer
                 int wrappedY = sourceY & Mode7CoordinateMask;
                 int pixelX = wrappedX & 7;
                 int pixelY = wrappedY & 7;
-                int character = outside && !wrapOutsideMap
+                int character = outside && !registers.WrapOutsideMap
                     ? 0
                     : vramBytes[((wrappedY >> 3) * MapWidthInTiles + (wrappedX >> 3)) * 2];
 

@@ -1245,8 +1245,8 @@ public sealed partial class SuperMetroidRuntime
             Samus?.Xray.ArePaletteFxSuspended != true)
         {
             RoomPaletteFx.Step(_addressSpace, Cgram, MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
-                    "Gameplay palette FX requires installed map presentation colors."), new PaletteFxFrame { SamusY = Samus?.Position.Y.Whole ?? 0, EquippedItems = Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Enemies.Slots.Count == 0 || Enemies.Slots[0].Health == 0, AreaMiniBossDefeated = ActiveRoom is { } paletteRoom &&
-                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Samus, NmiFrameCounter = NmiFrameCounter, PowerBomb = BombProjectiles.PowerBombExplosion });
+                    "Gameplay palette FX requires installed map presentation colors."), new PaletteFxConditions { SamusY = Samus?.Position.Y.Whole ?? 0, EquippedItems = Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Enemies.Slots.Count == 0 || Enemies.Slots[0].Health == 0, AreaMiniBossDefeated = ActiveRoom is { } paletteRoom &&
+                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Samus, NmiFrameCounter = NmiFrameCounter }, BombProjectiles.PowerBombExplosion);
         }
         // Hyper Beam's palette object lives in the same native pool and handler.
         LastHyperBeamPaletteFxStep = RoomPaletteFx.HandlerEnabled

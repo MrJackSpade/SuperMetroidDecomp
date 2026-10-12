@@ -13,24 +13,14 @@ public static class SnesBgTilemapRenderer
     /// untouched, allowing a PPU compositor to build its priority ladder without allocating
     /// and copying a temporary full-plane RGBA array for every BG insertion.
     /// </summary>
-    public static void Composite4BppViewport(
-        Span<Rgba32> output,
-        SnesVram vram,
-        SnesCgram cgram,
-        ushort tilemapBaseWord,
-        ushort characterBaseWord,
-        Position16<BgPlanePixels> scroll,
-        Extent16<ScreenPixels> size,
-        Extent16<TilemapCells>? tilemapSize = null,
-        IReadOnlyList<ushort>? horizontalScrollByLine = null,
-        bool? priority = null)
+    public static void Composite4BppViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, BgVramAddresses addresses, BgViewport viewport, bool? priority = null)
     {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
-        int width = size.X;
-        int height = size.Y;
+        int width = viewport.Size.X;
+        int height = viewport.Size.Y;
         if (width == 0 || height == 0)
-            throw new ArgumentOutOfRangeException(nameof(size));
+            throw new ArgumentOutOfRangeException(nameof(viewport.Size));
         if (output.Length != width * height)
         {
             throw new ArgumentException(
@@ -38,15 +28,15 @@ public static class SnesBgTilemapRenderer
                 nameof(output));
         }
         // Gameplay-style BGSC defaults to two horizontal 32x32 screens.
-        Extent16<TilemapCells> tilemap = tilemapSize ?? new Extent16<TilemapCells>(64, 32);
+        Extent16<TilemapCells> tilemap = viewport.TilemapSize ?? new Extent16<TilemapCells>(64, 32);
         int tilemapWidthInTiles = tilemap.X;
         int tilemapHeightInTiles = tilemap.Y;
         if (tilemapWidthInTiles is not (32 or 64))
-            throw new ArgumentOutOfRangeException(nameof(tilemapSize));
+            throw new ArgumentOutOfRangeException(nameof(viewport.TilemapSize));
         if (tilemapHeightInTiles is not (32 or 64))
-            throw new ArgumentOutOfRangeException(nameof(tilemapSize));
-        if (horizontalScrollByLine is not null && horizontalScrollByLine.Count != height)
-            throw new ArgumentException("Per-line scroll list must contain exactly one word per output line.", nameof(horizontalScrollByLine));
+            throw new ArgumentOutOfRangeException(nameof(viewport.TilemapSize));
+        if (viewport.HorizontalScrollByLine is not null && viewport.HorizontalScrollByLine.Count != height)
+            throw new ArgumentException("Per-line scroll list must contain exactly one word per output line.", nameof(viewport.HorizontalScrollByLine));
 
         // A tile row shares its map entry, four bitplanes and palette. Decode those
         // once for the visible run, including partial tiles at either viewport edge.
@@ -59,12 +49,12 @@ public static class SnesBgTilemapRenderer
             // screen blocks. Masking by the declared pixel height reproduces PPU wrapping
             // while retaining bit eight for a vertically paired map such as BG2SC=$4A.
             int yMask = tilemapHeightInTiles * 8 - 1;
-            int scrolledY = unchecked(scroll.Y + screenY) & yMask;
+            int scrolledY = unchecked(viewport.Scroll.Y + screenY) & yMask;
             int tileY = scrolledY >> 3;
             int pixelY = scrolledY & 7;
-            ushort lineHorizontalScroll = horizontalScrollByLine is null
-                ? scroll.X
-                : horizontalScrollByLine[screenY];
+            ushort lineHorizontalScroll = viewport.HorizontalScrollByLine is null
+                ? viewport.Scroll.X
+                : viewport.HorizontalScrollByLine[screenY];
 
             for (int screenX = 0; screenX < width;)
             {
@@ -81,10 +71,10 @@ public static class SnesBgTilemapRenderer
                 int screensPerRow = tilemapWidthInTiles >> 5;
                 int screenWordOffset = (screenRow * screensPerRow + screenColumn) * 0x0400;
                 int mapWord = (
-                    tilemapBaseWord +
+                    addresses.TilemapBaseWord +
                     screenWordOffset +
                     (tileY & 31) * 32 +
-                    (tileX & 31)) & 0x7fff;
+                    (tileX & 31)) & (SnesPpuLayout.VramWordCount - 1);
                 SnesBgTilemapWord entry = vram.ReadWord(mapWord);
 
                 // A null filter decodes the complete layer for legacy single-layer users.
@@ -98,7 +88,7 @@ public static class SnesBgTilemapRenderer
                 int character = entry.CharacterIndex;
                 int palette = entry.PaletteIndex;
                 int sourceY = entry.FlipVertically ? 7 - pixelY : pixelY;
-                int characterByteAddress = ((characterBaseWord + character * 16) & 0x7fff) * 2;
+                int characterByteAddress = ((addresses.CharacterBaseWord + character * 16) & (SnesPpuLayout.VramWordCount - 1)) * 2;
                 int rowAddress = characterByteAddress + sourceY * 2;
                 byte plane0 = vram.ReadByte(rowAddress), plane1 = vram.ReadByte(rowAddress + 1);
                 byte plane2 = vram.ReadByte(rowAddress + 16), plane3 = vram.ReadByte(rowAddress + 17);
@@ -122,15 +112,7 @@ public static class SnesBgTilemapRenderer
     /// Renders BG3 directly into caller-owned storage. Gameplay uses the first 32 scanlines
     /// of its final frame, avoiding a temporary 32 KiB HUD raster and subsequent copy.
     /// </summary>
-    public static void Render2Bpp(
-        Span<Rgba32> output,
-        SnesVram vram,
-        SnesCgram cgram,
-        ushort tilemapBaseWord,
-        ushort characterBaseWord,
-        int rowCount,
-        bool transparentColorZero = false,
-        bool? priority = null)
+    public static void Render2Bpp(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, BgVramAddresses addresses, int rowCount, bool transparentColorZero = false, bool? priority = null)
     {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -150,7 +132,7 @@ public static class SnesBgTilemapRenderer
         {
             for (int tileX = 0; tileX < 32; tileX++)
             {
-                int mapByteAddress = ((tilemapBaseWord + tileY * 32 + tileX) & 0x7fff) * 2;
+                int mapByteAddress = ((addresses.TilemapBaseWord + tileY * 32 + tileX) & (SnesPpuLayout.VramWordCount - 1)) * 2;
                 SnesBgTilemapWord entry = (ushort)(
                     vram.ReadByte(mapByteAddress) |
                     (vram.ReadByte(mapByteAddress + 1) << 8));
@@ -161,7 +143,7 @@ public static class SnesBgTilemapRenderer
 
                 // BG3 is 2-bpp in mode 1. Each 8x8 character consumes 16 bytes / 8 VRAM
                 // words. Address wrapping mirrors the physical 15-bit VMADD bus.
-                int characterByteAddress = ((characterBaseWord + character * 8) & 0x7fff) * 2;
+                int characterByteAddress = ((addresses.CharacterBaseWord + character * 8) & (SnesPpuLayout.VramWordCount - 1)) * 2;
                 for (int y = 0; y < 8; y++)
                 {
                     int sourceY = entry.FlipVertically ? 7 - y : y;

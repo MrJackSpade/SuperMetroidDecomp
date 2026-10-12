@@ -93,9 +93,7 @@ public sealed partial class FileSelectRoomMapGraphics
         Rgba32[] pixels = frameOnlyBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
         Array.Fill(pixels, new CgramPalettes(Cgram).BackdropRgba);
         // Composite directly: transparent cells leave the backdrop, as compositing a plane would.
-        SnesBgTilemapRenderer.Composite4BppViewport(pixels,
-            Vram, Cgram, MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters,
-            new Position16<BgPlanePixels>(0, 24), new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), new Extent16<TilemapCells>(32, 32));
+        SnesBgTilemapRenderer.Composite4BppViewport(pixels, Vram, Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg2TilemapWord, CharacterBaseWord = FileSelectMapRomData.RoomCharacters }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 24), Size = new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), TilemapSize = new Extent16<TilemapCells>(32, 32) });
         return pixels;
     }
 
@@ -148,12 +146,8 @@ public sealed partial class FileSelectRoomMapGraphics
             // Mode 1 orders BG2 before BG1 within each background priority tier.
             bool priority = tier == 1;
             // Composited directly into the frame; transparent pixels leave it untouched.
-            SnesBgTilemapRenderer.Composite4BppViewport(pixels,
-                Vram, Cgram, MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters,
-                new Position16<BgPlanePixels>(0, 24), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32), priority: priority);
-            SnesBgTilemapRenderer.Composite4BppViewport(pixels,
-                Vram, Cgram, MenuVramLayout.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
-                scroll.AsBgPlaneScroll(), SnesPpuLayout.ScreenSize, priority: priority);
+            SnesBgTilemapRenderer.Composite4BppViewport(pixels, Vram, Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg2TilemapWord, CharacterBaseWord = FileSelectMapRomData.RoomCharacters }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 24), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
+            SnesBgTilemapRenderer.Composite4BppViewport(pixels, Vram, Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = FileSelectMapRomData.RoomCharacters }, new BgViewport { Scroll = scroll.AsBgPlaneScroll(), Size = SnesPpuLayout.ScreenSize }, priority: priority);
         }
         return pixels;
     }

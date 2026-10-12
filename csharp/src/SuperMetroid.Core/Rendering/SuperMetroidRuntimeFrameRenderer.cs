@@ -42,22 +42,7 @@ public static class SuperMetroidRuntimeFrameRenderer
             // Ceres room main $A6:AAAF temporarily replaces ordinary mode-nine BG1/BG2
             // below the HUD with the rotating Ridley/Baby Mode-7 map. OAM stays live, so
             // Samus and the timer retain the usual gameplay compositor and priority rules.
-            frame = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(
-                runtime.Vram,
-                runtime.Cgram,
-                runtime.DisplayedOam,
-                matrixA: unchecked((short)getaway.Mode7MatrixA),
-                matrixB: unchecked((short)getaway.Mode7MatrixB),
-                matrixC: unchecked((short)getaway.Mode7MatrixC),
-                matrixD: unchecked((short)getaway.Mode7MatrixD),
-                center: getaway.Mode7Center.AsSignedRegister(),
-                scroll: new Offset16<Mode7Pixels>(unchecked((short)(getaway.Mode7Offset.X + shake.Bg1.X)), unchecked((short)(getaway.Mode7Offset.Y + shake.Bg1.Y))),
-                bg2Scroll: bg2Scroll,
-                // Setup ASM $8F:C97B writes BG12NBA=$66; the floor slice returns to
-                // Mode 1 and therefore consumes the same $6000 character base as BG2 did
-                // before the getaway HDMA tables changed BGMODE.
-                bg2CharacterBaseWord: 0x6000,
-                outputBuffer: runtime.GameplayFrameBuffer);
+            frame = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(runtime.Vram, runtime.Cgram, runtime.DisplayedOam, new Mode7RenderRegisters { MatrixA = unchecked((short)getaway.Mode7MatrixA), MatrixB = unchecked((short)getaway.Mode7MatrixB), MatrixC = unchecked((short)getaway.Mode7MatrixC), MatrixD = unchecked((short)getaway.Mode7MatrixD), Center = getaway.Mode7Center.AsSignedRegister(), Scroll = new Offset16<Mode7Pixels>(unchecked((short)(getaway.Mode7Offset.X + shake.Bg1.X)), unchecked((short)(getaway.Mode7Offset.Y + shake.Bg1.Y))) }, new CeresGetawayFloor { Bg2Scroll = bg2Scroll, Bg2CharacterBaseWord = 0x6000 }, outputBuffer: runtime.GameplayFrameBuffer);
         }
         else if (runtime.ActiveDoor.UsesCeresElevatorMode7)
         {
@@ -70,22 +55,7 @@ public static class SuperMetroidRuntimeFrameRenderer
             SamusMode7Transform mode7 = runtime.DisplayedSamusMode7Transform
                 ?? throw new InvalidOperationException(
                     "The Ceres elevator shaft has no NMI-published Mode 7 matrix.");
-            frame = SnesGameplayFrameRenderer.RenderHudMode7AndObjs(
-                runtime.Vram,
-                runtime.Cgram,
-                runtime.DisplayedOam,
-                matrixA: unchecked((short)mode7.MatrixA),
-                matrixB: unchecked((short)mode7.MatrixB),
-                matrixC: unchecked((short)mode7.MatrixC),
-                matrixD: unchecked((short)mode7.MatrixA),
-                center: mode7.Center.AsMode7Register(),
-                // Mode 7 reuses BG1HOFS/BG1VOFS as M7HOFS/M7VOFS. MainScrollingRoutine
-                // continues publishing those live camera words even though its ordinary
-                // tilemap row/column producers return early while `$0783` is nonzero.
-                // Leaving these at zero pins the shaft art to the window while Samus,
-                // enemies, and projectiles correctly move relative to the camera.
-                scroll: new Offset16<Mode7Pixels>(unchecked((short)bg1Scroll.X), unchecked((short)bg1Scroll.Y)),
-                outputBuffer: runtime.GameplayFrameBuffer);
+            frame = SnesGameplayFrameRenderer.RenderHudMode7AndObjs(runtime.Vram, runtime.Cgram, runtime.DisplayedOam, new Mode7RenderRegisters { MatrixA = unchecked((short)mode7.MatrixA), MatrixB = unchecked((short)mode7.MatrixB), MatrixC = unchecked((short)mode7.MatrixC), MatrixD = unchecked((short)mode7.MatrixA), Center = mode7.Center.AsMode7Register(), Scroll = new Offset16<Mode7Pixels>(unchecked((short)bg1Scroll.X), unchecked((short)bg1Scroll.Y)) }, outputBuffer: runtime.GameplayFrameBuffer);
         }
         else
         {

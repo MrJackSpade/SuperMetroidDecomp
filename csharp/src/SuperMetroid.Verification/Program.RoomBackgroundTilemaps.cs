@@ -45,8 +45,7 @@ internal static partial class Program
         var nativeVram = new SnesVram();
         var selectedVram = new SnesVram();
         SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeVram, ceresList, activeDoorPointer: 0);
-        LibraryBackgroundLoader.Execute(NewBackgroundTilemapReadGuard(bus, ceresSource),
-            selectedVram, ceresList, activeDoorPointer: 0, tilemapArt: catalog);
+        LibraryBackgroundLoader.Execute(NewBackgroundTilemapReadGuard(bus, ceresSource), selectedVram, ceresList, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = catalog });
         AssertTrue(nativeVram.ImageEquals(selectedVram),
             "Ceres library BG executes installed tilemap with exact VRAM parity and no source reread");
 
@@ -64,9 +63,7 @@ internal static partial class Program
             "editing one background tile reference changes only its native BG word");
         compiled[ceresSource] = modified;
         var editedVram = new SnesVram();
-        LibraryBackgroundLoader.Execute(NewBackgroundTilemapReadGuard(bus, ceresSource),
-            editedVram, ceresList, activeDoorPointer: 0,
-            tilemapArt: new RoomBackgroundTilemapCatalog(compiled));
+        LibraryBackgroundLoader.Execute(NewBackgroundTilemapReadGuard(bus, ceresSource), editedVram, ceresList, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = new RoomBackgroundTilemapCatalog(compiled) });
         AssertTrue(nativeVram.ReadWord(0x4800) != editedVram.ReadWord(0x4800) &&
             nativeVram.ReadWord(0x4801) == editedVram.ReadWord(0x4801),
             "edited JSON changes the first displayed Ceres BG tile and not its neighbor");

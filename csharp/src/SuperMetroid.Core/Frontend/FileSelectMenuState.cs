@@ -197,12 +197,8 @@ public sealed partial class FileSelectMenuState
     public Rgba32[] Render()
     {
         Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
-        SnesBgTilemapRenderer.Composite4BppViewport(
-            background,
-            ppu.Vram, ppu.Cgram, MenuVramLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
-        SnesBgTilemapRenderer.Composite4BppViewport(
-            background,
-            ppu.Vram, ppu.Cgram, MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
+        SnesBgTilemapRenderer.Composite4BppViewport(background, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg2TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
+        SnesBgTilemapRenderer.Composite4BppViewport(background, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
 
         PrepareRenderOam();
         Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];

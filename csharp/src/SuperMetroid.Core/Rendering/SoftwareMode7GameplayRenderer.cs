@@ -14,10 +14,7 @@ internal static class SoftwareMode7GameplayRenderer
         Rgba32[] output = SnesLayerCompositor.CreateBackdrop(memory.Cgram, width * height, outputBuffer);
         Mode7RenderRegisters m = layer.Registers;
         Rgba32[] mode7 = scratch.Colors(width * height);
-        SnesMode7Renderer.CompositeViewport(mode7, memory.Vram, memory.Cgram,
-            m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD, m.Center,
-            m.Scroll, fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero,
-            wrapOutsideMap: m.WrapOutsideMap);
+        SnesMode7Renderer.CompositeViewport(mode7, memory.Vram, memory.Cgram, m);
         // Resolve the winning OAM record once, before choosing its layer priority.
         ResolvedObjFrame objects = scratch.ResolveObjects(memory, objectSelection);
         int floorStart = layer.Floor?.FirstScanline ?? height;
@@ -32,12 +29,8 @@ internal static class SoftwareMode7GameplayRenderer
             // its band. Transparent floor pixels expose backdrop, never the Mode-7 map.
             var low = scratch.Colors(output.Length);
             var high = scratch.Colors(output.Length);
-            SnesBgTilemapRenderer.Composite4BppViewport(low, memory.Vram, memory.Cgram,
-                floor.TilemapWord, floor.CharacterWord, floor.Scroll.AsBgPlaneScroll(),
-                SnesPpuLayout.ScreenSize, floor.MapSize, priority: false);
-            SnesBgTilemapRenderer.Composite4BppViewport(high, memory.Vram, memory.Cgram,
-                floor.TilemapWord, floor.CharacterWord, floor.Scroll.AsBgPlaneScroll(),
-                SnesPpuLayout.ScreenSize, floor.MapSize, priority: true);
+            SnesBgTilemapRenderer.Composite4BppViewport(low, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = floor.TilemapWord, CharacterBaseWord = floor.CharacterWord }, new BgViewport { Scroll = floor.Scroll.AsBgPlaneScroll(), Size = SnesPpuLayout.ScreenSize, TilemapSize = floor.MapSize }, priority: false);
+            SnesBgTilemapRenderer.Composite4BppViewport(high, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = floor.TilemapWord, CharacterBaseWord = floor.CharacterWord }, new BgViewport { Scroll = floor.Scroll.AsBgPlaneScroll(), Size = SnesPpuLayout.ScreenSize, TilemapSize = floor.MapSize }, priority: true);
             for (int i = floorStart * width; i < output.Length; i++)
             {
                 byte priority = objects.Priorities[i];
@@ -52,9 +45,7 @@ internal static class SoftwareMode7GameplayRenderer
         {
             // BG3 writes every HUD pixel (opaque color zero), so it renders straight into the frame.
             int hudRows = layer.HudScanlines / SnesPpuLayout.BackgroundTileSizePixels;
-            SnesBgTilemapRenderer.Render2Bpp(output.AsSpan(0, width * hudRows * SnesPpuLayout.BackgroundTileSizePixels),
-                memory.Vram, memory.Cgram, layer.HudTilemapWord, layer.HudCharacterWord,
-                rowCount: hudRows, transparentColorZero: false);
+            SnesBgTilemapRenderer.Render2Bpp(output.AsSpan(0, width * hudRows * SnesPpuLayout.BackgroundTileSizePixels), memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = layer.HudTilemapWord, CharacterBaseWord = layer.HudCharacterWord }, rowCount: hudRows, transparentColorZero: false);
         }
         return output;
     }

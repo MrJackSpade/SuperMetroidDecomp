@@ -26,18 +26,9 @@ internal sealed partial class CeresDestructionCinematicState
         {
             (short matrixA, short matrixB, short matrixC, short matrixD) = CalculateMatrix();
             CompositeObjPriority(pixels, oam, 0);
-            SnesMode7Renderer.CompositeViewport(
-                pixels,
-                vram,
-                cgram,
-                matrixA,
-                matrixB,
-                matrixC,
-                matrixD,
-                center: Phase <= CeresDestructionPhase.FadeOutCeres
+            SnesMode7Renderer.CompositeViewport(pixels, vram, cgram, new Mode7RenderRegisters { MatrixA = matrixA, MatrixB = matrixB, MatrixC = matrixC, MatrixD = matrixD, Center = Phase <= CeresDestructionPhase.FadeOutCeres
                     ? new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.CeresCenterX, CeresDestructionRomData.Rendering.CeresCenterY)
-                    : new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.ZebesCenterX, CeresDestructionRomData.Rendering.ZebesCenterY),
-                scroll: background.Whole.AsSignedRegister());
+                    : new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.ZebesCenterX, CeresDestructionRomData.Rendering.ZebesCenterY), Scroll = background.Whole.AsSignedRegister() });
             CompositeObjPriority(pixels, oam, 1);
             CompositeObjPriority(pixels, oam, 2);
             CompositeObjPriority(pixels, oam, 3);
@@ -48,15 +39,7 @@ internal sealed partial class CeresDestructionCinematicState
             // sampling granularity, but not the underlying cartridge-authored tilemap;
             // rendering the unmosaicked samples keeps this software path deterministic
             // until the compositor gains a general post-BG mosaic stage.
-            SnesBgTilemapRenderer.Composite4BppViewport(
-                pixels,
-                vram,
-                cgram,
-                tilemapBaseWord: CeresDestructionRomData.Rendering.Mode1TilemapWord,
-                characterBaseWord: CeresDestructionRomData.Rendering.Mode1CharacterWord,
-                scroll: new Position16<BgPlanePixels>(0, 0),
-                size: SnesPpuLayout.ScreenSize,
-                tilemapSize: new Extent16<TilemapCells>(32, 32));
+            SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = CeresDestructionRomData.Rendering.Mode1TilemapWord, CharacterBaseWord = CeresDestructionRomData.Rendering.Mode1CharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
         }
 
         if (CaptureStationExplosion() is { } blast)

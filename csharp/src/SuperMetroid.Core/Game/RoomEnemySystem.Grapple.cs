@@ -60,7 +60,7 @@ public sealed partial class RoomEnemySystem
     /// Executes the common grapple AI selected by handler bit zero. Returning true tells the
     /// ordinary scheduler that this call replaced main AI for the current enemy frame.
     /// </summary>
-    private bool RunCommonGrappleAi(RoomEnemySlot enemy, RoomEnemyFrame frame, byte nmiFrameCounter8)
+    private bool RunCommonGrappleAi(RoomEnemySlot enemy, IEnemyAiFrame frame, byte nmiFrameCounter8)
     {
         if ((enemy.AiHandlerBits & 1) == 0)
             return false;
@@ -109,13 +109,7 @@ public sealed partial class RoomEnemySystem
                 // This common wrapper is Powamp's crucial distinction: it invokes the
                 // enemy's normal main function while bit zero remains observable, then
                 // clears that bit after the actor has moved its grapple anchor.
-                RunMainAi(enemy, frame with
-                {
-                    SamusProjectiles = null,
-                    Mode7Transform = null,
-                    SharedProjectiles = null,
-                    VramWriteQueue = null,
-                }, nmiFrameCounter8);
+                RunMainAi(enemy, new GrappleWrappedAiFrame(frame), nmiFrameCounter8);
                 enemy.AiHandlerBits = 0;
                 return true;
 
@@ -132,5 +126,23 @@ public sealed partial class RoomEnemySystem
                     $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} grapple AI " +
                     $"${enemy.Definition.Bank:X2}:{(int)enemy.Definition.GrappleAiPointer:X4} is not translated.");
         }
+    }
+
+    /// <summary>
+    /// The frame the common grapple wrapper hands to main AI: the enemy's own camera, Samus,
+    /// input and room, but no Samus projectiles, Mode 7 transform, shared bombs or VRAM queue,
+    /// exactly as the wrapper's main-AI call has always received them (#633).
+    /// </summary>
+    private sealed class GrappleWrappedAiFrame(IEnemyAiFrame frame) : IEnemyAiFrame
+    {
+        public Position16<RoomPixels> Camera => frame.Camera;
+        public SamusState? Samus => frame.Samus;
+        public ushort NewlyPressedControllerInput => frame.NewlyPressedControllerInput;
+        public ushort ControllerInput => frame.ControllerInput;
+        public RoomLevelData? Level => frame.Level;
+        public SamusProjectileSystem? SamusProjectiles => null;
+        public SamusMode7Transform? Mode7Transform => null;
+        public SamusBombProjectileSystem? SharedProjectiles => null;
+        public VramWriteQueue? VramWriteQueue => null;
     }
 }

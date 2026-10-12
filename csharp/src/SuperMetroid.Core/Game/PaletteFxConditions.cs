@@ -4,8 +4,8 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>What one palette-FX step reads from the frame: Samus, equipment, boss and enemy state, the NMI clock and the power bomb (#633).</summary>
-public sealed record PaletteFxFrame
+/// <summary>The Samus, equipment, enemy and boss conditions palette-FX pre-instructions test each frame (#633).</summary>
+public sealed record PaletteFxConditions
 {
     /// <summary>Samus y.</summary>
     public required ushort SamusY { get; init; }
@@ -24,7 +24,4 @@ public sealed record PaletteFxFrame
 
     /// <summary>Nmi frame counter.</summary>
     public ushort NmiFrameCounter { get; init; } = 0;
-
-    /// <summary>Power bomb.</summary>
-    public SamusPowerBombExplosionState? PowerBomb { get; init; } = null;
 }

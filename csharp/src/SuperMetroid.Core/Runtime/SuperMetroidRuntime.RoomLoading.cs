@@ -868,15 +868,7 @@ public sealed partial class SuperMetroidRuntime
         // $7E:4000 and copies it to both VRAM $4800 and $4C00.
         if (unchecked((short)room.State.BackgroundDataPointer) < 0)
         {
-            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.Execute(
-                _addressSpace,
-                Vram,
-                room.State.BackgroundDataPointer,
-                door.Pointer,
-                RoomBackgroundTilemapArt,
-                RoomSkyTilemapArt,
-                MapPresentation?.HudTiles,
-                RoomCharacterArt);
+            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.Execute(_addressSpace, Vram, room.State.BackgroundDataPointer, door.Pointer, new LibraryBackgroundArtwork { TilemapArt = RoomBackgroundTilemapArt, SkyArt = RoomSkyTilemapArt, HudArt = MapPresentation?.HudTiles, CharacterArt = RoomCharacterArt });
             if (backgroundResult.Bg3CharacterBaseWord is ushort bg3CharacterBaseWord)
                 GameplayHudCharacterBaseWord = bg3CharacterBaseWord;
         }

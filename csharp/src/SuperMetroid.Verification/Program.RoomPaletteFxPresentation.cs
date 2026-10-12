@@ -59,8 +59,8 @@ internal static partial class Program
         int frames = NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.CycleFrames * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            installed.Step(guarded, installedCgram, presentation, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            installed.Step(guarded, installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Norfair palette equals native output on frame {frame}");
             AssertEqual(native.SamusInHeatPaletteIndex, installed.SamusInHeatPaletteIndex,
@@ -881,8 +881,8 @@ internal static partial class Program
                 .Sum(phase => PaletteFxHeatProgramDefinition.Duration(definition.Suit, phase));
             for (int step = 0; step <= steps; step++)
             {
-                native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxFrame { SamusY = 0, EquippedItems = equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(guard, installedCgram, presentation, new PaletteFxFrame { SamusY = 0, EquippedItems = equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(guard, installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed {definition.Suit} heat CGRAM matches native frame {step}");
             }
@@ -933,8 +933,8 @@ internal static partial class Program
             var installedCgram = new SnesCgram();
             for (int frame = 0; frame < framesToRun; frame++)
             {
-                native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxFrame { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(guarded, installedCgram, presentation, new PaletteFxFrame { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(guarded, installedCgram, presentation, new PaletteFxConditions { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed {description} definition ${definition:X4} equals native " +
                     $"output on frame {frame}");
@@ -993,8 +993,8 @@ internal static partial class Program
             const int frames = 160;
             for (int frame = 0; frame < frames; frame++)
             {
-                native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(guarded, installedCgram, presentation, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(guarded, installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed Wrecked Ship definition ${definition:X4} equals native " +
                     $"output on frame {frame}");
@@ -1047,8 +1047,8 @@ internal static partial class Program
         const int frames = 80;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            installed.Step(guarded, installedCgram, presentation, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            installed.Step(guarded, installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Maridia palette equals native output on frame {frame}");
         }
@@ -1151,8 +1151,8 @@ internal static partial class Program
         // visible CGRAM word should change, not phase or sound side effects.
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
-        stockOwner.Step(bus, stockCgram, currentStock, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        editedOwner.Step(bus, editedCgram, editedHeat, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        stockOwner.Step(bus, stockCgram, currentStock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        editedOwner.Step(bus, editedCgram, editedHeat, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!new CgramPalettes(stockCgram).ImageEquals(new CgramPalettes(editedCgram)),
             "editing Samus's Power Suit heat color changes visible CGRAM");
         AssertEqual(stockOwner.SamusInHeatPaletteIndex,

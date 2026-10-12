@@ -58,9 +58,7 @@ internal static partial class Program
                 SuperMetroidAddressSpace selectedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
                 var guarded = NewLibraryBackgroundVisualReadGuard(selectedBus, sources);
                 var selectedVram = new SnesVram();
-                LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.Execute(
-                    guarded, selectedVram, program.Pointer, door,
-                    backgrounds, skies, hud, characters);
+                LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.Execute(guarded, selectedVram, program.Pointer, door, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
                 AssertEqual(native, selected,
                     $"library background $8F:{program.Pointer:X4}, door ${door:X4} command result");
                 for (int index = 0; index < nativeVram.Bytes.Length; index++)
@@ -88,8 +86,7 @@ internal static partial class Program
         var unknownListBus = NewLibraryBackgroundUnknownListReadGuard(inventoryBus);
         try
         {
-            LibraryBackgroundLoader.Execute(unknownListBus, new SnesVram(), 0xf000, 0,
-                backgrounds, skies, hud, characters);
+            LibraryBackgroundLoader.Execute(unknownListBus, new SnesVram(), 0xf000, 0, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
             throw new InvalidOperationException(
                 "Installed library background accepted an uncompiled bank-$8F list.");
         }
@@ -162,9 +159,7 @@ internal static partial class Program
             TestAddressSpace bus = CreateSingleTransferBackgroundCartridge(listPointer, sourceAddress, byteCount);
             try
             {
-                LibraryBackgroundLoader.ExecuteProgram(bus, new SnesVram(),
-                    LibraryBackgroundProgramImporter.Read(bus, listPointer), 0,
-                    backgrounds, skies, hud, characters);
+                LibraryBackgroundLoader.ExecuteProgram(bus, new SnesVram(), LibraryBackgroundProgramImporter.Read(bus, listPointer), 0, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
                 throw new InvalidOperationException(
                     $"Installed art silently accepted ROM transfer ${sourceAddress:X6}.");
             }
@@ -180,9 +175,7 @@ internal static partial class Program
         // artwork lookup: it must still transfer when all art catalogs are bound.
         TestAddressSpace stagedBus = CreateStagedWorkRamBackgroundCartridge(listPointer);
         var stagedVram = new SnesVram();
-        LibraryBackgroundLoader.ExecuteProgram(stagedBus, stagedVram,
-            LibraryBackgroundProgramImporter.Read(stagedBus, listPointer), 0,
-            backgrounds, skies, hud, characters);
+        LibraryBackgroundLoader.ExecuteProgram(stagedBus, stagedVram, LibraryBackgroundProgramImporter.Read(stagedBus, listPointer), 0, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });
         AssertEqual((byte)0x12, stagedVram.ReadByte(0x9000),
             "installed-art binding retains WRAM background transfer low byte");
         AssertEqual((byte)0x34, stagedVram.ReadByte(0x9001),

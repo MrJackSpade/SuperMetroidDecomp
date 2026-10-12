@@ -10,7 +10,7 @@ public sealed record ShinesparkFrame
     /// <summary>Native NMI frame word whose parity selects the vertical block-probe traversal order.</summary>
     public required ushort NmiFrameCounter { get; init; }
 
-    /// <summary>Ordinary projectile count used for crash-echo admission when no live <paramref name="projectiles"/> owner is supplied; excludes bomb slots.</summary>
+    /// <summary>Ordinary projectile count used for crash-echo admission when no live <see cref="Projectiles"/> owner is supplied; excludes bomb slots.</summary>
     public ushort ProjectileCounter { get; init; } = 0;
 
     /// <summary>Host cheat that bypasses the low-energy crash condition, but retains collision termination and drains energy no lower than one.</summary>

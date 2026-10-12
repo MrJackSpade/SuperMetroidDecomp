@@ -15,15 +15,7 @@ namespace SuperMetroid.Core.Rooms;
 public static class LibraryBackgroundLoader
 {
     /// <summary>Runs one high-bank room-state list and returns its executed command count.</summary>
-    public static LibraryBackgroundExecutionResult Execute(
-        ISnesAddressSpace bus,
-        SnesVram vram,
-        ushort listPointer,
-        ushort activeDoorPointer,
-        RoomBackgroundTilemapCatalog? tilemapArt = null,
-        RoomSkyTilemapCatalog? skyArt = null,
-        HudTileAtlas? hudArt = null,
-        RoomCharacterAtlasCatalog? characterArt = null)
+    public static LibraryBackgroundExecutionResult Execute(ISnesAddressSpace bus, SnesVram vram, ushort listPointer, ushort activeDoorPointer, LibraryBackgroundArtwork artwork)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -36,8 +28,7 @@ public static class LibraryBackgroundLoader
 
         if (LibraryBackgroundProgramDefinitions.TryGet(listPointer,
                 out LibraryBackgroundProgram program))
-            return ExecuteProgram(bus, vram, program, activeDoorPointer,
-                tilemapArt, skyArt, hudArt, characterArt);
+            return ExecuteProgram(bus, vram, program, activeDoorPointer, artwork);
 
         // All retail high-bank lists are compiled. Once the host has bound every
         // direct-transfer catalog, a missing list is a definition error rather
@@ -47,11 +38,7 @@ public static class LibraryBackgroundLoader
     }
 
     /// <summary>Executes an already-defined program; constructed fixtures never require a runtime byte decoder.</summary>
-    public static LibraryBackgroundExecutionResult ExecuteProgram(
-        ISnesAddressSpace bus, SnesVram vram, LibraryBackgroundProgram program,
-        ushort activeDoorPointer, RoomBackgroundTilemapCatalog? tilemapArt = null,
-        RoomSkyTilemapCatalog? skyArt = null, HudTileAtlas? hudArt = null,
-        RoomCharacterAtlasCatalog? characterArt = null)
+    public static LibraryBackgroundExecutionResult ExecuteProgram(ISnesAddressSpace bus, SnesVram vram, LibraryBackgroundProgram program, ushort activeDoorPointer, LibraryBackgroundArtwork artwork)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -62,21 +49,17 @@ public static class LibraryBackgroundLoader
             switch (instruction.Command)
             {
                 case LibraryBackgroundCommand.TransferToVram:
-                    TransferToVram(bus, vram, instruction.SourceAddress,
-                        instruction.Destination, instruction.ByteCount,
-                        skyArt, hudArt, characterArt);
+                    TransferToVram(bus, vram, new LibraryBackgroundTransfer { SourceAddress = instruction.SourceAddress, DestinationWord = instruction.Destination, ByteCount = instruction.ByteCount }, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
                     break;
                 case LibraryBackgroundCommand.DecompressToWorkRam:
                     DecompressToWorkRam(bus, instruction.SourceAddress,
-                        instruction.Destination, tilemapArt);
+                        instruction.Destination, artwork.TilemapArt);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
                     FillAndTransfer(bus, vram, RoomAssetRomData.LibraryBackground.ClearFx);
                     break;
                 case LibraryBackgroundCommand.TransferToVramForKraid:
-                    TransferToVram(bus, vram, instruction.SourceAddress,
-                        instruction.Destination, instruction.ByteCount,
-                        skyArt, hudArt, characterArt);
+                    TransferToVram(bus, vram, new LibraryBackgroundTransfer { SourceAddress = instruction.SourceAddress, DestinationWord = instruction.Destination, ByteCount = instruction.ByteCount }, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
                     bg3CharacterBaseWord =
                         RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord;
                     break;
@@ -88,9 +71,7 @@ public static class LibraryBackgroundLoader
                     break;
                 case LibraryBackgroundCommand.TransferForDoor:
                     if (instruction.DoorPointer == activeDoorPointer)
-                        TransferToVram(bus, vram, instruction.SourceAddress,
-                            instruction.Destination, instruction.ByteCount,
-                            skyArt, hudArt, characterArt);
+                        TransferToVram(bus, vram, new LibraryBackgroundTransfer { SourceAddress = instruction.SourceAddress, DestinationWord = instruction.Destination, ByteCount = instruction.ByteCount }, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
                     break;
                 default:
                     throw new InvalidDataException(
@@ -104,42 +85,39 @@ bg3CharacterBaseWord);
     }
 
     [PpuLayoutBoundary("codec: library-background command 2 VRAM DMA (native source and VMADD)")]
-    private static void TransferToVram(ISnesAddressSpace bus, SnesVram vram,
-        int sourceAddress, ushort destinationWord, ushort byteCount,
-        RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt,
-        RoomCharacterAtlasCatalog? characterArt)
+    private static void TransferToVram(ISnesAddressSpace bus, SnesVram vram, LibraryBackgroundTransfer transfer, RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt, RoomCharacterAtlasCatalog? characterArt)
     {
-        if (byteCount == 0)
+        if (transfer.ByteCount == 0)
         {
             throw new InvalidDataException(
-                $"Library-background transfer from ${sourceAddress:X6} uses unsupported DMA size zero.");
+                $"Library-background transfer from ${transfer.SourceAddress:X6} uses unsupported DMA size zero.");
         }
 
         // Command 2 configures the same $2118/$2119 consecutive-word DMA represented by
         // memory or installed-art transfers. Its destination is a VRAM word, not a byte offset.
-        SnesDmaSourceKind sourceKind = SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(sourceAddress));
+        SnesDmaSourceKind sourceKind = SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(transfer.SourceAddress));
         if (sourceKind is SnesDmaSourceKind.WorkRam or SnesDmaSourceKind.SaveRam)
-            vram.ExecuteQueuedMemoryWrite(RequireWorkMemory(bus), sourceAddress, byteCount, destinationWord);
+            vram.ExecuteQueuedMemoryWrite(RequireWorkMemory(bus), transfer.SourceAddress, transfer.ByteCount, transfer.DestinationWord);
         else if (characterArt is not null &&
-            sourceAddress == RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress)
+            transfer.SourceAddress == RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress)
         {
             // A bound installation owns this visual source. An unexpected list shape
             // must fail instead of silently reverting to the ROM's stock pixels.
-            if (byteCount != RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount)
+            if (transfer.ByteCount != RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount)
                 throw new InvalidDataException(
-                    $"Tourian statue-ghost transfer requested {byteCount} bytes, " +
+                    $"Tourian statue-ghost transfer requested {transfer.ByteCount} bytes, " +
                     $"not {RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount}.");
-            vram.ExecuteQueuedAssetWrite(characterArt.Get(sourceAddress).Transfer.Span,
-                destinationWord);
+            vram.ExecuteQueuedAssetWrite(characterArt.Get(transfer.SourceAddress).Transfer.Span,
+                transfer.DestinationWord);
         }
-        else if (hudArt is not null && sourceAddress == HudTileAtlasFormat.SourceAddress &&
-            byteCount == HudTileAtlasFormat.CharacterByteCount)
+        else if (hudArt is not null && transfer.SourceAddress == HudTileAtlasFormat.SourceAddress &&
+            transfer.ByteCount == HudTileAtlasFormat.CharacterByteCount)
             vram.ExecuteQueuedAssetWrite(
-                hudArt.Transfer.Span[..HudTileAtlasFormat.CharacterByteCount], destinationWord);
-        else if (skyArt is not null && skyArt.TryResolve(sourceAddress, byteCount,
+                hudArt.Transfer.Span[..HudTileAtlasFormat.CharacterByteCount], transfer.DestinationWord);
+        else if (skyArt is not null && skyArt.TryResolve(transfer.SourceAddress, transfer.ByteCount,
                 out ReadOnlyMemory<byte> selected))
-            vram.ExecuteQueuedAssetWrite(selected.Span, destinationWord);
-        else if (sourceAddress >= RoomAssetRomData.LibraryBackground.RomSourceAddressFloor &&
+            vram.ExecuteQueuedAssetWrite(selected.Span, transfer.DestinationWord);
+        else if (transfer.SourceAddress >= RoomAssetRomData.LibraryBackground.RomSourceAddressFloor &&
             skyArt is not null && hudArt is not null && characterArt is not null)
         {
             // The installed host binds all three direct-transfer catalogs. A source
@@ -147,11 +125,11 @@ bg3CharacterBaseWord);
             // cartridge's stock presentation data for a missing/invalid resource.
             throw new InvalidDataException(
                 $"Installed library-background art does not own ROM transfer " +
-                $"${sourceAddress:X6} ({byteCount} bytes).");
+                $"${transfer.SourceAddress:X6} ({transfer.ByteCount} bytes).");
         }
         else
             throw new InvalidDataException(
-                $"Library-background transfer ${sourceAddress:X6} has no installed artwork.");
+                $"Library-background transfer ${transfer.SourceAddress:X6} has no installed artwork.");
     }
 
     private static void DecompressToWorkRam(ISnesAddressSpace bus, int sourceAddress,

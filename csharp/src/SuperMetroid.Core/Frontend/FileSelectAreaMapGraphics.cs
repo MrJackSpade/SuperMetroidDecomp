@@ -134,14 +134,11 @@ public sealed partial class FileSelectAreaMapGraphics
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
         Rgba32[] foreground = foregroundScratch ??= new Rgba32[256 * 224];
         foreground.AsSpan().Clear();
-        SnesBgTilemapRenderer.Composite4BppViewport(
-            foreground, ppu.Vram, ppu.Cgram, MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
+        SnesBgTilemapRenderer.Composite4BppViewport(foreground, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
         SnesLayerCompositor.Composite(pixels, foreground);
         Rgba32[] subscreen = subscreenScratch ??= new Rgba32[256 * 28 * 8];
         subscreen.AsSpan().Clear();
-        SnesBgTilemapRenderer.Render2Bpp(subscreen, ppu.Vram, ppu.Cgram,
-            FileSelectMapRomData.AreaBackgroundVram, FileSelectMapRomData.AreaBackgroundCharacters,
-            28, transparentColorZero: true);
+        SnesBgTilemapRenderer.Render2Bpp(subscreen, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = FileSelectMapRomData.AreaBackgroundVram, CharacterBaseWord = FileSelectMapRomData.AreaBackgroundCharacters }, 28, transparentColorZero: true);
         // $81:AAAC changes CGADSUB from $25 to $05: BG1 still adds BG3, but
         // transparent BG1 cells now retain the backdrop instead of adding BG3 to it.
         if (!includeBackdropInColorMath)

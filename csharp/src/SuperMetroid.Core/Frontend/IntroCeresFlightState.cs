@@ -195,16 +195,7 @@ internal sealed class IntroCeresFlightState
 
             // Mode 7 has one BG priority between OBJ priorities zero and one in this PPU mode.
             CompositeObjPriority(pixels, oam, 0);
-            SnesMode7Renderer.CompositeViewport(
-                pixels,
-                vram,
-                cgram,
-                matrixA,
-                matrixB,
-                matrixC,
-                matrixD,
-                center: new Offset16<Mode7Pixels>(CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY),
-                scroll: background.Whole.AsSignedRegister());
+            SnesMode7Renderer.CompositeViewport(pixels, vram, cgram, new Mode7RenderRegisters { MatrixA = matrixA, MatrixB = matrixB, MatrixC = matrixC, MatrixD = matrixD, Center = new Offset16<Mode7Pixels>(CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY), Scroll = background.Whole.AsSignedRegister() });
             CompositeObjPriority(pixels, oam, 1);
             CompositeObjPriority(pixels, oam, 2);
             CompositeObjPriority(pixels, oam, 3);
@@ -431,16 +422,7 @@ internal sealed class IntroCeresFlightState
 
     private void CompositeSpaceColonyPriority(Span<Rgba32> pixels, bool priority)
     {
-        SnesBgTilemapRenderer.Composite4BppViewport(
-            pixels,
-            vram,
-            cgram,
-            CeresFlightRomData.Layers.SpaceColonyTilemapWord,
-            CeresFlightRomData.Layers.SpaceColonyCharacterWord,
-            scroll: new Position16<BgPlanePixels>(0, 0),
-            size: SnesPpuLayout.ScreenSize,
-            tilemapSize: new Extent16<TilemapCells>(32, 32),
-            priority: priority);
+        SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = CeresFlightRomData.Layers.SpaceColonyTilemapWord, CharacterBaseWord = CeresFlightRomData.Layers.SpaceColonyCharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
     }
 
     private void StepRearViewActors()

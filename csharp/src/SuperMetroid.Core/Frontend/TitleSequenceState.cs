@@ -301,7 +301,7 @@ public sealed class TitleSequenceState
         // The title calls the same bank-$8D interpreter as rooms. Its two console
         // programs own their colors and timers; the host must not synthesize a blink.
         consolePaletteFx.Step(bus, cgram, titlePalettePresentation ?? throw new InvalidOperationException(
-                "Title palette FX requires installed title colors."), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                "Title palette FX requires installed title colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         // Native skip reconstruction follows PaletteFxHandler for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (rebuildConsolePaletteFxAfterStep)
@@ -337,16 +337,7 @@ public sealed class TitleSequenceState
         // turned the whole screen into the sampled red texel.
         if (mode7BackgroundEnabled)
         {
-            SnesMode7Renderer.CompositeViewport(
-                background,
-                vram,
-                cgram,
-                matrixScale,
-                TitleSequenceRomData.Scenes.Rotation.TableIndex,
-                0,
-                matrixScale,
-                new Offset16<Mode7Pixels>(128, 128),
-                mode7.Whole.AsSignedRegister());
+            SnesMode7Renderer.CompositeViewport(background, vram, cgram, new Mode7RenderRegisters { MatrixA = matrixScale, MatrixB = TitleSequenceRomData.Scenes.Rotation.TableIndex, MatrixC = 0, MatrixD = matrixScale, Center = new Offset16<Mode7Pixels>(128, 128), Scroll = mode7.Whole.AsSignedRegister() });
         }
 
         PrepareRenderOam();

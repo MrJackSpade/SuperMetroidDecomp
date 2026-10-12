@@ -313,8 +313,8 @@ internal static partial class Program
             definition => definition.CycleFrames) * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            installed.Step(guardedBus, installedCgram, presentation, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            installed.Step(guardedBus, installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             if (!new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)))
             {
                 throw new InvalidDataException(

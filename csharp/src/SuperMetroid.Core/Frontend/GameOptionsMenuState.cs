@@ -236,20 +236,8 @@ public sealed class GameOptionsMenuState
     public Rgba32[] Render()
     {
         Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
-        SnesBgTilemapRenderer.Composite4BppViewport(
-            background,
-            ppu.Vram, ppu.Cgram, MenuVramLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, 0),
-            new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height),
-            new Extent16<TilemapCells>(GameOptionsRomData.MenuTilemapWidth, GameOptionsRomData.MenuTilemapHeight));
-        SnesBgTilemapRenderer.Composite4BppViewport(
-            background,
-            ppu.Vram,
-            ppu.Cgram,
-            MenuVramLayout.Bg1TilemapWord,
-            0,
-            new Position16<BgPlanePixels>(0, unchecked((ushort)bg1VerticalScroll)),
-            new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height),
-            new Extent16<TilemapCells>(GameOptionsRomData.MenuTilemapWidth, GameOptionsRomData.MenuTilemapHeight));
+        SnesBgTilemapRenderer.Composite4BppViewport(background, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg2TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), TilemapSize = new Extent16<TilemapCells>(GameOptionsRomData.MenuTilemapWidth, GameOptionsRomData.MenuTilemapHeight) });
+        SnesBgTilemapRenderer.Composite4BppViewport(background, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, unchecked((ushort)bg1VerticalScroll)), Size = new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), TilemapSize = new Extent16<TilemapCells>(GameOptionsRomData.MenuTilemapWidth, GameOptionsRomData.MenuTilemapHeight) });
 
         PrepareRenderOam();
         Rgba32[] objectLayer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];

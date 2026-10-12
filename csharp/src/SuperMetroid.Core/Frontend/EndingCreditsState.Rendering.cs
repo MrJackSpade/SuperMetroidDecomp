@@ -25,15 +25,7 @@ internal sealed partial class EndingCreditsState
             // Function 126 installs font 3 at word $4000 and the circular credits map at
             // BG1SC word $4800. The half-pixel accumulator itself is held by the credits
             // object; the PPU consumes only its whole vertical-scroll word.
-            SnesBgTilemapRenderer.Composite4BppViewport(
-                pixels,
-                vram,
-                cgram,
-                tilemapBaseWord: EndingCreditsRomData.Rendering.CreditsTilemapWord,
-                characterBaseWord: EndingCreditsRomData.Rendering.CreditsCharacterWord,
-                scroll: new Position16<BgPlanePixels>(0, credits!.VerticalScroll),
-                size: SnesPpuLayout.ScreenSize,
-                tilemapSize: new Extent16<TilemapCells>(32, 32));
+            SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = EndingCreditsRomData.Rendering.CreditsTilemapWord, CharacterBaseWord = EndingCreditsRomData.Rendering.CreditsCharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, credits!.VerticalScroll), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
         }
         else if (Phase >= EndingCreditsPhase.PostCreditsBlank)
         {
@@ -59,16 +51,7 @@ internal sealed partial class EndingCreditsState
         short sine = ReadSine(mode7Angle.TableIndex);
         short matrixA = Scale(cosine, mode7Zoom);
         short matrixB = Scale(sine, mode7Zoom);
-        SnesMode7Renderer.CompositeViewport(
-            pixels,
-            vram,
-            cgram,
-            matrixA,
-            matrixB,
-            unchecked((short)-matrixB),
-            matrixA,
-            center: CurrentMode7Center,
-            scroll: mode7.Whole.AsSignedRegister(), wrapOutsideMap: AtmosphericMapWraps);
+        SnesMode7Renderer.CompositeViewport(pixels, vram, cgram, new Mode7RenderRegisters { MatrixA = matrixA, MatrixB = matrixB, MatrixC = unchecked((short)-matrixB), MatrixD = matrixA, Center = CurrentMode7Center, Scroll = mode7.Whole.AsSignedRegister(), WrapOutsideMap = AtmosphericMapWraps });
     }
 
     private byte CurrentEscapeObjectSelection => Phase < EndingCreditsPhase.FadeInZebesExplosion
@@ -97,15 +80,7 @@ internal sealed partial class EndingCreditsState
 
         // The opening waiting scene uses BG2 ($4C00/$5000). Result text is uploaded to
         // BG1 ($4800/$4000), so its map and font must change together at the handoff.
-        SnesBgTilemapRenderer.Composite4BppViewport(
-            pixels,
-            vram,
-            cgram,
-            tilemapBaseWord: CurrentPostCreditsTilemapWord,
-            characterBaseWord: CurrentPostCreditsCharacterWord,
-            scroll: new Position16<BgPlanePixels>(0, postCreditsVerticalScroll),
-            size: SnesPpuLayout.ScreenSize,
-            tilemapSize: new Extent16<TilemapCells>(32, checked((ushort)postCreditsMapHeight)));
+        SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = CurrentPostCreditsTilemapWord, CharacterBaseWord = CurrentPostCreditsCharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, postCreditsVerticalScroll), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, checked((ushort)postCreditsMapHeight)) });
     }
 
     private void RenderSprites(Span<Rgba32> pixels, byte obsel)

@@ -220,11 +220,7 @@ public sealed class GameOverMenuState
     {
         // `TM=$11` enables BG1 and OBJ only. Game-over does not retain the menu starfield.
         Rgba32[] output = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
-        SnesBgTilemapRenderer.Composite4BppViewport(
-            output,
-            ppu.Vram, ppu.Cgram, MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0),
-            new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height),
-            new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight));
+        SnesBgTilemapRenderer.Composite4BppViewport(output, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), TilemapSize = new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight) });
 
         PrepareRenderOam();
         Rgba32[] objectLayer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];

@@ -367,7 +367,7 @@ internal sealed partial class CeresDestructionCinematicState
                 paletteFx.SpawnDefinition(bus, CeresDestructionRomData.PaletteFx.EngineFlicker, 0);
             }
             paletteFx.Step(bus, cgram, paletteFxColors ?? throw new InvalidOperationException(
-                    "Ceres palette FX requires installed palette colors."), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                    "Ceres palette FX requires installed palette colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             if (paletteFx.SoundRequests.Count != 0 || paletteFx.MusicRequests.Count != 0)
                 throw new InvalidDataException("Ceres engine palette program unexpectedly requested audio.");
         }

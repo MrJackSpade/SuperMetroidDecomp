@@ -26,11 +26,8 @@ internal static partial class Program
             var layer = new Mode7GameplayRenderLayer(m, GameplayVramLayout.HudTilemapWord,
                 GameplayVramLayout.HudCharacterWord, SnesPpuLayout.GameplayHudHeightPixels, floor);
             Rgba32[] expected = floorEnabled
-                ? SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(live.Vram, live.Cgram, live.Oam,
-                    m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD, m.Center, m.Scroll,
-                    new Position16<Bg2Pixels>(scroll, scroll), 0x6000)
-                : SnesGameplayFrameRenderer.RenderHudMode7AndObjs(live.Vram, live.Cgram, live.Oam,
-                    m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD, m.Center, m.Scroll);
+                ? SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(live.Vram, live.Cgram, live.Oam, m, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(scroll, scroll), Bg2CharacterBaseWord = 0x6000 })
+                : SnesGameplayFrameRenderer.RenderHudMode7AndObjs(live.Vram, live.Cgram, live.Oam, m);
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
             var restored = RoundTripRenderPacket(packet);
             AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(restored)),

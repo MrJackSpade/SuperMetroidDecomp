@@ -320,16 +320,7 @@ internal sealed partial class PauseMenuState
         bool priority)
     {
         bool isMapLayer = tilemapBaseWord == PauseMenuLayout.Bg1TilemapWord;
-        SnesBgTilemapRenderer.Composite4BppViewport(
-            output,
-            vram,
-            cgram,
-            tilemapBaseWord,
-            characterBaseWord: 0,
-            scroll: new Position16<BgPlanePixels>(isMapLayer && ScreenMode == 0 ? mapScrollPosition.X : (ushort)0, unchecked((ushort)((isMapLayer && ScreenMode == 0 ? mapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline))),
-            size: SnesPpuLayout.ScreenSize,
-            tilemapSize: new Extent16<TilemapCells>(checked((ushort)tilemapWidthInTiles), 32),
-            priority: priority);
+        SnesBgTilemapRenderer.Composite4BppViewport(output, vram, cgram, new BgVramAddresses { TilemapBaseWord = tilemapBaseWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(isMapLayer && ScreenMode == 0 ? mapScrollPosition.X : (ushort)0, unchecked((ushort)((isMapLayer && ScreenMode == 0 ? mapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline))), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(checked((ushort)tilemapWidthInTiles), 32) }, priority: priority);
     }
 
     private void CompositePauseBg3(Span<Rgba32> output, bool priority)
@@ -337,15 +328,7 @@ internal sealed partial class PauseMenuState
         Rgba32[] plane = bg3ScratchPlane ??= new Rgba32[32 * 8 * 32 * 8];
         // The renderer skips tiles of the other priority, so clear the reused plane first.
         plane.AsSpan().Clear();
-        SnesBgTilemapRenderer.Render2Bpp(
-            plane,
-            vram,
-            cgram,
-            tilemapBaseWord: 0x5800,
-            characterBaseWord: 0x4000,
-            rowCount: 32,
-            transparentColorZero: true,
-            priority: priority);
+        SnesBgTilemapRenderer.Render2Bpp(plane, vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x5800, CharacterBaseWord = 0x4000 }, rowCount: 32, transparentColorZero: true, priority: priority);
         SnesLayerCompositor.Composite(output, plane.AsSpan(
             SnesPpuLayout.FirstVisibleBackgroundScanline * SnesPpuLayout.ScreenWidthPixels,
             output.Length));

@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
@@ -77,8 +77,7 @@ internal static partial class Program
         runtime.InitializeStartingCeresRoom();runtime.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         var expectedVram = new SnesVram();
-        LibraryBackgroundLoader.Execute(installation.OpenRuntimeAddressSpace(), expectedVram,
-            0xe48a, 0, installation.LoadRoomBackgroundTilemaps());
+        LibraryBackgroundLoader.Execute(installation.OpenRuntimeAddressSpace(), expectedVram, 0xe48a, 0, new LibraryBackgroundArtwork { TilemapArt = installation.LoadRoomBackgroundTilemaps() });
         runtime.LoadCartridgeRoomForDebug(0xdd58);
         if (ascentMaskOnly) return VerifyMotherBrainAscentCapture(runtime);
         const int bg2ByteAddress = 0x9000;

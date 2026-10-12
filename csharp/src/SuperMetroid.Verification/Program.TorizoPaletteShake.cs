@@ -22,9 +22,9 @@ internal static partial class Program
         var instruction = typeof(RoomEnemySystem).GetMethod("TryProcessBombTorizoInstruction", flags)!;
         void Execute(ushort opcode)
         {
-            object?[] args = [actor, null, null, opcode, (ushort)0xb939, (ushort)0, (byte)0, false];
+            object?[] args = [actor, new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 }, opcode, (ushort)0xb939, false];
             AssertTrue((bool)instruction.Invoke(enemies, args)!, "Torizo instruction handled");
-            AssertEqual((ushort)0xb93b, (ushort)args[4]!, "Torizo operand-free cursor");
+            AssertEqual((ushort)0xb93b, (ushort)args[3]!, "Torizo operand-free cursor");
         }
         typeof(RoomEnemySystem).GetProperty(nameof(RoomEnemySystem.EarthquakeType))!.SetValue(enemies, (ushort)4);
         typeof(RoomEnemySystem).GetProperty(nameof(RoomEnemySystem.EarthquakeTimer))!.SetValue(enemies, (ushort)32);

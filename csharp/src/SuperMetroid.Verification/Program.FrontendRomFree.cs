@@ -837,8 +837,8 @@ internal static partial class Program
             throw new InvalidOperationException("Torizo callback dispatcher was not found.");
         object?[] arguments =
         [
-            torizo, null, null, (ushort)TorizoInstruction.Instruction_Torizo_Return,
-            (ushort)0xf000, (ushort)0, (byte)0, false,
+            torizo, new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 },
+            (ushort)TorizoInstruction.Instruction_Torizo_Return, (ushort)0xf000, false,
         ];
         AssertTrue(callback.Invoke(enemies, arguments) is true,
             "operand-free Torizo return executes without reading $AA:F002");

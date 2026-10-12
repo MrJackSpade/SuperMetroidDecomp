@@ -1597,7 +1597,7 @@ public sealed partial class RoomEnemySystem
         slot.VariableF = (ushort)GunshipFunction.NoOperation;
     }
 
-    private void RunMainAi(RoomEnemySlot slot, RoomEnemyFrame frame, byte nmiFrameCounter8)
+    private void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8)
     {
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
         var routine = (EnemyAiRoutine)address;
@@ -2595,15 +2595,7 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            if (!TryProcessOwnedEnemyInstruction(
-                    slot,
-                    samus,
-                    level,
-                    word,
-                    ref cursor,
-                    camera,
-                    controllerInput,
-                    out bool yieldAfterOwned))
+            if (!TryProcessOwnedEnemyInstruction(slot, new EnemyInstructionContext { Samus = samus, Level = level, Camera = camera, ControllerInput = controllerInput }, word, ref cursor, out bool yieldAfterOwned))
             {
                 throw new InvalidDataException(
                     $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} instruction " +

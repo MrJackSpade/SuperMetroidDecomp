@@ -7,6 +7,17 @@ namespace SuperMetroid.Core.Game;
 /// they do not dispose of artwork, fuse timing, damage or the shared lobe source geometry.</summary>
 internal static class SamusProjectileInstructionDefinitions
 {
+    /// <summary>
+    /// Bit 15 of a projectile or trail program word: set for an instruction pointer, clear for a frame duration.
+    /// </summary>
+    internal const ushort InstructionBit = 0x8000;
+
+    /// <summary>
+    /// Whether a projectile or trail program word is an instruction pointer rather than a frame duration, as the
+    /// interpreters' <c>BPL</c> on the loaded word decides.
+    /// </summary>
+    internal static bool IsInstruction(ushort instructionOrTimer) => (instructionOrTimer & InstructionBit) != 0;
+
     /// <summary>$93:86DB, InstList_SamusProjectile_Power_Up; clockwise compass lists follow.</summary>
     internal const int PowerProgramsStart = 0x9386db;
 

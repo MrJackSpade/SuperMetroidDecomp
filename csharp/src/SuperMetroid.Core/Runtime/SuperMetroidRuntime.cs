@@ -463,8 +463,7 @@ public sealed class SuperMetroidRuntime
                 // type $15. Apply that global side effect before the ordinary shake handler
                 // later in this frame so its first displacement is visible immediately.
                 Enemies.Earthquake.EarthquakeType = roomFxEarthquake.Type;
-                Enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(unchecked((ushort)(
-                    Enemies.Earthquake.EarthquakeTimer.RawValue | roomFxEarthquake.TimerBits)));
+                Enemies.Earthquake.AddTimerBits(roomFxEarthquake.TimerBits);
             }
             if (Player.Samus is not null && RoomLayer3Fx.Type is
                     RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)

@@ -136,12 +136,12 @@ internal sealed class RoomMainRoutines
             return;
 
         // The timer is RoomMainASMVar1, inherited from the shaft's rotation index.
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(_room.RoomMainScratch.Var1);
-        _room.RoomMainScratch.Var1 = timer.Value;
+        NativeWordCounterStep timer = _room.RoomMainScratch.Countdown.Decrement();
+        _room.RoomMainScratch.Countdown = timer.Remaining;
         if (timer.IsNonNegative)
             return;
 
-        _room.RoomMainScratch.Var1 = 8;
+        _room.RoomMainScratch.Countdown = NativeCountdown.Start(8);
         ushort random = _system.RandomNumber;
         _enemies.Projectiles.SpawnCeresFallingDebris(
             CeresFallingDebrisX(random & 0x000f),

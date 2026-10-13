@@ -105,9 +105,7 @@ internal sealed class RidleyTail
         bool allActive = state.TailSegments.All(segment => segment.Active);
         if (allActive)
         {
-            bool targetsIdle =
-                (state.TailWhipTargetClockwiseAngle & 0x8000) != 0 &&
-                (state.TailWhipTargetCounterClockwiseAngle & 0x8000) != 0;
+            bool targetsIdle = state.ClockwiseWhipTargetIdle && state.CounterClockwiseWhipTargetIdle;
             if (state.TailWhipRequest != 0 && targetsIdle)
             {
                 AimCeresRidleyTailWhip(state, samus, unchecked((byte)(state.TailWhipRequest - 1)));
@@ -223,7 +221,7 @@ internal sealed class RidleyTail
 
             if ((segment.MovementDirection & 0x8000) != 0)
             {
-                bool whipping = (state.TailWhipTargetClockwiseAngle & 0x8000) == 0;
+                bool whipping = !state.ClockwiseWhipTargetIdle;
                 if (whipping)
                 {
                     segment.TargetDistance = 0x0c00;
@@ -260,7 +258,7 @@ internal sealed class RidleyTail
             }
             else
             {
-                bool whipping = (state.TailWhipTargetCounterClockwiseAngle & 0x8000) == 0;
+                bool whipping = !state.CounterClockwiseWhipTargetIdle;
                 int next = segment.Angle + state.TailAngleDelta;
                 if (whipping)
                 {
@@ -546,7 +544,7 @@ internal sealed class RidleyTail
         if (state.TailSegments.All(segment => segment.Active) &&
             ((SnesLittleEndian.LowByte(_room.Random.Read())) >= 0xf0 ||
              samus is not null && Math.Abs((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 128) &&
-            (state.TailWhipTargetClockwiseAngle & state.TailWhipTargetCounterClockwiseAngle & 0x8000) != 0)
+            state.ClockwiseWhipTargetIdle && state.CounterClockwiseWhipTargetIdle)
         {
             state.TailWhipTargetClockwiseAngle = RidleyTailDefinitions.PogoWhipAngle;
             state.TailAngleDelta = 8;

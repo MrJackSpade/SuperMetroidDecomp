@@ -98,13 +98,27 @@ internal static class CartridgeEncodingScanner
     internal static readonly string[] RatchetedRuleIds = ["SME6340", "SME6341", "SME6342", "SME6345", "SME6348", "SME6349"];
 
     /// <summary>
-    /// Name fragments that mark a primitive as a countdown for SME6348. A sign test is a timer idiom when its
-    /// operand is named as one; signed comparisons of quantities, velocities and packed flags are other rules' work.
+    /// Name fragments that mark a primitive as a countdown for SME6348 when they appear in the name's final
+    /// camel-case word, its head noun (<c>FunctionTimer</c>, <c>DelayFrames</c>, but not
+    /// <c>TargetCounterClockwiseAngle</c>). A sign test is a timer idiom when its operand is named as one; signed
+    /// comparisons of quantities, velocities, angles and packed flags are other rules' work.
     /// </summary>
     private static readonly string[] CountdownNameFragments = ["timer", "countdown", "counter", "delay", "cooldown", "ticks", "frames"];
 
-    /// <summary>Constants whose bit is a word's or a byte's sign: bit 15 and bit 7.</summary>
-    private static readonly long[] SignBits = [0x8000, 0x80];
+    /// <summary>A word's sign bit, bit 15.</summary>
+    private const long WordSignBit = 0x8000;
+
+    /// <summary>A byte's sign bit, bit 7.</summary>
+    private const long ByteSignBit = 0x80;
+
+    /// <summary>Both sign bits, for an operand wide enough to hold either width.</summary>
+    private static readonly long[] SignBits = [WordSignBit, ByteSignBit];
+
+    /// <summary>The sign bit of a byte operand.</summary>
+    private static readonly long[] ByteSignBits = [ByteSignBit];
+
+    /// <summary>The sign bit of a word operand.</summary>
+    private static readonly long[] WordSignBits = [WordSignBit];
 
     /// <summary>
     /// The attribute (#223) marking a type that owns and documents an encoding: its literals and width
@@ -315,13 +329,13 @@ internal static class CartridgeEncodingScanner
         switch (binary.Kind())
         {
             case SyntaxKind.BitwiseAndExpression:
-                return IsSignBitConstant(binary.Right, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
-                    IsSignBitConstant(binary.Left, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken);
+                return IsSignBitConstant(binary.Right, binary.Left, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
+                    IsSignBitConstant(binary.Left, binary.Right, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken);
             case SyntaxKind.LessThanExpression or SyntaxKind.GreaterThanOrEqualExpression:
-                return IsSignBitConstant(binary.Right, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
+                return IsSignBitConstant(binary.Right, binary.Left, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
                     IsZero(binary.Right, model, cancellationToken) && IsSignedReinterpretation(binary.Left, model, cancellationToken);
             case SyntaxKind.GreaterThanExpression or SyntaxKind.LessThanOrEqualExpression:
-                return IsSignBitConstant(binary.Left, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken) ||
+                return IsSignBitConstant(binary.Left, binary.Right, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken) ||
                     IsZero(binary.Left, model, cancellationToken) && IsSignedReinterpretation(binary.Right, model, cancellationToken);
             default:
                 return false;
@@ -375,13 +389,45 @@ internal static class CartridgeEncodingScanner
         ITypeSymbol? type = model.GetTypeInfo(operand, cancellationToken).Type;
         if (type is null || type.TypeKind == TypeKind.Enum || !IsIntegralPrimitive(type))
             return false;
-        string name = operand.ToString();
-        return CountdownNameFragments.Any(fragment => name.IndexOf(fragment, StringComparison.OrdinalIgnoreCase) >= 0);
+        string headNoun = HeadNoun(operand);
+        return CountdownNameFragments.Any(fragment => headNoun.IndexOf(fragment, StringComparison.OrdinalIgnoreCase) >= 0);
     }
 
-    /// <summary>A constant equal to a byte or word sign bit.</summary>
-    private static bool IsSignBitConstant(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken) =>
-        IntegralConstant(expression, model, cancellationToken) is { } value && SignBits.Contains(value);
+    /// <summary>The final camel-case word of the operand's own name (an element access names its array).</summary>
+    private static string HeadNoun(ExpressionSyntax operand)
+    {
+        ExpressionSyntax named = operand is ElementAccessExpressionSyntax element ? StripWrappers(element.Expression, stripCasts: true) : operand;
+        string name = named switch
+        {
+            MemberAccessExpressionSyntax access => access.Name.Identifier.ValueText,
+            SimpleNameSyntax simple => simple.Identifier.ValueText,
+            _ => named.ToString(),
+        };
+        int start = 0;
+        for (int index = 1; index < name.Length; index++)
+        {
+            if (char.IsUpper(name[index]) && !char.IsUpper(name[index - 1]))
+                start = index;
+        }
+        return name.Substring(start).TrimStart('_');
+    }
+
+    /// <summary>
+    /// A constant equal to the sign bit of <paramref name="operand"/>'s width: bit 7 of a byte, bit 15 of a word.
+    /// A wider operand may hold either width, so both bits count.
+    /// </summary>
+    private static bool IsSignBitConstant(ExpressionSyntax expression, ExpressionSyntax operand, SemanticModel model, CancellationToken cancellationToken)
+    {
+        if (IntegralConstant(expression, model, cancellationToken) is not { } value)
+            return false;
+        long[] operandSignBits = model.GetTypeInfo(StripWrappers(operand, stripCasts: false), cancellationToken).Type?.SpecialType switch
+        {
+            SpecialType.System_Byte or SpecialType.System_SByte => ByteSignBits,
+            SpecialType.System_UInt16 or SpecialType.System_Int16 => WordSignBits,
+            _ => SignBits,
+        };
+        return operandSignBits.Contains(value);
+    }
 
     /// <summary>A constant equal to zero.</summary>
     private static bool IsZero(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken) =>

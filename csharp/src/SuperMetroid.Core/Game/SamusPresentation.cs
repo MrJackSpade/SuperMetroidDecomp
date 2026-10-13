@@ -90,7 +90,7 @@ internal sealed class SamusPresentation
         _samus.AnimationFrameBuffer = _samus.LiquidPhysics.DeterminePoseChangeAnimationBuffer(_samus);
         _samus.AnimationDelayListAddress = ResolveAnimationDelayList();
         byte initialDelay = ReadAnimationByte(bus, _samus.AnimationFrame);
-        if ((initialDelay & 0x80) != 0)
+        if (SamusAnimationDelayDefinitions.IsCommand(initialDelay))
         {
             throw new InvalidOperationException(
                 $"Samus pose ${(int)_samus.Pose:X2} cannot initialize directly on delay command ${initialDelay:X2}.");
@@ -243,7 +243,7 @@ internal sealed class SamusPresentation
         Func<ushort>? queueEchoSound = null)
     {
         byte delayOrCommand = ReadAnimationByte(bus, _samus.AnimationFrame);
-        if ((delayOrCommand & 0x80) == 0)
+        if (!SamusAnimationDelayDefinitions.IsCommand(delayOrCommand))
         {
             _samus.LastAnimationDelayCommand = null;
 
@@ -436,7 +436,7 @@ internal sealed class SamusPresentation
         }
 
         byte selectedDelay = ReadAnimationByte(bus, _samus.AnimationFrame);
-        if ((selectedDelay & 0x80) != 0)
+        if (SamusAnimationDelayDefinitions.IsCommand(selectedDelay))
         {
             throw new InvalidDataException(
                 $"Samus animation command ${delayOrCommand:X2} selected another command ${selectedDelay:X2}.");

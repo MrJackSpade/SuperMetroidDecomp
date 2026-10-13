@@ -56,7 +56,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.SpawnPosition = slot.Position.Whole;
         state.EmergenceTopY = unchecked((ushort)(slot.Position.Y.Whole - BrinstarPipeBugEmergenceHeight));
         state.Function = PipeBugEnemyFunction.BrinstarWaitUntilOnScreen;
-        state.DelayOrCounter = BrinstarPipeBugRespawnFrames;
+        state.RespawnDelay = NativeCountdown.Start(BrinstarPipeBugRespawnFrames);
         state.AnimationState = PipeBugAnimationSelector.None;
         state.InstalledAnimationState = PipeBugAnimationSelector.None;
         slot.CurrentInstruction = PipeBugDefinitions.BrinstarInstructionList(
@@ -71,7 +71,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         state.LinearSpeedTableOffset = unchecked((ushort)((SnesLittleEndian.HighByte(slot.Parameter2)) * 8));
-        state.DelayOrCounter = 0;
+        state.FormationCounter = 0;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         slot.CurrentInstruction = NorfairPipeBugInstructionProgramDefinitions.RisingLeft;
@@ -132,7 +132,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
                 RunBrinstarPipeBugFlight(slot, state, camera.X);
                 return;
             case PipeBugEnemyFunction.BrinstarRespawnDelay:
-                if (state.DelayOrCounter-- == 1)
+                state.RespawnDelay = state.RespawnDelay.Decrement().Remaining;
+                if (state.RespawnDelay.IsZero)
                     state.Function = PipeBugEnemyFunction.BrinstarWaitForSamus;
                 return;
 
@@ -151,7 +152,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairLeaderStagger:
-                state.DelayOrCounter = unchecked((ushort)(state.DelayOrCounter + 1));
+                state.FormationCounter = unchecked((ushort)(state.FormationCounter + 1));
                 state.Function = PipeBugEnemyFunction.NorfairWaitForStagger;
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
@@ -283,7 +284,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.AnimationState = PipeBugAnimationSelector.None;
         SelectBrinstarPipeBugAnimation(slot, state);
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-        state.DelayOrCounter = BrinstarPipeBugRespawnFrames;
+        state.RespawnDelay = NativeCountdown.Start(BrinstarPipeBugRespawnFrames);
         state.Function = PipeBugEnemyFunction.BrinstarRespawnDelay;
     }
 
@@ -331,7 +332,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
             return;
         }
 
-        leaderState.DelayOrCounter = unchecked((ushort)(leaderState.DelayOrCounter + 1));
+        leaderState.FormationCounter = unchecked((ushort)(leaderState.FormationCounter + 1));
         // $B3:8C19-$8C1F resets only the current (leader) slot. The following
         // formation stores change every instruction pointer, but leave follower
         // timers intact, including zero timers in cleared respawn placeholders.
@@ -381,7 +382,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         PipeBugEnemyState state,
         short signedOffset)
     {
-        state.DelayOrCounter = unchecked((ushort)(state.DelayOrCounter + 1));
+        state.FormationCounter = unchecked((ushort)(state.FormationCounter + 1));
         // Negative offsets move upward with table entry 66; positive offsets move downward
         // with entry 64. The native routine clamps exactly at emergenceY +/- 16/32.
         AddPipeBugLinearVelocity(
@@ -404,11 +405,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         PipeBugEnemyState state,
         SamusState samus)
     {
-        state.DelayOrCounter = unchecked((ushort)(state.DelayOrCounter + 1));
-        if (unchecked((short)(state.DelayOrCounter - state.StaggerTarget)) < 0)
+        state.FormationCounter = unchecked((ushort)(state.FormationCounter + 1));
+        if (unchecked((short)(state.FormationCounter - state.StaggerTarget)) < 0)
             return;
 
-        state.DelayOrCounter = 0;
+        state.FormationCounter = 0;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0)
@@ -529,7 +530,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.Function = movingLeft
             ? PipeBugEnemyFunction.YellowArcLeft
             : PipeBugEnemyFunction.YellowArcRight;
-        state.DelayOrCounter = 0;
+        // The yellow arc clears the native word the other species use as delay or formation counter.
+        state.FormationCounter = 0;
         state.ArcCounter = YellowPipeBugArcCounterStart;
         state.ArcPhase = 1;
         state.ArcStartX = slot.Position.X.Whole;

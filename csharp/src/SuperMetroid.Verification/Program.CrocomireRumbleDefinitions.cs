@@ -86,13 +86,13 @@ internal static class CrocomireRumbleDefinitionsVerification
         var state = new CrocomireEnemyState(body)
         {
             DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall,
-            StepCounter = 4,
+            RumbleTableOffset = 4,
         };
         enemies.BindFixtureBus(guarded);
         enemies.Presentation._cgram = cgram;
         enemies.CrocomireBehavior.CrocomireDeath = death;
 
-        ushort referenceIndex = state.StepCounter;
+        ushort referenceIndex = state.RumbleTableOffset;
         ushort referenceY = death.RumbleYOffset;
         ushort referenceCooldown = death.RumbleCooldown.RawValue;
         ushort referenceDelta = death.RumbleDelta;
@@ -110,7 +110,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             enemies.CrocomireBehavior.RunCrocomireWallRumble(state);
             frames++;
 
-            AssertEqual(referenceIndex, state.StepCounter,
+            AssertEqual(referenceIndex, state.RumbleTableOffset,
                 $"Crocomire rumble frame {frames} target index");
             AssertEqual(referenceY, death.RumbleYOffset,
                 $"Crocomire rumble frame {frames} Y offset");
@@ -123,7 +123,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         }
 
         AssertTrue(frames < 2048, "Crocomire rumble production sequence terminates");
-        AssertEqual((ushort)0x0080, state.StepCounter,
+        AssertEqual((ushort)0x0080, state.DeathPhaseDelay.RawValue,
             "Crocomire rumble production terminator handoff");
         AssertEqual((ushort)0x8080, death.RumbleYOffset,
             "Crocomire rumble production terminator Y marker");

@@ -47,11 +47,28 @@ public sealed class DachoraEnemyState
     /// <summary>Projects Dachora's six native words from its occupied enemy slot.</summary>
     internal DachoraEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Variable A: whole speed, countdown, or echo-position interval.</summary>
-    public ushort SpeedOrTimer
+    /// <summary>Variable A while running, falling or shinesparking: whole speed.</summary>
+    public ushort Speed
     {
         get => _slot.VariableA;
         internal set => _slot.VariableA = value;
+    }
+
+    /// <summary>
+    /// Variable A while blinking or charging: the native wrapping countdown to the next phase
+    /// (<c>DEC</c>, <c>BNE</c>).
+    /// </summary>
+    public NativeCountdown PhaseTimer
+    {
+        get => NativeCountdown.FromRaw(_slot.VariableA);
+        internal set => _slot.VariableA = value.RawValue;
+    }
+
+    /// <summary>Variable A on the first echo slot: frames until the echo positions next advance.</summary>
+    public NativeCountdown EchoPositionTimer
+    {
+        get => NativeCountdown.FromRaw(_slot.VariableA);
+        internal set => _slot.VariableA = value.RawValue;
     }
 
     /// <summary>Variable B: fractional speed.</summary>
@@ -75,7 +92,10 @@ public sealed class DachoraEnemyState
         internal set => _slot.VariableD = value;
     }
 
-    /// <summary>Variable E: packed palette-animation frame and low-byte countdown.</summary>
+    /// <summary>
+    /// Variable E: packed palette-animation frame (high byte) and low-byte countdown. The cartridge
+    /// decrements the whole word and tests only the low byte.
+    /// </summary>
     public ushort PaletteAnimationTimer
     {
         get => _slot.VariableE;

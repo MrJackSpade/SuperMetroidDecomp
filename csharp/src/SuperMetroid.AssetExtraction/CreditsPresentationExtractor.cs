@@ -54,7 +54,7 @@ public static class CreditsPresentationExtractor
 
         var rows = new List<ushort[]>(CreditsPresentationDefinitions.ExpectedCompiledRows);
         ushort pointer = CreditsPresentationDefinitions.Native.InitialInstruction;
-        ushort timer = 0;
+        NativeCountdown timer = NativeCountdown.Start(0);
         for (int operation = 0; operation < CreditsPresentationDefinitions.Native.MaximumOperations; operation++)
         {
             ushort instruction = ReadWord(bus, pointer);
@@ -88,12 +88,12 @@ public static class CreditsPresentationExtractor
             switch (command)
             {
                 case CreditsInstruction.SetTimer:
-                    timer = ReadWord(bus, Add(pointer, 2));
+                    timer = NativeCountdown.FromRaw(ReadWord(bus, Add(pointer, 2)));
                     pointer = Add(pointer, 4);
                     break;
                 case CreditsInstruction.DecrementTimerAndGoto:
-                    timer = unchecked((ushort)(timer - 1));
-                    pointer = timer != 0 ? ReadWord(bus, Add(pointer, 2)) : Add(pointer, 4);
+                    timer = timer.Decrement().Remaining;
+                    pointer = !timer.IsZero ? ReadWord(bus, Add(pointer, 2)) : Add(pointer, 4);
                     break;
                 case CreditsInstruction.EndCredits:
                 case CreditsInstruction.Delete:

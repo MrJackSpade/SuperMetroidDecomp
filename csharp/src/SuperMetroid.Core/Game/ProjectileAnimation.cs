@@ -31,7 +31,7 @@ internal sealed class ProjectileAnimation
         while (true)
         {
             ushort instructionOrTimer = SamusProjectileInstructionDefinitions.ReadWord(SamusProjectileRomData.Banks.Projectile | pointer);
-            if ((instructionOrTimer & 0x8000) == 0)
+            if (!SamusProjectileInstructionDefinitions.IsInstruction(instructionOrTimer))
             {
                 slot.InstructionTimer = NativeCountdown.FromRaw(instructionOrTimer);
                 slot.SpritemapPointer = FrameBindings?.Resolve(pointer) ??

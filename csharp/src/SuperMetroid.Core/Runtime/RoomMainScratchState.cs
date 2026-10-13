@@ -15,4 +15,14 @@ public sealed class RoomMainScratchState
 {
     /// <summary>WRAM <c>$07E1</c>.</summary>
     public ushort Var1 { get; set; }
+
+    /// <summary>
+    /// WRAM <c>$07E1</c> read as the wrapping countdown the timed and screen-shaking room-main routines keep
+    /// in it; other routines use the same word as an index or position fraction through <see cref="Var1"/>.
+    /// </summary>
+    public NativeCountdown Countdown
+    {
+        get => NativeCountdown.FromRaw(Var1);
+        set => Var1 = value.RawValue;
+    }
 }

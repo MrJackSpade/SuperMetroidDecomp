@@ -147,7 +147,7 @@ internal sealed class TourianUnlockBehavior
                 break;
             case TourianStatueInstruction.Earthquake:
                 _earthquake.EarthquakeType = 1;
-                _earthquake.EarthquakeTimer = NativeCountdown.FromRaw(unchecked((ushort)(_earthquake.EarthquakeTimer.RawValue | 0x20)));
+                _earthquake.AddTimerBits(0x20);
                 break;
             case TourianStatueInstruction.AddY:
                 projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + (EnemyProjectileEngine.ReadEnemyProjectileInstructionMechanicsWord(

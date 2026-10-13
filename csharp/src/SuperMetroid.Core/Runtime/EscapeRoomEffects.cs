@@ -85,14 +85,15 @@ internal sealed class EscapeRoomEffects
             return;
         if (light || medium)
         {
-            if (_room.RoomMainScratch.Var1 != 0)
+            if (!_room.RoomMainScratch.Countdown.IsZero)
             {
-                if (--_room.RoomMainScratch.Var1 == 0)
+                _room.RoomMainScratch.Countdown = _room.RoomMainScratch.Countdown.Decrement().Remaining;
+                if (_room.RoomMainScratch.Countdown.IsZero)
                     _enemies.Earthquake.EarthquakeType = light ? ZebesEscapeRomData.LightHorizontal : ZebesEscapeRomData.MediumHorizontal;
             }
             else if (_system.NextRandom() < (light ? ZebesEscapeRomData.LightChance : ZebesEscapeRomData.MediumChance))
             {
-                _room.RoomMainScratch.Var1 = ZebesEscapeRomData.DiagonalFrames;
+                _room.RoomMainScratch.Countdown = NativeCountdown.Start(ZebesEscapeRomData.DiagonalFrames);
                 _enemies.Earthquake.EarthquakeType = light ? ZebesEscapeRomData.MediumDiagonal : ZebesEscapeRomData.StrongDiagonal;
             }
         }
@@ -106,6 +107,6 @@ internal sealed class EscapeRoomEffects
             if (!nonblank || new RoomLevelWord(_room.LevelData.GetPlmCollisionBlockByIndex(blockIndex).LevelWord).VisualBlockIndex != ZebesEscapeRomData.BlankTile)
                 _enemies.EscapeExplosionsBehavior.SpawnEscapeExplosion(explosion, _system.NextRandom(), nonblank ? unchecked((ushort)(blockIndex * 2)) : (ushort)0);
         }
-        if (nonblank) _enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(unchecked((ushort)(_enemies.Earthquake.EarthquakeTimer.RawValue | ZebesEscapeRomData.ContinuousTimerBit)));
+        if (nonblank) _enemies.Earthquake.AddTimerBits(ZebesEscapeRomData.ContinuousTimerBit);
     }
 }

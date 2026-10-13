@@ -115,6 +115,16 @@ internal static class CartridgeEncodingAnalyzerTests
         ExpectEncoding("", [(functional, countdown + "ushort VelocityX; bool M() => (short)VelocityX < 0; }")]);
         ExpectEncoding("", [(functional, countdown + "ushort Left; bool M() => (short)(FunctionTimer - Left) < 0; }")]);
         ExpectEncoding("", [(functional, countdown + "ushort Parameter1; bool M() => (Parameter1 & 32768) != 0; }")]);
+        // The head noun decides: an angle whose name merely contains "Counter" is not a countdown.
+        ExpectEncoding("", [(functional, countdown + "ushort TargetCounterClockwiseAngle; bool M() => (TargetCounterClockwiseAngle & 32768) != 0; }")]);
+        ExpectEncoding("", [(functional, countdown + "ushort DelayOrCommand; bool M() => (DelayOrCommand & 32768) != 0; }")]);
+        // A word compared with a byte's sign bit is a threshold, not a sign test, and a byte has no bit 15.
+        ExpectEncoding("", [(functional, countdown + "bool M() => FunctionTimer >= 128; }")]);
+        ExpectEncoding("", [(functional, countdown + "bool M() => (DelayFrames & 32768) != 0; }")]);
+        ExpectEncoding("", [(functional, countdown + "int WaitTimer; bool M() => (WaitTimer & 128) != 0; }")],
+            (CartridgeEncodingAnalyzer.CountdownSignTestId, "'WaitTimer & 128'"));
+        ExpectEncoding("", [(functional, countdown + "ushort[] SegmentTimers = new ushort[2]; bool M() => (SegmentTimers[0] & 32768) != 0; }")],
+            (CartridgeEncodingAnalyzer.CountdownSignTestId, "'SegmentTimers[0] & 32768'"));
         ExpectEncoding("", [(functional, "enum TimerFlags : ushort { Sign = 32768 } " +
             "class C { TimerFlags Timer; bool M() => (Timer & TimerFlags.Sign) != 0; }")]);
         ExpectEncoding($"{functional}\tSME6348\t1\n", [(functional, countdown + "bool M() => (FunctionTimer & 32768) != 0; }")]);

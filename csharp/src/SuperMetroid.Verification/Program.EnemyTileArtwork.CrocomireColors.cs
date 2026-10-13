@@ -108,7 +108,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
                 $"Crocomire native white hurt flash {color}");
         AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex,
             "white hurt flash leaves fight phase unchanged");
-        state.StepCounter = 0;
+        state.DeathPhaseDelay = NativeCountdown.Start(0);
         enemies.CrocomireBehavior.RunCrocomireSkeletonTileLoadAndWallBreak(state);
         AssertBand(CrocomirePaletteRomData.SkeletonArmDestination,
             CrocomirePaletteRomData.SkeletonArmCount, colors.ResolveSkeletonArm,

@@ -227,6 +227,12 @@ public sealed class RidleyEnemyState
     public ushort TailWhipTargetClockwiseAngle { get; internal set; }
     /// <summary>Gets the counterclockwise whip target angle; bit $8000 marks an inactive target.</summary>
     public ushort TailWhipTargetCounterClockwiseAngle { get; internal set; }
+    /// <summary>Whether the clockwise whip has no target (bit $8000 of <see cref="TailWhipTargetClockwiseAngle"/>).</summary>
+    public bool ClockwiseWhipTargetIdle =>
+        (TailWhipTargetClockwiseAngle & RidleyTailDefinitions.InactiveWhipTargetBit) != 0;
+    /// <summary>Whether the counterclockwise whip has no target (bit $8000 of <see cref="TailWhipTargetCounterClockwiseAngle"/>).</summary>
+    public bool CounterClockwiseWhipTargetIdle =>
+        (TailWhipTargetCounterClockwiseAngle & RidleyTailDefinitions.InactiveWhipTargetBit) != 0;
     /// <summary>Gets the pending one-shot whip request; its value minus one supplies the additional aim-angle byte before consumption.</summary>
     public ushort TailWhipRequest { get; internal set; }
     /// <summary>Gets the unsigned 8.8 distance increment applied while tail segments extend toward their targets.</summary>

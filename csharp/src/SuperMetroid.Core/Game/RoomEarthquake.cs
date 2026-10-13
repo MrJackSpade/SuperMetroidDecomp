@@ -12,6 +12,14 @@ internal sealed class RoomEarthquake
     /// <summary>Shared wrapping room-shake lifetime word, written by actor/effect producers and decremented by <see cref="Advance"/> for supported types while time is not frozen.</summary>
     public NativeCountdown EarthquakeTimer { get; set; }
 
+    /// <summary>
+    /// ORs <paramref name="bits"/> into the shake timer word, as the producers' <c>ORA</c>/<c>STA</c> into
+    /// <c>$1840</c> do. It never shortens a running shake; setting bit 15 keeps the room shaking for tens of
+    /// thousands of frames, which is how continuous effects avoid re-arming the timer every frame.
+    /// </summary>
+    internal void AddTimerBits(ushort bits) =>
+        EarthquakeTimer = NativeCountdown.FromRaw(unchecked((ushort)(EarthquakeTimer.RawValue | bits)));
+
     /// <summary>Native room-shake type selecting background/projectile offsets and whether actors shake; types $00..$23 are consumed by <see cref="Advance"/>, while $24 and above are ignored there.</summary>
     public ushort EarthquakeType { get; set; }
 

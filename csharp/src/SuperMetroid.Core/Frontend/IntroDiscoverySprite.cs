@@ -56,6 +56,16 @@ internal sealed class IntroDiscoverySprite
     /// <summary>The actor scratch word used by timer and motion opcodes.</summary>
     public ushort GeneralTimer { get; set; }
 
+    /// <summary>
+    /// <see cref="GeneralTimer"/> read as the loop countdown of the set-timer and decrement-timer-and-goto
+    /// opcodes (<c>DEC</c>, <c>BNE</c>).
+    /// </summary>
+    private NativeCountdown InstructionLoopCountdown
+    {
+        get => NativeCountdown.FromRaw(GeneralTimer);
+        set => GeneralTimer = value.RawValue;
+    }
+
     /// <summary>The selected native pre-instruction address, when the list changes it.</summary>
     public ushort PreInstructionPointer { get; private set; }
 
@@ -173,14 +183,14 @@ internal sealed class IntroDiscoverySprite
                     break;
 
                 case CinematicSpriteInstruction.DecrementTimerAndGoto:
-                    GeneralTimer = unchecked((ushort)(GeneralTimer - 1));
-                    cursor = GeneralTimer != 0
+                    InstructionLoopCountdown = InstructionLoopCountdown.Decrement().Remaining;
+                    cursor = !InstructionLoopCountdown.IsZero
                         ? Read(Add(cursor, 2))
                         : Add(cursor, 4);
                     break;
 
                 case CinematicSpriteInstruction.SetTimer:
-                    GeneralTimer = Read(Add(cursor, 2));
+                    InstructionLoopCountdown = NativeCountdown.FromRaw(Read(Add(cursor, 2)));
                     cursor = Add(cursor, 4);
                     break;
 

@@ -274,7 +274,7 @@ internal static class NativeSnapshotImportVerification
             if (runtime.Enemies.PipeBugStates[index] is { IsBrinstar: true } pipe)
             {
                 pipe.SpawnPosition = new(slot.VariableB, slot.VariableC);
-                pipe.DelayOrCounter = slot.VariableD;
+                pipe.RespawnDelay = NativeCountdown.FromRaw(slot.VariableD);
                 pipe.AnimationState = (PipeBugAnimationSelector)slot.VariableE;
                 pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * 64);
                 pipe.InstalledAnimationState = (PipeBugAnimationSelector)W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * 64);

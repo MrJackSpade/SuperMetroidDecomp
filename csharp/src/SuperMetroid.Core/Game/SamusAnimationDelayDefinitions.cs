@@ -20,6 +20,12 @@ internal static class SamusAnimationDelayDefinitions
     /// <summary>End of pose delay streams, before the separate running cadence pointer.</summary>
     internal const int DelayStreamsEndExclusive = 0x91B5D1;
 
+    /// <summary>Bit 7 of a delay-stream byte: set for an animation command (<c>$80-$FF</c>), clear for a frame delay.</summary>
+    internal const byte CommandBit = 0x80;
+
+    /// <summary>Whether a delay-stream byte is an animation command rather than a frame delay (the handler's <c>BMI</c>).</summary>
+    internal static bool IsCommand(byte delayOrCommand) => (delayOrCommand & CommandBit) != 0;
+
     /// <summary>$91:B010-$B209, AnimationDelayTable: the real pose selector domain before running delay bytes.</summary>
     private const int RealPoseCount = (DelayStreamsAddress - PointerTableAddress) / sizeof(ushort);
 

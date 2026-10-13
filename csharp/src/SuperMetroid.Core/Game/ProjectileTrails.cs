@@ -129,7 +129,7 @@ internal sealed class ProjectileTrails
                     ushort instructionOrTimer = ProjectileTrailProgramDefinitions.Read(
                         bus,
                         SamusProjectileRomData.Banks.Movement | pointer);
-                    if ((instructionOrTimer & 0x8000) == 0)
+                    if (!SamusProjectileInstructionDefinitions.IsInstruction(instructionOrTimer))
                     {
                         side.InstructionTimer = NativeCountdown.FromRaw(instructionOrTimer);
                         if (instructionOrTimer == 0)

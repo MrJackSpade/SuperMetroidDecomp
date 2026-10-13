@@ -244,7 +244,7 @@ public sealed class TourianStatueSequence
             return;
         }
         _enemies.Earthquake.EarthquakeType = TourianStatueRomData.DescentEarthquakeType;
-        _enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(unchecked((ushort)(_enemies.Earthquake.EarthquakeTimer.RawValue | TourianStatueRomData.DescentEarthquakeTimer)));
+        _enemies.Earthquake.AddTimerBits(TourianStatueRomData.DescentEarthquakeTimer);
         _roomLayer3Fx.PublishStatueEarthquakeSound(
             _system.RandomNumber, _system.MainGameLoopCarry);
         if (delay >= 0)

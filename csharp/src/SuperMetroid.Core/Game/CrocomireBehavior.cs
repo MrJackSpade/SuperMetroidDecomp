@@ -227,7 +227,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
         state.ReactionTimer = 0;
         state.ProjectileCounter = 0;
-        state.StepCounter = 0x0800;
+        state.VerticalAcceleration = 0x0800;
         body.Radius = body.Radius.WithY(16);
         LastCrocomireSoundEffect = 0x003b;
         CrocomireDeathState death = RequireCrocomireDeath();
@@ -956,9 +956,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     /// <summary>Holds the submerged skeleton for its authored delay before rising begins.</summary>
     private static void RunCrocomireSubmergedPause(CrocomireEnemyState state)
     {
-        if (state.StepCounter != 0)
+        if (!state.DeathPhaseDelay.IsZero)
         {
-            state.StepCounter--;
+            state.DeathPhaseDelay = state.DeathPhaseDelay.Decrement().Remaining;
             return;
         }
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
@@ -977,7 +977,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         if (unchecked((short)(body.Position.Y.Whole - 280)) >= 0)
         {
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
-            state.StepCounter = 48;
+            state.DeathPhaseDelay = NativeCountdown.Start(48);
             return;
         }
 
@@ -985,12 +985,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         body.ExtraProperties = body.ExtraProperties.Without(
             EnemyExtraProperties.NewInstructionFrame);
 
-        byte accelerationFraction = (byte)state.StepCounter;
+        byte accelerationFraction = (byte)state.VerticalAcceleration;
         int accelerationCarry = accelerationFraction + 0x80 > 0xff ? 1 : 0;
         accelerationFraction = unchecked((byte)(accelerationFraction + 0x80));
-        int accelerationWhole = SnesUnsignedEightEight.Whole(state.StepCounter) + 3 + accelerationCarry;
+        int accelerationWhole = SnesUnsignedEightEight.Whole(state.VerticalAcceleration) + 3 + accelerationCarry;
         accelerationWhole = Math.Min(accelerationWhole, 48);
-        state.StepCounter = unchecked((ushort)((SnesEightEight.FromWhole(accelerationWhole)) | accelerationFraction));
+        state.VerticalAcceleration = unchecked((ushort)((SnesEightEight.FromWhole(accelerationWhole)) | accelerationFraction));
 
         byte speedFraction = (byte)state.ReactionTimer;
         int speedCarry = speedFraction + accelerationWhole > 0xff ? 1 : 0;
@@ -1021,9 +1021,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         }
 
         UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
-        int acceleration = state.StepCounter + 0x0100;
-        state.StepCounter = unchecked((ushort)Math.Min(acceleration, 0x1f00));
-        int accelerationWhole = SnesLittleEndian.HighByte(state.StepCounter);
+        int acceleration = state.VerticalAcceleration + 0x0100;
+        state.VerticalAcceleration = unchecked((ushort)Math.Min(acceleration, 0x1f00));
+        int accelerationWhole = SnesLittleEndian.HighByte(state.VerticalAcceleration);
 
         byte speedFraction = (byte)state.ReactionTimer;
         bool speedBorrow = speedFraction < accelerationWhole;
@@ -1139,7 +1139,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         if (state.Tongue is { } tongue)
             tongue.Properties = tongue.Properties.With(
                 EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
-        state.StepCounter = 4;
+        state.RumbleTableOffset = 4;
 
         CrocomireDeathState death = RequireCrocomireDeath();
         death.RumbleYOffset = 0;
@@ -1155,12 +1155,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         CrocomireRumbleDefinition definition =
-            CrocomireRumbleDefinitions.AtOffset(state.StepCounter);
+            CrocomireRumbleDefinitions.AtOffset(state.RumbleTableOffset);
         ushort target = unchecked((ushort)definition.TargetYOffset);
         if (definition.IsTerminator)
         {
             death.RumbleYOffset = 0x8080;
-            state.StepCounter = 0x0080;
+            state.DeathPhaseDelay = NativeCountdown.Start(0x0080);
             (_room.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
                 "Crocomire wall spikes require installed colors.")).ApplyWallSpikes(_presentation._cgram!);
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
@@ -1174,7 +1174,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 if (!death.RumbleCooldown.IsZero)
                 {
                     death.RumbleCooldown = death.RumbleCooldown.Decrement().Remaining;
-                    state.StepCounter -= 2;
+                    state.RumbleTableOffset -= 2;
                     LastCrocomireSoundEffect = 0x002b;
                     return;
                 }
@@ -1182,7 +1182,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 death.RumbleCooldown = NativeCountdown.FromRaw(definition.Cooldown);
                 death.RumbleDelta = definition.Delta;
             }
-            state.StepCounter = definition.NextTargetOffset;
+            state.RumbleTableOffset = definition.NextTargetOffset;
             return;
         }
 
@@ -1195,9 +1195,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     internal void RunCrocomireSkeletonTileLoadAndWallBreak(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
-        if (state.StepCounter != 0)
+        if (!state.DeathPhaseDelay.IsZero)
         {
-            state.StepCounter--;
+            state.DeathPhaseDelay = state.DeathPhaseDelay.Decrement().Remaining;
             UploadNextCrocomireSkeletonTileChunk(death);
             return;
         }
@@ -2110,7 +2110,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     {
         state.ReactionTimer = 0;
         state.ProjectileCounter = 0;
-        state.StepCounter = 0x0800;
+        state.VerticalAcceleration = 0x0800;
         ClearCrocomireBg2WorkingTilemap();
         TransferCrocomireBg2Words(0, 1024);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();

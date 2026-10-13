@@ -119,8 +119,21 @@ public sealed class PipeBugEnemyState
     public PipeBugAnimationSelector AnimationState { get; internal set; }
     /// <summary>Gets the Brinstar animation selector currently installed in the enemy slot.</summary>
     public PipeBugAnimationSelector InstalledAnimationState { get; internal set; }
-    /// <summary>Gets the species-specific respawn delay or formation stagger counter.</summary>
-    public ushort DelayOrCounter { get; internal set; }
+    /// <summary>
+    /// Gets the Norfair formation stagger counter, counting up. Brinstar Pipe Bugs keep their respawn
+    /// countdown in the same native word; see <see cref="RespawnDelay"/>.
+    /// </summary>
+    public ushort FormationCounter { get; internal set; }
+
+    /// <summary>
+    /// Gets the Brinstar Pipe Bug's respawn countdown: <see cref="FormationCounter"/>'s native word read as a
+    /// wrapping countdown that expires when it reaches zero.
+    /// </summary>
+    public NativeCountdown RespawnDelay
+    {
+        get => NativeCountdown.FromRaw(FormationCounter);
+        internal set => FormationCounter = value.RawValue;
+    }
     /// <summary>Gets the byte offset of this Norfair bug's positive linear-speed record.</summary>
     public ushort LinearSpeedTableOffset { get; internal set; }
     /// <summary>Gets the Norfair member's Y position at the end of its initial rise.</summary>

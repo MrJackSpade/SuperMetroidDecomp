@@ -16,6 +16,11 @@ internal static class RidleyTailDefinitions
     internal const ushort DownAngle = 0x4000;
     /// <summary>$A6:CD52/CDD8, pogo clockwise whip target.</summary>
     internal const ushort PogoWhipAngle = 0x3f00;
+    /// <summary>
+    /// Bit 15 of a whip target angle word: set while that direction has no target. The cartridge parks an
+    /// idle target at <c>$FFFF</c> and tests the bit with <c>BIT</c>/<c>BMI</c>, never the whole word.
+    /// </summary>
+    internal const ushort InactiveWhipTargetBit = 0x8000;
     /// <summary>$A6:CE08, descending stab extension request.</summary>
     internal const ushort StabDistance = 0x0a00;
     /// <summary>$A6:B76E, bounce extension request.</summary>

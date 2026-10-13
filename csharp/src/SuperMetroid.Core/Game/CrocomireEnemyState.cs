@@ -86,8 +86,32 @@ public sealed class CrocomireEnemyState
         internal set => Body.VariableC = (ushort)value;
     }
 
-    /// <summary>Native variable D: queued backward-step count during combat; death reuses it as a frame countdown, rumble-table offset, or 8.8 vertical acceleration word.</summary>
+    /// <summary>Native variable D during combat: queued backward steps (and the unused attacks' move counts).</summary>
     public ushort StepCounter
+    {
+        get => Body.VariableD;
+        internal set => Body.VariableD = value;
+    }
+
+    /// <summary>
+    /// Native variable D in the submerged pause and the skeleton tile upload: the frames left in
+    /// that death phase, a saturating countdown (<c>LDA</c>, <c>BEQ</c>, <c>DEC</c>).
+    /// </summary>
+    public NativeCountdown DeathPhaseDelay
+    {
+        get => NativeCountdown.FromRaw(Body.VariableD);
+        internal set => Body.VariableD = value.RawValue;
+    }
+
+    /// <summary>Native variable D while the hidden wall rumbles: the byte offset of the current rumble-table record.</summary>
+    public ushort RumbleTableOffset
+    {
+        get => Body.VariableD;
+        internal set => Body.VariableD = value;
+    }
+
+    /// <summary>Native variable D while the body sinks or the skeleton rises: the 8.8 vertical acceleration word.</summary>
+    public ushort VerticalAcceleration
     {
         get => Body.VariableD;
         internal set => Body.VariableD = value;

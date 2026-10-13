@@ -30,9 +30,26 @@ internal static class Program
                     Console.WriteLine(measurement.Summary());
                     return 0;
                 }
+                case ["--solution", var solutionPath, "--list", .. var ruleIds] when ruleIds.Length > 0:
+                {
+                    // Prints each ratcheted occurrence of the named rules with its location, for migrating a rule's
+                    // remaining entries; the baseline only records per-file counts.
+                    var solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
+                    var measurement = await EncodingMeasurement.MeasureAsync(solution);
+                    foreach (EncodedFile file in measurement.Files)
+                    foreach (CartridgeEncodingOccurrence occurrence in file.Occurrences)
+                    {
+                        string? rule = CartridgeEncodingScanner.RuleId(occurrence.Rule);
+                        if (rule is null || !ruleIds.Contains(rule, StringComparer.Ordinal))
+                            continue;
+                        int line = occurrence.Location.GetLineSpan().StartLinePosition.Line + 1;
+                        Console.WriteLine($"{file.Path}:{line}	{rule}	{occurrence.Basis}");
+                    }
+                    return 0;
+                }
                 default:
                     throw new ArgumentException(
-                        "Usage: SuperMetroid.CartridgeEncodingAudit --solution <SuperMetroid.Full.slnx> --write");
+                        "Usage: SuperMetroid.CartridgeEncodingAudit --solution <SuperMetroid.Full.slnx> (--write | --list <rule id>...)");
             }
         }
         catch (Exception exception)

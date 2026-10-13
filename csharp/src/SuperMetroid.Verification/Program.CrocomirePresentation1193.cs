@@ -50,7 +50,7 @@ internal static class CrocomirePresentation1193Verification
         {
             boss.DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall;
             boss.Body.Properties = boss.Body.Properties.Without(EnemyProperties.Invisible);
-            boss.StepCounter = 6;
+            boss.RumbleTableOffset = 6;
             death.RumbleYOffset = 0;
             death.RumbleCooldown = NativeCountdown.Start(10);
             death.RumbleDelta = 1;

@@ -3,17 +3,16 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Immutable stock support-foot geometry shared by Chozo pose matching and carry motion.
-/// The four chosen origins and all other artwork inputs remain required under Stream3's
-/// EnemySpritemapCatalog.frames; this is not an artwork-retention exception.
+/// Applies the four native Chozo stride foot positions to matching supplied spritemaps
+/// while preserving the appearance and order of their other artwork parts.
 /// </summary>
 internal static class ChozoStrideGeometryDefinitions
 {
     /// <summary>$AA:E943, Spritemaps_Chozo_4: first of eight stride compositions.</summary>
     private const int FirstPose = 0xaae943;
-    /// <summary>$AA:E943/EAFE: the first pose of each four-pose stride has21 five-byte parts.</summary>
+    /// <summary>$AA:E943/EAFE: the first pose of each four-pose stride has 21 five-byte parts.</summary>
     private const int FirstPartCount = 21;
-    /// <summary>$AA:E9AE/EA1E/EA8E and EB69/EBD9/EC49: other stride poses have22parts.</summary>
+    /// <summary>$AA:E9AE/EA1E/EA8E and EB69/EBD9/EC49: other stride poses have 22 parts.</summary>
     private const int OtherPartCount = 22;
     /// <summary>Width of one OBJ glyph, the distance from the left foot to the adjacent right foot.</summary>
     private const int TilePixels = 8;
@@ -30,6 +29,7 @@ internal static class ChozoStrideGeometryDefinitions
     private const int TransferFootX = -31, EarlySupportFootX = -28,
         LateSupportFootX = -14, PushOffFootX = -7;
 
+    /// <summary>Gets the left support-foot origin for one of the four stride phases.</summary>
     internal static int SupportFootX(int phase) => phase switch
     {
         0 => TransferFootX,
@@ -39,6 +39,7 @@ internal static class ChozoStrideGeometryDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(phase)),
     };
 
+    /// <summary>Calculates the bank $AA spritemap address for an eight-pose stride index.</summary>
     internal static int NativePoseIdentity(int pose)
     {
         if ((uint)pose >= 8) throw new ArgumentOutOfRangeException(nameof(pose));
@@ -49,6 +50,7 @@ internal static class ChozoStrideGeometryDefinitions
             (phase == 0 ? 0 : firstBytes + (phase - 1) * otherBytes);
     }
 
+    /// <summary>Uses phase-derived foot positions only when the supplied pose has exactly one matching glyph pair.</summary>
     internal static EnemySpritemapParts Compile(int identity, EnemySpritemapParts supplied)
     {
         int pose = 0;
@@ -80,20 +82,28 @@ internal static class ChozoStrideGeometryDefinitions
         return new FootParts(supplied, phase, left, right);
     }
 
+    /// <summary>Retains a foot glyph's flags, row, and tile attributes when relocating its horizontal origin.</summary>
     private readonly record struct FootAppearance(ushort XFlags, byte Y, SnesObjAttributeWord Attributes)
     {
+        /// <summary>Separates the glyph's non-position X flags from its current horizontal coordinate.</summary>
         internal static FootAppearance From(EnemySpritemapPart part) =>
             new((ushort)(part.X.Raw & ~0x1ff), part.Y, part.Attributes);
+        /// <summary>Reconstructs the glyph at a new X coordinate with its other appearance bits intact.</summary>
         internal EnemySpritemapPart At(int x) =>
             new(new SnesSpritemapXWord((ushort)(XFlags | (x & 0x1ff))), Y, Attributes);
     }
 
+    /// <summary>Projects relocated foot glyphs into their original slots among the supplied pose parts.</summary>
     private sealed class FootParts : EnemySpritemapParts
     {
+        /// <summary>All supplied parts other than the two relocated support-foot glyphs.</summary>
         private readonly EnemySpritemapPart[] otherParts;
+        /// <summary>The preserved appearances of the left and right support-foot glyphs.</summary>
         private readonly FootAppearance left, right;
+        /// <summary>The stride phase and original indices used to reinsert the two foot glyphs.</summary>
         private readonly int phase, leftIndex, rightIndex;
 
+        /// <summary>Extracts the support feet and retains the remaining parts in their supplied order.</summary>
         internal FootParts(EnemySpritemapParts supplied, int phase, int leftIndex, int rightIndex)
         {
             this.phase = phase;
@@ -106,7 +116,9 @@ internal static class ChozoStrideGeometryDefinitions
             for (int index = 0; index < supplied.Count; index++)
                 if (index != leftIndex && index != rightIndex) otherParts[output++] = supplied[index];
         }
+        /// <summary>Gets the original part count, including both relocated support feet.</summary>
         public override int Count => otherParts.Length + 2;
+        /// <summary>Returns the original part at this index or its relocated support-foot equivalent.</summary>
         public override EnemySpritemapPart this[int index]
         {
             get

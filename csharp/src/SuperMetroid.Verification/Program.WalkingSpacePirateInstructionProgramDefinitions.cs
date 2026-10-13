@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks walking Space Pirate movement, flinch, look, and laser lists against bank B2.</summary>
 internal static class WalkingSpacePirateInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge as the oracle for Pirate instruction words and frames.</summary>
     internal static void VerifyWalkingSpacePirateInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWalkingSpacePirateInstructionProgramDefinitions), () => VerifyWalkingSpacePirateInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises all eight lists, both three-laser attacks, and fifty installed visual selectors.</summary>
     internal static void VerifyWalkingSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -174,6 +177,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
         }
     }
 
+    /// <summary>Repeatedly resolves the left-walking word to expose allocations in mechanics lookup.</summary>
     private static int ProbeWalkingSpacePirateInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -185,6 +189,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
         return checksum;
     }
 
+    /// <summary>Rejects runtime reads of compiled Pirate mechanics and frame selectors.</summary>
     private static CartridgeReadGuard NewWalkingSpacePirateInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(WalkingSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -192,6 +197,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             .ForbidWords(0xb20000, WalkingSpacePirateInstructionProgramDefinitions.PresentationWordCount, WalkingSpacePirateInstructionProgramDefinitions.PresentationWordAddress,
                 address => $"Production read compiled walking Pirate frame selector ${address:X6}.");
 
+    /// <summary>Runs walking Pirate instruction checks from the verification command dispatcher.</summary>
     [VerificationCommand("--walking-space-pirate-instruction-mechanics")]
     internal static int WalkingSpacePirateInstructionMechanicsCommand()
     {

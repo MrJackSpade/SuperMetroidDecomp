@@ -4,8 +4,10 @@ using static DoorDefinitionsVerification;
 using static LookupTourianArtworkVerification;
 using static LookupTourianDescriptorsVerification;
 
+/// <summary>Checks Tourian statue animated-tile instruction layouts against original bank-$87 programs.</summary>
 internal static class LookupTourianProgramVerification
 {
+    /// <summary>Checks nine source operands per statue and read-only index bounds.</summary>
     private static void VerifyTourianStatueSourceOperandPositions(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -24,6 +26,7 @@ internal static class LookupTourianProgramVerification
         }
     }
 
+    /// <summary>Compares compiled statue control opcodes with native instruction words.</summary>
     private static void VerifyTourianStatueInstructionOpcodes(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -31,6 +34,7 @@ internal static class LookupTourianProgramVerification
             VerifyTourianStatueOriginalWord(rom, header, instruction.Cursor);
     }
 
+    /// <summary>Compares timed-frame durations after each statue program's initial frame.</summary>
     private static void VerifyTourianStatueSubsequentDurations(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -38,6 +42,7 @@ internal static class LookupTourianProgramVerification
             VerifyTourianStatueOriginalWord(rom, header, frame.Cursor);
     }
 
+    /// <summary>Checks operands of statue branch and callback instructions.</summary>
     private static void VerifyTourianStatueBranchDestinations(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -54,6 +59,7 @@ internal static class LookupTourianProgramVerification
         }
     }
 
+    /// <summary>Checks the shared busy flag after the statue-specific state-setting operation.</summary>
     private static void VerifyTourianStatueBusyStateOperand(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -64,6 +70,7 @@ internal static class LookupTourianProgramVerification
         }
     }
 
+    /// <summary>Checks complete word ownership, including headers and instruction controls but excluding source art.</summary>
     private static void VerifyTourianStatueMechanicsDomain(ISnesAddressSpace rom)
     {
         int total = 0;
@@ -86,6 +93,7 @@ internal static class LookupTourianProgramVerification
         AssertEqual(184, total, "All original mechanics words partitioned by named field/control proofs");
     }
 
+    /// <summary>Compares one compiled statue control word with its native bank-$87 value.</summary>
     private static void VerifyTourianStatueOriginalWord(ISnesAddressSpace rom, ushort header, ushort pointer)
     {
         AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)header, out var definition),
@@ -94,6 +102,7 @@ internal static class LookupTourianProgramVerification
         AssertEqual(ReadVerificationWord(rom, 0x870000 | pointer), actual, "Original statue control word");
     }
 
+    /// <summary>Runs operand, opcode, duration, branch, state, and domain checks for Tourian statues.</summary>
     internal static void VerifyTourianStatueProgramMappings(ISnesAddressSpace rom)
     {
         VerifyTourianStatueSourceOperandPositions(rom);

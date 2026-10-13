@@ -15,8 +15,10 @@ using static AssertionsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Botwoon's timed wall crumble and clear PLMs against bank 84 data.</summary>
 internal static class BotwoonWallPlmsVerification
 {
+    /// <summary>Compares program and nine-block draw words, then checks both wall paths through deletion.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Botwoon wall PLMs")]
     internal static void VerifyCompiledBotwoonWallPlms()
     {
@@ -106,6 +108,7 @@ internal static class BotwoonWallPlmsVerification
         }
     }
 
+    /// <summary>Checks the crumble's nine row cadence and sound requests or the immediate clear path.</summary>
     private static void VerifyBotwoonWall(bool clear)
     {
         const int width = 32;
@@ -174,7 +177,7 @@ internal static class BotwoonWallPlmsVerification
             "Botwoon wall reads no migrated program or draw bytes");
     }
 
-    // Room scroll storage keeps WRAM bytes across rooms; the guard serves WRAM, guarding only cartridge data.
+    /// <summary>Forbids compiled program and draw reads while allowing persistent room-scroll WRAM access.</summary>
     internal static CartridgeReadGuard NewBotwoonWallSourceGuard(ISnesAddressSpace source) =>
         new MutableCartridgeReadGuard(source)
             .Forbid(address =>
@@ -191,6 +194,7 @@ internal static class BotwoonWallPlmsVerification
                       pointer < RoomPlmShotBlockDrawDefinitions.HorizontalFrame0));
             }, address => $"Botwoon wall reread migrated source ${address:X6}.");
 
+    /// <summary>Runs Botwoon wall program, draw, and timed execution checks.</summary>
     [VerificationCommand("--botwoon-wall-plms")]
     internal static int BotwoonWallPlmsCommand()
     {

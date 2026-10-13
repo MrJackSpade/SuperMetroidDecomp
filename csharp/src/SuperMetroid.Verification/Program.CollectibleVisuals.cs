@@ -19,8 +19,10 @@ using static LookupCollectibleSelectorsVerification;
 using static LookupCollectibleStockVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks collectible PLM art, live pickup behavior, and visual-only overrides.</summary>
 internal static class CollectibleVisualsVerification
 {
+    /// <summary>Compares 24 native draw lists, exercises all item kinds, and checks edited tile streaming.</summary>
     internal static void VerifyCollectibleVisuals()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -122,6 +124,7 @@ internal static class CollectibleVisualsVerification
             "source-read guards, and installation validation pass.");
     }
 
+    /// <summary>Checks extracted stock, selected tank-frame overrides, replacement stock, and invalid visual bits.</summary>
     private static void VerifyCollectibleVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("collectible-visual");
@@ -177,10 +180,12 @@ internal static class CollectibleVisualsVerification
         }
     }
 
+    /// <summary>Reads one collectible draw word from bank 84 for the native comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for collectible visual words")]
     internal static ushort ReadCollectibleVisualWord(ISnesAddressSpace bus,
         ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | pointer);
 
+    /// <summary>Rejects runtime reads from compiled collectible draw lists and dynamic selector tables.</summary>
     private static CartridgeReadGuard NewCollectibleDrawReadGuard(ISnesAddressSpace source)
     {
         var blocked = new HashSet<int>();
@@ -196,6 +201,7 @@ internal static class CollectibleVisualsVerification
             address => $"Live collectible read compiled draw or selector byte ${address:X6}.");
     }
 
+    /// <summary>Runs collectible visual and pickup isolation checks.</summary>
     [VerificationCommand("--collectible-visuals")]
     internal static int CollectibleVisualsCommand()
     {

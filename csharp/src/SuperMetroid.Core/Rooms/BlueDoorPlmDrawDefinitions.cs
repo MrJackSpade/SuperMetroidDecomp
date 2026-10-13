@@ -20,7 +20,9 @@ internal static class BlueDoorPlmDrawDefinitions
     /// <summary>One of twenty twelve-byte records at $84:A9A7..AA96.</summary>
     internal readonly record struct Draw(int Orientation, int Frame)
     {
+        /// <summary>Whether this cap's four blocks are laid out as a vertical run.</summary>
         internal bool Vertical => Orientation < 2;
+        /// <summary>Native run header: four blocks with the vertical direction bit when needed.</summary>
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
 
         /// <summary>
@@ -45,6 +47,7 @@ internal static class BlueDoorPlmDrawDefinitions
         }
     }
 
+    /// <summary>Maps a twelve-byte draw-list pointer to its cap orientation and opening frame.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         int offset = pointer - (LeftFrame0 - DrawListBytes);
@@ -67,6 +70,7 @@ internal static class BlueDoorPlmDrawDefinitions
             }
         }
     }
+    /// <summary>Maps a physical closed-cap alias to the matching editable frame-zero artwork.</summary>
     internal static ushort VisualSource(ushort pointer) => pointer switch
     {
         LeftFrame0 - DrawListBytes => LeftFrame0,
@@ -76,7 +80,8 @@ internal static class BlueDoorPlmDrawDefinitions
         _ => pointer,
     };
 
-    // Temporary import/export DTOs; the runtime calculates cells directly.
+    /// <summary>Builds an import/export draw DTO from calculated cells for a recognized native pointer.</summary>
+    /// <remarks>Runtime draws calculate cells directly rather than retaining these DTOs.</remarks>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -87,6 +92,7 @@ internal static class BlueDoorPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Names an editable cap frame by direction and opening phase.</summary>
     internal static string VisualId(ushort pointer)
     {
         if (!TryDescribe(pointer, out var draw))
@@ -95,6 +101,7 @@ internal static class BlueDoorPlmDrawDefinitions
         return $"{direction}-frame-{Math.Max(draw.Frame, 0)}";
     }
 
+    /// <summary>Finds a blue-door draw by its exact editable visual identity.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (var candidate in Editable)

@@ -10,11 +10,16 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Authored rectangle origin and dimensions in eight-pixel border cells.</summary>
     private readonly int left, top, columns, rows;
+    /// <summary>Maps each original OAM part to a perimeter position without changing draw order.</summary>
     private readonly byte[] order;
+    /// <summary>Authored tile, palette, and flip choices for four corners and two edge roles.</summary>
     private readonly Appearance[] appearances;
+    /// <summary>Appearance shared by all border cells with the same geometric role.</summary>
     private readonly record struct Appearance(SnesObjAttributeWord Attributes, bool InheritPalette);
 
+    /// <summary>Stores the supplied border geometry, order, and six appearance roles.</summary>
     private MenuBorderParts(int left, int top, int columns, int rows, byte[] order, Appearance[] appearances)
     {
         this.left = left;
@@ -25,6 +30,7 @@ internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
         this.appearances = appearances;
     }
 
+    /// <summary>Calculates a rectangular border only when supplied parts form an exact eight-pixel perimeter.</summary>
     internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied)
     {
         if (name is not ("Border.Main" or "Border.Copy" or "Border.Clear" or "Heading.Primary" or "Heading.Controller" or "Heading.Special") || supplied.PartCount < 8)
@@ -68,13 +74,15 @@ internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
         return supplied.CalculateIfMatching(calculated);
     }
 
-    // Four distinct corners, one horizontal edge and one vertical edge.
+    /// <summary>Classifies a cell as one of four corners, a horizontal edge, or a vertical edge.</summary>
     private int Role(int column, int row) => row == 0 || row == rows - 1
         ? column == 0 ? row == 0 ? 0 : 2
             : column == columns - 1 ? row == 0 ? 1 : 3 : 4
         : 5;
 
+    /// <summary>Number of border parts retained in the supplied OAM order.</summary>
     public int Count => order.Length;
+    /// <summary>Calculates an indexed perimeter position with its preserved appearance.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -98,9 +106,11 @@ internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
                 unchecked((byte)(top + row * 8)), appearance.Attributes, appearance.InheritPalette);
         }
     }
+    /// <summary>Enumerates calculated border parts in the original draw order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same border order through the non-generic collection interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

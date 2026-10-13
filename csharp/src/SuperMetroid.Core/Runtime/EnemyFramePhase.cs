@@ -11,25 +11,44 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class EnemyFramePhase
 {
+    /// <summary>Receives enemy-authored BG2 scroll changes before the next NMI latches the frame.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Owns bombs and shared projectile cooldown reset requested by an elevator.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
+    /// <summary>Receives suit-palette reloads after enemies change Samus's pose or charge state.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Supplies current and newly pressed controller words to EnemyMain.</summary>
     private readonly ControllerInputState _controller1;
+    /// <summary>Provides the active Samus Mode 7 transform to the enemy frame.</summary>
     private readonly GameplayDisplayState _display;
+    /// <summary>Runs enemy AI, collision, drawing handoffs, and encounter state for this frame.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Applies room effects requested by enemies after their AI pass.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
+    /// <summary>Starts the Ceres escape countdown on the EnemyMain transition that requests it.</summary>
     private readonly EscapeTimer _escapeTimer;
+    /// <summary>Controls whether frozen-time encounters advance presentation effects.</summary>
     private readonly GameplayTimeFreeze _freeze;
+    /// <summary>Supplies frame counters consumed by enemy AI and animation.</summary>
     private readonly NmiClock _nmi;
+    /// <summary>Receives Ceres Ridley's immediate Baby and door sprites before queued enemy layers.</summary>
     private readonly OamBuffer _oam;
+    /// <summary>Exposes Samus's pose, motion, and collision handoffs around EnemyMain.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Supplies collision PLMs to enemy processing.</summary>
     private readonly RoomPlmSystem _plms;
+    /// <summary>Supplies live Samus beams and missiles to enemy collision resolution.</summary>
     private readonly SamusProjectileSystem _projectiles;
+    /// <summary>Provides active room geometry and camera and receives enemy camera requests.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Deletes room liquid HDMA objects when Mother Brain requests their removal.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Collects VRAM writes produced during the enemy pass.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>Shared memory context for enemy operations and Samus presentation reloads.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Binds gameplay owners that exchange state at the native EnemyMain frame boundary.</summary>
     internal EnemyFramePhase(EnemyFramePhaseDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
@@ -51,8 +70,7 @@ internal sealed class EnemyFramePhase
         _vramWrites = dependencies.VramWrites;
         _addressSpace = dependencies.AddressSpace;
     }
-    // Only the remaining dedicated Ceres adapter publishes here. Ordinary shots, Phantoon
-    // beams and bombs dispatch per enemy before AI, and Kraid's passes run inside its AI.
+    /// <summary>Resolves Ceres Ridley's dedicated updated-beam adapter; ordinary projectiles collide before each enemy's AI.</summary>
     internal void ResolveUpdatedBeamHits()
     {
         _enemies.CeresRidleyBehavior.ResolveCeresRidleyProjectileHits(
@@ -61,8 +79,7 @@ internal sealed class EnemyFramePhase
             _bombProjectiles);
     }
 
-    // Terrain preparation owns the external movement words before alpha. Enemy
-    // actors subsequently add platform displacement; beta consumes it unchanged.
+    /// <summary>Publishes prior-frame elevator contact and clears Samus's external displacement before enemies add platform motion.</summary>
     internal void PrepareEnemyFrame()
     {
         if (_room.Camera is not null && _enemies.IsLoaded)
@@ -83,8 +100,7 @@ internal sealed class EnemyFramePhase
         }
     }
 
-    // GameState_8 runs this after Samus alpha/projectile update and before beta
-    // movement. Keep actor side effects together at that shared frame boundary.
+    /// <summary>Runs EnemyMain after Samus alpha and projectiles, then applies enemy-authored palette, scroll, escape, HDMA, and player handoffs before beta movement.</summary>
     /// <param name="processingListPrepared">
     /// True in game state eight, whose frame start already ran $A0:8EB6. Door-transition
     /// enemy passes build the list immediately before EnemyMain instead.

@@ -6,8 +6,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Waver species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class WaverBehavior : IEnemySpecies
 {
+    /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Connects Waver AI to room terrain collision.</summary>
     internal WaverBehavior(EnemyTerrain terrain)
     {
         _terrain = terrain;
@@ -35,9 +37,12 @@ internal sealed class WaverBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Native horizontal speed of one and a half pixels per update in signed 16.16 form.</summary>
     private const int WaverHorizontalSpeedFixed = 0x00018000;
+    /// <summary>Four-pixel amplitude used by Waver's negative-sine vertical motion.</summary>
     private const int WaverVerticalRadius = 4;
 
+    /// <summary>Per-enemy motion and animation state indexed by the physical room slot.</summary>
     internal readonly WaverEnemyState?[] _waverStates =
         new WaverEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -129,6 +134,7 @@ internal sealed class WaverBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Installs a changed facing or spin list and restarts its instruction and loop timers.</summary>
     internal static void SetWaverInstructionList(RoomEnemySlot slot, WaverEnemyState state)
     {
         WaverAnimationSelector requested = state.RequestedInstructionListIndex;
@@ -141,10 +147,12 @@ internal sealed class WaverBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Requires initialization state for a live Waver before processing its AI or spin opcode.</summary>
     private WaverEnemyState RequireWaverState(RoomEnemySlot slot) =>
         _waverStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Waver state.");
 
+    /// <summary>Registers the Waver-specific slot initializer under its bank-$A3 AI pointer.</summary>
     internal void RegisterWaverInitializationAi(EnemyAiTable table)
     {
 
@@ -154,6 +162,7 @@ internal sealed class WaverBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Waver's collision-driven horizontal and sine-wave movement dispatcher.</summary>
     internal void RegisterWaverMainAi(EnemyAiTable table)
     {
 
@@ -163,6 +172,7 @@ internal sealed class WaverBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the private spin-completion opcode used to hand animation control back to main AI.</summary>
     internal void RegisterWaverOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

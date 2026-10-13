@@ -16,9 +16,11 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Checks Ridley's death breakup fragments, instruction programs, installed OAM, and expiry.</summary>
 internal static class RidleyBreakupProgramsVerification
 {
 
+    /// <summary>Drives the grab-release death branch and compares all 29 fragment programs with native data.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyRidleyBreakupPrograms()
     {
@@ -112,6 +114,7 @@ internal static class RidleyBreakupProgramsVerification
         Console.WriteLine("All 29 breakup programs match native mechanics, frame selection, sleep and installed OAM.");
     }
 
+    /// <summary>Runs the Ridley breakup program and artwork check.</summary>
     [VerificationCommand("--ridley-breakup-programs")]
     internal static int RidleyBreakupProgramsCommand()
     {

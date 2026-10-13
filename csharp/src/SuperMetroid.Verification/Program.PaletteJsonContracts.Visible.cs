@@ -10,6 +10,7 @@ using static PaletteJsonContractsFixturesVerification;
 using static PaletteJsonContractsLegacyVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks palette JSON edits change visible color while preserving FX clocks and live state.</summary>
 internal static class PaletteJsonContractsVisibleVerification
 {
     /// <summary>Real compiled FX/animation and software pixels use only installed color data and live RAM.</summary>
@@ -73,6 +74,7 @@ internal static class PaletteJsonContractsVisibleVerification
         }
     }
 
+    /// <summary>Inverts authored RGB5 channels recursively while leaving non-color JSON fields intact.</summary>
     private static void InvertPaletteContractColors(JsonNode? node)
     {
         if (node is JsonObject obj)
@@ -84,6 +86,7 @@ internal static class PaletteJsonContractsVisibleVerification
         else if (node is JsonArray array) foreach (JsonNode? child in array) InvertPaletteContractColors(child);
     }
 
+    /// <summary>Compares palette FX slots, animation fields, requests, and heat phase after color edits.</summary>
     private static void AssertPaletteContractFxState(RoomPaletteFxSystem stock, RoomPaletteFxSystem edited)
     {
         AssertAnimationValues(stock, edited, "FX state and heat phase unchanged");
@@ -102,6 +105,7 @@ internal static class PaletteJsonContractsVisibleVerification
         }
     }
 
+    /// <summary>Renders a tile or sprite with one selected CGRAM color to observe the exact RGB5 replacement.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void AssertPaletteContractPixels(SnesCgram stock, SnesCgram edited, int color)
     {

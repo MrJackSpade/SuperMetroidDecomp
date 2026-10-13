@@ -21,12 +21,16 @@ public sealed class ChozoAndTubeColorCatalog
             content.AppendColors("lowerNorfair", Statue(ChozoStatuePalette.LowerNorfair));
         });
 
+    /// <summary>Eight authored crack inks from which the unedited stock halves and shade ramp are calculated.</summary>
     private readonly Bgr555[] tubeColorSeeds;
+    /// <summary>Supplied crack colors that differ from the stock seed and repeated ramp.</summary>
     private readonly Dictionary<int, Bgr555> tubeColorEdits = [];
-    // Statue colors calculate from ChozoStatuePaintDefinitions; only supplied deviations are stored.
+    /// <summary>Wrecked Ship statue inks that differ from the calculated Chozo paint.</summary>
     private readonly Dictionary<int, Bgr555> wreckedShipEdits = [];
+    /// <summary>Lower Norfair statue inks that differ from the calculated Chozo paint.</summary>
     private readonly Dictionary<int, Bgr555> lowerNorfairEdits = [];
 
+    /// <summary>Preserves authored crack seeds and only deviations from calculated stock tube and statue colors.</summary>
     private ChozoAndTubeColorCatalog(Bgr555[] tubeCracks, Bgr555[] wreckedShip,
         Bgr555[] lowerNorfair)
     {
@@ -45,6 +49,7 @@ public sealed class ChozoAndTubeColorCatalog
         }
     }
 
+    /// <summary>Writes readable camel-case palette documents and rejects unmapped fields on load.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -72,6 +77,7 @@ public sealed class ChozoAndTubeColorCatalog
         return new Bgr555(red, green, blue);
     }
 
+    /// <summary>Resolves a statue ink from an authored edit or the selected variant's calculated paint.</summary>
     private Bgr555 ResolveStatue(ChozoStatuePalette palette, int color)
     {
         if ((uint)color >= ChozoAndTubeColorRomData.ColorCount)
@@ -80,6 +86,7 @@ public sealed class ChozoAndTubeColorCatalog
         return edits.TryGetValue(color, out Bgr555 edited) ? edited : ChozoStatuePaintDefinitions.Color(palette, color);
     }
 
+    /// <summary>Expands a statue variant into its ordered 32-color CGRAM image for identity hashing.</summary>
     private Bgr555[] Statue(ChozoStatuePalette palette) =>
         Enumerable.Range(0, ChozoAndTubeColorRomData.ColorCount).Select(color => ResolveStatue(palette, color)).ToArray();
 
@@ -129,6 +136,7 @@ public sealed class ChozoAndTubeColorCatalog
         return bytes;
     }
 
+    /// <summary>Writes the selected statue's 32 inks into the shared boss OBJ palette range.</summary>
     private void Apply(SnesCgram cgram, ChozoStatuePalette palette)
     {
         Ensure.NotNull(cgram);
@@ -136,6 +144,7 @@ public sealed class ChozoAndTubeColorCatalog
             new BossPalettes(cgram).ChozoAndTube.Write(color, ResolveStatue(palette, color));
     }
 
+    /// <summary>Validates exactly 32 five-bit RGB triples and converts them to packed CGRAM colors.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != ChozoAndTubeColorRomData.ColorCount)
@@ -154,6 +163,7 @@ public sealed class ChozoAndTubeColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects repeated JSON property names before deserialization can overwrite palette edits.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Chozo/tube color property {name}."));

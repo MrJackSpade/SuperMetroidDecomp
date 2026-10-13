@@ -13,14 +13,18 @@ using SuperMetroid.Core.Hardware;
 [CpuBusBoundary("exact bus test: guard double that forbids, observes and counts reads of declared CPU-bus ranges")]
 internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
 {
+    /// <summary>Backing cartridge and mutable memory; absent for a guard that requires every read to be rejected.</summary>
     private readonly ISnesAddressSpace? source;
+    /// <summary>Ordered forbid and observe rules applied before forwarding each read.</summary>
     private readonly List<ReadRule> readRules = [];
+    /// <summary>Reject rules checked before any write reaches the backing bus.</summary>
     private readonly List<WriteRule> writeRules = [];
 
     /// <summary>Guards <paramref name="source"/>, which serves every read and write no rule rejects.</summary>
     internal CartridgeReadGuard(ISnesAddressSpace source) =>
         this.source = Ensure.NotNull(source);
 
+    /// <summary>Creates the unbacked guard used to prove an installed path makes no accepted cartridge reads.</summary>
     private CartridgeReadGuard()
     {
     }
@@ -152,6 +156,7 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
     private protected ISnesAddressSpace Source => source ?? throw new InvalidOperationException(
         "Unbacked bus guard has no source for an unrejected read.");
 
+    /// <summary>Finds the table word owning either byte of a bank-qualified CPU address.</summary>
     private static ushort? FindWord(int address, int bankBase, int count, Func<int, ushort> wordAddress)
     {
         if ((SnesAddressMath.BankBase(address)) != bankBase)
@@ -166,8 +171,10 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
         return null;
     }
 
+    /// <summary>Either rejects a selected read or records it before the backing source serves the byte.</summary>
     private sealed record ReadRule(Func<int, bool> Match, Func<int, Exception>? Failure, Action<int>? Observe);
 
+    /// <summary>Rejects a selected bus write before it reaches mutable memory.</summary>
     private sealed record WriteRule(Func<int, bool> Match, Func<int, Exception> Failure);
 }
 

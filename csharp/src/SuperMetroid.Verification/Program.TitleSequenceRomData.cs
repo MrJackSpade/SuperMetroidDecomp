@@ -10,6 +10,7 @@ using static FrontendVerification;
 using static TitleFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks the complete title phase chain and its constructed cartridge inputs.</summary>
 internal static class TitleSequenceRomDataVerification
 {
     /// <summary>
@@ -107,6 +108,7 @@ internal static class TitleSequenceRomDataVerification
             "animation, confirmation fade, and skip route agree.");
     }
 
+    /// <summary>Builds a ROM image with valid synthetic title art and compiled text/control identities.</summary>
     internal static byte[] CreateConstructedTitleRom()
     {
         var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -171,6 +173,7 @@ internal static class TitleSequenceRomDataVerification
         return rom;
     }
 
+    /// <summary>Writes one compiled timed text list into the constructed ROM up to its scene trigger.</summary>
     private static void WriteConstructedTitleTextList(
         byte[] rom,
         TitleTextSequenceDefinition definition,

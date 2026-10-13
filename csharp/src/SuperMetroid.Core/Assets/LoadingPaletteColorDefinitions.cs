@@ -151,11 +151,10 @@ public static class LoadingPaletteColorDefinitions
     /// Varia normal slot0 also shares Power bright slot0 (both black); the
     /// differing Power normal slot0 payload remains separate.
     /// Differing custom colors remain explicit overrides before this mapping.</remarks>
+    /// <summary>Chooses the independent suit ink or its identical Power counterpart; Varia normal slot zero aliases Power bright black rather than Power normal's payload.</summary>
     private static ushort ShareSuit(int first, int rowOffset, int colorOffset)
     {
         int slot = colorOffset / 2;
-        // The Varia normal transparent entry and Power bright transparent entry
-        // are the same black input; the Power normal entry has a different payload.
         if (first == 0xdcd1 && rowOffset == 0 && slot == 0) return 0xdb8f;
         bool distinct = first == 0xdb6b || (first == 0xdcd1
             ? (rowOffset == 0 ? slot is 0 or 2 or 10 or 11 : slot is 1 or 2 or 10 or 11 or 12)
@@ -163,6 +162,7 @@ public static class LoadingPaletteColorDefinitions
         return (ushort)((distinct ? first : 0xdb6b) + rowOffset + colorOffset);
     }
 
+    /// <summary>Recognizes one suit program's color-word positions, excluding instruction bytes and odd addresses, then maps repeated rows to their earliest ink.</summary>
     private static bool TryProgram(ushort pointer, int first, out ushort canonical)
     {
         canonical = 0;

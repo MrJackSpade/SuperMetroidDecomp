@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Squeept hidden, jump, and follower instruction programs against bank-$A2 ROM and live enemy handoffs.</summary>
 internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail cartridge data for the Norfair lava-jumper instruction suite.</summary>
     internal static void VerifyNorfairLavaJumperInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNorfairLavaJumperInstructionProgramDefinitions), () => VerifyNorfairLavaJumperInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled words with ROM and drives real rise, animation-finished, and follower loops without migrated source reads.</summary>
     internal static void VerifyNorfairLavaJumperInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -121,6 +124,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
             "production programs, the real handshake, and compiled spritemap selectors pass.");
     }
 
+    /// <summary>Forces each timed animation frame and checks that the selected program reaches its terminal sleep opcode.</summary>
     private static void RunNorfairLavaJumperProgram(
         RoomEnemySystem enemies,
         object?[] arguments,
@@ -141,6 +145,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
             "lava-jumper program reaches terminal sleep");
     }
 
+    /// <summary>Repeats lookups from all three compiled programs to check warmed mechanics access allocates no memory.</summary>
     private static int ProbeNorfairLavaJumperInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -157,6 +162,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids compiled mechanics reads and records attempted visual-selector reads from bank $A2.</summary>
     private static CartridgeReadGuard NewNorfairLavaJumperInstructionReadGuard(ISnesAddressSpace source)
     {
         var guard = new CartridgeReadGuard(source)
@@ -178,6 +184,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
         });
     }
 
+    /// <summary>Runs the Norfair lava-jumper mechanics verification command.</summary>
     [VerificationCommand("--norfair-lava-jumper-instruction-mechanics")]
     internal static int NorfairLavaJumperInstructionMechanicsCommand()
     {

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Assets;
 /// </summary>
 internal static class InstalledSamusFileContractTests
 {
+    /// <summary>Checks copied Samus stock and override files for provenance, required references, PNG geometry, and exact-path failures.</summary>
     internal static void Run(string installationRoot)
     {
         string source = new GameInstallation(Path.GetFullPath(installationRoot)).SamusBodyDirectory;
@@ -195,8 +196,10 @@ internal static class InstalledSamusFileContractTests
         finally { Directory.Delete(temporary, recursive: true); }
     }
 
+    /// <summary>Allows body manifest and artwork overrides while keeping other provenance manifests stock-owned.</summary>
     private static bool IsOverridable(string name) => name == SamusBodyArtworkFiles.ManifestFileName ||
         (!name.EndsWith("manifest.json", StringComparison.Ordinal));
+    /// <summary>Fails the file-contract audit with the specific rejected or altered resource description.</summary>
     private static void Require(bool condition, string description)
     {
         if (!condition) throw new InvalidOperationException(description);

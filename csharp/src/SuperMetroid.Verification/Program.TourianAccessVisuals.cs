@@ -17,8 +17,10 @@ using static SamusEaterPlmDefinitionsVerification;
 using static TourianAccessPlmProgramsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Tourian entrance crumble and clear art independently of its physical PLM blocks.</summary>
 internal static class TourianAccessVisualsVerification
 {
+    /// <summary>Extracts five layouts, applies visual overrides, and checks stock integrity and physical isolation.</summary>
     internal static void VerifyTourianAccessVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -96,6 +98,7 @@ internal static class TourianAccessVisualsVerification
             "Tourian access visuals: five native layouts, live crumble/clear edits, physical isolation, stock repair and strict failures pass.");
     }
 
+    /// <summary>Compares every stock visual word and content identity with cartridge draw lists.</summary>
     private static void VerifyTourianAccessStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmTourianAccessVisualCatalog installed)
     {
@@ -153,6 +156,7 @@ internal static class TourianAccessVisualsVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmTourianAccessVisualCatalog(entries), "Tourian access visual bits only");
     }
 
+    /// <summary>Checks edited crumble or clear tiles through immediate redraw and later room streaming.</summary>
     private static void VerifyTourianAccessVisualSeparation(
         SuperMetroidAddressSpace rom,
         RoomPlmTourianAccessVisualCatalog edited,
@@ -190,6 +194,7 @@ internal static class TourianAccessVisualsVerification
             $"Tourian {(clear ? "clear" : "crumble")} edited draw reads no source bytes");
     }
 
+    /// <summary>Runs Tourian access visual extraction and PLM isolation checks.</summary>
     [VerificationCommand("--tourian-access-visuals")]
     internal static int TourianAccessVisualsCommand()
     {

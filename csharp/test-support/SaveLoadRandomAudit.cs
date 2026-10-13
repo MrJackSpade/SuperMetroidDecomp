@@ -16,6 +16,7 @@ using SuperMetroid.Desktop;
 /// <summary>#441: real frontend loading from identical in-memory SRAM, with varied file-map waits.</summary>
 internal static class SaveLoadRandomAudit
 {
+    /// <summary>Tracks dispatcher RNG across file-map waits, debugger restore, continued saves, and true reset.</summary>
     public static int Run(string rom, Action<SuperMetroidGame> bindPresentation)
     {
         foreach (int wait in new[] { 0, 1, 2 })
@@ -107,6 +108,7 @@ internal static class SaveLoadRandomAudit
         return 0;
     }
 
+    /// <summary>Runs the save-load RNG audit with the repository cartridge and installed presentation.</summary>
     [VerificationCommand("--save-load-rng-fixture")]
     internal static int SaveLoadRngFixtureCommand()
     {

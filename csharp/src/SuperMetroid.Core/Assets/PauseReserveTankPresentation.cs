@@ -8,9 +8,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable reserve-strip artwork and origins, independent of reserve energy and fill selection.</summary>
 public sealed class PauseReserveTankPresentation
 {
+    /// <summary>Per-coordinate deviations from the six stock reserve-strip anchors.</summary>
     private readonly Dictionary<int, (int? X, int? Y)> anchorOverrides;
+    /// <summary>Edited sprite compositions for the ten native reserve visual roles.</summary>
     private readonly FrameSet frames;
+    /// <summary>OBJ palette bits applied to every reserve-strip part.</summary>
     private readonly ushort paletteBits;
+    /// <summary>Stores independent anchor edits, frame art, and selected reserve palette.</summary>
     private PauseReserveTankPresentation(Dictionary<int, (int? X, int? Y)> anchorOverrides, FrameSet frames, int palette)
     { this.anchorOverrides = anchorOverrides; this.frames = frames; paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
 

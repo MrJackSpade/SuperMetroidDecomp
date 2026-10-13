@@ -10,8 +10,10 @@ using static IntroRinkaSpriteArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Checks installed scientist and delivered-Baby sprites in intro scenes against native OAM.</summary>
 internal static class IntroScientistSpriteArtworkVerification
 {
+    /// <summary>Compares ten frames, an edited delivery-scene override, rebinding, and missing-frame rejection.</summary>
     internal static void VerifyIntroScientistSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {

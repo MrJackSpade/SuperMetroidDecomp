@@ -9,13 +9,17 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class RoomSpriteObjectPool
 {
+    /// <summary>Supplies installed spritemap artwork when visible room objects are drawn.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>Connects decorative sprite objects to the room's presentation bindings.</summary>
     internal RoomSpriteObjectPool(EnemyRoomBinding room)
     {
         _room = room;
     }
+    /// <summary>The cartridge allocates 32 physical sprite-object slots, searched from highest to lowest.</summary>
     internal const int RoomSpriteObjectSlotCount = 32;
+    /// <summary>Fixed bank-$B4 decorative actor slots, including inactive entries.</summary>
     private readonly RoomSpriteObjectSlot[] _roomSpriteObjects =
         Enumerable.Range(0, RoomSpriteObjectSlotCount)
             .Select(index => new RoomSpriteObjectSlot(index))
@@ -95,6 +99,7 @@ internal sealed class RoomSpriteObjectPool
         }
     }
 
+    /// <summary>Handles repeat-last, terminate, and goto control words after a timed sprite frame.</summary>
     private static void ProcessRoomSpriteObjectOpcode(RoomSpriteObjectSlot slot)
     {
         RoomSpriteObjectInstruction instruction = ClosedNativeWords.Decode<RoomSpriteObjectInstruction>(
@@ -133,6 +138,7 @@ internal sealed class RoomSpriteObjectPool
         }
     }
 
+    /// <summary>Loads a positive frame duration and its installed visual selector from the current bank-$B4 cursor.</summary>
     internal static void LoadRoomSpriteObjectFrame(RoomSpriteObjectSlot slot)
     {
         ushort duration = RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(

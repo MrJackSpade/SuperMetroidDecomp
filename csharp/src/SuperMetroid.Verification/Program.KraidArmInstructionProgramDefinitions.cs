@@ -17,14 +17,17 @@ using static KraidArmCollisionDefinitionsVerification;
 using static KraidArmGeneratedProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kraid's arm collision and instruction programs against bank-$A7 data and live arm execution.</summary>
 internal static class KraidArmInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and starts the Kraid arm instruction suite.</summary>
     internal static void VerifyKraidArmInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidArmInstructionProgramDefinitions), () => VerifyKraidArmInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Executes all four arm programs and the half-health handoff while checking every visual selector and forbidding compiled ROM reads.</summary>
     internal static void VerifyKraidArmInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -107,6 +110,7 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
             "the half-health handoff, and 57 native sprite selections pass with zero live reads.");
     }
 
+    /// <summary>Sets up a Kraid body and bank-$A7 arm sharing an enemy system with guarded cartridge access.</summary>
     private static RoomEnemySystem CreateKraidArmInstructionSystem(
         ISnesAddressSpace bus)
     {
@@ -124,6 +128,7 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>Starts an arm instruction list and forces its requested number of processing calls.</summary>
     private static void RunKraidArmProgram(
         ISnesAddressSpace rom, HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
@@ -140,6 +145,7 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Runs one production arm instruction tick and compares the selected sprite operand with ROM.</summary>
     private static void InvokeKraidArmInstructionProcessor(
         ISnesAddressSpace rom, HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
@@ -149,6 +155,7 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyExecutedEnemySelector), () => VerifyExecutedEnemySelector(rom, arm, executedOperands));
     }
 
+    /// <summary>Repeatedly reads normal and death mechanics words to check warmed lookups allocate no memory.</summary>
     private static int ProbeKraidArmInstructionAllocation()
     {
         int checksum = 0;
@@ -162,18 +169,21 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads a bank-$A7 arm word from the retail cartridge for selector comparisons.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid arm instruction words")]
     internal static ushort ReadKraidArmInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa70000 | address);
 
+    /// <summary>Rejects production reads of compiled arm mechanics and observes attempted presentation-word reads.</summary>
     private static CartridgeReadGuard NewKraidArmInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(KraidArmInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Kraid arm mechanics byte ${address:X6}.")
             .ObserveWords(0xa70000, KraidArmInstructionProgramDefinitions.PresentationWordCount, KraidArmInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Kraid arm instruction mechanics command.</summary>
     [VerificationCommand("--kraid-arm-instruction-program-definitions")]
     internal static int KraidArmInstructionProgramDefinitionsCommand()
     {

@@ -10,6 +10,7 @@ internal static class DesktopAccess
 {
     extension(WaveOutAudioDevice device)
     {
+        /// <summary>Counts buffers prepared for waveOut while holding the device's state gate.</summary>
         internal int PreparedBufferCountForVerification
         {
             get
@@ -19,6 +20,7 @@ internal static class DesktopAccess
             }
         }
 
+        /// <summary>Counts prepared buffers that waveOut has not yet marked done.</summary>
         internal int NativeQueuedBufferCountForVerification
         {
             get
@@ -81,6 +83,7 @@ internal static class DesktopAccess
         string? dataDirectory = null) =>
         new(InstallationFor(romPath, dataDirectory), gameOptions, replay, errorReporter, audioDirectory);
 
+    /// <summary>Uses an explicit extracted directory or repairs and opens the installation beside a ROM.</summary>
     internal static GameInstallation InstallationFor(string romPath, string? dataDirectory = null)
     {
         if (dataDirectory is not null)
@@ -91,6 +94,7 @@ internal static class DesktopAccess
         return GameAssetInstaller.OpenOrRepair(root) ?? GameAssetInstaller.Install(fullRomPath, root);
     }
 
+    /// <summary>Exposes private waveOut buffer slots for bounded queue-state checks.</summary>
     private static IEnumerable<object> Slots(WaveOutAudioDevice device) =>
         PrivateState.Field<Array>(device, "slots").Cast<object>();
 }
@@ -100,6 +104,7 @@ namespace SuperMetroid.Desktop
     /// <summary>Finds extracted audio beside the working or executable directory for verification hosts.</summary>
     internal static class ExtractedAudioAssetLocator
     {
+        /// <summary>Walks upward from the working and executable directories to find an audio manifest.</summary>
         internal static string FindAudioDirectory()
         {
             foreach (string start in new[] { Environment.CurrentDirectory, AppContext.BaseDirectory })

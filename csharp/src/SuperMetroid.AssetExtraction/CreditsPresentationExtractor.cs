@@ -41,6 +41,7 @@ public static class CreditsPresentationExtractor
         return output.ToArray();
     }
 
+    /// <summary>Interprets bank 8C row instructions into bounded 32-word tilemap rows.</summary>
     internal static ushort[][] ReadNativeRows(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
@@ -110,6 +111,7 @@ public static class CreditsPresentationExtractor
         throw new InvalidDataException("Native credits did not terminate within the bounded operation count.");
     }
 
+    /// <summary>Decodes one line's tile bounds, palette, and matching halves into editable text.</summary>
     private static CreditsLineDocument DecodeLine(
         ushort[][] rows, ref int rowIndex, CreditsLineDefinition definition)
     {
@@ -162,6 +164,7 @@ public static class CreditsPresentationExtractor
         };
     }
 
+    /// <summary>Rejects tile content outside the decoded horizontal bounds of a credits line.</summary>
     private static void RequireBlankColumn(
         ushort[] top, ushort[]? bottom, int column, string identity)
     {
@@ -172,6 +175,7 @@ public static class CreditsPresentationExtractor
         }
     }
 
+    /// <summary>Checks the authored empty-row gap before a line or after the final line.</summary>
     private static void RequireBlankRows(ushort[][] rows, int start, int count, string identity)
     {
         if (start + count > rows.Length)
@@ -184,14 +188,17 @@ public static class CreditsPresentationExtractor
         }
     }
 
+    /// <summary>Recognizes the credits blank tile while ignoring its palette attribute bits.</summary>
     private static bool IsBlank(ushort word) =>
         (word & 0x03ff) == CreditsPresentationDefinitions.BlankWord;
 
+    /// <summary>Reads one instruction word from the credits program's native bank.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         RomDataReader.ReadWordFixedBank(
             CartridgeImportSource.Require(bus),
             new SnesAddress(CreditsPresentationDefinitions.Native.InstructionBank, pointer));
 
+    /// <summary>Advances a bank-local credits instruction pointer with native 16-bit wrapping.</summary>
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));
 }

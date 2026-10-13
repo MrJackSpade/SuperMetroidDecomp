@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Samus's spike knockback release, residual speed, and landing transitions.</summary>
 internal static class SpikeDamageBoostVerification
 {
+    /// <summary>Replays focused spike and hurt-expiry trajectories through the runtime movement path.</summary>
     internal static void VerifyMorphedSpikeRelease()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

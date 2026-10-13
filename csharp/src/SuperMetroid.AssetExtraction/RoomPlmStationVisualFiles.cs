@@ -18,8 +18,10 @@ public static class RoomPlmStationVisualFiles
     public const string VisualFileName = "stations.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Supported station-visual JSON and stock-manifest revision.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Serializes readable camel-case station records and accepts case-insensitive field names.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -95,6 +97,7 @@ public static class RoomPlmStationVisualFiles
     /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Checks each native station draw run's shape, words, and continuation offset before extracting its twelve-bit visuals.</summary>
     private static RoomPlmStationVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmStationVisualEntry>();
@@ -136,6 +139,7 @@ public static class RoomPlmStationVisualFiles
         return entries.ToArray();
     }
 
+    /// <summary>Requires every stock visual word to match the compiled station draw catalog.</summary>
     private static void VerifyStockMatchesCompiled(RoomPlmStationVisualCatalog catalog,
         string path)
     {
@@ -153,6 +157,7 @@ public static class RoomPlmStationVisualFiles
         }
     }
 
+    /// <summary>Checks the visual document revision and wraps catalog validation with its source path.</summary>
     private static RoomPlmStationVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -166,8 +171,10 @@ public static class RoomPlmStationVisualFiles
         }
     }
 
+    /// <summary>Reads a station document or manifest from disk with path-aware validation errors.</summary>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
 
+    /// <summary>Deserializes station JSON bytes and reports malformed or empty content against the supplied path.</summary>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -181,7 +188,9 @@ public static class RoomPlmStationVisualFiles
         }
     }
 
+    /// <summary>Stock revision, cartridge provenance, and SHA-256 of the exact station visual JSON bytes.</summary>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
+    /// <summary>Versioned set of named station draw layouts exported from the source cartridge.</summary>
     private sealed record VisualDocument(int Version, RoomPlmStationVisualEntry[] Entries);
 }

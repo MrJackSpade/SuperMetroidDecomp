@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the first Acid Statue room transition after the Lower Norfair acid-drain event.</summary>
 internal static class AcidStatueFirstEntryVerification
 {
+    /// <summary>Follows the retail door and checks drained acid height and pixels during destination fade.</summary>
     internal static void VerifyAcidStatueFirstEntry()
     {
         const ushort sourceRoom = 0xb236;
@@ -120,6 +122,7 @@ internal static class AcidStatueFirstEntryVerification
         Console.WriteLine($"Acid Statue first entry: checked {destinationFrames} destination transition frames.");
     }
 
+    /// <summary>Runs the focused Acid Statue first-entry transition fixture.</summary>
     [VerificationCommand("--acid-statue-first-entry")]
     internal static int AcidStatueFirstEntryCommand()
     {

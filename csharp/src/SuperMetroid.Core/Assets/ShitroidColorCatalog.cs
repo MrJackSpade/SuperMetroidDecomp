@@ -29,15 +29,20 @@ public sealed class ShitroidColorCatalog
             }
         });
 
+    /// <summary>Uses the giant Baby Metroid's selected target inks when they reproduce every pulse frame; otherwise retains the supplied frames.</summary>
     private readonly ColorPulse normal;
+    /// <summary>Live victim colors copied into the Sidehopper palette during encounter setup.</summary>
     private readonly SidehopperInitialPalette sidehopper;
+    /// <summary>Visible giant Baby Metroid inks, excluding its retained transparent slot.</summary>
     private readonly BabyMetroidInitialPalette shitroid;
     /// <summary>$A9:F8E6 is copied by EF9F-EFA8 to target slot A0. Stock3800 is an exact
     /// transparent-slot compatibility payload: OBJ ink0 is skipped before color lookup.
     /// It has no visible hue to derive; independently supplied replacements remain exact.</summary>
     private readonly Bgr555 shitroidTransparentSlot;
+    /// <summary>Victim colors selected after the giant Baby Metroid drains the Sidehopper.</summary>
     private readonly SidehopperCorpsePalette deadSidehopper;
 
+    /// <summary>Separates the transparent Shitroid palette word before constructing the visible-ink resolver.</summary>
     private ShitroidColorCatalog(Bgr555[][] normal, Bgr555[] sidehopper,
         Bgr555[] shitroid, Bgr555[] deadSidehopper)
     {
@@ -48,6 +53,7 @@ public sealed class ShitroidColorCatalog
         this.deadSidehopper = new(deadSidehopper);
     }
 
+    /// <summary>Enforces the installed camel-case schema and rejects unrecognized JSON properties.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -115,6 +121,7 @@ public sealed class ShitroidColorCatalog
         return bytes;
     }
 
+    /// <summary>Checks one authored color row for its required length and RGB5 channel range before packing it.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name)
     {
         if (source is null || source.Length != required)
@@ -132,11 +139,15 @@ public sealed class ShitroidColorCatalog
         return compiled;
     }
 
+    /// <summary>Shares the target's symmetric dimming curve only when it matches all eight supplied pulse phases.</summary>
     private sealed class ColorPulse
     {
+        /// <summary>Visible target inks used to calculate the native pulse when the editable rows agree.</summary>
         private readonly BabyMetroidInitialPalette target;
+        /// <summary>Independent pulse rows retained when an edited frame differs from the calculated curve.</summary>
         private readonly Bgr555[][]? supplied;
 
+        /// <summary>Compares each supplied ink with the target-derived pulse before deciding whether rows can be shared.</summary>
         public ColorPulse(Bgr555[][] frames, BabyMetroidInitialPalette target)
         {
             this.target = target;
@@ -148,6 +159,7 @@ public sealed class ShitroidColorCatalog
                 { supplied = frames; return; }
         }
 
+        /// <summary>Uses the supplied ink or mirrors the eight-phase dimming curve around its two darkest phases, retaining the organ's red floor.</summary>
         public Bgr555 Resolve(int frame, int color)
         {
             if (supplied is not null) return supplied[frame][color];
@@ -165,6 +177,7 @@ public sealed class ShitroidColorCatalog
             });
         }
     }
+    /// <summary>Rejects repeated property names before deserialization can silently replace an authored color row.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Shitroid color property {name}."));

@@ -6,19 +6,23 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Draygon's wall-turret PLMs: header identification and the cannon state Draygon's grab fight drives.</summary>
 internal sealed class DraygonCannonPlms
 {
+    /// <summary>Enemy control-word writer notified when a cannon is destroyed.</summary>
     private readonly PlmRoomBindings _bindings;
 
+    /// <summary>Connects cannon PLM instruction handling to the active room's enemy services.</summary>
     internal DraygonCannonPlms(PlmRoomBindings bindings)
     {
         _bindings = bindings;
     }
 
 
+    /// <summary>Recognizes the active right, pre-destroyed right, and left retail cannon headers.</summary>
     internal static bool IsDraygonCannonHeader(PlmHeaderId header) => header is
         PlmHeaderId.DraygonCannonFacingRight or
         PlmHeaderId.DraygonCannonFacingRightDestroyed or
         PlmHeaderId.DraygonCannonFacingLeft;
 
+    /// <summary>Captures cannon orientation and its enemy control word, installing shootable terrain unless the cannon starts destroyed.</summary>
     internal static void SetupDraygonCannonSlot(RoomLevelData level, PlmSlot slot)
     {
         DraygonCannonOrientation orientation = slot.HeaderPointer switch
@@ -59,6 +63,7 @@ internal sealed class DraygonCannonPlms
             DraygonCannonRomData.CannonExtensionWord);
     }
 
+    /// <summary>Accepts pending missile hits, treating a Super Missile as enough damage to reach the destruction threshold.</summary>
     internal static void RunDraygonCannonPreInstruction(PlmSlot slot)
     {
         DraygonCannonPlmState? state = slot.DraygonCannon;
@@ -84,6 +89,7 @@ internal sealed class DraygonCannonPlms
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Handles cannon link, hit-count branch, and facing-specific destruction opcodes while advancing the PLM cursor.</summary>
     internal bool TryExecuteDraygonCannonInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -147,6 +153,7 @@ internal sealed class DraygonCannonPlms
         }
     }
 
+    /// <summary>Disables the matching bank-$A5 cannon firing word and changes both room blocks to destroyed terrain.</summary>
     private void DamageDraygonCannon(
         RoomLevelData level,
         PlmSlot slot,
@@ -165,6 +172,7 @@ internal sealed class DraygonCannonPlms
         state.Destroyed = true;
     }
 
+    /// <summary>Changes a cannon block's collision type and behavior while preserving its visual tile bits.</summary>
     private static void WriteDraygonCannonTypeAndBts(
         RoomLevelData level,
         int blockIndex,
@@ -177,13 +185,18 @@ internal sealed class DraygonCannonPlms
         level.SetPlmBehavior(blockIndex, unchecked((byte)typeAndBts));
     }
 
+    /// <summary>Per-slot cannon orientation, enemy control-word identity, destruction state, and queued hit flag.</summary>
     internal sealed class DraygonCannonPlmState(
         ushort variablePointer,
         DraygonCannonOrientation orientation)
     {
+        /// <summary>Bank-$A5 word written when this physical cannon stops firing.</summary>
         public ushort VariablePointer { get; } = variablePointer;
+        /// <summary>Selects the right or left damage opcode accepted by this PLM.</summary>
         public DraygonCannonOrientation Orientation { get; } = orientation;
+        /// <summary>Marks that this cannon's terrain and firing control have been disabled.</summary>
         public bool Destroyed { get; set; }
+        /// <summary>Indicates a projectile collision awaiting missile-family filtering.</summary>
         public bool HasPendingHit { get; set; }
     }
 }

@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using static EnemyContentIdentityFixtureVerification;
 
+/// <summary>Checks migration of historical enemy extended-frame art and display bindings.</summary>
 internal static class EnemyExtendedLegacyOverridesVerification
 {
     /// <summary>Verifies declared historical component/binding schemas with authored JSON only.</summary>
@@ -103,6 +104,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
         }
     }
 
+    /// <summary>Pairs each historical schema version with the frame count authored at that revision.</summary>
     private static (int Version, int Count)[] ExtendedEnemySchemaFixtures()
     {
         Type catalog = typeof(EnemyExtendedFrameDefinitions);

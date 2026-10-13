@@ -10,9 +10,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameplayMessagePanelPresentation
 {
+    /// <summary>Validated titles and four-row templates for the seven large item-instruction messages.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledPanel> panels;
+    /// <summary>Thirty-two BG3 tile words copied above and below each panel's content.</summary>
     private readonly ushort[] border;
 
+    /// <summary>Retains compiled panel words and a digest of the exact source JSON document.</summary>
     private GameplayMessagePanelPresentation(
         Dictionary<GameplayMessageId, CompiledPanel> panels,
         ushort[] border,
@@ -155,6 +158,7 @@ public sealed class GameplayMessagePanelPresentation
         output.Write(bytes);
     }
 
+    /// <summary>Immutable title, palette, placement, and owned tile words for one large instruction panel.</summary>
     private sealed record CompiledPanel(
         string Title,
         int Palette,

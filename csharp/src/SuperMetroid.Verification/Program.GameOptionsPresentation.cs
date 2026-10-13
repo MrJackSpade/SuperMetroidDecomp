@@ -7,8 +7,10 @@ using SuperMetroid.Core.Input;
 using static GameOptionsCursorPhasesVerification;
 using static MapPresentationVerification;
 
+/// <summary>Checks installed game-options art against cartridge rendering and editable override behavior.</summary>
 internal static class GameOptionsPresentationVerification
 {
+    /// <summary>Compares menu frames, audio, and controller changes, then checks edited anchors and state-safe rebinding.</summary>
     internal static void VerifyGameOptionsPresentationAssets(
         ISnesAddressSpace bus,
         string stock,

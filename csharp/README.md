@@ -462,6 +462,12 @@ It verifies typed address/memory behavior, decompression and rendering primitive
 collision, projectiles, PLMs, enemies, frontend state, pause/save behavior, and other translated
 dispatcher boundaries. It is not a complete-game playthrough.
 
+`tools/verify-all.ps1` (run from the repository root) builds once and runs every verifier
+project's suite plus the SMV replays. The replays read committed compact traces under
+`csharp/test-fixtures/replay-traces/` (`mother-brain-glitch`, `low-13-percent`,
+`full-100-percent`, `samus-drunk`, `ridley`), produced from private full native captures with
+`--compact-replay-trace SOURCE_DIR DEST_DIR`; see `docs/smv-gameplay-parity.md`.
+
 ### Developer tools
 
 `SuperMetroid.DebugRunner` hosts file-taking developer tools: extracted-installation
@@ -568,4 +574,7 @@ dotnet build SuperMetroid.slnx
 ```
 
 Generated screenshots and route logs belong under `test-temp/` and are intentionally not part
-of stable source checkpoints.
+of stable source checkpoints. `test-temp/` holds only per-run scratch that runs create and
+delete. Persistent local caches that runs reuse (the verifiers' extracted installation, the
+suite-duration hints and the built ending PPU probe) live in ignored `csharp/.cache/`; deleting
+it only costs the next run their rebuild.

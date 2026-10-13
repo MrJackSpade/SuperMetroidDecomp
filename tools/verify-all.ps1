@@ -1,8 +1,5 @@
 [CmdletBinding()]
-param(
-    # Converted replay trace directories (ignored inputs; see docs/smv-gameplay-parity.md).
-    [string]$ReplayRoot = 'test-temp/issue-1275'
-)
+param()
 # Builds once, then runs every verifier project's full no-argument suite and every SMV
 # replay concurrently from a copied bin, so a rebuild cannot race the run. Each command
 # writes its own log; the script waits for all of them and fails if any failed.
@@ -11,12 +8,15 @@ $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
 
 $run = 'csharp/test-temp/verify-all'
+# Committed compact replay traces (see docs/smv-gameplay-parity.md). --ridley-full-movie
+# reads csharp/test-fixtures/replay-traces/ridley itself.
+$traces = 'csharp/test-fixtures/replay-traces'
 $replays = [ordered]@{
     'replay-ridley'  = @('--ridley-full-movie')
-    'replay-mb'      = @('--mother-brain-glitch-movie', "$ReplayRoot/mb")
-    'replay-low13'   = @('--lsmv-playthrough-movie', "$ReplayRoot/low13")
-    'replay-full100' = @('--full-playthrough-movie', "$ReplayRoot/full100")
-    'replay-drunk'   = @('--drunk-playthrough-movie', "$ReplayRoot/drunk")
+    'replay-mb'      = @('--mother-brain-glitch-movie', "$traces/mother-brain-glitch")
+    'replay-low13'   = @('--lsmv-playthrough-movie', "$traces/low-13-percent")
+    'replay-full100' = @('--full-playthrough-movie', "$traces/full-100-percent")
+    'replay-drunk'   = @('--drunk-playthrough-movie', "$traces/samus-drunk")
 }
 $projects = [ordered]@{
     'SuperMetroid.Verification'            = 'net10.0'
@@ -30,7 +30,7 @@ $projects = [ordered]@{
 dotnet build csharp/SuperMetroid.slnx -c Release --nologo -v quiet -clp:ErrorsOnly
 if (Test-Path -LiteralPath $run) { Remove-Item -LiteralPath $run -Recurse -Force }
 # Tests delete their own scratch when they finish; a killed or crashed run cannot, so every run
-# starts by discarding the previous runs' test scratch. Nothing else under test-temp is touched.
+# starts by discarding the previous runs' test scratch. Persistent caches live in csharp/.cache.
 $scratch = 'csharp/test-temp/scratch'
 if (Test-Path -LiteralPath $scratch) { Remove-Item -LiteralPath $scratch -Recurse -Force }
 New-Item -ItemType Directory -Path "$run/bin", "$run/logs" | Out-Null

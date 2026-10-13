@@ -16,7 +16,14 @@ Run:
 ```text
 ridley_capture.exe ROM MOVIE OUTPUT_DIRECTORY 0,10890
 python tools/convert-smv-updates.py MOVIE OUTPUT_DIRECTORY --rom ROM --output OUTPUT_DIRECTORY/updates.json
+dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --compact-replay-trace OUTPUT_DIRECTORY csharp/test-fixtures/replay-traces/NAME
 ```
+
+`OUTPUT_DIRECTORY` is the private full capture; keep it outside the repository or in an
+ignored location such as `native-captures/` (never under `test-temp`, which holds only
+per-run scratch). The replay verifiers read only the committed compact trace that the last
+command writes; its format and the per-movie `NAME` are described in
+`docs/smv-gameplay-parity.md` under "Replay trace storage".
 
 Replace `10890` with the supplied movie length. The terminal checkpoint is always
 captured even if it is omitted from the optional comma-separated snapshot list.
@@ -47,8 +54,10 @@ is executed afterward.
 
 The port verifier currently compares selected gameplay fields and stops at the
 first mismatch. A successfully converted movie is not proof that the port matches
-it. Capture artifacts remain private, and the converter's manifest records hashes
-rather than embedding WRAM or ROM data.
+it. Full capture artifacts remain private, and the converter's manifest records hashes
+rather than embedding WRAM or ROM data. The committed compact trace keeps the
+initial record's WRAM and, for every later record, only the WRAM ranges the replay
+verifier compares (`ReplayTraceMemoryCatalog`).
 
 Manifest v3 records the APU-upload flag (`$0617`), door-scroll counter (`$0925`),
 completed-scroll flag (`$0931`), game state and door dispatcher at each boundary.

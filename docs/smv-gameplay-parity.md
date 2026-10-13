@@ -73,6 +73,54 @@ all 10,890 source frames, with one initial state import and no subsequent native
 state injection. The supplied movie's no-gameplay-desynchronization task is
 complete under the acceptance criterion above.
 
+## Replay trace storage
+
+The native capture adapter writes a private full capture: `updates.json` from the converter
+and `update-boundaries.wram.gz`, whose records each hold the 128 KiB WRAM. Those streams are
+far too large to commit, so the replay verifiers read a committed compact trace instead:
+
+| Movie | Committed trace | Command |
+| --- | --- | --- |
+| Mother Brain glitch | `csharp/test-fixtures/replay-traces/mother-brain-glitch` | `--mother-brain-glitch-movie DIR` |
+| 13% Speed Booster | `csharp/test-fixtures/replay-traces/low-13-percent` | `--lsmv-playthrough-movie DIR` |
+| 100% | `csharp/test-fixtures/replay-traces/full-100-percent` | `--full-playthrough-movie DIR` |
+| Samus drunk | `csharp/test-fixtures/replay-traces/samus-drunk` | `--drunk-playthrough-movie DIR` |
+| Ridley showcase | `csharp/test-fixtures/replay-traces/ridley` | `--ridley-full-movie` |
+
+`tools/verify-all.ps1` passes these paths. Produce or refresh a trace from its full capture
+(the destination must be absent or empty):
+
+```text
+dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --compact-replay-trace SOURCE_DIR DEST_DIR
+```
+
+The compactor selects the layout from the movie identity in `updates.json`, writes the trace,
+then reopens it through the verifiers' reader and compares every record's header and layout
+bytes with the full capture. A compact trace holds:
+
+- `updates.json.gz`: the converter's `updates.json`, byte for byte, gzip-compressed.
+- `initial.wram.gz`: the record at `initialRecord` (source-frame and boundary-PC words, then
+  the complete WRAM), so the one initial-state import still sees every byte.
+- `expected.bin.gz`: every record in capture order, including hardware-wait records the
+  replay skips and the terminal record. Each record is the two little-endian 32-bit header
+  words followed by the layout's payload: its WRAM ranges in ascending address order, XORed
+  with the previous record's payload (the first record with zeros). The layout is fixed;
+  unchanged bytes are zero, so the stream compresses to what changed.
+- `compact-manifest.json`: format `super-metroid-compact-replay-trace-v1`, the layout name,
+  SHA-256 and payload size, the record count and initial record, the movie SHA-256, the
+  source capture's `checkpointsSha256`, and each compact file's SHA-256.
+
+`ReplayTraceMemoryCatalog` (in `SuperMetroid.Verification`) is the single source of truth
+for the compared ranges: the `movie-desync` layout (1,696 WRAM bytes per record) serves the
+four playthrough movies, including their sound acknowledgements and `--trace-from` diagnostic
+fields; the `ridley-showcase` layout serves the Ridley movie. Opening a compact trace checks
+the format, the layout hash against the catalog, every file hash, and that the update
+manifest names the same movie, source capture and initial record. A checkpoint read outside
+the layout fails with the address instead of returning a value, so widening a comparison
+means extending the catalog and recompacting from the full capture. Diagnostics that need
+complete WRAM after the initial record, such as `--snapshot-import-audit`, read the private
+full capture directly.
+
 ## 100% playthrough movie (#1269)
 
 `csharp/test-fixtures/full-100-percent/Super Metroid 100%.smv` (SMV v5, 503,668
@@ -113,7 +161,7 @@ continuations), excluding 149 prelude NMIs, 1,775 music-wait NMIs (four of them
 upload tails) and 75,278 refreshes without accepted input. Run:
 
 ```text
-dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --full-playthrough-movie TRACE_DIRECTORY [--trace-from UPDATE]
+dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --full-playthrough-movie csharp/test-fixtures/replay-traces/full-100-percent [--trace-from UPDATE]
 ```
 
 The replay compares dispatcher state and RNG every update, plus room, camera,
@@ -428,7 +476,8 @@ Run the converted diagnostic from the hotfix worktree root:
 
 ```text
 python tools/convert-smv-updates.py MOVIE TRACE_DIRECTORY --rom ROM --output TRACE_DIRECTORY/updates.json
-dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --ridley-full-movie   # reads ignored native-captures/issue-1266-ridley
+dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --compact-replay-trace TRACE_DIRECTORY csharp/test-fixtures/replay-traces/ridley
+dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --ridley-full-movie   # reads csharp/test-fixtures/replay-traces/ridley
 ```
 
 The current verifier deliberately requires the original supplied Ridley movie's

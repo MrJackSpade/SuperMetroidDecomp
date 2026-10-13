@@ -33,7 +33,11 @@ g++ -o lsmv_capture.exe lsmv_capture.o lsnes/bsnes/obj/*.o zlib-objects/*.o ^
 python tools/lsmv-native-capture/lsmv-extract.py MOVIE --rom ROM --output WORK/frames.bin
 lsmv_capture.exe ROM WORK/frames.bin OUTPUT_DIRECTORY
 python tools/convert-smv-updates.py MOVIE OUTPUT_DIRECTORY --rom ROM --output OUTPUT_DIRECTORY/updates.json
+dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --compact-replay-trace OUTPUT_DIRECTORY csharp/test-fixtures/replay-traces/low-13-percent
 ```
+
+The last command writes the committed compact trace the replay verifier reads; see
+`docs/smv-gameplay-parity.md` under "Replay trace storage".
 
 `lsmv_capture.exe ROM FRAMES OUTPUT --trace START END` instead writes
 `instructions.bin.gz`, the (line, PC) of every instruction in that line range.

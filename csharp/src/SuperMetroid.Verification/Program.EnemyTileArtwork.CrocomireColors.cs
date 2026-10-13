@@ -86,9 +86,9 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         CrocomireEnemyState state = (CrocomireEnemyState)enemies.CrocomireBehavior.Crocomire;
         AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex,
             "installed Crocomire colors leave living fight phase unchanged");
-        AssertEqual(CrocomireInstructionProgramDefinitions.Initial,
-            body.CurrentInstruction,
-            "installed Crocomire colors leave initial instruction unchanged");
+        AssertEqual(AnimationProgramCursor<CrocomireBodyProgram>.Start(CrocomireBodyProgram.Initial),
+            state.BodyCursor,
+            "installed Crocomire colors leave the initial program unchanged");
         AssertBand(CrocomirePaletteRomData.InitialWallDestination,
             CrocomirePaletteRomData.InitialWallCount, colors.ResolveInitialWall,
             "initial wall CGRAM");

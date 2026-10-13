@@ -341,7 +341,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire melting tilemap")]
     internal static ushort[] VerifyInstalledCrocomireMeltingTilemap(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog artwork,
-        CrocomireMeltingTilemapAddress source, ushort bodyInstructionList, bool compareRom = true)
+        CrocomireMeltingTilemapAddress source, CrocomireBodyProgram bodyProgram, bool compareRom = true)
     {
         int sourceAddress = (int)source;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -361,7 +361,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         };
 
         initialize(state);
-        AssertEqual(bodyInstructionList, state.Body.CurrentInstruction,
+        AssertEqual(bodyProgram, state.BodyCursor.Program,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} body program");
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");

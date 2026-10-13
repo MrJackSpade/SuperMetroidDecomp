@@ -89,7 +89,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         Suite(nameof(VerifySharedEmptyExtendedFrames), () => VerifySharedEmptyExtendedFrames(rom, stock));
         Suite(nameof(VerifyInstalledCeresSteamInstructionFrames), () => VerifyInstalledCeresSteamInstructionFrames(stock));
         Suite(nameof(VerifyInstalledOumVisualSelectors), () => VerifyInstalledOumVisualSelectors(rom, stock));
-        Suite(nameof(VerifyInstalledCrocomireTongueVisualSelectors), () => VerifyInstalledCrocomireTongueVisualSelectors(rom, stock));
+        Suite(nameof(VerifyInstalledCrocomireTongueVisualSelectors), () => VerifyInstalledCrocomireTongueVisualSelectors(stock));
         AssertEqual(EnemyExtendedFrameDefinitions.ExpectedFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Length,
             "walking/wall Pirate distinct extended-frame count");

@@ -161,8 +161,11 @@ internal sealed class EnemyProjectileEngine
                 else
                 {
                     enemyProjectile.CollidedProjectileType = collidedProjectileType;
-                    enemyProjectile.StartNativeProgram(
-                        EnemyProjectileDefinitionCatalog.Get(enemyProjectile.Kind).ShotInstructionList);
+                    if (Handlers.TryGetShotAnimation(enemyProjectile.Kind, out Func<EnemyProjectileAnimation>? shotAnimation))
+                        enemyProjectile.StartAnimation(shotAnimation());
+                    else
+                        enemyProjectile.StartNativeProgram(
+                            EnemyProjectileDefinitionCatalog.Get(enemyProjectile.Kind).ShotInstructionList);
                     enemyProjectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
 
                     // Native masks properties with $0FFF. The typed fields below are the
@@ -681,7 +684,7 @@ internal sealed class EnemyProjectileEngine
     {
         if (projectile.Animation is { } animation)
         {
-            animation.Advance(projectile);
+            animation.Advance(projectile, Handlers);
             return;
         }
 
@@ -1056,11 +1059,6 @@ internal sealed class EnemyProjectileEngine
         {
             return YappingMawBodyProjectileInstructionProgramDefinitions.ReadMechanicsWord(
                 address);
-        }
-
-        if (CrocomireProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return CrocomireProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (PhantoonProjectileInstructionProgramDefinitions.Owns(projectile.Kind))

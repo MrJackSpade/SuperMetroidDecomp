@@ -72,7 +72,6 @@ internal static class BossDisplayBindingsResourcesVerification
     {
         var programs = new[]
         {
-            (Definition: EnemyDefinitionId.Crocomire, Program: CrocomireInstructionProgramDefinitions.StepForwardAfterDelay, Duration: 180, Count: 1),
             (Definition: EnemyDefinitionId.PhantoonTentacles, Program: PhantoonInstructionProgramDefinitions.InitialTentacles, Duration: 8, Count: 4),
             (Definition: EnemyDefinitionId.DraygonArms, Program: DraygonInstructionProgramDefinitions.ArmsFacingLeftIdle, Duration: 5, Count: 6),
         };
@@ -97,6 +96,6 @@ internal static class BossDisplayBindingsResourcesVerification
                 if (fresh) transitions++;
             }
         }
-        Console.WriteLine($"PASS boss clocks: 450 production instruction steps/{transitions} exact native frame admissions; actor state, RAM and sound/music requests unchanged.");
+        Console.WriteLine($"PASS boss clocks: {programs.Length * 150} production instruction steps/{transitions} exact native frame admissions; actor state, RAM and sound/music requests unchanged.");
     }
 }

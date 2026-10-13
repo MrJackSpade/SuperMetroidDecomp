@@ -65,11 +65,10 @@ using static CrocomireBg2ScrollVerification;
 using static CrocomireBodyVisualsVerification;
 using static CrocomireBridgeFragmentDefinitionsVerification;
 using static CrocomireMeltingDefinitionsVerification;
-using static CrocomireProjectileInstructionProgramDefinitionsVerification;
+using static CrocomireAnimationsVerification;
 using static CrocomireSkeletonFrameGeometryVerification;
 using static CrocomireSpikeMotionDefinitionsVerification;
 using static CrocomireTongueCollisionDefinitionsVerification;
-using static CrocomireTongueInstructionProgramDefinitionsVerification;
 using static DoorDefinitionsVerification;
 using static DownwardGatePlmsVerification;
 using static DragonFireballInstructionProgramDefinitionsVerification;
@@ -4527,9 +4526,7 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(projectileOracle.Rom)),
             "Crocomire projectile oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyCrocomireProjectileMechanicsDispatch), () => VerifyCrocomireProjectileMechanicsDispatch(projectileOracle));
-        Suite(nameof(VerifyCrocomireProjectilePresentationPositions), () => VerifyCrocomireProjectilePresentationPositions(projectileOracle));
-        Console.WriteLine("Crocomire projectiles: 22 native control words, 13 presentation positions, byte ownership and bounds pass.");
+        Suite(nameof(VerifyCrocomireProjectileAnimations), () => VerifyCrocomireProjectileAnimations(projectileOracle));
         return 0;
     }
 
@@ -4541,9 +4538,7 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(tongueOracle.Rom)),
             "Crocomire tongue oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyCrocomireTongueMechanicsDispatch), () => VerifyCrocomireTongueMechanicsDispatch(tongueOracle));
-        Suite(nameof(VerifyCrocomireTonguePresentationPositions), () => VerifyCrocomireTonguePresentationPositions(tongueOracle));
-        Console.WriteLine("Crocomire tongue: 14 native control words, nine presentation positions, byte ownership and bounds pass.");
+        Suite(nameof(VerifyCrocomireTongueAnimations), () => VerifyCrocomireTongueAnimations(tongueOracle));
         return 0;
     }
 

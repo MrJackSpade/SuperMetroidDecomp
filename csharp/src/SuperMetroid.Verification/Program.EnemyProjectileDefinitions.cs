@@ -107,8 +107,18 @@ internal static class EnemyProjectileDefinitionsVerification
                 shots,
                 new SamusBombProjectileSystem());
             AssertEqual(1, hits, $"{kind} production shot admitted");
-            AssertEqual(definition.ShotInstructionList, projectile.InstructionPointer,
-                $"{kind} production shot list");
+            if (kind == RoomEnemyProjectileKind.CrocomireProjectile)
+            {
+                // Crocomire's shot program is typed (#641); VerifyCrocomireAnimations matches it to the native list.
+                AssertTrue(projectile.Animation is CrocomireProjectileAnimation { Kind: CrocomireProjectileFrameKind.Shot },
+                    $"{kind} production shot starts the typed shot program");
+                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+            }
+            else
+            {
+                AssertEqual(definition.ShotInstructionList, projectile.InstructionPointer,
+                    $"{kind} production shot list");
+            }
         }
 
         AssertThrows<InvalidDataException>(

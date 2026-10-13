@@ -239,6 +239,18 @@ internal sealed class EnemyInstructionInterpreter
             return;
         }
 
+        // Crocomire's body runs typed programs in place of its bank-$A4 instruction lists (#641).
+        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire)
+        {
+            _crocomireBehavior.AdvanceCrocomireBodyAnimation(slot, samus, level, camera.X);
+            return;
+        }
+        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue)
+        {
+            _crocomireBehavior.AdvanceCrocomireTongueAnimation(slot);
+            return;
+        }
+
         ushort oldTimer = slot.InstructionTimer.RawValue;
         slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
         if (oldTimer != 1)
@@ -350,12 +362,6 @@ internal sealed class EnemyInstructionInterpreter
         {
             return KraidLintInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue)
-            return CrocomireTongueInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire)
-            return CrocomireInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo)
             return ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(address);

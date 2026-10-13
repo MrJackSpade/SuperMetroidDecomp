@@ -625,24 +625,6 @@ internal static class CrocomireArenaPlmDrawDefinitionsConstants
     }
 }
 
-/// <summary>Cartridge values of <see cref="CrocomireInstructionProgramDefinitions"/> that only verification reads.</summary>
-internal static class CrocomireInstructionProgramDefinitionsConstants
-{
-    /// <summary>First deliberately excluded unreferenced body program at $A4:BBAE.</summary>
-    public const ushort FirstExcludedUnreferencedProgram = 0xbbae;
-    /// <summary>First independently owned Crocomire-tongue program at $A4:BE56.</summary>
-    public const ushort FirstTongueProgram = 0xbe56;
-
-    /// <summary>Provides Crocomire's first tongue program and excluded adjacent-program boundary for instruction extraction checks.</summary>
-    extension(CrocomireInstructionProgramDefinitions)
-    {
-        /// <inheritdoc cref="CrocomireInstructionProgramDefinitionsConstants.FirstExcludedUnreferencedProgram"/>
-        internal static ushort FirstExcludedUnreferencedProgram => CrocomireInstructionProgramDefinitionsConstants.FirstExcludedUnreferencedProgram;
-        /// <inheritdoc cref="CrocomireInstructionProgramDefinitionsConstants.FirstTongueProgram"/>
-        internal static ushort FirstTongueProgram => CrocomireInstructionProgramDefinitionsConstants.FirstTongueProgram;
-    }
-}
-
 /// <summary>Cartridge values of <see cref="CrocomireMeltingDefinitions"/> that only verification reads.</summary>
 internal static class CrocomireMeltingDefinitionsConstants
 {

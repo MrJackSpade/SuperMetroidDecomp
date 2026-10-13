@@ -41,6 +41,9 @@ internal delegate bool EnemyProjectilePreInstructionInterceptor(RoomEnemyProject
 /// </summary>
 internal delegate bool EnemyProjectileInstructionInterceptor(RoomEnemyProjectileSlot projectile, ushort word, ref ushort cursor);
 
+/// <summary>Carries out one cue a typed projectile timeline published on <paramref name="projectile"/>.</summary>
+internal delegate void EnemyProjectileCueHandler<in TCue>(RoomEnemyProjectileSlot projectile, TCue cue);
+
 /// <summary>An owner of enemy-projectile behavior that registers its handlers with the projectile engine.</summary>
 internal interface IEnemyProjectileHandlerSource
 {
@@ -132,6 +135,38 @@ internal sealed class EnemyProjectileHandlerTable
                 return handler(projectile, samus, camera, word, ref cursor);
         }
         return EnemyProjectileInstructionOutcome.NotHandled;
+    }
+
+    /// <summary>Typed animations a shot projectile of each kind starts in place of its native shot list.</summary>
+    private readonly Dictionary<RoomEnemyProjectileKind, Func<EnemyProjectileAnimation>> _shotAnimations = [];
+
+    /// <summary>Registers the typed animation a shot projectile of <paramref name="kind"/> starts.</summary>
+    internal void RegisterShotAnimation(RoomEnemyProjectileKind kind, Func<EnemyProjectileAnimation> animation)
+    {
+        if (!_shotAnimations.TryAdd(kind, Ensure.NotNull(animation)))
+            throw new InvalidOperationException($"Enemy projectile {kind} has two shot animations.");
+    }
+
+    /// <summary>The typed shot animation registered for <paramref name="kind"/>, if its family has one.</summary>
+    internal bool TryGetShotAnimation(RoomEnemyProjectileKind kind, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Func<EnemyProjectileAnimation>? animation) =>
+        _shotAnimations.TryGetValue(kind, out animation);
+
+    /// <summary>Each typed timeline family's cue handler, keyed by its cue type.</summary>
+    private readonly Dictionary<Type, Delegate> _cues = [];
+
+    /// <summary>Registers the handler that carries out every cue of type <typeparamref name="TCue"/>.</summary>
+    internal void RegisterCue<TCue>(EnemyProjectileCueHandler<TCue> handler)
+    {
+        if (!_cues.TryAdd(typeof(TCue), Ensure.NotNull(handler)))
+            throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name} is registered twice.");
+    }
+
+    /// <summary>Carries out <paramref name="cue"/> with its family's registered handler.</summary>
+    internal void PublishCue<TCue>(RoomEnemyProjectileSlot projectile, TCue cue)
+    {
+        if (!_cues.TryGetValue(typeof(TCue), out Delegate? handler))
+            throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name}.{cue} has no registered handler.");
+        ((EnemyProjectileCueHandler<TCue>)handler)(projectile, cue);
     }
 
     /// <summary>The handler registered for <paramref name="id"/>, if any.</summary>

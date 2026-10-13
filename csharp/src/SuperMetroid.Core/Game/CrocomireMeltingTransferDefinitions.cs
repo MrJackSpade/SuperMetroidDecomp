@@ -44,6 +44,10 @@ internal enum CrocomireMeltingHeader : ushort
 /// </summary>
 internal static class CrocomireMeltingTransferDefinitions
 {
+    /// <summary>Bank $7E: the melt's graphics scratch image lives in work RAM.</summary>
+    internal const byte ScratchBank = 0x7e;
+    /// <summary><c>$7E:4000</c>: the first byte of the melt's graphics scratch image.</summary>
+    internal const ushort ScratchStart = 0x4000;
     /// <summary>Projects the two native melt passes without storing duplicate transfer records.</summary>
     internal static CrocomireMeltingPassSequence Passes => new();
 
@@ -103,7 +107,7 @@ internal readonly record struct CrocomireMeltingCopySequence(CrocomireMeltingPas
         {
             if ((uint)index >= Length) throw new IndexOutOfRangeException();
             int source = Pass.HeaderOffset == (ushort)CrocomireMeltingHeader.First ? 0xa07d : 0xac7d;
-            return new((ushort)(source + index * 0x200), (ushort)(0x4000 + index * 0x200));
+            return new((ushort)(source + index * 0x200), (ushort)(CrocomireMeltingTransferDefinitions.ScratchStart + index * 0x200));
         }
     }
 
@@ -132,7 +136,7 @@ internal readonly record struct CrocomireMeltingUploadSequence(CrocomireMeltingP
         get
         {
             if ((uint)index >= Length) throw new IndexOutOfRangeException();
-            return new(0x160, (ushort)(index * 0x100), 0x7e, (ushort)(0x4000 + index * 0x200));
+            return new(0x160, (ushort)(index * 0x100), CrocomireMeltingTransferDefinitions.ScratchBank, (ushort)(CrocomireMeltingTransferDefinitions.ScratchStart + index * 0x200));
         }
     }
 }

@@ -125,8 +125,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "botwoon", BotwoonVisualDefinitions.ProjectileFrameCount,
             index => BotwoonVisualDefinitions.ProjectilePresentationKey(BotwoonVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "crocomire", CrocomireProjectileInstructionProgramDefinitions.PresentationWordCount,
-            CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "crocomire", CrocomireProjectileVisualDefinitions.ProjectileFrameCount,
+            index => CrocomireProjectileVisualDefinitions.PresentationKey(CrocomireProjectileVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "draygon", DraygonProjectileInstructionProgramDefinitions.PresentationWordCount,
             DraygonProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "downward_gate", DownwardGateProjectileInstructionProgramDefinitions.PresentationWordCount,

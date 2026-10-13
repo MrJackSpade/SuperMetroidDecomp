@@ -21,7 +21,6 @@ internal static partial class CompiledEnemyVisualSelectors
         .. Bank86,
         .. BankA2,
         .. BankA3,
-        .. BankA4,
         .. BankA5,
         .. BankA6,
         .. BankA7,

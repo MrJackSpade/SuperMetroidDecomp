@@ -10,13 +10,7 @@ internal static class CrocomireSkeletonFrameGeometryVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire skeleton frame geometry")]
     internal static void VerifyCrocomireSkeletonFrameGeometry(SuperMetroidAddressSpace rom)
     {
-        var selected = new SortedSet<ushort>();
-        for (int index = 0; index < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
-        {
-            int operand = 0xa40000 | CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(operand);
-            if (pointer >= 0xe1fe) selected.Add(pointer);
-        }
+        var selected = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Skeleton));
         var expected = selected.Select(pointer => new EnemyExtendedFrameDefinition(0xa4, pointer,
             $"crocomire_skeleton_oam_{pointer:X4}")).ToArray();
         AssertEqual(33, expected.Length, "native selected skeleton roots");

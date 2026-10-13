@@ -18,10 +18,8 @@ using static SuiteTimingVerification;
 /// <summary>Checks Crocomire tongue's nine visual frames and empty collision lists against bank A4.</summary>
 internal static class CrocomireTongueCollisionDefinitionsVerification
 {
-    /// <summary>Checks installed sprite selectors and extracted frames with all cartridge reads denied.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire tongue visual selectors")]
-    internal static void VerifyInstalledCrocomireTongueVisualSelectors(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+    /// <summary>Checks that every typed tongue frame has installed art, with all cartridge reads denied.</summary>
+    internal static void VerifyInstalledCrocomireTongueVisualSelectors(EnemyTileArtworkCatalog stock)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var denied = NewCrocomireTongueNoReadBus();
@@ -32,19 +30,12 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         slot.Definition = default(RoomEnemyDefinition) with
         { Bank = CrocomireTongueCollisionDefinitions.Bank };
         var seen = new HashSet<ushort>();
-        for (int index = 0;
-             index < CrocomireTongueInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
+        foreach (CrocomireTongueFrame frame in Enum.GetValues<CrocomireTongueFrame>())
         {
-            ushort operand = CrocomireTongueInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | operand);
-            ushort selected = (ushort)EnemyInstructionInterpreter.ReadEnemyVisualSelector(slot, operand);
-            AssertEqual(native, selected,
-                $"Crocomire tongue selector $A4:{operand:X4} matches native");
+            ushort selected = (ushort)frame;
             AssertTrue(stock.ExtendedFrames!.TryGetDisplay(
                     CrocomireTongueCollisionDefinitions.Bank, selected, out _),
-                $"Crocomire tongue selector $A4:{operand:X4} has installed art");
+                $"Crocomire tongue frame {frame} has installed art");
             seen.Add(selected);
         }
         AssertTrue(seen.SetEquals(Enumerable.Range(0, CrocomireTongueCollisionDefinitions.FrameCount).Select(CrocomireTongueCollisionDefinitions.FramePointer)),

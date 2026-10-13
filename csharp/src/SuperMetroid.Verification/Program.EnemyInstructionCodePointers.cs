@@ -25,7 +25,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(CeresSteamInstruction),
             typeof(ChozoStatueInstruction),
             typeof(CrawlerInstruction),
-            typeof(CrocomireInstruction),
             typeof(DeadSidehopperInstruction),
             typeof(DragonInstruction),
             typeof(DraygonInstruction),

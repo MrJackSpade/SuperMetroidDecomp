@@ -24,9 +24,9 @@ public sealed class CrocomireDeathState
     internal const int MeltingColumnCount = 128;
     /// <summary>Graphics scratch capacity including the native off-by-one chunk-copy overlap.</summary>
     /// <remarks>$A4:943D copies $0201 words for each nominal $0200-word chunk; the seventh second-melt chunk reaches beyond the authored $0E00-byte image.</remarks>
-    internal const int MeltingGraphicsByteCount = 0x1200;
+    internal const int MeltingGraphicsByteCount = 4608;
     /// <summary>BG2 tilemap words held while Crocomire's melting image is assembled.</summary>
-    internal const int Bg2WorkingWordCount = 0x0800;
+    internal const int Bg2WorkingWordCount = 2048;
 
     /// <summary>Per-column erased heights used by the melting progression.</summary>
     internal readonly byte[] _meltingColumnHeights = new byte[MeltingColumnCount];

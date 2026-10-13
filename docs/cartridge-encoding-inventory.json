@@ -23,22 +23,22 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 32954,
-    "PointerDispatch": 1292,
-    "OpaqueWordArray": 1150,
-    "CatalogHexLiteral": 101624,
+    "RawHexLiteral": 32661,
+    "PointerDispatch": 1269,
+    "OpaqueWordArray": 1143,
+    "CatalogHexLiteral": 100932,
     "JustifiedHexLiteral": 76,
     "OwnedWidthOperation": 122,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 1,
     "CountdownSelfDecrement": 53,
-    "class:NumericQuantity": 56218,
-    "class:DomainIdentity": 6972,
-    "class:ComposableBits": 1802,
-    "class:StructuredInstruction": 44536,
-    "class:CartridgeAddress": 26723,
-    "class:Unknown": 1024,
-    "storageWidthMembers": 1779
+    "class:NumericQuantity": 56103,
+    "class:DomainIdentity": 6813,
+    "class:ComposableBits": 1763,
+    "class:StructuredInstruction": 44403,
+    "class:CartridgeAddress": 26158,
+    "class:Unknown": 1020,
+    "storageWidthMembers": 1778
   },
   "subsystems": [
     {
@@ -46,12 +46,12 @@
       "totals": {
         "RawHexLiteral": 306,
         "PointerDispatch": 21,
-        "CatalogHexLiteral": 10648,
+        "CatalogHexLiteral": 10158,
         "OwnedWidthOperation": 2,
         "class:NumericQuantity": 498,
         "class:DomainIdentity": 496,
         "class:ComposableBits": 25,
-        "class:CartridgeAddress": 9844,
+        "class:CartridgeAddress": 9354,
         "class:Unknown": 114,
         "storageWidthMembers": 8
       },
@@ -184,14 +184,6 @@
           "totals": {
             "CatalogHexLiteral": 814,
             "class:CartridgeAddress": 814
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA4.Definitions.Generated.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 490,
-            "class:CartridgeAddress": 490
           }
         },
         {
@@ -1877,23 +1869,17 @@
     {
       "name": "Boss: Crocomire",
       "totals": {
-        "RawHexLiteral": 283,
-        "PointerDispatch": 15,
-        "OpaqueWordArray": 1,
-        "CatalogHexLiteral": 839,
-        "class:NumericQuantity": 748,
-        "class:DomainIdentity": 178,
-        "class:ComposableBits": 48,
-        "class:StructuredInstruction": 50,
-        "class:CartridgeAddress": 106,
-        "class:Unknown": 8,
-        "storageWidthMembers": 20
+        "PointerDispatch": 2,
+        "CatalogHexLiteral": 661,
+        "class:NumericQuantity": 570,
+        "class:DomainIdentity": 17,
+        "class:ComposableBits": 9,
+        "class:CartridgeAddress": 61,
+        "class:Unknown": 6,
+        "storageWidthMembers": 21
       },
       "addressInterpretingTypes": [
-        "CrocomireArenaPlmProgramDefinitions",
-        "CrocomireBehavior",
-        "CrocomireProjectileInstructionProgramDefinitions",
-        "CrocomireTongueInstructionProgramDefinitions"
+        "CrocomireArenaPlmProgramDefinitions"
       ],
       "files": [
         {
@@ -1905,14 +1891,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Assets/CrocomireMeltingArtwork.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 4
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Assets/CrocomireMeltingArtworkAddresses.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -1921,20 +1899,19 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Assets/CrocomireMeltingTilemap.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 64,
-            "class:NumericQuantity": 20,
-            "class:DomainIdentity": 44
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Assets/CrocomirePaintDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 8,
             "class:NumericQuantity": 8
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CrocomireProjectileVisualDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 4,
+            "class:NumericQuantity": 4
           }
         },
         {
@@ -1958,14 +1935,7 @@
           "path": "csharp/src/SuperMetroid.Core/Game/CrocomireBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 147,
-            "PointerDispatch": 4,
-            "class:NumericQuantity": 98,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 46,
-            "class:CartridgeAddress": 4,
-            "class:Unknown": 2,
-            "storageWidthMembers": 1
+            "storageWidthMembers": 2
           }
         },
         {
@@ -1974,6 +1944,13 @@
           "totals": {
             "CatalogHexLiteral": 14,
             "class:NumericQuantity": 14
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CrocomireBodyAnimations.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "storageWidthMembers": 1
           }
         },
         {
@@ -2003,14 +1980,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Game/CrocomireCodePointers.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 27,
-            "class:CartridgeAddress": 27
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Game/CrocomireCorpseCollisionDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -2019,47 +1988,26 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Game/CrocomireDeathPhases.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 45,
-            "class:DomainIdentity": 45
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Game/CrocomireEnemyState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 21,
-            "class:DomainIdentity": 21,
-            "storageWidthMembers": 6
+            "storageWidthMembers": 5
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Game/CrocomireInstructionProgramDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Game/CrocomireFightFlags.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 67,
-            "class:NumericQuantity": 62,
-            "class:CartridgeAddress": 5
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "OpaqueWordArray": 1,
-            "CatalogHexLiteral": 51,
-            "class:ComposableBits": 2,
-            "class:StructuredInstruction": 50
+            "CatalogHexLiteral": 9,
+            "class:ComposableBits": 9
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Core/Game/CrocomireMeltingTransferDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 16,
-            "class:NumericQuantity": 12,
+            "CatalogHexLiteral": 15,
+            "class:NumericQuantity": 11,
             "class:DomainIdentity": 2,
             "class:Unknown": 2
           }
@@ -2076,27 +2024,7 @@
           "path": "csharp/src/SuperMetroid.Core/Game/CrocomirePlmRequest.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 2,
             "storageWidthMembers": 13
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/CrocomirePowerBombReactionDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 50,
-            "class:DomainIdentity": 50
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/CrocomireProjectileInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 6,
-            "CatalogHexLiteral": 6,
-            "class:NumericQuantity": 6,
-            "class:CartridgeAddress": 6
           }
         },
         {
@@ -2116,6 +2044,14 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Game/CrocomireSoundDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 14,
+            "class:NumericQuantity": 14
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Game/CrocomireSpikeMotionDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -2130,16 +2066,6 @@
             "CatalogHexLiteral": 12,
             "class:NumericQuantity": 1,
             "class:CartridgeAddress": 11
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/CrocomireTongueInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 3,
-            "CatalogHexLiteral": 3,
-            "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 3
           }
         },
         {
@@ -7598,10 +7524,10 @@
         "RawHexLiteral": 202,
         "PointerDispatch": 62,
         "OpaqueWordArray": 102,
-        "CatalogHexLiteral": 1688,
+        "CatalogHexLiteral": 1692,
         "JustifiedHexLiteral": 1,
         "OwnedWidthOperation": 1,
-        "class:NumericQuantity": 611,
+        "class:NumericQuantity": 615,
         "class:DomainIdentity": 15,
         "class:ComposableBits": 50,
         "class:StructuredInstruction": 655,
@@ -7719,8 +7645,8 @@
           "path": "csharp/src/SuperMetroid.Core/Game/EnemyProjectileDefinitionCatalog.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 528,
-            "class:NumericQuantity": 376,
+            "CatalogHexLiteral": 532,
+            "class:NumericQuantity": 380,
             "class:ComposableBits": 5,
             "class:CartridgeAddress": 147
           }
@@ -9444,18 +9370,18 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 27606,
-        "PointerDispatch": 432,
-        "OpaqueWordArray": 1011,
-        "CatalogHexLiteral": 5424,
+        "RawHexLiteral": 27596,
+        "PointerDispatch": 422,
+        "OpaqueWordArray": 1005,
+        "CatalogHexLiteral": 5396,
         "OwnedWidthOperation": 59,
-        "class:NumericQuantity": 10382,
-        "class:DomainIdentity": 618,
+        "class:NumericQuantity": 10441,
+        "class:DomainIdentity": 620,
         "class:ComposableBits": 569,
-        "class:StructuredInstruction": 14285,
-        "class:CartridgeAddress": 8154,
-        "class:Unknown": 524,
-        "storageWidthMembers": 317
+        "class:StructuredInstruction": 14202,
+        "class:CartridgeAddress": 8124,
+        "class:Unknown": 522,
+        "storageWidthMembers": 315
       },
       "addressInterpretingTypes": [
         "",
@@ -9486,9 +9412,7 @@
         "ChozoTourianDustInstructionProgramDefinitionsTooling",
         "CommonEnemyProjectileInstructionProgramDefinitionsTooling",
         "CrocomireArenaPlmsVerification",
-        "CrocomireProjectileInstructionProgramDefinitionsTooling",
         "CrocomireSkeletonArtworkVerification",
-        "CrocomireTongueInstructionProgramDefinitionsTooling",
         "DeadSidehopperLaunchDefinitionsVerification",
         "DownwardGateProjectileInstructionProgramDefinitionsTooling",
         "DragonFireballInstructionProgramDefinitionsTooling",
@@ -10497,23 +10421,6 @@
           "totals": {
             "PointerDispatch": 3,
             "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Game/CrocomireProjectileInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "PointerDispatch": 2,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Game/CrocomireTongueInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "PointerDispatch": 8,
-            "class:CartridgeAddress": 9
           }
         },
         {
@@ -11594,6 +11501,15 @@
           "totals": {
             "RawHexLiteral": 1,
             "class:NumericQuantity": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/CrocomireNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 72,
+            "class:NumericQuantity": 69,
+            "class:CartridgeAddress": 3
           }
         },
         {
@@ -13226,10 +13142,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.CrocomireBodyVisuals.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 22,
-            "class:NumericQuantity": 9,
+            "RawHexLiteral": 17,
+            "class:NumericQuantity": 8,
             "class:DomainIdentity": 1,
-            "class:CartridgeAddress": 12
+            "class:CartridgeAddress": 8
           }
         },
         {
@@ -13249,15 +13165,6 @@
             "RawHexLiteral": 9,
             "class:NumericQuantity": 1,
             "class:CartridgeAddress": 8
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Program.CrocomireInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 7,
-            "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 3
           }
         },
         {
@@ -13281,18 +13188,6 @@
             "class:DomainIdentity": 3,
             "class:StructuredInstruction": 9,
             "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Program.CrocomireProjectileInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "OpaqueWordArray": 3,
-            "CatalogHexLiteral": 55,
-            "class:NumericQuantity": 3,
-            "class:StructuredInstruction": 48,
-            "class:CartridgeAddress": 5,
-            "class:Unknown": 2
           }
         },
         {
@@ -13320,9 +13215,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.CrocomireSkeletonFrameGeometry.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 6,
+            "RawHexLiteral": 4,
             "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -13338,20 +13233,10 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "OpaqueWordArray": 3,
-            "CatalogHexLiteral": 43,
+            "CatalogHexLiteral": 42,
             "class:NumericQuantity": 5,
             "class:StructuredInstruction": 30,
-            "class:CartridgeAddress": 11
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Program.CrocomireTongueInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "OpaqueWordArray": 3,
-            "CatalogHexLiteral": 37,
-            "class:StructuredInstruction": 35,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 10
           }
         },
         {
@@ -14117,9 +14002,10 @@
           "totals": {
             "RawHexLiteral": 38,
             "OpaqueWordArray": 1,
+            "class:DomainIdentity": 2,
             "class:ComposableBits": 3,
             "class:StructuredInstruction": 11,
-            "class:CartridgeAddress": 25
+            "class:CartridgeAddress": 23
           }
         },
         {
@@ -22678,10 +22564,10 @@
           "path": "csharp/test-support/VerificationAccess/CoreConstantsAccess.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 456,
-            "class:NumericQuantity": 187,
+            "RawHexLiteral": 454,
+            "class:NumericQuantity": 185,
             "class:CartridgeAddress": 269,
-            "storageWidthMembers": 234
+            "storageWidthMembers": 232
           }
         },
         {

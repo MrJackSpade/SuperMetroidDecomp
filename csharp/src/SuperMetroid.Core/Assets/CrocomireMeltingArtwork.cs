@@ -119,7 +119,7 @@ public sealed class CrocomireMeltingArtwork
         for (int index = 0; index < words.Length; index++)
         {
             CrocomireMeltingTilemapCell? cell = document.Cells[index];
-            if (cell is null || (uint)cell.TileIndex > 0x03ff ||
+            if (cell is null || (uint)cell.TileIndex > 1023 ||
                 (uint)cell.Palette > 7)
                 throw new InvalidDataException(
                     $"Crocomire melt tilemap cell {index} has an invalid tile or palette.");
@@ -146,7 +146,7 @@ public sealed class CrocomireMeltingArtwork
     {
         int end = 0;
         foreach (CrocomireMeltingCopy copy in pass.Copies)
-            end = Math.Max(end, copy.DestinationWord - 0x4000 + (pass.WordsToCopy + 1) * 2);
+            end = Math.Max(end, copy.DestinationWord - CrocomireMeltingTransferDefinitions.ScratchStart + (pass.WordsToCopy + 1) * 2);
         return end;
     }
 
@@ -174,9 +174,9 @@ public static class CrocomireMeltingArtworkFormat
     /// <summary>Installed editable JSON filename for the second image's 256 BG2 references, corresponding to $A4:9E7B.</summary>
     public const string SecondTilemapFileName = "crocomire-melt-second-tiles.json";
     /// <summary>$0E20 compiled 4bpp bytes, or 113 characters, for the first scratch image; bytes beyond the native overlapping-copy extent must remain zero.</summary>
-    public const int FirstByteCount = 0x0e20;
+    public const int FirstByteCount = 3616;
     /// <summary>$1020 compiled 4bpp bytes, or 129 characters, for the second scratch image; bytes beyond the native overlapping-copy extent must remain zero.</summary>
-    public const int SecondByteCount = 0x1020;
+    public const int SecondByteCount = 4128;
     /// <summary>Supported visual tile-layout schema revision, checked before compiling packed SNES BG words.</summary>
     public const int TilemapVersion = 1;
     /// <summary>Required JSON width declaration of 16; cells retain native linear order rather than being rearranged into 16-column runtime BG rows.</summary>

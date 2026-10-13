@@ -16,13 +16,7 @@ internal static class CrocomireBodyVisualsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire body frame geometry")]
     internal static void VerifyCrocomireBodyFrameGeometry(SuperMetroidAddressSpace rom)
     {
-        var original = new SortedSet<ushort>();
-        for (int index = 0; index < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
-        {
-            int operand = CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            ushort frame = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | operand);
-            if (frame < 0xe1fe) original.Add(frame);
-        }
+        var original = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Body));
         AssertEqual(50, original.Count, "native body frame selection count");
         AssertEqual(50, CrocomireBodyVisualDefinitions.Frames.Length, "calculated body frame count");
         ushort[] expected = original.ToArray();
@@ -49,13 +43,8 @@ internal static class CrocomireBodyVisualsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire BG2 generated catalog")]
     internal static void VerifyCrocomireBg2GeneratedCatalog(SuperMetroidAddressSpace rom)
     {
-        var pointers = new SortedSet<ushort>();
-        for (int i = 0; i < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount; i++)
-        {
-            int operand = CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(i);
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | operand);
-            if (pointer < 0xca7e) pointers.Add(pointer);
-        }
+        var pointers = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Body)
+            .Where(CrocomireBodyVisualDefinitions.HasBg2));
         EnemyBg2FrameDefinition[] expected = pointers.Select(pointer =>
             new EnemyBg2FrameDefinition(pointer, $"crocomire_body_bg2_{pointer:X4}")).ToArray();
         AssertEqual(42, expected.Length, "native Crocomire BG2 catalog size");
@@ -91,19 +80,6 @@ internal static class CrocomireBodyVisualsVerification
         AssertTrue(stock.ExtendedFrames is not null && stock.CrocomireBg2Frames is not null,
             "installed Crocomire body has both OAM and BG2 presentations");
         Suite(nameof(VerifyCrocomireBodyFrameGeometry), () => VerifyCrocomireBodyFrameGeometry(rom));
-        for (int index = 0;
-             index < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = CrocomireInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | operand));
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet(
-                    CrocomireBodyVisualDefinitions.Bank, operand, out ushort compiled),
-                $"Crocomire selector $A4:{operand:X4} is compiled");
-            AssertEqual(native, compiled,
-                $"Crocomire selector $A4:{operand:X4} matches the pinned cartridge");
-        }
         AssertEqual(CrocomireBodyVisualDefinitions.MixedBg2FrameCount,
             CrocomireBg2FrameDefinitions.Frames.Length,
             "forty-two Crocomire body roots have a BG2 half");

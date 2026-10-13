@@ -1,110 +1,111 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Native even-numbered state indexes (Crocomire variable A, $0FA8) used by Crocomire's bank-$A4 death dispatcher.
+/// Crocomire's death phases (variable A, $0FA8), in the order of the bank-$A4 death dispatcher's table. The
+/// slot stores the member, not the table's even byte offset.
 /// Keeping this table separate from the executor makes the ROM-authored sequence readable
 /// without mixing identity declarations into the state-transition implementation.
 /// </summary>
 public enum CrocomireDeathPhase : ushort
 {
     /// <summary>Zero: the fight and bridge checks run; the death sequence has not begun.</summary>
-    Fighting = 0x00,
+    Fighting = 0,
     /// <summary>Bridge crumbles while Crocomire sinks into the acid.</summary>
-    CrumbleBridgeAndSink = 0x02,
+    CrumbleBridgeAndSink,
     /// <summary>First submerged pause.</summary>
-    FirstSubmergedPause = 0x04,
+    FirstSubmergedPause,
     /// <summary>First hop rising phase.</summary>
-    FirstHopRise = 0x06,
+    FirstHopRise,
     /// <summary>First hop sinking phase.</summary>
-    FirstHopSink = 0x08,
+    FirstHopSink,
     /// <summary>Second submerged pause.</summary>
-    SecondSubmergedPause = 0x0a,
+    SecondSubmergedPause,
     /// <summary>Second hop rising phase.</summary>
-    SecondHopRise = 0x0c,
+    SecondHopRise,
     /// <summary>Second hop sinking phase.</summary>
-    SecondHopSink = 0x0e,
+    SecondHopSink,
     /// <summary>Installs the first melting tilemap and tongue/arm actor.</summary>
-    InstallFirstMeltImage = 0x10,
+    InstallFirstMeltImage,
     /// <summary>Copies the first melting graphics into the native scratch image.</summary>
-    CopyFirstMeltGraphics = 0x12,
+    CopyFirstMeltGraphics,
     /// <summary>Uploads one first-melt graphics slice per frame.</summary>
-    UploadFirstMeltGraphics = 0x14,
+    UploadFirstMeltGraphics,
     /// <summary>Third hop rising phase.</summary>
-    ThirdHopRise = 0x16,
+    ThirdHopRise,
     /// <summary>Starts the first column dissolve and vertical-scroll HDMA table.</summary>
-    StartFirstDissolve = 0x18,
+    StartFirstDissolve,
     /// <summary>Dissolves the first body image.</summary>
-    DissolveFirstImage = 0x1a,
+    DissolveFirstImage,
     /// <summary>Clears BG2 after the first body image is gone.</summary>
-    ClearFirstMeltImage = 0x1c,
+    ClearFirstMeltImage,
     /// <summary>Fourth hop sinking phase.</summary>
-    FourthHopSink = 0x1e,
+    FourthHopSink,
     /// <summary>Third submerged pause.</summary>
-    ThirdSubmergedPause = 0x20,
+    ThirdSubmergedPause,
     /// <summary>Fourth hop rising phase.</summary>
-    FourthHopRise = 0x22,
+    FourthHopRise,
     /// <summary>Fifth hop sinking phase.</summary>
-    FifthHopSink = 0x24,
+    FifthHopSink,
     /// <summary>Fourth submerged pause.</summary>
-    FourthSubmergedPause = 0x26,
+    FourthSubmergedPause,
     /// <summary>Fifth hop rising phase.</summary>
-    FifthHopRise = 0x28,
+    FifthHopRise,
     /// <summary>Sixth hop sinking phase.</summary>
-    SixthHopSink = 0x2a,
+    SixthHopSink,
     /// <summary>Installs the second melting tilemap.</summary>
-    InstallSecondMeltImage = 0x2c,
+    InstallSecondMeltImage,
     /// <summary>Copies the second melting graphics into the scratch image.</summary>
-    CopySecondMeltGraphics = 0x2e,
+    CopySecondMeltGraphics,
     /// <summary>Uploads one second-melt graphics slice per frame.</summary>
-    UploadSecondMeltGraphics = 0x30,
+    UploadSecondMeltGraphics,
     /// <summary>Shipped index-only spacer.</summary>
-    ShippedSpacer = 0x32,
+    ShippedSpacer,
     /// <summary>Sixth hop rising phase.</summary>
-    SixthHopRise = 0x34,
+    SixthHopRise,
     /// <summary>Starts the second column dissolve.</summary>
-    StartSecondDissolve = 0x36,
+    StartSecondDissolve,
     /// <summary>Dissolves the second body image.</summary>
-    DissolveSecondImage = 0x38,
+    DissolveSecondImage,
     /// <summary>Clears BG2 after the second body image is gone.</summary>
-    ClearSecondMeltImage = 0x3a,
+    ClearSecondMeltImage,
     /// <summary>Final sink before selecting the river-skeleton detour.</summary>
-    FinalSink = 0x3c,
+    FinalSink,
     /// <summary>Waits behind the wall for Samus to return left.</summary>
-    WaitForSamusAtWall = 0x3e,
+    WaitForSamusAtWall,
     /// <summary>Rumbles the hidden wall using the ROM's signed table.</summary>
-    RumbleHiddenWall = 0x40,
+    RumbleHiddenWall,
     /// <summary>Loads skeleton OBJ tiles and breaks the spike wall.</summary>
-    BreakSpikeWall = 0x42,
+    BreakSpikeWall,
     /// <summary>Eighty-frame delay before the skeleton starts falling.</summary>
-    DelaySkeletonFall = 0x44,
+    DelaySkeletonFall,
     /// <summary>Arcs the skeleton back into the arena.</summary>
-    ArcSkeletonIntoArena = 0x46,
+    ArcSkeletonIntoArena,
     /// <summary>Waits for the falls-apart list to reach its terminal image.</summary>
-    WaitForSkeletonTerminalImage = 0x48,
+    WaitForSkeletonTerminalImage,
     /// <summary>Reopens the four left scroll cells and clears the wall.</summary>
-    ClearWallAndOpenScrolls = 0x4a,
+    ClearWallAndOpenScrolls,
     /// <summary>Waits for the stable skeleton frame.</summary>
-    WaitForStableSkeleton = 0x4c,
+    WaitForStableSkeleton,
     /// <summary>Native one-frame index-only state.</summary>
-    NativeOneFrameSpacer = 0x4e,
+    NativeOneFrameSpacer,
     /// <summary>Publishes the miniboss bit and restores boss music.</summary>
-    PublishDefeatAndRestoreMusic = 0x50,
+    PublishDefeatAndRestoreMusic,
     /// <summary>Final live-room corpse state; intentionally inert.</summary>
-    InertCorpse = 0x52,
+    InertCorpse,
     /// <summary>Already-defeated initializer's one-frame advance.</summary>
-    DefeatedRoomAdvance = 0x54,
+    DefeatedRoomAdvance,
     /// <summary>Pins BG2 scrolls at zero in the already-defeated room.</summary>
-    PinDefeatedRoomBg2Scroll = 0x56,
+    PinDefeatedRoomBg2Scroll,
     /// <summary>River detour sequenced between the final sink and wall wait.</summary>
-    RiverSkeletonDetour = 0x58,
+    RiverSkeletonDetour,
 }
 
 /// <summary>Domain-owned transitions over <see cref="CrocomireDeathPhase"/>.</summary>
 public static class CrocomireDeathPhases
 {
     /// <summary>
-    /// The dispatcher entry two bytes after <paramref name="phase"/>, as the native death
-    /// handlers advance variable A by two. <see cref="CrocomireDeathPhase.RiverSkeletonDetour"/> is the last
+    /// The dispatcher entry after <paramref name="phase"/>, as the native death handlers
+    /// advance variable A by one table word. <see cref="CrocomireDeathPhase.RiverSkeletonDetour"/> is the last
     /// table entry and has no successor.
     /// </summary>
     public static CrocomireDeathPhase Next(this CrocomireDeathPhase phase) => phase switch

@@ -65,11 +65,9 @@ using static CompiledProjectileMathVerification;
 using static CrawlerAnimationDefinitionsVerification;
 using static CrawlerSpeedsVerification;
 using static CrocomireBridgeFragmentDefinitionsVerification;
-using static CrocomireInstructionProgramDefinitionsVerification;
+using static CrocomireAnimationsVerification;
 using static CrocomireMeltingDefinitionsVerification;
-using static CrocomireProjectileInstructionProgramDefinitionsVerification;
 using static CrocomireRumbleDefinitionsVerification;
-using static CrocomireTongueInstructionProgramDefinitionsVerification;
 using static CrystalFlashPaletteTimingDefinitionsVerification;
 using static DachoraInstructionProgramDefinitionsVerification;
 using static DeadSidehopperCorpseDefinitionsVerification;
@@ -370,7 +368,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyNuclearWaffleProjectileInstructionProgramDefinitions), () => VerifyNuclearWaffleProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyKagoBugProjectileInstructionProgramDefinitions), () => VerifyKagoBugProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyYappingMawBodyProjectileInstructionProgramDefinitions), () => VerifyYappingMawBodyProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyCrocomireProjectileInstructionProgramDefinitions), () => VerifyCrocomireProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyCrocomireProjectileAnimations), () => VerifyCrocomireProjectileAnimations(LoadRepositoryRom())),
         new(nameof(VerifyPhantoonProjectileInstructionProgramDefinitions), () => VerifyPhantoonProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyDraygonProjectileInstructionProgramDefinitions), () => VerifyDraygonProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCeresRidleyProjectileInstructionProgramDefinitions), () => VerifyCeresRidleyProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
@@ -554,8 +552,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyFakeKraidProjectileDefinitions), () => VerifyFakeKraidProjectileDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyFakeKraidInstructionProgramDefinitions), () => VerifyFakeKraidInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyChozoStatueInstructionProgramDefinitions), () => VerifyChozoStatueInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyCrocomireTongueInstructionProgramDefinitions), () => VerifyCrocomireTongueInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyCrocomireInstructionProgramDefinitions), () => VerifyCrocomireInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyCrocomireTongueAnimations), () => VerifyCrocomireTongueAnimations(LoadRepositoryRom())),
+        new(nameof(VerifyCrocomireBodyAnimations), () => VerifyCrocomireBodyAnimations(LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainBabyInstructionProgramDefinitions), () => VerifyMotherBrainBabyInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEscapeEtecoonDefinitions), () => VerifyEscapeEtecoonDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEscapeEtecoonInstructionProgramDefinitions), () => VerifyEscapeEtecoonInstructionProgramDefinitions(LoadRepositoryRom())),

@@ -20,13 +20,13 @@ internal static class CrocomireMeltingDefinitions
     /// </remarks>
     private static ReadOnlySpan<byte> ColumnOrder =>
     [
-        0x2b, 0x28, 0x21, 0x1f, 0x2c, 0x10, 0x16, 0x17,
-        0x0f, 0x00, 0x06, 0x07, 0x0b, 0x08, 0x01, 0x2a,
-        0x0c, 0x24, 0x2e, 0x2d, 0x1a, 0x14, 0x1d, 0x23,
-        0x1e, 0x29, 0x25, 0x22, 0x13, 0x19, 0x15, 0x12,
-        0x30, 0x03, 0x09, 0x02, 0x1b, 0x05, 0x18, 0x1c,
-        0x11, 0x0a, 0x04, 0x0d, 0x2f, 0x0e, 0x20, 0x26,
-        0x27,
+        43, 40, 33, 31, 44, 16, 22, 23,
+        15, 0, 6, 7, 11, 8, 1, 42,
+        12, 36, 46, 45, 26, 20, 29, 35,
+        30, 41, 37, 34, 19, 25, 21, 18,
+        48, 3, 9, 2, 27, 5, 24, 28,
+        17, 10, 4, 13, 47, 14, 32, 38,
+        39,
     ];
 
     /// <summary>The number of authored physical columns in the melt permutation.</summary>
@@ -48,6 +48,6 @@ internal static class CrocomireMeltingDefinitions
     {
         if ((uint)cursor >= ColumnCount)
             throw new ArgumentOutOfRangeException(nameof(cursor));
-        return (byte)(0xff ^ (0x80 >> (cursor & 7)));
+        return (byte)~(128 >> (cursor & 7));
     }
 }

@@ -167,20 +167,23 @@ internal static class EnemyDefinitionBoundaryVerification
     private static void VerifyCrocomirePowerBombReactionDefinitions(ISnesAddressSpace source)
     {
         int tested = 0;
-        foreach (ushort frame in CrocomireBodyVisualDefinitions.Frames)
+        for (int index = 0; index < CrocomireBodyVisualDefinitions.BodyFrameCount; index++)
         {
-            ushort expected = CrocomireInstructionProgramDefinitions.PowerBombReactionMouthNotOpen;
-            int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | frame));
+            var frame = new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, index);
+            CrocomireBodyProgram expected = CrocomireBodyProgram.PowerBombReactionMouthNotOpen;
+            int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | frame.Spritemap));
             for (int i = 0; i < count; i++)
             {
-                ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | (frame + 6 + i * 8)));
-                if (sprite == 0xd600) { expected = CrocomireInstructionProgramDefinitions.PowerBombReactionMouthFullyOpen; break; }
-                if (sprite == 0xd51c) { expected = CrocomireInstructionProgramDefinitions.PowerBombReactionMouthPartiallyOpen; break; }
+                ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | (frame.Spritemap + 6 + i * 8)));
+                if (sprite == 0xd600) { expected = CrocomireBodyProgram.PowerBombReactionMouthFullyOpen; break; }
+                if (sprite == 0xd51c) { expected = CrocomireBodyProgram.PowerBombReactionMouthPartiallyOpen; break; }
             }
             AssertEqual(expected, CrocomirePowerBombReactionDefinitions.ForFrame(frame), "Crocomire mechanical mouth admission");
             tested++;
         }
         AssertEqual(50, tested, "all Crocomire reaction frames");
+        AssertThrows<InvalidDataException>(() => CrocomirePowerBombReactionDefinitions.ForFrame(
+            new CrocomireBodyFrame(CrocomireBodyFrameSet.Skeleton, 0)), "a skeleton frame takes no power-bomb reaction");
     }
 
     /// <summary>Checks extracted RGB5 colors, editable override compilation, and invalid color and JSON rejection.</summary>

@@ -51,7 +51,7 @@ internal static class LookupStream5Verification
                 AssertTrue(calculated.Words().AsSpan().SequenceEqual(native[phase]), "All native melt words");
                 AssertTrue(art.Tilemap(source).SequenceEqual(native[phase]), "Installed melt words");
                 VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
-                    ? CrocomireInstructionProgramDefinitions.MeltingOneTopRow : CrocomireInstructionProgramDefinitions.MeltingTwoTopRow);
+                    ? CrocomireBodyProgram.MeltingOneTopRow : CrocomireBodyProgram.MeltingTwoTopRow);
                 for (int index = 0; index < 256; index++)
                 {
                     ushort[] edited = (ushort[])native[phase].Clone(); edited[index] ^= 0xffff;

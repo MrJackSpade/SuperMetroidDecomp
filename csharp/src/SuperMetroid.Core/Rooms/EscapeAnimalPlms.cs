@@ -5,9 +5,12 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>The critters-escape PLMs: the shootable rescue wall, its reaction list, and the Crateria passage that opens only when the animals escaped.</summary>
 internal sealed class EscapeAnimalPlms
 {
+    /// <summary>Room event owner used to gate the Crateria escape passage.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Native PLM slot pool searched from the final slot toward the first.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Binds the animal-rescue PLM behaviors to room events and the shared slot table.</summary>
     internal EscapeAnimalPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
     {
         _bindings = bindings;

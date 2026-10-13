@@ -6,6 +6,7 @@ namespace SuperMetroid.Desktop;
 /// <summary>Read-only live WinMM observations, not an injected controller test.</summary>
 internal static class LiveGamepadProbe
 {
+    /// <summary>Checks that a controller with no reported axes stays neutral while real zero axes still mean up and left.</summary>
     public static void VerifyMissingAxes()
     {
         const System.Reflection.BindingFlags hidden = System.Reflection.BindingFlags.NonPublic;
@@ -28,6 +29,7 @@ internal static class LiveGamepadProbe
         Console.WriteLine("Missing-axis controls pass: absent axes neutral, present axes preserved.");
     }
 
+    /// <summary>Prints changing WinMM controller snapshots and mapped SNES buttons for the requested duration.</summary>
     public static void Run(int seconds)
     {
         if (seconds is < 1 or > 30) throw new ArgumentOutOfRangeException(nameof(seconds));

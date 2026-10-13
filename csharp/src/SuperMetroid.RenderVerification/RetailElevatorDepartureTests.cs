@@ -11,6 +11,7 @@ using SuperMetroid.Rendering.Direct3D11;
 /// <summary>Focused downward ride, staged on the carrier rather than reached by a multi-room trace.</summary>
 internal static class RetailElevatorDepartureTests
 {
+    /// <summary>Captures each departure and arrival frame of the Blue Brinstar elevator through the Morph Ball room transition.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -69,6 +70,7 @@ internal static class RetailElevatorDepartureTests
     }
 }
 
+/// <summary>Native Samus-to-carrier offset used to stage the downward elevator capture.</summary>
 internal static class ElevatorCaptureFixtureDefinitions
 {
     /// <summary>Native elevator attachment uses a 26-pixel Samus center offset above the carrier; matches the existing ElevatorAudit fixture.</summary>

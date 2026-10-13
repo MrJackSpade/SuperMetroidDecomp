@@ -3,8 +3,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks a crouched Samus walking off a floor receives the native
+/// center and subpixel correction before the falling radius is published.</summary>
 internal static class CompactWalkOffCollisionVerification
 {
+    /// <summary>Exercises both facings against a synthetic floor and verifies
+    /// pose, radius timing, vertical speed, and corrected Y position.</summary>
     internal static void VerifyCompactWalkOffCollision()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

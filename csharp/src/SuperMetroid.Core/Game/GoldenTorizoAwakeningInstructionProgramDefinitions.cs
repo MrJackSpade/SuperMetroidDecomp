@@ -16,12 +16,33 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions
     private const ushort FallingFunction = 0xc6bf;
     /// <summary>$AA:C6AB, RTS_AAC6AB, disables movement during the seated upload sequence.</summary>
     private const ushort IdleFunction = 0xc6ab;
-    /// <summary>Awakening holds and the upload loop count. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it. The loop count only repeats the authored upload pose.</summary>
-    private const ushort FallingHold = 1, SittingInitialHold = 3, SeatedHold = 48,
-        UploadInitialHold = 32, UploadLoopHold = 4, UploadLoopCount = 2,
-        StandFirstHold = 32, StandSecondHold = 12, StandRemainingHold = 8,
-        ColorHold = 4, ColorIterations = 16, HandoffHold = 16;
+    /// <summary>One-update falling pose before the ground-contact branch retries.</summary>
+    private const ushort FallingHold = 1;
+    /// <summary>First sitting pose hold; later poses advance this duration by pose index.</summary>
+    private const ushort SittingInitialHold = 3;
+    /// <summary>Seated pause before the initial VRAM upload sequence.</summary>
+    private const ushort SeatedHold = 48;
+    /// <summary>Base hold for the first three upload poses; successive holds shift this value down.</summary>
+    private const ushort UploadInitialHold = 32;
+    /// <summary>Hold for each pose in the repeated four-upload cycle.</summary>
+    private const ushort UploadLoopHold = 4;
+    /// <summary>Native timer repeats the four-upload pose cycle twice without deriving a simulation quantity.</summary>
+    private const ushort UploadLoopCount = 2;
+    /// <summary>Long initial hold while the statue begins standing.</summary>
+    private const ushort StandFirstHold = 32;
+    /// <summary>Second standing pose hold before the remaining short poses.</summary>
+    private const ushort StandSecondHold = 12;
+    /// <summary>Hold shared by the last four standing movement poses.</summary>
+    private const ushort StandRemainingHold = 8;
+    /// <summary>Duration of each gradual color-change pose.</summary>
+    private const ushort ColorHold = 4;
+    /// <summary>Native timer counts sixteen color-change iterations before clearing the animation lock.</summary>
+    private const ushort ColorIterations = 16;
+    /// <summary>Final awakened pose hold before branching into the walking-left combat list.</summary>
+    private const ushort HandoffHold = 16;
+    /// <summary>Visual operands interleaved through the awakening sequence, separate from instruction control words.</summary>
     public static int PresentationWordCount => 21;
+    /// <summary>Resolves a visual operand's bank-$AA address while leaving its editable frame selector outside mechanics storage.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -80,26 +101,36 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions
         return layout.Result;
     }
 
+    /// <summary>Walks the variable-width native instruction stream while selecting one mechanics or presentation ordinal.</summary>
     private ref struct Layout(int requested, bool visual)
     {
+        /// <summary>Current native instruction address as variable-width words and upload descriptors are laid out.</summary>
         internal ushort Cursor { get; private set; } = Start;
-        private int mechanics, presentation;
+        /// <summary>Count of emitted control words before the requested mechanics ordinal.</summary>
+        private int mechanics;
+        /// <summary>Count of encountered visual operands before the requested presentation ordinal.</summary>
+        private int presentation;
+        /// <summary>Selected native address/value pair; visual selections carry a placeholder value.</summary>
         internal InstructionMechanicsWord Result { get; private set; }
+        /// <summary>Advances a two-byte control word, capturing it when its mechanics ordinal is requested.</summary>
         internal void Word(ushort value)
         {
             if (!visual && mechanics == requested) Result = new(Cursor, value);
             mechanics++; Cursor += sizeof(ushort);
         }
+        /// <summary>Places a timed pose's duration and separately records its following visual operand address.</summary>
         internal void Pose(ushort duration)
         {
             Word(duration);
             if (visual && presentation == requested) Result = new(Cursor, 0);
             presentation++; Cursor += sizeof(ushort);
         }
+        /// <summary>Emits the Torizo function-change opcode and its selected native routine pointer.</summary>
         internal void Function(ushort function)
         {
             Word((ushort)TorizoInstruction.Instruction_Torizo_FunctionInY); Word(function);
         }
+        /// <summary>Emits CopyToVram and skips its separately owned seven-byte DMA descriptor.</summary>
         internal void Upload()
         {
             Word((ushort)CommonEnemyInstruction.CopyToVram);

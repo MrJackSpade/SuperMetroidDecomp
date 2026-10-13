@@ -43,6 +43,8 @@ public static class RoomHeaderDefinitions
         throw new ArgumentOutOfRangeException(nameof(roomPointer), roomPointer,
             "Pointer is not one of the 262 retail room headers.");
 
+    /// <summary>Selects the compiled eleven-byte configuration for an exact
+    /// retail room header address; record interiors and unknown pointers return null.</summary>
     internal static RoomHeaderDefinition? Select(ushort roomPointer) => roomPointer switch
     {
         0x91F8 =>

@@ -9,8 +9,10 @@ using static LookupRetailPlmHeadersVerification;
 using static LookupRetailPopulationsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled room PLM populations, header metadata, scroll programs, and collectible uploads against ROM.</summary>
 internal static class RoomPlmPopulationDefinitionsVerification
 {
+    /// <summary>Runs the grouped cartridge comparisons for room PLM definitions and loading behavior.</summary>
     internal static void VerifyCompiledRoomPlmPopulationDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -24,6 +26,7 @@ internal static class RoomPlmPopulationDefinitionsVerification
         Console.WriteLine("  PLM populations, headers, scroll programs and collectible uploads match ROM.");
     }
 
+    /// <summary>Compares native and compiled population slots and setup results while guarding source population and header reads.</summary>
     internal static void VerifyCompiledRoomPlmHeaderLoad(SuperMetroidAddressSpace rom)
     {
         const ushort populatedPointer = 0x8000;
@@ -51,6 +54,7 @@ internal static class RoomPlmPopulationDefinitionsVerification
         AssertEqual(0, emptySlots.Length, "compiled empty PLM population leaves no slots");
     }
 
+    /// <summary>Loads one PLM population into a fresh room and returns its spawn count and resulting slots.</summary>
     private static (int Count, RoomPlmSlotSnapshot[] Slots) Load(
         ISnesAddressSpace bus, ushort pointer, bool useCompiled)
     {
@@ -62,6 +66,7 @@ internal static class RoomPlmPopulationDefinitionsVerification
         return (count, plms.PopulationSlots.ToArray());
     }
 
+    /// <summary>Rejects reads of the compiled bank-$8F population and, when observed, bank-$84 header metadata.</summary>
     private static CartridgeReadGuard NewRoomPlmPopulationReadGuard(
         ISnesAddressSpace source, ushort pointer, int length, Action? headerRead = null)
     {

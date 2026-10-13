@@ -3,8 +3,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks the three Ceres destruction startup actors against their spawn operands and native definitions.</summary>
 internal static class CeresInitialActorMetadataVerification
 {
+    /// <summary>Compares asteroid motion and vortex stationary metadata, including callback selection and invalid actor indices.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres initial actor metadata")]
     internal static void VerifyCeresInitialActorMetadata(ISnesAddressSpace retail)
     {

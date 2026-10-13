@@ -25,6 +25,7 @@ internal abstract class TorizoSonicBoomInstructionProgramDefinitions
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
 
+    /// <summary>Compiles launch, travel, and wall-impact control while leaving eleven frame operands to extracted presentation.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xadbf),
         Entry(FiredLeft),
@@ -60,13 +61,17 @@ internal abstract class TorizoSonicBoomInstructionProgramDefinitions
         Op((ushort)EnemyProjectileInstruction.RTS_8681DE),
         Op((ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero, WallImpactLoop),
         Op((ushort)EnemyProjectileInstruction.Delete));
+    /// <summary>Number of artwork operands interleaved with the compiled sonic-boom commands.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Locates an artwork operand in the bank-$86 sonic-boom program.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Selects the Bomb or Golden Torizo projectile families that execute these shared programs.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoSonicBoom or
         RoomEnemyProjectileKind.GoldenTorizoSonicBoom;
 
+    /// <summary>Reads a compiled control word and rejects addresses belonging to artwork or unrelated bank data.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

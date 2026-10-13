@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Constructed-source confirmation of the identified pause provider contracts, not menu behavior or sound.</summary>
 internal static class PausePresentationContractChecks
 {
+    /// <summary>Compiles 26 pause consumer calls to confirm the closed adapters classify only supported resources, then changes label source identity to confirm those proofs are revoked.</summary>
     internal static void Run()
     {
         var trees = PauseClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -91,6 +92,7 @@ internal static class PausePresentationContractChecks
             "changed label identity source must revoke every label proof; the former public mutable Keys table no longer exists");
     }
 
+    /// <summary>Fails the audit with the violated pause-provider contract predicate.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Pause provider confirmation failed: " + reason);

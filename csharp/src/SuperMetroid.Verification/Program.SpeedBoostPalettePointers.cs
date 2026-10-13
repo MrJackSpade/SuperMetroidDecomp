@@ -13,8 +13,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Checks suit-dependent Speed Booster palette selection and its installed CGRAM colors.</summary>
 internal static class SpeedBoostPalettePointersVerification
 {
+    /// <summary>Matches four equipment selections to native pointers and live palette output, including failure without installed colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for speed boost palette pointers")]
     internal static void VerifySpeedBoostPalettePointers()
@@ -63,10 +65,12 @@ internal static class SpeedBoostPalettePointersVerification
         Console.WriteLine("Speed Booster palettes: four equipment cases match ROM and live CGRAM with no CPU bus; missing assets fail.");
     }
 
+    /// <summary>Reads one native full-body shade as the verification oracle for installed Speed Booster colors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Speed Booster full-body shade colors")]
     private static ushort ReadNativeSpeedBoosterShadeColor(IImportCartridgeSource rom, int nativePointer, int color) =>
         RomDataReader.ReadWordFixedBank(rom, SamusPaletteRomData.Banks.Palette | (nativePointer + color * sizeof(ushort)));
 
+    /// <summary>Runs the Speed Booster palette pointer and CGRAM checks.</summary>
     [VerificationCommand("--speed-boost-palette-pointers")]
     internal static int SpeedBoostPalettePointersCommand()
     {

@@ -15,9 +15,11 @@ internal static class IntroMotherBrainInputDefinitions
     /// <summary>$91:878A, exclusive end of the object header.</summary>
     internal const ushort HeaderEnd = 0x878a;
 
+    /// <summary>Selects duration, held buttons, or newly pressed buttons from a three-word demo input record.</summary>
     private static ushort InputWord(int field, ushort duration, SnesButton held = 0, SnesButton pressed = 0) =>
         field == 0 ? duration : (ushort)(field == 1 ? held : pressed);
 
+    /// <summary>Reconstructs the battle demo's timed firing, movement, end opcode, and delete word.</summary>
     private static ushort ListWord(int word)
     {
         if (word < 51)
@@ -52,6 +54,7 @@ internal static class IntroMotherBrainInputDefinitions
         };
     }
 
+    /// <summary>Reconstructs two no-op callbacks and the list pointer in the demo-controller header.</summary>
     private static ushort HeaderWord(int word) => word switch
     {
         0 or 1 => DemoInputRomData.Routines.NoOp,
@@ -59,6 +62,7 @@ internal static class IntroMotherBrainInputDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(word)),
     };
 
+    /// <summary>Reads a compiled list or header byte at its bank-$91 address, including unaligned operands.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         int offset;
@@ -78,6 +82,7 @@ internal static class IntroMotherBrainInputDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Combines two in-range compiled bytes into a little-endian demo word.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer is >= ListStart and < (ListEnd - 1) or >= HeaderStart and < (HeaderEnd - 1))

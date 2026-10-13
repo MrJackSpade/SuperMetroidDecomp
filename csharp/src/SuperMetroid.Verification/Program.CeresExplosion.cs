@@ -6,8 +6,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction;
 using static PowerBombFixedColorsVerification;
 
+/// <summary>Checks the Ceres destruction blast against the shared Power Bomb color-math timeline.</summary>
 internal static class CeresExplosionVerification
 {
+    /// <summary>Compares blast windows, RGB colors, phase coverage, and cleanup through the scene timeline, including installed-color ROM isolation.</summary>
     internal static void VerifyCeresExplosionTimeline(PowerBombFixedColorCatalog? colors = null)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

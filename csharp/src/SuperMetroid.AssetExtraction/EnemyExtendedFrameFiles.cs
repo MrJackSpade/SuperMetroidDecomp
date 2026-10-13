@@ -13,6 +13,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM extended enemy spritemap component records → enemy extended frame files")]
 internal static class EnemyExtendedFrameFiles
 {
+    /// <summary>Exports declared extended OAM roots as editable JSON and reloads the result to validate the produced document.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

@@ -3,8 +3,12 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled crawler and Yard velocity definitions against
+/// native speed tables and production sign application.</summary>
 internal static class CrawlerSpeedsVerification
 {
+    /// <summary>Compares all authored speeds, preserve-sentinel behavior,
+    /// and Yard direction transforms across the effective ushort input domain.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled crawler speeds")]
     internal static void VerifyCompiledCrawlerSpeeds(SuperMetroidAddressSpace rom)
     {

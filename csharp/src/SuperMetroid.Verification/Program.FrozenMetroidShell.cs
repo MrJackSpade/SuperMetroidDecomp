@@ -12,10 +12,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks that freezing during an empty Metroid shell frame immediately selects visible frozen artwork.</summary>
 internal static class FrozenMetroidShellVerification
 {
-    // #1207: freezing during the shell's intentionally empty frame must select
-    // the frozen shell immediately, including its actual emitted sprite parts.
+    /// <summary>Reproduces the empty shell frame and compares all emitted frozen sprite parts while the animation timer remains held (#1207).</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static int VerifyFrozenMetroidShell()
     {
@@ -66,6 +66,7 @@ internal static class FrozenMetroidShellVerification
         }
     }
 
+    /// <summary>Runs the frozen Metroid shell OAM reproduction.</summary>
     [VerificationCommand("--frozen-metroid-shell")]
     internal static int FrozenMetroidShellCommand()
     {

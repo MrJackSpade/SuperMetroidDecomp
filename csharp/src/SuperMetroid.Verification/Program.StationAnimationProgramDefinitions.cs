@@ -18,8 +18,10 @@ using static StationAccessPlmDefinitionsVerification;
 using static StationVisualsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks station animation words, draw lists, access selections, and sparse-bus activation.</summary>
 internal static class StationAnimationProgramDefinitionsVerification
 {
+    /// <summary>Runs native duration and draw comparisons plus station layout and population checks.</summary>
     internal static void VerifyStationAnimationProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -45,9 +47,12 @@ internal static class StationAnimationProgramDefinitionsVerification
             "Station animations: all 15 frame records, 20 draw lists, and 12 access selections match ROM; sparse-bus station activation and save animation use compiled data.");
     }
 
+    /// <summary>Compares station frame hold durations with the bank-$84 lists.</summary>
     private static void VerifyStationAnimationDurations(SuperMetroidAddressSpace rom) => VerifyStationAnimationField(rom, false);
+    /// <summary>Compares station frame draw selectors with the bank-$84 lists.</summary>
     private static void VerifyStationAnimationDraws(SuperMetroidAddressSpace rom) => VerifyStationAnimationField(rom, true);
 
+    /// <summary>Checks every native list word, frame bound, and enumeration address for the selected field.</summary>
     private static void VerifyStationAnimationField(SuperMetroidAddressSpace rom, bool draw)
     {
         ushort[] lists = [0xad66,0xad76,0xadc6,0xae50,0xafe8,0xaffa,0xaffe];
@@ -79,6 +84,7 @@ internal static class StationAnimationProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Runs the focused station animation definition check.</summary>
     [VerificationCommand("--station-animation-programs")]
     internal static int StationAnimationProgramsCommand()
     {

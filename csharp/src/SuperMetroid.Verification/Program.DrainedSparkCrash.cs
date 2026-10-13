@@ -13,6 +13,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Reproduces a shinespark crash continuing through Baby Metroid's
+/// drain pose until its timer finishes and stands Samus up.</summary>
 internal static class DrainedSparkCrashVerification
 {
     /// <summary>
@@ -53,6 +55,7 @@ internal static class DrainedSparkCrashVerification
         Console.WriteLine("  Drained spark crash: the crash keeps its handler through the drain and stands Samus up.");
     }
 
+    /// <summary>Runs the focused drained-shinespark handoff from the CLI.</summary>
     [VerificationCommand("--drained-spark-crash")]
     internal static int DrainedSparkCrashCommand()
     {

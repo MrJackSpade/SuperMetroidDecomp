@@ -15,6 +15,7 @@ using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the zero-health auto-reserve transition during unpause and the black screen retained for a later pause.</summary>
 internal static class UnpauseReserveBlackoutVerification
 {
     /// <summary>
@@ -68,6 +69,7 @@ internal static class UnpauseReserveBlackoutVerification
         Console.WriteLine("  Unpause reserve blackout: the refill starts in state $12 and the next pause darkens from black.");
     }
 
+    /// <summary>Runs the reserve blackout reproduction through the verification command host.</summary>
     [VerificationCommand("--unpause-reserve-blackout")]
     internal static int UnpauseReserveBlackoutCommand()
     {

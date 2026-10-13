@@ -23,6 +23,7 @@ public sealed class SpcMemoryAccessAnalyzer() : LayoutBoundaryAnalyzer(AccessAtt
     /// <summary>Marks an approved SPC700 memory boundary.</summary>
     public const string BoundaryAttributeName = "SpcMemoryBoundaryAttribute";
 
+    /// <summary>Reports calls or references to raw SPC memory APIs from outside an approved audio boundary.</summary>
     private static readonly DiagnosticDescriptor RawAccessRule = new(
         RawAccessId,
         "Raw SPC700 memory access outside an audio boundary",
@@ -33,6 +34,7 @@ public sealed class SpcMemoryAccessAnalyzer() : LayoutBoundaryAnalyzer(AccessAtt
         description: "APU RAM addresses, layouts, ports and encodings belong to the APU RAM implementation, " +
             "typed driver-memory views, definition codecs and exact APU memory tests, which declare [SpcMemoryBoundary].");
 
+    /// <summary>Reports implementations of raw SPC memory contracts outside the RAM owner or exact test boundary.</summary>
     private static readonly DiagnosticDescriptor RawImplementationRule = new(
         RawImplementationId,
         "Raw SPC700 memory contract implemented outside an audio boundary",

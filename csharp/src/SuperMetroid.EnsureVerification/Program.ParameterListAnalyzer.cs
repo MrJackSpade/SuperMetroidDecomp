@@ -3,6 +3,10 @@ using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
+/// <summary>
+/// Checks parameter-list diagnostics against small C# declarations, including inherited contracts,
+/// optional callback groups, and contexts with narrower capability interfaces.
+/// </summary>
 internal static class ParameterListAnalyzerTests
 {
     /// <summary>#633 parameter-list rules: positive and negative cases for each diagnostic.</summary>

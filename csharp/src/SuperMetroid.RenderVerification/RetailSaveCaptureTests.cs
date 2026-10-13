@@ -8,8 +8,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks every captured frame of a retail save station cycle, including electricity and control release.</summary>
 internal static class RetailSaveCaptureTests
 {
+    /// <summary>Stages the Crateria station and compares GPU frames until save completion unlocks Samus.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

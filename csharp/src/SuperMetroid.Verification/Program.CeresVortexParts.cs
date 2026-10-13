@@ -4,8 +4,12 @@ using SuperMetroid.Core.Hardware;
 using static CeresStationPartsVerification;
 using static MapSpritesVerification;
 
+/// <summary>Checks Ceres vortex compositions against native OAM and the
+/// shared tip and core cells reused by the calculated layout.</summary>
 internal static class CeresVortexPartsVerification
 {
+    /// <summary>Compares stock parts and wrapped OAM, then checks edits to
+    /// shared versus independent cells follow the intended substitution path.</summary>
     internal static void VerifyCeresVortexParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);

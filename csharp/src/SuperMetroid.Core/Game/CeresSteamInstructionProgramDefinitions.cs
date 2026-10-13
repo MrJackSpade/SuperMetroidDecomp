@@ -41,24 +41,11 @@ internal abstract class CeresSteamInstructionProgramDefinitions
     internal const ushort Right = 0xf0e9;
 
     /// <summary>
-    /// Addresses of live extended-spritemap operands, separate from compiled
-    /// mechanics. For the upward program, the operands at $F051 and $F05D
-    /// reuse $F142. Its seven active operands at <c>$F063 + 4 * frame</c>,
-    /// for frames 0..6, contain <c>$F142 + $0A * frame</c>. All nine words
-    /// match the pinned NTSC J/U v1.0 ROM. The stride is the size of each
-    /// extended-spritemap record; the authored payloads remain cartridge data.
-    /// For the leftward program, $F085 and $F091 repeat $F188; its active
-    /// operands at <c>$F097 + 4 * frame</c> contain
-    /// <c>$F188 + $0A * frame</c> for frames 0..6. All nine pinned-ROM words
-    /// match, and the interpreter reads only these reachable frame operands.
-    /// For the downward program, $F0B9 and $F0C5 repeat $F1CE; the seven
-    /// active operands at <c>$F0CB + 4 * frame</c> contain
-    /// <c>$F1CE + $0A * frame</c> for frames 0..6. All nine pinned-ROM words
-    /// match the bounded seven-record sequence.
-    /// For the rightward program, $F0ED and $F0F9 repeat $F214; the seven
-    /// active operands at <c>$F0FF + 4 * frame</c> contain
-    /// <c>$F214 + $0A * frame</c> for frames 0..6. All nine pinned-ROM words
-    /// match, completing the four directional presentation sequences.
+    /// Seventeen compiled control words per directional steam program. Each program has
+    /// nine separate live extended-spritemap operands: two repeat its first frame and
+    /// seven active operands select consecutive ten-byte records. The interpreter reads
+    /// only these reachable operands; the four directional sequences match the pinned
+    /// NTSC J/U v1.0 ROM.
     /// </summary>
     public static int MechanicsWordCount => 68;
 
@@ -89,6 +76,7 @@ internal abstract class CeresSteamInstructionProgramDefinitions
             _ => new((ushort)(start + 50), (ushort)(start + 12)),
         };
     }
+    /// <summary>Finds a compiled bank-$A6 control word by address and rejects presentation-operand addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

@@ -9,6 +9,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Sparse identities whose ownership cannot be expressed as a contiguous index range.</summary>
 internal static class ClosedPresentationIdentityDefinitions
 {
+    /// <summary>Returns audited finite argument identities for a presentation call, or null when no closed set applies.</summary>
     internal static int[]? Get(string type, string method, string parameter) => (type, method, parameter) switch
     {
         ("GameplayMessageTitlePresentation", "Build", "messageId") =>
@@ -73,6 +74,7 @@ internal static class ClosedPresentationIdentityDefinitions
         _ => null,
     };
 
+    /// <summary>Enumerates every suit and shade pointer across the four full-body palette animation families.</summary>
     private static int[] FullBodyPointers() =>
         new[] { SamusFullBodyCycleFamily.SpeedBooster, SamusFullBodyCycleFamily.ScrewAttack,
             SamusFullBodyCycleFamily.StoredShine, SamusFullBodyCycleFamily.ActiveShinespark }
@@ -81,6 +83,7 @@ internal static class ClosedPresentationIdentityDefinitions
                 .Select(shade => (int)SamusFullBodyCycleColorFormat.Pointer(family, suit, shade))))
         .Distinct().ToArray();
 
+    /// <summary>Collects distinct cartridge source addresses from the closed room tileset definitions.</summary>
     private static int[] TilesetSources(Func<TilesetDefinition, int> select) => Enumerable.Range(0, RoomTilesetDefinitions.Count)
         .Select(index => select(RoomTilesetDefinitions.Get((byte)index))).Distinct().ToArray();
 }

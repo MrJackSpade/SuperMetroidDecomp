@@ -36,9 +36,26 @@ public sealed class RoomPlmKraidVisualCatalog
         }
     });
 
-    private ushort[] crumbleFirst = [], crumbleSecond = [], crumbleThird = [];
-    private ushort[] ceilingBackground1 = [], ceilingBackground2 = [], ceilingBackground3 = [];
-    private ushort[] spikeFirst = [], spikeSecond = [], clearCeiling = [], clearSpikes = [];
+    /// <summary>First visual block exposed as Kraid's ceiling begins to crumble.</summary>
+    private ushort[] crumbleFirst = [];
+    /// <summary>Second ceiling-crumble visual stage.</summary>
+    private ushort[] crumbleSecond = [];
+    /// <summary>Final ceiling-crumble visual stage.</summary>
+    private ushort[] crumbleThird = [];
+    /// <summary>First ceiling background draw during Kraid's room sequence.</summary>
+    private ushort[] ceilingBackground1 = [];
+    /// <summary>Second ceiling background draw during Kraid's room sequence.</summary>
+    private ushort[] ceilingBackground2 = [];
+    /// <summary>Third ceiling background draw during Kraid's room sequence.</summary>
+    private ushort[] ceilingBackground3 = [];
+    /// <summary>First floor-spike appearance frame.</summary>
+    private ushort[] spikeFirst = [];
+    /// <summary>Second floor-spike appearance frame.</summary>
+    private ushort[] spikeSecond = [];
+    /// <summary>Room-clearing layout that replaces the ceiling blocks after Kraid is defeated.</summary>
+    private ushort[] clearCeiling = [];
+    /// <summary>Room-clearing layout that replaces the floor spikes after Kraid is defeated.</summary>
+    private ushort[] clearSpikes = [];
 
     /// <summary>Selects one of the ten named $84:9367..93BF Kraid draw roles.</summary>
     /// <remarks>Installed block values stay editable. The fixed pointer-to-role mapping

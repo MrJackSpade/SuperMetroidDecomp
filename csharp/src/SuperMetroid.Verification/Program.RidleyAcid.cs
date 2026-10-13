@@ -13,8 +13,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Norfair Ridley's shared FX acid rise and death drain through room rendering.</summary>
 internal static class RidleyAcidVerification
 {
+    /// <summary>Runs native palette reveal and death phases, checking acid targets and visible lower-arena pixels.</summary>
     internal static void VerifyRidleyAcid()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -77,6 +79,7 @@ internal static class RidleyAcidVerification
         }
     }
 
+    /// <summary>Runs the focused Ridley acid FX reproduction.</summary>
     [VerificationCommand("--ridley-acid")]
     internal static int RidleyAcidCommand()
     {

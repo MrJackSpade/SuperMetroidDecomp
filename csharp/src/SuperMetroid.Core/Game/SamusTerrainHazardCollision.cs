@@ -66,6 +66,7 @@ public static class SamusTerrainHazardCollision
         PublishDamage(bus, samus, damage);
     }
 
+    /// <summary>Tests one alpha-phase body sample for damaging spike-air, restoring normal-air speed selection before the invincibility and contact-damage gates.</summary>
     private static void VisitInsidePoint(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -91,6 +92,7 @@ public static class SamusTerrainHazardCollision
         PublishDamage(bus, samus, SamusTerrainHazardRomData.LightSpikeDamage);
     }
 
+    /// <summary>Applies spike damage and the native invincibility, knockback duration, and facing-dependent direction side effects.</summary>
     private static void PublishDamage(
         ISnesAddressSpace bus,
         SamusState samus,

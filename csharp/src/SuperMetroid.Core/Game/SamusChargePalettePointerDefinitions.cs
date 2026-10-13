@@ -81,7 +81,9 @@ public static class SamusChargePalettePointerDefinitions
         return true;
     }
 
+    /// <summary>Accepts only the three even byte offsets of the native suit pointer table.</summary>
     private static bool ValidSuit(ushort offset) => offset <= 4 && (offset & 1) == 0;
+    /// <summary>Accepts only six word-aligned byte offsets in the charge phase list.</summary>
     private static bool ValidChargePhase(ushort offset) =>
         offset <= LastChargePhaseByteOffset && (offset & 1) == 0;
 }

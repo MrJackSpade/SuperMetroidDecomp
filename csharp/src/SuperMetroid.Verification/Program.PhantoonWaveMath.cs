@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static WordSamplesVerification;
 
+/// <summary>Checks Phantoon wave table arithmetic against native signed-sine samples and byte products.</summary>
 internal static class PhantoonWaveMathVerification
 {
+    /// <summary>Compares wrapped phase reads, word-width displacement math, and both complete mirrored wave modes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon wave math")]
     internal static void VerifyPhantoonWaveMath(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {

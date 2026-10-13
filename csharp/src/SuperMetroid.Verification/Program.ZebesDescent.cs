@@ -6,8 +6,10 @@ using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks the Ceres ending planet slide exits once without wrapping onto the lower screen.</summary>
 internal static class ZebesDescentVerification
 {
+    /// <summary>Tracks the planet's rendered bottom edge through descent and verifies complete exit before handoff.</summary>
     internal static void VerifyZebesDoesNotWrapDuringDescent()
     {
         Suite(nameof(VerifyOffScreenCinematicOam), () => VerifyOffScreenCinematicOam());
@@ -45,6 +47,7 @@ internal static class ZebesDescentVerification
         Console.WriteLine($"  Zebes descent: {slideFrames} frames, {visibleFrames} with planet, no lower-screen reappearance.");
     }
 
+    /// <summary>Compares all origin and offset byte pairs with the native off-screen OAM parking branches.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyOffScreenCinematicOam()
     {

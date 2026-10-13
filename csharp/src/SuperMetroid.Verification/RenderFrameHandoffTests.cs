@@ -2,8 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static GraphDigestVerification;
 
+/// <summary>Checks immutable frame ownership and latest-frame mailbox behavior across generation changes.</summary>
 internal static class RenderFrameHandoffTestsVerification
 {
+    /// <summary>Checks fade rendering, sequence wrap, replacement accounting, and publication while a consumer holds a frame.</summary>
     internal static void VerifyRenderFrameHandoff()
     {
         byte[] fades = [2, 12];

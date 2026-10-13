@@ -28,8 +28,10 @@ public readonly record struct NuclearWaffleOrientation(
 /// </summary>
 public sealed class NuclearWaffleEnemyState
 {
+    /// <summary>Underlying population slot that owns the native dispatcher and wait words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Attaches the articulated actor state to its room enemy slot.</summary>
     internal NuclearWaffleEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native variable A ($0FA8 plus slot byte index): current bank-$A6 inactive/active dispatcher pointer.</summary>
@@ -95,6 +97,8 @@ public sealed class NuclearWaffleEnemyState
     public RoomSpriteObjectSlot?[] SpriteSegments { get; } =
         new RoomSpriteObjectSlot?[3];
 
+    /// <summary>Last threshold state for each damaging link; a state change spawns its joint-turn effect.</summary>
     internal ushort[] ProjectileOrientationStates { get; } = new ushort[4];
+    /// <summary>Last threshold state for each cosmetic link, tracked separately from projectile links.</summary>
     internal ushort[] SpriteOrientationStates { get; } = new ushort[3];
 }

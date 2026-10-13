@@ -16,8 +16,10 @@ using SuperMetroid.Core.Rom;
 using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks reserve-tank arrow colors, visibility, and native tilemap palette writes.</summary>
 internal static class PauseReserveArrowVerification
 {
+    /// <summary>Compares thirty-two AUTO color phases and MANUAL selection transitions with rendered arrow pixels.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve arrow spritemap")]
     internal static void VerifyPauseReserveArrow()
     {
@@ -77,6 +79,7 @@ internal static class PauseReserveArrowVerification
         }
     }
 
+    /// <summary>Runs reserve-arrow visual and rebind-latch checks.</summary>
     [VerificationCommand("--pause-reserve-arrow")]
     internal static int PauseReserveArrowCommand()
     {

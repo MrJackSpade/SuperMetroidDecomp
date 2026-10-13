@@ -14,8 +14,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks that a missile hits all overlapping Beetoms before deferred projectile removal.</summary>
 internal static class OverlappingEnemyShotsVerification
 {
+    /// <summary>Runs the real Beetom hit callback against a three-enemy stack, then confirms the next projectile pass removes the spent shot.</summary>
     internal static void VerifyOverlappingEnemyShots()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -68,6 +70,7 @@ internal static class OverlappingEnemyShotsVerification
         Console.WriteLine("Overlapping Beetoms: all three receive one shot's damage; deferred removal prevents a later hit.");
     }
 
+    /// <summary>Runs the overlapping Beetom collision reproduction.</summary>
     [VerificationCommand("--overlapping-enemy-shots")]
     internal static int OverlappingEnemyShotsCommand()
     {

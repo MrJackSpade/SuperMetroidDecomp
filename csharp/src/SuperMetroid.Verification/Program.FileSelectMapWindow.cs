@@ -20,8 +20,10 @@ using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks area-map graphics and the file-select room-map transition window.</summary>
 internal static class FileSelectMapWindowVerification
 {
+    /// <summary>Creates identical editable label anchors for all six selectable areas.</summary>
     private static WorldMapLabelLayout CreateWindowLabelFixture(Position16<OamPixels> label)
     {
         var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Game.AreaId)area).ToString(),
@@ -31,6 +33,7 @@ internal static class FileSelectMapWindowVerification
         stream.Position = 0;
         return WorldMapLabelLayout.Load(stream);
     }
+    /// <summary>Checks fractional clamping, native area durations and bounds, rendering composition, and label anchors.</summary>
     internal static void VerifyFileSelectMapWindow()
     {
         Suite(nameof(VerifyFileSelectAreaMapGraphics), () => VerifyFileSelectAreaMapGraphics());
@@ -81,6 +84,7 @@ internal static class FileSelectMapWindowVerification
         }
     }
 
+    /// <summary>Checks inclusive horizontal/exclusive bottom masking during expansion and return to the area map.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyFileSelectMapWindowComposition()
     {
@@ -125,6 +129,7 @@ internal static class FileSelectMapWindowVerification
         AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");
     }
 
+    /// <summary>Checks active map colors, native BG3 tilemap transfers, backdrop rendering, and visited-station labels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyFileSelectAreaMapGraphics()
     {
@@ -161,6 +166,7 @@ internal static class FileSelectMapWindowVerification
         }
     }
 
+    /// <summary>Reads one cartridge map-background byte for the native BG3 transfer comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select area map graphics")]
     private static byte FileSelectAreaMapGraphicsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
@@ -192,6 +198,7 @@ internal static class FileSelectMapWindowVerification
         return fake;
     }
 
+    /// <summary>Runs the file-select map graphics and transition-window fixture checks.</summary>
     [VerificationCommand("--file-map-fixtures")]
     internal static int FileMapFixturesCommand()
     {

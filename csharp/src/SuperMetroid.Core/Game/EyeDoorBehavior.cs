@@ -6,15 +6,19 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The eye door species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class EyeDoorBehavior
 {
+    /// <summary>Provides the loaded room and random seed for smoke placement.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Allocates eye-door projectile, sweat, and smoke slots.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Binds eye-door effects to a room and its enemy projectile pool.</summary>
     internal EyeDoorBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;
         _projectiles = projectiles;
     }
 
+    /// <summary>Door-bit owner captured when a live eye projectile is spawned.</summary>
     private Bank80SystemState? _eyeDoorProjectileSystem;
 
     /// <summary>
@@ -73,6 +77,7 @@ internal sealed class EyeDoorBehavior
         }
     }
 
+    /// <summary>Positions the eye shot from its native block-relative origin pair and retains its door bit.</summary>
     private static void InitializeEyeDoorProjectile(
         RoomEnemyProjectileSlot projectile,
         EyeDoorProjectileRequest request,
@@ -92,6 +97,7 @@ internal sealed class EyeDoorBehavior
             EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord + 1)));
     }
 
+    /// <summary>Places sweat below the eye block and loads its native initial velocity pair.</summary>
     private static void InitializeEyeDoorSweat(
         RoomEnemyProjectileSlot projectile,
         ushort parameter,
@@ -113,6 +119,7 @@ internal sealed class EyeDoorBehavior
             EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord + 1));
     }
 
+    /// <summary>Uses one shared random sample for both smoke offsets, then advances the seed.</summary>
     internal void InitializeEyeDoorSmoke(
         RoomEnemyProjectileSlot projectile,
         ushort parameter,
@@ -134,6 +141,7 @@ internal sealed class EyeDoorBehavior
         _room.Random.Generate();
     }
 
+    /// <summary>Moves the eye shot, accelerates along its angle, and switches to impact on collision or door opening.</summary>
     internal void RunEyeDoorProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -163,6 +171,7 @@ internal sealed class EyeDoorBehavior
         }
     }
 
+    /// <summary>Applies sweat gravity and enters the impact list on a downward vertical collision.</summary>
     internal static void RunEyeDoorSweatPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -181,12 +190,14 @@ internal sealed class EyeDoorBehavior
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 12))));
     }
 
+    /// <summary>Scales one signed sine-table sample to the eye shot's per-frame acceleration.</summary>
     internal static short ReadEyeDoorAcceleration(int tableIndex)
     {
         short sample = EnemyTrigonometryTables.SignedSine(unchecked((byte)tableIndex));
         return unchecked((short)(sample >> 4));
     }
 
+    /// <summary>Stops projectile movement and restarts its impact animation at the first instruction.</summary>
     private static void SetEyeDoorEffectImpactList(
         RoomEnemyProjectileSlot projectile,
         ushort instructionList)
@@ -196,6 +207,7 @@ internal sealed class EyeDoorBehavior
         projectile.InstructionTimer = 1;
     }
 
+    /// <summary>Advances horizontal subpixels or snaps to the first solid leading edge.</summary>
     private static bool MoveEyeDoorEffectHorizontally(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -237,6 +249,7 @@ internal sealed class EyeDoorBehavior
         return near >= current ? near : current;
     }
 
+    /// <summary>Advances vertical subpixels or snaps to the first solid leading edge.</summary>
     private static bool MoveEyeDoorEffectVertically(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -262,6 +275,7 @@ internal sealed class EyeDoorBehavior
         return false;
     }
 
+    /// <summary>Scans every touched room block along one projectile collision edge.</summary>
     /// <remarks>
     /// $86:88B6/$86:897B count the blocks to test as ((end) - (start &amp; $FFF0)) &gt;&gt; 4 in 16 bits
     /// and test one more than that, stepping the level index by a row (horizontal edge) or a
@@ -312,6 +326,7 @@ internal sealed class EyeDoorBehavior
         return false;
     }
 
+    /// <summary>Routes live eye shots and sweat through their distinct movement routines.</summary>
     internal void RegisterEyeDoorProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>

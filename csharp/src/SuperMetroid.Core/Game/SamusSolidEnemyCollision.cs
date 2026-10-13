@@ -116,6 +116,7 @@ public static class SamusSolidEnemyCollision
             WasTouching: false);
     }
 
+    /// <summary>Applies the directional 16.16 movement to the relevant axis and rounds its fractional target outward for the native broad-phase test.</summary>
     private static (ushort X, ushort Y) BuildRoundedTarget(
         SamusKinematicsState state,
         SamusCollisionDirection direction,
@@ -152,6 +153,7 @@ public static class SamusSolidEnemyCollision
         return (targetX, targetY);
     }
 
+    /// <summary>Models native subtraction, including fractional borrow and the extra outward decrement selected by the assembly's zero flag.</summary>
     private static ushort RoundNegative(
         ushort position,
         ushort subposition,
@@ -180,6 +182,7 @@ public static class SamusSolidEnemyCollision
         return whole;
     }
 
+    /// <summary>Models native addition, including fractional carry and the extra outward increment selected by the assembly's zero flag.</summary>
     private static ushort RoundPositive(
         ushort position,
         ushort subposition,
@@ -208,6 +211,7 @@ public static class SamusSolidEnemyCollision
         return whole;
     }
 
+    /// <summary>Compares wrapped 16-bit center distance against both radii using the native unsigned borrow and strict comparison rules.</summary>
     private static bool StrictlyOverlaps(
         ushort firstPosition,
         ushort firstRadius,

@@ -3,10 +3,13 @@
 /// <summary>The Spark species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class SparkBehavior : IEnemySpecies
 {
+    /// <summary>Room services for the live RNG, boss flag, and memory bus consulted during spark setup.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>Owner of the falling-spark projectile emitted by one spark function.</summary>
     private readonly FallingSparksBehavior _fallingSparksBehavior;
 
+    /// <summary>Binds the spark species to its room services and falling-spark producer.</summary>
     internal SparkBehavior(EnemyRoomBinding room, FallingSparksBehavior fallingSparksBehavior)
     {
         _fallingSparksBehavior = fallingSparksBehavior;
@@ -41,6 +44,7 @@ internal sealed class SparkBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Per-slot function and timer state, cleared when a new room loads.</summary>
     internal readonly SparkEnemyState?[] _sparkStates =
         new SparkEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -140,16 +144,19 @@ internal sealed class SparkBehavior : IEnemySpecies
         state.FunctionTimer = unchecked((ushort)(baseTime + additionalTime));
     }
 
+    /// <summary>Selects an animation list and makes its first instruction due on the next pass.</summary>
     private static void InstallSparkInstructionList(RoomEnemySlot slot, ushort pointer)
     {
         slot.CurrentInstruction = pointer;
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Returns initialized state for the enemy slot or reports a broken lifecycle.</summary>
     private SparkEnemyState RequireSparkState(RoomEnemySlot slot) =>
         _sparkStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Spark state.");
 
+    /// <summary>Registers Spark initialization with the room enemy AI dispatcher.</summary>
     internal void RegisterSparkInitializationAi(EnemyAiTable table)
     {
 
@@ -159,6 +166,7 @@ internal sealed class SparkBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the timer-driven Spark function dispatcher.</summary>
     internal void RegisterSparkMainAi(EnemyAiTable table)
     {
 
@@ -168,6 +176,7 @@ internal sealed class SparkBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Spark's tangible and intangible animation commands.</summary>
     internal static void RegisterSparkOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

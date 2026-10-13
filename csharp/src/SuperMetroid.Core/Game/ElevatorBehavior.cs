@@ -3,11 +3,15 @@
 /// <summary>The Elevator species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class ElevatorBehavior : IEnemySpecies
 {
+    /// <summary>Provides the active room bus used when departure sets up Samus's elevator pose.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Queues the separate library-one and library-three departure sounds.</summary>
     private readonly EnemyAudioQueue _audio;
 
+    /// <summary>Shares the room's Mother Brain HDMA cleanup state with elevator frame reset.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
 
+    /// <summary>Binds elevator movement to the room, audio queue, and encounter state.</summary>
     internal ElevatorBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, MotherBrainEncounter motherBrainEncounter)
     {
         _motherBrainEncounter = motherBrainEncounter;
@@ -15,12 +19,18 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         _audio = audio;
     }
 
+    /// <summary>$A3:804D is the invisible map assigned to an elevator actor.</summary>
     private const ushort ElevatorNothingSpritemap = 0x804d;
+    /// <summary>Native elevator travel advances one and a half pixels per enemy update.</summary>
     private const int ElevatorSpeedFixed = 0x00018000;
+    /// <summary>Library-one selector $32 accompanies departure.</summary>
     private const ushort ElevatorDepartureSoundLibrary1 = 0x0032;
+    /// <summary>Library-three selector $0B accompanies departure.</summary>
     private const ushort ElevatorDepartureSoundLibrary3 = 0x000b;
+    /// <summary>Library-three selector $25 plays when arrival reaches the resting height.</summary>
     private const ushort ElevatorArrivalSoundLibrary3 = 0x0025;
 
+    /// <summary>Per-slot resting height and direction retained while a room's elevator runs.</summary>
     internal readonly ElevatorEnemyState?[] _elevatorStates =
         new ElevatorEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -51,8 +61,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies
     /// <summary>Most recent lifecycle event published by elevator AI during this enemy update; reset to <see cref="ElevatorFrameEvent.None"/> before actors run, not retained across updates.</summary>
     public ElevatorFrameEvent LastElevatorEvent { get; private set; }
 
-    // Slot of an arriving elevator whose initializer placed Samus during this room load.
-    // The door loader consumes it within the same update, so it is never captured.
+    /// <summary>Arrival slot whose initializer placed Samus; consumed by the door loader this update.</summary>
     [NonSerialized]
     private int? _arrivalPlacementSlot;
 
@@ -115,6 +124,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies
             ElevatorFlags = 0;
     }
 
+    /// <summary>Clears room-local actors while preserving travel globals across the source and destination rooms.</summary>
     internal void ResetElevatorRoomActors()
     {
         // Do not clear flags/status/direction here. Unlike actor-private state, these words
@@ -126,6 +136,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         BeginElevatorFrame();
     }
 
+    /// <summary>Clears per-update events and sound witnesses before enemy actors run.</summary>
     internal void BeginElevatorFrame()
     {
         LastElevatorEvent = ElevatorFrameEvent.None;
@@ -135,6 +146,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         _motherBrainEncounter.MotherBrainDeletedHdmaObjects = false;
     }
 
+    /// <summary>Requires the elevator slot to have been initialized before main AI dispatch.</summary>
     private ElevatorEnemyState RequireElevatorState(RoomEnemySlot slot) =>
         _elevatorStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Elevator slot {slot.SlotIndex} was not initialized.");
@@ -318,6 +330,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         samus.Kinematics.YSubspeed = 0;
     }
 
+    /// <summary>Connects the elevator definition to its native room-load initializer.</summary>
     internal void RegisterElevatorInitializationAi(EnemyAiTable table)
     {
 
@@ -327,6 +340,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Advances the active elevator through input wait, departure, and return-to-rest states.</summary>
     internal void RegisterElevatorMainAi(EnemyAiTable table)
     {
 

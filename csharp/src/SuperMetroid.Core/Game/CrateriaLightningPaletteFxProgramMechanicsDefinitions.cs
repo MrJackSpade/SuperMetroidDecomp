@@ -44,8 +44,11 @@ public readonly record struct CrateriaLightningPaletteFrame(
 /// </remarks>
 public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
 {
+    /// <summary>The Landing Site program whose flash colors target BG palette 5.</summary>
     private static readonly CrateriaLightningPaletteFxProgramDefinition Surface = new(CrateriaLightningPaletteOwner.SurfaceLightning);
+    /// <summary>The unused counterpart whose dark colors target CGRAM colors 65 through 71.</summary>
     private static readonly CrateriaLightningPaletteFxProgramDefinition Dark = new(CrateriaLightningPaletteOwner.UnusedDarkLightning);
+    /// <summary>Stable view of both programs in cartridge definition order.</summary>
     private static readonly ProgramList Programs = new();
 
     /// <summary>The live and unused-dark programs in cartridge definition order.</summary>
@@ -66,17 +69,22 @@ public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
     public static bool TryReadMechanicsByte(ushort pointer, out byte value) =>
         Surface.TryReadByte(pointer, out value) || Dark.TryReadByte(pointer, out value);
 
+    /// <summary>Exposes the two retained lightning programs without allocating a collection.</summary>
     private sealed class ProgramList : IReadOnlyList<CrateriaLightningPaletteFxProgramDefinition>
     {
+        /// <summary>The surface program and its unused dark counterpart.</summary>
         public int Count => 2;
+        /// <summary>Selects surface first, then dark; rejects any other ordinal.</summary>
         public CrateriaLightningPaletteFxProgramDefinition this[int index] => index switch
         {
             0 => Surface,
             1 => Dark,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Enumerates the live surface definition before the unused dark definition.</summary>
         public IEnumerator<CrateriaLightningPaletteFxProgramDefinition> GetEnumerator()
         { yield return Surface; yield return Dark; }
+        /// <summary>Adapts the same two-program sequence for non-generic consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
@@ -84,6 +92,7 @@ public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
 /// <summary>Calculated setup, two repeated flash groups and neutral intervals for one lightning owner.</summary>
 public sealed class CrateriaLightningPaletteFxProgramDefinition
 {
+    /// <summary>Calculates fixed layout addresses and timed records for the selected lightning owner.</summary>
     internal CrateriaLightningPaletteFxProgramDefinition(CrateriaLightningPaletteOwner owner)
     {
         Owner = owner;
@@ -94,6 +103,7 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
 
     /// <summary>Program identity selecting either the live $F765 surface lightning or retained unused $F769 dark-lightning mechanics and color resource.</summary>
     public CrateriaLightningPaletteOwner Owner { get; }
+    /// <summary>Determines which cartridge layout, CGRAM destination, and record width apply.</summary>
     private bool IsSurface => Owner == CrateriaLightningPaletteOwner.SurfaceLightning;
     /// <summary>$8D:EB3B/$EC6E setup starts: pre-instruction and CGRAM destination.</summary>
     public ushort ProgramStart => IsSurface ? (ushort)0xeb3b : (ushort)0xec6e;
@@ -110,17 +120,28 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
     /// <summary>Two opaque entries marking this program's byte-sized timer operands in first/final group order; their addresses and values are resolved through <see cref="CrateriaLightningPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte"/>.</summary>
     public IReadOnlyList<PaletteFxMechanicsByte> MechanicsBytes { get; }
 
+    /// <summary>The dark program inserts a second 240-update neutral record before its last flash group.</summary>
     private int NeutralCount => IsSurface ? 1 : 2;
+    /// <summary>Each timed record holds a duration, live colors, and a terminal wait word.</summary>
     private int FrameByteCount => 2 * (ColorsPerFrame + 2);
+    /// <summary>The first loop's byte-sized timer instruction follows the opening neutral record.</summary>
     private ushort TimerTwoPointer => (ushort)(FirstFramePointer + FrameByteCount);
+    /// <summary>The first of seven timed flashes repeated by the two-count loop.</summary>
     private ushort RepeatedFramesPointer => (ushort)(TimerTwoPointer + 3);
+    /// <summary>The branch that returns to the seven-flash group while its timer remains active.</summary>
     private ushort DecrementTwoPointer => (ushort)(RepeatedFramesPointer + 7 * FrameByteCount);
+    /// <summary>Address of the neutral interval after the repeated flashes.</summary>
     private ushort NeutralFramesPointer => (ushort)(DecrementTwoPointer + 4);
+    /// <summary>The final flash group's one-count timer follows the neutral interval.</summary>
     private ushort TimerOnePointer => (ushort)(NeutralFramesPointer + NeutralCount * FrameByteCount);
+    /// <summary>The first of four timed flashes in the final group.</summary>
     private ushort FinalFramesPointer => (ushort)(TimerOnePointer + 3);
+    /// <summary>The branch that can repeat the final four flashes.</summary>
     private ushort DecrementOnePointer => (ushort)(FinalFramesPointer + 4 * FrameByteCount);
+    /// <summary>The final branch returns to the program's opening neutral record.</summary>
     private ushort GotoPointer => (ushort)(DecrementOnePointer + 4);
 
+    /// <summary>Calculates a neutral or flash record's native address, duration, and live color count.</summary>
     private CrateriaLightningPaletteFrame Frame(int index)
     {
         if (index == 0)
@@ -134,6 +155,7 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
         return new((ushort)(FinalFramesPointer + final * FrameByteCount), final == 3 ? (ushort)2 : (ushort)1, ColorsPerFrame);
     }
 
+    /// <summary>Calculates setup, timer, branch, duration, and wait words while skipping live BGR555 payloads.</summary>
     private PaletteFxMechanicsWord Word(int index)
     {
         if (index >= 12)
@@ -159,9 +181,11 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
         };
     }
 
+    /// <summary>Retains ordinal identity for each byte-sized timer operand without duplicating its value.</summary>
     private PaletteFxMechanicsByte TimerByte(int index) => index == 0
         ? new() : new();
 
+    /// <summary>Finds an exact compiled word address, including unaligned duration words after byte operands.</summary>
     internal bool TryReadWord(ushort pointer, out ushort value)
     {
         for (int index = 0; index < MechanicsWords.Count; index++)
@@ -173,6 +197,7 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
         return false;
     }
 
+    /// <summary>Finds the two timer bytes whose values are two and one for the respective flash groups.</summary>
     internal bool TryReadByte(ushort pointer, out byte value)
     {
         if (pointer == TimerTwoPointer + 2) { value = 2; return true; }
@@ -192,15 +217,20 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
         return (ushort)(definition.FirstColorPointer + 2 * color);
     }
 
+    /// <summary>Projects calculated native records by ordinal without storing a copied table.</summary>
     private sealed class CalculatedList<T>(int count, Func<int, T> at) : IReadOnlyList<T>
     {
+        /// <summary>The fixed number of calculated records.</summary>
         public int Count => count;
+        /// <summary>Calculates a record and rejects ordinals outside this program's bounds.</summary>
         public T this[int index] => (uint)index < Count ? at(index) : throw new ArgumentOutOfRangeException(nameof(index));
+        /// <summary>Calculates each record once in native address order.</summary>
         public IEnumerator<T> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return at(index);
         }
+        /// <summary>Adapts calculated records for non-generic enumeration.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

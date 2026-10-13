@@ -6,10 +6,14 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Lower Norfair rio species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class LowerNorfairRioBehavior : IEnemySpecies
 {
+    /// <summary>Supplies the shared random draw consumed before every parent and follower AI dispatch.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Resolves wall and floor collisions during Rio dives and returns.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Finds each flame follower in the slot immediately after its parent.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Binds Holtz parent and follower behavior to room RNG, collision, and slot order.</summary>
     internal LowerNorfairRioBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemySlotTable slotTable)
     {
         _room = room;
@@ -17,16 +21,21 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         _slotTable = slotTable;
     }
 
+    /// <summary>Samus must be strictly within $70 horizontal pixels to permit a swoop.</summary>
     private const ushort LowerNorfairRioHorizontalTriggerDistance = 0x0070;
+    /// <summary>Each flight update subtracts 32 units from the signed 8.8 vertical velocity.</summary>
     private const ushort LowerNorfairRioGravity = 32;
+    /// <summary>Library-two selector $64 is published when the Rio starts its return.</summary>
     private const ushort LowerNorfairRioReturnSound = 0x0064;
 
+    /// <summary>Per-slot flight and follower visibility state for the current room.</summary>
     internal readonly LowerNorfairRioEnemyState?[] _lowerNorfairRioStates =
         new LowerNorfairRioEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Most recent library-two return sound request produced during this frame.</summary>
     public ushort? LastLowerNorfairRioSoundEffect { get; private set; }
 
+    /// <summary>Clears room-local Rio actors and their pending sound witness.</summary>
     internal void ResetLowerNorfairRioRoomState()
     {
         Array.Clear(_lowerNorfairRioStates);
@@ -209,6 +218,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Mirrors the preceding parent's freeze and visibility, placing live flames twelve pixels below it.</summary>
     private void FollowLowerNorfairRioParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingLowerNorfairRioSlot(follower);
@@ -234,6 +244,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         follower.Position = follower.Position.WithWhole(new(parent.Position.X.Whole, unchecked((ushort)(parent.Position.Y.Whole + 12))));
     }
 
+    /// <summary>Sets upward return velocity, animation, function, and its library-two sound event.</summary>
     private void BeginLowerNorfairRioReturn(
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state)
@@ -247,6 +258,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         LastLowerNorfairRioSoundEffect = LowerNorfairRioReturnSound;
     }
 
+    /// <summary>Advances the Rio horizontally and reverses its velocity on a wall collision.</summary>
     private void MoveLowerNorfairRioHorizontally(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -261,9 +273,11 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Reverses the full signed 8.8 horizontal velocity after targeting or collision.</summary>
     private static void NegateLowerNorfairRioXVelocity(LowerNorfairRioEnemyState state) =>
         state.Velocity = state.Velocity.ReversedX();
 
+    /// <summary>Applies the native negative 8.8 vertical acceleration after a flight step.</summary>
     private static void ApplyLowerNorfairRioGravity(LowerNorfairRioEnemyState state) =>
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(
             unchecked((ushort)(state.Velocity.Y.RawValue - LowerNorfairRioGravity))));
@@ -271,6 +285,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
     /// <summary>The bank-$A2 address at which <paramref name="program"/> begins, loaded into the enemy's instruction cursor.</summary>
     private static ushort ListStart(LowerNorfairRioProgram program) => (ushort)program;
 
+    /// <summary>Restarts a different Rio animation list while leaving an unchanged list's timer intact.</summary>
     private static void InstallLowerNorfairRioInstructionList(
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state,
@@ -284,6 +299,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Finds the parent slot immediately before a flame follower, rejecting slot zero.</summary>
     private RoomEnemySlot GetPrecedingLowerNorfairRioSlot(RoomEnemySlot follower)
     {
         if (follower.SlotIndex == 0)
@@ -294,6 +310,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         return _slotTable._slots[follower.SlotIndex - 1];
     }
 
+    /// <summary>Requires the preceding slot to be an unfollowing Holtz parent record.</summary>
     private void ValidateLowerNorfairRioParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingLowerNorfairRioSlot(follower);
@@ -306,16 +323,19 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Rejects flight movement before collision data for the room is available.</summary>
     private static void RequireLowerNorfairRioLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Lower Norfair Rio movement requires room level data.");
     }
 
+    /// <summary>Rejects a Holtz dispatch before species initialization populated its slot.</summary>
     private LowerNorfairRioEnemyState RequireLowerNorfairRioState(RoomEnemySlot slot) =>
         _lowerNorfairRioStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Lower Norfair Rio state.");
 
+    /// <summary>Connects the Holtz definition to parent or follower initialization.</summary>
     internal void RegisterLowerNorfairRioInitializationAi(EnemyAiTable table)
     {
 
@@ -325,6 +345,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Runs the appropriate Holtz flight or follower function each enemy frame.</summary>
     internal void RegisterLowerNorfairRioMainAi(EnemyAiTable table)
     {
 
@@ -338,6 +359,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes Holtz's private animation flags and flame visibility opcodes.</summary>
     internal void RegisterLowerNorfairRioOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

@@ -16,12 +16,15 @@ using static EnemyProjectileProgramOracleVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled generic enemy death and pickup instruction programs against ROM and live death producers.</summary>
 internal static class EnemyDeathInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the generic enemy-death instruction suite.</summary>
     internal static void VerifyEnemyDeathInstructionProgramDefinitions() =>
         Suite(nameof(VerifyEnemyDeathInstructionProgramDefinitions), () => VerifyEnemyDeathInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks native mechanics words and all five death variants through their shared respawn/delete tail.</summary>
     internal static void VerifyEnemyDeathInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -159,6 +162,7 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Consumes repeated compiled death-program lookups for the warmed allocation check.</summary>
     private static int ProbeEnemyDeathInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -172,6 +176,7 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects reads from compiled mechanics bytes and observes separate visual selector addresses.</summary>
     private static CartridgeReadGuard NewEnemyDeathInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(EnemyDeathInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -179,6 +184,7 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
             .ObserveWords(EnemyProjectileCodePointers.BankBase, EnemyDeathInstructionProgramDefinitions.PresentationWordCount,
                 EnemyDeathInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the generic death instruction suite through the verification command dispatcher.</summary>
     [VerificationCommand("--enemy-death-instruction-mechanics")]
     internal static int EnemyDeathInstructionMechanicsCommand()
     {

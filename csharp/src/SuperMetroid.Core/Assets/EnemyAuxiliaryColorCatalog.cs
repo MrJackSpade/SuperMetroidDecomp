@@ -24,10 +24,15 @@ public sealed class EnemyAuxiliaryColorCatalog
             }
         });
 
+    /// <summary>The mirrored eight-row face-block glow sequence.</summary>
     private readonly PaletteRows faceBlock;
+    /// <summary>Sidehopper drain stages and its separate corpse colors.</summary>
     private readonly PaletteRows deadSidehopper;
+    /// <summary>Golden Torizo's eight body health-band palettes.</summary>
     private readonly PaletteRows torizoBody;
+    /// <summary>Golden Torizo's eight rear-belly health-band palettes.</summary>
     private readonly PaletteRows torizoBelly;
+    /// <summary>Recognizes each supplied family's stock paint relationship while retaining unmatched edits.</summary>
     private EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, Bgr555[][]> frames)
     {
         faceBlock = new(frames[EnemyAuxiliaryPalette.FaceBlock], healthGradient: false, faceGlow: true);
@@ -36,6 +41,7 @@ public sealed class EnemyAuxiliaryColorCatalog
         torizoBelly = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBelly], healthGradient: true, rearTorizo: true);
     }
 
+    /// <summary>Selects one of the four installed auxiliary color families by its defined identity.</summary>
     private PaletteRows RowsFor(EnemyAuxiliaryPalette palette) => palette switch
     {
         EnemyAuxiliaryPalette.FaceBlock => faceBlock,
@@ -68,16 +74,26 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// </summary>
     private sealed class PaletteRows
     {
+        /// <summary>Initial per-color interpolation endpoints for non-stock derived rows.</summary>
         private readonly Bgr555[] first;
+        /// <summary>Final per-color interpolation endpoints for non-stock derived rows.</summary>
         private readonly Bgr555[] last;
+        /// <summary>Exact supplied rows when their colors do not match a known native progression.</summary>
         private readonly Bgr555[][]? supplied;
+        /// <summary>Whether non-stock rows mirror a face-block glow rise and fall.</summary>
         private readonly bool faceGlow;
+        /// <summary>Stock paint recognition and Torizo rear-palette selection flags.</summary>
         private readonly bool stockTorizo, rearTorizo, stockSidehopperDrain, stockFaceGlow;
+        /// <summary>The face-block accent color used for the active portion of its mirrored glow.</summary>
         private readonly Bgr555 glowAccentStart;
+        /// <summary>The independently authored terminal sidehopper corpse row.</summary>
         private readonly Bgr555[]? corpse;
 
+        /// <summary>Number of authored stages or health bands in this family.</summary>
         internal int FrameCount { get; }
+        /// <summary>Colors supplied per row, excluding sidehopper's native transparent slot zero.</summary>
         internal int ColorCount { get; }
+        /// <summary>Accepts a calculated paint progression only when every supplied RGB5 word matches it.</summary>
         internal PaletteRows(Bgr555[][] rows, bool healthGradient, bool faceGlow = false, bool sidehopperDrain = false, bool rearTorizo = false)
         {
             FrameCount = rows.Length;
@@ -105,7 +121,9 @@ public sealed class EnemyAuxiliaryColorCatalog
                     if (Calculate(frame, color) != rows[frame][color]) { supplied = rows; return; }
 
         }
+        /// <summary>Uses exact edited paint where retained; otherwise derives the native color relationship.</summary>
         internal Bgr555 Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
+        /// <summary>Interpolates RGB5 health/drain endpoints or mirrors the face-block glow, with stock palettes using their own paint definitions.</summary>
         private Bgr555 Calculate(int frame, int color)
         {
             if (stockTorizo) return GoldenTorizoHealthPaintDefinitions.Color(frame, color, rearTorizo);
@@ -180,10 +198,12 @@ public sealed class EnemyAuxiliaryColorCatalog
         return data;
     }
 
+    /// <summary>Rejects case-insensitive duplicate JSON keys before deserialization can discard an earlier color edit.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.OrdinalIgnoreCase,
             name => new InvalidDataException($"Duplicate auxiliary palette property {name}."));
 
+    /// <summary>Uses strict camel-case JSON with named palette identities and no unmapped properties.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

@@ -112,6 +112,7 @@ public readonly record struct RoomEnemySpawnSnapshot(
 /// </summary>
 public sealed class RoomEnemySlot
 {
+    /// <summary>Assigns the stable native $40-byte slot index before population data is copied in.</summary>
     internal RoomEnemySlot(int slotIndex)
     {
         SlotIndex = slotIndex;
@@ -190,6 +191,7 @@ public sealed class RoomEnemySlot
     /// <summary>Native spawn-data graphical offset, added to the live whole position before camera subtraction.</summary>
     public Offset16<RoomPixels> SpawnOffset { get; internal set; }
 
+    /// <summary>Resets all mutable enemy, animation and actor scratch words when a native slot becomes inactive.</summary>
     internal void Clear()
     {
         EnemyDefinitionPointer = 0;

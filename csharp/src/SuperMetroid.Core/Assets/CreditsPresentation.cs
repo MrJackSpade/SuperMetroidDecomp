@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable staff-credit text compiled into the cartridge's fixed row cadence.</summary>
 public sealed class CreditsPresentation
 {
+    /// <summary>Validated editable lines rendered on demand at the fixed cartridge cadence.</summary>
     private readonly CreditsLineDocument[]? lines;
+    /// <summary>Precompiled row overrides supplied by a fixture when the editable line path is unused.</summary>
     private readonly ushort[][]? fixtureRows;
 
+    /// <summary>Retains one row source and the identity of its original JSON bytes.</summary>
     private CreditsPresentation(CreditsLineDocument[]? lines, ushort[][]? fixtureRows, string contentIdentity)
     {
         this.lines = lines;
@@ -126,6 +129,7 @@ public sealed class CreditsPresentation
         output.Write(bytes);
     }
 
+    /// <summary>Rejects characters unsupported by the line's small or two-row large font.</summary>
     private static void ValidateLine(CreditsLineDefinition definition, CreditsLineDocument line)
     {
         foreach (char character in line.Text)
@@ -144,6 +148,7 @@ public sealed class CreditsPresentation
         }
     }
 
+    /// <summary>Places a line's glyphs and palette bits into one fixed-width BG tilemap row.</summary>
     private static ushort[] RenderLine(CreditsLineDefinition definition, CreditsLineDocument line, bool bottom)
     {
         ushort[] row = BlankRow();
@@ -153,11 +158,13 @@ public sealed class CreditsPresentation
                 CreditsPresentationDefinitions.CompileGlyph(line.Text[index], definition.Style, bottom), attributes);
         return row;
     }
+    /// <summary>Applies palette attributes to a visible glyph while leaving blank tilemap words untouched.</summary>
     private static ushort ApplyAttributes(ushort glyph, ushort attributes) =>
         glyph == CreditsPresentationDefinitions.BlankWord
             ? glyph
             : unchecked((ushort)(glyph | attributes));
 
+    /// <summary>Allocates a 32-word row filled with the credits' compiled blank tile.</summary>
     private static ushort[] BlankRow() =>
         Enumerable.Repeat(CreditsPresentationDefinitions.BlankWord,
             CreditsPresentationDefinitions.TilemapWidth).ToArray();

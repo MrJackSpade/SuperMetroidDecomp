@@ -17,8 +17,10 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static ImportedSpritemapsVerification;
 
+/// <summary>Checks Spark movement selectors and its flicker, active, and emitter instruction programs.</summary>
 internal static class SparkMovementDefinitionsVerification
 {
+    /// <summary>Compares native selectors, executes four programs, and checks tangibility transitions without live ROM reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for spark movement definitions")]
     internal static void VerifySparkMovementDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -162,6 +164,7 @@ internal static class SparkMovementDefinitionsVerification
             "pass with runtime ROM reads forbidden; 26 executed selectors match the cartridge.");
     }
 
+    /// <summary>Repeatedly reads the compiled active entry to detect allocation on a warmed path.</summary>
     private static int ProbeSparkInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -173,16 +176,19 @@ internal static class SparkMovementDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects initializer reads from the migrated instruction and function selector tables.</summary>
     private static CartridgeReadGuard NewSparkMovementReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa8e682 and < 0xa8e690,
             address => $"Spark initializer attempted migrated selector read ${address:X6}.");
 
+    /// <summary>Rejects instruction mechanics reads while observing sprite operand access.</summary>
     private static CartridgeReadGuard NewSparkProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(SparkInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Spark mechanics byte ${address:X6}.")
             .ObserveWords(0xa80000, SparkInstructionProgramDefinitions.PresentationWordCount, SparkInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Loads the retail cartridge and runs Spark program checks from the command dispatcher.</summary>
     [VerificationCommand("--spark-instruction-mechanics")]
     internal static int SparkInstructionMechanicsCommand()
     {

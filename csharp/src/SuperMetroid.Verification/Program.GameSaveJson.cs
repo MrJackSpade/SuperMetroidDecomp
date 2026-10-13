@@ -14,6 +14,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks named JSON save persistence against canonical SRAM and legacy migration.</summary>
 internal static class GameSaveJsonVerification
 {
     /// <summary>
@@ -170,6 +171,7 @@ internal static class GameSaveJsonVerification
             "  JSON saves: named schema, all slot domains, canonical SRAM, strict errors, atomic writes, and legacy migration agree.");
     }
 
+    /// <summary>Confirms malformed save JSON is rejected with a diagnostic naming the invalid field or value.</summary>
     internal static void AssertInvalidJsonSave(string json, string expectedMessagePart)
     {
         try
@@ -185,6 +187,7 @@ internal static class GameSaveJsonVerification
         }
     }
 
+    /// <summary>Runs JSON persistence and schema-translation verification.</summary>
     [VerificationCommand("--game-save-json")]
     internal static int GameSaveJsonCommand()
     {
@@ -193,6 +196,7 @@ internal static class GameSaveJsonVerification
         return 0;
     }
 
+    /// <summary>Runs the focused JSON save round-trip and migration verification command.</summary>
     [VerificationCommand("--save-json-persistence")]
     internal static int SaveJsonPersistenceCommand()
     {

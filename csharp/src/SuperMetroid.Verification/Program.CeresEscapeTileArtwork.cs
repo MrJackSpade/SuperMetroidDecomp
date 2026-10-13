@@ -5,8 +5,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks installed Ceres warning and door tiles through production VRAM transfers.</summary>
 internal static class CeresEscapeTileArtworkVerification
 {
+    /// <summary>Compares native transfer bytes, then checks a PNG edit reaches VRAM without cartridge reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape tile artwork")]
     internal static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom,
@@ -168,17 +170,21 @@ internal static class CeresEscapeTileArtworkVerification
             "transfers match VRAM without ROM art reads; edit, reload, and rejection pass.");
     }
 
+    /// <summary>Provides installed escape timer assets and enemy tile pages to the queued VRAM writer.</summary>
     internal sealed class CeresEscapeArtworkProvider(
         EnemyTileArtworkCatalog tiles, EscapeTimerTileAtlas timer)
         : IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Resolves a typed timer transfer from the installed indexed-PNG atlas.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => timer.Resolve(asset);
 
+        /// <summary>Resolves source-address transfers from installed Ceres escape tile pages.</summary>
         public bool TryResolve(int sourceAddress, int byteCount,
             out ReadOnlyMemory<byte> data) =>
             tiles.TryResolve(sourceAddress, byteCount, out data);
     }
 
+    /// <summary>Rejects live descriptor, overlay, warning-tile, and timer-tile source reads.</summary>
     internal static CartridgeReadGuard NewCeresEscapeArtworkReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address) ||

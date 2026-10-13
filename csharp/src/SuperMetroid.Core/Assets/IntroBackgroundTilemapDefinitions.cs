@@ -11,6 +11,7 @@ internal static class IntroBackgroundTilemapDefinitions
     /// <summary>$96:FF14: unadorned scene interior blank $3FF.</summary>
     private const ushort SceneBlank = 0x03ff;
 
+    /// <summary>Composes the four 32×32 intro pages in native page order, filling border tiles before drawing each scene.</summary>
     internal static byte[] Compile()
     {
         var output = new byte[IntroCinematicArtworkFormat.BackgroundPageCount * IntroCinematicArtworkFormat.BackgroundPageByteCount];
@@ -250,18 +251,22 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Put(cell + new Offset16<TilemapCells>(1, 1), narrow ? SceneBlank : 0x1e00);
     }
 
+    /// <summary>Writes one selected intro background page into its slice of the combined VRAM tilemap.</summary>
     private sealed class Page(byte[] output, int page)
     {
-        // One 32x32 background page of tilemap words.
+        /// <summary>Each illustrated page has 32 rows and columns of tilemap words.</summary>
         private static readonly Extent16<TilemapCells> PageSize = new(32, 32);
 
+        /// <summary>Writes a little-endian tilemap word at the page-local cell.</summary>
         internal void Put(Position16<TilemapCells> cell, int word) => BinaryPrimitives.WriteUInt16LittleEndian(
             output.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount + PageSize.RowMajorIndex(cell) * 2), (ushort)word);
+        /// <summary>Paints a rectangular run with one tilemap word, used for backgrounds and blank regions.</summary>
         internal void Fill(Position16<TilemapCells> origin, Extent16<TilemapCells> size, int word)
         {
             for (int row = 0; row < size.Y; row++)
             for (int column = 0; column < size.X; column++) Put(origin + new Offset16<TilemapCells>(checked((short)column), checked((short)row)), word);
         }
+        /// <summary>Copies a row-major atlas patch with a 16-word source stride, applying SNES flip bits when reflected.</summary>
         internal void Patch(Position16<TilemapCells> origin, Extent16<TilemapCells> size, int word, bool mirrorX = false, bool mirrorY = false)
         {
             for (int row = 0; row < size.Y; row++)

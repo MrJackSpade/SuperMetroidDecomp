@@ -15,8 +15,10 @@ using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks a fired beam's lifetime against Samus movement, camera tracking, and a native trace.</summary>
 internal static class HeroShotRuntimeVerification
 {
+    /// <summary>Runs stationary and walking shot paths through production gameplay and compares recorded state fields.</summary>
     internal static void VerifyHeroShotRuntimeCamera(string? nativeTrace = null)
     {
         Suite(nameof(VerifyPoseCollisionCameraCheckpoint), () => VerifyPoseCollisionCameraCheckpoint());
@@ -129,6 +131,7 @@ internal static class HeroShotRuntimeVerification
         AssertEqual(0, mismatches, "Runtime Hero states match native movement/camera/projectile frames exactly");
     }
 
+    /// <summary>Checks that landing pose correction changes previous Y once without disturbing camera X or fractions.</summary>
     private static void VerifyPoseCollisionCameraCheckpoint()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -157,6 +160,7 @@ internal static class HeroShotRuntimeVerification
             "No-collision pose expansion leaves the existing camera checkpoint untouched");
     }
 
+    /// <summary>Dispatches the Hero shot runtime comparison with its checked-in native trace.</summary>
     [VerificationCommand("--hero-shot-runtime")]
     internal static int HeroShotRuntimeCommand()
     {
@@ -164,6 +168,7 @@ internal static class HeroShotRuntimeVerification
         return 0;
     }
 
+    /// <summary>Dispatches the Hero shot runtime comparison with a supplied native trace path.</summary>
     [VerificationCommand("--hero-shot-runtime", "nativeHeroRuntimeTrace")]
     internal static int HeroShotRuntimeCommand2(string nativeHeroRuntimeTrace)
     {

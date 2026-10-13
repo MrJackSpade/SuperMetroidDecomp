@@ -92,8 +92,10 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
 /// <summary>One engine-owned bank-$87 animated-tile object header and loop skeleton.</summary>
 public sealed class RoomFxAnimatedTileObjectDefinition
 {
+    /// <summary>Arithmetic view of timed records, retaining no presentation source pointers.</summary>
     private readonly CalculatedFrames frames;
 
+    /// <summary>Binds a bank-$87 object header to its transfer geometry and frame schedule.</summary>
     internal RoomFxAnimatedTileObjectDefinition(
         AnimatedTileObject objectPointer,
         ushort instructionPointer,
@@ -122,7 +124,9 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     private sealed class CalculatedFrames(ushort first, int count, ushort duration)
         : IReadOnlyList<RoomFxAnimatedTileFrameDefinition>
     {
+        /// <summary>Number of timed entries before the terminal goto command.</summary>
         public int Count => count;
+        /// <summary>Computes a four-byte record cursor and shared duration for a bounded frame.</summary>
         public RoomFxAnimatedTileFrameDefinition this[int index]
         {
             get
@@ -131,10 +135,12 @@ public sealed class RoomFxAnimatedTileObjectDefinition
                 return new(unchecked((ushort)(first + index * 4)), duration);
             }
         }
+        /// <summary>Yields frame cursors in native instruction order.</summary>
         public IEnumerator<RoomFxAnimatedTileFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same native frame order to non-generic collection callers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>The object-header address within bank $87.</summary>

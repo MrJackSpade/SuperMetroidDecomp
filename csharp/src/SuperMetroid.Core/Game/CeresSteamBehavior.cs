@@ -3,9 +3,12 @@
 /// <summary>The Ceres steam species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class CeresSteamBehavior
 {
+    /// <summary>Room services that supply the live RNG used to stagger vent activation.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Common contact resolution used after steam's extended hitbox selects its touch callback.</summary>
     private readonly EnemyCollision _collision;
 
+    /// <summary>Stores room and collision services for steam initialization and contact handling.</summary>
     internal CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision collision)
     {
         _room = room;
@@ -54,7 +57,9 @@ internal sealed class CeresSteamBehavior
         }
     }
 
+    /// <summary>Preloaded Ceres palette selected by the steam initializer.</summary>
     private static readonly ushort CeresSteamPaletteIndex = EnemyPaletteBits.Palette5;
+    /// <summary>Health restored by steam's main and touch routines so the vent cannot be destroyed.</summary>
     private const ushort CeresSteamIndestructibleHealth = 0x7fff;
 
     /// <summary>Ports <c>CeresSteam_Init</c> at <c>$A6:EFB1</c>.</summary>
@@ -121,6 +126,7 @@ internal sealed class CeresSteamBehavior
         }
     }
 
+    /// <summary>Registers the initializer that selects the variant's instruction list and RNG activation delay.</summary>
     internal void RegisterCeresSteamInitializationAi(EnemyAiTable table)
     {
 
@@ -130,6 +136,7 @@ internal sealed class CeresSteamBehavior
         });
     }
 
+    /// <summary>Registers the main AI that restores health and applies the rotating elevator's graphical offset.</summary>
     internal static void RegisterCeresSteamMainAi(EnemyAiTable table)
     {
 
@@ -139,6 +146,7 @@ internal sealed class CeresSteamBehavior
         });
     }
 
+    /// <summary>Registers steam's visibility and activation-timer instruction words with the interpreter.</summary>
     internal static void RegisterCeresSteamOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -148,6 +156,7 @@ internal sealed class CeresSteamBehavior
         });
     }
 
+    /// <summary>Registers contact handling only for steam's authored extended hitbox callback.</summary>
     internal void RegisterCeresSteamTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&
@@ -174,7 +183,7 @@ internal sealed class CeresSteamBehavior
     }
 
 
-    // Ordinary common shot AI with no species stage.
+    /// <summary>Routes steam shots to ordinary common shot AI without a species-specific reaction.</summary>
     internal static void RegisterCeresSteamShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&

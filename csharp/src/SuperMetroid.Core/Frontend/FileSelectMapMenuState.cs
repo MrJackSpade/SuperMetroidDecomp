@@ -15,23 +15,41 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class FileSelectMapMenuState
 {
+    /// <summary>Shared menu address space for map owners and sound-triggering navigation.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Receives confirmation, scrolling and transition sound requests during updates.</summary>
     private readonly CartridgeAudioState audio;
+    /// <summary>Saved Zebes area; Ceres bypasses this menu.</summary>
     private readonly int area;
+    /// <summary>Per-area used-station words restored from the selected save slot.</summary>
     private readonly ushort[] usedStations = new ushort[FileSelectMapRomData.AreaCount];
+    /// <summary>Renders the six-area selection view during entry and area navigation.</summary>
     private readonly FileSelectAreaMapGraphics areaGraphics;
+    /// <summary>Renders the selected area's room map, including exploration and markers.</summary>
     private readonly FileSelectRoomMapGraphics roomGraphics;
+    /// <summary>Owns room-map scroll position anchored to the selected save station.</summary>
     private FileSelectMapScroll scroll;
+    /// <summary>Save-station marker positioned from the installed presentation catalog.</summary>
     private FileSelectStationMarker marker;
+    /// <summary>Saved station index used to restore the marker and scroll anchor.</summary>
     private readonly ushort stationIndex;
+    /// <summary>Suppresses marker display until the room-map entry animation reaches it.</summary>
     private bool markerDrawn;
+    /// <summary>Advances map icon arrows and highlight palette independently of rendering.</summary>
     private readonly FileSelectMapAnimations animations;
+    /// <summary>Controls whether room-map scrolling arrows are included in a frame.</summary>
     private bool drawArrows;
+    /// <summary>Interprets latched input and owns area/room navigation phases.</summary>
     private readonly FileSelectMapNavigation navigation;
+    /// <summary>Owns the initial reveal and fade before navigation can consume input.</summary>
     private readonly FileSelectMapEntry entry;
+    /// <summary>Active clipping window for the room-to-area return transition.</summary>
     private FileSelectMapWindow? returnWindow;
+    /// <summary>Remaining transition updates before load or return handoff.</summary>
     private int pendingFrames;
+    /// <summary>Master brightness applied after scene composition during fades.</summary>
     private byte brightness = 15;
+    /// <summary>Installed map artwork rebound after debugger restoration instead of serialized with navigation state.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
     /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>
@@ -97,6 +115,7 @@ public sealed class FileSelectMapMenuState
         marker.BindPosition(bus, (AreaId)area, stationIndex, catalog?.SaveMarkers);
     }
 
+    /// <summary>Starts room-map scrolling at the compiled anchor for the saved area and station.</summary>
     private FileSelectMapScroll CreateScrollForCurrentContent()
     {
         var typedArea = (AreaId)area;
@@ -184,7 +203,7 @@ public sealed class FileSelectMapMenuState
         }
     }
 
-    // Final frame for composed phases; a returned frame is valid until this menu renders again.
+    /// <summary>Reusable composed frame buffer; callers must copy its contents before another render.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
     /// <summary>Draws the current 256-by-224 entry, area, room, or clipped transition scene and applies current master brightness without consuming input or advancing any timers.</summary>
@@ -220,6 +239,7 @@ public sealed class FileSelectMapMenuState
         return pixels;
     }
 
+    /// <summary>Requests a menu sound through the audio owner's six-entry queue limit.</summary>
     private void Queue(SoundEffectId sound) => audio.QueueSound(sound, maximumQueued: 6);
 
     /// <summary>Captures both map-memory owners and resolved window edges at the display boundary.</summary>
@@ -257,6 +277,7 @@ public sealed class FileSelectMapMenuState
         return new(scene.Memory, scene.Layers, scene.ObjectSelection, brightness);
     }
 
+    /// <summary>Projects the native clipped room/area transition into render layers, including completed and off-screen windows.</summary>
     private static LayeredRenderSnapshot Window(LayeredRenderSnapshot areaScene, LayeredRenderSnapshot roomScene, FileSelectMapWindow window)
     {
         if (window.IsComplete) return window.IsReturning ? areaScene : roomScene;
@@ -269,6 +290,7 @@ public sealed class FileSelectMapMenuState
         return Insert(areaScene, roomScene, left, top, right + 1, bottom);
     }
 
+    /// <summary>Overlays an inner scene inside half-open screen bounds while retaining the basis scene's PPU memory and brightness.</summary>
     private static LayeredRenderSnapshot Insert(LayeredRenderSnapshot basis, LayeredRenderSnapshot inside,
         int left, int top, int right, int bottom)
     {

@@ -3,20 +3,25 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Creates controlled installed-enemy artwork variants for content identity checks.</summary>
 internal static class EnemyContentIdentityFixtureVerification
 {
     /// <summary>Small authored presentation data loaded through production PNG/JSON compilers.</summary>
     internal sealed class EnemyIdentityFixture(string? edit = null, bool reverse = false)
     {
+        /// <summary>Names every artwork component for which this fixture can produce a distinct edit.</summary>
         public List<string> Edits { get; } = [];
+        /// <summary>Records a supported edit once while retaining fixture construction order.</summary>
         private void Register(string name)
         {
             if (!Edits.Contains(name, StringComparer.Ordinal)) Edits.Add(name);
         }
 
+        /// <summary>Serializes fixture documents through the same camel-case JSON shape as installed artwork.</summary>
         public MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = edit == "json-indent" }));
 
+        /// <summary>Writes indexed tile pixels with an optional first-pixel edit or cosmetic palette change.</summary>
         private MemoryStream Png(string name, int bytes, int seed = 0)
         {
             Register(name);
@@ -32,9 +37,11 @@ internal static class EnemyContentIdentityFixtureVerification
             return png;
         }
 
+        /// <summary>Compiles fixture PNG pixels into a production room-character atlas.</summary>
         private RoomCharacterAtlas Characters(string name, int bytes, int seed = 0) =>
             RoomCharacterAtlas.Load(Png(name, bytes, seed), bytes);
 
+        /// <summary>Changes the final tilemap cell only when its named edit is selected.</summary>
         private RoomBackgroundTilemapCell[] Cells(string name, int count)
         {
             Register(name);
@@ -45,6 +52,7 @@ internal static class EnemyContentIdentityFixtureVerification
             }).ToArray();
         }
 
+        /// <summary>Builds the requested number of production background pages from editable cells.</summary>
         private RoomBackgroundTilemapAtlas Map(string name, int bytes) => RoomBackgroundTilemapAtlas.Load(Json(
             new RoomBackgroundTilemapDocument
             {
@@ -53,6 +61,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     new RoomBackgroundTilemapPage { Cells = Cells(name + "-page-" + page, RoomBackgroundTilemapFormat.CellsPerPage) }).ToArray(),
             }), bytes);
 
+        /// <summary>Builds a word sequence whose final element can carry a controlled edit.</summary>
         private ushort[] Words(string name, int count)
         {
             Register(name);
@@ -61,6 +70,7 @@ internal static class EnemyContentIdentityFixtureVerification
             return words;
         }
 
+        /// <summary>Builds five-bit palette colors with an optional final red-channel mutation.</summary>
         private PaletteRgb5[] Colors(string name, int count, int seed = 0)
         {
             Register(name);
@@ -71,6 +81,7 @@ internal static class EnemyContentIdentityFixtureVerification
             }).ToArray();
         }
 
+        /// <summary>Builds distinguishable palette rows and can reverse their authored order.</summary>
         private PaletteRgb5[][] ColorRows(string name, int count, int colors)
         {
             Register(name + "-order");
@@ -79,6 +90,7 @@ internal static class EnemyContentIdentityFixtureVerification
             return rows;
         }
 
+        /// <summary>Loads a production color catalog from one or more scalar or animated palette fields.</summary>
         private T ColorCatalog<T>(Func<Stream, T> load, params (string Name, int Rows, int Colors)[] fields)
         {
             var document = new Dictionary<string, object> { ["version"] = 1 };
@@ -90,9 +102,11 @@ internal static class EnemyContentIdentityFixtureVerification
             return load(Json(document));
         }
 
+        /// <summary>Reverses dictionary insertion order to verify identity hashing uses canonical keys.</summary>
         private Dictionary<TKey, TValue> Ordered<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> source) where TKey : notnull =>
             (reverse ? source.Reverse() : source).ToDictionary();
 
+        /// <summary>Assembles every installed enemy presentation domain with one optional controlled edit.</summary>
         public EnemyTileArtworkCatalog Build(EnemySpritemapCatalog? spritemaps = null,
             EnemyExtendedFrameCatalog? extendedFrames = null,
             EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
@@ -202,6 +216,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     Bg2("mother-brain-body-bg2", MotherBrainBodyVisualDefinitions.Bg2Frames)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(Png("crocomire-skeleton", CrocomireSkeletonTransferDefinitions.TotalByteCount)), TorizoInstructionVram = torizo, CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay, AuxiliaryColors = auxiliary });
         }
 
+        /// <summary>Changes the final Crocomire melt tile only for the selected map edit.</summary>
         private CrocomireMeltingTilemapDocument MeltMap(string name)
         {
             Register(name);
@@ -217,6 +232,7 @@ internal static class EnemyContentIdentityFixtureVerification
             };
         }
 
+        /// <summary>Builds two OAM parts while varying geometry, attributes, ordering, or count.</summary>
         private SpriteVisualPart[] Parts(string family, bool mutate)
         {
             if (mutate)
@@ -241,6 +257,7 @@ internal static class EnemyContentIdentityFixtureVerification
             return change switch { "order" => [second, first], "count" => [first], _ => [first, second] };
         }
 
+        /// <summary>Builds spritemap frames and physical-to-display bindings in optional reverse key order.</summary>
         public EnemySpritemapDocument OamDocument()
         {
             var definitions = EnemySpritemapDefinitions.Frames.ToArray();
@@ -255,8 +272,10 @@ internal static class EnemyContentIdentityFixtureVerification
                         ? definitions.First(other => other.Bank == frame.Bank && other.Name != frame.Name).Name : frame.Name))),
             };
         }
+        /// <summary>Compiles fixture OAM data through the installed spritemap loader.</summary>
         public EnemySpritemapCatalog Oam() => EnemySpritemapCatalog.Load(Json(OamDocument()));
 
+        /// <summary>Builds extended sprite components with independently editable offsets and frame bindings.</summary>
         public EnemyExtendedFrameDocument ExtendedDocument()
         {
             var definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();
@@ -282,8 +301,10 @@ internal static class EnemyContentIdentityFixtureVerification
                     KeyValuePair.Create(frame.Name, index == 0 && edit == "extended-binding" ? definitions[1].Name : frame.Name))),
             };
         }
+        /// <summary>Compiles extended frame fixtures through the installed catalog loader.</summary>
         public EnemyExtendedFrameCatalog Extended() => EnemyExtendedFrameCatalog.Load(Json(ExtendedDocument()));
 
+        /// <summary>Builds ordinary and instruction-program projectile OAM frames.</summary>
         public EnemyProjectileSpritemapDocument ProjectileDocument()
         {
             var frames = EnemyProjectileSpritemapDefinitions.Frames.ToArray();
@@ -297,8 +318,10 @@ internal static class EnemyContentIdentityFixtureVerification
                     KeyValuePair.Create(frame.Name, Parts("projectile-program", index == programs.Length - 1)))),
             };
         }
+        /// <summary>Compiles both projectile frame namespaces into one installed catalog.</summary>
         public EnemyProjectileSpritemapCatalog Projectiles() => EnemyProjectileSpritemapCatalog.Load(Json(ProjectileDocument()));
 
+        /// <summary>Builds BG2 frame writes whose tiles, placement, order, count, or run boundaries can vary.</summary>
         private MemoryStream Bg2(string family, EnemyBg2FrameDefinitionSequence definitions)
         {
             foreach (string component in new[] { "tiles", "x", "y", "order", "count", "run-boundary" }) Register(family + "-" + component);

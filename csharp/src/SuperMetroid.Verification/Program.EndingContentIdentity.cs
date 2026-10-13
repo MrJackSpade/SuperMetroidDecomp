@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks ending artwork role mapping and decoded-content identity behavior.</summary>
 internal static class EndingContentIdentityVerification
 {
     /// <summary>Checks ending scene selection and original import metadata without a playthrough.</summary>
@@ -91,6 +92,7 @@ internal static class EndingContentIdentityVerification
         AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(supplied[0], supplied[1], supplied[2], null!), "Mode7 null reward");
     }
 
+    /// <summary>Checks domain-specific digest changes, canonical frame order, and encoding invariance.</summary>
     internal static void VerifyEndingContentIdentity()
     {
         IReadOnlyDictionary<string, string> baseline = CreateEndingIdentityFixture();
@@ -153,6 +155,7 @@ internal static class EndingContentIdentityVerification
             "ordered transfers and parts, canonical frames, encoding invariance and host warnings pass without a ROM.");
     }
 
+    /// <summary>Builds ending catalogs with one controlled edit across objects, Mode 7 scenes, or palettes.</summary>
     private static IReadOnlyDictionary<string, string> CreateEndingIdentityFixture(
         string? edit = null, bool reverse = false)
     {
@@ -291,6 +294,7 @@ internal static class EndingContentIdentityVerification
         return EndingPresentationIdentity.Create(mode7, objects, palettes);
     }
 
+    /// <summary>Runs the native ending Mode 7 source and artwork-role check.</summary>
     [VerificationCommand("--lookup-ending-mode7-roles")]
     internal static int LookupEndingMode7RolesCommand()
     {
@@ -299,6 +303,7 @@ internal static class EndingContentIdentityVerification
         return 0;
     }
 
+    /// <summary>Runs the focused ending presentation identity check without a ROM.</summary>
     [VerificationCommand("--ending-content-identity")]
     internal static int EndingContentIdentityCommand()
     {

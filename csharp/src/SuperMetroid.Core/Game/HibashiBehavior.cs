@@ -4,8 +4,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Hibashi species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class HibashiBehavior : IEnemySpecies
 {
+    /// <summary>Locates the hitbox record immediately after each visible geyser record.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Binds paired Hibashi parts to the room enemy slot table.</summary>
     internal HibashiBehavior(EnemySlotTable slotTable)
     {
         _slotTable = slotTable;
@@ -61,6 +63,7 @@ internal sealed class HibashiBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Per-slot geyser timing and shape state cleared at room load.</summary>
     internal readonly HibashiEnemyState?[] _hibashiStates =
         new HibashiEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -194,10 +197,12 @@ internal sealed class HibashiBehavior : IEnemySpecies
         return _slotTable._slots[graphics.SlotIndex + 1];
     }
 
+    /// <summary>Rejects geyser AI or instruction dispatch for an uninitialized slot.</summary>
     private HibashiEnemyState RequireHibashiState(RoomEnemySlot slot) =>
         _hibashiStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Hibashi state.");
 
+    /// <summary>Registers initialization of paired graphics and collision records.</summary>
     internal void RegisterHibashiInitializationAi(EnemyAiTable table)
     {
 
@@ -207,6 +212,7 @@ internal sealed class HibashiBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers inactive-countdown and active-eruption AI dispatch.</summary>
     internal void RegisterHibashiMainAi(EnemyAiTable table)
     {
 
@@ -216,6 +222,7 @@ internal sealed class HibashiBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers sound, 22 shape updates, and finish-activity instructions owned by Hibashi.</summary>
     internal void RegisterHibashiOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

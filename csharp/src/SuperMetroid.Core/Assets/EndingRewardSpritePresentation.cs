@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable OAM compositions for the 37 post-credits Samus reward frames.</summary>
 public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Validated bank-$8C frame pointers mapped to editable OAM compositions.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
+    /// <summary>Retains compiled compositions after all published reward frames are checked.</summary>
     private EndingRewardSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -106,10 +108,12 @@ public static class EndingRewardSpriteDefinitions
 {
     /// <summary>$8C:99D6, LargeSamusFromEndingStanding, first of37 consecutive reward OAM records.</summary>
     private const ushort FirstRecord = 0x99d6;
+    /// <summary>The native reward list publishes thirty-seven distinct OAM records.</summary>
     private const int FrameCount = 37;
     /// <summary>Gets the 37 published asset roles in installation order.</summary>
     public static IReadOnlyList<EndingRewardSpriteFrameDefinition> Frames { get; } = new FrameView();
 
+    /// <summary>Advances through variable-length native OAM records to locate one reward pose.</summary>
     internal static ushort FramePointer(EndingRewardSpriteFrame frame)
     {
         if ((uint)frame >= FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -119,6 +123,7 @@ public static class EndingRewardSpriteDefinitions
         return (ushort)address;
     }
 
+    /// <summary>Counts the stock OAM parts that determine each subsequent record's address.</summary>
     private static int Parts(EndingRewardSpriteFrame frame) => frame switch
     {
         EndingRewardSpriteFrame.SamusHeadFromEndingFrame1 or
@@ -161,6 +166,7 @@ public static class EndingRewardSpriteDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 
+    /// <summary>Maps a published asset slot to its stable JSON name and native OAM pose.</summary>
     private static EndingRewardSpriteFrameDefinition Get(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -197,39 +203,64 @@ public static class EndingRewardSpriteDefinitions
         };
     }
 
+    /// <summary>Indices outside the three contiguous hair, arm, and head frame series.</summary>
     private enum AssetRole
     {
+        /// <summary>Upper half of the opening suitless idle composition.</summary>
         SuitlessIdleUpper = 0,
+        /// <summary>Lower half shared by suitless reward poses.</summary>
         SuitlessLower = 1,
+        /// <summary>Complete standing pose after the hair-opening series.</summary>
         SuitlessStanding = 10,
+        /// <summary>Pose immediately before the suitless jump.</summary>
         SuitlessPrepareJump = 11,
+        /// <summary>Airborne suitless reward pose.</summary>
         SuitlessJumping = 12,
+        /// <summary>Small falling figure in the shooting sequence.</summary>
         SamusFalling = 13,
+        /// <summary>Small figure approaching the landing pose.</summary>
         SamusLanding = 14,
+        /// <summary>Small figure after the landing completes.</summary>
         SamusLanded = 15,
+        /// <summary>Small figure firing toward the screen.</summary>
         SamusShooting = 16,
+        /// <summary>Large suited body before head and arm overlays.</summary>
         SuitedIdleBody = 17,
+        /// <summary>Helmeted head overlay for the suited body.</summary>
         SuitedHelmetHead = 18,
+        /// <summary>First helmetless head overlay before the contiguous head series.</summary>
         HelmetlessHead1 = 19,
+        /// <summary>Suited body drawn beneath separate head and arm parts.</summary>
         SuitedHeadlessBody = 20,
+        /// <summary>Large suited pose anticipating the jump.</summary>
         SuitedPrepareJump = 32,
+        /// <summary>Large suited airborne pose.</summary>
         SuitedJumping = 33,
+        /// <summary>First helmet overlay during the suited jump.</summary>
         SuitedHelmetJumpHead1 = 34,
+        /// <summary>Second helmet overlay during the suited jump.</summary>
         SuitedHelmetJumpHead2 = 35,
+        /// <summary>Unhelmeted head overlay during the jump.</summary>
         HelmetlessJumpHead = 36,
     }
 
+    /// <summary>Combines a stable asset name with its computed native pointer and stock part count.</summary>
     private static EndingRewardSpriteFrameDefinition Define(string name, EndingRewardSpriteFrame frame) =>
         new(name, FramePointer(frame), Parts(frame));
 
+    /// <summary>Exposes the calculated published frame sequence without an eagerly stored table.</summary>
     private sealed class FrameView : IReadOnlyList<EndingRewardSpriteFrameDefinition>
     {
+        /// <summary>The thirty-seven published reward asset roles.</summary>
         public int Count => FrameCount;
+        /// <summary>Resolves a role index to its named native OAM identity.</summary>
         public EndingRewardSpriteFrameDefinition this[int index] => Get(index);
+        /// <summary>Visits all asset roles in installation order.</summary>
         public IEnumerator<EndingRewardSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);
         }
+        /// <summary>Exposes the same installation order to nongeneric collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

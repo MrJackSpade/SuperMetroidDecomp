@@ -9,23 +9,36 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Retail game-over prompt at <c>$81:90AE-$81:93F7</c>.</summary>
 public sealed class GameOverMenuState
 {
-    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    /// <summary>Reusable OBJ raster cleared on each render; excluded from saved menu state.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
-    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    /// <summary>Scene-owned final frame; callers may retain its pixels only until the next render.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
+    /// <summary>Address-space context retained for menu PPU construction and rebinding.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
     private readonly CartridgeAudioState audio;
+    /// <summary>Owns the scene's VRAM, palette, and installed menu presentation state.</summary>
     private readonly MenuPpuState ppu;
+    /// <summary>Accumulates Baby, egg, and cursor sprites for each rendered frame.</summary>
     private readonly OamBuffer oam = new();
+    /// <summary>Detects newly pressed answer-navigation and confirmation buttons.</summary>
     private readonly ControllerInputState controller = new();
+    /// <summary>Native master brightness stepped once per fade update.</summary>
     private int brightness;
+    /// <summary>Counts updates until the selection missile advances a frame.</summary>
     private int missileTimer = 1;
+    /// <summary>Current cursor animation frame shared by Yes and No positions.</summary>
     private int missileFrame;
+    /// <summary>Current compiled Baby animation instruction address.</summary>
     private ushort babyInstructionPointer;
+    /// <summary>Remaining duration of the current Baby pose or accepted-answer hold.</summary>
     private ushort babyInstructionTimer;
+    /// <summary>Native spritemap identity corresponding to the current Baby frame.</summary>
     private ushort babySpritemap = GameOverRomData.BabyAnimation.InitialSpritemap;
+    /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
+    /// <summary>Installed artwork rebound after debugger restoration without changing menu timing.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
     /// <summary>Creates the game-over scene with installed artwork and its BG1 tilemap, leaving music, animation, and fade initialization for the first update.</summary>
@@ -231,6 +244,7 @@ public sealed class GameOverMenuState
         return output;
     }
 
+    /// <summary>Copies installed BG1 game-over cells into the menu VRAM tilemap.</summary>
     private void LoadGameOverTilemap(GameOverPresentation presentation) =>
         presentation.LoadTilemapTo(new MenuVram(ppu.Vram).Bg1Tilemap);
 
@@ -245,6 +259,7 @@ public sealed class GameOverMenuState
             MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
 
+    /// <summary>Builds the scene's Baby, egg, and selected-answer cursor OAM from installed art.</summary>
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
@@ -265,6 +280,7 @@ public sealed class GameOverMenuState
         StepCompiledBabyMetroid();
     }
 
+    /// <summary>Advances the compiled Baby pose stream and applies its palette and sound effects.</summary>
     private void StepCompiledBabyMetroid()
     {
         if (babyInstructionTimer == 0)
@@ -292,6 +308,7 @@ public sealed class GameOverMenuState
         mapPresentation!.GameOver.ApplyBabyPalette(ppu.Cgram, current.Palette);
     }
 
+    /// <summary>Maps a Baby animation sound marker onto the retail sound queue.</summary>
     private void QueueCompiledBabySound(GameOverBabySound sound)
     {
         SoundEffectId effect = sound switch
@@ -304,6 +321,7 @@ public sealed class GameOverMenuState
         audio.QueueSound(effect, maximumQueued: GameOverRomData.MaximumQueuedSounds);
     }
 
+    /// <summary>Cycles the selection cursor when its installed frame duration expires.</summary>
     private void StepMissileAnimation()
     {
         if (--missileTimer != 0)

@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>The opening narration's full, editable native-precision CGRAM image.</summary>
 public sealed class IntroCinematicPalette
 {
+    /// <summary>Decoded sixteen-color rows; empty when the installed bytes match compiled stock paint.</summary>
     private readonly PaletteRow[] rows;
 
+    /// <summary>Retains exact supplied colors while recognizing stock, neutral-cycle, and shared cross-fade rows.</summary>
     [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the opening palette")]
     private IntroCinematicPalette(byte[] nativeBytes)
     {
@@ -62,13 +64,20 @@ public sealed class IntroCinematicPalette
         new CgramPalettes(cgram).All.LoadPortBytes(Transfer.Span);
     }
 
+    /// <summary>One CGRAM row represented by exact colors or an equivalent authored color relationship.</summary>
     private sealed class PaletteRow
     {
+        /// <summary>Background and common foreground inks for flat or derived neutral-cycle rows.</summary>
         private readonly Bgr555 background, foreground;
+        /// <summary>Original row colors when they cannot be represented by a stock shade relationship.</summary>
         private readonly Bgr555[]? supplied;
+        /// <summary>Whether visible inks follow the four-shade neutral material cycle.</summary>
         private readonly bool cycle;
+        /// <summary>The earlier palette row reused by the cross-fade row's first eight visible inks.</summary>
         private readonly PaletteRow? sharedGradient;
+        /// <summary>Independent cross-fade endpoints and trailing inks retained alongside the shared gradient.</summary>
         private readonly Bgr555[]? crossFadeInputs;
+        /// <summary>Recognizes exact cross-fade or neutral-cycle relationships before retaining unmatched colors verbatim.</summary>
         internal PaletteRow(Bgr555[] colors, bool allowCycle, PaletteRow? crossFadeSource)
         {
             if (crossFadeSource is not null && MatchesCrossFade(colors, crossFadeSource))
@@ -90,6 +99,7 @@ public sealed class IntroCinematicPalette
                 break;
             }
         }
+        /// <summary>Checks that the shared gradient and four descending blue inks reproduce the supplied row.</summary>
         private static bool MatchesCrossFade(Bgr555[] colors, PaletteRow source)
         {
             for (int color = 1; color <= 8; color++)
@@ -100,6 +110,7 @@ public sealed class IntroCinematicPalette
                 if (colors[9 + shade] != new Bgr555(0, 0, blue - shade * IntroCinematicPaletteFormat.CrossFadeBlueStep)) return false;
             return true;
         }
+        /// <summary>Reconstructs a color from retained source inks or its proven cycle/cross-fade relationship.</summary>
         internal Bgr555 Resolve(int color)
         {
             if (crossFadeInputs is not null)
@@ -113,6 +124,7 @@ public sealed class IntroCinematicPalette
             return supplied is not null ? supplied[color] :
                 color == 0 ? background : cycle ? CycleColor(color) : foreground;
         }
+        /// <summary>Decreases each foreground RGB5 channel for its position in the repeating neutral ramp.</summary>
         private Bgr555 CycleColor(int color)
         {
             int decrease = (color - 1) % IntroCinematicPaletteFormat.NeutralCycleLength *

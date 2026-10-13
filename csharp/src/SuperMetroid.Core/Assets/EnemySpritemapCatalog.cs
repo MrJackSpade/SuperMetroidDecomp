@@ -22,9 +22,12 @@ public sealed class EnemySpritemapCatalog
             }
         });
 
+    /// <summary>Compiled OAM parts keyed by the native bank-and-pointer identity of each authored frame.</summary>
     private readonly Dictionary<int, EnemySpritemapParts> frames;
+    /// <summary>Visual-only mapping from each native frame identity to its selected displayed frame.</summary>
     private readonly Dictionary<int, int> displayFrames;
 
+    /// <summary>Retains validated frame compositions and same-bank display selections.</summary>
     private EnemySpritemapCatalog(Dictionary<int, EnemySpritemapParts> frames,
         Dictionary<int, int> displayFrames)
     {
@@ -150,7 +153,7 @@ public sealed class EnemySpritemapCatalog
         return new EnemySpritemapCatalog(merged, mergedBindings);
     }
 
-    /// <summary>Compiles ordinary OAM pieces shared by plain and extended enemy frames.</summary>
+    /// <summary>Validates OAM capacity, offsets, tile bounds, palette, size, and priority before packing ordinary or extended frame pieces.</summary>
     internal static EnemySpritemapPart[] CompileParts(
         SpriteVisualPart[] visual, string frameName)
     {
@@ -181,6 +184,7 @@ public sealed class EnemySpritemapCatalog
         return parts;
     }
 
+    /// <summary>Rejects duplicate composition keys before JSON deserialization can overwrite an earlier edit.</summary>
     internal static void RejectDuplicateProperties(JsonElement element, StringComparer? propertyComparer = null) =>
         JsonAssetDocument.RejectDuplicateProperties(element, propertyComparer ?? StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate enemy composition property {name}."));

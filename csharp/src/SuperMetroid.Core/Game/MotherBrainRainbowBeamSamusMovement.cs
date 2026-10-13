@@ -123,6 +123,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             nativeCarry: reachedVerticalBoundary);
     }
 
+    /// <summary>Projects an 8.8 beam speed onto the vertical axis using the native quarter-turn sine lookup.</summary>
     private static ushort CalculateYVelocity(
         ushort speed,
         SnesAngle angle)
@@ -133,6 +134,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             speed, angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
     }
 
+    /// <summary>Applies native 8.8 Y movement, mirrors previous-position words, and clamps to arena Y=$30..$C0.</summary>
     private static bool MoveVerticallyTowardCeilingOrFloor(
         SamusState samus,
         ushort velocity)
@@ -166,6 +168,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return false;
     }
 
+    /// <summary>Applies native 8.8 X movement, mirrors previous-position words, and clamps at the right wall X=$EB.</summary>
     private static bool MoveHorizontallyTowardWall(SamusState samus, ushort velocity)
     {
         ushort candidate = AddNativeEightEightVelocity(
@@ -191,6 +194,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return false;
     }
 
+    /// <summary>Adds velocity to only the high subposition byte and carries into the whole pixel word, retaining the low byte.</summary>
     private static ushort AddNativeEightEightVelocity(
         ushort wholePosition,
         ushort subposition,
@@ -203,8 +207,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return moved.Whole;
     }
 
+    /// <summary>Records Samus's position before a forced movement helper mutates it.</summary>
     private static FixedPosition<RoomPixels> Capture(SamusState samus) => samus.Position;
 
+    /// <summary>Packages the previous position with the native carry returned by the active arena clamp.</summary>
     private static MotherBrainForcedSamusMovementResult CreateResult(
         FixedPosition<RoomPixels> before,
         bool nativeCarry) => new(

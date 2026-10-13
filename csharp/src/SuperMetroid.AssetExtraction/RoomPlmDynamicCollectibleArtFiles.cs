@@ -21,10 +21,14 @@ public static class RoomPlmDynamicCollectibleArtFiles
     public const string PaletteFileName = "palettes.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and hashes for seventeen item PNGs plus palette-selector JSON.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Schema revision shared by the provenance manifest and palette-selector document.</summary>
     private const int FormatVersion = 1;
+    /// <summary>Eight native item characters laid out across a 64-pixel image row.</summary>
     private const int Width = 64;
+    /// <summary>One eight-pixel character row in each per-item PNG.</summary>
     private const int Height = 8;
 
+    /// <summary>Camel-case JSON options shared by extraction and installed-art loading.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -175,6 +179,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Reads a stock resource only when its digest matches the supported manifest.</summary>
     private static byte[] ReadStock(string directory, ArtManifest manifest,
         string name)
     {
@@ -187,6 +192,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
         return bytes;
     }
 
+    /// <summary>Decodes a 64-by-8 indexed PNG into eight native four-bit BG characters.</summary>
     private static byte[] ReadTiles(byte[] png, string path)
     {
         try
@@ -202,6 +208,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
         }
     }
 
+    /// <summary>Requires one exact-kind entry with eight BG palette selectors for every dynamic permanent item.</summary>
     private static byte[][] ParsePalettes(PaletteDocument document)
     {
         if (document.Version != FormatVersion || document.Entries is null ||
@@ -234,6 +241,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
         return result;
     }
 
+    /// <summary>Parses an installed item document and reports malformed or empty JSON with its path.</summary>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -247,11 +255,15 @@ public static class RoomPlmDynamicCollectibleArtFiles
         }
     }
 
+    /// <summary>Computes the uppercase SHA-256 identity stored for each stock item file.</summary>
     private static string Sha(byte[] bytes) =>
         Convert.ToHexString(SHA256.HashData(bytes));
 
+    /// <summary>Source-cartridge identity and stock hash for every item PNG and palette document.</summary>
     private sealed record ArtManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> Hashes);
+    /// <summary>Versioned collection of item-specific BG palette selectors.</summary>
     private sealed record PaletteDocument(int Version, PaletteEntry[] Entries);
+    /// <summary>Eight per-tile selectors for one named collectible kind.</summary>
     private sealed record PaletteEntry(string Id, int[] Offsets);
 }

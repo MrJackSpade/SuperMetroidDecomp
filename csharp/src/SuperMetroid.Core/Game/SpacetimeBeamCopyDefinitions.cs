@@ -14,6 +14,7 @@ internal static class SpacetimeBeamCopyDefinitions
     /// <summary>$00:9131 mirrors $80:9131, the first byte read by the recorded $90:AD16 overrun.</summary>
     internal const int FirstSourceAddress = 0x009131;
 
+    /// <summary>Reads one immutable bank-$80 source byte through its bank-$00 mirror, rejecting addresses beyond the bounded copy window.</summary>
     internal static byte ReadCartridgeByte(int address)
     {
         int offset = address - FirstSourceAddress;

@@ -8,8 +8,10 @@ using static DoorDefinitionsVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed full-body palette cycles and editable shade components against the retail color tables.</summary>
 internal static class SamusFullBodyCycleColorsVerification
 {
+    /// <summary>Compares extracted Speed Booster, Screw Attack, and shinespark color domains with their native words and schema boundaries.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFullBodyPaletteColorData(ISnesAddressSpace rom, byte[] extracted)
     {
@@ -389,6 +391,7 @@ internal static class SamusFullBodyCycleColorsVerification
                 ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color)), edited.Resolve(pointer, color),
                 "Varia bright-only edit preserves supplied midpoint and other colors");
     }
+    /// <summary>Edits four cycle families, drives their production owners for each suit, and checks CGRAM without source rereads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusFullBodyCycleColorOverride(
         string stockDirectory, string overrideDirectory,
@@ -539,6 +542,7 @@ internal static class SamusFullBodyCycleColorsVerification
         }
     }
 
+    /// <summary>Forbids production access to every installed full-body palette row across families, suits, and shades.</summary>
     private static MutableCartridgeReadGuard NewFullBodyColorReadGuard(ISnesAddressSpace source)
     {
         var forbidden = new HashSet<int>();

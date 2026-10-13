@@ -25,7 +25,9 @@ public sealed class SuperMetroidSaveRam
     /// <summary>The global SRAM offset of the selected-slot word used by the file-select menu.</summary>
     public const int SelectedSlotOffset = SaveRamLayout.SelectedSlotOffset;
 
+    /// <summary>Stock area-map rules bound to this codec for packed explored-map translation.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    /// <summary>Mutable address space containing the three cartridge-format SRAM slots.</summary>
     private readonly ISnesMemoryBus bus;
 
     /// <summary>Creates an SRAM codec over a mutable SNES address space.</summary>
@@ -41,8 +43,10 @@ public sealed class SuperMetroidSaveRam
             throw new ArgumentException("Save slots require an SRAM-capable address space.", nameof(bus));
     }
 
+    /// <summary>Provides bounded byte and word access to the native SRAM image.</summary>
     private SramBytes Image => new(bus, SaveRamLayout.Image);
 
+    /// <summary>Installs map metadata after restoring a codec that did not serialize its catalog.</summary>
     internal void BindMapPresentation(AreaMapPresentationCatalog? maps) => mapPresentation = maps;
 
     /// <summary>
@@ -342,6 +346,7 @@ public sealed class SuperMetroidSaveRam
         return slot < SlotCount && unchecked((ushort)~slot) == complement ? slot : 0;
     }
 
+    /// <summary>Sums the slot's native little-endian words with 16-bit wraparound.</summary>
     private ushort CalculateChecksum(int slotOffset)
     {
         ushort checksum = 0;
@@ -350,27 +355,33 @@ public sealed class SuperMetroidSaveRam
         return checksum;
     }
 
+    /// <summary>Copies one checksum or complement entry between slots in an SRAM directory.</summary>
     private void CopyDirectoryWord(int directoryOffset, int sourceSlot, int destinationSlot) =>
         WriteSramWord(
             directoryOffset + destinationSlot * 2,
             ReadSramWord(directoryOffset + sourceSlot * 2));
 
+    /// <summary>Validates a file-select slot and locates its native SRAM payload.</summary>
     private static int GetSlotOffset(int slot)
     {
         ValidateSlot(slot);
         return SaveRamLayout.SlotOffset(slot);
     }
 
+    /// <summary>Rejects slot numbers outside the cartridge's A, B, and C directories.</summary>
     private static void ValidateSlot(int slot)
     {
         if ((uint)slot >= SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slot), slot, "Save slot must be A, B, or C (0-2).");
     }
 
+    /// <summary>Reads one byte at an offset in the bounded SRAM image.</summary>
     private byte ReadSramByte(int offset) => Image.Read(offset);
 
+    /// <summary>Reads one little-endian word at an offset in the bounded SRAM image.</summary>
     private ushort ReadSramWord(int offset) => Image.ReadWord(offset);
 
+    /// <summary>Copies a contiguous SRAM field into a detached byte array.</summary>
     private byte[] ReadSramBytes(int offset, int count)
     {
         var bytes = new byte[count];
@@ -379,10 +390,13 @@ public sealed class SuperMetroidSaveRam
         return bytes;
     }
 
+    /// <summary>Writes one byte at an offset in the bounded SRAM image.</summary>
     private void WriteSramByte(int offset, byte value) => Image.Write(offset, value);
 
+    /// <summary>Writes one little-endian word at an offset in the bounded SRAM image.</summary>
     private void WriteSramWord(int offset, ushort value) => Image.WriteWord(offset, value);
 
+    /// <summary>Packs each area's occupied explored-map bytes into the cartridge's fixed SRAM field.</summary>
     private byte[] PackExploredMap(ReadOnlySpan<byte> exploredMap)
     {
         int expectedByteCount =
@@ -413,6 +427,7 @@ public sealed class SuperMetroidSaveRam
         return compressed;
     }
 
+    /// <summary>Expands the packed SRAM map field into area-major explored-map bytes using stock map rules.</summary>
     private byte[] UnpackExploredMap(ReadOnlySpan<byte> compressed)
     {
         if (compressed.Length != SaveRamLayout.CompressedMapDataByteCount)
@@ -439,6 +454,7 @@ public sealed class SuperMetroidSaveRam
         return explored;
     }
 
+    /// <summary>Encodes a native word into a detached slot buffer in SNES byte order.</summary>
     private static void WriteWord(Span<byte> destination, int offset, ushort value)
     {
         destination[offset] = unchecked((byte)value);

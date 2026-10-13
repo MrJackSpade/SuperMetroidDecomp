@@ -14,6 +14,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM opening-scene graphics, tilemaps and palettes → intro cinematic artwork files")]
 public static class IntroCinematicArtworkFiles
 {
+    /// <summary>Manifest revision for the complete opening and Ceres artwork resource set.</summary>
     private const int FormatVersion = 20;
 
     /// <summary>Creates the stock opening-cinematic, Ceres-flight, and destruction-scene PNG and JSON resources with their provenance manifest.</summary>
@@ -658,6 +659,7 @@ public static class IntroCinematicArtworkFiles
         }
     }
 
+    /// <summary>Lists every resource that must be present and hashed by the intro artwork manifest.</summary>
     private static string[] AllFileNames() =>
     [
         IntroCinematicArtworkFormat.BackgroundFileName,
@@ -697,6 +699,7 @@ public static class IntroCinematicArtworkFiles
     /// <exception cref="InvalidDataException">The manifest, provenance, coverage, hash, or a compiled artwork resource is invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Manifest JSON settings shared by extraction and installation.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -704,6 +707,7 @@ public static class IntroCinematicArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Records resource hashes and cartridge provenance for one extracted stock artwork set.</summary>
     private sealed record IntroCinematicArtworkManifest(
         int Version, string SourceCartridgeSha256, Dictionary<string, string> StockSha256);
 }

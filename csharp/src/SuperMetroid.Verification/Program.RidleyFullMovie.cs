@@ -24,8 +24,10 @@ using static RetailRuntimeFixtureVerification;
 using static RidleySamusDrawReferenceVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Focused Ridley fight checks and the full recorded-movie gameplay comparison.</summary>
 internal static class RidleyFullMovieVerification
 {
+    /// <summary>Checks spin fireball emission against Ridley's native animation and attack phase.</summary>
     internal static void VerifyRidleySpinFireball()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -52,6 +54,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Ridley spin-response fireball: native RNG threshold, roar/turn gates and instruction reset pass.");
     }
 
+    /// <summary>Checks the order of Ridley touch damage, invulnerability and combat reactions.</summary>
     internal static void VerifyRidleyContactOrdering()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -80,6 +83,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Ridley body contact: pre-movement boundary and subsequent damaging overlap pass.");
     }
 
+    /// <summary>Checks the timer boundary that admits Ridley's swooping attack.</summary>
     internal static void VerifyRidleySwoopTimer()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -103,6 +107,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Ridley swoop: independent countdown and retained general AI timer pass.");
     }
 
+    /// <summary>Checks the death animation's final transition after Ridley's health reaches zero.</summary>
     internal static void VerifyRidleyDeathFinish()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -124,6 +129,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Ridley death finish: native terminal return, deletion, defeat/drop publication and inert subsequent dispatch pass.");
     }
 
+    /// <summary>Checks descending-lunge grab entry and the zero-health branch's immediate native handoff.</summary>
     internal static void VerifyRidleyGrabEntry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -191,6 +197,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Ridley grab entry: native immediate carry, velocity, countdown and paired control lock/release pass.");
     }
 
+    /// <summary>Checks initial Ridley room map state at the fight's entry boundary.</summary>
     internal static void VerifyRidleyMapInitialization()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -222,6 +229,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Ridley map: live initializer explores both arena cells and blanks all fifteen HUD cells; defeated gate and door reset pass.");
     }
 
+    /// <summary>Checks Samus's retained horizontal momentum across the recorded Ridley movement transition.</summary>
     internal static void VerifyRetainedHorizontalSpeed()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -259,6 +267,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("No-direction normal jump, fall, Spring Ball jump and grapple release retain total speed while clearing base motion.");
     }
 
+    /// <summary>Checks RNG consumption while pause enters a room HDMA callback already in progress.</summary>
     internal static void VerifyPauseDispatcherRandom()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -287,6 +296,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Pause RNG: all five pause-only dispatchers advance once; gameplay fades avoid duplicate advances.");
     }
 
+    /// <summary>Checks spin-pose fallback selection using the preceding pose history.</summary>
     internal static void VerifySpinFallbackHistory()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -318,6 +328,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Spin fallback history: ordinary, Space Jump and Screw Attack both facings retain pose and admit wall probe.");
     }
 
+    /// <summary>Checks the camera checkpoint selected during Samus's morph transition.</summary>
     internal static void VerifyMorphCameraCheckpoint()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -353,6 +364,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Morph camera checkpoint: both facings, alignment, fractions, one-time consumption and unmorph pass.");
     }
 
+    /// <summary>Checks the aim-up landing pose's animation timing at the recorded boundary.</summary>
     internal static void VerifyAimUpLandingAnimation()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -378,6 +390,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Aim-up landing: both facing directions preserve raised-gun animation frame and native delay.");
     }
 
+    /// <summary>Checks Ridley's fireball collision against occupied square-slope quadrants.</summary>
     internal static void VerifyRidleyFireballSquareSlope()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -404,6 +417,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Ridley fireball square slope: native source1248 trajectory and occupied horizontal/vertical quadrants pass.");
     }
 
+    /// <summary>Checks Samus damage and projectile deletion when a Ridley fireball hits.</summary>
     internal static void VerifyRidleyFireballDamage()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -430,6 +444,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Ridley fireball damage: default/Norfair/Tourian initializers, directional afterburn and suit reduction pass.");
     }
 
+    /// <summary>Checks the tail's impact response against the recorded contact geometry.</summary>
     internal static void VerifyRidleyTailImpact()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -451,6 +466,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
     }
 
+    /// <summary>Checks that Ridley enters his screen gate only after the prior Y position becomes visible.</summary>
     internal static void VerifyRidleyScreenGate()
     {
         var body = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 253))};
@@ -472,6 +488,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Ridley screen gate: recorded reentry, signed bounds and timer ownership pass.");
     }
 
+    /// <summary>Checks rolling Left release and stationary Spring Ball movement command retention.</summary>
     internal static void VerifySpringBallRelease()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -514,6 +531,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Spring Ball release: native movie displacement, pose and immediate momentum reset pass.");
     }
 
+    /// <summary>Checks the tail segment offsets used to draw and collide with Ridley's animated body.</summary>
     internal static void VerifyRidleyTailOffsets()
     {
         var state = new RidleyEnemyState
@@ -569,6 +587,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Ridley tail offsets: stagger/stop retention, clockwise arithmetic, signed multiplication and predecessor gate pass.");
     }
 
+    /// <summary>Checks Ridley's facing selection at the Samus/center alignment boundary.</summary>
     internal static void VerifyRidleyCenterFacing()
     {
         (ushort X, RidleyFacing Facing, bool Turn)[] cases = [
@@ -598,6 +617,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and native low-byte boundary agree.");
     }
 
+    /// <summary>Checks pause page and HDMA timing across Ridley's fight.</summary>
     internal static void VerifyRidleyPausePageTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -631,6 +651,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Both pause-page directions preserve 15 fade-out, one load and 30 fade-in updates.");
     }
 
+    /// <summary>Checks the selected Ridley palette's CGRAM destination and color words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyRidleyPaletteSelection()
     {
@@ -686,6 +707,7 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("Pause palette advances only in stable pause, remaining latched through both outer fades.");
     }
 
+    /// <summary>Checks door-entry setup, queued HDMA and palette state at the Ridley room boundary.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyRidleyDoorEntry()
     {
@@ -852,6 +874,7 @@ internal static class RidleyFullMovieVerification
     internal static ushort ReadRetailPlmProgramWord(ISnesAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
+    /// <summary>Replays the complete supplied Ridley movie through production gameplay and compares accepted update state with native checkpoints.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     internal static void VerifyRidleyFullMovie(string directory)
     {
@@ -1606,132 +1629,154 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine($"Full movie input replay: {length} updates across all 10890 source frames match the currently instrumented fields.");
     }
 
+    /// <summary>Runs the Ridley fireball contact-damage fixture.</summary>
     [VerificationCommand("--ridley-fireball-damage")]
     internal static int RidleyFireballDamageCommand()
     {
      VerifyRidleyFireballDamage(); return 0; 
     }
 
+    /// <summary>Runs the spin fireball attack timing fixture.</summary>
     [VerificationCommand("--ridley-spin-fireball")]
     internal static int RidleySpinFireballCommand()
     {
      VerifyRidleySpinFireball(); return 0; 
     }
 
+    /// <summary>Runs Ridley's contact-order fixture.</summary>
     [VerificationCommand("--ridley-contact-ordering")]
     internal static int RidleyContactOrderingCommand()
     {
      VerifyRidleyContactOrdering(); return 0; 
     }
 
+    /// <summary>Runs the swoop-timer boundary fixture.</summary>
     [VerificationCommand("--ridley-swoop-timer")]
     internal static int RidleySwoopTimerCommand()
     {
      VerifyRidleySwoopTimer(); return 0; 
     }
 
+    /// <summary>Runs the death-finish transition fixture.</summary>
     [VerificationCommand("--ridley-death-finish")]
     internal static int RidleyDeathFinishCommand()
     {
      VerifyRidleyDeathFinish(); return 0; 
     }
 
+    /// <summary>Runs the descending-lunge grab fixture.</summary>
     [VerificationCommand("--ridley-grab-entry")]
     internal static int RidleyGrabEntryCommand()
     {
      VerifyRidleyGrabEntry(); return 0; 
     }
 
+    /// <summary>Runs the fight-entry map initialization fixture.</summary>
     [VerificationCommand("--ridley-map-initialization")]
     internal static int RidleyMapInitializationCommand()
     {
      VerifyRidleyMapInitialization(); return 0; 
     }
 
+    /// <summary>Runs Samus's retained-momentum transition fixture.</summary>
     [VerificationCommand("--samus-retained-horizontal-speed")]
     internal static int SamusRetainedHorizontalSpeedCommand()
     {
      VerifyRetainedHorizontalSpeed(); return 0; 
     }
 
+    /// <summary>Runs the pause/HDMA RNG-order fixture.</summary>
     [VerificationCommand("--pause-dispatch-rng")]
     internal static int PauseDispatchRngCommand()
     {
      VerifyPauseDispatcherRandom(); return 0; 
     }
 
+    /// <summary>Runs the spin fallback pose-history fixture.</summary>
     [VerificationCommand("--spin-fallback-history")]
     internal static int SpinFallbackHistoryCommand()
     {
      VerifySpinFallbackHistory(); return 0; 
     }
 
+    /// <summary>Runs the morph-transition camera checkpoint fixture.</summary>
     [VerificationCommand("--morph-camera-checkpoint")]
     internal static int MorphCameraCheckpointCommand()
     {
      VerifyMorphCameraCheckpoint(); return 0; 
     }
 
+    /// <summary>Runs the aim-up landing-animation fixture.</summary>
     [VerificationCommand("--aim-up-landing-animation")]
     internal static int AimUpLandingAnimationCommand()
     {
      VerifyAimUpLandingAnimation(); return 0; 
     }
 
+    /// <summary>Runs Ridley fireball square-slope collision checks.</summary>
     [VerificationCommand("--ridley-fireball-square-slope")]
     internal static int RidleyFireballSquareSlopeCommand()
     {
      VerifyRidleyFireballSquareSlope(); return 0; 
     }
 
+    /// <summary>Runs Ridley's tail-impact contact fixture.</summary>
     [VerificationCommand("--ridley-tail-impact")]
     internal static int RidleyTailImpactCommand()
     {
      VerifyRidleyTailImpact(); return 0; 
     }
 
+    /// <summary>Runs the offscreen-to-onscreen Ridley gate fixture.</summary>
     [VerificationCommand("--ridley-screen-gate")]
     internal static int RidleyScreenGateCommand()
     {
      VerifyRidleyScreenGate(); return 0; 
     }
 
+    /// <summary>Runs the rolling release and stationary Spring Ball fixtures.</summary>
     [VerificationCommand("--spring-ball-release")]
     internal static int SpringBallReleaseCommand()
     {
      VerifySpringBallRelease(); return 0; 
     }
 
+    /// <summary>Runs tail-segment offset checks.</summary>
     [VerificationCommand("--ridley-tail-offsets")]
     internal static int RidleyTailOffsetsCommand()
     {
      VerifyRidleyTailOffsets(); return 0; 
     }
 
+    /// <summary>Runs Ridley's center-alignment facing fixture.</summary>
     [VerificationCommand("--ridley-center-facing")]
     internal static int RidleyCenterFacingCommand()
     {
      VerifyRidleyCenterFacing(); return 0; 
     }
 
+    /// <summary>Runs pause page and HDMA timing checks.</summary>
     [VerificationCommand("--ridley-pause-page-timing")]
     internal static int RidleyPausePageTimingCommand()
     {
      VerifyRidleyPausePageTiming(); return 0; 
     }
 
+    /// <summary>Runs the Ridley CGRAM palette-selection check.</summary>
     [VerificationCommand("--ridley-palette-selection")]
     internal static int RidleyPaletteSelectionCommand()
     {
      VerifyRidleyPaletteSelection(); return 0; 
     }
 
+    /// <summary>Runs the recorded Ridley door-entry setup check.</summary>
     [VerificationCommand("--ridley-door-entry")]
     internal static int RidleyDoorEntryCommand()
     {
      VerifyRidleyDoorEntry(); return 0; 
     }
 
+    /// <summary>Runs the complete Ridley movie comparison from its imported initial state.</summary>
     [VerificationCommand("--ridley-full-movie")]
     internal static int RidleyFullMovieCommand()
     {

@@ -741,11 +741,13 @@ public sealed class SamusState
         Presentation.InitializeAnimation(bus, initialFrame: 0);
     }
 
+    /// <summary>Absolute previous-Y word written by a pose-collision correction this frame.</summary>
     private ushort? _poseCollisionPreviousYPosition;
+    /// <summary>Relative previous-Y correction accumulated while preserving feet across a pose change.</summary>
     private int _poseAlignmentPreviousYDelta;
+    /// <summary>Absolute previous-X word written by a room or pose owner this frame.</summary>
     private ushort? _previousXPositionWrite;
-    // Pending writes to the previous fractions ($0B12/$0B16): bits set in a mask are replaced
-    // by the matching value bits when the checkpoint is applied. A zero mask means no write.
+    /// <summary>Masked writes to previous X/Y fractions $0B12/$0B16; zero masks mean no write.</summary>
     private PreviousFractionWrites _previousFractionWrites;
 
     /// <summary>
@@ -829,6 +831,7 @@ public sealed class SamusState
         public MaskedWordWrite Write(ushort mask, ushort value) =>
             new((ushort)(Mask | mask), (ushort)((Value & ~mask) | (value & mask)));
 
+        /// <summary>Applies only the bits written this frame to an earlier fraction word.</summary>
         public ushort ApplyTo(ushort word) => (ushort)((word & ~Mask) | Value);
     }
 

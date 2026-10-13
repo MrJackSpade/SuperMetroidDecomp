@@ -11,6 +11,7 @@ internal static class BotwoonWallPlmProgramDefinitionsAccess
 {
     extension(BotwoonWallPlmProgramDefinitions)
     {
+        /// <summary>Visits crumble timing, draw, and terminal words, then the already-cleared wall list.</summary>
         internal static IEnumerable<ushort> NativeWordAddresses()
         {
             yield return BotwoonWallPlmProgramDefinitions.Crumble;
@@ -57,6 +58,7 @@ internal static class CrocomireArenaPlmProgramDefinitionsAccess
 {
     extension(CrocomireArenaPlmProgramDefinitions)
     {
+        /// <summary>Visits consecutive compiled words from bridge clearing through the arena program end.</summary>
         internal static IEnumerable<ushort> NativeWordAddresses()
         {
             for (int address = CrocomireArenaPlmProgramDefinitions.ClearBridge; address < CrocomireArenaPlmProgramDefinitions.EndExclusive; address += 2)
@@ -173,6 +175,7 @@ internal static class DownwardGatePlmProgramDefinitionsAccess
 
     extension(DownwardGatePlmProgramDefinitions)
     {
+        /// <summary>Visits downward-gate opening and trigger words while excluding adjacent upward-gate code.</summary>
         internal static IEnumerable<(ushort Address, ushort Value)> MechanicsWords
         {
             get
@@ -184,6 +187,7 @@ internal static class DownwardGatePlmProgramDefinitionsAccess
             }
         }
 
+        /// <summary>Exposes the opening and closing sound operand bytes in their native positions.</summary>
         internal static IEnumerable<(ushort Address, byte Value)> MechanicsBytes
         {
             get
@@ -200,6 +204,7 @@ internal static class KraidRoomPlmProgramDefinitionsAccess
 {
     extension(KraidRoomPlmProgramDefinitions)
     {
+        /// <summary>Visits decoded Kraid ceiling-crumble words across the room PLM interval.</summary>
         internal static IEnumerable<ushort> NativeWordAddresses()
         {
             for (int address = KraidRoomPlmProgramDefinitions.CrumbleCeilingBackground1; address < KraidRoomPlmProgramDefinitions.EndExclusive; address++)
@@ -289,6 +294,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitionsAccess
 {
     extension(MotherBrainFakeDeathPlmDrawDefinitions)
     {
+        /// <summary>Searches background, regular, then boundary draw families for one native pointer.</summary>
         internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
         {
             // Native order: background, regular, then boundary draw families.
@@ -312,8 +318,10 @@ internal static class MotherBrainFakeDeathPlmProgramDefinitionsAccess
 {
     extension(MotherBrainFakeDeathPlmProgramDefinitions)
     {
+        /// <summary>Counts fixed-size fake-death PLM programs in the compiled address interval.</summary>
         internal static int ProgramCount => (MotherBrainFakeDeathPlmProgramDefinitions.EndExclusive - MotherBrainFakeDeathPlmProgramDefinitions.Start) / MotherBrainFakeDeathPlmProgramDefinitions.ProgramByteLength;
 
+        /// <summary>Visits three native words for every fake-death PLM program.</summary>
         internal static IEnumerable<ushort> NativeWordAddresses() =>
             Enumerable.Range(0, MotherBrainFakeDeathPlmProgramDefinitions.ProgramCount * 3)
                 .Select(index => checked((ushort)(MotherBrainFakeDeathPlmProgramDefinitions.Start + index * 2)));
@@ -325,6 +333,7 @@ internal static class NoobTubePlmProgramDefinitionsAccess
 {
     extension(NoobTubePlmProgramDefinitions)
     {
+        /// <summary>Visits main, post-sound, and already-broken Noob Tube control words.</summary>
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
             for (int offset = 0; offset <= 0x30; offset += 2)
@@ -335,6 +344,7 @@ internal static class NoobTubePlmProgramDefinitionsAccess
             yield return checked((ushort)(PrivateState.StaticField<ushort>(typeof(NoobTubePlmProgramDefinitions), "AlreadyBrokenStart") + 2));
         }
 
+        /// <summary>Locates the standalone tube-breaking sound operand byte.</summary>
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             yield return PrivateState.StaticField<ushort>(typeof(NoobTubePlmProgramDefinitions), "BreakSoundAddress");
@@ -382,10 +392,12 @@ internal static class RoomCallbackDefinitionsAccess
 {
     extension(RoomCallbackDefinitions)
     {
+        /// <summary>Returns a defined room-main callback's native pointer.</summary>
         internal static ushort PointerOf(RoomMainCallback callback) => Enum.IsDefined(callback)
             ? (ushort)callback
             : throw new ArgumentOutOfRangeException(nameof(callback));
 
+        /// <summary>Returns a defined room-setup callback's native pointer.</summary>
         internal static ushort PointerOf(RoomSetupCallback callback) => Enum.IsDefined(callback)
             ? (ushort)callback
             : throw new ArgumentOutOfRangeException(nameof(callback));
@@ -502,6 +514,7 @@ internal static class RoomPlmBombBlockProgramDefinitionsAccess
 {
     extension(RoomPlmBombBlockProgramDefinitions)
     {
+        /// <summary>Visits collision, reaction, frame, terminal, and optional respawn words for each bomb block.</summary>
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmBombBlockProgramDefinitions), "ProgramCount"); index++)
@@ -520,6 +533,7 @@ internal static class RoomPlmBombBlockProgramDefinitionsAccess
             }
         }
 
+        /// <summary>Locates bomb-block collision and reaction operands stored as bytes.</summary>
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmBombBlockProgramDefinitions), "ProgramCount"); index++)
@@ -537,6 +551,7 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitionsAccess
 {
     extension(RoomPlmBombBlockRestoreDrawDefinitions)
     {
+        /// <summary>Converts a recognized bomb-block restore drawing into the shared verifier draw-list form.</summary>
         internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
         {
             if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(pointer, out RoomPlmBombBlockRestoreDrawDefinitions.Draw draw))
@@ -606,6 +621,7 @@ internal static class RoomPlmContactCrumbleProgramDefinitionsAccess
 {
     extension(RoomPlmContactCrumbleProgramDefinitions)
     {
+        /// <summary>Visits setup, frame, terminal, and optional respawn words for each contact-crumble list.</summary>
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmContactCrumbleProgramDefinitions), "ProgramCount"); index++)
@@ -621,6 +637,7 @@ internal static class RoomPlmContactCrumbleProgramDefinitionsAccess
             }
         }
 
+        /// <summary>Locates each contact-crumble program's byte operand after its start word.</summary>
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmContactCrumbleProgramDefinitions), "ProgramCount"); index++)
@@ -634,6 +651,7 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitionsAccess
 {
     extension(RoomPlmContactCrumbleRestoreDrawDefinitions)
     {
+        /// <summary>Converts a recognized contact-crumble restore drawing to a verifier draw list.</summary>
         internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
         {
             if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(pointer, out RoomPlmContactCrumbleRestoreDrawDefinitions.Draw draw))
@@ -722,6 +740,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitionsAccess
 {
     extension(RoomPlmGrappleBlockProgramDefinitions)
     {
+        /// <summary>Visits setup, frame, terminal, and optional respawn words for grapple blocks.</summary>
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmGrappleBlockProgramDefinitions), "ProgramCount"); index++)
@@ -740,6 +759,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitionsAccess
             }
         }
 
+        /// <summary>Locates the one-byte operand after each grapple-block setup pair.</summary>
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmGrappleBlockProgramDefinitions), "ProgramCount"); index++)
@@ -773,6 +793,7 @@ internal static class RoomPlmKraidVisualCatalogAccess
 {
     extension(RoomPlmKraidVisualCatalog)
     {
+        /// <summary>Builds stock Kraid PLM art from the visual bits of its physical draw words.</summary>
         internal static RoomPlmKraidVisualCatalog Stock() => new(
             KraidRoomPlmDrawDefinitions.All.Select(draw =>
                 new RoomPlmKraidVisualEntry(
@@ -798,6 +819,7 @@ internal static class RoomPlmMaridiaElevatubeVisualCatalogAccess
 {
     extension(RoomPlmMaridiaElevatubeVisualCatalog)
     {
+        /// <summary>Builds the stock elevatube appearance from its single physical level word.</summary>
         internal static RoomPlmMaridiaElevatubeVisualCatalog Stock() => new(
             [new RoomPlmMaridiaElevatubeVisualEntry(
                 MaridiaElevatubePlmDefinitions.VisualId,
@@ -840,6 +862,7 @@ internal static class RoomPlmPopulationDefinitionsAccess
 {
     extension(RoomPlmPopulationDefinitions)
     {
+        /// <summary>Scans bank-offset values for PLM headers accepted by the room population loader.</summary>
         internal static IEnumerable<ushort> Pointers
         {
             get
@@ -867,6 +890,7 @@ internal static class RoomPlmScrollProgramDefinitionsAccess
 {
     extension(RoomPlmScrollProgramDefinitions)
     {
+        /// <summary>Scans bank-offset values for decoded scroll-state PLM programs.</summary>
         internal static IEnumerable<ushort> Pointers
         {
             get
@@ -906,6 +930,7 @@ internal static class RoomPlmShotBlockProgramDefinitionsAccess
             }
         }
 
+        /// <summary>Locates the byte operand after each shot-block program's setup word.</summary>
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             foreach (object program in PrivateState.StaticField<Array>(typeof(RoomPlmShotBlockProgramDefinitions), "Programs"))
@@ -929,6 +954,7 @@ internal static class RoomPlmSpeedBoosterVisualCatalogAccess
 {
     extension(RoomPlmSpeedBoosterVisualCatalog)
     {
+        /// <summary>Builds the bomb-reveal visual from the first physical speed-block draw word.</summary>
         internal static RoomPlmSpeedBoosterVisualCatalog Stock() => new(
             [new RoomPlmSpeedBoosterVisualEntry(
                 SpeedBoosterBlockPlmDrawDefinitions.BombRevealVisualId,
@@ -994,6 +1020,7 @@ internal static class RoomPlmSystemAccess
             return CollectiblePlms.TryIdentifyPermanentCollectible(header, out _, out _);
         }
 
+        /// <summary>Recognizes the twelve directional yellow, green, and red door headers.</summary>
         internal static bool IsColoredDoorHeader(PlmHeaderId header) => header is
             PlmHeaderId.YellowDoorFacingLeft or PlmHeaderId.YellowDoorFacingRight or
             PlmHeaderId.YellowDoorFacingUp or PlmHeaderId.YellowDoorFacingDown or
@@ -1211,6 +1238,7 @@ internal static class RoomPlmSystemAccess
             }
         }
 
+        /// <summary>Reads one physical PLM slot's header, block, argument, and active state.</summary>
         internal RoomPlmSlotSnapshot Snapshot(int index)
         {
             object slot = self.SlotTable._slots[index];
@@ -1506,6 +1534,7 @@ internal static class RoomPlmSystemAccess
             => self.Step(bus, level, streamer, view, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
     }
 
+    /// <summary>Filters the physical PLM pool to slots whose active bit is set.</summary>
     private static IEnumerable<object> ActiveSlots(RoomPlmSystem plms) =>
         plms.SlotTable._slots.Where(slot => PrivateState.Property<bool>(slot, "Active"));
 
@@ -1544,6 +1573,7 @@ internal static class SpeedBoosterBlockPlmDrawDefinitionsAccess
 {
     extension(SpeedBoosterBlockPlmDrawDefinitions)
     {
+        /// <summary>Recognizes the speed-block bomb-reveal draw pointer.</summary>
         internal static bool TryGet(ushort pointer,
             out RoomPlmShotBlockDrawDefinitions.DrawList list)
         {
@@ -1563,6 +1593,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitionsAccess
 {
     extension(SpeedBoosterBlockPlmProgramDefinitions)
     {
+        /// <summary>Visits bomb reveal, timed frame, terminal, and optional respawn words.</summary>
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
             yield return SpeedBoosterBlockPlmProgramDefinitions.BombReveal;
@@ -1583,6 +1614,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitionsAccess
             }
         }
 
+        /// <summary>Locates each speed-block program's byte operand after its start word.</summary>
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(SpeedBoosterBlockPlmProgramDefinitions), "ProgramCount"); index++)
@@ -1596,6 +1628,7 @@ internal static class SporeSpawnCeilingPlmProgramDefinitionsAccess
 {
     extension(SporeSpawnCeilingPlmProgramDefinitions)
     {
+        /// <summary>Visits ceiling-crumble frame words followed by the clear-state list.</summary>
         internal static IEnumerable<ushort> NativeWordAddresses()
         {
             yield return SporeSpawnCeilingPlmProgramDefinitions.Crumble;
@@ -1637,8 +1670,10 @@ internal static class StationAnimationProgramDefinitionsAccess
 {
     extension(StationAnimationProgramDefinitions)
     {
+        /// <summary>Enumerates the station animation list identities for the native-word audit.</summary>
         internal static IEnumerable<StationAnimationList> Lists() => Enum.GetValues<StationAnimationList>();
 
+        /// <summary>Visits each station frame's duration and draw pointer in list order.</summary>
         internal static IEnumerable<(ushort Address, ushort Value)> NativeWords()
         {
             foreach (StationAnimationList list in StationAnimationProgramDefinitions.Lists())
@@ -1657,6 +1692,7 @@ internal static class TourianAccessPlmProgramDefinitionsAccess
 {
     extension(TourianAccessPlmProgramDefinitions)
     {
+        /// <summary>Visits the Tourian access crumble frames and terminal clear commands.</summary>
         internal static IEnumerable<ushort> NativeWordAddresses()
         {
             yield return TourianAccessPlmProgramDefinitions.Crumble;

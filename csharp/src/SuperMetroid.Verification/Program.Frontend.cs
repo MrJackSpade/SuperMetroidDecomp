@@ -16,8 +16,10 @@ using static ColorWordsVerification;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Focused cartridge and rendering checks for frontend presentation and demo input.</summary>
 internal static class FrontendVerification
 {
+/// <summary>Confirms a LoROM compressed literal and terminator survive the physical $94/$95 bank boundary.</summary>
 [CpuBusBoundary("exact bus test: LoROM cross-bank traversal of a compressed stream over a constructed cartridge")]
 internal static void VerifyLoRomCrossBankCompressedData()
 {
@@ -39,6 +41,7 @@ internal static void VerifyLoRomCrossBankCompressedData()
     AssertEqual(0x44, output[3], "cross-bank final literal");
 }
 
+/// <summary>Checks Mode 7 sampling, scroll transform order, transparent overflow, and Ceres's Mode 1 floor split.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 internal static void VerifyMode7Rendering()
 {
@@ -118,6 +121,7 @@ internal static void VerifyMode7Rendering()
         "Ceres Ridley scanline 208 restores Mode-1 BG2 floor");
 }
 
+/// <summary>Confirms transparent layer keys reveal opaque CGRAM color zero at final scanout.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifyLayerCompositorBackdrop()
 {
@@ -141,6 +145,7 @@ internal static void VerifyLayerCompositorBackdrop()
     AssertEqual(cgram.GetRgba(1), frame[1], "non-keyed pixel replaces backdrop");
 }
 
+/// <summary>Confirms BG map priority bit $2000 routes otherwise identical tiles to separate render planes.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 internal static void VerifyBgPriorityPlaneRendering()
 {
@@ -166,6 +171,7 @@ internal static void VerifyBgPriorityPlaneRendering()
     AssertEqual(255, high[8].A, "high-priority BG cell selected");
 }
 
+/// <summary>Checks the fresh-save file-select tilemap and its surrounding labels against installed cartridge art.</summary>
 internal static void VerifyFileSelectFreshSaveTilemap()
 {
     var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling
@@ -422,6 +428,7 @@ static void PulseFileSelect(FileSelectMenuState menu, SnesButton button)
     menu.Step(0);
 }
 
+/// <summary>Checks a saved-game load's front-facing pose, 360-frame input lock, pose-history commit, and save lockout.</summary>
 internal static void VerifySavedGameLoadAppearance()
 {
     string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -499,6 +506,7 @@ internal static void VerifySavedGameLoadAppearance()
         "  Saved-game appearance: front pose, ROM palette FX, 360-frame lifetime, and save lockout agree.");
 }
 
+/// <summary>Confirms intro flashbacks inherit eight pixels of BG1 scroll and Mother Brain shake oscillates around it.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifyIntroGameplayFlashbackVerticalScroll()
 {
@@ -528,6 +536,7 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
     Console.WriteLine("  Intro: Mother Brain and SR388 BG1 retain the native eight-pixel vertical scroll.");
 }
 
+/// <summary>Checks native byte-offset clearing and fixed-point fade rounding over 32 cinematic palette steps.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifyCinematicPaletteFader()
 {
@@ -565,6 +574,7 @@ internal static void VerifyCinematicPaletteFader()
     AssertEqual(0x0000, cgram.Colors[20], "32 fade-out calls reach exact black");
 }
 
+/// <summary>Checks the old Mother Brain demo's held and new input edges, record timing, control opcodes, and disable callback.</summary>
 internal static void VerifyDemoInputObject()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -696,9 +706,11 @@ internal static void VerifyDemoInputObject()
     Console.WriteLine("  Demo input: records, edges, shared opcodes, special dispatch, and deletion agree.");
 }
 
+/// <summary>Reads a fixture instruction from bank $91 through the cartridge import boundary.</summary>
 [CpuBusBoundary("exact bus test: retail and constructed cartridge oracle for bank-$91 demo-input object and instruction words")]
 internal static ushort ReadDemoFixtureWord(ISnesAddressSpace bus, ushort pointer) =>
     CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(DemoInputRomData.BankBase | pointer);
+/// <summary>Writes a little-endian fixture word at a mapped SNES ROM address.</summary>
 internal static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 {
     int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
@@ -709,12 +721,16 @@ internal static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 /// <summary>A demo owner whose one private routine ($8739) disables the object and continues (#633).</summary>
 internal sealed class DisablingDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
 {
+    /// <summary>Counts private opcode dispatches made by the demo interpreter.</summary>
     public int Calls { get; private set; }
 
+    /// <summary>Supplies authored fixture words to the demo interpreter.</summary>
     public ushort ReadInstructionWord(ushort pointer) => readWord(pointer);
 
+    /// <summary>Leaves ordinary pre-instructions to the default demo path.</summary>
     public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => false;
 
+    /// <summary>Handles private opcode $8739 by disabling the object and continuing at the next cursor.</summary>
     public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor)
     {
         AssertEqual(0x8739, opcode, "demo special instruction pointer");
@@ -724,12 +740,14 @@ internal sealed class DisablingDemoProgram(Func<ushort, ushort> readWord) : IDem
     }
 }
 
+    /// <summary>Runs the constructed demo-input object and control-opcode fixture.</summary>
     [VerificationCommand("--demo-input-fixture")]
     internal static int DemoInputFixtureCommand()
     {
      VerifyDemoInputObject(); return 0; 
     }
 
+    /// <summary>Runs the cartridge-backed fresh-save file-select tilemap check.</summary>
     [VerificationCommand("--file-select-fresh-save")]
     internal static int FileSelectFreshSaveCommand()
     {
@@ -737,6 +755,7 @@ internal sealed class DisablingDemoProgram(Func<ushort, ushort> readWord) : IDem
         return 0;
     }
 
+    /// <summary>Runs the demo object check through the normal verification suite wrapper.</summary>
     [VerificationCommand("--demo-input-object")]
     internal static int DemoInputObjectCommand()
     {

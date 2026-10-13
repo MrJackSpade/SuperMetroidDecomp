@@ -23,6 +23,7 @@ internal static class SpcSoundEffectTables
         2 => Library3Stream(command),
         _ => throw new IndexOutOfRangeException(),
     };
+    /// <summary>Maps a one-based library-one command to its resident SPC instruction stream.</summary>
     private static ushort Library1Stream(int command) => command switch
     {
         0x01 => SpcSoundStreamDefinitions.Library1.Sound01PowerBombExplosion,
@@ -94,6 +95,7 @@ internal static class SpcSoundEffectTables
         _ => throw new IndexOutOfRangeException(),
     };
 
+    /// <summary>Maps a one-based library-two command to its resident SPC instruction stream.</summary>
     private static ushort Library2Stream(int command) => command switch
     {
         0x01 => SpcSoundStreamDefinitions.Library2.Sound01CollectedSmallHealthDrop,
@@ -226,6 +228,7 @@ internal static class SpcSoundEffectTables
         _ => throw new IndexOutOfRangeException(),
     };
 
+    /// <summary>Maps a one-based library-three command to its resident SPC instruction stream.</summary>
     private static ushort Library3Stream(int command) => command switch
     {
         0x01 => SpcSoundStreamDefinitions.Library3.Sound01Silence,
@@ -290,6 +293,7 @@ internal static class SpcSoundEffectTables
         2 => (byte)Library3Configuration(command),
         _ => throw new IndexOutOfRangeException(),
     };
+    /// <summary>Selects the native voice count and priority handler for a library-one command.</summary>
     private static SpcLibrary1Policy Library1Configuration(int command) => command switch
     {
         0x02 or 0x03 or 0x04 or 0x05 or 0x06 or 0x07 or 0x09 or 0x0a or
@@ -307,6 +311,7 @@ internal static class SpcSoundEffectTables
         _ => throw new IndexOutOfRangeException(),
     };
 
+    /// <summary>Selects the native voice count and priority handler for a library-two command.</summary>
     private static SpcLibrary2Policy Library2Configuration(int command) => command switch
     {
         0x06 or 0x07 or 0x08 or 0x09 or 0x0a or 0x0b or 0x0c or 0x0d or
@@ -329,6 +334,7 @@ internal static class SpcSoundEffectTables
         _ => throw new IndexOutOfRangeException(),
     };
 
+    /// <summary>Selects library-three allocation, including low-health and cancellation policies.</summary>
     private static SpcLibrary3Policy Library3Configuration(int command) => command switch
     {
         0x01 => SpcLibrary3Policy.CancelAndClearLowHealthMode,
@@ -403,7 +409,10 @@ internal static class SpcSoundEffectTables
 /// <summary>Distinct per-channel fields in the native SPC voice-allocation structures.</summary>
 internal enum SpcAllocationField
 {
+    /// <summary>Bitset of SPC voices claimed by a library channel.</summary>
     VoiceBitset,
+    /// <summary>Channel mask stored beside the voice bitsets.</summary>
     ChannelMask,
+    /// <summary>Voice index stored after the allocation masks and their intervening byte.</summary>
     VoiceIndex,
 }

@@ -15,8 +15,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Crocomire's typed melt selectors, transfer records, and production output against the cartridge.</summary>
 internal static class CrocomireMeltingDefinitionsVerification
 {
+    /// <summary>Compares all melt columns, masks, transfer passes, and production erase behavior with the ROM.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting definitions")]
     internal static void VerifyCrocomireMeltingDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -44,6 +46,7 @@ internal static class CrocomireMeltingDefinitionsVerification
             "and source-table read guards pass.");
     }
 
+    /// <summary>Checks the eight repeating erase masks at every authored melt cursor.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire mask algorithm")]
     internal static void VerifyCrocomireMaskAlgorithm(SuperMetroidAddressSpace rom)
     {
@@ -55,6 +58,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(int.MaxValue), "Mask invalid maximum");
     }
 
+    /// <summary>Runs focused comparisons for pass headers, copies, uploads, and their graphics effects.</summary>
     private static void VerifyCrocomireMeltingTransferCatalog(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCrocomireMeltHeaders), () => VerifyCrocomireMeltHeaders(rom));
@@ -63,6 +67,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         Suite(nameof(VerifyCrocomireMeltingGraphicsProduction), () => VerifyCrocomireMeltingGraphicsProduction(rom));
     }
 
+    /// <summary>Checks both typed pass headers and their transfer cursors against native words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melt headers")]
     internal static void VerifyCrocomireMeltHeaders(SuperMetroidAddressSpace rom)
     {
@@ -92,6 +97,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.Transfers(0), "header is not transfer start");
     }
 
+    /// <summary>Checks every source and destination word in the two native scratch-copy lists.</summary>
     internal static void VerifyCrocomireMeltCopies(SuperMetroidAddressSpace rom)
     {
         foreach (ushort headerOffset in new ushort[] { 0, 0x54 })
@@ -123,6 +129,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         }
     }
 
+    /// <summary>Checks both upload lists, terminators, and typed lookup boundaries against the ROM.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melt uploads")]
     internal static void VerifyCrocomireMeltUploads(SuperMetroidAddressSpace rom)
     {
@@ -171,6 +178,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(-1, out _), "negative upload cursor");
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(0xb4, out _), "upload after records");
     }
+    /// <summary>Runs production copy and upload handlers and compares scratch graphics and VRAM with native records.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting graphics production")]
     private static void VerifyCrocomireMeltingGraphicsProduction(SuperMetroidAddressSpace rom)
@@ -237,6 +245,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         }
     }
 
+    /// <summary>Compares all 49 production erase calls with an independently calculated bitplane silhouette.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting production sequence")]
     internal static void VerifyCrocomireMeltingProductionSequence(
         SuperMetroidAddressSpace rom)
@@ -290,6 +299,7 @@ internal static class CrocomireMeltingDefinitionsVerification
             "Crocomire melt post-table cursor");
     }
 
+    /// <summary>Runs one installed artwork melt pass and returns its scratch graphics after verifying VRAM uploads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static byte[] VerifyInstalledCrocomireMeltingPass(SuperMetroidAddressSpace rom,
         EnemyTileArtworkCatalog artwork, CrocomireMeltingPass pass)
@@ -326,6 +336,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         return scratch;
     }
 
+    /// <summary>Loads one installed BG2 melt tilemap and compares its working copy and VRAM with native words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire melting tilemap")]
     internal static ushort[] VerifyInstalledCrocomireMeltingTilemap(
@@ -376,6 +387,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         return result;
     }
 
+    /// <summary>Forbids migrated definition reads and optionally installed graphics reads during production checks.</summary>
     private static CartridgeReadGuard NewCrocomireMeltingDefinitionReadGuard(
         ISnesAddressSpace source, bool blockGraphics = false)
     {
@@ -408,6 +420,7 @@ internal static class CrocomireMeltingDefinitionsVerification
                 address => $"Crocomire melting attempted installed artwork read ${address:X6}.");
     }
 
+    /// <summary>Runs the complete Crocomire melting definition check using the repository cartridge.</summary>
     [VerificationCommand("--crocomire-melting-definitions")]
     internal static int CrocomireMeltingDefinitionsCommand()
     {

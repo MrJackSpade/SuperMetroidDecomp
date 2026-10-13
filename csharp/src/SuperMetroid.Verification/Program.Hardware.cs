@@ -21,10 +21,10 @@ using static MapSpritesVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks hardware math, timing, controller input, memory, DMA, and OAM contracts.</summary>
 internal static class HardwareVerification
 {
 
-/// <summary>Core hardware, timing, bus, OAM, and system-state verification.</summary>
 /// <summary>
 /// Compares the production port against a mechanically different description of the
 /// original 65C816 register operations for every possible seed.
@@ -369,6 +369,7 @@ internal static void VerifyEscapeTimerStateMachine()
     Console.WriteLine("  Timer: initialization, animation, BCD borrow, and expiration agree.");
 }
 
+/// <summary>Reaches the timer's running state through its real startup path before setting BCD time.</summary>
 static EscapeTimer CreateRunningTimer(byte minutes, byte seconds, byte centiseconds)
 {
     // Advancing the startup path is preferable to adding a production-only raw status
@@ -382,6 +383,7 @@ static EscapeTimer CreateRunningTimer(byte minutes, byte seconds, byte centiseco
     return timer;
 }
 
+/// <summary>Packs a decimal value into the two-digit BCD form used by the escape timer.</summary>
 static byte PackBcd(int decimalValue) => (byte)(((decimalValue / 10) << 4) | (decimalValue % 10));
 
 /// <summary>
@@ -793,6 +795,7 @@ static void SeedRuntimeNmiDmaSource(TestAddressSpace bus)
     bus.WriteBytes(0x7e1234, [0xca, 0xfe]);
 }
 
+/// <summary>Seeds a two-part bank-$80 spritemap with distinct OAM positions and attributes.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry common spritemap at $80:8000")]
 static void SeedTwoEntryCommonSpritemap(TestAddressSpace bus)
 {
@@ -803,12 +806,14 @@ static void SeedTwoEntryCommonSpritemap(TestAddressSpace bus)
     ]);
 }
 
+/// <summary>Seeds a common spritemap whose piece crosses the vertical screen boundary.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the vertically clipped common spritemap at $80:8100")]
 static void SeedVerticallyClippedCommonSpritemap(TestAddressSpace bus)
 {
     bus.WriteBytes(0x808100, [0x01, 0x00, 0x00, 0x00, 0x20, 0x01, 0x00]);
 }
 
+/// <summary>Seeds the bank-$8D projectile spritemap used to verify imported OAM packing.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry enemy-projectile spritemap at $8D:9800")]
 static void SeedTwoEntryEnemyProjectileSpritemap(TestAddressSpace bus)
 {
@@ -819,6 +824,7 @@ static void SeedTwoEntryEnemyProjectileSpritemap(TestAddressSpace bus)
     ]);
 }
 
+/// <summary>Seeds the bank-$A2 enemy spritemap used to verify imported OAM packing.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry room-enemy spritemap at $A2:9000")]
 static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
 {
@@ -829,12 +835,14 @@ static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
     ]);
 }
 
+    /// <summary>Runs the mutable address-space boundary check.</summary>
     [VerificationCommand("--mutable-memory-boundary")]
     internal static int MutableMemoryBoundaryCommand()
     {
      VerifySuperMetroidAddressSpace(); return 0; 
     }
 
+    /// <summary>Runs the OAM spritemap source and packing check.</summary>
     [VerificationCommand("--oam-source-routing")]
     internal static int OamSourceRoutingCommand()
     {
@@ -842,6 +850,7 @@ static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
         return 0;
     }
 
+    /// <summary>Checks VRAM queue semantics, source routing, and queued artwork.</summary>
     [VerificationCommand("--dma-source-routing")]
     internal static int DmaSourceRoutingCommand()
     {
@@ -851,6 +860,7 @@ static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
         return 0;
     }
 
+    /// <summary>Checks BCD timer behavior, state transitions, floor timing, and input recording.</summary>
     [VerificationCommand("--escape-timer")]
     internal static int EscapeTimerCommand()
     {

@@ -7,23 +7,38 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Ridley species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class RidleyBehavior : IEnemySpecies
 {
+    /// <summary>Enemy dispatcher used for Ridley's registered native callbacks.</summary>
     private readonly IEnemyDispatch _dispatch;
+    /// <summary>Room services, level state, and native RNG for the Norfair fight.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Spawns Ridley's fireballs and breakup projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Publishes tail-impact tremors to the room earthquake state.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Queues roars, tail impacts, and other enemy-bank sounds.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Resolves Ridley's physical enemy records and multipart slots.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Publishes Ridley's health and transition palettes.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Handles common combat damage and enemy drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
+    /// <summary>Owns fight state shared with cutscenes and room transitions.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
 
+    /// <summary>Advances Ridley's independent tail segments and their hit checks.</summary>
     private readonly RidleyTail _ridleyTail;
 
+    /// <summary>Supplies shared Ceres and Norfair movement, fade, and animation behavior.</summary>
     private readonly CeresRidleyBehavior _ceresRidleyBehavior;
+    /// <summary>Coordinates Ridley's dedicated projectile effects.</summary>
     private readonly RidleyProjectiles _ridleyProjectiles;
+    /// <summary>Checks active door-transition state before the Norfair intro.</summary>
     private readonly EnemyRoomStatus _roomStatus;
+    /// <summary>Raises the arena liquid during Ridley's reveal.</summary>
     private readonly EnemyRoomFx _roomFx;
 
+    /// <summary>Wires Ridley's fight, movement, tail, projectile, audio, and room collaborators.</summary>
     internal RidleyBehavior(RidleyBehaviorDependencies dependencies)
     {
         _ceresRidleyBehavior = dependencies.CeresRidleyBehavior;
@@ -192,6 +207,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Includes both Ceres and Lower Norfair Ridley definition records.</summary>
     internal static bool IsRidleyDefinition(EnemyDefinitionId definitionPointer) =>
         definitionPointer is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley;
 
@@ -307,6 +323,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         UpdateNorfairRidleyHealthPalette(slot, state);
     }
 
+    /// <summary>Dispatches the current Norfair intro, flight, swoop, pogo, grab, or death state.</summary>
     internal void RunNorfairRidleyFunction(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -606,6 +623,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         state.Function = RidleyAiFunction.ClearVelocity;
     }
 
+    /// <summary>Chooses a native attack table by Samus movement, Ridley health, and arena position.</summary>
     internal void SelectNorfairRidleyAttack(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -648,6 +666,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
     }
 
+    /// <summary>Steers Ridley to the facing-dependent hover point until timeout or arrival.</summary>
     internal static void TickNorfairRidleyHover(RoomEnemySlot slot, RidleyEnemyState state)
     {
         if (TickRidleyFunctionTimer(state))
@@ -666,6 +685,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             state.Function = RidleyAiFunction.NorfairSelectAttack;
     }
 
+    /// <summary>Moves to the high side point and initializes the swoop angle timer.</summary>
     private static void TickNorfairRidleySwoopMoveToStart(RoomEnemySlot slot, RidleyEnemyState state)
     {
         ushort targetX = state.FacingDirection != RidleyFacing.Left ? (ushort)64 : (ushort)192;
@@ -678,6 +698,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         state.SwoopAngleAccumulator = 0;
     }
 
+    /// <summary>Advances the swoop velocity arc and changes phase when its timer expires.</summary>
     private static bool TickNorfairRidleySwoopPhase(
         RidleyEnemyState state,
         int angleDelta,
@@ -739,6 +760,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         SelectNorfairRidleyFacingInstruction(slot, state);
     }
 
+    /// <summary>Resets tail extension and enters the ground fireball/pogo setup.</summary>
     private static void BeginNorfairRidleyGroundAttack(RidleyEnemyState state)
     {
         state.TailExtensionSpeed = 0xf0;
@@ -747,6 +769,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         state.Function = RidleyAiFunction.NorfairFireballMoveToSide;
     }
 
+    /// <summary>Moves Ridley toward the facing-dependent side before descending to attack height.</summary>
     internal void TickNorfairRidleyGroundAttackMoveToSide(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -765,6 +788,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         MoveNorfairRidleyToward(slot, state, new Position16<RoomPixels>(targetX, 288), divisorIndex: 0);
     }
 
+    /// <summary>Settles at Y=288, sets the pogo tail, and starts a randomized attack timer.</summary>
     internal void TickNorfairRidleyGroundAttackMoveToHeight(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -781,6 +805,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         state.FunctionTimer = unchecked((ushort)((_room.Random.Read() & 0x3f) + 128));
     }
 
+    /// <summary>Checks claw grab, accelerates downward, and bounces the tail on terrain contact.</summary>
     internal void TickNorfairRidleyGroundAttack(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -829,6 +854,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         state.Function = RidleyAiFunction.NorfairFireballRecover;
     }
 
+    /// <summary>Recovers upward after a pogo impact or returns to attack selection.</summary>
     private static void TickNorfairRidleyGroundAttackRecovery(
         RidleyEnemyState state,
         SamusState? samus)
@@ -873,6 +899,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             : horizontalMagnitude));
     }
 
+    /// <summary>Lunges toward a grabbable Samus, ending on passage, boundary, height, or claw contact.</summary>
     internal void TickNorfairRidleyGrabApproach(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -913,6 +940,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Locks Samus to the claw and enters carry or the zero-health death approach.</summary>
     private static void BeginNorfairRidleyGrab(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -935,6 +963,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         BeginNorfairRidleyCarry(slot, state);
     }
 
+    /// <summary>Chooses a facing-dependent carry anchor and starts Ridley's 32-frame move.</summary>
     internal static void BeginNorfairRidleyCarry(RoomEnemySlot slot, RidleyEnemyState state)
     {
         state.Target = new Position16<RoomPixels>(
@@ -948,6 +977,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         TickRidleyFunctionTimer(state);
     }
 
+    /// <summary>Releases Samus's script lock and grants movement-dependent intangibility outside death.</summary>
     internal void ReleaseNorfairRidleyGrab(RidleyEnemyState state, SamusState? samus)
     {
         state.GrabState = 0;
@@ -962,6 +992,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Decays Samus's grab offset and positions her at Ridley's moving claw.</summary>
     internal static void UpdateNorfairRidleyGrabbedSamus(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -975,6 +1006,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             state.GrabOffset);
     }
 
+    /// <summary>Moves one signed grab-offset component four pixels toward zero.</summary>
     private static short DecayRidleyGrabOffset(short offset)
     {
         if (offset > 0)
@@ -984,6 +1016,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         return offset;
     }
 
+    /// <summary>Tests Samus's radius against the facing and foot-frame adjusted claw point.</summary>
     internal static bool RidleyClawOverlapsSamus(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -994,18 +1027,22 @@ internal sealed class RidleyBehavior : IEnemySpecies
         Math.Abs(unchecked((short)(samus.Position.Y.Whole - GetNorfairRidleyClawY(slot, state)))) <
             samus.Kinematics.Radius.Y + radius.Y;
 
+    /// <summary>Applies the facing-dependent claw X offset to Ridley's body position.</summary>
     private static ushort GetNorfairRidleyClawX(RoomEnemySlot slot, RidleyEnemyState state) =>
         unchecked((ushort)(slot.Position.X.Whole + RidleyClawOffsets.ReadX(state.FacingDirection)));
 
+    /// <summary>Applies the current feet-frame claw Y offset to Ridley's body position.</summary>
     private static ushort GetNorfairRidleyClawY(RoomEnemySlot slot, RidleyEnemyState state) =>
         unchecked((ushort)(slot.Position.Y.Whole + RidleyClawOffsets.ReadY(state.FeetDistanceIndex)));
 
+    /// <summary>Decrements a native word timer and reports signed underflow.</summary>
     private static bool TickRidleyFunctionTimer(RidleyEnemyState state)
     {
         state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
         return (short)state.FunctionTimer < 0;
     }
 
+    /// <summary>Starts a turn only when Ridley faces away from the arena half identified by X bit seven.</summary>
     internal static void SelectNorfairRidleyFacingInstruction(RoomEnemySlot slot, RidleyEnemyState state)
     {
         if (state.FacingDirection == RidleyFacing.Turning)
@@ -1024,9 +1061,11 @@ internal sealed class RidleyBehavior : IEnemySpecies
         slot.InstructionTimer = 2;
     }
 
+    /// <summary>Selects a hover acceleration divisor from Ridley's capped health stage.</summary>
     internal static int ReadRidleyHealthMovementDivisorIndex(RidleyEnemyState state) =>
         RidleyMovementTargets.HoverDivisorIndexes(Math.Min(state.HealthStage, (ushort)3));
 
+    /// <summary>Checks the validated pose movement type against Ridley's grabbable states.</summary>
     internal bool SamusMovementUsesRidleyGrab(SamusState? samus)
     {
         if (samus is null)
@@ -1035,6 +1074,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         return RidleySamusInteractionDefinitions.CanGrab(movement);
     }
 
+    /// <summary>Accelerates both 8.8 velocity axes toward a target using native inertia divisors.</summary>
     internal static void MoveNorfairRidleyToward(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -1057,6 +1097,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 reversalBoost)));
     }
 
+    /// <summary>Preserves ADC/SBC carry across reversal and normal acceleration steps on one axis.</summary>
     private static ushort AccelerateNorfairRidleyAxis(
         ushort velocityWord,
         ushort position,
@@ -1115,6 +1156,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Selects three damage-color rows at 9000, 5400, and 1800 health.</summary>
     internal void UpdateNorfairRidleyHealthPalette(RoomEnemySlot slot, RidleyEnemyState state)
     {
         state.HealthStage = slot.Health switch
@@ -1136,6 +1178,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             .ApplyHealth(_presentation._cgram!, row);
     }
 
+    /// <summary>Registers room-load setup for Ridley's body and breakup explosion actors.</summary>
     internal void RegisterRidleyInitializationAi(EnemyAiTable table)
     {
 
@@ -1154,6 +1197,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers body and breakup actor main routines with the enemy dispatcher.</summary>
     internal void RegisterRidleyMainAi(EnemyAiTable table)
     {
 
@@ -1175,6 +1219,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Installs Ridley-specific instruction callbacks before shared enemy instructions.</summary>
     internal void RegisterRidleyOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -1293,6 +1338,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// <summary>Last item-drop request published by Ridley's terminal routine.</summary>
     public bool RidleyDeathDropRequested { get; private set; }
 
+    /// <summary>On zero health, makes Ridley intangible and enters the Samus-release death state.</summary>
     private static void StartNorfairRidleyDeathSequence(
         RoomEnemySlot body,
         RidleyEnemyState state)
@@ -1450,6 +1496,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             variant: 3);
         state.LastDeathSoundEffect = 0x0024;
     }
+    /// <summary>Allocates the body and tail pieces that continue moving after the intact body hides.</summary>
     internal void SpawnNorfairRidleyBreakupActors(
         RoomEnemySlot body,
         RidleyEnemyState state)
@@ -1638,6 +1685,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Requires the extended Ridley hitbox callback and suppresses generic death on shots.</summary>
     internal static void RegisterRidleyShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Ridley &&
@@ -1658,6 +1706,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes bombs through Ridley's native shot callback without generic death.</summary>
     internal static void RegisterRidleyBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Ridley &&
@@ -1670,6 +1719,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     // $A6:B297 owns hurt frames instead of falling back to ordinary main
     // AI. Movement/function work runs only on even actor frames, while tail
     // projectile armor and hurt palettes remain live on every frame.
+    /// <summary>Registers Ridley's hurt callback for the post-hit AI window.</summary>
     internal void RegisterRidleyHurtAi(EnemyAiTable table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley, (slot, frame) => RunNorfairRidleyHurt(
             slot,

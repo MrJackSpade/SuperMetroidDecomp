@@ -37,8 +37,10 @@ using static VerticalShutterInstructionProgramDefinitionsVerification;
 using static WorkRobotVisualsVerification;
 using static YardVisualsVerification;
 
+/// <summary>Checks installed enemy OAM compositions against pinned cartridge frames and drawing paths.</summary>
 internal static class EnemySpritemapArtworkVerification
 {
+    /// <summary>Checks every Alcoon visual operand against bank $A8 and rejects the neighboring control word.</summary>
     private static void VerifyInstalledAlcoonInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -59,6 +61,7 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions(rom, stock));
     }
 
+    /// <summary>Checks Beetom presentation operands against bank $A8 while excluding its unused hop program.</summary>
     private static void VerifyInstalledBeetomInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -79,6 +82,7 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(rom, stock));
     }
 
+    /// <summary>Confirms the hopper family shares compiled bank $A3 frame selectors without admitting physics words.</summary>
     private static void VerifyInstalledHopperInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -112,6 +116,7 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyHopperAnimationDefinitions), () => VerifyHopperAnimationDefinitions(rom, stock));
     }
 
+    /// <summary>Checks Choot frame selectors against bank $A2 while excluding adjacent path data.</summary>
     private static void VerifyInstalledChootInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -132,6 +137,7 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyChootInstructionProgramDefinitions), () => VerifyChootInstructionProgramDefinitions(rom, stock));
     }
 
+    /// <summary>Checks Bull frame selectors and exercises normal and immune-shot programs without cartridge visual reads.</summary>
     private static void VerifyInstalledBullInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -182,6 +188,7 @@ internal static class EnemySpritemapArtworkVerification
             "installed Bull programs retain compiled timing and control words");
     }
 
+    /// <summary>Checks Puyo frame selectors and grounded and airborne programs without native presentation reads.</summary>
     private static void VerifyInstalledPuyoInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -227,6 +234,7 @@ internal static class EnemySpritemapArtworkVerification
             "installed Puyo programs retain compiled timing and control words");
     }
 
+    /// <summary>Compares installed enemy compositions and rendering with the cartridge's OAM definitions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEnemySpritemaps(
         SuperMetroidAddressSpace rom, string stockDirectory,
@@ -3675,6 +3683,7 @@ internal static class EnemySpritemapArtworkVerification
         }
     }
 
+    /// <summary>Checks Mother Brain's private draw hook against native head frames and above-screen culling.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyInstalledMotherBrainDrawHook(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
@@ -3696,6 +3705,7 @@ internal static class EnemySpritemapArtworkVerification
             "Mother Brain private draw still culls a head above the viewport");
     }
 
+    /// <summary>Draws one Mother Brain world frame through the installed private renderer under a cartridge-read guard.</summary>
     private static OamBuffer DrawInstalledMotherBrainFrame(
         EnemyTileArtworkCatalog art, ISnesAddressSpace rom, ushort pointer,
         Position16<RoomPixels> world)
@@ -3708,6 +3718,7 @@ internal static class EnemySpritemapArtworkVerification
         return oam;
     }
 
+    /// <summary>Spawns and draws a room sprite object to inspect its installed OAM output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static OamBuffer DrawRoomSpriteObject(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, RoomSpriteObjectKind kind)
@@ -3727,17 +3738,20 @@ internal static class EnemySpritemapArtworkVerification
         return oam;
     }
 
+    /// <summary>Rejects bank $B4 reads so room sprite objects use installed artwork.</summary>
     private static CartridgeReadGuard NewBankB4ReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => (SnesAddressMath.BankNumber(address)) == 0xb4,
                 address => $"Installed room sprite object reread bank-$B4 byte ${address:X6}.");
 
+    /// <summary>Rejects Mother Brain's native head-art ranges during installed-frame drawing.</summary>
     private static CartridgeReadGuard NewMotherBrainFrameReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa9a586 and < 0xa9a7c2 or
                 >= 0xa9ad3e and < 0xa9aee4,
                 address => $"Mother Brain draw reread native artwork byte ${address:X6}.");
 
+    /// <summary>Rejects native visual-data reads for the enemy frame under inspection.</summary>
     private static CartridgeReadGuard NewFrameReadGuard(ISnesAddressSpace source,
         string? frameName = null) =>
         new CartridgeReadGuard(source)

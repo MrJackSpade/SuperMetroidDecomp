@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Per-frame projectile movement: the beam, wave, Hyper Beam, missile and Super Missile pre-instructions, Super Missile links, and the movement-window deletion check.</summary>
 internal sealed class ProjectileMotion
 {
+    /// <summary>Clears shots that expire or leave the native movement window.</summary>
     private readonly ProjectileAnimation _animation;
+    /// <summary>Allocates and removes the invisible Super Missile link slots.</summary>
     private readonly ProjectileSlotTable _slotTable;
+    /// <summary>Converts beam and missile block impacts into their family-specific outcomes.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
+    /// <summary>Emits beam and missile trails before their parent shots move.</summary>
     private readonly ProjectileTrails _trails;
 
+    /// <summary>Connects projectile motion to animation lifetime, terrain reactions, link slots, and trails.</summary>
     internal ProjectileMotion(ProjectileAnimation animation, ProjectileSlotTable slotTable, ProjectileTerrainCollision terrainCollision, ProjectileTrails trails)
     {
         _animation = animation;
@@ -19,6 +24,7 @@ internal sealed class ProjectileMotion
         _terrainCollision = terrainCollision;
         _trails = trails;
     }
+    /// <summary>Accelerates a non-Wave beam, emits its old-position trail, and resolves directional block collision.</summary>
     internal bool RunNoWaveBeamPreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -82,6 +88,7 @@ internal sealed class ProjectileMotion
         return collided;
     }
 
+    /// <summary>Updates Wave's three- or four-frame trail cadence before its block-transparent movement.</summary>
     internal void RunWaveBeamPreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -112,6 +119,7 @@ internal sealed class ProjectileMotion
         RunWaveBeamShared(level, slot, layer1, roomPlms);
     }
 
+    /// <summary>Uses Wave's block-transparent movement for Hyper Beam without spawning projectile trails.</summary>
     internal void RunHyperBeamPreInstruction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -130,6 +138,7 @@ internal sealed class ProjectileMotion
         RunWaveBeamShared(level, slot, layer1, roomPlms);
     }
 
+    /// <summary>Advances Wave or Hyper positions and notifies shootable blocks while ignoring terrain collision carry.</summary>
     private void RunWaveBeamShared(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -163,6 +172,7 @@ internal sealed class ProjectileMotion
         DeleteIfOutsideMovementWindow(slot, layer1);
     }
 
+    /// <summary>Handles ordinary missile ignition, acceleration, trail, point collision, and post-impact deletion.</summary>
     internal bool RunMissilePreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -234,6 +244,7 @@ internal sealed class ProjectileMotion
         return collided;
     }
 
+    /// <summary>Ignites a Super Missile with its invisible link and updates both point reactions after each movement axis.</summary>
     internal bool RunSuperMissilePreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -336,6 +347,7 @@ internal sealed class ProjectileMotion
         return true;
     }
 
+    /// <summary>Allocates the invisible collision link at ignition and records its native byte index in the owner.</summary>
     private void SpawnSuperMissileLink(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -367,6 +379,7 @@ internal sealed class ProjectileMotion
         _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
     }
 
+    /// <summary>Keeps an ordinary link stationary or clears the whole Super Missile family on its deletion signal.</summary>
     internal void RunSuperMissileLinkPreInstruction(SamusProjectileSlot link)
     {
         // `$90:B075` leaves an ordinary link completely stationary. A high direction nibble
@@ -377,6 +390,7 @@ internal sealed class ProjectileMotion
         ClearAllSuperMissileLinks();
     }
 
+    /// <summary>Places a fast link behind the owner for its extra point reaction, retaining impact checks on explosion frames.</summary>
     private void UpdateSuperMissileLinkAxis(
         RoomLevelData level,
         SamusProjectileSlot owner,
@@ -434,6 +448,7 @@ internal sealed class ProjectileMotion
             _animation.ClearProjectile(link);
     }
 
+    /// <summary>Clears every active plain Super Missile family slot after owner or link termination.</summary>
     private void ClearAllSuperMissileLinks()
     {
         for (int slotIndex = SamusProjectileSystem.SlotCount - 1; slotIndex >= 0; slotIndex--)
@@ -444,6 +459,7 @@ internal sealed class ProjectileMotion
         }
     }
 
+    /// <summary>Advances missile X and tests its center unless it has crossed the room's screen-width boundary.</summary>
     private static bool MoveMissileHorizontally(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -461,6 +477,7 @@ internal sealed class ProjectileMotion
             level, slot, horizontalMovement: true, roomPlms: roomPlms);
     }
 
+    /// <summary>Advances missile Y and tests its center unless it has crossed the room's screen-height boundary.</summary>
     private static bool MoveMissileVertically(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -475,6 +492,7 @@ internal sealed class ProjectileMotion
             level, slot, horizontalMovement: false, roomPlms: roomPlms);
     }
 
+    /// <summary>Resolves the missile center's extension chain, PLM reaction, and collision carry by block type.</summary>
     private static bool MissilePointReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -550,6 +568,7 @@ internal sealed class ProjectileMotion
         };
     }
 
+    /// <summary>Tests the missile center against mirrored height tables or the selected square-slope quadrant.</summary>
     private static bool MissileSlopePointReaction(
         RoomCollisionBlock block,
         SamusProjectileSlot slot,

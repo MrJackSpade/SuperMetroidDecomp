@@ -14,15 +14,24 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameOptionsPresentation
 {
+    /// <summary>Compiled BG tilemap bytes for each named options page.</summary>
     private readonly Dictionary<string, byte[]> pages;
+    /// <summary>Controller glyph cells retained only when they differ from stock definitions.</summary>
     private readonly Dictionary<string, ushort[]> controllerLabels;
+    /// <summary>Edited controller glyph origins, or null when all stock anchors apply.</summary>
     private readonly Position16<TilemapCells>[]? controllerLabelAnchors;
+    /// <summary>Edited language highlight regions, or null for the stock layout.</summary>
     private readonly GameOptionsLanguageRegionDocument[]? languageRegions;
+    /// <summary>Edited toggle highlight cells, or null for stock cell regions.</summary>
     private readonly Dictionary<string, GameOptionsToggleVisualDocument>? specialToggles;
+    /// <summary>Compiled heading and cursor sprite compositions by authored identity.</summary>
     private readonly Dictionary<string, SpriteComposition> sprites;
+    /// <summary>Edited heading origins, or null for native positions.</summary>
     private readonly Dictionary<string, Position16<OamPixels>>? headingAnchors;
+    /// <summary>Edited cursor origins, or null for native positions.</summary>
     private readonly Dictionary<string, Position16<OamPixels>[]>? cursorAnchors;
 
+    /// <summary>Retains compiled pages and only visual edits that depart from stock geometry.</summary>
     private GameOptionsPresentation(
         Dictionary<string, byte[]> pages,
         Dictionary<string, ushort[]> controllerLabels,
@@ -70,14 +79,17 @@ public sealed class GameOptionsPresentation
     /// <summary>Menu updates per frame of the four-frame looping missile cursor, in the range 1-65535.</summary>
     public int CursorFrameDuration { get; }
 
+    /// <summary>Returns an independent mutable copy of one compiled foreground or background page.</summary>
     internal byte[] CreatePage(string name) =>
         pages.TryGetValue(name, out byte[]? page)
             ? (byte[])page.Clone()
             : throw new InvalidDataException($"Unknown options page {name}.");
 
+    /// <summary>Uploads the common BG2 background page into menu VRAM.</summary>
     internal void LoadBackground(SnesVram vram) =>
         new MenuVram(vram).Bg2Tilemap.Load(pages[GameOptionsPresentationDefinitions.BackgroundPage]);
 
+    /// <summary>Recolors English and Japanese text regions according to the selected language.</summary>
     internal void ApplyLanguage(Span<byte> primaryPage, bool japanese)
     {
         if (languageRegions is null)
@@ -98,6 +110,7 @@ public sealed class GameOptionsPresentation
         }
     }
 
+    /// <summary>Writes the selected button glyph into one controller action's two-row label area.</summary>
     internal void ApplyControllerLabel(Span<byte> page, int action, int button)
     {
         if ((uint)action >= GameOptionsRomData.Rows.ControllerActionCount)
@@ -117,6 +130,7 @@ public sealed class GameOptionsPresentation
         }
     }
 
+    /// <summary>Recolors the enabled and disabled labels for one special setting.</summary>
     internal void ApplySpecialToggle(Span<byte> page, string name, bool enabled)
     {
         if (specialToggles is null)
@@ -135,6 +149,7 @@ public sealed class GameOptionsPresentation
             enabled ? UnselectedPalette : SelectedPalette);
     }
 
+    /// <summary>Gets the cursor origin for an authored page and selection row.</summary>
     internal Position16<OamPixels> CursorPosition(string page, int selectedItem)
     {
         if (cursorAnchors is null)
@@ -144,6 +159,7 @@ public sealed class GameOptionsPresentation
             ? points[selectedItem]
             : throw new InvalidDataException($"Options cursor {page}[{selectedItem}] is not authored.");
     }
+    /// <summary>Draws a page heading at its authored origin after applying menu scroll.</summary>
     internal void DrawHeading(OamBuffer oam, string page, int verticalScroll)
     {
         Position16<OamPixels> point = headingAnchors is null
@@ -157,6 +173,7 @@ public sealed class GameOptionsPresentation
             PaletteBits(CursorPalette));
     }
 
+    /// <summary>Draws one frame of the missile cursor at the selected OAM position.</summary>
     internal void DrawCursor(OamBuffer oam, int frame, Position16<OamPixels> point)
     {
         sprites[GameOptionsPresentationDefinitions.CursorFrameName(frame)].DrawOnScreen(
@@ -294,6 +311,7 @@ public sealed class GameOptionsPresentation
         output.Write(bytes);
     }
 
+    /// <summary>Validates authored atlas cells and packs them into little-endian BG tilemap words.</summary>
     private static byte[] CompileCells(MapPresentationCell[] cells, string owner)
     {
         var bytes = new byte[cells.Length * sizeof(ushort)];
@@ -317,6 +335,7 @@ public sealed class GameOptionsPresentation
         return bytes;
     }
 
+    /// <summary>Changes only palette bits of selected tilemap cells, preserving their artwork and flips.</summary>
     private static void ApplyPalette(Span<byte> page, IEnumerable<int> cells, int palette)
     {
         foreach (int cell in cells)
@@ -329,6 +348,7 @@ public sealed class GameOptionsPresentation
         }
     }
 
+    /// <summary>Requires exactly the names prescribed for one options document collection.</summary>
     private static void ValidateExactKeys<T>(Dictionary<string, T>? values,
         ReadOnlySpan<string> expected, string owner)
     {
@@ -339,6 +359,7 @@ public sealed class GameOptionsPresentation
                 throw new InvalidDataException($"{owner} is missing {name}.");
     }
 
+    /// <summary>Rejects out-of-range or overlapping highlight cells.</summary>
     private static void ValidateCellSet(int[] cells, HashSet<int> claimed, string owner)
     {
         foreach (int cell in cells)
@@ -346,6 +367,7 @@ public sealed class GameOptionsPresentation
                 throw new InvalidDataException($"Options {owner} contains an invalid or duplicate cell {cell}.");
     }
 
+    /// <summary>Validates an OAM origin, allowing hidden cursor X positions when requested.</summary>
     private static void ValidatePoint(Position16<OamPixels> point, string owner, bool allowOffscreenX)
     {
         int maximumX = allowOffscreenX ? 0x1ff : byte.MaxValue;
@@ -354,6 +376,7 @@ public sealed class GameOptionsPresentation
                 $"Options {owner} requires X=0..{maximumX} and Y=0..255.");
     }
 
+    /// <summary>Requires a controller-label rectangle to fit the 32-by-32 page.</summary>
     private static void ValidateTilePoint(Position16<TilemapCells> point, string owner, Extent16<TilemapCells> size)
     {
         if (point.X < 0 || point.Y < 0 ||
@@ -362,12 +385,14 @@ public sealed class GameOptionsPresentation
             throw new InvalidDataException($"Options {owner} escapes the 32x32 page.");
     }
 
+    /// <summary>Requires an authored BG or OBJ palette index in the SNES range zero through seven.</summary>
     private static void ValidatePalette(int palette, string owner)
     {
         if ((uint)palette >= MapPresentationFormat.PaletteCount)
             throw new InvalidDataException($"Options {owner} must be 0..7.");
     }
 
+    /// <summary>Extracts OBJ palette attribute bits for a heading or cursor composition.</summary>
     private static ushort PaletteBits(int index) =>
         SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
 }
@@ -466,15 +491,20 @@ public static class GameOptionsPresentationDefinitions
     /// <summary>Size of one controller-label glyph patch in tile cells.</summary>
     public static Extent16<TilemapCells> ControllerLabelSize => new(ControllerLabelWidth, ControllerLabelHeight);
 
+    /// <summary>Required page identities in the options document.</summary>
     private static readonly string[] pageNames =
         [BackgroundPage, PrimaryPage, ControllerEnglishPage, ControllerJapanesePage,
             SpecialEnglishPage, SpecialJapanesePage];
+    /// <summary>Language-independent menu identities used for headings and cursors.</summary>
     private static readonly string[] menuPageNames =
         [PrimaryMenu, ControllerMenu, SpecialMenu];
+    /// <summary>Assignable controller glyph identities in native selector order.</summary>
     private static readonly string[] controllerLabelNames =
         ["X", "A", "B", "Select", "Y", "L", "R"];
+    /// <summary>Required visual identities for the two special settings.</summary>
     private static readonly string[] specialToggleNames =
         [IconCancelToggle, MoonwalkToggle];
+    /// <summary>Required heading and animated cursor sprite identities.</summary>
     private static readonly string[] spriteNames =
         ["Heading.Primary", "Heading.Controller", "Heading.Special",
             "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];

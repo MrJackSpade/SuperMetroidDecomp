@@ -8,13 +8,20 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable rainbow, drain, revival, and normal-restoration colors for Mother Brain.</summary>
 public sealed class MotherBrainRainbowPalettePresentation
 {
+    /// <summary>Ten color phases read by the native rainbow list.</summary>
     private readonly PaletteFrame[] rainbow;
+    /// <summary>Drain sequence whose last rear shade can share stock paint.</summary>
     private readonly PaletteFade toGrey;
+    /// <summary>Revival sequence with independently retained native exceptions.</summary>
     private readonly RevivalPaletteFade fromGrey;
+    /// <summary>Brain-only descent used during the staged fake death.</summary>
     private readonly PaletteFade fakeDeathToGrey;
+    /// <summary>Body and rear-leg colors restored after the beam.</summary>
     private readonly PaletteFrame normal;
+    /// <summary>Backdrop hue cycle without its signed loop terminator.</summary>
     private readonly BeamColors beamCycle;
 
+    /// <summary>Recognizes shared phase and endpoint relationships without changing independently supplied colors.</summary>
     private MotherBrainRainbowPalettePresentation(PaletteFrame[] rainbow, PaletteFrame[] toGrey,
         PaletteFrame[] fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal,
         Bgr555 beamInitial, Bgr555[] beamCycle)
@@ -61,8 +68,11 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// </summary>
     private sealed class BeamColors
     {
+        /// <summary>Retained only when an edited sample differs from the native five-leg wheel.</summary>
         private readonly Bgr555[]? supplied;
+        /// <summary>Number of actual color samples, excluding the control terminator.</summary>
         public int Length { get; }
+        /// <summary>Uses the calculated wheel only when every supplied RGB5 sample agrees.</summary>
         public BeamColors(Bgr555[] colors)
         {
             Length = colors.Length;
@@ -70,8 +80,10 @@ public sealed class MotherBrainRainbowPalettePresentation
                 if (colors[index] != Calculate(index))
                 { supplied = colors; return; }
         }
+        /// <summary>Reads an authored override or reconstructs the matching native wheel sample.</summary>
         public Bgr555 this[int index] => supplied is null ? Calculate(index) : supplied[index];
 
+        /// <summary>Reconstructs the five hue legs using the cartridge's asymmetric blue-to-magenta shift.</summary>
         private static Bgr555 Calculate(int index)
         {
             int step = index * MotherBrainBeamRomData.ColorStride / Bgr555.ByteCount;
@@ -101,7 +113,9 @@ public sealed class MotherBrainRainbowPalettePresentation
             }
             return new Bgr555(red, green, blue);
         }
+        /// <summary>Rounds an increasing channel to its RGB5 sample.</summary>
         private static int Rising(int step) => (31 * step + 7) / 15;
+        /// <summary>Applies the descending channel's changed bias after step eight.</summary>
         private static int Falling(int step) => 31 - 2 * step - (step >= 9 ? 1 : 0);
     }
     /// <summary>Fixed-color backdrop used on the beam's first active HDMA frame.</summary>
@@ -162,6 +176,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             new MotherBrainPalettes(cgram).FakeDeathBrain.Write(color, fromGrey.Body(frame, color));
     }
 
+    /// <summary>Copies a complete selected rainbow phase into body, brain, and rear-leg CGRAM slots.</summary>
     private static void ApplyFull(SnesCgram cgram, PaletteFrame[] frames, int frame)
     {
         Ensure.NotNull(cgram);
@@ -170,6 +185,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         ApplyColors(cgram, frames[frame]);
     }
 
+    /// <summary>Copies a grey-transition phase and writes its trailing rear color to live WRAM.</summary>
     private static void ApplyGrey(ISnesAddressSpace bus, SnesCgram cgram,
         IPaletteFade frames, int frame)
     {
@@ -190,6 +206,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         spill.GreyTrailingWord = frames.Trailing(frame)!.Value;
     }
 
+    /// <summary>Mirrors body inks to the brain palette and writes the selected rear-leg inks.</summary>
     private static void ApplyColors(SnesCgram cgram, PaletteFrame selected)
     {
         for (int color = 0; color < selected.Body.Length; color++)
@@ -234,6 +251,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                 nameof(document.BeamCycle)));
     }
 
+    /// <summary>Requires eight three-ink brain frames, with no rear-leg or trailing color.</summary>
     private static PaletteFade CompileFakeDeathFrames(PaletteRgb5[][]? source)
     {
         if (source is null || source.Length != MotherBrainFakeDeathPaletteRomData.FrameCount)
@@ -245,6 +263,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         return new PaletteFade(frames);
     }
 
+    /// <summary>Validates palette geometry and whether this sequence carries a trailing WRAM word.</summary>
     private static PaletteFrame[] CompileFrames(MotherBrainRainbowPaletteFrameDocument[]? source,
         int count, int bodyCount, int legCount, bool trailing, string name)
     {
@@ -265,6 +284,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         return frames;
     }
 
+    /// <summary>Checks an authored row's exact length before converting its RGB5 colors.</summary>
     private static Bgr555[] CompileColors(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -275,6 +295,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         return colors;
     }
 
+    /// <summary>Rejects absent colors and channels outside the five-bit hardware range.</summary>
     private static Bgr555 CompileColor(PaletteRgb5? color, string name)
     {
         if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
@@ -292,14 +313,21 @@ public sealed class MotherBrainRainbowPalettePresentation
         json.Write(bytes);
     }
 
+    /// <summary>One body and rear-leg phase, optionally recognized as shared stock or half-intensity paint.</summary>
     private sealed class PaletteFrame
     {
+        /// <summary>Retained rear inks when they do not match stock or half-intensity body paint.</summary>
         private readonly Bgr555[]? backLegs;
+        /// <summary>Whether every rear ink equals the full stock rear-leg palette.</summary>
         private readonly bool stockRear;
+        /// <summary>Whether the drained rear subset equals half-intensity stock paint.</summary>
         private readonly bool drainedRear;
+        /// <summary>Whether the revival endpoint uses the stock rear-leg subset.</summary>
         private readonly bool normalRearSubset;
+        /// <summary>Rainbow phase supplying a drain-start rear subset and trailing color.</summary>
         private readonly PaletteFrame? rearSource;
 
+        /// <summary>Preserves supplied legs unless all of them follow a recognized stock or body relation.</summary>
         public PaletteFrame(Bgr555[] body, Bgr555[] legs, Bgr555? trailingColor)
         {
             Body = new BodyColors(body);
@@ -318,18 +346,22 @@ public sealed class MotherBrainRainbowPalettePresentation
                 { backLegs = legs; return; }
         }
 
+        /// <summary>Body inks, which may be backed by a matching calculated color relationship.</summary>
         public BodyColors Body { get; private set; }
+        /// <summary>Uses the red-origin shading model only when it recreates every supplied ink.</summary>
         internal void ReduceRedOrigin()
         {
             RedOriginColors? selected = RedOriginColors.TryCreate(Body);
             if (selected is not null) Body = new BodyColors(selected);
         }
+        /// <summary>Shares selected source channels while retaining the phase's independent shade channel.</summary>
         internal void ShareChannels(PaletteFrame source, MotherBrainRainbowShadeProfile profile, bool red, bool green, bool blue, int redAddition = 0, int greenAddition = 0)
         {
             if (Body.Length != source.Body.Length) return;
             var sharing = SharedBodyChannels.TryCreate(source.Body, Body, profile, new RainbowChannelSelection { Red = red, Green = green, Blue = blue, RedAddition = redAddition, GreenAddition = greenAddition });
             if (sharing is not null) Body = new BodyColors(sharing);
         }
+        /// <summary>Shares a constant RGB5 offset only if it reproduces the entire supplied row.</summary>
         internal void ShareTint(PaletteFrame source, int red, int green, int blue)
         {
             if (Body.Length != source.Body.Length) return;
@@ -337,10 +369,13 @@ public sealed class MotherBrainRainbowPalettePresentation
                 if (Body[color] != BodyColors.Tinted(source.Body[color], red, green, blue)) return;
             Body = new BodyColors(source.Body, red, green, blue);
         }
+        /// <summary>Number of rear-leg colors this phase publishes.</summary>
         public int LegCount { get; }
+        /// <summary>WRAM spill color, drawn from the shared rear source when an endpoint matches.</summary>
         public Bgr555? TrailingColor => rearSource is not null
             ? rearSource.Leg(MotherBrainDrainedPaletteRomData.TrailingRearSourceColor)
             : drainedRear || normalRearSubset ? Leg(1) : field;
+        /// <summary>Selects the appropriate rainbow, drained, stock, or independently edited rear ink.</summary>
         public Bgr555 Leg(int color) => rearSource is not null
             ? rearSource.Leg(color + MotherBrainDrainedPaletteRomData.RearSourceColor)
             : drainedRear ? HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(true,
@@ -350,8 +385,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             : stockRear ? MotherBrainHealthPalettePresentation.StockBaseColor(true, color)
             : backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
 
-        // Endpoint views are selected only after every separately supplied rear and
-        // trailing value matches; both sequences retain independent edit behavior.
+        /// <summary>Shares the drain's first body, rear subset, and trailing ink only after every supplied color matches the rainbow phase.</summary>
         internal static PaletteFrame ShareDrainStart(PaletteFrame drain, PaletteFrame rainbow)
         {
             for (int color = 0; color < drain.Body.Length; color++)
@@ -361,6 +395,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             return drain.TrailingColor == rainbow.Leg(MotherBrainDrainedPaletteRomData.TrailingRearSourceColor)
                 ? new PaletteFrame(rainbow, false) : drain;
         }
+        /// <summary>Recognizes a drained stock rear subset, including its trailing ink, at the fade endpoint.</summary>
         internal static PaletteFrame ShareDrainEnd(PaletteFrame drain)
         {
             for (int color = 0; color < drain.LegCount; color++)
@@ -368,6 +403,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                     color + MotherBrainDrainedPaletteRomData.RearSourceColor))) return drain;
             return drain.TrailingColor == drain.Leg(1) ? new PaletteFrame(drain, true) : drain;
         }
+        /// <summary>Constructs a validated drain endpoint view over either rainbow or stock rear paint.</summary>
         private PaletteFrame(PaletteFrame source, bool drainedRear)
         {
             Body = source.Body;
@@ -376,6 +412,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             rearSource = drainedRear ? null : source;
         }
 
+        /// <summary>Recognizes the stock rear-leg subset at the normal revival endpoint.</summary>
         internal static PaletteFrame ShareNormalRearEndpoint(PaletteFrame frame)
         {
             for (int color = 0; color < frame.LegCount; color++)
@@ -383,6 +420,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                     color + MotherBrainDrainedPaletteRomData.RearSourceColor)) return frame;
             return frame.TrailingColor == frame.Leg(1) ? new PaletteFrame(frame) : frame;
         }
+        /// <summary>Creates the validated normal rear subset while retaining its body colors.</summary>
         private PaletteFrame(PaletteFrame source)
         {
             Body = source.Body;
@@ -390,18 +428,22 @@ public sealed class MotherBrainRainbowPalettePresentation
             normalRearSubset = true;
         }
 
+        /// <summary>Rounds each RGB5 body channel upward when deriving rainbow rear-leg paint.</summary>
         private static Bgr555 HalfIntensity(Bgr555 color) => color.Map((_, channel) => (channel + 1) / 2);
     }
 
     /// <summary>Exact red-origin shading from the narrowly reviewed temporal material paints; calculated shades are not retained rows.</summary>
     private sealed class RedOriginColors
     {
+        /// <summary>Independent head, plate, and tissue anchors used to reconstruct red-origin gradients.</summary>
         private readonly Bgr555 head, plateStart, plateEnd, tissueStart, tissueEnd;
         /// <summary>The dark head keeps its own green/blue under the shared head red ramp.</summary>
         private readonly (int Green, int Blue) darkHead;
         /// <summary>The three interior tissue shades keep their own green levels.</summary>
         private readonly int[] tissueGreens;
+        /// <summary>Final two inks lack a supported interpolation relationship.</summary>
         private readonly Bgr555[] tail;
+        /// <summary>Extracts anchors and independently varying channels from one supplied body row.</summary>
         private RedOriginColors(BodyColors colors)
         {
             head = colors[0];
@@ -414,6 +456,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                 colors[RedOriginLayout.TissueStart + 3].Green];
             tail = [colors[RedOriginLayout.TailStart], colors[RedOriginLayout.TailStart + 1]];
         }
+        /// <summary>Accepts the red-origin model only when its red ramp and both gradients reproduce all fifteen inks.</summary>
         internal static RedOriginColors? TryCreate(BodyColors colors)
         {
             if (colors.Length != MotherBrainRainbowPaletteRomData.ColorCount ||
@@ -423,6 +466,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                 if (selected[color] != colors[color]) return null;
             return selected;
         }
+        /// <summary>Calculates head, plate, or tissue shading, leaving the final two inks independent.</summary>
         internal Bgr555 this[int color]
         {
             get
@@ -455,11 +499,17 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// <summary>Exact shared channels with all unexplained RGB5 samples retained independently.</summary>
     private sealed class SharedBodyChannels
     {
+        /// <summary>Earlier rainbow phase supplying the channels shared with this phase.</summary>
         private readonly BodyColors source;
+        /// <summary>Which RGB5 components follow the source row.</summary>
         private readonly bool red, green, blue;
+        /// <summary>Shared channel offsets and count of independently supplied components.</summary>
         private readonly int redAddition, greenAddition, independentCount;
+        /// <summary>Compressed independent samples and their selected shade profile.</summary>
         private readonly MotherBrainRainbowShadeChannel independent;
+        /// <summary>Matches the source phase's body color count.</summary>
         internal int Length => source.Length;
+        /// <summary>Separates one independent channel from two source-derived channels.</summary>
         private SharedBodyChannels(BodyColors source, BodyColors selected, MotherBrainRainbowShadeProfile profile, RainbowChannelSelection channels)
         {
             this.source = source; this.red = channels.Red; this.green = channels.Green; this.blue = channels.Blue; this.redAddition = channels.RedAddition; this.greenAddition = channels.GreenAddition;
@@ -476,6 +526,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             }
             independent = new MotherBrainRainbowShadeChannel(samples, profile, color => source[color].Green);
         }
+        /// <summary>Shares source channels only when every selected RGB5 ink satisfies the requested offsets.</summary>
         internal static SharedBodyChannels? TryCreate(BodyColors source, BodyColors selected, MotherBrainRainbowShadeProfile profile, RainbowChannelSelection channels)
         {
             for (int color = 0; color < source.Length; color++)
@@ -487,6 +538,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             }
             return new(source, selected, profile, new RainbowChannelSelection { Red = channels.Red, Green = channels.Green, Blue = channels.Blue, RedAddition = channels.RedAddition, GreenAddition = channels.GreenAddition });
         }
+        /// <summary>Combines source components with the retained independent shade at one body index.</summary>
         internal Bgr555 this[int color]
         {
             get
@@ -503,21 +555,29 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// <summary>Recognizes normal and drained body paint without repeated palette rows.</summary>
     private sealed class BodyColors
     {
+        /// <summary>Raw authored inks retained when no recognized model reproduces the row.</summary>
         private readonly Bgr555[]? supplied;
+        /// <summary>Red-origin gradient model selected after exact row comparison.</summary>
         private readonly RedOriginColors? redOrigin;
+        /// <summary>Uses a verified red-origin gradient as the body source.</summary>
         internal BodyColors(RedOriginColors colors)
         {
             redOrigin = colors;
             Length = MotherBrainRainbowPaletteRomData.ColorCount;
         }
+        /// <summary>Rainbow phase modeled by shared channels plus independent paint.</summary>
         private readonly SharedBodyChannels? sharedChannels;
+        /// <summary>Uses a phase whose shared channels match the supplied colors.</summary>
         internal BodyColors(SharedBodyChannels channels)
         {
             sharedChannels = channels;
             Length = channels.Length;
         }
+        /// <summary>Source phase for a constant RGB5 tint across the body row.</summary>
         private readonly BodyColors? tintSource;
+        /// <summary>Per-channel offsets applied to the source phase.</summary>
         private readonly int redTint, greenTint, blueTint;
+        /// <summary>Shares a verified constant channel shift from another phase.</summary>
         internal BodyColors(BodyColors source, int red, int green, int blue)
         {
             tintSource = source;
@@ -530,8 +590,11 @@ public sealed class MotherBrainRainbowPalettePresentation
             int r = color.Red + red, g = color.Green + green, b = color.Blue + blue;
             return (uint)r > 31 || (uint)g > 31 || (uint)b > 31 ? null : new Bgr555(r, g, b);
         }
+        /// <summary>Drained-paint interpolation selected when the entire row agrees.</summary>
         private readonly DrainedBodyColors? drained;
+        /// <summary>Number of body/brain CGRAM inks represented by this row.</summary>
         public int Length { get; }
+        /// <summary>Recognizes stock or drained paint, otherwise retains every supplied RGB5 ink.</summary>
         public BodyColors(Bgr555[] colors)
         {
             Length = colors.Length;
@@ -542,6 +605,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             drained = new DrainedBodyColors(colors);
             if (!drained.Calculated) { drained = null; supplied = colors; }
         }
+        /// <summary>Reads the selected calculated paint model or the independently authored ink.</summary>
         public Bgr555 this[int color] => redOrigin is not null ? redOrigin[color]
             : sharedChannels is not null ? sharedChannels[color]
             : tintSource is not null ? Tinted(tintSource[color], redTint, greenTint, blueTint)
@@ -560,12 +624,18 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// </summary>
     internal sealed class DrainedBodyColors
     {
+        /// <summary>Eight-bit highlight anchor before RGB5 tissue quantization.</summary>
         private readonly Rgb8 tissueLight;
+        /// <summary>Eight-bit darkest tissue anchor before RGB5 quantization.</summary>
         private readonly Rgb8 tissueDark;
+        /// <summary>Fourth cortex anchor between highlight and normal plates.</summary>
         private readonly Bgr555 outline;
+        /// <summary>Exact edited row when no common drained-paint anchors reproduce it.</summary>
         private readonly Bgr555[]? supplied;
+        /// <summary>Whether the row can be reconstructed from tissue and outline anchors.</summary>
         internal bool Calculated => supplied is null;
 
+        /// <summary>Tests stock anchors, then seeks eight-bit endpoints that reproduce each edited tissue shade.</summary>
         internal DrainedBodyColors(Bgr555[] colors)
         {
             if (colors.Length is not (3 or 13 or 15)) { supplied = colors; return; }
@@ -605,8 +675,10 @@ public sealed class MotherBrainRainbowPalettePresentation
                 return false;
             }
         }
+        /// <summary>Reads a calculated drained shade or its exact authored replacement.</summary>
         internal Bgr555 this[int color] => supplied is null ? Calculate(color) : supplied[color];
 
+        /// <summary>Interpolates cortex and tissue paint while preserving the native RGB5 rounding rules.</summary>
         private Bgr555 Calculate(int color)
         {
             if (color is >= 4 and <= 7)
@@ -622,8 +694,10 @@ public sealed class MotherBrainRainbowPalettePresentation
                 (tissueLight.Blue * (12 - color) + tissueDark.Blue * (color - 8)) / 32);
         }
 
+        /// <summary>Unquantized tissue endpoint; interpolation occurs before conversion to RGB5.</summary>
         private readonly record struct Rgb8(int Red, int Green, int Blue)
         {
+            /// <summary>Selects an eight-bit endpoint channel for interpolation.</summary>
             internal int this[ColorChannel channel] => channel switch
             {
                 ColorChannel.Red => Red,
@@ -633,25 +707,34 @@ public sealed class MotherBrainRainbowPalettePresentation
             };
         }
     }
+    /// <summary>Common frame geometry for straight and revival-specific fade models.</summary>
     private interface IPaletteFade
     {
+        /// <summary>Number of authored phases in the fade.</summary>
         int Length { get; }
+        /// <summary>Body/brain inks written for each phase.</summary>
         int BodyCount { get; }
+        /// <summary>Rear-leg inks written for each phase.</summary>
         int LegCount { get; }
+        /// <summary>Reads a phase's body/brain ink.</summary>
         Bgr555 Body(int frame, int color);
+        /// <summary>Reads a phase's rear-leg ink.</summary>
         Bgr555 Leg(int frame, int color);
+        /// <summary>Reads the phase's optional WRAM spill ink.</summary>
         Bgr555? Trailing(int frame);
     }
 
-    // Revival rounds RGB5 endpoint interpolation to the nearest channel value. Stock
-    // holds the prior shade at one independently reviewed tissue-ink/phase choice.
-    // Sparse differences also preserve every independently edited output and endpoint.
+    /// <summary>Revival rounds endpoint RGB5 channels to nearest, retaining sparse authored exceptions including a stock tissue hold.</summary>
     private sealed class RevivalPaletteFade : IPaletteFade
     {
+        /// <summary>Drained starting colors for interpolation.</summary>
         private readonly PaletteFrame first;
+        /// <summary>Normal ending colors for interpolation.</summary>
         private readonly PaletteFrame last;
+        /// <summary>Authored inks that differ from the native revival interpolation.</summary>
         private readonly Dictionary<(int Frame, int Color), Bgr555> suppliedOverrides = new();
 
+        /// <summary>Captures only phase/color differences from the native endpoint interpolation.</summary>
         public RevivalPaletteFade(PaletteFrame[] frames)
         {
             first = frames[0];
@@ -666,19 +749,28 @@ public sealed class MotherBrainRainbowPalettePresentation
                 }
         }
 
+        /// <summary>Number of drain-revival phases.</summary>
         public int Length { get; }
+        /// <summary>Number of shared body/brain colors in each phase.</summary>
         public int BodyCount => first.Body.Length;
+        /// <summary>Number of rear-leg colors in each phase.</summary>
         public int LegCount => first.LegCount;
+        /// <summary>Reads a body ink with any authored interpolation exception.</summary>
         public Bgr555 Body(int frame, int color) => Color(frame, color);
+        /// <summary>Reads a rear ink after the body range in the flattened fade.</summary>
         public Bgr555 Leg(int frame, int color) => Color(frame, BodyCount + color);
+        /// <summary>Reads the WRAM spill ink after body and rear colors.</summary>
         public Bgr555? Trailing(int frame) => Color(frame, BodyCount + LegCount);
 
+        /// <summary>Prefers an authored exception to the calculated revival shade.</summary>
         private Bgr555 Color(int frame, int color) => suppliedOverrides.TryGetValue((frame, color), out Bgr555 supplied)
             ? supplied : Interpolate(frame, color);
 
+        /// <summary>Maps a flattened body, rear, or trailing index into one supplied frame.</summary>
         private Bgr555 ReadColor(PaletteFrame palette, int color) => color < BodyCount ? palette.Body[color]
             : color < BodyCount + LegCount ? palette.Leg(color - BodyCount) : palette.TrailingColor!.Value;
 
+        /// <summary>Applies the native per-ink revival frame choice before nearest RGB5 interpolation.</summary>
         private Bgr555 Interpolate(int frame, int color)
         {
             frame = MotherBrainDrainedPaletteRomData.RevivalInterpolationFrame(frame, color);
@@ -689,19 +781,22 @@ public sealed class MotherBrainRainbowPalettePresentation
                     + b * frame + intervals / 2) / intervals));
         }
     }
+    /// <summary>Straight RGB5 endpoint fade with a full authored-row fallback for independent edits.</summary>
     private sealed class PaletteFade : IPaletteFade
     {
+        /// <summary>First phase supplying one endpoint for every color.</summary>
         private readonly PaletteFrame first;
+        /// <summary>Last phase supplying the other endpoint for every color.</summary>
         private readonly PaletteFrame last;
+        /// <summary>All supplied frames when even one shade differs from straight interpolation.</summary>
         private readonly PaletteFrame[]? supplied;
 
+        /// <summary>Tests every drain or fake-death shade against nearest-channel RGB5 interpolation.</summary>
         public PaletteFade(PaletteFrame[] frames)
         {
             first = frames[0];
             last = frames[^1];
             Length = frames.Length;
-            // The drain and fake-death rows round each RGB5 channel to the nearest
-            // point on a straight endpoint fade. Keep independently edited rows verbatim.
             for (int frame = 0; frame < Length; frame++)
             {
                 for (int color = 0; color < BodyCount; color++)
@@ -715,17 +810,24 @@ public sealed class MotherBrainRainbowPalettePresentation
             }
         }
 
+        /// <summary>Number of phases between the two endpoints, inclusive.</summary>
         public int Length { get; }
+        /// <summary>Body/brain ink count inherited from the first endpoint.</summary>
         public int BodyCount => first.Body.Length;
+        /// <summary>Rear-leg ink count inherited from the first endpoint.</summary>
         public int LegCount => first.LegCount;
+        /// <summary>Reads an authored body row or its straight-fade approximation.</summary>
         public Bgr555 Body(int frame, int color) => supplied is null
             ? Interpolate(first.Body[color], last.Body[color], frame) : supplied[frame].Body[color];
+        /// <summary>Reads an authored rear-leg row or its straight-fade approximation.</summary>
         public Bgr555 Leg(int frame, int color) => supplied is null
             ? Interpolate(first.Leg(color), last.Leg(color), frame) : supplied[frame].Leg(color);
+        /// <summary>Interpolates the WRAM spill only when both endpoints provide it.</summary>
         public Bgr555? Trailing(int frame) => supplied is not null ? supplied[frame].TrailingColor
             : first.TrailingColor is Bgr555 start && last.TrailingColor is Bgr555 end
                 ? Interpolate(start, end, frame) : null;
 
+        /// <summary>Rounds each channel to the nearest five-bit shade along the endpoint line.</summary>
         private Bgr555 Interpolate(Bgr555 start, Bgr555 end, int frame)
         {
             int intervals = Length - 1;
@@ -779,15 +881,18 @@ public enum MotherBrainRainbowPaletteVersion
 /// <summary>Installed palette filename and fixed native sequence geometry; color content is editable while attack/fade timing and loop termination remain engine-owned.</summary>
 public static class MotherBrainRainbowPaletteFormat
 {
+    /// <summary>Body-row indices for head, plate, tissue, and independent tail inks.</summary>
     internal static class RedOriginLayout
     {
         /// <summary>$AD:E44E: darker head pair begins at body color index2.</summary>
         internal const int DarkHead = 2;
         /// <summary>$AD:E452-E459: four plate inks at body indices4..7.</summary>
         internal const int PlateStart = 4, PlateEnd = 7;
+        /// <summary>Three interpolation steps between the first and last plate inks.</summary>
         internal const int PlateIntervals = PlateEnd - PlateStart;
         /// <summary>$AD:E45A-E463: five tissue inks at body indices8..12.</summary>
         internal const int TissueStart = 8, TissueEnd = 12;
+        /// <summary>Four interpolation steps between tissue endpoint inks.</summary>
         internal const int TissueIntervals = TissueEnd - TissueStart;
         /// <summary>$AD:E464-E467: two remaining independent body inks at indices13..14.</summary>
         internal const int TailStart = 13;

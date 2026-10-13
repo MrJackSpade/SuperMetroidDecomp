@@ -12,13 +12,20 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyInstructionInterpreter
 {
+    /// <summary>Advances Botwoon's typed head animation in place of its native instruction list.</summary>
     private readonly BotwoonBehavior _botwoonBehavior;
+    /// <summary>Owns the working BG2 tilemap used by Crocomire's extended frames.</summary>
     private readonly CrocomireBehavior _crocomireBehavior;
+    /// <summary>Owns the Mother Brain BG2 working tilemap when that encounter is active.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
+    /// <summary>Provides VRAM for installed BG2 frame and instruction-time tile transfers.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Provides installed visual assets and room scratch memory.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Supplies species-owned private instruction handlers.</summary>
     private readonly IEnemyDispatch _dispatch;
 
+    /// <summary>Captures visual, room, encounter, and species dispatch owners for instruction execution.</summary>
     internal EnemyInstructionInterpreter(BotwoonBehavior botwoonBehavior, CrocomireBehavior crocomireBehavior, MotherBrainEncounter motherBrainEncounter, EnemyPresentation presentation, EnemyRoomBinding room, IEnemyDispatch dispatch)
     {
         _botwoonBehavior = botwoonBehavior;
@@ -183,6 +190,7 @@ internal sealed class EnemyInstructionInterpreter
         new EnemyVram(_presentation._vram!).EnemyBg2Tilemap.Write(words, destinationWord);
     }
 
+    /// <summary>Resolves a frame operand through its enemy family's compiled visual selector catalog.</summary>
     internal static ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
     {
         if (slot.EnemyDefinitionPointer is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead &&
@@ -216,6 +224,7 @@ internal sealed class EnemyInstructionInterpreter
             $"${slot.Definition.Bank:X2}:${operandAddress:X4}.");
     }
 
+    /// <summary>Advances one enemy animation timer and interprets commands until a frame or yielding opcode.</summary>
     internal void ProcessInstructions(
         RoomEnemySlot slot,
         SamusState? samus,

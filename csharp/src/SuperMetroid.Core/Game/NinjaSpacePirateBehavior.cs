@@ -7,14 +7,21 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The ninja space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
 {
+    /// <summary>Provides the shared RNG used by divekick selection and installed palette artwork.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Resolves floor contact during divekick descent.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Allocates thrown claw projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Spawns paired landing dust sprites.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
+    /// <summary>Provides CGRAM for the gold ninja's copied palette.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Receives sound requests from shared Space Pirate instruction opcodes.</summary>
     private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
 
+    /// <summary>Captures the room, collision, projectile, sprite, and sound owners for ninja AI.</summary>
     internal NinjaSpacePirateBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, WalkingSpacePirateBehavior walkingSpacePirateBehavior)
     {
         _walkingSpacePirateBehavior = walkingSpacePirateBehavior;
@@ -25,18 +32,28 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         _presentation = presentation;
     }
 
+    /// <summary>Native 8.8 speed assigned at the start of a divekick jump and descent.</summary>
     private const ushort NinjaPirateInitialDiveSpeed = 0x0600;
+    /// <summary>Maximum horizontal distance at which an idle ninja activates.</summary>
     private const int NinjaPirateActivationDistance = 128;
+    /// <summary>Strict distance on both axes for a reaction to the highest occupied projectile.</summary>
     private const int NinjaPirateFlinchDistance = 32;
+    /// <summary>Strict midpoint distance that permits a spin jump or divekick choice.</summary>
     private const int NinjaPirateMidpointTriggerDistance = 32;
+    /// <summary>Strict X and Y distance for a standing kick.</summary>
     private const int NinjaPirateKickDistance = 40;
+    /// <summary>Whole-pixel horizontal step during divekick descent.</summary>
     private const int NinjaPirateDiveHorizontalPixels = 5;
+    /// <summary>Whole-pixel step while returning to a patrol post after a dive.</summary>
     private const int NinjaPirateReturnWalkPixels = 2;
+    /// <summary>Whole-pixel vertical step used by each spin-jump update.</summary>
     private const int NinjaPirateSpinVerticalPixels = 2;
 
+    /// <summary>Per-slot ninja state, including patrol posts and active instruction choice.</summary>
     internal readonly NinjaSpacePirateEnemyState?[] _ninjaSpacePirateStates =
         new NinjaSpacePirateEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
+    /// <summary>Identifies all six ninja Space Pirate enemy definitions that share this AI.</summary>
     internal static bool IsNinjaSpacePirateDefinition(EnemyDefinitionId definition) => definition is
         EnemyDefinitionId.PirateGreyNinja or
         EnemyDefinitionId.PirateGreenNinja or
@@ -164,6 +181,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
             "Ninja Space Pirate decision AI requires the active Samus actor.");
     }
 
+    /// <summary>Waits for Samus to approach, then selects the active animation facing her.</summary>
     private static void RunNinjaPirateInitial(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -184,6 +202,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         InstallNinjaPirateInstruction(slot, active);
     }
 
+    /// <summary>Checks flinch, standing kick, spin jump, then periodic claw attack in native priority order.</summary>
     private static void RunNinjaPirateActive(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -200,6 +219,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         TryNinjaPirateClawAttack(slot, state, samus);
     }
 
+    /// <summary>Flinches only for the highest occupied Samus projectile when it is close on both axes.</summary>
     private static bool TryNinjaPirateProjectileFlinch(
         RoomEnemySlot slot,
         SamusState samus,
@@ -238,6 +258,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Starts a facing kick when Samus is within the strict contact range.</summary>
     private static bool TryNinjaPirateStandingKick(RoomEnemySlot slot, SamusState samus)
     {
         if (Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole))) >=
@@ -256,6 +277,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Starts a jump toward the opposite post when Samus nears the patrol midpoint.</summary>
     private static bool TryNinjaPirateSpinJump(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -275,6 +297,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Starts a claw throw on the periodic frame when Samus is on the allowed side.</summary>
     private static void TryNinjaPirateClawAttack(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -300,6 +323,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
             NinjaSpacePirateInstructionProgramDefinitions.ClawAttackRight);
     }
 
+    /// <summary>Retries native RNG until a nonzero dive choice after higher-priority reactions fail.</summary>
     private void RunNinjaPirateReadyToDivekick(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -333,6 +357,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
                 : NinjaSpacePirateInstructionProgramDefinitions.DivekickLeftJump);
     }
 
+    /// <summary>Moves through a rising and falling arc between patrol posts, then emits landing dust.</summary>
     private void StepNinjaPirateSpinJump(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -373,6 +398,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         SpawnNinjaPirateLandingDust(slot, state);
     }
 
+    /// <summary>Sets dive speed and a side-dependent target midway between a post and the patrol center.</summary>
     private static void InitializeNinjaPirateDive(
         NinjaSpacePirateEnemyState state,
         bool movingRight)
@@ -385,6 +411,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
                 ((ushort)(state.RightPostX - state.PostsMidpointX) >> 1)));
     }
 
+    /// <summary>Rises until signed speed turns negative, then switches to the descent list.</summary>
     private static void StepNinjaPirateDiveJump(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -406,6 +433,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         state.Speed = NinjaPirateInitialDiveSpeed;
     }
 
+    /// <summary>Moves horizontally and descends with native packed speed until floor or speed ends the dive.</summary>
     private void StepNinjaPirateDive(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -447,6 +475,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         SpawnNinjaPirateLandingDust(slot, state);
     }
 
+    /// <summary>Walks back to the selected post and restores its landing instruction list.</summary>
     private static void StepNinjaPirateWalkToPost(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -469,6 +498,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         state.Function = NinjaSpacePirateFunction.NoOperation;
     }
 
+    /// <summary>Attempts a dust sprite on each side of the landing position and counts successful spawns.</summary>
     private void SpawnNinjaPirateLandingDust(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state)
@@ -490,6 +520,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Allocates a claw with the selected throw direction, offset, graphics, and outbound speed.</summary>
     internal void SpawnNinjaPirateClaw(
         RoomEnemySlot source,
         NinjaSpacePirateEnemyState state,
@@ -635,6 +666,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Installs an animation list and restarts its frame timer.</summary>
     private static void InstallNinjaPirateInstruction(
         RoomEnemySlot slot,
         ushort instructionPointer)
@@ -643,10 +675,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Gets the state attached to a ninja slot and rejects an uninitialized actor.</summary>
     private NinjaSpacePirateEnemyState RequireNinjaSpacePirateState(RoomEnemySlot slot) =>
         _ninjaSpacePirateStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized ninja Space Pirate state.");
 
+    /// <summary>Binds both claw directions to the same outbound-and-return pre-instruction.</summary>
     internal static void RegisterNinjaSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -655,6 +689,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.PirateClaw_Left, EnemyProjectilePreInstruction.PirateClaw_Right);
     }
 
+    /// <summary>Registers initialization for the six ninja Space Pirate definitions.</summary>
     internal void RegisterNinjaSpacePirateInitializationAi(EnemyAiTable table)
     {
 
@@ -664,6 +699,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the ninja function dispatcher for initialized actors.</summary>
     internal void RegisterNinjaSpacePirateMainAi(EnemyAiTable table)
     {
 
@@ -678,6 +714,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers ninja-owned function, palette, sound, claw, and dive setup opcodes.</summary>
     internal void RegisterNinjaSpacePirateOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -699,6 +736,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Accepts gold ninja extended-hitbox bomb overlaps without damage or generic death.</summary>
     internal static void RegisterGoldNinjaPirateBombReactions(EnemyAiTable table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja &&

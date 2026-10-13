@@ -21,8 +21,11 @@ public sealed class HudState
     /// <summary>VRAM word $5820, one 32-cell row beyond the BG3 tilemap base $5800; direct VRAM byte access uses twice this address.</summary>
     public const ushort VramDestination = 0x5820;
 
+    /// <summary>Three mutable BG3 HUD rows in native row-major tilemap order.</summary>
     private readonly ushort[] _tiles = new ushort[MutableTileCount];
+    /// <summary>Previous item selection used to update both icon palettes and sound edges.</summary>
     private ushort _previousSelectedItem;
+    /// <summary>Current artwork binding, omitted from serialized gameplay state.</summary>
     [NonSerialized] private GameplayHudPresentation? presentation;
 
     /// <summary>Native $05F7: suppress minimap updates after a boss initializer.</summary>
@@ -316,12 +319,14 @@ public sealed class HudState
         HudMemory.EnqueueMutableTilemapUpload(queue);
     }
 
+    /// <summary>Updates energy digits and tanks through the installed HUD artwork.</summary>
     private void DrawHealth(ushort health, ushort maxHealth)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD energy requires installed presentation assets.")).ApplyEnergy(_tiles, health, maxHealth);
     }
 
+    /// <summary>Draws the AUTO reserve indicator when its selected tank contains energy.</summary>
     private void DrawAutoReserve(bool containsEnergy)
     {
         (presentation ?? throw new InvalidOperationException(
@@ -336,30 +341,35 @@ public sealed class HudState
             "HUD reserve indicator requires installed presentation assets.")).ClearAutoReserve(_tiles);
     }
 
+    /// <summary>Installs the missile icon if the current HUD template has not drawn it yet.</summary>
     private void AddMissileIcon()
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD icons require installed presentation assets.")).TryApplyIcon(_tiles, itemIndex: 0);
     }
 
+    /// <summary>Installs a two-by-two item icon using the selected presentation slot.</summary>
     private void AddTwoByTwoIcon(int itemIndex)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD icons require installed presentation assets.")).TryApplyIcon(_tiles, itemIndex);
     }
 
+    /// <summary>Changes the selected item's palette without rebuilding its tile words.</summary>
     private void ToggleItemHighlight(ushort selectedItem, int paletteIndex)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD selection requires installed presentation assets.")).ToggleItemHighlight(_tiles, selectedItem, paletteIndex);
     }
 
+    /// <summary>Writes the ammunition digits for one enabled HUD item.</summary>
     private void DrawAmmo(int itemIndex, ushort value)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD ammunition requires installed presentation assets.")).ApplyAmmo(_tiles, itemIndex, value);
     }
 
+    /// <summary>Restores visible icons, counters, reserve mode, and selection after artwork rebind.</summary>
     private void ApplyCurrentPresentationState(SamusState samus)
     {
         if (presentation is null) return;
@@ -378,6 +388,7 @@ public sealed class HudState
         presentation.ToggleItemHighlight(_tiles, samus.SelectedHudItem, presentation.SelectedPalette);
     }
 
+    /// <summary>Maps a cell in the five-by-three minimap to the native HUD tile buffer.</summary>
     private static int NativeMinimapCellIndex(Position16<TilemapCells> output) =>
         26 + output.Y * WidthInTiles + output.X;
 

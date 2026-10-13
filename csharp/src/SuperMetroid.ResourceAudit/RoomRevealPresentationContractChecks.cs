@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -63,6 +64,7 @@ internal static class RoomRevealPresentationContractChecks
             "changing X-ray admission revokes both providers declared in that source, not permanent-item coverage");
     }
 
+    [ReflectionAudit("signature contract: the retired three-input Apply overload must not exist")]
     private static void ConfirmSingleXrayIdentity()
     {
         // Construct the already identified 305-entry provider contract from compiled

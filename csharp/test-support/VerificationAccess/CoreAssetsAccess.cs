@@ -37,7 +37,7 @@ internal static class BeamTileCatalogAccess
                     throw new InvalidDataException($"Missing beam artwork {name}.");
                 sheets[i] = BeamTileAtlas.Load(new MemoryStream(png, writable: false), BeamTileAtlasDefinitions.SelectionAt(i));
             }
-            return ((BeamTileCatalog)PrivateState.Construct(typeof(BeamTileCatalog), (BeamTileAtlas[])(sheets), (BeamPaletteCatalog?)(palettes), (HyperBeamFxColorCatalog?)(hyperBeamFxColors)));
+            return new BeamTileCatalog(sheets, palettes, hyperBeamFxColors);
         }
     }
 }
@@ -63,17 +63,17 @@ internal static class CeresRidleyColorCatalogAccess
 {
     extension(CeresRidleyColorCatalog self)
     {
-        internal Bgr555 ResolveStart(int color) => PrivateState.Field<CeresRidleyStartColorDefinitions>(self, "start").Resolve(color);
+        internal Bgr555 ResolveStart(int color) => self.start.Resolve(color);
 
-        internal Bgr555 ResolveEyeFade(int row, int color) => PrivateState.Field<CeresRidleyFadeColorDefinitions>(self, "eyeFade").Resolve(row, color);
+        internal Bgr555 ResolveEyeFade(int row, int color) => self.eyeFade.Resolve(row, color);
 
-        internal Bgr555 ResolveBodyFade(int row, int color) => PrivateState.Field<CeresRidleyFadeColorDefinitions>(self, "bodyFade").Resolve(row, color);
+        internal Bgr555 ResolveBodyFade(int row, int color) => self.bodyFade.Resolve(row, color);
 
-        internal Bgr555 ResolveHealth(int row, int color) => PrivateState.Field<CeresRidleyHealthPaintDefinitions>(self, "health").Resolve(row, color);
+        internal Bgr555 ResolveHealth(int row, int color) => self.health.Resolve(row, color);
 
-        internal Bgr555 ResolveAlarm(int row, int color) => PrivateState.Field<CeresRidleyAlarmColorDefinitions>(self, "alarm").Resolve(row, color);
+        internal Bgr555 ResolveAlarm(int row, int color) => self.alarm.Resolve(row, color);
 
-        internal Bgr555 ResolveBaby(int row, int color) => PrivateState.Field<CeresBabyPaintDefinitions>(self, "baby").Resolve(row, color);
+        internal Bgr555 ResolveBaby(int row, int color) => self.baby.Resolve(row, color);
     }
 }
 
@@ -82,9 +82,9 @@ internal static class ChozoAndTubeColorCatalogAccess
 {
     extension(ChozoAndTubeColorCatalog self)
     {
-        internal Bgr555 ResolveWreckedShip(int color) => ((Bgr555)(PrivateState.Invoke(self, "ResolveStatue", (ChozoStatuePalette)(ChozoStatuePalette.WreckedShip), (int)(color)))!);
+        internal Bgr555 ResolveWreckedShip(int color) => ((Bgr555)(self.ResolveStatue((ChozoStatuePalette)(ChozoStatuePalette.WreckedShip), (int)(color)))!);
 
-        internal Bgr555 ResolveLowerNorfair(int color) => ((Bgr555)(PrivateState.Invoke(self, "ResolveStatue", (ChozoStatuePalette)(ChozoStatuePalette.LowerNorfair), (int)(color)))!);
+        internal Bgr555 ResolveLowerNorfair(int color) => ((Bgr555)(self.ResolveStatue((ChozoStatuePalette)(ChozoStatuePalette.LowerNorfair), (int)(color)))!);
     }
 }
 
@@ -102,7 +102,7 @@ internal static class CreditsPresentationAccess
                 throw new ArgumentException(
                     "Verification credits rows must be nonempty 32-word rows.", "rows");
             }
-            return ((CreditsPresentation)PrivateState.Construct(typeof(CreditsPresentation), (CreditsLineDocument[]?)(null), (ushort[][]?)(rows.Select(row => row.ToArray()).ToArray()), (string)("VERIFICATION")));
+            return new CreditsPresentation(null, rows.Select(row => row.ToArray()).ToArray(), "VERIFICATION");
         }
     }
 }
@@ -126,15 +126,15 @@ internal static class CrocomireColorCatalogAccess
 {
     extension(CrocomireColorCatalog self)
     {
-        internal Bgr555 ResolveFightBody(int color) => ((Bgr555)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "FightBody"), (int)(color)))!);
+        internal Bgr555 ResolveFightBody(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.FightBody, (int)(color)))!);
 
-        internal Bgr555 ResolveInitialWall(int color) => ((Bgr555)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "InitialWall"), (int)(color)))!);
+        internal Bgr555 ResolveInitialWall(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.InitialWall, (int)(color)))!);
 
-        internal Bgr555 ResolveInitialProjectile(int color) => ((Bgr555)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "InitialProjectile"), (int)(color)))!);
+        internal Bgr555 ResolveInitialProjectile(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.InitialProjectile, (int)(color)))!);
 
-        internal Bgr555 ResolveSkeletonArm(int color) => ((Bgr555)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "SkeletonArm"), (int)(color)))!);
+        internal Bgr555 ResolveSkeletonArm(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.SkeletonArm, (int)(color)))!);
 
-        internal Bgr555 ResolveWallSpikes(int color) => ((Bgr555)(PrivateState.Invoke(self, "Get", PrivateState.StaticField<object>(PrivateState.Nested(typeof(CrocomireColorCatalog), "Band"), "WallSpikes"), (int)(color)))!);
+        internal Bgr555 ResolveWallSpikes(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.WallSpikes, (int)(color)))!);
     }
 }
 
@@ -151,7 +151,7 @@ internal static class EndingFontAtlasAccess
                     $"Ending font contains {planar.Length} planar bytes; expected {EndingFontAtlasFormat.ByteCount}.");
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, EndingFontAtlasFormat.BitsPerPixel,
                 EndingFontAtlasFormat.TilesPerRow, out _);
-            return ((EndingFontAtlas)PrivateState.Construct(typeof(EndingFontAtlas), (byte[])(pixels)));
+            return new EndingFontAtlas(pixels);
         }
     }
 }
@@ -178,7 +178,7 @@ internal static class EnemySpritemapCatalogAccess
         /// <summary>Returns a known installed frame; callers must reject missing artwork.</summary>
         internal bool TryGet(byte bank, ushort pointer, out EnemySpritemapParts parts)
         {
-            if (PrivateState.Field<Dictionary<int, EnemySpritemapParts>>(self, "frames").TryGetValue(((int)new SnesAddress(bank, pointer)), out EnemySpritemapParts? found))
+            if (self.frames.TryGetValue(((int)new SnesAddress(bank, pointer)), out EnemySpritemapParts? found))
             {
                 parts = found;
                 return true;
@@ -196,32 +196,7 @@ internal static class EnemyTileArtworkCatalogAccess
     {
         /// <summary>Explicitly partial constructed artwork; never an installed production catalog.</summary>
         internal static EnemyTileArtworkCatalog FromArtworkForVerification(EnemyTileArtworkParts parts) =>
-            (EnemyTileArtworkCatalog)PrivateState.Construct(typeof(EnemyTileArtworkCatalog), Ensure.NotNull(parts));
-    }
-
-    extension(EnemyTileArtworkCatalog self)
-    {
-        /// <summary>
-        /// This installation with its compositions replaced, as the installation loader produces for a
-        /// composition override. The other parts are independent and shared; nothing is derived from
-        /// the compositions at construction.
-        /// </summary>
-        internal EnemyTileArtworkCatalog WithSpritemaps(EnemySpritemapCatalog spritemaps)
-        {
-            Ensure.NotNull(spritemaps);
-            var copy = (EnemyTileArtworkCatalog)((object)(PrivateState.Invoke(self, "MemberwiseClone"))!);
-            PrivateState.SetProperty(copy, "Spritemaps", spritemaps);
-            return copy;
-        }
-
-        /// <summary>This installation with its extended frames replaced; see <see cref="WithSpritemaps"/>.</summary>
-        internal EnemyTileArtworkCatalog WithExtendedFrames(EnemyExtendedFrameCatalog extendedFrames)
-        {
-            Ensure.NotNull(extendedFrames);
-            var copy = (EnemyTileArtworkCatalog)((object)(PrivateState.Invoke(self, "MemberwiseClone"))!);
-            PrivateState.SetProperty(copy, "ExtendedFrames", extendedFrames);
-            return copy;
-        }
+            new EnemyTileArtworkCatalog(Ensure.NotNull(parts));
     }
 }
 
@@ -235,7 +210,7 @@ internal static class EscapeTimerTileAtlasAccess
         internal void QueueTo(VramWriteQueue queue)
         {
             Ensure.NotNull(queue);
-            if (((byte[])(PrivateState.Invoke(self, "Transfer"))!).Length != EscapeTimerTileAtlasFormat.TotalByteCount)
+            if (((byte[])(self.Transfer())!).Length != EscapeTimerTileAtlasFormat.TotalByteCount)
                 throw new InvalidDataException("Escape timer artwork no longer matches its native transfer pages.");
             queue.EnqueueAsset(VramAssetId.EscapeTimerFirstTiles,
                 EscapeTimerTileAtlasFormat.FirstByteCount, VramDmaDestination.FromNative(EscapeTimerTileAtlasFormat.FirstDestinationWord));
@@ -250,7 +225,7 @@ internal static class GameplayBasePaletteCatalogAccess
 {
     extension(GameplayBasePaletteCatalog self)
     {
-        internal ReadOnlySpan<ushort> CommonSprites => PrivateState.Field<ushort[]>(self, "commonSprites");
+        internal ReadOnlySpan<Bgr555> CommonSprites => self.commonSprites;
     }
 }
 
@@ -262,7 +237,7 @@ internal static class GoldenTorizoStrideGeometryDefinitionsAccess
         internal static int NativeFrameIdentity(int phase)
         {
             if ((uint)phase >= 10) throw new ArgumentOutOfRangeException(nameof(phase));
-            return PrivateState.StaticField<int>(typeof(GoldenTorizoStrideGeometryDefinitions), "FirstFrame") + PrivateState.StaticField<int>(typeof(GoldenTorizoStrideGeometryDefinitions), "FrameBytes") * phase;
+            return GoldenTorizoStrideGeometryDefinitions.FirstFrame + GoldenTorizoStrideGeometryDefinitions.FrameBytes * phase;
         }
     }
 }
@@ -272,7 +247,7 @@ internal static class MapArrowVisualAccess
 {
     extension(MapArrowVisual self)
     {
-        internal int StoredDurationCount => PrivateState.Field<Dictionary<int, byte>?>(self, "durationOverrides")?.Count ?? 0;
+        internal int StoredDurationCount => self.durationOverrides?.Count ?? 0;
     }
 }
 
@@ -281,7 +256,7 @@ internal static class MapMarkerTileArtworkAccess
 {
     extension(MapMarkerTileArtwork self)
     {
-        internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
+        internal int StoredEditCount => self.edits?.Count ?? 0;
     }
 }
 
@@ -290,11 +265,11 @@ internal static class MapObjectTileArtworkAccess
 {
     extension(MapObjectTileArtwork self)
     {
-        internal int StoredHighlightPixelCount => PrivateState.Field<Dictionary<int, byte>?>(self, "highlightEdits")?.Count ?? 0;
+        internal int StoredHighlightPixelCount => self.highlightEdits?.Count ?? 0;
 
-        internal int StoredReservePixelCount => PrivateState.Field<Dictionary<int, byte>?>(self, "reserveEdits")?.Count ?? 0;
+        internal int StoredReservePixelCount => self.reserveEdits?.Count ?? 0;
 
-        internal int StoredOtherByteCount => PrivateState.Field<byte[]>(self, "otherCharacters").Length;
+        internal int StoredOtherByteCount => self.otherCharacters.Length;
     }
 }
 
@@ -303,7 +278,7 @@ internal static class MapSaveMarkerLayoutAccess
 {
     extension(MapSaveMarkerLayout self)
     {
-        internal int StoredCoordinateComponentCount => PrivateState.Field<Dictionary<string, (int? X, int? Y)>>(self, "coordinateOverrides").Values.Sum(point =>
+        internal int StoredCoordinateComponentCount => self.coordinateOverrides.Values.Sum(point =>
             (point.X.HasValue ? 1 : 0) + (point.Y.HasValue ? 1 : 0));
     }
 }
@@ -312,28 +287,28 @@ internal static class MapSaveMarkerLayoutAccess
 internal static class MapSpriteCatalogAccess
 {
     private static WorldMapLabelComposition? WorldLabel(MapSpriteCatalog catalog, MapSpriteId id) =>
-        (WorldMapLabelComposition?)PrivateState.Invoke(catalog, "GetWorldLabel", id);
+        catalog.GetWorldLabel(id);
 
     extension(MapSpriteCatalog self)
     {
         internal bool StoresComposition(MapSpriteId id) => WorldLabel(self, id) is { } label
-            ? PrivateState.Field<SpriteComposition?>(label, "authored") is not null
-            : PrivateState.Invoke(self, "GetFrame", id) is not null;
+            ? label.authored is not null
+            : self.GetFrame(id) is not null;
 
         /// <summary>Stored horizontal advances: the label origin(s) plus each authored letter advance.</summary>
         internal int StoredLabelHorizontalCount(MapSpriteId id)
         {
-            if (WorldLabel(self, id) is not { } label || PrivateState.Field<SpriteComposition?>(label, "authored") is not null)
+            if (WorldLabel(self, id) is not { } label || label.authored is not null)
                 return 0;
-            int origins = PrivateState.Field<MapSpriteId>(label, "identity") == MapSpriteId.WorldWreckedShip ? 2 : 1;
-            return origins + (PrivateState.Field<Dictionary<int, int>?>(label, "letterAdvances")?.Count ?? 0);
+            int origins = label.identity == MapSpriteId.WorldWreckedShip ? 2 : 1;
+            return origins + (label.letterAdvances?.Count ?? 0);
         }
 
-        internal int StoredHighlightPixelCount => PrivateState.Field<MapObjectTileArtwork>(self, "characters").StoredHighlightPixelCount;
+        internal int StoredHighlightPixelCount => self.characters.StoredHighlightPixelCount;
 
-        internal int StoredReservePixelCount => PrivateState.Field<MapObjectTileArtwork>(self, "characters").StoredReservePixelCount;
+        internal int StoredReservePixelCount => self.characters.StoredReservePixelCount;
 
-        internal int StoredArtworkByteCount => PrivateState.Field<MapObjectTileArtwork>(self, "characters").StoredOtherByteCount;
+        internal int StoredArtworkByteCount => self.characters.StoredOtherByteCount;
     }
 }
 
@@ -342,7 +317,7 @@ internal static class MenuBeveledSquareArtworkAccess
 {
     extension(MenuBeveledSquareArtwork self)
     {
-        internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
+        internal int StoredEditCount => self.edits?.Count ?? 0;
     }
 }
 
@@ -351,14 +326,14 @@ internal static class MenuCompactLetteringArtworkAccess
 {
     extension(MenuCompactLetteringArtwork self)
     {
-        internal int StoredInkByteCount => PrivateState.Field<Dictionary<char, uint>>(self, "glyphs").Count * sizeof(uint);
+        internal int StoredInkByteCount => self.glyphs.Count * sizeof(uint);
 
-        internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
+        internal int StoredEditCount => self.edits?.Count ?? 0;
 
         internal bool HasPixelOverride(int tile, Position16<CharacterPixels> pixel)
         {
             if (!MenuCompactLetteringArtwork.Contains(tile) || pixel.X >= 8 || pixel.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-            return PrivateState.Field<Dictionary<int, byte>?>(self, "edits") is { } edits && edits.ContainsKey(tile * 64 + pixel.Y * 8 + pixel.X);
+            return self.edits is { } edits && edits.ContainsKey(tile * 64 + pixel.Y * 8 + pixel.X);
         }
     }
 }
@@ -368,14 +343,14 @@ internal static class MenuLargeFontArtworkAccess
 {
     extension(MenuLargeFontArtwork self)
     {
-        internal int StoredFaceByteCount => PrivateState.Field<byte[]>(self, "faces").Length;
+        internal int StoredFaceByteCount => self.faces.Length;
 
-        internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
+        internal int StoredEditCount => self.edits?.Count ?? 0;
 
         internal bool HasPixelOverride(int tile, Position16<CharacterPixels> pixel)
         {
             if (!MenuLargeFontArtwork.Contains(tile) || pixel.X >= 8 || pixel.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-            return PrivateState.Field<Dictionary<int, byte>?>(self, "edits") is { } edits && edits.ContainsKey(tile * 64 + pixel.Y * 8 + pixel.X);
+            return self.edits is { } edits && edits.ContainsKey(tile * 64 + pixel.Y * 8 + pixel.X);
         }
     }
 }
@@ -385,7 +360,7 @@ internal static class MenuPanelTileArtworkAccess
 {
     extension(MenuPanelTileArtwork self)
     {
-        internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
+        internal int StoredEditCount => self.edits?.Count ?? 0;
     }
 }
 
@@ -394,7 +369,7 @@ internal static class MenuShoulderButtonArtworkAccess
 {
     extension(MenuShoulderButtonArtwork self)
     {
-        internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
+        internal int StoredEditCount => self.edits?.Count ?? 0;
     }
 }
 
@@ -403,7 +378,7 @@ internal static class MenuShoulderHighlightArtworkAccess
 {
     extension(MenuShoulderHighlightArtwork self)
     {
-        internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
+        internal int StoredEditCount => self.edits?.Count ?? 0;
     }
 }
 
@@ -412,14 +387,14 @@ internal static class MenuSmallFontArtworkAccess
 {
     extension(MenuSmallFontArtwork self)
     {
-        internal int StoredFaceByteCount => PrivateState.Field<byte[]>(self, "faces").Length;
+        internal int StoredFaceByteCount => self.faces.Length;
 
-        internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
+        internal int StoredEditCount => self.edits?.Count ?? 0;
 
         internal bool HasPixelOverride(int tile, Position16<CharacterPixels> pixel)
         {
             if (!MenuSmallFontArtwork.Contains(tile) || pixel.X >= 8 || pixel.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-            return PrivateState.Field<Dictionary<int, byte>?>(self, "edits") is { } edits && edits.ContainsKey((tile - MenuSmallFontArtwork.FirstTile) * 64 + pixel.Y * 8 + pixel.X);
+            return self.edits is { } edits && edits.ContainsKey((tile - MenuSmallFontArtwork.FirstTile) * 64 + pixel.Y * 8 + pixel.X);
         }
     }
 }
@@ -429,7 +404,7 @@ internal static class MenuThinBorderArtworkAccess
 {
     extension(MenuThinBorderArtwork self)
     {
-        internal int StoredEditCount => PrivateState.Field<Dictionary<int, byte>?>(self, "edits")?.Count ?? 0;
+        internal int StoredEditCount => self.edits?.Count ?? 0;
     }
 }
 
@@ -448,9 +423,9 @@ internal static class NorfairRidleyColorCatalogAccess
 {
     extension(NorfairRidleyColorCatalog self)
     {
-        internal Bgr555 ResolveInitial(int color) => PrivateState.Field<NorfairRidleyInitialPaintDefinitions>(self, "initial").ColorAt(color);
+        internal Bgr555 ResolveInitial(int color) => self.initial.ColorAt(color);
 
-        internal Bgr555 ResolveReveal(int row, int color) => PrivateState.Field<NorfairRidleyRevealPaintDefinitions>(self, "reveal").ColorAt(row, color);
+        internal Bgr555 ResolveReveal(int row, int color) => self.reveal.ColorAt(row, color);
     }
 }
 
@@ -459,9 +434,9 @@ internal static class PauseReserveTankPresentationAccess
 {
     extension(PauseReserveTankPresentation self)
     {
-        internal int StoredFrameCount => (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Full") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "EndCap") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Empty") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill1") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill2") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill3") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill4") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill5") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill6") is null ? 0 : 1) + (PrivateState.Property<SpriteComposition?>(PrivateState.Field<object>(self, "frames"), "Fill7") is null ? 0 : 1);
+        internal int StoredFrameCount => (self.frames.Full is null ? 0 : 1) + (self.frames.EndCap is null ? 0 : 1) + (self.frames.Empty is null ? 0 : 1) + (self.frames.Fill1 is null ? 0 : 1) + (self.frames.Fill2 is null ? 0 : 1) + (self.frames.Fill3 is null ? 0 : 1) + (self.frames.Fill4 is null ? 0 : 1) + (self.frames.Fill5 is null ? 0 : 1) + (self.frames.Fill6 is null ? 0 : 1) + (self.frames.Fill7 is null ? 0 : 1);
 
-        internal int StoredAnchorComponentCount => PrivateState.Field<Dictionary<int, (int? X, int? Y)>>(self, "anchorOverrides").Values.Sum(value => (value.X.HasValue ? 1 : 0) + (value.Y.HasValue ? 1 : 0));
+        internal int StoredAnchorComponentCount => self.anchorOverrides.Values.Sum(value => (value.X.HasValue ? 1 : 0) + (value.Y.HasValue ? 1 : 0));
     }
 }
 
@@ -469,24 +444,23 @@ internal static class PauseReserveTankPresentationAccess
 internal static class PauseSelectorPresentationAccess
 {
     /// <summary>Whether a selector visual stores authored parts rather than its calculated stock composition.</summary>
-    private static bool StoresParts(PauseSelectorVisual visual) => PrivateState.Field<object?>(visual, "authored") is not null;
+    private static bool StoresParts(PauseSelectorVisual visual) => visual.authored is not null;
 
     /// <summary>The reserve, beam and equipment phase compositions.</summary>
-    private static object[] Categories(PauseSelectorPresentation presentation) =>
-        [.. new[] { "reserve", "beam", "equipment" }.Select(name => PrivateState.Field<object>(presentation, name))];
+    private static PauseSelectorPresentation.PhaseComposition[] Categories(PauseSelectorPresentation presentation) =>
+        [presentation.reserve, presentation.beam, presentation.equipment];
 
     extension(PauseSelectorPresentation self)
     {
-        internal int StoredDurationCount => PrivateState.Field<Dictionary<int, int>?>(self, "durationOverrides")?.Count ?? 0;
+        internal int StoredDurationCount => self.durationOverrides?.Count ?? 0;
 
         internal bool StoresCompositionParts => Categories(self).Any(category =>
-            StoresParts(PrivateState.Field<PauseSelectorVisual>(category, "basis")) ||
-            (PrivateState.Field<Dictionary<int, PauseSelectorVisual>?>(category, "overrides")?.Values.Any(StoresParts) ?? false));
+            StoresParts(category.basis) || (category.overrides?.Values.Any(StoresParts) ?? false));
 
         internal int StoredCompositionOverrideCount => Categories(self).Sum(category =>
-            PrivateState.Field<Dictionary<int, PauseSelectorVisual>?>(category, "overrides")?.Count ?? 0);
+            category.overrides?.Count ?? 0);
 
-        internal int StoredAnchorComponentCount => PrivateState.Field<Dictionary<string, (int? X, int? Y)>>(self, "anchorOverrides").Values.Sum(value => (value.X.HasValue ? 1 : 0) + (value.Y.HasValue ? 1 : 0));
+        internal int StoredAnchorComponentCount => self.anchorOverrides.Values.Sum(value => (value.X.HasValue ? 1 : 0) + (value.Y.HasValue ? 1 : 0));
     }
 }
 
@@ -496,7 +470,7 @@ internal static class RoomFxBlendColorsAccess
     extension(RoomFxBlendColors self)
     {
         // The generated array is the requested output, never a retained stock-color cache.
-        internal Bgr555[] CreateColors() => [PrivateState.Field<RoomFxPairColor>(self, "primary").CreateColor(), PrivateState.Field<RoomFxPairColor>(self, "secondary").CreateColor(), PrivateState.Field<RoomFxThirdColor?>(self, "thirdOverride")?.CreateColor() ?? Bgr555.Black];
+        internal Bgr555[] CreateColors() => [self.primary.CreateColor(), self.secondary.CreateColor(), self.thirdOverride?.CreateColor() ?? Bgr555.Black];
     }
 }
 
@@ -505,7 +479,7 @@ internal static class RoomFxPaletteBlendCatalogAccess
 {
     extension(RoomFxPaletteBlendCatalog self)
     {
-        internal ReadOnlySpan<Bgr555> Resolve(RoomFxPaletteBlend selection) => ((RoomFxBlendColors)(PrivateState.Invoke(self, "SelectColors", selection))!).CreateColors();
+        internal ReadOnlySpan<Bgr555> Resolve(RoomFxPaletteBlend selection) => ((RoomFxBlendColors)(self.SelectColors(selection))!).CreateColors();
     }
 }
 
@@ -533,12 +507,8 @@ internal static class SamusBodyTransferDefinitionsAccess
         internal static bool TryFirstSize(SamusBodyArtworkCatalog body, bool upper, int set, int position,
             int payloadBytes, out ushort firstSize)
         {
-            object?[] packing = [upper, set, position, payloadBytes, null];
-            if ((bool)PrivateState.InvokeStaticWithOut(typeof(SamusBodyTransferDefinitions), "TrySelectedPacking", packing)!)
-            {
-                firstSize = (ushort)packing[4]!;
+            if (SamusBodyTransferDefinitions.TrySelectedPacking(upper, set, position, payloadBytes, out firstSize))
                 return true;
-            }
             return SamusBodyTransferDefinitions.TryFirstSize(body, new SamusBodyTileSlot(upper, set, position), payloadBytes, body.PosePointers, body.Frames, out firstSize);
         }
     }
@@ -550,7 +520,7 @@ internal static class SamusChargeColorCatalogAccess
     extension(SamusChargeColorCatalog self)
     {
         internal Bgr555 ResolveCharge(bool pseudo, int suit, int phase, int color) =>
-            ((Bgr555)(PrivateState.Invoke((pseudo ? PrivateState.Field<object>(self, "pseudoScrew") : PrivateState.Field<object>(self, "chargedBeam")), "Resolve", (int)(suit), (int)(phase), (int)(color)))!);
+            ((Bgr555)((pseudo ? self.pseudoScrew : self.chargedBeam).Resolve((int)(suit), (int)(phase), (int)(color)))!);
     }
 }
 
@@ -559,7 +529,7 @@ internal static class SamusSpritemapArtworkCatalogAccess
 {
     extension(SamusSpritemapArtworkCatalog self)
     {
-        internal IReadOnlyCollection<SamusSpritemapDefinition> Definitions => PrivateState.Field<Dictionary<ushort, SamusSpritemapDefinition>>(self, "definitions").Values;
+        internal IReadOnlyCollection<SamusSpritemapDefinition> Definitions => self.definitions.Values;
     }
 }
 
@@ -605,7 +575,7 @@ internal static class TitlePalettePresentationAccess
 {
     extension(TitlePalettePresentation self)
     {
-        internal ReadOnlySpan<Bgr555> Colors => PrivateState.Field<Bgr555[]>(self, "colors");
+        internal ReadOnlySpan<Bgr555> Colors => self.colors;
     }
 }
 
@@ -614,6 +584,22 @@ internal static class TourianStatueColorCatalogAccess
 {
     extension(TourianStatueColorCatalog self)
     {
-        internal Bgr555 ResolveStatue(int color) => ((Bgr555)(PrivateState.Invoke(PrivateState.Field<object>(self, "statueColors"), "Read", (int)(color)))!);
+        internal Bgr555 ResolveStatue(int color) => ((Bgr555)(self.statueColors.Read((int)(color)))!);
+    }
+}
+
+/// <summary>Verification view of one stored loading-palette channel input.</summary>
+internal static class LoadingPaletteChannelsAccess
+{
+    extension(LoadingPaletteInputView.Channels self)
+    {
+        /// <summary>The stored red (0), green (1) or blue (2) input; null when that channel is calculated.</summary>
+        internal int? Component(int channel) => channel switch
+        {
+            0 => self.red,
+            1 => self.green,
+            2 => self.blue,
+            _ => throw new ArgumentOutOfRangeException(nameof(channel), channel, "A palette channel is 0..2."),
+        };
     }
 }

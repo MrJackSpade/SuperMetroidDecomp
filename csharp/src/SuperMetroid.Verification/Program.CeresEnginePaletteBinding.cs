@@ -37,8 +37,7 @@ internal static class CeresEnginePaletteBindingVerification
             MapPresentation = stock,
             IntroCinematicArt = artwork,
         });
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!
-            .SetValue(game, SuperMetroidGameState.CeresGoesBoom);
+        game.GameState = SuperMetroidGameState.CeresGoesBoom;
 
         // Enter via the real frontend constructor call, then select exactly the
         // phase reported by the player. No preceding controller playthrough is needed.
@@ -46,8 +45,7 @@ internal static class CeresEnginePaletteBindingVerification
         for (int step = 0; step <= CeresDestructionRomData.InitialNmiWaits; step++)
             game.Step(0);
         CeresDestructionCinematicState scene = Scene(game);
-        typeof(CeresDestructionCinematicState).GetProperty(nameof(scene.Phase))!
-            .SetValue(scene, CeresDestructionPhase.FlyToZebesInitial);
+        scene.Phase = CeresDestructionPhase.FlyToZebesInitial;
         for (int frame = 0; frame < 4; frame++)
         {
             game.Step(0);
@@ -98,8 +96,7 @@ internal static class CeresEnginePaletteBindingVerification
 
             // Earlier debugger graphs can lack the lazily created palette owner.
             // Its reconstruction must receive the rebound provider too.
-            typeof(CeresDestructionCinematicState).GetField("paletteFx", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .SetValue(restoredScene, null);
+            restoredScene.paletteFx = null;
             restored.Step(0);
             AssertEqual(replacementColors[0], Colors(restoredScene)[destination],
                 "#1150 reconstructed palette owner receives installed colors");
@@ -111,12 +108,10 @@ internal static class CeresEnginePaletteBindingVerification
         Console.WriteLine("#1150: stock engine flicker, edited-color state rebind, unchanged scene clock/camera and legacy-owner reconstruction pass (RAM-only).");
 
         static CeresDestructionCinematicState Scene(SuperMetroidGame owner) =>
-            (CeresDestructionCinematicState)typeof(SuperMetroidGame)
-                .GetField("ceresDestruction", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(owner)!;
+            owner.ceresDestruction;
 
         static Bgr555[] Colors(CeresDestructionCinematicState owner) =>
-            ((SnesCgram)typeof(CeresDestructionCinematicState)
-                .GetField("cgram", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(owner)!).Colors.ToArray();
+            (owner.cgram).Colors.ToArray();
     }
 
     [VerificationCommand("--ceres-engine-palette-binding")]

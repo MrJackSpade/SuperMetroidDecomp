@@ -20,8 +20,8 @@ internal static class HealthWarningVerification
     {
         var warning = new SamusHealthWarningState();
         var audio = new CartridgeAudioState();
-        byte[] positions = (byte[])typeof(CartridgeAudioState).GetField("_soundWritePositions", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(audio)!;
-        byte[,] queues = (byte[,])typeof(CartridgeAudioState).GetField("_soundQueues", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(audio)!;
+        byte[] positions = audio._soundWritePositions;
+        byte[,] queues = audio._soundQueues;
         foreach (var sample in new[] { (99, 0), (30, 2), (0, 0), (30, 0), (31, 1), (32, 0), (30, 2), (31, 1) })
         {
             audio.Reset();

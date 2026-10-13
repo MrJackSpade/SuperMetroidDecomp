@@ -15,13 +15,13 @@ namespace SuperMetroid.Core.Assets;
 public sealed class GameOptionsPresentation
 {
     private readonly Dictionary<string, byte[]> pages;
-    private readonly Dictionary<string, ushort[]> controllerLabels;
-    private readonly Position16<TilemapCells>[]? controllerLabelAnchors;
-    private readonly GameOptionsLanguageRegionDocument[]? languageRegions;
-    private readonly Dictionary<string, GameOptionsToggleVisualDocument>? specialToggles;
-    private readonly Dictionary<string, SpriteComposition> sprites;
-    private readonly Dictionary<string, Position16<OamPixels>>? headingAnchors;
-    private readonly Dictionary<string, Position16<OamPixels>[]>? cursorAnchors;
+    internal readonly Dictionary<string, ushort[]> controllerLabels;
+    internal readonly Position16<TilemapCells>[]? controllerLabelAnchors;
+    internal readonly GameOptionsLanguageRegionDocument[]? languageRegions;
+    internal readonly Dictionary<string, GameOptionsToggleVisualDocument>? specialToggles;
+    internal readonly Dictionary<string, SpriteComposition> sprites;
+    internal readonly Dictionary<string, Position16<OamPixels>>? headingAnchors;
+    internal readonly Dictionary<string, Position16<OamPixels>[]>? cursorAnchors;
 
     private GameOptionsPresentation(
         Dictionary<string, byte[]> pages,

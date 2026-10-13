@@ -38,7 +38,7 @@ internal sealed class EndingCreditsState
     internal CreditsObjectState? credits;
     internal EndingShootingStars? shootingStars;
     private EndingBackgroundTextState? postCreditsText;
-    private ushort cinematicFrame;
+    internal ushort cinematicFrame;
     /// <summary>NMI waits <c>CinematicFunction_Ending_Setup</c> has made so far.</summary>
     private int setupNmiWaits;
     internal int phaseTimer;
@@ -48,10 +48,10 @@ internal sealed class EndingCreditsState
     internal FixedPosition<Mode7Pixels> mode7;
     internal ushort mode7Zoom = EndingCreditsRomData.Motion.IdentityScale;
     internal SnesAngle mode7Angle;
-    private ushort planetMotionIndex;
+    internal ushort planetMotionIndex;
     internal ushort postCreditsVerticalScroll;
-    private short planetVelocityWhole;
-    private ushort planetVelocityFraction;
+    internal short planetVelocityWhole;
+    internal ushort planetVelocityFraction;
     private bool creditsAssetsLoaded;
     private bool rewardCopyrightShown;
     internal EndingRewardGesture? rewardGesture;
@@ -80,7 +80,7 @@ internal sealed class EndingCreditsState
         Phase = EndingCreditsPhase.SetupEscapeFromZebes;
     }
 
-    public EndingCreditsPhase Phase { get; private set; }
+    public EndingCreditsPhase Phase { get; internal set; }
     /// <summary>
     /// True when the next call resumes inside the setup's NMI wait loop rather than starting
     /// a MainGameLoop iteration, so it makes no main-loop RNG call.
@@ -543,7 +543,7 @@ internal sealed class EndingCreditsState
             "Ending font requires installed presentation assets.");
     }
 
-    private void SetupPostCreditsBlank()
+    internal void SetupPostCreditsBlank()
     {
         // F6FE copies Intro4 colors $04-$FF, disables text glow, forces blank, and arms
         // function 129 for sixty calls. Preserve colors zero through three as native does.
@@ -653,7 +653,7 @@ internal sealed class EndingCreditsState
             fragment.AsSpan(0, EndingCreditsRomData.Rendering.ObjectFragmentBytes));
     }
 
-    private void LoadCreditsAndPostCreditsAssets()
+    internal void LoadCreditsAndPostCreditsAssets()
     {
         if (creditsAssetsLoaded)
             return;
@@ -923,7 +923,7 @@ internal sealed class EndingCreditsState
             definition.InstructionPointer,
             role);
 
-    private void StepPlanetEscapeFast()
+    internal void StepPlanetEscapeFast()
     {
         if (phaseTimer > 0)
             phaseTimer--;
@@ -941,7 +941,7 @@ internal sealed class EndingCreditsState
         }
     }
 
-    private void StepPlanetEscapeSlow()
+    internal void StepPlanetEscapeSlow()
     {
         StepFlyawayFade();
         if (mode7Angle != EndingCreditsRomData.Motion.PlanetSlowTargetAngle)

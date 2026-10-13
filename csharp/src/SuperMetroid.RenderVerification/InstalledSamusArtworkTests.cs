@@ -116,12 +116,17 @@ internal static class InstalledSamusArtworkTests
 
     private static void SetPendingDefinition(SamusTileTransferState transfer, bool upper, int pointer)
     {
-        // Construct a faithful saved pending-transfer state without modifying the
-        // production visibility of private setters or inventing a gameplay pose.
-        typeof(SamusTileTransferState).GetProperty(upper ? nameof(transfer.TopDefinitionAddress) :
-            nameof(transfer.BottomDefinitionAddress))!.SetValue(transfer, pointer);
-        typeof(SamusTileTransferState).GetProperty(upper ? nameof(transfer.TopTransferEnabled) :
-            nameof(transfer.BottomTransferEnabled))!.SetValue(transfer, true);
+        // Construct a faithful saved pending-transfer state without inventing a gameplay pose.
+        if (upper)
+        {
+            transfer.TopDefinitionAddress = pointer;
+            transfer.TopTransferEnabled = true;
+        }
+        else
+        {
+            transfer.BottomDefinitionAddress = pointer;
+            transfer.BottomTransferEnabled = true;
+        }
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]

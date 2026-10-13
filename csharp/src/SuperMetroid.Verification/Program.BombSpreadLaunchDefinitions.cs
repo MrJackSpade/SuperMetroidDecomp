@@ -14,8 +14,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.YSubspeeds+i*2)))).ToArray();
         for(int i=0;i<reference.Length;i++)
             AssertEqual(reference[i],SamusBombSpreadLaunchDefinitions.ForSlot(i),"All native Bomb Spread launch words");
-        var spawn=typeof(SamusBombProjectileSystem).GetMethod("SpawnBombSpread",BindingFlags.Instance|BindingFlags.NonPublic)!
-            .CreateDelegate<Action<SamusBombProjectileSystem,SamusState>>();
+        Action<SamusBombProjectileSystem,SamusState> spawn=(system,player)=>system.SpawnBombSpread(player);
         var guarded=NewBombSpreadLaunchReadGuard(rom);
         var bombs=new SamusBombProjectileSystem();
         var samus=new SamusState();

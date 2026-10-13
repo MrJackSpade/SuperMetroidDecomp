@@ -12,7 +12,7 @@ internal sealed class EndingRewardJump
     private readonly Action<int> queueGraphicsUpload;
     private readonly IntroDiscoverySprite body;
     private readonly IntroDiscoverySprite? head;
-    private int velocity;
+    internal int velocity;
     private int uploads;
     public bool ShotRequested { get; private set; }
     public byte ObjectSelection { get; private set; }

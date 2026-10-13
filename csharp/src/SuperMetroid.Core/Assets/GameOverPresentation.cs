@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameOverPresentation
 {
-    private readonly byte[]? tilemap;
-    private readonly Dictionary<string, SpriteComposition> sprites;
+    internal readonly byte[]? tilemap;
+    internal readonly Dictionary<string, SpriteComposition> sprites;
     private readonly GameOverBabyColorCatalog babyPalettes;
 
     private GameOverPresentation(

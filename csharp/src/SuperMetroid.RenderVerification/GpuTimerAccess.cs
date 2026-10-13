@@ -5,6 +5,6 @@ internal static class GpuTimerAccess
 {
     extension(D3D11GpuTimer timer)
     {
-        internal int PendingSamples => PrivateState.Field<int>(timer, "pending");
+        internal int PendingSamples => timer.pending;
     }
 }

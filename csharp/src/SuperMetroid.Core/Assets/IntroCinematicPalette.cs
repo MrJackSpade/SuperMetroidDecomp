@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>The opening narration's full, editable native-precision CGRAM image.</summary>
 public sealed class IntroCinematicPalette
 {
-    private readonly PaletteRow[] rows;
+    internal readonly PaletteRow[] rows;
 
     [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the opening palette")]
     private IntroCinematicPalette(byte[] nativeBytes)
@@ -62,7 +62,7 @@ public sealed class IntroCinematicPalette
         new CgramPalettes(cgram).All.LoadPortBytes(Transfer.Span);
     }
 
-    private sealed class PaletteRow
+    internal sealed class PaletteRow
     {
         private readonly Bgr555 background, foreground;
         private readonly Bgr555[]? supplied;

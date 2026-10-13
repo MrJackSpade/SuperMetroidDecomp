@@ -14,11 +14,11 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class CreditsObjectState
 {
     [NonSerialized] private CreditsPresentation? presentation;
-    private readonly ushort[] tilemap =
+    internal readonly ushort[] tilemap =
         new ushort[EndingCreditsRomData.Rendering.TilemapWords];
     private ushort scrollSubposition;
     private ushort previousCopiedScroll;
-    private int destinationRow;
+    internal int destinationRow;
     private int sourceRow;
 
     public CreditsObjectState(CreditsPresentation presentation)

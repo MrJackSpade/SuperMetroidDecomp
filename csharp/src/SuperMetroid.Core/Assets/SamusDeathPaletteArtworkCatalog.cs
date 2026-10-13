@@ -50,15 +50,15 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <summary>Native9BA12A suitless ink5: full red,green and blue in RGB5.</summary>
     private static readonly Bgr555 WhiteInkColor = new(31, 31, 31);
 
-    private readonly Dictionary<int, Bgr555> suited = new();
-    private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitedFadeInputs = new();
-    private readonly Dictionary<int, Bgr555> suitless = new();
-    private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitlessFadeInputs = new();
-    private readonly Dictionary<int, LoadingPaletteInputView.Channels> neutralInputs = new();
-    private readonly Dictionary<int, LoadingPaletteInputView.Channels> warmShadeInputs = new();
-    private readonly Dictionary<int, LoadingPaletteInputView.Channels> tintShadeInputs = new();
-    private readonly WhiteoutInputs whiteout;
-    private readonly Dictionary<int, ushort> explosionPaletteIndices = new();
+    internal readonly Dictionary<int, Bgr555> suited = new();
+    internal readonly Dictionary<int, LoadingPaletteInputView.Channels> suitedFadeInputs = new();
+    internal readonly Dictionary<int, Bgr555> suitless = new();
+    internal readonly Dictionary<int, LoadingPaletteInputView.Channels> suitlessFadeInputs = new();
+    internal readonly Dictionary<int, LoadingPaletteInputView.Channels> neutralInputs = new();
+    internal readonly Dictionary<int, LoadingPaletteInputView.Channels> warmShadeInputs = new();
+    internal readonly Dictionary<int, LoadingPaletteInputView.Channels> tintShadeInputs = new();
+    internal readonly WhiteoutInputs whiteout;
+    internal readonly Dictionary<int, ushort> explosionPaletteIndices = new();
 
     /// <summary>Captures selected death artwork as owned inputs and independent channel overrides; no caller arrays are retained or modified.</summary>
     /// <param name="suited">Three suit families, each with ten rows of sixteen RGB5 words, in $9B:B7D3 pointer-table order.</param>
@@ -387,9 +387,9 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <remarks>Original9BB835..B860 needs no stored shade or anchor inputs.
     /// Keep only channels differing from DefaultWhiteoutColor; edits to any
     /// supplied shade remain independent of every other supplied shade.</remarks>
-    private sealed class WhiteoutInputs
+    internal sealed class WhiteoutInputs
     {
-        private readonly Dictionary<int, LoadingPaletteInputView.Channels> inputs = new();
+        internal readonly Dictionary<int, LoadingPaletteInputView.Channels> inputs = new();
 
         internal WhiteoutInputs(Bgr555[] source)
         {

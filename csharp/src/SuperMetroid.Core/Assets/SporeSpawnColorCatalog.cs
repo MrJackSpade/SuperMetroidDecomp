@@ -29,12 +29,12 @@ public sealed class SporeSpawnColorCatalog
                     .Select(color => ResolveDeathBackground(frame, color)).ToArray()).ToArray());
         });
 
-    private readonly Dictionary<int, Bgr555> spores = new();
-    private readonly HealthRows health;
+    internal readonly Dictionary<int, Bgr555> spores = new();
+    internal readonly HealthRows health;
     // Endpoint colors remain required inputs; intermediate entries store independent edits only.
-    private readonly Dictionary<int, Bgr555> deathSprite = new();
-    private readonly Dictionary<int, Bgr555> deathLevel = new();
-    private readonly Dictionary<int, Bgr555> deathBackground = new();
+    internal readonly Dictionary<int, Bgr555> deathSprite = new();
+    internal readonly Dictionary<int, Bgr555> deathLevel = new();
+    internal readonly Dictionary<int, Bgr555> deathBackground = new();
 
     private SporeSpawnColorCatalog(Bgr555[] spores, Bgr555[][] health,
         Bgr555[][] deathSprite, Bgr555[][] deathLevel, Bgr555[][] deathBackground)
@@ -105,14 +105,14 @@ public sealed class SporeSpawnColorCatalog
     /// critical row's; colors one to eight are painted per row. Only supplied deviations from
     /// the calculation are stored, so edited endpoint rows drive every intermediate step.
     /// </summary>
-    private sealed class HealthRows
+    internal sealed class HealthRows
     {
         private const int FirstInterpolatedColor = 9;
         private const int LastPaintedColor = 8;
         private readonly Bgr555[] healthy;
         private readonly Bgr555[] critical;
         private readonly Bgr555[][] intermediatePaint;
-        private readonly Dictionary<int, Bgr555> intermediateEdits = new();
+        internal readonly Dictionary<int, Bgr555> intermediateEdits = new();
 
         internal HealthRows(Bgr555[][] supplied)
         {

@@ -36,7 +36,7 @@ internal static class FrontendRomFreeGoldenTorizoVerification
             GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
             var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             var installedMemory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            AssertEqual(false, installedMemory.GetType().GetProperty("Rom") is not null,
+            AssertEqual(false, MetadataShape.DeclaresProperty(installedMemory.GetType(), "Rom"),
                 "focused Golden Torizo fixture has no installed cartridge allocation");
             var guardedBus = NewFrontendCartridgeReadGuard(installedMemory);
             var native = CreateRetailGameFixture(nativeBus);

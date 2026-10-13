@@ -9,8 +9,8 @@ public sealed class CeresFlightPalette
 {
     // Independent painted colors remain unresolved inputs. Only repeated sections
     // and the endpoint-defined ramp are calculated; edited slots stay independent.
-    private readonly Dictionary<int, Bgr555> colors = [];
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> colors = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     private CeresFlightPalette(Bgr555[] supplied)
     {

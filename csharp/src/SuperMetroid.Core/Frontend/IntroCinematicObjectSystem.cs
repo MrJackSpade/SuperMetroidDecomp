@@ -21,8 +21,8 @@ internal sealed class IntroCinematicObjectSystem
     private readonly CartridgeAudioState? audio;
     private readonly SnesVram vram;
     private readonly ushort[] textTilemap;
-    private ushort eyeInstructionPointer = CinematicCodePointers.BackgroundLists.SamusBlinking;
-    private ushort eyeInstructionTimer = 1;
+    internal ushort eyeInstructionPointer = CinematicCodePointers.BackgroundLists.SamusBlinking;
+    internal ushort eyeInstructionTimer = 1;
     private ushort textInstructionPointer;
     private ushort textInstructionTimer;
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
@@ -476,7 +476,7 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
-    private void ProcessTileData(
+    internal void ProcessTileData(
         ushort packedPosition,
         ushort dataPointer)
     {
@@ -525,7 +525,7 @@ internal sealed class IntroCinematicObjectSystem
         spriteInstructionTimer = 1;
     }
 
-    private void SetCaretBlinking()
+    internal void SetCaretBlinking()
     {
         // Instruction_SetCaretToBlink points the existing slot at $CC03 and primes timer
         // one, allowing the generic sprite list handler to select the first frame now.

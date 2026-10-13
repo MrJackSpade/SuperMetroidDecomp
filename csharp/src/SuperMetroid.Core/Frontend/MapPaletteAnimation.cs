@@ -10,8 +10,8 @@ public sealed class MapPaletteAnimation
     /// <param name="bus">Legacy compatibility argument, checked for null but neither retained nor used for cartridge reads.</param>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is <see langword="null"/>.</exception>
     public MapPaletteAnimation(ISnesAddressSpace bus) => Ensure.NotNull(bus);
-    private byte timer = 1;
-    private byte frame;
+    internal byte timer = 1;
+    internal byte frame;
     [NonSerialized] private MapPaletteCycle? content;
 
     /// <summary>Rebinds host colors without resetting a saved timer or capturing assets in the state graph.</summary>

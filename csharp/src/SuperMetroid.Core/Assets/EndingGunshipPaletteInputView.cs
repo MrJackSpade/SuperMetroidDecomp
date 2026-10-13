@@ -61,7 +61,7 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
 
     private readonly struct Channels
     {
-        private readonly int? red, green, blue;
+        internal readonly int? red, green, blue;
         internal Channels(Bgr555 supplied, int? expectedRed, int? expectedGreen, int? expectedBlue)
         {
             red = (supplied.Red) == expectedRed ? null : supplied.Red;

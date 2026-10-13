@@ -40,7 +40,7 @@ internal static class IntroEggMotionDefinitionsVerification
                 bool fragment = index < 6;
                 byte actorIndex = fragment ? index : (byte)(index - 6);
                 object actor = fragment ? new IntroEggParticle(actorIndex) : new IntroEggSlimeDrop(new(128, 96), actorIndex);
-                var sprite = (IntroDiscoverySprite)actor.GetType().GetField("sprite", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(actor)!;
+                IntroDiscoverySprite sprite = actor is IntroEggParticle eggParticle ? eggParticle.sprite : ((IntroEggSlimeDrop)actor).sprite;
                 sprite.Position = new(sprite.Position.X.WithFraction(fraction), sprite.Position.Y.WithFraction(fraction));
                 uint x = new SnesFixedPosition(sprite.WholePosition.X, fraction).RawValue;
                 uint y = new SnesFixedPosition(sprite.WholePosition.Y, fraction).RawValue;

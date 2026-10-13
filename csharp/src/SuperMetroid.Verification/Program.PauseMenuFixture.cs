@@ -22,9 +22,6 @@ internal static class PauseMenuFixtureVerification
         var installation = RepositoryInstallation.Installation;
         byte[] Read(int address, int count) => RomDataReader.ReadFixedBank(
             CartridgeImportSource.Require(bus), address, count);
-        T Construct<T>(params object[] arguments) => (T)typeof(T)
-            .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic).Single()
-            .Invoke(arguments);
         T Document<T>(string name) => JsonSerializer.Deserialize<T>(
             File.ReadAllBytes(Path.Combine(installation.MapDirectory, name)),
             MapPresentationFormat.JsonOptions) ?? throw new InvalidDataException(name);
@@ -35,7 +32,7 @@ internal static class PauseMenuFixtureVerification
         byte[] paletteBytes = Read(0xb6f000, CgramPalettes.ByteCount);
         for (int i = 0; i < pauseColors.Length; i++)
             pauseColors[i] = Bgr555.FromCgramPortWord((ushort)(SnesLittleEndian.Word(paletteBytes[i * 2], paletteBytes[i * 2 + 1])));
-        var palettes = Construct<MapStaticPalettes>(pauseColors, stock.Palettes.FileSelect.ToArray(),
+        var palettes = new MapStaticPalettes(pauseColors, stock.Palettes.FileSelect.ToArray(),
             Enum.GetValues<AreaId>().Where(area => area != AreaId.Ceres)
                 .ToDictionary(area => area, area => stock.Palettes.World(area).ToArray()));
         var areas = Enum.GetValues<AreaId>().Select(stock.Get).ToArray();
@@ -64,25 +61,66 @@ internal static class PauseMenuFixtureVerification
         var reserveTanks = Document<PauseReserveTankDocument>(PauseReserveTankDefinitions.FileName);
         foreach (string name in reserveTanks.Frames.Keys.ToArray()) reserveTanks.Frames[name] = [];
         using var reserveJson = Json(reserveTanks);
-        var overrides = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+        // Every part comes from the stock catalog's same-named property unless the fixture constructs it above.
+        var parts = new AreaMapPresentationParts
         {
-            ["areas"] = areas,
-            ["contentIdentity"] = "constructed-pause-interaction-fixture",
-            ["tiles"] = Construct<MapTileAtlas>(Read(MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount)),
-            ["pauseTiles"] = Construct<MapTileAtlas>(Read(PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount)),
-            ["hudTiles"] = Construct<HudTileAtlas>(hud),
-            ["palettes"] = palettes,
-            ["pauseBackdrops"] = backdrops,
-            ["sprites"] = MapSpriteCatalog.Load(spriteJson, spritePng),
-            ["pauseSelectors"] = PauseSelectorPresentation.Load(selectorJson),
-            ["pauseReserveTanks"] = PauseReserveTankPresentation.Load(reserveJson),
+            Areas = areas,
+            ContentIdentity = "constructed-pause-interaction-fixture",
+            Tiles = new MapTileAtlas(Read(MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount)),
+            HudTiles = new HudTileAtlas(hud),
+            HighlightCycle = stock.HighlightCycle,
+            Palettes = palettes,
+            Labels = stock.Labels,
+            Stations = stock.Stations,
+            Landmarks = stock.Landmarks,
+            SaveMarkers = stock.SaveMarkers,
+            Arrows = stock.Arrows,
+            Screens = stock.Screens,
+            WorldArtwork = stock.WorldArtwork,
+            Sprites = MapSpriteCatalog.Load(spriteJson, spritePng),
+            PauseTiles = new MapTileAtlas(Read(PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount)),
+            PauseBackdrops = backdrops,
+            PauseWireframes = stock.PauseWireframes,
+            PauseSelectors = PauseSelectorPresentation.Load(selectorJson),
+            PauseReserveTanks = PauseReserveTankPresentation.Load(reserveJson),
+            PauseReserveUi = stock.PauseReserveUi,
+            PauseEquipmentBase = stock.PauseEquipmentBase,
+            PauseEquipmentLabels = stock.PauseEquipmentLabels,
+            EscapeTimer = stock.EscapeTimer,
+            EscapeTimerTiles = stock.EscapeTimerTiles,
+            GameplayHud = stock.GameplayHud,
+            GameOver = stock.GameOver,
+            GameOptions = stock.GameOptions,
+            FileSelect = stock.FileSelect,
+            GameplayMessageTitles = stock.GameplayMessageTitles,
+            GameplayMessagePanels = stock.GameplayMessagePanels,
+            GameplayMessageNotices = stock.GameplayMessageNotices,
+            EscapeTypewriter = stock.EscapeTypewriter,
+            IntroNarration = stock.IntroNarration,
+            IntroFont = stock.IntroFont,
+            EndingText = stock.EndingText,
+            EndingFont = stock.EndingFont,
+            StaffCredits = stock.StaffCredits,
+            TitleGraphics = stock.TitleGraphics,
+            TitlePalette = stock.TitlePalette,
+            TitleGradient = stock.TitleGradient,
+            RoomPaletteFx = stock.RoomPaletteFx,
+            MotherBrainHealthPalette = stock.MotherBrainHealthPalette,
+            MotherBrainRainbowPalette = stock.MotherBrainRainbowPalette,
+            RoomFxAnimatedTiles = stock.RoomFxAnimatedTiles,
+            RoomFxLayer3Tilemaps = stock.RoomFxLayer3Tilemaps,
+            RoomFxPaletteBlends = stock.RoomFxPaletteBlends,
+            PowerBombFixedColors = stock.PowerBombFixedColors,
+            SamusVisorColors = stock.SamusVisorColors,
+            SamusHurtColors = stock.SamusHurtColors,
+            SamusSuitColors = stock.SamusSuitColors,
+            SamusFullBodyCycleColors = stock.SamusFullBodyCycleColors,
+            CrystalFlashColors = stock.CrystalFlashColors,
+            SamusChargeColors = stock.SamusChargeColors,
+            CeresRidleyColors = stock.CeresRidleyColors,
+            CeresRidleyMode7Colors = stock.CeresRidleyMode7Colors,
+            SamusHyperBeamColors = stock.SamusHyperBeamColors,
         };
-        // Every part comes from the stock catalog's same-named property unless overridden above.
-        var parts = (AreaMapPresentationParts)RuntimeHelpers.GetUninitializedObject(typeof(AreaMapPresentationParts));
-        foreach (PropertyInfo part in typeof(AreaMapPresentationParts).GetProperties())
-            part.SetValue(parts, overrides.TryGetValue(char.ToLowerInvariant(part.Name[0]) + part.Name[1..], out var value) ? value :
-                typeof(AreaMapPresentationCatalog).GetProperty(part.Name,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase)!.GetValue(stock));
-        return (AreaMapPresentationCatalog)PrivateState.Construct(typeof(AreaMapPresentationCatalog), parts);
+        return new AreaMapPresentationCatalog(parts);
     }
 }

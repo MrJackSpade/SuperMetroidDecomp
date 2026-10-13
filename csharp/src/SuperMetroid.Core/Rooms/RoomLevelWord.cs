@@ -53,7 +53,7 @@ public enum RoomCollisionType : byte
 public readonly record struct RoomLevelWord(ushort Raw)
 {
     private const ushort VisualBlockIndexMask = 0x03ff;
-    private const ushort VisualFlipMask = 0x0c00;
+    internal const ushort VisualFlipMask = 0x0c00;
     private const ushort VisualBitsMask = VisualBlockIndexMask | VisualFlipMask;
     private const ushort CollisionTypeMask = 0xf000;
     private const ushort SolidProbeMask = 0x8000;
@@ -136,7 +136,7 @@ public readonly record struct RoomLevelWord(ushort Raw)
             throw new ArgumentOutOfRangeException(nameof(visualBlockIndex));
     }
 
-    private static void ValidateVisualFlipFlags(LevelBlockFlipFlags visualFlipFlags)
+    internal static void ValidateVisualFlipFlags(LevelBlockFlipFlags visualFlipFlags)
     {
         const LevelBlockFlipFlags All =
             LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical;

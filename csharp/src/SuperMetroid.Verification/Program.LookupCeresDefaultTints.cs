@@ -31,8 +31,7 @@ internal static class LookupCeresDefaultTintsVerification
     {
         AssertEqual(ReadVerificationWord(rom, 0x88de43), CeresHazeDefinitions.FadeSteps, "Original native fade stop counter");
         foreach (string name in new[] { "StockCeresHazeBlue", "StockCeresHazeRed" })
-            AssertTrue(typeof(RoomFxPaletteBlendDefinitions).GetField($"<{name}>k__BackingField",
-                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic) is null,
+            AssertTrue(!MetadataShape.DeclaresField(typeof(RoomFxPaletteBlendDefinitions), $"<{name}>k__BackingField", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic),
                 "Default tint is calculated rather than stored in a static record");
     }
 }

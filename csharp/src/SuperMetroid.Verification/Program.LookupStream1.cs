@@ -45,11 +45,9 @@ internal static class LookupStream1Verification
         }
         byte[] frontPng = Png(frontPixels, size.Y, 16);
         WorldMapArtwork Create(byte[] selected) => WorldMapArtwork.Load(new MemoryStream(frontPng), new MemoryStream(Png(selected, backSize.Y, 4)));
-        var field = typeof(WorldMapArtwork).GetField("background", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         var stock = Create(pixels);
-        var stored = (Dictionary<int, byte>)field.GetValue(stock)!;
-        var masks = (Dictionary<int, ulong>)typeof(WorldMapArtwork).GetField("digitFill",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
+        var stored = stock.background;
+        var masks = stock.digitFill;
         AssertEqual(10, masks.Count, "Exactly ten selected digit footprints");
         ulong NativeMask(int tile)
         {
@@ -112,9 +110,7 @@ internal static class LookupStream1Verification
             png.Position = 0;
             return SamusDeathTileAtlas.Load(png);
         }
-        var field = typeof(SamusDeathTileAtlas).GetField("sourceBytes",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        Dictionary<int, byte> Stored(SamusDeathTileAtlas art) => (Dictionary<int, byte>)field.GetValue(art)!;
+        Dictionary<int, byte> Stored(SamusDeathTileAtlas art) => art.sourceBytes;
         void Check(SamusDeathTileAtlas art, byte[] expected)
         {
             for (int page = 0; page < pages.Count; page++)
@@ -356,7 +352,7 @@ internal static class LookupStream1Verification
         foreach (ushort frame in new ushort[] { 124, 125 })
         {
             var timer = new EscapeTimer();
-            typeof(EscapeTimer).GetProperty(nameof(EscapeTimer.RawStatus))!.SetValue(timer, (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace));
+            timer.RawStatus = (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace);
             timer.SetTime(0, 1, 0x50);
             byte correction = LookupStream1TimerCadenceRomByte(rom, 0x809eec + frame);
             byte expected = correction == 2 ? (byte)0x48 : (byte)0x49;
@@ -375,7 +371,7 @@ internal static class LookupStream1Verification
             AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)(index + 128)), "Native128-frame wrap");
             AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)(index + 0xff80)), "Native ignores high NMI bits");
             var timer = new EscapeTimer();
-            typeof(EscapeTimer).GetProperty(nameof(EscapeTimer.RawStatus))!.SetValue(timer, (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace));
+            timer.RawStatus = (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace);
             timer.SetTime(0, 1, 0x50);
             AssertTrue(!timer.Process((ushort)index), "Calculated cadence stays non-expiring");
             AssertEqual(expected == 2 ? (byte)0x48 : (byte)0x49, timer.CentisecondsBcd, "Actual Process consumes each native correction");
@@ -384,7 +380,7 @@ internal static class LookupStream1Verification
         foreach (ushort frame in new ushort[] { 124, 125 })
         {
             var timer = new EscapeTimer();
-            typeof(EscapeTimer).GetProperty(nameof(EscapeTimer.RawStatus))!.SetValue(timer, (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace));
+            timer.RawStatus = (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace);
             timer.SetTime(0, 0, 2);
             bool expired = timer.Process(frame);
             AssertEqual(frame == 124, expired, "Corrected native expiration phase");
@@ -403,9 +399,9 @@ internal static class LookupStream1Verification
         byte[] native = Enumerable.Range(0, 800).Select(index => LookupStream1TimerGlyphsRomByte(rom, 0xb0c000 + index)).ToArray();
         var stock = EscapeTimerTileAtlas.Load(new MemoryStream(png));
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-        HashSet<int> Fill(EscapeTimerTileAtlas value) => (HashSet<int>)typeof(EscapeTimerTileAtlas).GetField("fillPixels", flags)!.GetValue(value)!;
-        Dictionary<int, byte> Overrides(EscapeTimerTileAtlas value) => (Dictionary<int, byte>)typeof(EscapeTimerTileAtlas).GetField("pixelOverrides", flags)!.GetValue(value)!;
-        Dictionary<int, bool> FillOverrides(EscapeTimerTileAtlas value) => (Dictionary<int, bool>)typeof(EscapeTimerTileAtlas).GetField("fillOverrides", flags)!.GetValue(value)!;
+        HashSet<int> Fill(EscapeTimerTileAtlas value) => value.fillPixels;
+        Dictionary<int, byte> Overrides(EscapeTimerTileAtlas value) => value.pixelOverrides;
+        Dictionary<int, bool> FillOverrides(EscapeTimerTileAtlas value) => value.fillOverrides;
         bool DefaultFill(int pixel, out bool fill)
         {
             int tile = pixel % 200 / 8, x = pixel % 8, y = pixel / 200 + (tile >= 10 ? 8 : 0);
@@ -716,7 +712,7 @@ internal static class LookupStream1Verification
         }
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         Dictionary<int, byte> Stored(SamusBodyArtworkCatalog value) =>
-            (Dictionary<int, byte>)typeof(SamusBodyArtworkCatalog).GetField("frames", flags)!.GetValue(value)!;
+            value.frames;
         var stock = Create(native);
         AssertEqual(Enumerable.Range(0, count).Count(index => Source(index) == index && !Direct(index)), Stored(stock).Count, "Exact native shared-component basis");
         for (int index = 0; index < count; index++)
@@ -812,7 +808,7 @@ internal static class LookupStream1Verification
         SamusBodyArtworkCatalog Create(ushort[] selected) => new(new SamusBodyArtworkParts { TopPointers = top, BottomPointers = bottom, PosePointers = selected, GraphicsYOffsets = template.GraphicsYOffsets.ToArray(), Frames = frames, Top = topGroups, Bottom = bottomGroups, Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTiles = template.DeathTiles, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() });
         SamusBodyArtworkCatalog stock = Create(native);
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-        int Count(SamusBodyArtworkCatalog value) => ((Dictionary<int, ushort>)typeof(SamusBodyArtworkCatalog).GetField("posePointers", flags)!.GetValue(value)!).Count;
+        int Count(SamusBodyArtworkCatalog value) => (value.posePointers).Count;
         AssertEqual(0, Count(stock), "No stock pose-pointer override survives");
         AssertEqual(CanonicalBodyHash(template, top, bottom, native, frames, topGroups, bottomGroups), stock.ContentIdentity, "Exact old canonical stock pose hash");
         AssertTrue(stock.Frames.SequenceEqual(frames), "Independent frame payload remains intact");
@@ -895,10 +891,8 @@ internal static class LookupStream1Verification
         string Canonical(ushort[] upper, ushort[] lower, SamusBodyTileDefinition[][] upperGroups, SamusBodyTileDefinition[][] lowerGroups) =>
             CanonicalBodyHash(template, upper, lower, template.PosePointers.ToArray(), template.Frames.ToArray(), upperGroups, lowerGroups);
         SamusBodyArtworkCatalog stock = Create(top, bottom, topGroups, bottomGroups);
-        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-        int Count(SamusBodyArtworkCatalog value, string field) => ((Dictionary<int, ushort>)typeof(SamusBodyArtworkCatalog).GetField(field, flags)!.GetValue(value)!).Count;
-        AssertEqual(0, Count(stock, "topPointers"), "Zero stock top pointer overrides");
-        AssertEqual(0, Count(stock, "bottomPointers"), "Zero stock bottom pointer overrides");
+        AssertEqual(0, stock.topPointers.Count, "Zero stock top pointer overrides");
+        AssertEqual(0, stock.bottomPointers.Count, "Zero stock bottom pointer overrides");
         for (int set = 0; set < 13; set++) AssertEqual(top[set], SamusBodyDefinitionLayout.DefaultTopPointer(set), "Named top allocation matches original ROM");
         for (int set = 0; set < 11; set++) AssertEqual(bottom[set], SamusBodyDefinitionLayout.DefaultBottomPointer(set), "Named bottom allocation matches original ROM");
         AssertEqual(Canonical(top, bottom, topGroups, bottomGroups), stock.ContentIdentity, "Exact pre-conversion canonical stock hash");
@@ -915,7 +909,7 @@ internal static class LookupStream1Verification
                 groups[previous.Set] = groups[previous.Set].Append(sample).ToArray();
             }
             SamusBodyArtworkCatalog changed = Create(upper, lower, upperGroups, lowerGroups);
-            AssertEqual(1, Count(changed, "topPointers") + Count(changed, "bottomPointers"), "Exactly one valid independent pointer override");
+            AssertEqual(1, changed.topPointers.Count + changed.bottomPointers.Count, "Exactly one valid independent pointer override");
             AssertTrue(changed.TopSetPointers.SequenceEqual(upper) && changed.BottomSetPointers.SequenceEqual(lower), "Independent selected allocation identities preserved");
             AssertEqual(0x920000 | (item.Pointer + 7), changed.DefinitionAddress(item.Upper, (byte)item.Set, 0), "Runtime definition selection honors arbitrary valid edited pointer");
             AssertEqual(Canonical(upper, lower, upperGroups, lowerGroups), changed.ContentIdentity, "Exact pre-conversion canonical edited hash");
@@ -939,7 +933,7 @@ internal static class LookupStream1Verification
         SamusBodyArtworkCatalog Create(sbyte[] selected) => new(new SamusBodyArtworkParts { TopPointers = template.TopSetPointers.ToArray(), BottomPointers = template.BottomSetPointers.ToArray(), PosePointers = template.PosePointers.ToArray(), GraphicsYOffsets = selected, Frames = template.Frames.ToArray(), Top = Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => template.TopSet(index).ToArray()).ToArray(), Bottom = Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => template.BottomSet(index).ToArray()).ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTiles = template.DeathTiles, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() });
         SamusBodyArtworkCatalog stock = Create(native);
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-        int Count(SamusBodyArtworkCatalog value) => ((Dictionary<int, sbyte>)typeof(SamusBodyArtworkCatalog).GetField("graphicsYOffsets", flags)!.GetValue(value)!).Count;
+        int Count(SamusBodyArtworkCatalog value) => (value.graphicsYOffsets).Count;
         AssertEqual(0, Count(stock), "No stock graphics-origin override survives");
         for (int pose = 0; pose < 253; pose++)
         {
@@ -979,12 +973,10 @@ internal static class LookupStream1Verification
         SamusBodyArtworkFiles.Extract(rom, directory, SupportedCartridge.Sha256);
         SamusBodyArtworkCatalog stock = SamusBodyArtworkFiles.Load(directory, null);
         sbyte[] native = Enumerable.Range(0, 32).Select(index => unchecked((sbyte)LookupStream1DrainedGeometryRomByte(rom, 0x908def + index))).ToArray();
-        var field = typeof(SamusBodyArtworkCatalog).GetField("drainedYOffsets",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        int Stored(SamusBodyArtworkCatalog art) => ((Dictionary<int, sbyte>)field.GetValue(art)!).Count;
+        int Stored(SamusBodyArtworkCatalog art) => (art.drainedYOffsets).Count;
         SamusBodyArtworkCatalog Create(sbyte[] offsets, SamusSpritemapArtworkCatalog? maps = null,
             SamusBodyTileDefinition[][]? upper = null, SamusBodyTileDefinition[][]? lower = null, sbyte[]? graphics = null) => new(new SamusBodyArtworkParts { TopPointers = stock.TopSetPointers.ToArray(), BottomPointers = stock.BottomSetPointers.ToArray(), PosePointers = stock.PosePointers.ToArray(), GraphicsYOffsets = graphics ?? stock.GraphicsYOffsets.ToArray(), Frames = stock.Frames.ToArray(), Top = upper ?? Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => stock.TopSet(index).ToArray()).ToArray(), Bottom = lower ?? Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => stock.BottomSet(index).ToArray()).ToArray(), Spritemaps = maps ?? stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTiles = stock.DeathTiles, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = offsets });
-        AssertEqual(0, Stored(stock), "Native drained placement uses no stored offset fallback: " + string.Join(", ", ((Dictionary<int, sbyte>)field.GetValue(stock)!).Select(pair => pair.Key + " native=" + pair.Value + " derived=" + (SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, pair.Key, out sbyte calculated) ? calculated.ToString() : "unavailable"))));
+        AssertEqual(0, Stored(stock), "Native drained placement uses no stored offset fallback: " + string.Join(", ", (stock.drainedYOffsets).Select(pair => pair.Key + " native=" + pair.Value + " derived=" + (SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, pair.Key, out sbyte calculated) ? calculated.ToString() : "unavailable"))));
         for (int index = 0; index < 32; index++)
         {
             AssertTrue(SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, index, out sbyte direct), "Every native drained phase has a derived default");
@@ -1045,12 +1037,10 @@ internal static class LookupStream1Verification
         SamusBodyArtworkFiles.Extract(rom, directory, SupportedCartridge.Sha256);
         SamusBodyArtworkCatalog stock = SamusBodyArtworkFiles.Load(directory, null);
         sbyte[] native = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)LookupStream1PostureGeometryRomByte(rom, 0x908d80 + index))).ToArray();
-        var field = typeof(SamusBodyArtworkCatalog).GetField("postureYOffsets",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        int Stored(SamusBodyArtworkCatalog art) => ((Dictionary<int, sbyte>)field.GetValue(art)!).Count;
+        int Stored(SamusBodyArtworkCatalog art) => (art.postureYOffsets).Count;
         SamusBodyArtworkCatalog Create(sbyte[] offsets, SamusSpritemapArtworkCatalog? maps = null,
             SamusBodyTileDefinition[][]? upper = null, SamusBodyTileDefinition[][]? lower = null) => new(new SamusBodyArtworkParts { TopPointers = stock.TopSetPointers.ToArray(), BottomPointers = stock.BottomSetPointers.ToArray(), PosePointers = stock.PosePointers.ToArray(), GraphicsYOffsets = stock.GraphicsYOffsets.ToArray(), Frames = stock.Frames.ToArray(), Top = upper ?? Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => stock.TopSet(index).ToArray()).ToArray(), Bottom = lower ?? Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => stock.BottomSet(index).ToArray()).ToArray(), Spritemaps = maps ?? stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTiles = stock.DeathTiles, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = offsets, DrainedYOffsets = stock.DrainedYOffsets.ToArray() });
-        AssertEqual(0, Stored(stock), "Native posture uses no stored offset fallback: " + string.Join(", ", ((Dictionary<int, sbyte>)field.GetValue(stock)!).Select(pair => pair.Key + " native=" + pair.Value + " derived=" + (SamusBodyPlacementDefinitions.TryDefaultPostureByte(stock, pair.Key, out sbyte calculated) ? calculated.ToString() : "unavailable"))));
+        AssertEqual(0, Stored(stock), "Native posture uses no stored offset fallback: " + string.Join(", ", (stock.postureYOffsets).Select(pair => pair.Key + " native=" + pair.Value + " derived=" + (SamusBodyPlacementDefinitions.TryDefaultPostureByte(stock, pair.Key, out sbyte calculated) ? calculated.ToString() : "unavailable"))));
         for (int index = 0; index < 24; index++)
         {
             AssertTrue(SamusBodyPlacementDefinitions.TryDefaultPostureByte(stock, index, out sbyte direct), "Every native posture has a derived default");
@@ -1111,7 +1101,7 @@ internal static class LookupStream1Verification
         SamusBodyArtworkCatalog Create(ushort[] selectedLanding, sbyte[] selectedPosture) => new(new SamusBodyArtworkParts { TopPointers = template.TopSetPointers.ToArray(), BottomPointers = template.BottomSetPointers.ToArray(), PosePointers = template.PosePointers.ToArray(), GraphicsYOffsets = template.GraphicsYOffsets.ToArray(), Frames = template.Frames.ToArray(), Top = Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => template.TopSet(index).ToArray()).ToArray(), Bottom = Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => template.BottomSet(index).ToArray()).ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTiles = template.DeathTiles, ArmCannon = template.ArmCannon, LandingYOffsets = selectedLanding, PostureYOffsets = selectedPosture, DrainedYOffsets = template.DrainedYOffsets.ToArray() });
         SamusBodyArtworkCatalog stock = Create(landing, posture);
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-        var landingBasis = (Dictionary<int, ushort>)typeof(SamusBodyArtworkCatalog).GetField("landingYOffsets", flags)!.GetValue(stock)!;
+        var landingBasis = stock.landingYOffsets;
 
         AssertEqual(0, landingBasis.Count, "Landing stock stores no coordinate or instruction-byte overrides");
         // This synthetic fixture supplies independent artwork; direct native geometry is confirmed separately.
@@ -1191,9 +1181,6 @@ internal static class LookupStream1Verification
                 [new SamusSpritePart(pointer, (byte)pointer, (ushort)(pointer ^ 0x5555))])).ToArray();
         SamusSpritemapArtworkCatalog Create(ushort[] upper, ushort[] lower) => new(upper, lower, pointers, definitions);
         var stock = Create(top, bottom);
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        int Count(SamusSpritemapArtworkCatalog value, string field) =>
-            ((Dictionary<int, ushort>)typeof(SamusSpritemapArtworkCatalog).GetField(field, flags)!.GetValue(value)!).Count;
         string Canonical(ushort[] upper, ushort[] lower) => SelectedPresentationHash.Create(nameof(SamusSpritemapArtworkCatalog), content =>
         {
             content.AppendWords("top bases", upper);
@@ -1222,7 +1209,7 @@ internal static class LookupStream1Verification
                     definition.Parts.Single(), "Actual selector resolves independent marker payload");
             }
         }
-        AssertEqual(0, Count(stock, "topBases") + Count(stock, "bottomBases"), "Zero stock OAM-base overrides");
+        AssertEqual(0, stock.topBases.Count + stock.bottomBases.Count, "Zero stock OAM-base overrides");
         AssertEqual(Canonical(top, bottom), stock.ContentIdentity, "Exact original canonical stock OAM hash");
         for (int half = 0; half < 2; half++)
         for (int pose = 0; pose < 253; pose++)
@@ -1236,7 +1223,7 @@ internal static class LookupStream1Verification
             ushort edited = (ushort)((expected + 1) % 2096);
             (half == 0 ? upper : lower)[pose] = edited;
             var changed = Create(upper, lower);
-            AssertEqual(1, Count(changed, "topBases") + Count(changed, "bottomBases"), "Exactly one independent OAM-base override");
+            AssertEqual(1, changed.topBases.Count + changed.bottomBases.Count, "Exactly one independent OAM-base override");
             AssertTrue(changed.TopBases.SequenceEqual(upper) && changed.BottomBases.SequenceEqual(lower), "All supplied independent bases preserved");
             AssertTrue(changed.Pointers.SequenceEqual(pointers), "OAM pointer payload unchanged");
             ushort selected = half == 0 ? changed.TopBase((SamusPoseId)pose) : changed.BottomBase((SamusPoseId)pose);
@@ -1267,15 +1254,12 @@ internal static class LookupStream1Verification
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
         SamusHurtColorCatalog Create(ushort[] supplied) => SamusHurtColorCatalog.Load(new MemoryStream(SamusHurtColorCatalog.Write(
             new SamusHurtColorDocument { Version = 1, Hurt = supplied.Take(16).Select(Color).ToArray(), Intro = supplied.Skip(16).Select(Color).ToArray() })));
-        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-        Dictionary<int, ushort> Overrides(SamusHurtColorCatalog catalog, string name) =>
-            (Dictionary<int, ushort>)typeof(SamusHurtColorCatalog).GetField(name, flags)!.GetValue(catalog)!;
-        Dictionary<int, byte> Levels(SamusHurtColorCatalog catalog) => (Dictionary<int, byte>)typeof(SamusHurtColorCatalog).GetField("introLevels", flags)!.GetValue(catalog)!;
+        Dictionary<int, byte> Levels(SamusHurtColorCatalog catalog) => catalog.introLevels;
         var stock = Create(native);
-        AssertEqual(0, Overrides(stock, "introOverrides").Count + Overrides(stock, "hurtOverrides").Count, "Zero stock channel/blend fallbacks");
+        AssertEqual(0, stock.introOverrides.Count + stock.hurtOverrides.Count, "Zero stock channel/blend fallbacks");
         AssertEqual(0, Levels(stock).Count, "Zero stock shade samples survive");
-        AssertTrue(typeof(SamusHurtColorCatalog).GetField("hurtZero", flags)!.GetValue(stock) is null &&
-            typeof(SamusHurtColorCatalog).GetField("introZero", flags)!.GetValue(stock) is null, "No stock transparent-word fallback");
+        AssertTrue(stock.hurtZero is null &&
+            stock.introZero is null, "No stock transparent-word fallback");
         AssertEqual(native[0], SamusHurtColorDefinitions.HurtTransparentWord, "Native transparent black");
         AssertEqual(native[16], SamusHurtColorDefinitions.IntroTransparentWord, "Native reviewed transparent identity");
         for (int index = 1; index < 16; index++)
@@ -1303,8 +1287,8 @@ internal static class LookupStream1Verification
                 ushort expectedIntro = (ushort)(red | red << 5 | Math.Max(4, red - 2) << 10);
                 int Blend(int shift) => (2 * ((supplied[index + 16] >> shift) & 31) + 155) / 7;
                 ushort expectedHurt = (ushort)(Blend(0) | Blend(5) << 5 | Blend(10) << 10);
-                AssertEqual(supplied[index + 16] != expectedIntro, Overrides(edited, "introOverrides").ContainsKey(index), "Exact intro edit exception membership");
-                AssertEqual(supplied[index] != expectedHurt, Overrides(edited, "hurtOverrides").ContainsKey(index), "Exact independent hurt exception membership");
+                AssertEqual(supplied[index + 16] != expectedIntro, edited.introOverrides.ContainsKey(index), "Exact intro edit exception membership");
+                AssertEqual(supplied[index] != expectedHurt, edited.hurtOverrides.ContainsKey(index), "Exact independent hurt exception membership");
             }
         }
         for (int index = 0; index < 32; index++)
@@ -1338,7 +1322,6 @@ internal static class LookupStream1Verification
             }
         }
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
-        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
         for (int address = 0x939eba; address <= 0x93a1a1; address++)
         {
             bool accepted = expected.TryGetValue(address, out ushort native);
@@ -1347,14 +1330,13 @@ internal static class LookupStream1Verification
             {
                 AssertEqual(native, calculated, "NonBeam direct native duration, trail phase or control");
                 AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "NonBeam production reader");
-                AssertTrue(stored is null || !stored.ContainsKey(address), "No NonBeam stock fallback survives");
             }
             else if (address < 0x93a1a1)
                 AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "NonBeam nonmechanics retain rejection");
         }
         AssertEqual(214, expected.Count, "Native nonbeam and special program mechanics count");
         AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(0x93a1a1), "Following flare table remains outside mechanics");
-        AssertTrue(typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags) is null, "Original mechanics dictionary removed entirely; required scalar inputs remain explicit");
+        AssertTrue(!MetadataShape.DeclaresField(typeof(SamusProjectileInstructionDefinitions), "Words", flags), "Original mechanics dictionary removed entirely; required scalar inputs remain explicit");
         foreach (int address in new[] { 0x928743, 0x948743, -1, int.MaxValue })
             AssertTrue(!SamusProjectileInstructionDefinitions.TryNonBeamWord(address, out _), "NonBeam bank and address bounds");
         Console.WriteLine("NonBeam projectile programs:214 direct native mechanics words, exact domain and zero stored fallbacks pass; selected holds and phase counts remain required.");
@@ -1382,7 +1364,6 @@ internal static class LookupStream1Verification
             }
         }
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
-        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
         for (int address = 0x938e76; address <= 0x939ebb; address++)
         {
             bool accepted = expected.TryGetValue(address, out ushort native);
@@ -1391,7 +1372,6 @@ internal static class LookupStream1Verification
             {
                 AssertEqual(native, calculated, "Charged direct native duration, trail phase or control");
                 AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "Charged production reader");
-                AssertTrue(stored is null || !stored.ContainsKey(address), "No Charged stock fallback survives");
             }
             else if (address < 0x939ebb)
                 AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "Charged nonmechanics retain rejection");
@@ -1425,7 +1405,6 @@ internal static class LookupStream1Verification
             }
         }
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
-        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
         for (int address = 0x938cf6; address <= 0x938e77; address++)
         {
             bool accepted = expected.TryGetValue(address, out ushort native);
@@ -1434,7 +1413,6 @@ internal static class LookupStream1Verification
             {
                 AssertEqual(native, calculated, "Plasma direct native duration, trail phase or control");
                 AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "Plasma production reader");
-                AssertTrue(stored is null || !stored.ContainsKey(address), "No Plasma stock fallback survives");
             }
             else if (address < 0x938e77)
                 AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "Plasma nonmechanics retain rejection");
@@ -1468,7 +1446,6 @@ internal static class LookupStream1Verification
             }
         }
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
-        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
         for (int address = 0x938976; address <= 0x938cf7; address++)
         {
             bool accepted = expected.TryGetValue(address, out ushort native);
@@ -1477,7 +1454,6 @@ internal static class LookupStream1Verification
             {
                 AssertEqual(native, calculated, "Spazer direct native duration, trail phase or control");
                 AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "Spazer production reader");
-                AssertTrue(stored is null || !stored.ContainsKey(address), "No Spazer stock fallback survives");
             }
             else if (address < 0x938cf7)
                 AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "Spazer nonmechanics retain rejection");
@@ -1511,7 +1487,6 @@ internal static class LookupStream1Verification
             }
         }
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
-        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
         for (int address = 0x93873a; address <= 0x938977; address++)
         {
             bool accepted = expected.TryGetValue(address, out ushort native);
@@ -1520,7 +1495,6 @@ internal static class LookupStream1Verification
             {
                 AssertEqual(native, calculated, "Wave/Ice direct native duration, trail phase or control");
                 AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "Wave/Ice production reader");
-                AssertTrue(stored is null || !stored.ContainsKey(address), "No Wave/Ice stock fallback survives");
             }
             else if (address < 0x938977)
                 AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "Wave/Ice nonmechanics retain rejection");
@@ -1539,7 +1513,6 @@ internal static class LookupStream1Verification
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1PowerProgramLayoutRomByte(rom, address), LookupStream1PowerProgramLayoutRomByte(rom, address + 1)));
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
-        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
         int admitted = 0;
         for (int address = 0x9386da; address <= 0x93873b; address++)
         {
@@ -1551,7 +1524,6 @@ internal static class LookupStream1Verification
             admitted++;
             AssertEqual(Word(address), calculated, "Direct calculated Power mechanics matches native word");
             AssertEqual(calculated, SamusProjectileInstructionDefinitions.ReadWord(address), "Production mechanics reader uses calculated Power layout");
-            AssertTrue(stored is null || !stored.ContainsKey(address), "No stock Power mechanics fallback survives");
         }
         AssertEqual(32, admitted, "Eight native Power programs have four mechanics words each");
         for (int direction = 0; direction < 8; direction++)
@@ -1582,9 +1554,7 @@ internal static class LookupStream1Verification
         SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
         var stock = Load(document);
-        var field = typeof(SamusArmCannonArtworkCatalog).GetField("posePointers",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        Dictionary<int, ushort> Stored(SamusArmCannonArtworkCatalog value) => (Dictionary<int, ushort>)field.GetValue(value)!;
+        Dictionary<int, ushort> Stored(SamusArmCannonArtworkCatalog value) => value.posePointers;
         ushort Native(int pose) => (ushort)(SnesLittleEndian.Word(LookupStream1CannonPosesRomByte(rom, 0x90C7DF + pose * 2), LookupStream1CannonPosesRomByte(rom, 0x90C7E0 + pose * 2)));
         string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create(nameof(SamusArmCannonArtworkCatalog), hash =>
         {
@@ -1765,10 +1735,8 @@ internal static class LookupStream1Verification
         byte[] json = EscapeTimerPresentationExtractor.Extract(rom);
         var stock = EscapeTimerPresentation.Load(new MemoryStream(json));
         var document = System.Text.Json.JsonSerializer.Deserialize<EscapeTimerPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        int Count(EscapeTimerPresentation value, string name) => ((System.Collections.IDictionary)typeof(EscapeTimerPresentation).GetField(name, flags)!.GetValue(value)!).Count;
-        AssertEqual(0, Count(stock, "frames"), "Timer stock stores no calculated frame fallbacks");
-        AssertEqual(0, Count(stock, "anchors"), "Timer stock stores no calculated anchor fallbacks");
+        AssertEqual(0, stock.frames.Count, "Timer stock stores no calculated frame fallbacks");
+        AssertEqual(0, stock.anchors.Count, "Timer stock stores no calculated anchor fallbacks");
         int parts = 0;
         foreach (string name in document.Frames.Keys)
         {
@@ -1807,8 +1775,8 @@ internal static class LookupStream1Verification
                 OffsetY = edited.Frames[name][0].OffsetY + 2, TileNumber = edited.Frames[name][0].TileNumber ^ 1,
                 Size = 16, Priority = 1, Palette = 2, FlipX = true, FlipY = true };
             var compiled = Load(edited);
-            AssertEqual(1, Count(compiled, "frames"), "One timer frame edit stores exactly one independent frame");
-            AssertEqual(0, Count(compiled, "anchors"), "Frame edits do not store unchanged timer anchors");
+            AssertEqual(1, compiled.frames.Count, "One timer frame edit stores exactly one independent frame");
+            AssertEqual(0, compiled.anchors.Count, "Frame edits do not store unchanged timer anchors");
             int digit = name == "Label" ? 0 : int.Parse(name.AsSpan(6));
             timer.SetTime((byte)(digit * 17), 0, (byte)(digit * 17));
             var actual = new OamBuffer(); compiled.Draw(timer, actual);
@@ -1819,8 +1787,8 @@ internal static class LookupStream1Verification
             var edited = Read(); edited.Anchors[anchor] = edited.Anchors[anchor] with { X = (short)(edited.Anchors[anchor].X + 2), Y = 3 };
             edited = edited with { DigitSpacing = 10, Palette = 1 };
             var compiled = Load(edited);
-            AssertEqual(1, Count(compiled, "anchors"), "One timer anchor edit stores exactly one independent anchor");
-            AssertEqual(0, Count(compiled, "frames"), "Anchor, spacing and palette edits do not store native frames");
+            AssertEqual(1, compiled.anchors.Count, "One timer anchor edit stores exactly one independent anchor");
+            AssertEqual(0, compiled.frames.Count, "Anchor, spacing and palette edits do not store native frames");
             timer.SetTime(0x12, 0x34, 0x56);
             var actual = new OamBuffer(); compiled.Draw(timer, actual);
             EqualOam(DrawDocument(edited), actual, "Independent anchor, digit spacing and palette edits preserve selected document");
@@ -1869,8 +1837,7 @@ internal static class LookupStream1Verification
         byte[] json = ChargeFlarePlacementExtractor.Extract(rom);
         var stock = ChargeFlarePlacementCatalog.Load(new MemoryStream(json));
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var field = typeof(ChargeFlarePlacementCatalog).GetField("offsets", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        AssertEqual(0, ((System.Collections.IDictionary)field.GetValue(stock)!).Count, "Beam flare stock has zero stored fallback origins");
+        AssertEqual(0, stock.offsets.Count, "Beam flare stock has zero stored fallback origins");
         for (int mode = 0; mode < 2; mode++)
         for (int direction = 0; direction < 16; direction++)
         {
@@ -1885,7 +1852,7 @@ internal static class LookupStream1Verification
                 var before = document.Offsets[key];
                 document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
                 var edited = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementCatalog.Write(document)));
-                AssertEqual(1, ((System.Collections.IDictionary)field.GetValue(edited)!).Count, "One independent origin edit stores exactly one override");
+                AssertEqual(1, edited.offsets.Count, "One independent origin edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
                 for (int selectedDirection = 0; selectedDirection < 16; selectedDirection++)
                     AssertEqual(document.Offsets[ChargeFlarePlacementDefinitions.Key(selectedMode != 0, selectedDirection)].Offset,
@@ -1894,7 +1861,7 @@ internal static class LookupStream1Verification
         }
         var grappleDocument = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options)!;
         var grapple = ChargeFlarePlacementCatalog.LoadGrapple(new MemoryStream(ChargeFlarePlacementCatalog.Write(grappleDocument)));
-        AssertEqual(0, ((System.Collections.IDictionary)field.GetValue(grapple)!).Count, "Grapple stock has zero stored fallback origins");
+        AssertEqual(0, grapple.offsets.Count, "Grapple stock has zero stored fallback origins");
         for (int mode = 0; mode < 2; mode++)
         for (int direction = 0; direction < 16; direction++)
         {
@@ -1909,7 +1876,7 @@ internal static class LookupStream1Verification
                 var before = document.Offsets[key];
                 document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
                 var edited = ChargeFlarePlacementCatalog.LoadGrapple(new MemoryStream(ChargeFlarePlacementCatalog.Write(document)));
-                AssertEqual(1, ((System.Collections.IDictionary)field.GetValue(edited)!).Count, "Grapple independent edit stores exactly one override");
+                AssertEqual(1, edited.offsets.Count, "Grapple independent edit stores exactly one override");
                 for (int selectedMode = 0; selectedMode < 2; selectedMode++)
                 for (int selectedDirection = 0; selectedDirection < 16; selectedDirection++)
                     AssertEqual(document.Offsets[ChargeFlarePlacementDefinitions.Key(selectedMode != 0, selectedDirection)].Offset, edited.Resolve(selectedMode != 0, selectedDirection),
@@ -1926,8 +1893,7 @@ internal static class LookupStream1Verification
         var compositions = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();
         var system = new SamusProjectileSystem();
-        var draw = typeof(ProjectileAnimation).GetMethod("DrawFlareComponent", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>>(system.Animation);
+        var draw = new Action<ISnesAddressSpace, OamBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
         var shiftedDocument = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(json, options)!;
         foreach (string key in shiftedDocument.Offsets.Keys.ToArray())
             shiftedDocument.Offsets[key] = shiftedDocument.Offsets[key] with { X = (short)(shiftedDocument.Offsets[key].X + 7) };
@@ -2135,8 +2101,7 @@ internal static class LookupStream1Verification
             AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address), "stream1 all native projectile motion words");
         foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d2, 0x90c37b, int.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusProjectileMotionDefinitions.ReadWord(invalid), "stream1 exact projectile motion address domain");
-        var initialize = typeof(BeamFiring).GetMethod("InitializePowerBeamVelocity",
-            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!.CreateDelegate<Action<ISnesAddressSpace, SamusProjectileSlot>>();
+        var initialize = new Action<ISnesAddressSpace, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
         var guarded = new BeamSpeedRowAddressSpace(rom);
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)
@@ -2691,13 +2656,8 @@ internal static class LookupStream1Verification
         byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
         var stock = SamusArmCannonArtworkCatalogTooling.Load(new MemoryStream(json), new MemoryStream(png));
-        foreach (string fieldName in new[] { "attributes", "tileSources" })
-        {
-            var field = typeof(SamusArmCannonArtworkCatalog).GetField(fieldName,
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-            var overrides = (Dictionary<int, ushort>)field.GetValue(stock)!;
+        foreach (Dictionary<int, ushort> overrides in new[] { stock.attributes, stock.tileSources })
             AssertEqual(0, overrides.Count, "Stock cannon selectors require no stored fallback overrides");
-        }
         for (int direction = 0; direction < 10; direction++)
         {
             var aim = (SamusProjectileDirection)direction;
@@ -2804,9 +2764,7 @@ internal static class LookupStream1Verification
         SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
         var stock = Load(document);
-        var field = typeof(SamusArmCannonArtworkCatalog).GetField("drawingData",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        Dictionary<int, byte> Stored(SamusArmCannonArtworkCatalog value) => (Dictionary<int, byte>)field.GetValue(value)!;
+        Dictionary<int, byte> Stored(SamusArmCannonArtworkCatalog value) => value.drawingData;
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1CannonDrawingControlsRomByte(rom, address), LookupStream1CannonDrawingControlsRomByte(rom, address + 1)));
         var headers = new HashSet<int>();
         var descriptors = new SortedSet<int>();
@@ -2965,14 +2923,11 @@ internal static class LookupStream1Verification
             (ushort)(SnesLittleEndian.Word(LookupStream1AtmosphericAttributesRomByte(rom, address + frame * 2), LookupStream1AtmosphericAttributesRomByte(rom, address + frame * 2 + 1)))).ToArray();
         ushort[] one = Native(0x908C0F), shared = Native(0x908C17);
         var stock = new SamusAtmosphericArtworkCatalog(one, shared);
-        int Stored(SamusAtmosphericArtworkCatalog catalog, string name) =>
-            ((System.Collections.IDictionary)typeof(SamusAtmosphericArtworkCatalog).GetField(name,
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!).Count;
         string Identity(ushort[] first, ushort[] second) => SelectedPresentationHash.Create(nameof(SamusAtmosphericArtworkCatalog), hash =>
         { hash.AppendWords("type one", first); hash.AppendWords("shared type four", second); });
         AssertEqual(Identity(one, shared), stock.ContentIdentity, "atmospheric canonical selected identity unchanged");
-        AssertEqual(0, Stored(stock, "typeOne"), "atmospheric footsteps contain no stock overrides");
-        AssertEqual(0, Stored(stock, "sharedTypeFour"), "atmospheric lava/dust contains no stock overrides");
+        AssertEqual(0, stock.typeOne.Count, "atmospheric footsteps contain no stock overrides");
+        AssertEqual(0, stock.sharedTypeFour.Count, "atmospheric lava/dust contains no stock overrides");
         for (int kind = 0; kind < 2; kind++)
         for (int frame = 0; frame < 4; frame++)
         {
@@ -2987,8 +2942,8 @@ internal static class LookupStream1Verification
             ushort changedWord = (ushort)(expected ^ 0xFFFF);
             (kind == 0 ? editOne : editShared)[frame] = changedWord;
             var edited = new SamusAtmosphericArtworkCatalog(editOne, editShared);
-            AssertEqual(1, Stored(edited, kind == 0 ? "typeOne" : "sharedTypeFour"), "atmospheric one full-word supplied exception");
-            AssertEqual(0, Stored(edited, kind == 0 ? "sharedTypeFour" : "typeOne"), "atmospheric other list unchanged");
+            AssertEqual(1, (kind == 0 ? edited.typeOne : edited.sharedTypeFour).Count, "atmospheric one full-word supplied exception");
+            AssertEqual(0, (kind == 0 ? edited.sharedTypeFour : edited.typeOne).Count, "atmospheric other list unchanged");
             AssertEqual(Identity(editOne, editShared), edited.ContentIdentity, "atmospheric edited identity uses exact supplied words");
             editOne[frame] = 0; editShared[frame] = 0;
             foreach (byte type in new byte[] { 1, 4, 6, 7 })
@@ -3022,9 +2977,7 @@ internal static class LookupStream1Verification
             return EscapeTypewriterPresentation.Load(output);
         }
         var stock = Load(document);
-        int Stored(EscapeTypewriterProgram program) => ((System.Collections.IDictionary)program.Lines.GetType()
-            .GetField("overrides", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .GetValue(program.Lines)!).Count;
+        int Stored(EscapeTypewriterProgram program) => ((EscapeTypewriterPresentation.LineSequence)program.Lines).overrides.Count;
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1EscapeTextRomByte(rom, address), LookupStream1EscapeTextRomByte(rom, address + 1)));
         int totalFrames = 0;
         foreach (EscapeTypewriterProgramId id in new[] { EscapeTypewriterProgramId.Ceres, EscapeTypewriterProgramId.Zebes })
@@ -3116,9 +3069,7 @@ internal static class LookupStream1Verification
         SamusVisorColorCatalog Load(SamusVisorColorDocument value) =>
             SamusVisorColorCatalog.Load(new MemoryStream(SamusVisorColorCatalog.Write(value)));
         var stock = Load(document);
-        var field = typeof(SamusVisorColorCatalog).GetField("colors",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        Dictionary<int, Bgr555> Stored(SamusVisorColorCatalog value) => (Dictionary<int, Bgr555>)field.GetValue(value)!;
+        Dictionary<int, Bgr555> Stored(SamusVisorColorCatalog value) => value.colors;
         ushort Native(int index)
         {
             int address = SamusVisorColorFormat.SourceAddress + index * 2;
@@ -3166,9 +3117,8 @@ internal static class LookupStream1Verification
         }
         byte[] backPng = Png(backPixels, backSize.Y, 4);
         WorldMapArtwork Create(byte[] selected) => WorldMapArtwork.Load(new MemoryStream(Png(selected, size.Y, 16)), new MemoryStream(backPng));
-        var field = typeof(WorldMapArtwork).GetField("foreground", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         var stock = Create(pixels);
-        var stored = (Dictionary<int, byte>)field.GetValue(stock)!;
+        var stored = stock.foreground;
         ulong NativeMask(int tile)
         {
             ulong mask = 0;
@@ -3176,8 +3126,7 @@ internal static class LookupStream1Verification
                 if (pixels[(tile / 16 * 8 + y) * size.X + tile % 16 * 8 + x] == 14) mask |= 1UL << (y * 8 + x);
             return mask;
         }
-        var masks = (Dictionary<int, ulong>)typeof(WorldMapArtwork).GetField("fontFill",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
+        var masks = stock.fontFill;
         AssertEqual(300, masks.Count, "Exact source font masks after blank and named glyph aliases");
         foreach (var pair in masks) AssertEqual(NativeMask(pair.Key), pair.Value, "Exact selected native font footprint");
         int calculated = 0, fontDifferences = 0;
@@ -3269,8 +3218,6 @@ internal static class LookupStream1Verification
                 pointer => $"sprite_{Word(0x930000 | (pointer + 2)):X4}"),
         };
         var guard = NewLookupFlareForbiddenBus();
-        var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         int interpreted = 0, bombInterpreted = 0;
         foreach (bool edited in new[] { false, true })
         {
@@ -3294,7 +3241,7 @@ internal static class LookupStream1Verification
                 interpreted++;
                 if (duration == 0) continue; // Existing bomb contract excludes zero-duration timed records.
                 var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = pointer, Type = 0x0500 };
-                AssertTrue(!(bool)runBomb.Invoke(bombs, [bomb])!, "Actual bomb timed frame survives");
+                AssertTrue(!bombs.RunProjectileInstructionHandler(bomb), "Actual bomb timed frame survives");
                 AssertEqual(duration, bomb.InstructionTimer, "Actual bomb timer unchanged");
                 AssertEqual(sprite, bomb.SpritemapPointer, "Independent bomb artwork selection");
                 AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), bomb.Radius.X, "Actual bomb X radius");
@@ -3369,10 +3316,6 @@ internal static class LookupStream1Verification
         };
         var bindings = ProjectileFrameBindingCatalog.Load(new MemoryStream(ProjectileFrameBindingCatalog.Write(document)));
         var guard = NewLookupFlareForbiddenBus();
-        var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        var readTrail = typeof(ProjectileTrails).GetMethod("GetTrailAnimationFrame",
-            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
         int actualTicks = 0, loops = 0, deletions = 0;
         foreach (var program in programs)
         {
@@ -3406,7 +3349,7 @@ internal static class LookupStream1Verification
                     }
                 }
                 AssertEqual(deleted, shots.Animation.RunProjectileInstructionHandler(slot), "Exact native projectile deletion tick");
-                AssertEqual(deleted, (bool)runBomb.Invoke(bombs, [bomb])!, "Exact native bomb deletion tick");
+                AssertEqual(deleted, bombs.RunProjectileInstructionHandler(bomb), "Exact native bomb deletion tick");
                 actualTicks++;
                 if (deleted)
                 {
@@ -3421,7 +3364,7 @@ internal static class LookupStream1Verification
                     (bomb.InstructionTimer, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
                     "Every scheduled bomb exposure/physical envelope matches native");
                 slot.AnimationFrame = 0xbeef;
-                AssertEqual(trail, (ushort)readTrail.Invoke(null, [slot])!, "Actual trail consumer reads prior record, not next phase or cached frame");
+                AssertEqual(trail, ProjectileTrails.GetTrailAnimationFrame(slot), "Actual trail consumer reads prior record, not next phase or cached frame");
                 slot.AnimationFrame = trail;
                 if (looped) { loops++; finished = true; break; }
             }
@@ -3445,9 +3388,7 @@ internal static class LookupStream1Verification
         var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Length * 32);
         SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
-        var field = typeof(SamusArmCannonArtworkCatalog).GetField("drawingData",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        Dictionary<int, byte> Stored(SamusArmCannonArtworkCatalog value) => (Dictionary<int, byte>)field.GetValue(value)!;
+        Dictionary<int, byte> Stored(SamusArmCannonArtworkCatalog value) => value.drawingData;
         var stock = body.ArmCannon;
         AssertEqual(0, Stored(stock).Count, "Installed cannon has zero stock coordinate fallbacks: " +
             string.Join(", ", Stored(stock).Select(pair => $"{pair.Key + 0xc9d9:X4}={pair.Value:X2}")));
@@ -3558,8 +3499,7 @@ internal static class LookupStream1Verification
             }
         }
         AssertTrue(stock.Pointers.SequenceEqual(native), "All native pointer observations preserved");
-        var stored = (Dictionary<int, ushort>)typeof(SamusSpritemapArtworkCatalog).GetField("pointers",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
+        var stored = stock.pointers;
         AssertEqual(native.Length - aliases - directPointers, stored.Count, "Exact independent pointer basis, no stock alias/allocation fallbacks");
         ushort[] top = stock.TopBases.ToArray(), bottom = stock.BottomBases.ToArray();
         SamusSpritemapDefinition[] definitions = stock.Definitions.ToArray();
@@ -3620,7 +3560,6 @@ internal static class LookupStream1Verification
         using var directory = new TestScratchDirectory("map-catalog");
         SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         var body = SamusBodyArtworkFiles.Load(directory.Root, null);
-        var field = typeof(SamusBodyTileDefinition).GetField("pixelInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         var top = Enumerable.Range(0, 13).Select(set => body.TopSet(set).ToArray()).ToArray();
         var bottom = Enumerable.Range(0, 11).Select(set => body.BottomSet(set).ToArray()).ToArray();
         int bytes = 0, blankBytes = 0, sharedBytes = 0, retained = 0, circleBits = 0, diagnosticBytes = 0;
@@ -3633,9 +3572,9 @@ internal static class LookupStream1Verification
             for (int position = 0; position < groups[set].Length; position++)
             {
                 var glyph = groups[set][position];
-                var stored = (Dictionary<int, byte>)field.GetValue(glyph)!;
+                var stored = glyph.pixelInputs;
                 byte[] image = glyph.Planar.ToArray();
-                var contour = (Dictionary<int, byte>)typeof(SamusBodyTileDefinition).GetField("contourEdits", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(glyph)!;
+                var contour = glyph.contourEdits;
                 AssertEqual(0, contour.Count, "Zero stock morph-circle contour overrides");
                 for (int index = 0; index < image.Length; index++)
                 {
@@ -3708,8 +3647,6 @@ internal static class LookupStream1Verification
         var body = SamusBodyArtworkFiles.Load(directory.Root, null);
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1BodyTransfersRomByte(rom, address), LookupStream1BodyTransfersRomByte(rom, address + 1)));
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var sourceField = typeof(SamusBodyTileDefinition).GetField("sourceAddressOverride", flags)!;
-        var sizeField = typeof(SamusBodyTileDefinition).GetField("firstSizeOverride", flags)!;
         var top = Enumerable.Range(0, 13).Select(set => body.TopSet(set).ToArray()).ToArray();
         var bottom = Enumerable.Range(0, 11).Select(set => body.BottomSet(set).ToArray()).ToArray();
         var changedTop = top.Select(group => group.ToArray()).ToArray();
@@ -3732,7 +3669,7 @@ internal static class LookupStream1Verification
                 AssertEqual(source, value.SourceAddress, "Installed native source");
                 AssertEqual(first, value.FirstSize, "Installed native first row");
                 AssertEqual(second, value.SecondSize, "Installed native remaining row");
-                AssertTrue(sourceField.GetValue(value) is null && sizeField.GetValue(value) is null, "Zero stock metadata overrides");
+                AssertTrue(value.sourceAddressOverride is null && value.firstSizeOverride is null, "Zero stock metadata overrides");
                 byte[] pixels = value.Planar.ToArray();
                 for (int index = 0; index < pixels.Length; index++) AssertEqual(LookupStream1BodyTransfersRomByte(rom, source + index), pixels[index], "Separate native pixel payload preserved");
                 // Preserve schema-valid non-tile-aligned individual row splits too.

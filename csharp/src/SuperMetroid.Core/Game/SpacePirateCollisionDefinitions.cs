@@ -15,7 +15,7 @@ internal readonly record struct SpacePirateCollisionHitbox(short Left, short Top
 /// </remarks>
 internal static class SpacePirateCollisionDefinitions
 {
-    private static readonly CollisionRecordRuns<SpacePirateCollisionComponent> Frames =
+    internal static readonly CollisionRecordRuns<SpacePirateCollisionComponent> Frames =
         CollisionRecordRuns<SpacePirateCollisionComponent>.Frames(
         new(0x804f,
         [
@@ -174,7 +174,7 @@ internal static class SpacePirateCollisionDefinitions
             [new(new(0, 1), 0xa074)],
         ]));
 
-    private static readonly CollisionRecordRuns<SpacePirateCollisionHitbox> Lists =
+    internal static readonly CollisionRecordRuns<SpacePirateCollisionHitbox> Lists =
         CollisionRecordRuns<SpacePirateCollisionHitbox>.HitboxLists(
         new(0x8059,
         [

@@ -172,7 +172,7 @@ internal static class CeresBabyInstructionProgramDefinitionsVerification
             BabyInstructionTimer = 1,
             BabyPosition = new Position16<RoomPixels>(100, 80),
         };
-        typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(enemies, baby);
+        enemies.RidleyEncounter.Ridley = baby;
         var nativeBaby = new OamBuffer();
         nativeBaby.BeginFrame();
         DrawImportedEnemySpritemap(rom, nativeBaby, new EnemySpritemapDraw { Bank = CeresBabyInstructionProgramDefinitions.Bank, Pointer = CeresBabyInstructionProgramDefinitions.HorizontalFrame, Origin = new(100, 80), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });

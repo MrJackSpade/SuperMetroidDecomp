@@ -19,7 +19,7 @@ internal static class KraidFootCollisionDefinitions
     internal const ushort HitboxList = 0x9453;
 
     /// <summary>Each two-component frame occupies 18 bytes in bank $A7.</summary>
-    private const int FrameByteCount = 18;
+    internal const int FrameByteCount = 18;
 
     internal const int FrameCount = 35;
 

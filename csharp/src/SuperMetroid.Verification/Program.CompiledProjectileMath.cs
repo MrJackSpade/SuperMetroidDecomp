@@ -26,11 +26,9 @@ internal static class CompiledProjectileMathVerification
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
             native[i] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
-        T Reader<T>(Type type, string name) where T : Delegate => type
-            .GetMethod(name, BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<T>();
         var enemy = new Func<ushort, byte, ushort>(EnemyMath.MultiplyCartridgeSinCos);
-        var baby = Reader<Func<ushort, byte, ushort>>(typeof(BabyMetroidCutsceneState), "CalculateVelocityComponent");
-        var rainbow = Reader<Func<ushort, SnesAngle, ushort>>(typeof(MotherBrainRainbowBeamSamusMovement), "CalculateYVelocity");
+        var baby = new Func<ushort, byte, ushort>(BabyMetroidCutsceneState.CalculateVelocityComponent);
+        var rainbow = new Func<ushort, SnesAngle, ushort>(MotherBrainRainbowBeamSamusMovement.CalculateYVelocity);
         var fly = new Func<int, short>(FliesBehavior.ReadSignedSineCosine);
         var glass = new Func<int, ushort>(MotherBrainBehavior.ReadSignedSineSample);
         var eye = new Func<int, short>(EyeDoorBehavior.ReadEyeDoorAcceleration);
@@ -39,8 +37,7 @@ internal static class CompiledProjectileMathVerification
         var phantoon = new Func<ushort, ushort, int>(PhantoonBehavior.ReadPhantoonFlameComponent);
         var arc = new Action<RoomEnemyProjectileSlot, ushort>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
         var crocomire = new Func<byte, EightEightVector<RoomPixels>>(CrocomireBehavior.CalculateCrocomireProjectileVelocity);
-        var echo = Reader<Func<SnesAngle, byte, Offset16<RoomPixels>>>(
-            typeof(SamusShinesparkState), "ProjectileSinLookup");
+        var echo = new Func<SnesAngle, byte, Offset16<RoomPixels>>(SamusShinesparkState.ProjectileSinLookup);
 
         // Every angle high byte (with zero, mid and saturated fractions, which the reader
         // ignores) and every radius byte. The reference uses the cartridge's positive half,

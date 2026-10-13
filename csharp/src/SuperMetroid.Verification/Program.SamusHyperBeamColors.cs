@@ -32,26 +32,22 @@ internal static class SamusHyperBeamColorsVerification
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hyper Beam color oracle revision");
         SamusHyperBeamColorCatalog catalog = SamusHyperBeamColorCatalog.Load(
             new MemoryStream(SamusHyperBeamColorExtractor.Extract(rom)));
-        var stored = (Dictionary<int, Bgr555>)typeof(SamusHyperBeamColorCatalog).GetField("colors",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        var stored = catalog.colors;
         AssertEqual(6, stored.Count, "Hyper Beam whole inputs after cyan shadow midpoint calculation");
-        var endpointInputs = (Dictionary<int, SamusHyperBeamColorCatalog.EndpointChannels>)typeof(SamusHyperBeamColorCatalog)
-            .GetField("endpointInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        var endpointInputs = catalog.endpointInputs;
         AssertEqual(9, endpointInputs.Count, "Three endpoint hues each have three independent shade inputs");
         int endpointComponentCount = 0;
         foreach (var entry in endpointInputs.Values)
-            foreach (var field in typeof(SamusHyperBeamColorCatalog.EndpointChannels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+            foreach (var field in MetadataShape.Fields(typeof(SamusHyperBeamColorCatalog.EndpointChannels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry) is not null) endpointComponentCount++;
         AssertEqual(8, endpointComponentCount, "Only eight independent endpoint channels remain after middle-shadow calculation");
-        var componentInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
-            .GetField("intermediateInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        var componentInputs = catalog.intermediateInputs;
         AssertEqual(0, componentInputs.Count, "Every native intermediate shadow is calculated without stored corrections");
-        var shadeInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusHyperBeamColorCatalog)
-            .GetField("shadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        var shadeInputs = catalog.shadeInputs;
         AssertEqual(3, shadeInputs.Count, "Only three original colors have differing shade channels");
         int shadeComponentCount = 0;
         foreach (var entry in shadeInputs.Values)
-            foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+            foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry) is not null) shadeComponentCount++;
         AssertEqual(3, shadeComponentCount, "Magenta blue shares its red shade input");
         for (int frame = 0; frame < SamusHyperBeamColorFormat.FrameCount; frame++)
@@ -87,15 +83,13 @@ internal static class SamusHyperBeamColorsVerification
                 {
                     ushort shadow = ReadVerificationWord(rom, paletteAddress + 2 * shade.Ink);
                     bool differs = false;
-                    string[] names = ["red", "green", "blue"];
                     for (int channel = 0; channel < 3; channel++)
                     {
                         int shift = 5 * channel, expectedChannel = frame == 1 && channel == 2 ? native & 31 : (shadow >> shift & 31) + shade.Brightness;
                         int? differing = (native >> shift & 31) == expectedChannel ? null : native >> shift & 31;
                         differs |= differing.HasValue;
                         object? actual = shadeInputs.TryGetValue(frame * 16 + index, out var shadeInput) ?
-                            typeof(LoadingPaletteInputView.Channels).GetField(names[channel],
-                                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(shadeInput) : null;
+                            shadeInput.Component(channel) : null;
                         AssertTrue(Equals(differing, actual), "Only original differing shade components are stored");
                     }
                     AssertEqual(differs, shadeInputs.ContainsKey(frame * 16 + index), "Exact shade component ownership");
@@ -143,12 +137,11 @@ internal static class SamusHyperBeamColorsVerification
                 if (endpointOwner)
                 {
                     var input = endpointInputs[frame * 16 + index];
-                    var type = typeof(SamusHyperBeamColorCatalog.EndpointChannels);
-                    object? red = type.GetField("red", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(input);
-                    object? blue = type.GetField("blue", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(input);
+                    int? red = input.red;
+                    int? blue = input.blue;
                     AssertTrue(blue is null, "Original endpoint blue is shared, never stored");
                     AssertTrue(Equals(frame == 9 || index == 13 ? null : (int?)(native & 31), red), "Original red endpoint is shared or a calculated middle shadow");
-                    object? green = type.GetField("green", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(input);
+                    int? green = input.green;
                     AssertTrue(Equals(frame == 1 || index == 13 ? null : (int?)(native >> 5 & 31), green), "Original green endpoint is shared or a calculated middle shadow");
                     AssertEqual(native, input.Resolve(frame == 9, native & 31, native >> 5 & 31), "Original endpoint native channel reconstruction");
                 }
@@ -305,8 +298,7 @@ internal static class SamusHyperBeamColorsVerification
         }
         byte[] chargeJson = SamusChargeColorExtractor.Extract(rom);
         var shot = SamusChargeColorCatalog.Load(new MemoryStream(chargeJson));
-        AssertEqual(typeof(SamusHyperBeamColorCatalog), typeof(SamusChargeColorCatalog).GetField("hyperShot",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.FieldType,
+        AssertEqual(typeof(SamusHyperBeamColorCatalog), MetadataShape.FieldType(typeof(SamusChargeColorCatalog), "hyperShot", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
             "Hyper-shot owns the shared calculated representation, not another whole palette table");
         var shotCgram = new SnesCgram();
         for (int frame = 0; frame < 10; frame++)
@@ -353,7 +345,7 @@ internal static class SamusHyperBeamColorsVerification
         }
         var shotSamus = new SamusState { HyperBeam = 0x8000, Presentation = { ChargeColors = shot } };
         var projectiles = new SamusProjectileSystem();
-        typeof(BeamChargeState).GetProperty(nameof(BeamChargeState.ChargedShotGlowTimer))!.SetValue(projectiles.Charge, (ushort)0x8014);
+        projectiles.Charge.ChargedShotGlowTimer = (ushort)0x8014;
         var shotGuard = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 20; call++)
         {

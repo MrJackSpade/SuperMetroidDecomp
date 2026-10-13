@@ -1,4 +1,4 @@
-﻿using static SuperMetroid.Core.Game.InstructionItem;
+using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
@@ -24,7 +24,7 @@ internal abstract class GoldenTorizoLeftTurnInstructionProgramDefinitions : IIns
     internal const byte Bank = 0xaa;
     static int IDeclaredProgramBank.Bank => Bank;
 
-    private static readonly InstructionProgramLayout Layout = new(Bank,
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd1f1),
         Entry(Dodge),
         Op((ushort)TorizoInstruction.Instruction_Torizo_FunctionInY, SimpleMovement),

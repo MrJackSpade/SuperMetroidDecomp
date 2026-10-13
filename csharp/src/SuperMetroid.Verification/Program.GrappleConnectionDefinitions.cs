@@ -107,8 +107,7 @@ internal static class GrappleConnectionDefinitionsVerification
     private static void VerifyGrappleSpecialConnections(SuperMetroidAddressSpace rom, ISnesAddressSpace guard)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GrappleSpecialConnectionsRomByte(rom, address), GrappleSpecialConnectionsRomByte(rom, address + 1)));
-        var special = typeof(SamusGrappleMovement).GetMethod("TryHandleSpecialAngle", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<SpecialGrappleHandler>();
+        var special = new SpecialGrappleHandler(SamusGrappleMovement.TryHandleSpecialAngle);
         var native = Enumerable.Range(0, 8).Select(i =>
         {
             int address = 0x9bc43e + i * 10;
@@ -167,10 +166,8 @@ internal static class GrappleConnectionDefinitionsVerification
 
     private static void VerifyGrappleCancellationAndDrop(SuperMetroidAddressSpace rom)
     {
-        var cancel = typeof(SamusGrappleMovement).GetMethod("HandleFiringPoseChange", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<ISnesAddressSpace, RoomLevelData, SamusState, ushort, GrappleMovementResult?>>();
-        var drop = typeof(SamusGrappleMovement).GetMethod("SelectDroppedPose", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<ISnesAddressSpace, SamusState, byte>>();
+        var cancel = new Func<ISnesAddressSpace, RoomLevelData, SamusState, ushort, GrappleMovementResult?>(SamusGrappleMovement.HandleFiringPoseChange);
+        var drop = (ISnesAddressSpace memory, SamusState player) => (byte)SamusGrappleMovement.SelectDroppedPose(memory, player);
         // Exercise only combinations owned by actual pose records. Older coverage routed
         // invented movement/aim pairs through pose $FD and rewrote the adjacent executable
         // bytes in a fake bus; that did not represent a cartridge-reachable state.

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class MenuPanelTileArtwork
 {
     internal const int TileCount = 4;
-    private readonly Dictionary<int, byte>? edits;
+    internal readonly Dictionary<int, byte>? edits;
     internal static bool Contains(int tile) => tile is >= 0x57 and <= 0x5a;
 
     internal MenuPanelTileArtwork(IndexedPngImage image)

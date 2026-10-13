@@ -38,8 +38,7 @@ internal static class MotherBrainInheritedExplosionIndexVerification
         AssertEqual((ushort)2, sequence.DeathAndEscapeExplosionIndex, "the sequence inherits word $0FF2");
 
         var requests = new List<MotherBrainDeathExplosionRequest>();
-        typeof(MotherBrainRainbowBeamAttackSequence).GetMethod("GenerateDeathExplosions", flags)!
-            .Invoke(sequence, [false, (Func<ushort>)(() => 0), requests]);
+        sequence.GenerateDeathExplosions(false, (Func<ushort>)(() => 0), requests);
         AssertEqual(2, requests.Count, "a smoky burst spawns two explosions");
         AssertEqual((ushort)1, sequence.DeathAndEscapeExplosionIndex, "the first burst decrements to row 1");
         AssertEqual(((short)0x0011, unchecked((short)0xffc9)), (requests[0].Offset.X, requests[0].Offset.Y),

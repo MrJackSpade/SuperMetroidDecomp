@@ -86,8 +86,7 @@ internal static class SaveLoadRandomAudit
 
             // Isolate the continue-menu handoff without a route-length death setup.
             // Retain the actual loaded runtime/RNG/SRAM and enter its file-map state.
-            typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!
-                .SetValue(game, SuperMetroidGameState.FileSelectMap);
+            game.GameState = SuperMetroidGameState.FileSelectMap;
             for (int tick = 0; tick < 1000 && (game.RuntimeForVerification is null || ReferenceEquals(runtime, game.RuntimeForVerification)); tick++)
             {
                 game.StepCaptured(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0, ++sequence, 1);
@@ -98,8 +97,7 @@ internal static class SaveLoadRandomAudit
             if (game.RuntimeForVerification is null || ReferenceEquals(runtime, game.RuntimeForVerification))
                 throw new InvalidDataException("Continue-menu audit did not replace the loaded runtime.");
             Console.WriteLine($"CONTINUE RNG wait={wait} rng={expected.RandomNumber}");
-            typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!
-                .SetValue(game, SuperMetroidGameState.Reset);
+            game.GameState = SuperMetroidGameState.Reset;
             game.StepCaptured(0, ++sequence, 1);
             if (game.DispatcherRandomNumber != 758)
                 throw new InvalidDataException("A true reset must reseed before the state-zero main-loop advance.");

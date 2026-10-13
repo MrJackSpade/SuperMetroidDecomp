@@ -34,7 +34,7 @@ internal sealed class EnemyDrawList
         _room = dependencies.Room;
         _slotTable = dependencies.SlotTable;
     }
-    private readonly List<ushort>[] _drawQueues =
+    internal readonly List<ushort>[] _drawQueues =
         Enumerable.Range(0, 8).Select(_ => new List<ushort>()).ToArray();
 
     /// <summary>Empties every layer queue before the enemy pass rebuilds them.</summary>

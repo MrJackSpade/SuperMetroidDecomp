@@ -38,7 +38,7 @@ internal sealed class MotherBrainRainbowShadeChannel
 {
     private readonly MotherBrainRainbowShadeProfile profile;
     private readonly Func<int, int> sourceGreen;
-    private readonly byte[] inputs;
+    internal readonly byte[] inputs;
     private readonly bool calculated;
 
     internal MotherBrainRainbowShadeChannel(byte[] samples, MotherBrainRainbowShadeProfile profile, Func<int, int> sourceGreen)

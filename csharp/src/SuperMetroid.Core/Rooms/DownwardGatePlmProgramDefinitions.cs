@@ -13,17 +13,17 @@ namespace SuperMetroid.Core.Rooms;
 internal static class DownwardGatePlmProgramDefinitions
 {
     /// <summary>$84:BC13: open-and-wait list, entered again after opening completes.</summary>
-    private const ushort OpenStart = 0xbc13;
+    internal const ushort OpenStart = 0xbc13;
     /// <summary>$84:BC2A: first timed closing frame.</summary>
     private const ushort ClosingFrames = 0xbc2a;
     /// <summary>$84:BC4D: first timed opening frame.</summary>
     private const ushort OpeningFrames = 0xbc4d;
     /// <summary>$84:BC29: packed movement sound after the closing spawn command.</summary>
-    private const ushort ClosingSoundAddress = 0xbc29;
+    internal const ushort ClosingSoundAddress = 0xbc29;
     /// <summary>$84:BC4C: packed movement sound after the opening wake command.</summary>
-    private const ushort OpeningSoundAddress = 0xbc4c;
+    internal const ushort OpeningSoundAddress = 0xbc4c;
     /// <summary>$84:BCDF: adjacent upward-trigger program, outside this decoder.</summary>
-    private const ushort TriggerEnd = 0xbcdf;
+    internal const ushort TriggerEnd = 0xbcdf;
 
     /// <summary>The two movement-sound operands packed after the spawn and wake commands.</summary>
     private enum PackedSound { Closing, Opening }

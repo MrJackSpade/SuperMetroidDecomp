@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class PauseSelectorVisual
 {
     private readonly int group;
-    private readonly SpriteComposition? authored;
+    internal readonly SpriteComposition? authored;
     private PauseSelectorVisual(int group, SpriteComposition? authored) { this.group = group; this.authored = authored; }
 
     /// <summary>Original beam highlight paint order expressed as row-major grid cells, not coordinates or tiles.</summary>

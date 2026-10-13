@@ -49,14 +49,12 @@ internal static class ReserveAutoFrontendVerification
         samus.Health = 0; samus.MaxHealth = 99;
         samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = 1;
         var game = new SuperMetroidGame(bus);
-        typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
-        var recovery = (SamusReserveAutoRecoveryState)typeof(SuperMetroidGame)
-            .GetField("reserveRecovery", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
+        game.runtime = runtime;
+        var recovery = game.reserveRecovery;
         // Enter through actual state-eight routing, not by calling recovery.Begin:
         // the zero-health gameplay frame must publish recovery without consuming
         // the first reserve point early or letting Start replace it with pause.
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!
-            .SetValue(game, SuperMetroidGameState.MainGameplay);
+        game.GameState = SuperMetroidGameState.MainGameplay;
         long hostSequence = 0;
         var entry = game.StepCaptured((ushort)SnesButton.Start, ++hostSequence, 1);
         AssertEqual(SuperMetroidGameState.ReserveTanksAuto, game.GameState,
@@ -88,7 +86,7 @@ internal static class ReserveAutoFrontendVerification
             "completion unfreezes the gameplay projectile pass on the same frame");
         AssertTrue(runtime.Player.LastGroundedSamusMovement is not null,
             "native $82:DC18 unfreezes BEFORE the completion frame gameplay/movement pass");
-        var audio = (CartridgeAudioState)typeof(SuperMetroidGame).GetField("audio", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
+        var audio = game.audio;
         samus.HealthWarning.Update(99, audio);
         samus.Health = 0; samus.ReserveEnergy = 33;
         // Seed the display at the pre-transfer health. Each subsequent gameplay
@@ -101,9 +99,9 @@ internal static class ReserveAutoFrontendVerification
         recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;
         lockedAnimationFrame = samus.AnimationFrame;
         lockedAnimationTimer = samus.AnimationFrameTimer;
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.ReserveTanksAuto);
-        var positions = (byte[])typeof(CartridgeAudioState).GetField("_soundWritePositions", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(audio)!;
-        var queues = (byte[,])typeof(CartridgeAudioState).GetField("_soundQueues", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(audio)!;
+        game.GameState = SuperMetroidGameState.ReserveTanksAuto;
+        var positions = audio._soundWritePositions;
+        var queues = audio._soundQueues;
         for (int frame = 0; frame < 33; frame++)
         {
             // Drain the unrelated host transport between observations. Production

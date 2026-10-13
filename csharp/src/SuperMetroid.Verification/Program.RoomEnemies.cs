@@ -269,7 +269,7 @@ internal static void VerifyEnemyMappedSourceRouting()
 {
     const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
     foreach (string removed in new[] { "ReadEnemySourceByte", "ReadWord", "ReadLong" })
-        AssertTrue(typeof(RoomEnemySystem).GetMethod(removed, flags) is null,
+        AssertTrue(!MetadataShape.DeclaresMethod(typeof(RoomEnemySystem), removed, flags),
             $"enemy subsystem has no generic {removed} source reader");
     VerifyEnemyWorkRamWordMapping(SuperMetroidAddressSpace.CreateWithoutCartridge());
     Console.WriteLine("Enemy memory boundary: generic source readers are absent; explicit WRAM wrap, mirror and region rejection pass.");

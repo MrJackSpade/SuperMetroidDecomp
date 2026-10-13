@@ -96,7 +96,7 @@ internal static class LowPercentIntroTimelineVerification
             }
 
             // The title, options and file screens run until state $1E begins at update 214.
-            IntroCinematicState? current = PrivateState.Field<IntroCinematicState?>(game, "intro");
+            IntroCinematicState? current = game.intro;
             if (update < 214)
             {
                 AssertTrue(current is null, $"intro update {update}: state $1E has not begun");
@@ -105,8 +105,8 @@ internal static class LowPercentIntroTimelineVerification
             IntroCinematicState intro = current
                 ?? throw new InvalidOperationException($"No intro after update {update}.");
             string phase = intro.Phase.ToString();
-            if (PrivateState.Field<object?>(intro, "ceresFlight") is { } flight)
-                phase += "/" + PrivateState.Property<object>(flight, "Phase");
+            if (intro.ceresFlight is { } flight)
+                phase += "/" + flight.Phase;
             if (phases.TryGetValue(update, out var expected))
                 AssertEqual(expected.Phase, phase, $"intro update {update}: native installs $8B:{expected.Native[1..]}");
             else if (phase != previous && previous is not null)
@@ -121,9 +121,9 @@ internal static class LowPercentIntroTimelineVerification
     /// <summary>Native Samus values the 13% capture records at intro updates owned by one fix each.</summary>
     private static void CheckSamusMilestone(IntroCinematicState intro, int update)
     {
-        SamusState? flashback = PrivateState.Field<SamusState?>(intro, "flashbackSamus");
-        SamusState? discovery = PrivateState.Field<object?>(intro, "babyDiscovery") is { } scene
-            ? PrivateState.Property<SamusState>(scene, "Samus") : null;
+        SamusState? flashback = intro.flashbackSamus;
+        SamusState? discovery = intro.babyDiscovery is { } scene
+            ? scene.Samus : null;
         switch (update)
         {
             case 1809:
@@ -137,7 +137,7 @@ internal static class LowPercentIntroTimelineVerification
                 break;
             case 2050:
                 // $90:EB02 cleared the run's movement records, so the missile inherits nothing.
-                var slots = PrivateState.Field<SamusProjectileSystem>(intro, "flashbackProjectiles");
+                var slots = intro.flashbackProjectiles;
                 SamusProjectileSlot missile = slots.SlotTable._slots[0];
                 AssertEqual(unchecked((short)0xff00), missile.Velocity.X.SignedRawValue, "update 2050 third missile launch velocity");
                 AssertEqual((ushort)0x0088, missile.Position.X.Whole, "update 2050 third missile X");

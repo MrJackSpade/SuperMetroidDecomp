@@ -31,8 +31,7 @@ internal static class ReserveRefillRainbowBeamVerification
         };
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
-        typeof(SamusDrainedState).GetMethod("SetupForRainbowBeam", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(samus.Drained, [bus, samus]);
+        samus.Drained.SetupForRainbowBeam(bus, samus);
         AssertTrue(samus.ScriptLocks.RainbowBeamHandlersInstalled, "the rainbow beam holds Samus");
 
         var recovery = new SamusReserveAutoRecoveryState();

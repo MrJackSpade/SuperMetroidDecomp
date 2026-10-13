@@ -977,7 +977,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     }
 
     /// <summary>Begins the native EnemyMain publication window.</summary>
-    private void BeginEnemySoundRequestFrame()
+    internal void BeginEnemySoundRequestFrame()
     {
         // Species clear their own legacy publications in their frame and room-load hooks, which run next.
         Audio.BeginFrame();
@@ -996,7 +996,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// debugger limitation cannot be recovered here. Distinct families still append distinct
     /// requests, and every new/direct producer is lossless.
     /// </remarks>
-    private void CollectLegacyEnemyAudioRequests()
+    internal void CollectLegacyEnemyAudioRequests()
     {
         // Ordinary bank-$A2/$A3/$A8/$B2 actors overwhelmingly call QueueSfx2_Max6.
         BoyonBehavior.QueueLegacySounds(Audio);

@@ -71,8 +71,8 @@ internal static class PauseReserveManualVerification
             pause.Step(0, (ushort)SnesButton.Up);
             pause.Step(0, (ushort)SnesButton.Down);
             audio.Reset();
-            var positions = (byte[])typeof(CartridgeAudioState).GetField("_soundWritePositions", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(audio)!;
-            var queues = (byte[,])typeof(CartridgeAudioState).GetField("_soundQueues", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(audio)!;
+            var positions = audio._soundWritePositions;
+            var queues = audio._soundQueues;
             int count = startingHealth == 98 ? 1 : 10;
             for (int frame = 0; frame < count; frame++)
             {
@@ -88,8 +88,7 @@ internal static class PauseReserveManualVerification
                     DebuggerObjectGraphSerializer.Serialize(state, pause);
                     state.Position = 0;
                     var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state);
-                    var timer = typeof(PauseMenuState).GetField("reserveTransferSoundDelay", BindingFlags.Instance | BindingFlags.NonPublic)!;
-                    AssertEqual((ushort)15, (ushort)timer.GetValue(restored)!, "debugger state preserves pending transfer delay");
+                    AssertEqual((ushort)15, restored.reserveTransferSoundDelay, "debugger state preserves pending transfer delay");
                 }
             }
             AssertEqual(0, samus.ReserveEnergy, "retail consumes all reserves on exhaustion or max health");

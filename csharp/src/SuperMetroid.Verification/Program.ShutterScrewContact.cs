@@ -40,10 +40,9 @@ internal static class ShutterScrewContactVerification
 
             samus.HorizontalSpeed.ContactDamageIndex = contactDamage;
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var record = typeof(SamusKinematicsState).GetMethod("RecordSolidEnemyCollision", flags)!;
-            record.Invoke(samus.Kinematics, [SamusCollisionDirection.Left, (ushort?)shutter.NativeIndex]);
+            samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Left, (ushort?)shutter.NativeIndex);
             foreach (var direction in new[] { SamusCollisionDirection.Right, SamusCollisionDirection.Up, SamusCollisionDirection.Down })
-                record.Invoke(samus.Kinematics, [direction, (ushort?)null]);
+                samus.Kinematics.RecordSolidEnemyCollision(direction, (ushort?)null);
 
             runtime.Enemies.ShuttersBehavior.RunVerticalShutterMain(shutter, state, samus, Position16<RoomPixels>.Zero);
             string context = $"contact damage {contactDamage}";

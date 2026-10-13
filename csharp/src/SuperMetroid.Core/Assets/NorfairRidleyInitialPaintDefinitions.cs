@@ -14,10 +14,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class NorfairRidleyInitialPaintDefinitions
 {
-    private readonly CeresDoorEscapePaintDefinitions armor;
-    private readonly CeresBabyPaintDefinitions organ;
+    internal readonly CeresDoorEscapePaintDefinitions armor;
+    internal readonly CeresBabyPaintDefinitions organ;
     private readonly int clearBlue;
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal NorfairRidleyInitialPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {

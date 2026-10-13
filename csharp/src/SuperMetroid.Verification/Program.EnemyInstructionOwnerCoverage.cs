@@ -42,8 +42,6 @@ internal static class EnemyInstructionOwnerCoverageVerification
 
         const BindingFlags flags = BindingFlags.Static | BindingFlags.Instance |
             BindingFlags.NonPublic;
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "RunInitializationAi", flags)!;
 
         var translated = new HashSet<EnemyDefinitionId>();
         var owned = new HashSet<EnemyDefinitionId>();
@@ -88,17 +86,15 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 bool translatedRecord = true;
                 try
                 {
-                    initialize.Invoke(
-                        enemies,
-                        [slot, null, new SamusState(), (ushort)0, (ushort)0]);
+                    enemies.RunInitializationAi(slot, null, new SamusState(), (ushort)0, (ushort)0);
                 }
-                catch (TargetInvocationException exception)
+                catch (Exception exception)
                     when (IsUntranslatedEnemyInitializer(
-                        exception.InnerException, definitionPointer))
+                        exception, definitionPointer))
                 {
                     translatedRecord = false;
                 }
-                catch (TargetInvocationException)
+                catch (Exception)
                 {
                     // A matched initializer may require its native sibling slot, room
                     // geometry, or encounter state. Matching the dispatcher still proves

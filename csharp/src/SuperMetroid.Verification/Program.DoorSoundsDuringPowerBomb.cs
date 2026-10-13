@@ -34,9 +34,9 @@ internal static class DoorSoundsDuringPowerBombVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
         runtime.Player.Samus!.InputLocked = true;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
+        game.runtime = runtime;
+        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.GameState = SuperMetroidGameState.MainGameplay;
         game.Step(0);
 
         var level = runtime.Room.LevelData!;
@@ -55,7 +55,7 @@ internal static class DoorSoundsDuringPowerBombVerification
         var audio = game.AudioForVerification;
         byte library1 = audio.SoundQueueForVerification(0).Next;
         byte library2 = audio.SoundQueueForVerification(1).Next;
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.HitDoorBlock);
+        game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
 
         AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,

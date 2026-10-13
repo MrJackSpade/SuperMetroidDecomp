@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class RoomEnemyAuxiliaryDefinitionCatalog
 {
-    private static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
+    internal static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
         new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
     {
         // Native respawn placeholder selected when a killed actor vacates its slot.

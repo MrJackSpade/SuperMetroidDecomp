@@ -24,7 +24,7 @@ public static class PhantoonWaveTable
         }
     }
 
-    private static int CalculateDisplacement(ushort phase, ushort amplitude)
+    internal static int CalculateDisplacement(ushort phase, ushort amplitude)
     {
         short sine = PhantoonWaveRomData.ReadSineAtBytePhase(phase);
         // Native unsigned byte products truncate BEFORE restoring sign. Its final

@@ -21,10 +21,10 @@ public sealed class TourianStatueColorCatalog
                 Enumerable.Range(0, TourianStatuePaletteRomData.EyeColorCount).Select(color => ResolveEye(row, color)).ToArray()).ToArray());
         });
 
-    private readonly PaletteBand baseColors;
-    private readonly PaletteBand statueColors;
-    private readonly PaletteBand eyeColors;
-    private readonly PaletteBand greyColors;
+    internal readonly PaletteBand baseColors;
+    internal readonly PaletteBand statueColors;
+    internal readonly PaletteBand eyeColors;
+    internal readonly PaletteBand greyColors;
 
     private TourianStatueColorCatalog(Bgr555[] baseColors, Bgr555[] statueColors,
         Bgr555[][] eyeColors, Bgr555[] greyColors)
@@ -136,11 +136,11 @@ public sealed class TourianStatueColorCatalog
     }
 
     /// <summary>One independent installed domain: stock colors calculate; arbitrary supplied words own sparse overrides.</summary>
-    private sealed class PaletteBand
+    internal sealed class PaletteBand
     {
         private readonly TourianStatuePaintBand band;
         private readonly int count;
-        private readonly Dictionary<int, Bgr555> edits = [];
+        internal readonly Dictionary<int, Bgr555> edits = [];
         internal PaletteBand(TourianStatuePaintBand band, ReadOnlySpan<Bgr555> supplied)
         {
             this.band = band;

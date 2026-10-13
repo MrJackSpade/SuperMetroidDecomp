@@ -19,7 +19,6 @@ internal static class ProjectileTrailDefinitionsVerification
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2), "Trail selector rejects the preceding word");
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1), "Trail selector rejects unaligned reads");
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end), "Trail selector rejects the following word");
-        var spawn = typeof(ProjectileTrails).GetMethod("SpawnTrail", BindingFlags.NonPublic | BindingFlags.Instance)!;
         for (int selection = 0; selection < 64; selection++)
         {
             var projectiles = new SamusProjectileSystem();
@@ -29,7 +28,7 @@ internal static class ProjectileTrailDefinitionsVerification
                 InstructionPointer = 0x86e3,
                 Position = new(new(100, 0), new(200, 0)),
             };
-            spawn.Invoke(projectiles.Trails, [NewTrailSelectorGuard(start, end), projectile]);
+            projectiles.Trails.SpawnTrail(NewTrailSelectorGuard(start, end), projectile);
             var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects left trail including adjacent right-table entries");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Trails.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn retains right-table overrun behavior");

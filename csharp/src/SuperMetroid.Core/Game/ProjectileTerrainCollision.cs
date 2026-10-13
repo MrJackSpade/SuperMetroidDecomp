@@ -118,7 +118,7 @@ internal sealed class ProjectileTerrainCollision
         return ScanVerticalShotReactions(level, slot, roomPlms);
     }
 
-    private static bool ScanHorizontalShotReactions(
+    internal static bool ScanHorizontalShotReactions(
         RoomLevelData level,
         SamusProjectileSlot slot,
         RoomPlmSystem? roomPlms)
@@ -153,7 +153,7 @@ internal sealed class ProjectileTerrainCollision
         return everyBlockSolid;
     }
 
-    private static bool ScanVerticalShotReactions(
+    internal static bool ScanVerticalShotReactions(
         RoomLevelData level,
         SamusProjectileSlot slot,
         RoomPlmSystem? roomPlms)

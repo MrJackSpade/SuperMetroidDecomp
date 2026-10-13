@@ -9,7 +9,7 @@ public sealed class ChargeFlarePlacementCatalog
 {
     // Source kind comes from the importing file contract, never from supplied pixel/offset values.
     private readonly bool grapple;
-    private readonly Dictionary<int, Offset16<RoomPixels>> offsets = new();
+    internal readonly Dictionary<int, Offset16<RoomPixels>> offsets = new();
     private ChargeFlarePlacementCatalog(Offset16<RoomPixels>[] supplied, bool grapple)
     {
         this.grapple = grapple;

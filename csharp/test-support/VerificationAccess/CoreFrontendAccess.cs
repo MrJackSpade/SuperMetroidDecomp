@@ -17,7 +17,7 @@ internal static class CeresDepartureStateAccess
         /// <summary>Applies the current master-brightness nibble to a software-rendered frame.</summary>
         internal void ApplyBrightness(Span<Rgba32> pixels)
         {
-            MasterBrightnessFilter.Apply(pixels, PrivateState.Field<byte>(self, "<Brightness>k__BackingField"));
+            MasterBrightnessFilter.Apply(pixels, self.Brightness);
         }
     }
 }
@@ -27,11 +27,11 @@ internal static class CeresDestructionCinematicStateAccess
 {
     extension(CeresDestructionCinematicState self)
     {
-        internal ushort Zoom => PrivateState.Field<ushort>(self, "zoom");
+        internal ushort Zoom => self.zoom;
 
-        internal FixedPosition<Mode7Pixels> Background => PrivateState.Field<FixedPosition<Mode7Pixels>>(self, "background");
+        internal FixedPosition<Mode7Pixels> Background => self.background;
 
-        internal int ActiveActorCount => PrivateState.Field<List<IntroDiscoverySprite>>(self, "actors").Count;
+        internal int ActiveActorCount => self.actors.Count;
 
         /// <summary>
         /// Reads the low-byte Mode-7 map selected by the cinematic's current native transfers.
@@ -41,7 +41,7 @@ internal static class CeresDestructionCinematicStateAccess
         {
             if ((uint)mapByteIndex >= CeresDestructionRomData.Vram.Mode7MapCapacityBytes)
                 throw new ArgumentOutOfRangeException(nameof(mapByteIndex));
-            return PrivateState.Field<SnesVram>(self, "vram").ReadByte(mapByteIndex * 2);
+            return self.vram.ReadByte(mapByteIndex * 2);
         }
     }
 }
@@ -63,9 +63,9 @@ internal static class CreditsObjectStateAccess
 {
     extension(CreditsObjectState self)
     {
-        internal int DestinationRow => PrivateState.Field<int>(self, "destinationRow");
+        internal int DestinationRow => self.destinationRow;
 
-        internal ReadOnlySpan<ushort> Tilemap => PrivateState.Field<ushort[]>(self, "tilemap");
+        internal ReadOnlySpan<ushort> Tilemap => self.tilemap;
     }
 }
 
@@ -74,7 +74,7 @@ internal static class EndingRewardJumpAccess
 {
     extension(EndingRewardJump self)
     {
-        internal int VerticalVelocity => PrivateState.Field<int>(self, "velocity");
+        internal int VerticalVelocity => self.velocity;
     }
 }
 
@@ -112,10 +112,10 @@ internal static class FileSelectMenuStateAccess
         /// Read-only access for cartridge-layout verification. Gameplay code uploads this same
         /// buffer to BG1; exposing a span avoids adding a second, test-only tilemap builder.
         /// </summary>
-        internal ReadOnlySpan<ushort> BackgroundTilemap => PrivateState.Field<ushort[]>(self, "bg1Tilemap");
+        internal ReadOnlySpan<ushort> BackgroundTilemap => self.bg1Tilemap;
 
         /// <summary>Selected helmet frame retained through the fade into loading/options.</summary>
-        internal int SelectedHelmetFrame => PrivateState.Field<int>(self, "helmetAnimationFrame");
+        internal int SelectedHelmetFrame => self.helmetAnimationFrame;
     }
 }
 
@@ -125,10 +125,10 @@ internal static class GameOverMenuStateAccess
     extension(GameOverMenuState self)
     {
         /// <summary>Currently displayed Baby Metroid frame, exposed for deterministic replay.</summary>
-        internal ushort BabySpritemap => PrivateState.Field<ushort>(self, "babySpritemap");
+        internal ushort BabySpritemap => self.babySpritemap;
 
         /// <summary>Current bank-$82 Baby instruction pointer, exposed for debugger inspection.</summary>
-        internal ushort BabyInstructionPointer => PrivateState.Field<ushort>(self, "babyInstructionPointer");
+        internal ushort BabyInstructionPointer => self.babyInstructionPointer;
     }
 }
 
@@ -163,7 +163,7 @@ internal static class IntroBabyDiscoveryStateAccess
 {
     extension(IntroBabyDiscoveryState self)
     {
-        internal int ActiveEggParticleCount => PrivateState.Field<List<IntroEggParticle>>(self, "eggParticles").Count(particle => particle.IsActive);
+        internal int ActiveEggParticleCount => self.eggParticles.Count(particle => particle.IsActive);
     }
 }
 
@@ -181,7 +181,7 @@ internal static class IntroEggParticleAccess
 {
     extension(IntroEggParticle self)
     {
-        internal bool IsActive => PrivateState.Field<IntroDiscoverySprite>(self, "sprite").IsActive;
+        internal bool IsActive => self.sprite.IsActive;
     }
 }
 
@@ -190,7 +190,7 @@ internal static class IntroEggSlimeDropAccess
 {
     extension(IntroEggSlimeDrop self)
     {
-        internal bool IsActive => PrivateState.Field<IntroDiscoverySprite>(self, "sprite").IsActive;
+        internal bool IsActive => self.sprite.IsActive;
     }
 }
 
@@ -200,7 +200,7 @@ internal static class IntroMotherBrainExplosionSystemAccess
     extension(IntroMotherBrainExplosionSystem self)
     {
         /// <summary>All eight actors remain allocated until the later page-two crossfade.</summary>
-        internal int ActiveCount => PrivateState.Field<global::System.Collections.Generic.IReadOnlyList<object>>(self, "actors").Count(actor => PrivateState.Property<bool>(actor, "IsActive"));
+        internal int ActiveCount => self.actors.Count(actor => actor.IsActive);
     }
 }
 
@@ -216,8 +216,8 @@ internal static class IntroCeresFlightStateAccess
         internal void StepFrame()
         {
             self.Step();
-            PrivateState.Field<SuperMetroid.Core.Audio.CartridgeAudioState>(self, "audio")
-                .AdvanceFrame(PrivateState.Field<SuperMetroid.Core.Hardware.ISnesAddressSpace>(self, "bus"), default);
+            self.audio
+                .AdvanceFrame(self.bus, default);
         }
     }
 }
@@ -232,8 +232,8 @@ internal static class IntroRinkaSystemAccess
         {
             get
             {
-                IntroDiscoverySprite?[] slots = PrivateState.Field<IntroDiscoverySprite?[]>(self, "slots");
-                IntroDiscoverySprite spawner = PrivateState.Field<IntroDiscoverySprite>(self, "spawner");
+                IntroDiscoverySprite?[] slots = self.slots;
+                IntroDiscoverySprite spawner = self.spawner;
                 return slots.Reverse().OfType<IntroDiscoverySprite>()
                     .Where(actor => !ReferenceEquals(actor, spawner)).ToArray();
             }
@@ -263,22 +263,22 @@ internal static class PauseMenuStateAccess
     extension(PauseMenuState self)
     {
         /// <summary>True while a map/equipment page change is fading or loading; page input waits for it.</summary>
-        internal bool IsPageTransitionActive => PrivateState.Field<PauseMenuTransition>(self, "transition") != default;
+        internal bool IsPageTransitionActive => self.transition != default;
 
         /// <summary>Low byte of the native category/item selector word.</summary>
-        internal PauseEquipmentCategory SelectedCategory => PrivateState.Field<PauseEquipmentCategory>(self, "selectedCategory");
+        internal PauseEquipmentCategory SelectedCategory => self.selectedCategory;
 
         /// <summary>High byte of the native category/item selector word.</summary>
-        internal int SelectedItem => PrivateState.Field<int>(self, "selectedItem");
+        internal int SelectedItem => self.selectedItem;
 
         /// <summary>Read-only diagnostic timing for the native equipment-selector animation.</summary>
-        internal (int Frame, int Timer) ItemSelectorAnimationState => (PrivateState.Field<int>(self, "itemSelectorAnimationFrame"), PrivateState.Field<int>(self, "itemSelectorAnimationTimer"));
+        internal (int Frame, int Timer) ItemSelectorAnimationState => (self.itemSelectorAnimationFrame, self.itemSelectorAnimationTimer);
 
         /// <summary>Number of cartridge OBJ records emitted by the most recent render.</summary>
-        internal int LastRenderedSpriteCount => PrivateState.Field<OamBuffer>(self, "oam").LastFinalizedSpriteCount;
+        internal int LastRenderedSpriteCount => self.oam.LastFinalizedSpriteCount;
 
         /// <summary>Last bank-$82 menu spritemap ID selected by a pause draw routine.</summary>
-        internal ushort LastIndicatorSpritemapId => PrivateState.Field<ushort>(self, "lastIndicatorSpritemapId");
+        internal ushort LastIndicatorSpritemapId => self.lastIndicatorSpritemapId;
 
         /// <summary>
         /// Reads one native $7E:3000-relative button-label word after its queued-equivalent
@@ -292,7 +292,7 @@ internal static class PauseMenuStateAccess
             int uploadedWordOffset = nativeWordIndex - firstUploadedNativeWordIndex;
             if ((uint)uploadedWordOffset >= PauseMenuLayout.ButtonRowsByteCount / 2)
                 throw new ArgumentOutOfRangeException(nameof(nativeWordIndex));
-            return PrivateState.Field<SnesVram>(self, "vram").ReadWord(PauseVramLayout.ButtonRows.Offset + uploadedWordOffset);
+            return self.vram.ReadWord(PauseVramLayout.ButtonRows.Offset + uploadedWordOffset);
         }
 
         /// <summary>
@@ -306,7 +306,7 @@ internal static class PauseMenuStateAccess
 
             int byteOffset = PauseMenuLayout.ReserveSupplyDigitsByteOffset + digitIndex * 2;
             return unchecked((ushort)(
-                SnesLittleEndian.Word(PrivateState.Field<byte[]>(self, "equipmentTilemap")[byteOffset], PrivateState.Field<byte[]>(self, "equipmentTilemap")[byteOffset + 1])));
+                SnesLittleEndian.Word(self.equipmentTilemap[byteOffset], self.equipmentTilemap[byteOffset + 1])));
         }
     }
 }
@@ -318,7 +318,7 @@ internal static class SuperMetroidGameAccess
     {
         internal string? MapPresentationIdentity => self.Artwork.MapPresentation?.ContentIdentity;
 
-        internal ushort DispatcherRandomNumber => PrivateState.Property<Bank80SystemState>(self, "FrontendRandomOwner").RandomNumber;
+        internal ushort DispatcherRandomNumber => self.FrontendRandomOwner.RandomNumber;
 
         /// <summary>
         /// Initialize the ordinary gameplay runtime for a friend verifier that
@@ -329,20 +329,20 @@ internal static class SuperMetroidGameAccess
         /// </summary>
         internal void InitializeDirectRoomVerification()
         {
-            if (PrivateState.Field<SuperMetroidRuntime?>(self, "runtime") is not null || self.GameState != SuperMetroidGameState.Reset)
+            if (self.runtime is not null || self.GameState != SuperMetroidGameState.Reset)
                 throw new InvalidOperationException(
                     "Direct-room verification requires a fresh frontend.");
-            if (!((bool)(PrivateState.Invoke(self, "SetupSelectedGame"))!))
+            if (!((bool)(self.SetupSelectedGame())!))
                 throw new InvalidOperationException(
                     "New-game runtime setup did not select the Ceres arrival path.");
-            PrivateState.SetProperty(self, "GameState", SuperMetroidGameState.MainGameplay);
+            self.GameState = SuperMetroidGameState.MainGameplay;
         }
 
         /// <summary>
         /// Exposes the cartridge coroutine phase only to the friend verification/debug hosts.
         /// Production UI code continues to consume the coarser public game state.
         /// </summary>
-        internal DoorTransitionPhase DoorTransitionPhaseForVerification => PrivateState.Field<DoorTransitionState>(self, "doorTransition").Phase;
+        internal DoorTransitionPhase DoorTransitionPhaseForVerification => self.doorTransition.Phase;
     }
 }
 
@@ -352,19 +352,19 @@ internal static class TitleSequenceStateAccess
     extension(TitleSequenceState self)
     {
         /// <summary>Current INIDISP brightness nibble; zero is black and fifteen is full.</summary>
-        internal byte Brightness => (byte)PrivateState.Field<int>(self, "brightness");
+        internal byte Brightness => (byte)self.brightness;
 
         /// <summary>Current title CGRAM, including cartridge palette-animation writes.</summary>
         [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-        internal ReadOnlySpan<Bgr555> PaletteColors => PrivateState.Field<SnesCgram>(self, "cgram").Colors;
+        internal ReadOnlySpan<Bgr555> PaletteColors => self.cgram.Colors;
 
         /// <summary>Current native Mode-7 A/D scalar, exposed for transform regression audits.</summary>
-        internal ushort Mode7MatrixScale => unchecked((ushort)PrivateState.Field<int>(self, "zoom"));
+        internal ushort Mode7MatrixScale => unchecked((ushort)self.zoom);
 
         /// <summary>
         /// NTSC demo countdown. Retail initializes this to $0384 (900 frames); PAL uses $02D0
         /// so both revisions hold the title for approximately fifteen seconds.
         /// </summary>
-        internal int TitleScreenFramesRemaining => PrivateState.Field<TitleSequencePhase>(self, "<Phase>k__BackingField") == TitleSequencePhase.TitleScreen ? PrivateState.Field<int>(self, "phaseTimer") : 0;
+        internal int TitleScreenFramesRemaining => self.Phase == TitleSequencePhase.TitleScreen ? self.phaseTimer : 0;
     }
 }

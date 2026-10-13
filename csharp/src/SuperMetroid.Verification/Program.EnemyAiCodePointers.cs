@@ -21,8 +21,7 @@ internal static class EnemyAiCodePointersVerification
                 $"enemy AI entry {routine} is a mapped 24-bit cartridge address");
         }
 
-        Type[] bankCatalogs = typeof(EnemyAiCodePointers)
-            .GetNestedTypes(BindingFlags.Public)
+        Type[] bankCatalogs = MetadataShape.NestedTypes(typeof(EnemyAiCodePointers), BindingFlags.Public)
             .OrderBy(type => type.Name, StringComparer.Ordinal)
             .ToArray();
         AssertTrue(bankCatalogs.Length != 0,

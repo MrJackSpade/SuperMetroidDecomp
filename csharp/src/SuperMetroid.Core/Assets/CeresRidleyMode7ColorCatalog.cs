@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Ceres Ridley Mode-7 zoom shades, separate from movement and rotation.</summary>
 public sealed class CeresRidleyMode7ColorCatalog
 {
-    private readonly CeresRidleyMode7PaintDefinitions rows;
+    internal readonly CeresRidleyMode7PaintDefinitions rows;
 
     private CeresRidleyMode7ColorCatalog(Bgr555[][] rows) => this.rows = new(rows);
 

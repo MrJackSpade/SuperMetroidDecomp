@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
@@ -817,7 +817,7 @@ internal sealed class SamusPoseMetadata
     }
 
     /// <summary>Executes special prospective-pose command three at `$91:EE80`.</summary>
-    private void ArmPublishedBombJump()
+    internal void ArmPublishedBombJump()
     {
         // Command three replaces, rather than suspends, the movement pointer.
         // A suit-interrupted spark may still own it despite the ordinary body pose.

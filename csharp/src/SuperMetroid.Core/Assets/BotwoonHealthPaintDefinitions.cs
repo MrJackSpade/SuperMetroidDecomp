@@ -15,7 +15,7 @@ internal sealed class BotwoonHealthPaintDefinitions
 {
     /// <summary>$B3:973B/975B: copied slot0 target in bands1/2; independently observable CGRAM data.</summary>
     private static readonly Bgr555 EarlyBandTransparentTarget = Bgr555.FromWord(0x2003);
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal BotwoonHealthPaintDefinitions(Bgr555[][] rows)
     {

@@ -24,14 +24,14 @@ internal static class BabyMetroidThemeVerification
         enemies.MotherBrainEncounter.MotherBrain = state;
         enemies.Presentation._cgram = new SnesCgram();
         var baby = new BabyMetroidCutsceneState();
-        typeof(BabyMetroidCutsceneState).GetProperty(nameof(baby.Phase))!.SetValue(baby, BabyMetroidCutscenePhase.FinalCharge);
-        typeof(BabyMetroidCutsceneState).GetProperty(nameof(baby.Health))!.SetValue(baby, (ushort)0);
+        baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
+        baby.Health = (ushort)0;
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         var samus = new SamusState();
         Action<MotherBrainEnemyState, BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
-        var begin = typeof(RoomEnemySystem).GetMethod("BeginEnemySoundRequestFrame", flags)!.CreateDelegate<Action>(enemies);
-        var beginMotherBrain = typeof(MotherBrainEnemyState).GetMethod("BeginFrame", flags)!.CreateDelegate<Action>(state);
-        var collect = typeof(RoomEnemySystem).GetMethod("CollectLegacyEnemyAudioRequests", flags)!.CreateDelegate<Action>(enemies);
+        var begin = new Action(enemies.BeginEnemySoundRequestFrame);
+        var beginMotherBrain = new Action(state.BeginFrame);
+        var collect = new Action(enemies.CollectLegacyEnemyAudioRequests);
         for (int frame = 0; frame <= 73; frame++)
         {
             begin();

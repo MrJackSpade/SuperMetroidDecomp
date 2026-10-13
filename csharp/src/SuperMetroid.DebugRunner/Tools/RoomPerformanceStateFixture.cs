@@ -20,8 +20,8 @@ internal static class RoomPerformanceStateFixture
         using var data = new AndroidSessionData(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
         const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(SuperMetroidGame).GetMethod("SetupSelectedGame", fields)!.Invoke(data.Game, null);
-        var runtime = (SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime", fields)!.GetValue(data.Game)!;
+        data.Game.SetupSelectedGame();
+        var runtime = data.Game.runtime;
         bool surface = scene == "surface";
         ushort camera = surface ? (ushort)1024 : (ushort)0;
         if (scene == "map")
@@ -38,8 +38,7 @@ internal static class RoomPerformanceStateFixture
         }
         runtime.Player.Samus!.InputLocked = true;
         runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new((ushort)(camera + (surface ? 128 : 64)), (ushort)(camera + 160)));
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!
-            .SetValue(data.Game, SuperMetroidGameState.MainGameplay);
+        data.Game.GameState = SuperMetroidGameState.MainGameplay;
         double stepMs = 0, renderMs = 0, audioMs = 0;
         Rgba32[]? pixels = null;
         RenderFrameSnapshot? lastSnapshot = null;

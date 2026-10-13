@@ -16,7 +16,7 @@ internal sealed class CeresRidleyStartColorDefinitions
     private const int PaletteSize = 16;
     private readonly CeresDoorNormalPaintDefinitions door;
     private readonly CeresBabyPaintDefinitions baby;
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal CeresRidleyStartColorDefinitions(ReadOnlySpan<Bgr555> colors, CeresBabyPaintDefinitions initialBaby)
     {

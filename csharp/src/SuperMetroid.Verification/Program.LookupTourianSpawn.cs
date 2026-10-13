@@ -24,19 +24,17 @@ internal static class LookupTourianSpawnVerification
         AssertEqual(4, expected.Count, "Four native calls before RTS");
 
         var sequence = RepositoryInstallation.CreateRuntime(RepositoryInstallation.Installation.OpenRuntimeAddressSpace()).TourianStatues;
-        typeof(TourianStatueSequence).GetMethod("SpawnAnimatedObjects", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(sequence, null);
-        var objects = ((IEnumerable)typeof(TourianStatueSequence)
-            .GetField("objects", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(sequence)!).Cast<object>().ToArray();
-        AssertEqual(expected.Count, objects.Length, "Production spawn count");
-        for (int index = 0; index < objects.Length; index++)
+        sequence.SpawnAnimatedObjects();
+        var objects = sequence.objects;
+        AssertEqual(expected.Count, objects.Count, "Production spawn count");
+        for (int index = 0; index < objects.Count; index++)
         {
-            object tile = objects[index];
-            var definition = (TourianStatueAnimatedTileProgramDefinition)tile.GetType().GetField("Definition")!.GetValue(tile)!;
+            var tile = objects[index];
+            var definition = tile.Definition;
             AssertEqual(expected[index], (ushort)definition.ObjectPointer, "Native spawn/handler order");
             AssertEqual(ReadVerificationWord(rom, 0x870000 | expected[index]),
-                (ushort)tile.GetType().GetField("Pointer")!.GetValue(tile)!, "Original initial program");
-            AssertEqual((ushort)1, (ushort)tile.GetType().GetField("Timer")!.GetValue(tile)!, "Spawned instruction timer");
+                tile.Pointer, "Original initial program");
+            AssertEqual((ushort)1, tile.Timer, "Spawned instruction timer");
         }
     }
 }

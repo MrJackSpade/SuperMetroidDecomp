@@ -35,7 +35,7 @@ internal static class FrontendRomFreeVerification
         // The native reference remains available only to the development probe
         // that identifies the exact BG2 source ranges to forbid.
         var installedMemory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        AssertEqual(false, installedMemory.GetType().GetProperty("Rom") is not null,
+        AssertEqual(false, MetadataShape.DeclaresProperty(installedMemory.GetType(), "Rom"),
             "installed frontend starts with no cartridge allocation");
         var blockedBg2Bytes = new HashSet<int>();
         var guardedBus = NewFrontendCartridgeReadGuard(installedMemory, blockedBg2Bytes);

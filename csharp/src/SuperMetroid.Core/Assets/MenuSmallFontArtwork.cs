@@ -17,8 +17,8 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class MenuSmallFontArtwork
 {
     internal const int FirstTile = 0x60, TileCount = 41;
-    private readonly byte[] faces = new byte[TileCount * 8];
-    private readonly Dictionary<int, byte>? edits;
+    internal readonly byte[] faces = new byte[TileCount * 8];
+    internal readonly Dictionary<int, byte>? edits;
 
     internal MenuSmallFontArtwork(IndexedPngImage image)
     {

@@ -37,9 +37,7 @@ internal static class IntroEggEffectDefinitionsVerification
         for (int index = 0; index < particles.Length; index++)
         {
             particles[index].Step();
-            var sprite = (IntroDiscoverySprite)typeof(IntroEggParticle)
-                .GetField("sprite", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .GetValue(particles[index])!;
+            var sprite = particles[index].sprite;
             AssertEqual((ushort)(0x8f7e + index * 7), sprite.SpriteMapPointer,
                 $"intro egg fragment {index} selects its own first visual frame");
         }
@@ -59,9 +57,7 @@ internal static class IntroEggEffectDefinitionsVerification
             "all four production slime drops complete motion and puddle animation");
 
         var impact = new IntroEggSlimeDrop(new(0x0070, 0x00b8), index: 0);
-        var impactSprite = (IntroDiscoverySprite)typeof(IntroEggSlimeDrop)
-            .GetField("sprite", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .GetValue(impact)!;
+        var impactSprite = impact.sprite;
         for (int frame = 0; frame < 40; frame++)
         {
             impact.Step();

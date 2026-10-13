@@ -44,9 +44,9 @@ internal static class PauseHudLocationVerification
             var native = SnesBgTilemapRenderer.Render2Bpp(nativeVram, expectedColors,
                 0x5800, 0x4000, 4, true, true);
             var game = new SuperMetroidGame(bus);
-            typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
-            typeof(SuperMetroidGame).GetField("pauseMenu", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, pause);
-            typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.PausedB);
+            game.runtime = runtime;
+            game.pauseMenu = pause;
+            game.GameState = SuperMetroidGameState.PausedB;
             for (int frame = 0; frame < 24; frame++)
             {
                 game.StepCaptured(0, frame + 1, 1);

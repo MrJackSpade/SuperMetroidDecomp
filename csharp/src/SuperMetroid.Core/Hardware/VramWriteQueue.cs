@@ -31,7 +31,7 @@ public sealed class VramWriteQueue
     // an otherwise fitting final record is invalid if it leaves fewer than two bytes.
     private const int TerminatorByteCount = 2;
 
-    private readonly List<VramWriteEntry> _entries = [];
+    internal readonly List<VramWriteEntry> _entries = [];
 
     /// <summary>
     /// Byte offset at which the ROM would write the next record, corresponding to WRAM

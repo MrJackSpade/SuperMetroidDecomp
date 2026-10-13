@@ -37,7 +37,7 @@ internal sealed class DraygonMaterialPaintDefinitions
     /// </summary>
     private const int MagentaBlue = 22,
         RedTargetRed = 18, RedTargetGreen = 4, RedTargetBlue = 6;
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal DraygonMaterialPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {

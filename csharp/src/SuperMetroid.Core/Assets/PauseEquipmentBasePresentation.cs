@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class PauseEquipmentBasePresentation
 {
     // Only independent supplied edits remain; every stock word comes from the composed page.
-    private readonly Dictionary<int, ushort> remainingCells = [];
+    internal readonly Dictionary<int, ushort> remainingCells = [];
     private PauseEquipmentBasePresentation(ReadOnlySpan<byte> selected)
     {
         // Compare each supplied word independently with immutable stock composition.

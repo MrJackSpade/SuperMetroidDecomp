@@ -86,7 +86,7 @@ internal static class EyeBeamWindowBuilder
         return rows;
     }
 
-    private static int Tangent(int index)
+    internal static int Tangent(int index)
     {
         return AbsoluteTangentDefinitions.Sample(index);
     }

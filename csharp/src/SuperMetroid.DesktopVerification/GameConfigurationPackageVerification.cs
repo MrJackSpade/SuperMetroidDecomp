@@ -1,9 +1,11 @@
+using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
 
 /// <summary>Exercises the published host's real INI loader without opening a window or touching player data.</summary>
 internal static class GameConfigurationPackageVerification
 {
+    [ReflectionAudit("package verification: the published game assembly is loaded from disk, so its loader is reached by name")]
     public static void Run(string gameAssemblyPath)
     {
         string publish = Path.GetDirectoryName(Path.GetFullPath(gameAssemblyPath))!;

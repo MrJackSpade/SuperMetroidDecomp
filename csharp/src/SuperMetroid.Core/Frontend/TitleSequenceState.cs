@@ -29,24 +29,24 @@ public sealed class TitleSequenceState
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
     private readonly SnesVram vram = new();
-    private readonly SnesCgram cgram = new();
+    internal readonly SnesCgram cgram = new();
     private RoomPaletteFxSystem consolePaletteFx = new();
-    private readonly OamBuffer oam = new();
+    internal readonly OamBuffer oam = new();
     private readonly ControllerInputState controller = new();
     private readonly byte[] babyMetroidCharacters;
     [NonSerialized] private TitleGradientPresentation? titleGradientPresentation;
     [NonSerialized] private TitlePalettePresentation? titlePalettePresentation;
     [NonSerialized] private TitleGraphicsPresentation? titleGraphicsPresentation;
-    private int phaseTimer;
+    internal int phaseTimer;
     private int sequenceEntry;
     private int sequenceEntryTimer;
-    private ushort activeSpritemap;
-    private Position16<ScreenPixels> activeOrigin;
-    private ushort activeCharacterOffset;
+    internal ushort activeSpritemap;
+    internal Position16<ScreenPixels> activeOrigin;
+    internal ushort activeCharacterOffset;
     // Background position; the whole words are read as signed pixels.
     private FixedPosition<Mode7Pixels> mode7;
-    private int zoom;
-    private int brightness;
+    internal int zoom;
+    internal int brightness;
     private int babyFrame;
     private int babyFrameTimer;
     private bool mode7BackgroundEnabled;
@@ -114,7 +114,7 @@ public sealed class TitleSequenceState
     }
 
     /// <summary>Current native title sub-state, exposed as a stable debugger label.</summary>
-    public TitleSequencePhase Phase { get; private set; }
+    public TitleSequencePhase Phase { get; internal set; }
 
     /// <summary>True after the title's slow fade has handed control to file select.</summary>
     public bool FileSelectRequested { get; private set; }
@@ -388,7 +388,7 @@ public sealed class TitleSequenceState
         return titleGradientPresentation.Resolve((ushort)zoom);
     }
 
-    private void PrepareRenderOam()
+    internal void PrepareRenderOam()
     {
         TitleGraphicsPresentation artwork = titleGraphicsPresentation
             ?? throw new InvalidOperationException("Title sprites require installed title artwork.");

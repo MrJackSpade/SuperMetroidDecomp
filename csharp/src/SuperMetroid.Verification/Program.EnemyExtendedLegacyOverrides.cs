@@ -120,9 +120,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
             if (schema is EnemyExtendedFrameSchema.PreDisplayBindings or EnemyExtendedFrameSchema.PirateDisplayBindings)
                 return EnemyExtendedFrameDefinitions.PirateFrameCount;
             if (schema == EnemyExtendedFrameSchema.PreSporeIdentity) return EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount;
-            return (int)(catalog.GetField(schema + "FrameCount", flags)
-                ?? throw new InvalidOperationException($"Extended enemy schema {schema} lacks a historical count."))
-                .GetRawConstantValue()!;
+            return (int)MetadataShape.ConstantValue(catalog, schema + "FrameCount", flags);
         }
     }
 }

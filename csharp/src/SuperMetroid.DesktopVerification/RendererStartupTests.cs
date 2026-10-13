@@ -16,8 +16,8 @@ internal static class RendererStartupTests
         File.Copy(Path.GetFullPath("Super Metroid.smc"), rom);
         using var control = DesktopAccess.CreateGameControl(rom, new SuperMetroidGameOptions { Renderer = selection, AudioEnabled = false });
         _ = control.Handle;
-        Call(control, "SetPlaying", false);
-        var game = Field<SuperMetroidGame>(control, "game");
+        control.SetPlaying(false);
+        var game = control.game;
         ushort frame = game.FrameNumber;
         D3D11RenderWorker? failedWorker = null;
         using var diagnostic = new StringWriter();
@@ -34,11 +34,11 @@ internal static class RendererStartupTests
             catch (Exception error) { failure = error; }
             Check(failedWorker is { Completion.IsFaulted: true }, "failed startup worker was not fully drained");
             Check(game.FrameNumber == frame, "startup failure advanced the game");
-            Check(!Field<bool>(Field<RuntimeCanvas>(control, "canvas"), "gpuOwned"), "failed startup left GDI disabled");
+            Check(!control.canvas.gpuOwned, "failed startup left GDI disabled");
             if (selection == RendererSelection.Auto)
             {
                 Check(failure is null && diagnostic.ToString().Contains("Auto selected software rendering"), "Auto fallback was not explicit and logged");
-                Call(control, "StepFrame", (ushort)0);
+                control.StepFrame((ushort)0);
                 Check(game.FrameNumber == unchecked((ushort)(frame + 1)), "software fallback could not continue stepping");
             }
             else Check(failure is ArgumentException, "explicit Direct3D11 swallowed startup failure");

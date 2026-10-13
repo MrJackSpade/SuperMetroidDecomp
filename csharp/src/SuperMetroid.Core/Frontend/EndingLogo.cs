@@ -13,8 +13,8 @@ internal sealed class EndingLogo
     private readonly int[] speeds = [EndingLogoDefinitions.InitialSpeed, EndingLogoDefinitions.InitialSpeed];
     private readonly bool[] settled = new bool[2];
     [NonSerialized] private EndingPaletteCatalog? paletteArtwork;
-    public bool CrossfadeStarted { get; private set; }
-    public int PaletteStep { get; private set; }
+    public bool CrossfadeStarted { get; internal set; }
+    public int PaletteStep { get; internal set; }
     public bool Completed => PaletteStep == EndingLogoDefinitions.PaletteSteps;
 
     public EndingLogo(ISnesAddressSpace bus, SnesCgram cgram, Action landed,

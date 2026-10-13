@@ -11,10 +11,10 @@ public sealed class SamusArmCannonArtworkCatalog
     /// <summary>Tile-source slots: one row per native aim direction, each holding every cover-art frame slot.</summary>
     private static readonly FixedGridShape TileSourceShape =
         new(SamusRenderingRomData.ArmCannon.DirectionCount, SamusArmCannonArtworkFormat.FramesPerDirection);
-    private readonly Dictionary<int, ushort> posePointers = new();
-    private readonly Dictionary<int, byte> drawingData = new();
-    private readonly Dictionary<int, ushort> attributes = new();
-    private readonly Dictionary<int, ushort> tileSources = new();
+    internal readonly Dictionary<int, ushort> posePointers = new();
+    internal readonly Dictionary<int, byte> drawingData = new();
+    internal readonly Dictionary<int, ushort> attributes = new();
+    internal readonly Dictionary<int, ushort> tileSources = new();
     private readonly RoomCharacterAtlas tiles;
     private readonly SamusBodyArtworkCatalog? bodyGeometry;
 

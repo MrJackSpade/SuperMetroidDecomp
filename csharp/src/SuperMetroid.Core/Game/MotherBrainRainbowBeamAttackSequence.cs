@@ -85,7 +85,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         [new(-8, -7), new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7)];
 
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
-    private readonly MotherBrainCorpseRottingState _corpseRotting = new();
+    internal readonly MotherBrainCorpseRottingState _corpseRotting = new();
     private readonly RoomCharacterAtlas? _corpseArtwork;
 
     /// <summary>Standalone cartridge fixtures omit artwork; installed rooms bind the PNG.</summary>
@@ -99,7 +99,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public MotherBrainBodyAnimationState Body { get; } = new();
 
     /// <summary>Current body-function equivalent.</summary>
-    public MotherBrainRainbowBeamAttackPhase Phase { get; private set; } =
+    public MotherBrainRainbowBeamAttackPhase Phase { get; internal set; } =
         MotherBrainRainbowBeamAttackPhase.Inactive;
 
     /// <summary>Mother Brain brain-slot room position used by `$A9:BB82/$BB8F`'s aim vector.</summary>
@@ -116,34 +116,34 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     private uint _headInstructionListRequestSerial;
 
     /// <summary>Brain instruction timer, reset to one whenever the AI changes its list.</summary>
-    public ushort HeadInstructionTimer { get; private set; }
+    public ushort HeadInstructionTimer { get; internal set; }
 
     /// <summary>
     /// Live bank-$A9 instruction cursor. <see cref="HeadInstructionList"/> retains the last
     /// list installed by body AI; this word advances through timed frames and command words.
     /// </summary>
-    public ushort HeadInstructionPointer { get; private set; }
+    public ushort HeadInstructionPointer { get; internal set; }
 
     /// <summary>Native neck angular delta at Mother Brain body extra word `$0FBC`.</summary>
-    public ushort NeckAngleDelta { get; private set; }
+    public ushort NeckAngleDelta { get; internal set; }
 
     /// <summary>Native enable-neck-movement flag.</summary>
-    public ushort NeckMovementEnabled { get; private set; }
+    public ushort NeckMovementEnabled { get; internal set; }
 
     /// <summary>Lower neck movement index selected by the current actor phase.</summary>
-    public MotherBrainNeckMovement LowerNeckMovementIndex { get; private set; }
+    public MotherBrainNeckMovement LowerNeckMovementIndex { get; internal set; }
 
     /// <summary>Upper neck movement index selected by the current actor phase.</summary>
-    public MotherBrainNeckMovement UpperNeckMovementIndex { get; private set; }
+    public MotherBrainNeckMovement UpperNeckMovementIndex { get; internal set; }
 
     /// <summary>Native body function timer at enemy word <c>$0FB0</c>.</summary>
-    public ushort FunctionTimer { get; private set; }
+    public ushort FunctionTimer { get; internal set; }
 
     /// <summary>Rainbow-beam angular width, initialized and floored at <c>$0200</c>.</summary>
-    public ushort AngularWidth { get; private set; }
+    public ushort AngularWidth { get; internal set; }
 
     /// <summary>Native signed SFX queue countdown. Six produces seven queue attempts.</summary>
-    public ushort SoundQueueCount { get; private set; }
+    public ushort SoundQueueCount { get; internal set; }
 
     /// <summary>Rainbow-beam explosion timer at Mother Brain body extra word <c>$0FA8</c>.</summary>
     public ushort ExplosionTimer { get; private set; }
@@ -155,7 +155,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public bool HdmaActive { get; private set; }
 
     /// <summary>Native rainbow-beam SFX-playing flag.</summary>
-    public bool RainbowBeamSoundPlaying { get; private set; }
+    public bool RainbowBeamSoundPlaying { get; internal set; }
 
     /// <summary>
     /// Current byte angle produced by `$A9:BBA9` for the bank-$88 rainbow HDMA renderer.
@@ -168,34 +168,34 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Lower neck angle updated by the brain-slot handler at <c>$A9:9072</c>. The final
     /// beam has already lowered it to <c>$3000</c> before the Baby interrupts the body.
     /// </summary>
-    public ushort LowerNeckAngle { get; private set; } = 0x3000;
+    public ushort LowerNeckAngle { get; internal set; } = 0x3000;
 
     /// <summary>Upper neck angle, correspondingly lowered to <c>$2000</c>.</summary>
-    public ushort UpperNeckAngle { get; private set; } = 0x2000;
+    public ushort UpperNeckAngle { get; internal set; } = 0x2000;
 
     /// <summary>Main brain-shake timer seeded to fifty by <c>$A9:BE96</c> when clear.</summary>
-    public ushort BrainMainShakeTimer { get; private set; }
+    public ushort BrainMainShakeTimer { get; internal set; }
 
     /// <summary>Current zero-based painful-walk stage at WRAM <c>$7E:802A</c>.</summary>
-    public ushort PainfulWalkingStage { get; private set; }
+    public ushort PainfulWalkingStage { get; internal set; }
 
     /// <summary>Low-byte animation-delay selector derived from the current stage.</summary>
-    public ushort PainfulWalkingAnimationDelay { get; private set; }
+    public ushort PainfulWalkingAnimationDelay { get; internal set; }
 
     /// <summary>Pause timer used after each completed forward/backward body list.</summary>
     public ushort PainfulWalkingFunctionTimer { get; private set; }
 
     /// <summary>True while the nested painful-walk function is on its forward half.</summary>
-    public bool PainfulWalkingForward { get; private set; }
+    public bool PainfulWalkingForward { get; internal set; }
 
     /// <summary>Native brain-palette handling flag cleared when the rainbow beam expires.</summary>
-    public bool BrainPaletteHandlingEnabled { get; private set; } = true;
+    public bool BrainPaletteHandlingEnabled { get; internal set; } = true;
 
     /// <summary>Drool generation flag cleared as Mother Brain enters low-power mode.</summary>
-    public bool DroolGenerationEnabled { get; private set; } = true;
+    public bool DroolGenerationEnabled { get; internal set; } = true;
 
     /// <summary>Small-purple-breath flag cleared when the grey corpse is published.</summary>
-    public bool SmallPurpleBreathGenerationEnabled { get; private set; } = true;
+    public bool SmallPurpleBreathGenerationEnabled { get; internal set; } = true;
 
     /// <summary>
     /// Count of body-AI writes to <see cref="SmallPurpleBreathGenerationEnabled"/>. The live
@@ -215,22 +215,22 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// the walk to X `$50` has really completed; it is not synonymous with the separate
     /// brain-slot palette handler above.
     /// </summary>
-    public bool HealthBasedPaletteHandlingEnabled { get; private set; }
+    public bool HealthBasedPaletteHandlingEnabled { get; internal set; }
 
     /// <summary>Palette-transition record index at WRAM <c>$7E:802E</c>.</summary>
-    public ushort GreyTransitionCounter { get; private set; }
+    public ushort GreyTransitionCounter { get; internal set; }
 
     /// <summary>
     /// Cross-actor corpse handshake at WRAM <c>$7E:8030</c>. The Baby polls this exact
     /// word; value one means Mother Brain has completed the ninth grey-table probe.
     /// </summary>
-    public ushort Phase2CorpseState { get; private set; }
+    public ushort Phase2CorpseState { get; internal set; }
 
     /// <summary>
     /// Saturating `$00-$0C` counter incremented by head instruction `$A9:9EA3` at the start
     /// of each four-ring attack against the Baby. It also selects the intended cry pitch.
     /// </summary>
-    public ushort BabyMetroidAttackCounter { get; private set; }
+    public ushort BabyMetroidAttackCounter { get; internal set; }
 
     /// <summary>
     /// Number of live Mother Brain bomb enemy projectiles at body WRAM <c>$7E:802A</c>.
@@ -244,7 +244,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public ushort BombCounter { get; private set; }
 
     /// <summary>Brain-slot health rewritten to 36,000 when corpse state one is published.</summary>
-    public ushort BrainHealth { get; private set; } = 0x0bb8;
+    public ushort BrainHealth { get; internal set; } = 0x0bb8;
 
     /// <summary>Earthquake type word written by the one-frame delay and drain initializer.</summary>
     public ushort EarthquakeType { get; private set; }
@@ -262,7 +262,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Zero-based index of the next Baby Metroid sprite-tile transfer. Four means the
     /// terminating zero entry has been observed and the spawn handoff has run.
     /// </summary>
-    public ushort BabyMetroidTileTransferIndex { get; private set; }
+    public ushort BabyMetroidTileTransferIndex { get; internal set; }
 
     /// <summary>
     /// Phase-three walking function selected through native long word <c>$7E:801E</c>.
@@ -277,7 +277,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// <c>$0100</c>; Hyper Beam subtracts <c>$010A</c>; the walking function adds
     /// <c>$0020</c> whenever it gets a standing AI call.
     /// </summary>
-    public ushort Phase3WalkCounter { get; private set; }
+    public ushort Phase3WalkCounter { get; internal set; }
 
     /// <summary>Current phase-three walking target at <c>$7E:803A</c>.</summary>
     public ushort Phase3TargetXPosition { get; private set; }
@@ -319,7 +319,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Native word <c>$0FF0</c>: the explosion interval timer of <c>$A9:B03E</c> and
     /// <c>$A9:B346</c>, aliased with the body sub-function pointer.
     /// </summary>
-    public ushort DeathExplosionIntervalTimer { get; private set; }
+    public ushort DeathExplosionIntervalTimer { get; internal set; }
 
     /// <summary>
     /// Native word <c>$0FF2</c>, one word under three names: the ascent dust's body
@@ -327,7 +327,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// four-record escape-door dust index (<c>$A9:B355</c>). Each effect inherits the value
     /// the previous one left unless native code explicitly clears it.
     /// </summary>
-    public ushort DeathAndEscapeExplosionIndex { get; private set; }
+    public ushort DeathAndEscapeExplosionIndex { get; internal set; }
 
     /// <summary>
     /// Inherits word <c>$0FF2</c> from the room's encounter state when the live sequence
@@ -337,7 +337,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         DeathAndEscapeExplosionIndex = bodySubFunctionTimer;
 
     /// <summary>Palette selector forced to `$0E00` when the dying brain effects shut down.</summary>
-    public ushort BrainPaletteIndex { get; private set; }
+    public ushort BrainPaletteIndex { get; internal set; }
 
     /// <summary>Number of calls made to the body flicker producer at `$A9:AFB6`.</summary>
     public uint BodyFlickerCallCount { get; private set; }
@@ -358,7 +358,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public ushort ExplodedDoorTileTransferIndex { get; private set; }
 
     /// <summary>Unpause-hook enable word cleared when the escape typewriter is installed.</summary>
-    public bool MotherBrainUnpauseHookEnabled { get; private set; } = true;
+    public bool MotherBrainUnpauseHookEnabled { get; internal set; } = true;
 
     /// <summary>
     /// Set when `$A9:B11B` installs the brain-slot draw setup before the decapitated head
@@ -367,10 +367,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public bool BrainDrawSetupRequested { get; private set; }
 
     /// <summary>Rainbow-beam palette animation index reset immediately before the final shot.</summary>
-    public ushort RainbowBeamPaletteAnimationIndex { get; private set; }
+    public ushort RainbowBeamPaletteAnimationIndex { get; internal set; }
 
     /// <summary>True once `$A9:BE1B` has requested the cutscene Baby enemy population entry.</summary>
-    public bool BabyMetroidSpawned { get; private set; }
+    public bool BabyMetroidSpawned { get; internal set; }
 
     /// <summary>
     /// Executes the corpse-table and graphics-buffer half of head initialization
@@ -576,7 +576,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
     }
 
-    private bool StepPainfulWalking()
+    internal bool StepPainfulWalking()
     {
         // The native stores four separate function pointers (request forward, wait forward,
         // request backward, wait backward). Two booleans express the same state without
@@ -791,7 +791,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return MakeBodyWalkBackwards(targetX, pointer);
     }
 
-    private MotherBrainWalkResult RequestWalkForwardReallySlow(ushort targetX) =>
+    internal MotherBrainWalkResult RequestWalkForwardReallySlow(ushort targetX) =>
         MakeBodyWalkForwards(targetX, BodyWalkingForwardReallySlowInstructionList);
 
     private MotherBrainWalkResult RequestWalkBackwardReallySlow(ushort targetX) =>
@@ -923,7 +923,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
-    private MotherBrainSpriteTileTransferRequest CreateNextEscapeTimerTileTransfer()
+    internal MotherBrainSpriteTileTransferRequest CreateNextEscapeTimerTileTransfer()
     {
         int index = EscapeTimerTileTransferIndex;
         if ((uint)index >= (uint)MotherBrainEscapeTextArtworkDefinitions.TransferCount)
@@ -934,7 +934,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
-    private MotherBrainSpriteTileTransferRequest CreateNextExplodedDoorTileTransfer()
+    internal MotherBrainSpriteTileTransferRequest CreateNextExplodedDoorTileTransfer()
     {
         int index = ExplodedDoorTileTransferIndex;
         if ((uint)index >= (uint)MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.PageCount)
@@ -945,7 +945,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
-    private void GenerateDeathExplosions(
+    internal void GenerateDeathExplosions(
         bool mixed,
         Func<ushort>? nextRandomNumber,
         List<MotherBrainDeathExplosionRequest> requests)

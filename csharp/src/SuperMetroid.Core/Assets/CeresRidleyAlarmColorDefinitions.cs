@@ -18,7 +18,7 @@ internal sealed class CeresRidleyAlarmColorDefinitions
     private const int MiddleGreen = 14;
     private const int DarkRed = 12;
     private const int DarkGreen = 5;
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal CeresRidleyAlarmColorDefinitions(Bgr555[][] rows)
     {

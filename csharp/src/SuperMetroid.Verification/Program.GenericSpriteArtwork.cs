@@ -50,21 +50,20 @@ internal static class GenericSpriteArtworkVerification
         foreach (ushort y in new ushort[] { 0, 1, 223, 255, ushort.MaxValue })
         foreach (ushort palette in new ushort[] { 0, 0x0e00 })
         {
-            Set(title, "activeSpritemap", checked((ushort)frame.Pointer));
-            Set(title, "activeOriginX", x);
-            Set(title, "activeOriginY", y);
-            Set(title, "activeCharacterOffset", palette);
-            Invoke(title, "PrepareRenderOam");
+            title.activeSpritemap = checked((ushort)frame.Pointer);
+            title.activeOrigin = new(x, y);
+            title.activeCharacterOffset = palette;
+            title.PrepareRenderOam();
             expected.BeginFrame();
             DrawImportedSpritemap(reference, expected,
                 (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, checked((ushort)frame.Pointer)), new(x, y), palette);
             expected.FinalizeFrame();
-            EqualOam(expected, Field<OamBuffer>(title, "oam"), "title composition/coordinate/palette parity");
+            EqualOam(expected, title.oam, "title composition/coordinate/palette parity");
             titleCases++;
         }
-        Set(title, "activeSpritemap", TitleSequenceRomData.Sprites.Blank);
-        Set(title, "<Phase>k__BackingField", TitleSequencePhase.TitleScreen);
-        Invoke(title, "PrepareRenderOam");
+        title.activeSpritemap = TitleSequenceRomData.Sprites.Blank;
+        title.Phase = TitleSequencePhase.TitleScreen;
+        title.PrepareRenderOam();
         expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank,
@@ -72,7 +71,7 @@ internal static class GenericSpriteArtworkVerification
             new(TitleSequenceRomData.Sprites.CopyrightOrigin.X, TitleSequenceRomData.Sprites.CopyrightOrigin.Y),
             TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         expected.FinalizeFrame();
-        EqualOam(expected, Field<OamBuffer>(title, "oam"), "title copyright owner parity");
+        EqualOam(expected, title.oam, "title copyright owner parity");
 
         var intro = new IntroCinematicState(memory, introFont: maps.IntroFont,
             characterArtwork: introArtwork, beamArtwork: projectiles.BeamTiles,
@@ -83,10 +82,10 @@ internal static class GenericSpriteArtworkVerification
             ProjectileCompositions = projectiles.Catalog,
             ProjectileFrameBindings = projectiles.FrameBindings,
         };
-        Invoke(intro, "SetupFirstIllustratedPage");
-        var caret = Field<IntroCinematicObjectSystem>(intro, "objects");
+        intro.SetupFirstIllustratedPage();
+        var caret = intro.objects;
         caret.Step(0);
-        var actual = (OamBuffer)Invoke(intro, "PrepareIllustratedPageOam")!;
+        var actual = intro.PrepareIllustratedPageOam();
         expected = new OamBuffer();
         expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
@@ -95,13 +94,13 @@ internal static class GenericSpriteArtworkVerification
         expected.FinalizeFrame();
         EqualOam(expected, actual, "illustrated-page caret owner parity");
 
-        Invoke(intro, "SetupMotherBrainFlashback");
-        var motherBrain = Field<IntroMotherBrainSpriteState>(intro, "flashbackMotherBrain");
+        intro.SetupMotherBrainFlashback();
+        var motherBrain = intro.flashbackMotherBrain;
         motherBrain.Step(memory);
-        actual = (OamBuffer)Invoke(intro, "PrepareMotherBrainOam")!;
+        actual = intro.PrepareMotherBrainOam();
         expected = new OamBuffer();
         expected.BeginFrame();
-        Field<SamusState>(intro, "flashbackSamus").Presentation.Draw(memory, expected, new(0, 0), 0);
+        intro.flashbackSamus.Presentation.Draw(memory, expected, new(0, 0), 0);
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, motherBrain.SpriteMapPointer),
             new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
@@ -117,13 +116,13 @@ internal static class GenericSpriteArtworkVerification
         actual.FinalizeFrame();
         expected = new OamBuffer();
         expected.BeginFrame();
-        foreach (object actor in Field<IEnumerable>(explosions, "actors"))
+        foreach (var actor in explosions.actors)
         {
-            ushort pointer = Property<ushort>(actor, "SpriteMapPointer");
-            if (!Property<bool>(actor, "IsActive") || pointer == 0) continue;
+            ushort pointer = actor.SpriteMapPointer;
+            if (!actor.IsActive || pointer == 0) continue;
             DrawImportedSpritemap(reference, expected,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer),
-                new(Property<ushort>(actor, "XPosition"), Property<ushort>(actor, "YPosition")),
+                new(actor.Position.X, actor.Position.Y),
                 IntroCinematicRomData.Objects.ExplosionPalette.Raw);
         }
         expected.FinalizeFrame();
@@ -156,11 +155,6 @@ internal static class GenericSpriteArtworkVerification
         }
         Console.WriteLine($"Generic sprite artwork: {titleCases} title cases, copyright/caret/Mother Brain/explosion owners and {wrapCases} origin-wrap cases pass without a runtime cartridge.");
 
-        static void Set(object owner, string name, object value) =>
-            owner.GetType().GetField(name, flags)!.SetValue(owner, value);
-        static T Field<T>(object owner, string name) => (T)owner.GetType().GetField(name, flags)!.GetValue(owner)!;
-        static T Property<T>(object owner, string name) => (T)owner.GetType().GetProperty(name)!.GetValue(owner)!;
-        static object? Invoke(object owner, string name) => owner.GetType().GetMethod(name, flags)!.Invoke(owner, null);
         static void EqualOam(OamBuffer expected, OamBuffer actual, string context)
         {
             AssertEqual(expected.LastFinalizedSpriteCount, actual.LastFinalizedSpriteCount, context + " count");

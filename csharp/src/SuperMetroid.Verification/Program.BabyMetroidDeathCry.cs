@@ -29,8 +29,8 @@ internal static class BabyMetroidDeathCryVerification
         enemies.Presentation._cgram = cgram;
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
         var baby = new BabyMetroidCutsceneState();
-        typeof(BabyMetroidCutsceneState).GetProperty(nameof(baby.Phase))!.SetValue(baby, BabyMetroidCutscenePhase.FinalCharge);
-        typeof(BabyMetroidCutsceneState).GetProperty(nameof(baby.Health))!.SetValue(baby, (ushort)79);
+        baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
+        baby.Health = (ushort)79;
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         var samus = new SamusState();
         Action<MotherBrainEnemyState, BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
@@ -52,11 +52,11 @@ internal static class BabyMetroidDeathCryVerification
         AssertEqual((byte)6, request.MaximumQueued, "Death cry uses native Max6");
         for (int frame = 0; frame < 3; frame++)
         {
-            typeof(RoomEnemySystem).GetMethod("BeginEnemySoundRequestFrame", flags)!.Invoke(enemies, null);
+            enemies.BeginEnemySoundRequestFrame();
             apply(state, baby.Step(bus, samus, sequence, HeadOf(sequence)));
             AssertEqual(0, enemies.Audio.SoundRequests.Count, "Fatal shake does not replay the death cry");
         }
-        typeof(BabyMetroidCutsceneState).GetProperty(nameof(baby.Phase))!.SetValue(baby, BabyMetroidCutscenePhase.FinalCutscene);
+        baby.Phase = BabyMetroidCutscenePhase.FinalCutscene;
         for (int frame = 0; frame < 7; frame++)
         {
             var recovery = baby.Step(bus, samus, sequence, HeadOf(sequence));

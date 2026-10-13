@@ -732,9 +732,8 @@ internal static class EnemyTrigonometryVerification
             int address = EnemyMathReferenceData.SignedNegativeCosine + index * 2;
             return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
-        var cinematicReaders = new[] { typeof(CeresDestructionCinematicState), typeof(EndingCreditsPresentation), typeof(IntroCeresFlightState) }
-            .Select(type => type.GetMethod("ReadSine", BindingFlags.NonPublic | BindingFlags.Static)!
-                .CreateDelegate<Func<byte, short>>()).ToArray();
+        Func<byte, short>[] cinematicReaders =
+            [CeresDestructionCinematicState.ReadSine, EndingCreditsPresentation.ReadSine, IntroCeresFlightState.ReadSine];
         for (int index = 0; index < 320; index++)
         {
             short expected = Reference(index);
@@ -757,25 +756,21 @@ internal static class EnemyTrigonometryVerification
         Console.WriteLine("Compiled signed sine: all 320 native words and three cinematic readers match, including +/-256 peaks and prefix bounds.");
         if (definitionsOnly) return;
         var tide = new RoomLayer3FxState();
-        var phaseField = typeof(RoomLayer3FxState).GetField("tidePhase", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var offsetField = typeof(RoomLayer3FxState).GetField("tideFixedOffset", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var options = typeof(RoomLayer3FxState).GetProperty(nameof(RoomLayer3FxState.LiquidOptions))!;
-        var step = typeof(RoomLayer3FxState).GetMethod("StepLiquidTide", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .CreateDelegate<Action>(tide);
+        var step = new Action(tide.StepLiquidTide);
         foreach (ushort option in new ushort[] { 0, 0x40, 0x80, 0xc0 })
         {
-            options.SetValue(tide, option);
+            tide.LiquidOptions = option;
             for (int phase = 0; phase <= ushort.MaxValue; phase++)
             {
-                phaseField.SetValue(tide, (ushort)phase);
-                offsetField.SetValue(tide, 12345);
+                tide.tidePhase = (ushort)phase;
+                tide.tideFixedOffset = 12345;
                 step();
                 short sample = Reference(SnesAngle.FromRaw(unchecked((ushort)phase)).TableIndex);
                 bool small = (option & 0x80) != 0;
                 int scale = option == 0 ? 0 : small ? 8 : 32;
                 int delta = option == 0 ? 0 : small ? (sample >= 0 ? 288 : 192) : (sample >= 0 ? 224 : 128);
-                if ((int)offsetField.GetValue(tide)! != SnesSixteenSixteen.FromEightEight(sample * scale) ||
-                    (ushort)phaseField.GetValue(tide)! != unchecked((ushort)(phase + delta)))
+                if (tide.tideFixedOffset != SnesSixteenSixteen.FromEightEight(sample * scale) ||
+                    tide.tidePhase != unchecked((ushort)(phase + delta)))
                     throw new InvalidDataException($"Native tide differs at options={option:X2}, phase={phase:X4}.");
             }
         }

@@ -151,7 +151,7 @@ internal static class NoobTubePlmVerification
         StepNoobTube(plms, guarded, level, streamer, (ushort)SnesButton.Right);
         AssertTrue(samus.InputLocked, "break sequence locks Samus");
         AssertTrue(samus.ScriptLocks.StationaryScriptControlLocked, "break sequence installs stationary command-zero animation ownership");
-        var fields = typeof(SamusState).GetFields(System.Reflection.BindingFlags.Instance |
+        var fields = MetadataShape.Fields(typeof(SamusState), System.Reflection.BindingFlags.Instance |
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
             .Where(field => !field.IsDefined(typeof(NonSerializedAttribute), false))
             .OrderBy(field => field.MetadataToken).ToArray();

@@ -38,9 +38,8 @@ internal static class BabyMetroidHeadTargetVerification
         BabyMetroidCutsceneState baby = state.BabyMetroid!;
 
         head.Position = head.Position.WithWhole(new(0x007d, 0x005d));
-        void Set(string name, object value) => typeof(BabyMetroidCutsceneState).GetProperty(name)!.SetValue(baby, value);
-        Set(nameof(baby.Phase), BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody);
-        Set(nameof(baby.Position), FixedPosition<RoomPixels>.FromWhole(new(0x007d, 0x0045)).WithFractionsOf(baby.Position));
+        baby.Phase = BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
+        baby.Position = FixedPosition<RoomPixels>.FromWhole(new(0x007d, 0x0045)).WithFractionsOf(baby.Position);
 
         runtime.Enemies.BabyMetroidCutsceneBehavior.RunMotherBrainBabyMetroidMain(slot, runtime.Player.Samus, Position16<RoomPixels>.Zero);
         AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase, "the Baby reaches the head");

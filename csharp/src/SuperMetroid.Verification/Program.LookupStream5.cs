@@ -44,7 +44,7 @@ internal static class LookupStream5Verification
                 CrocomireMeltingTilemapAddress source = phase == 0 ? CrocomireMeltingTilemapAddress.FirstTilemap : CrocomireMeltingTilemapAddress.SecondTilemap;
                 native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, (int)source + i * 2)).ToArray();
                 var calculated = new CrocomireMeltingTilemap(phase != 0, native[phase]);
-                AssertEqual(0, ((Dictionary<int, ushort>)typeof(CrocomireMeltingTilemap).GetField("edits", flags)!.GetValue(calculated)!).Count,
+                AssertEqual(0, (calculated.edits).Count,
                     "Every native melt tilemap word calculates without fallback");
                 AssertTrue(calculated.Words().AsSpan().SequenceEqual(native[phase]), "All native melt words");
                 AssertTrue(art.Tilemap(source).SequenceEqual(native[phase]), "Installed melt words");
@@ -61,8 +61,8 @@ internal static class LookupStream5Verification
                 }
                 AssertThrows<InvalidDataException>(() => _ = new CrocomireMeltingTilemap(phase != 0, new ushort[255]), "Short melt map rejects");
             }
-            var first = (RoomCharacterAtlas)typeof(CrocomireMeltingArtwork).GetField("first", flags)!.GetValue(art)!;
-            var second = (RoomCharacterAtlas)typeof(CrocomireMeltingArtwork).GetField("second", flags)!.GetValue(art)!;
+            var first = art.first;
+            var second = art.second;
             string expectedIdentity = SelectedPresentationHash.Create("enemy-crocomire-melt-v1", content =>
             {
                 content.Append("first", first.Transfer.Span); content.Append("second", second.Transfer.Span);
@@ -280,7 +280,7 @@ internal static class LookupStream5Verification
         var stock = Load(document);
         CheckPlatformActor(stock, document);
         CheckHash(stock, document);
-        AssertEqual(0, ((Dictionary<int,byte>)typeof(CeresDoorVisualCatalog).GetField("platformEdits", flags)!.GetValue(stock)!).Count, "No stored stock platform cells");
+        AssertEqual(0, (stock.platformEdits).Count, "No stored stock platform cells");
         for (int frame = 0; frame < 2; frame++)
         for (int cell = 0; cell < 4; cell++)
         {
@@ -288,7 +288,7 @@ internal static class LookupStream5Verification
             frames[frame][cell] ^= 255;
             var changed = document with { Mode7DoorFrames = frames };
             var edited = Load(changed);
-            AssertEqual(1, ((Dictionary<int,byte>)typeof(CeresDoorVisualCatalog).GetField("platformEdits", flags)!.GetValue(edited)!).Count, "One independent platform override");
+            AssertEqual(1, (edited.platformEdits).Count, "One independent platform override");
             CheckPlatformActor(edited, changed);
             CheckHash(edited, changed);
         }
@@ -405,7 +405,7 @@ internal static class LookupStream5Verification
         byte[] json = SuperMetroid.AssetExtraction.CeresEscapeOverlayTilemapFiles.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<CeresEscapeOverlayTilemapDocument>(json, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
         CeresEscapeOverlayTilemapCatalog stock = Check(document);
-        var edits = (System.Collections.IDictionary)typeof(CeresEscapeOverlayTilemapCatalog).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var edits = stock.edits;
         AssertEqual(0, edits.Count, "All native Ceres glyph words calculate without overrides");
         int words = 0;
         foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
@@ -476,9 +476,9 @@ internal static class LookupStream5Verification
             }
         }
         CrocomireColorCatalog stock = Check();
-        AssertTrue(typeof(CrocomireColorCatalog).GetField("paint", BindingFlags.Instance | BindingFlags.NonPublic) is null, "Stock palette storage has been removed");
-        var edits = (System.Collections.IDictionary)typeof(CrocomireColorCatalog).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        AssertTrue(!typeof(CrocomirePaintDefinitions).GetFields(BindingFlags.Static | BindingFlags.NonPublic).Any(field => field.FieldType.IsArray), "Material calculation does not cache an output palette");
+        AssertTrue(!MetadataShape.DeclaresField(typeof(CrocomireColorCatalog), "paint", BindingFlags.Instance | BindingFlags.NonPublic), "Stock palette storage has been removed");
+        var edits = stock.edits;
+        AssertTrue(!MetadataShape.Fields(typeof(CrocomirePaintDefinitions), BindingFlags.Static | BindingFlags.NonPublic).Any(field => field.FieldType.IsArray), "Material calculation does not cache an output palette");
         AssertEqual(0, edits.Count, "All 74 stock inks calculate without overrides");
         for (int band = 0; band < bands.Length; band++)
             for (int color = 0; color < counts[band]; color++)
@@ -717,7 +717,7 @@ internal static class LookupStream5Verification
         PhantoonColorDocument document = System.Text.Json.JsonSerializer.Deserialize<PhantoonColorDocument>(bytes,
             new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase })!;
         PhantoonColorCatalog stock = Check(document);
-        var edits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("fadeOutEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var edits = stock.fadeOutEdits;
         AssertEqual(0, edits.Count, "Stock fade stores no target table");
         for (int color = 0; color < PhantoonColorRomData.FadeOutCount; color++)
         {
@@ -729,11 +729,11 @@ internal static class LookupStream5Verification
             }
             document.FadeOut[color] = new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 };
         }
-        var healthEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("healthEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var healthEdits = stock.healthEdits;
         AssertEqual(0, healthEdits.Count, "All health colors calculate without stock overrides");
-        AssertTrue(typeof(PhantoonColorCatalog).GetField("requiredHealthChannels", BindingFlags.Instance | BindingFlags.NonPublic) is null,
+        AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "requiredHealthChannels", BindingFlags.Instance | BindingFlags.NonPublic),
             "No per-channel native residual samples remain");
-        AssertTrue(typeof(PhantoonColorCatalog).GetField("healthyPaint", BindingFlags.Instance | BindingFlags.NonPublic) is null,
+        AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "healthyPaint", BindingFlags.Instance | BindingFlags.NonPublic),
             "No stock healthy palette remains stored");
         for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
@@ -752,8 +752,8 @@ internal static class LookupStream5Verification
             }
             document.HealthBands[band][color] = original;
         }
-        var powerEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("powerEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        AssertTrue(typeof(PhantoonColorCatalog).GetField("requiredPowerColors", BindingFlags.Instance | BindingFlags.NonPublic) is null, "Power targets retain no stock color dictionary");
+        var powerEdits = stock.powerEdits;
+        AssertTrue(!MetadataShape.DeclaresField(typeof(PhantoonColorCatalog), "requiredPowerColors", BindingFlags.Instance | BindingFlags.NonPublic), "Power targets retain no stock color dictionary");
         AssertEqual(0, powerEdits.Count, "Native power targets have no unexplained overrides");
         for (int color = 0; color < PhantoonColorRomData.PowerOnCount; color++)
         {
@@ -866,8 +866,7 @@ internal static class LookupStream5Verification
             Check(stock, definition.Pointer, parts);
             var compiled = IntroCinematicSpriteCompiler.Compile(parts, definition.Name);
             var calculated = ZebesStarGridParts.CalculateIfMatching(definition.Backdrop, compiled);
-            AssertTrue(typeof(SpriteComposition).GetField("parts", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .GetValue(calculated) is ZebesStarGridParts, "Stock stars use calculated common fields");
+            AssertTrue(calculated.parts is ZebesStarGridParts, "Stock stars use calculated common fields");
             for (int index = 0; index < parts.Length; index++)
             {
                 int source = 0x8c0000 | definition.Pointer + 2 + index * 5;
@@ -935,7 +934,7 @@ internal static class LookupStream5Verification
         var document = System.Text.Json.JsonSerializer.Deserialize<TourianStatueColorDocument>(nativeJson,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         var stock = Check(document);
-        foreach (string field in new[] { "baseColors", "statueColors", "eyeColors", "greyColors" }) CheckResidualCount(field, 0);
+        foreach (var ramp in new[] { stock.baseColors, stock.statueColors, stock.eyeColors, stock.greyColors }) CheckResidualCount(ramp.edits, 0);
         for (int domain = 0; domain < 4; domain++)
         {
             PaletteRgb5[] source = domain switch
@@ -966,12 +965,8 @@ internal static class LookupStream5Verification
         AssertThrows<IndexOutOfRangeException>(() => stock.ResolveGrey(8), "Grey ramp upper bound");
         Console.WriteLine("Tourian statue ramps: all56 native palette colors,168 independent full-range channel edits, zero stock overrides, actual CGRAM and canonical identities pass; selected material paint scope complete.");
 
-        void CheckResidualCount(string field, int expected)
-        {
-            object ramp = typeof(TourianStatueColorCatalog).GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-            var edits = (Dictionary<int, Bgr555>)ramp.GetType().GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(ramp)!;
+        void CheckResidualCount(Dictionary<int, Bgr555> edits, int expected) =>
             AssertEqual(expected, edits.Count, "Exact stock ramp residual count");
-        }
 
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
 
@@ -1053,8 +1048,7 @@ internal static class LookupStream5Verification
         var native = System.Text.Json.JsonSerializer.Deserialize<MagdollitePaletteCycleDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         MagdollitePaletteCycle stock = Check(native);
-        var residuals = (Dictionary<int, Bgr555>)typeof(MagdollitePaletteCycle)
-            .GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var residuals = stock.edits;
         AssertEqual(0, residuals.Count, "Native Magdollite pulse requires no stored frame residuals");
         for (int frame = 0; frame < native.Frames.Length; frame++)
         for (int color = 0; color < native.Frames[frame].Length; color++)
@@ -1103,8 +1097,7 @@ internal static class LookupStream5Verification
         var native = System.Text.Json.JsonSerializer.Deserialize<ZebetiteColorDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         ZebetiteColorCatalog stock = Check(native);
-        var residuals = (Dictionary<int, Bgr555>)typeof(ZebetiteColorCatalog)
-            .GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var residuals = stock.edits;
         AssertEqual(0, residuals.Count, "Native Zebetite pulse requires no stored frame residuals");
         for (int frame = 0; frame < native.Frames.Length; frame++)
         for (int color = 0; color < native.Frames[frame].Length; color++)
@@ -1246,9 +1239,9 @@ internal static class LookupStream5Verification
         }).ToArray();
         var original = new MapPaletteCycleDocument { Version = 1, Frames = frames };
         MapPaletteCycle stock = Check(original);
-        AssertEqual(0, ((Dictionary<int, byte>)typeof(MapPaletteCycle).GetField("durationEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count, "No stock duration lookup retained");
-        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(MapPaletteCycle).GetField("reverseColorEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count, "No stock reverse-frame lookup retained");
-        AssertEqual(8, ((Bgr555[][])typeof(MapPaletteCycle).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Length, "Only independent color phases remain");
+        AssertEqual(0, (stock.durationEdits).Count, "No stock duration lookup retained");
+        AssertEqual(0, (stock.reverseColorEdits).Count, "No stock reverse-frame lookup retained");
+        AssertEqual(8, (stock.colors).Length, "Only independent color phases remain");
         for (int frame = 0; frame < 14; frame++)
         {
             AssertEqual((byte)Math.Min(frame, 14 - frame), rom.ReadCartridgeByte(MapAnimationRomData.PaletteTiming + frame * 3 + 1), "Native highlight phase traversal");
@@ -1502,13 +1495,13 @@ internal static class LookupStream5Verification
         var stock = Load(document);
         Check(stock,document);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        object animation = typeof(CeresDoorVisualCatalog).GetField("animation", flags)!.GetValue(stock)!;
-        object escape = typeof(CeresDoorVisualCatalog).GetField("escape", flags)!.GetValue(stock)!;
-        AssertEqual(0, ((Dictionary<int, Bgr555>)animation.GetType().GetField("seedEdits", flags)!.GetValue(animation)!).Count,
+        var animation = stock.animation;
+        var escape = stock.escape;
+        AssertEqual(0, (animation.seedEdits).Count,
             "stock animation seeds derive from the normal paint");
-        AssertEqual(0, ((Dictionary<int, Bgr555>)animation.GetType().GetField("edits", flags)!.GetValue(animation)!).Count,
+        AssertEqual(0, (animation.edits).Count,
             "stock animation phases require no cell storage");
-        AssertEqual(0, ((Dictionary<int, Bgr555>)escape.GetType().GetField("edits", flags)!.GetValue(escape)!).Count,
+        AssertEqual(0, (escape.edits).Count,
             "stock escape colors derive from the normal paint");
         for (int palette = 0; palette < 2; palette++)
         for (int color = 0; color < 15; color++)
@@ -1605,7 +1598,7 @@ internal static class LookupStream5Verification
             CeresFlightActorLayout.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
             var layout = CeresFlightActorLayout.Load(encoded);
-            return (layout, index => layout[index], layout.ContentIdentity);
+            return (layout, layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => (value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
         var reveal = Enumerable.Range(0, 6).Select(index =>
@@ -1621,7 +1614,7 @@ internal static class LookupStream5Verification
             CeresRevealActorLayout.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
             var layout = CeresRevealActorLayout.Load(encoded);
-            return (layout, index => layout[index], layout.ContentIdentity);
+            return (layout, layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => (value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
         var destruction = Enumerable.Range(0, 3).Select(index =>
@@ -1636,19 +1629,17 @@ internal static class LookupStream5Verification
             CeresDestructionActorLayout.Write(encoded, new() { Version = 1, Actors = values });
             encoded.Position = 0;
             var layout = CeresDestructionActorLayout.Load(encoded);
-            return (layout, index => layout[index], layout.ContentIdentity);
+            return (layout, layout.placements, index => layout[index], layout.ContentIdentity);
         }, value => (value.Id, value.X, value.Y),
             (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
         Console.WriteLine("Ceres layouts: all14 original actor placements/28 coordinate operands, no stored stock rows, all28 independent coordinate edits, complete identity preservation and bounds pass.");
 
         static void Check<T>(T[] original,
-            Func<T[], (object Layout, Func<int, T> Read, string Identity)> load,
+            Func<T[], (object Layout, object? Placements, Func<int, T> Read, string Identity)> load,
             Func<T, (string Id, int X, int Y)> fields, Func<T, bool, T> edit)
         {
             var stock = load(original);
-            var storage = stock.Layout.GetType().GetField("placements",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-            AssertTrue(storage.GetValue(stock.Layout) is null, "Ceres stock placements select semantic actor dispatch");
+            AssertTrue(stock.Placements is null, "Ceres stock placements select semantic actor dispatch");
             Verify(stock, original);
             for (int index = 0; index < original.Length; index++)
             foreach (bool horizontal in new[] { false, true })
@@ -1656,13 +1647,13 @@ internal static class LookupStream5Verification
                 T[] changed = original.ToArray();
                 changed[index] = edit(changed[index], horizontal);
                 var installed = load(changed);
-                AssertTrue(storage.GetValue(installed.Layout) is not null, "Independent Ceres coordinate edit remains supplied");
+                AssertTrue(installed.Placements is not null, "Independent Ceres coordinate edit remains supplied");
                 Verify(installed, changed);
             }
             AssertThrows<IndexOutOfRangeException>(() => stock.Read(-1), "Ceres layout lower bound");
             AssertThrows<IndexOutOfRangeException>(() => stock.Read(original.Length), "Ceres layout upper bound");
 
-            void Verify((object Layout, Func<int, T> Read, string Identity) actual, T[] expected)
+            void Verify((object Layout, object? Placements, Func<int, T> Read, string Identity) actual, T[] expected)
             {
                 for (int index = 0; index < expected.Length; index++)
                     AssertEqual(fields(expected[index]), fields(actual.Read(index)), "Ceres complete selected placement");
@@ -1809,7 +1800,7 @@ internal static class LookupStream5Verification
         };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureBus(NewCeresDoorQuakeReadGuard(rom));
-        typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(enemies, new RidleyEnemyState { MovementAnimationEnabled = 0 });
+        enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = 0 };
         enemies.SlotTable.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
         var door = enemies.SlotTable.Slots[1];
         door.EnemyDefinitionPointer = EnemyDefinitionId.CeresDoor;
@@ -1844,9 +1835,9 @@ internal static class LookupStream5Verification
             colors[index] = new PaletteRgb5 { Red = value & 31, Green = value >> 5 & 31, Blue = value >> 10 & 31 };
         }
         CeresFlightPalette stock = Check();
-        var edits = (System.Collections.IDictionary)typeof(CeresFlightPalette).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var edits = stock.edits;
         AssertEqual(0, edits.Count, "Native shared sections and endpoint ramp need no residual corrections");
-        int independent = ((System.Collections.IDictionary)typeof(CeresFlightPalette).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count;
+        int independent = stock.colors.Count;
         for (int index = 0; index < colors.Length; index++)
         {
             PaletteRgb5 original = colors[index];
@@ -1923,12 +1914,12 @@ internal static class LookupStream5Verification
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorNormalPaintDefinitions stock = Check();
-        AssertEqual(13, ((Dictionary<int, int>)typeof(CeresDoorNormalPaintDefinitions).GetField("paint", flags)!.GetValue(stock)!).Count, "Thirteen local material seeds remain after shared warm extraction");
+        AssertEqual(13, (stock.paint).Count, "Thirteen local material seeds remain after shared warm extraction");
         string[] warmSeeds = ["highlightBlue", "amberRed", "amberGreen", "red", "goldRed", "goldGreen", "goldBlue"];
-        AssertTrue(warmSeeds.Order(StringComparer.Ordinal).SequenceEqual(typeof(CeresDoorWarmTargetPaintDefinitions).GetFields(flags)
+        AssertTrue(warmSeeds.Order(StringComparer.Ordinal).SequenceEqual(MetadataShape.Fields(typeof(CeresDoorWarmTargetPaintDefinitions), flags)
             .Where(field => field.FieldType == typeof(int)).Select(field => field.Name).Order(StringComparer.Ordinal)), "Seven exact shared warm material inputs");
-        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(CeresDoorWarmTargetPaintDefinitions).GetField("edits", flags)!.GetValue(stock.WarmTargets)!).Count, "Shared native warm shades need no overrides");
-        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(CeresDoorNormalPaintDefinitions).GetField("edits", flags)!.GetValue(stock)!).Count, "Native calculated channels need no unexplained overrides");
+        AssertEqual(0, (stock.WarmTargets.edits).Count, "Shared native warm shades need no overrides");
+        AssertEqual(0, (stock.edits).Count, "Native calculated channels need no unexplained overrides");
         for (int color = 0; color < 15; color++)
         {
             PaletteRgb5 before = document.Normal[color];
@@ -1991,10 +1982,10 @@ internal static class LookupStream5Verification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorEscapePaintDefinitions stock = Check();
         // The highlight/edge/outline levels live in the surface paint the escape palette composes.
-        object surface = typeof(CeresDoorEscapePaintDefinitions).GetField("surface", flags)!.GetValue(stock)!;
-        AssertEqual(4, ((int[])typeof(CeresDoorEscapeSurfacePaintDefinitions).GetField("highlightAndEdgeLevels", flags)!.GetValue(surface)!).Length, "Four selected highlight/edge/outline levels");
-        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(CeresDoorEscapePaintDefinitions).GetField("edits", flags)!.GetValue(stock)!).Count, "Native calculated channels need no unexplained overrides");
-        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(CeresDoorEscapeSurfacePaintDefinitions).GetField("edits", flags)!.GetValue(surface)!).Count, "Native calculated surface channels need no unexplained overrides");
+        object surface = stock.surface;
+        AssertEqual(4, (((CeresDoorEscapeSurfacePaintDefinitions)surface).highlightAndEdgeLevels).Length, "Four selected highlight/edge/outline levels");
+        AssertEqual(0, (stock.edits).Count, "Native calculated channels need no unexplained overrides");
+        AssertEqual(0, (((CeresDoorEscapeSurfacePaintDefinitions)surface).edits).Count, "Native calculated surface channels need no unexplained overrides");
         for (int color = 0; color < 15; color++)
         {
             PaletteRgb5 before = document.Escape[color];
@@ -2056,10 +2047,10 @@ internal static class LookupStream5Verification
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorAnimationPaintDefinitions stock = Check(-1);
-        AssertEqual(17, (int)typeof(CeresDoorAnimationPaintDefinitions).GetField("firstSeedBlue", flags)!.GetValue(stock)!, "Selected beacon blue");
-        AssertEqual(14, (int)typeof(CeresDoorAnimationPaintDefinitions).GetField("dimMiddleAmberRed", flags)!.GetValue(stock)!, "Selected dim amber red");
-        foreach (string field in new[] { "seedEdits", "edits" })
-            AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorAnimationPaintDefinitions).GetField(field, flags)!.GetValue(stock)!).Count, "All native beacon dependencies calculate without overrides");
+        AssertEqual(17, stock.firstSeedBlue, "Selected beacon blue");
+        AssertEqual(14, stock.dimMiddleAmberRed, "Selected dim amber red");
+        foreach (Dictionary<int, Bgr555> overrides in new[] { stock.seedEdits, stock.edits })
+            AssertEqual(0, overrides.Count, "All native beacon dependencies calculate without overrides");
         for (int row = 0; row < 8; row++)
         for (int color = 0; color < 6; color++)
         {

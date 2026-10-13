@@ -15,17 +15,6 @@ internal static class DesktopVerificationSupport
         }
     }
 
-    // Exercise the actual toolbar handlers without exposing debug-only production APIs.
-    internal static void Call(object owner, string name, params object[] args) =>
-        (owner.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)
-            ?? throw new MissingMethodException(name)).Invoke(owner, args);
-    internal static Task CallAsync(object owner, string name, params object[] args) =>
-        (Task)((owner.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)
-            ?? throw new MissingMethodException(name)).Invoke(owner, args)
-            ?? throw new InvalidOperationException("Async handler returned no task."));
-    internal static T Field<T>(object owner, string name) =>
-        (T)(owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(owner)
-            ?? throw new MissingFieldException(name));
     internal static void Check(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);

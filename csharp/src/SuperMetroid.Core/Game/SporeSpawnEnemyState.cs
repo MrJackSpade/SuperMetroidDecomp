@@ -27,7 +27,7 @@ public enum SporeSpawnFunction : ushort
 /// </summary>
 public sealed class SporeSpawnEnemyState
 {
-    private readonly Bgr555[] _targetPalette = new Bgr555[256];
+    internal readonly Bgr555[] _targetPalette = new Bgr555[256];
     private readonly bool[] _targetPaletteWritten = new bool[256];
 
     internal SporeSpawnEnemyState(RoomEnemySlot body) => Body = body;

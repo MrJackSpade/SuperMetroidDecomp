@@ -20,7 +20,7 @@ internal static class ChargeFlareDefinitionsVerification
                 "Unknown flare cadence address fails instead of reading arbitrary movement-bank data");
         var system = new SamusProjectileSystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        var advance = typeof(ProjectileAnimation).GetMethod("AdvanceFlareComponent", flags)!.CreateDelegate<Action<int>>(system.Animation);
+        var advance = new Action<int>(system.Animation.AdvanceFlareComponent);
         var frames = system.Charge._flareFrames;
         var timers = system.Charge._flareTimers;
         for (int component = 0; component < 3; component++)

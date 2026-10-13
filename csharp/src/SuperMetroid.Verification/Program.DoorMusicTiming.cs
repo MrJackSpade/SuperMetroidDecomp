@@ -48,10 +48,10 @@ internal static class DoorMusicTimingVerification
         runtime.Room.LevelData!.ResolveDoorCollision(bus, behavior, samus.Pose, true);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.HitDoorBlock);
-        var audio = (CartridgeAudioState)typeof(SuperMetroidGame).GetField("audio", flags)!.GetValue(game)!;
+        game.runtime = runtime;
+        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.GameState = SuperMetroidGameState.HitDoorBlock;
+        var audio = game.audio;
         audio.AdvanceFrame(bus, default);
         audio.QueueRoomMusic(9, 5);
         for (int frame = 0; frame < 40; frame++) audio.AdvanceFrame(bus, default);

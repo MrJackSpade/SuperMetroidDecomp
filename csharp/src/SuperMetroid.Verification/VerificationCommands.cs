@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Reflection;
 using System.Text;
 
@@ -120,6 +121,7 @@ internal static class VerificationCommands
         }
     }
 
+    [ReflectionAudit("verifier discovery: commands are the methods carrying [VerificationCommand]")]
     private static List<Command> Discover()
     {
         var commands = new List<Command>();

@@ -7,9 +7,9 @@ internal sealed class RenderPublicationProfile : IDisposable
 {
     [ThreadStatic] private static RenderPublicationProfile? active;
     private readonly int owner = Environment.CurrentManagedThreadId;
-    internal long Ticks { get; private set; }
-    internal long AllocatedBytes { get; private set; }
-    internal int Publications { get; private set; }
+    internal long Ticks { get; set; }
+    internal long AllocatedBytes { get; set; }
+    internal int Publications { get; set; }
 
     internal static Sample Measure() => active is { } profile ? new(profile) : default;
 
@@ -33,7 +33,7 @@ internal sealed class RenderPublicationProfile : IDisposable
         }
     }
 
-    private void VerifyOwner()
+    internal void VerifyOwner()
     {
         if (Environment.CurrentManagedThreadId != owner || !ReferenceEquals(active, this))
             throw new InvalidOperationException("Publication profiler used outside its owner-thread scope.");

@@ -36,7 +36,7 @@ internal static class RidleyCollisionDefinitions
             unchecked((short)(relativeY - 288)) >= 0;
     }
 
-    private enum BodyFrame : ushort
+    internal enum BodyFrame : ushort
     {
         /// <summary>$A6:E983, ExtendedSpritemap_Ridley_FacingLeft.</summary>
         Left = 0xe983,
@@ -62,7 +62,7 @@ internal static class RidleyCollisionDefinitions
         Forward = 0xead7,
     }
     /// <summary>$A6:E983..EAD6: each side-facing frame has a two-byte count and four eight-byte component records.</summary>
-    private const int SideFrameBytes = 2 + 4 * 8;
+    internal const int SideFrameBytes = 2 + 4 * 8;
     /// <summary>$A6:EB2F, Hitbox_Ridley_FacingLeft_LegsNotExtended; the two extended variants follow as one-rectangle lists.</summary>
     private const ushort LeftLegs = 0xeb2f;
     /// <summary>$A6:EB59, Hitbox_Ridley_FacingLeft_Hand.</summary>
@@ -136,7 +136,7 @@ internal static class RidleyCollisionDefinitions
     /// eight right-facing lists in the same order. Rectangles are fitted per facing to the
     /// drawings, not mirrored.
     /// </summary>
-    private static readonly CollisionRecordRuns<RidleyCollisionHitbox> Lists = CollisionRecordRuns<RidleyCollisionHitbox>.HitboxLists(
+    internal static readonly CollisionRecordRuns<RidleyCollisionHitbox> Lists = CollisionRecordRuns<RidleyCollisionHitbox>.HitboxLists(
         new(LeftHead,
         [
             [new(-12, -26, 11, 13, Touch, Shot), new(-24, 3, -13, 21, Touch, Shot)],

@@ -15,8 +15,8 @@ public sealed class BabyMetroidCutsceneColorCatalog
             fade.AppendIdentity(content);
         });
 
-    private readonly BabyMetroidInitialPalette initial;
-    private readonly ColorFade fade;
+    internal readonly BabyMetroidInitialPalette initial;
+    internal readonly ColorFade fade;
 
     private BabyMetroidCutsceneColorCatalog(Bgr555[] initial, Bgr555[][] fade)
     {
@@ -52,9 +52,9 @@ public sealed class BabyMetroidCutsceneColorCatalog
     /// <summary>$AD:E90C-E9B3 displays the separately identified final-health paints
     /// at five-sevenths down to zero intensity. Supplied edits remain independent;
     /// no latent RGB8 endpoint reconstruction or stored stock sample is needed.</summary>
-    private sealed class ColorFade
+    internal sealed class ColorFade
     {
-        private readonly Bgr555[][]? supplied;
+        internal readonly Bgr555[][]? supplied;
 
         internal ColorFade(Bgr555[][] frames)
         {
@@ -69,7 +69,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
 
         internal Bgr555 Resolve(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
-        private static Bgr555 Endpoint(int color) => BabyMetroidFinalHealthPaintDefinitions.Color(color);
+        internal static Bgr555 Endpoint(int color) => BabyMetroidFinalHealthPaintDefinitions.Color(color);
 
         private static Bgr555 Calculate(int frame, int color)
         {

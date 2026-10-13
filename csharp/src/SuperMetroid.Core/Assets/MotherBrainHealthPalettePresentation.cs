@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable damage-state colors for Mother Brain's final-phase body and rear legs.</summary>
 public sealed class MotherBrainHealthPalettePresentation
 {
-    private readonly TintPalette body;
-    private readonly TintPalette backLegs;
+    internal readonly TintPalette body;
+    internal readonly TintPalette backLegs;
 
     private MotherBrainHealthPalettePresentation(Bgr555[][] body, Bgr555[][] backLegs)
     {
@@ -59,11 +59,11 @@ public sealed class MotherBrainHealthPalettePresentation
     /// RGB8 red tint with a shared one-unit quantization bias. Body strength is
     /// state*(state+1)/30; rear legs add 2/30 after state zero.
     /// </summary>
-    private sealed class TintPalette
+    internal sealed class TintPalette
     {
-        private readonly BasePalette basis;
+        internal readonly BasePalette basis;
         private readonly bool backLeg;
-        private readonly Bgr555[][]? supplied;
+        internal readonly Bgr555[][]? supplied;
 
         public TintPalette(Bgr555[][] rows, bool backLeg, TintPalette? front = null)
         {
@@ -80,14 +80,14 @@ public sealed class MotherBrainHealthPalettePresentation
         private Bgr555 Calculate(int state, int color) => TintColor(basis.Color(color), state, backLeg);
     }
     /// <summary>Independent paint colors plus calculated quarter/fifth shade ramps.</summary>
-    private sealed class BasePalette
+    internal sealed class BasePalette
     {
-        private readonly Bgr555 highlight;
-        private readonly Bgr555 midtone;
-        private readonly Bgr555 shadow;
-        private readonly Bgr555 brown;
+        internal readonly Bgr555 highlight;
+        internal readonly Bgr555 midtone;
+        internal readonly Bgr555 shadow;
+        internal readonly Bgr555 brown;
         private readonly bool backLeg;
-        private readonly Bgr555[]? supplied;
+        internal readonly Bgr555[]? supplied;
         private readonly BasePalette? front;
 
         internal static BasePalette StockBody { get; } = new(false);

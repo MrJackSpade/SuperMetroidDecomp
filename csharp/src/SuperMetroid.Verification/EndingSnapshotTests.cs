@@ -280,9 +280,7 @@ internal static class EndingSnapshotTestsVerification
                 if (legacy.Phase >= EndingCreditsPhase.ItemPercentage)
                 {
                     // E58A clears cinematic actors; the independent star field survives.
-                    var stars = (EndingShootingStars?)typeof(EndingCreditsState)
-                        .GetField("shootingStars", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                        .GetValue(legacy);
+                    var stars = legacy.shootingStars;
                     var starOnlyOam = new OamBuffer();
                     starOnlyOam.BeginFrame();
                     stars?.Draw(starOnlyOam);

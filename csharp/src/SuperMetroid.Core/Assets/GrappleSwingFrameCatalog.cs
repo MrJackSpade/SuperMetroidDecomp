@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Displayed swing-frame selection only; physical body placement remains compiled separately.</summary>
 public sealed class GrappleSwingFrameCatalog
 {
-    private readonly byte[]? frames;
+    internal readonly byte[]? frames;
     private GrappleSwingFrameCatalog(byte[] frames)
     {
         for (int angle = 0; angle < frames.Length; angle++)

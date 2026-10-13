@@ -20,13 +20,12 @@ internal static class MechanicsWorkRamBoundaryVerification
     internal static void VerifyMechanicsWorkRamBoundary()
     {
         const BindingFlags privateStatic = BindingFlags.NonPublic | BindingFlags.Static;
-        AssertTrue(typeof(RoomPlmSystem).GetMethod("ReadNativeBankByte", privateStatic) is null &&
-            typeof(RoomPlmSystem).GetMethod("ReadBank84Word", privateStatic) is null,
+        AssertTrue(!MetadataShape.DeclaresMethod(typeof(RoomPlmSystem), "ReadNativeBankByte", privateStatic) &&
+            !MetadataShape.DeclaresMethod(typeof(RoomPlmSystem), "ReadBank84Word", privateStatic),
             "PLMs must not retain generic bank-data readers");
-        AssertEqual(typeof(ISnesMutableMemory), typeof(RoomPlmSystem)
-            .GetMethod("ReadPlmWorkRamWord", privateStatic)!.GetParameters()[0].ParameterType,
+        AssertEqual(typeof(ISnesMutableMemory), MetadataShape.ParameterTypes(typeof(RoomPlmSystem), "ReadPlmWorkRamWord", privateStatic)[0],
             "wrapped PLM words have a compile-time mutable-memory source");
-        AssertTrue(typeof(SamusHorizontalSpeedState).GetMethod("ReadMappedByte", privateStatic) is null,
+        AssertTrue(!MetadataShape.DeclaresMethod(typeof(SamusHorizontalSpeedState), "ReadMappedByte", privateStatic),
             "horizontal speed must not retain a mapped CPU-byte reader");
 
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
@@ -49,9 +48,7 @@ internal static class MechanicsWorkRamBoundaryVerification
             AssertEqual(0, plms.SlotTable.ActiveCount, "WRAM-backed instruction resumes and deletes on the next pass");
         }
 
-        var readSpeed = typeof(SamusHorizontalSpeedState)
-            .GetMethod("ReadEntryAtAddress", privateStatic)!
-            .CreateDelegate<Func<ISnesAddressSpace, int, SpeedTableEntry>>();
+        var readSpeed = new Func<ISnesAddressSpace, int, SpeedTableEntry>(SamusHorizontalSpeedState.ReadEntryAtAddress);
         for (int index = 0; index < 6; index++)
             WriteMirroredWorkRamWord(memory, 0x900100 + index * 2, (ushort)(0x1200 + index));
         AssertEqual(new SpeedTableEntry(0x1200, 0x1201, 0x1202, 0x1203, 0x1204, 0x1205),

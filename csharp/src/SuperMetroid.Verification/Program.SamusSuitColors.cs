@@ -27,17 +27,15 @@ internal static class SamusSuitColorsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(cartridge.Rom)), "Normal suit sharing oracle revision");
         byte[] extracted = SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(cartridge);
         SamusSuitColorCatalog colors = SamusSuitColorCatalog.Load(new MemoryStream(extracted));
-        foreach (var (field, source) in new[] { ("varia", 0x9b9520), ("gravity", 0x9b9800) })
+        foreach (var (differences, source) in new[] { (colors.varia, 0x9b9520), (colors.gravity, 0x9b9800) })
         {
-            var differences = (Dictionary<int, ushort>)typeof(SamusSuitColorCatalog)
-                .GetField(field, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(colors)!;
             AssertEqual(4, differences.Count, "Only four differing native colors per secondary suit remain stored");
             for (int color = 0; color < 16; color++)
             {
                 ushort powerColor = ReadVerificationWord(cartridge, 0x9b9400 + 2 * color);
                 ushort suitColor = ReadVerificationWord(cartridge, source + 2 * color);
-                AssertEqual(powerColor != suitColor, differences.TryGetValue(color, out ushort stored), "Every native shared/different slot is independently classified");
-                if (powerColor != suitColor) AssertEqual(suitColor, stored, "Differing native word is preserved");
+                AssertEqual(powerColor != suitColor, differences.TryGetValue(color, out Bgr555 stored), "Every native shared/different slot is independently classified");
+                if (powerColor != suitColor) AssertEqual(Bgr555.FromCgramPortWord(suitColor), stored, "Differing native word is preserved");
             }
         }
         for (int offset = 0; offset <= ushort.MaxValue; offset++)

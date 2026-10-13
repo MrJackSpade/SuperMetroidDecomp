@@ -17,7 +17,7 @@ public sealed class SamusKinematicsState
     // `$7E:182C-$1833` remembers the solid enemy hit in each movement direction until the
     // next EnemyMain tail clears all four words. Dead-monster actors inspect this delayed
     // producer state; a one-call return value alone cannot reproduce that ordering.
-    private readonly ushort[] _solidEnemyCollisionIndexes =
+    internal readonly ushort[] _solidEnemyCollisionIndexes =
         [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
 
     /// <summary>

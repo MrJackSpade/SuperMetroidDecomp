@@ -16,7 +16,6 @@ internal static class EnemyAnimationIsolationFixtureVerification
     /// </summary>
     internal sealed class EnemyAnimationFixture
     {
-        private const BindingFlags PrivateInstance = BindingFlags.Instance | BindingFlags.NonPublic;
         internal const int FloorY = 224;
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
         internal RoomEnemySystem Enemies { get; }
@@ -97,12 +96,6 @@ internal static class EnemyAnimationIsolationFixtureVerification
 
         internal void BeginDeath() => new Action<RoomEnemySlot, TorizoEnemyState>(BombTorizoBehavior.BeginBombTorizoDeath)(Actor, Torizo!);
 
-        private void Bind(string field, object value) => typeof(RoomEnemySystem)
-            .GetField(field, PrivateInstance)!.SetValue(Enemies, value);
-
-        private static ushort Code(string name) => (ushort)typeof(RoomEnemySystem).GetField(name,
-            BindingFlags.Static | BindingFlags.NonPublic)!.GetRawConstantValue()!;
-
         private ushort NextRandom()
         {
             RandomCalls++;
@@ -150,7 +143,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
 
     internal static class AnimationValueProperties<T> where T : class
     {
-        internal static readonly PropertyInfo[] All = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public)
+        internal static readonly PropertyInfo[] All = MetadataShape.Properties(typeof(T), BindingFlags.Instance | BindingFlags.Public)
             .Where(property => property.GetIndexParameters().Length == 0 &&
                 (property.PropertyType.IsValueType && !property.PropertyType.IsByRefLike || property.PropertyType == typeof(string))).ToArray();
     }

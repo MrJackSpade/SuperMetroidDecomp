@@ -20,7 +20,7 @@ public sealed class BotwoonColorCatalog
             }
         });
 
-    private readonly BotwoonHealthPaintDefinitions health;
+    internal readonly BotwoonHealthPaintDefinitions health;
 
     private BotwoonColorCatalog(Bgr555[][] rows) => health = new(rows);
 

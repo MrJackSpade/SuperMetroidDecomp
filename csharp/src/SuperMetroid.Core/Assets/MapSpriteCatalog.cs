@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class MapSpriteCatalog
 {
     private readonly FrameSet frames;
-    private readonly MapObjectTileArtwork characters;
+    internal readonly MapObjectTileArtwork characters;
     private MapSpriteCatalog(FrameSet frames, MapObjectTileArtwork characters) { this.frames = frames; this.characters = characters; }
     /// <summary>Draws a named map marker, elevator, label, or indicator at a screen-pixel anchor.</summary>
     public void Draw(MapSpriteId id, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
@@ -28,7 +28,7 @@ public sealed class MapSpriteCatalog
     /// <summary>Loads the compiled shared 4-bpp map-object characters into the screen's OBJ character region.</summary>
     public void LoadArtworkTo(VramRegion destination) => characters.LoadTo(destination);
     /// <summary>Selects an installed composition by its named native drawing role.</summary>
-    private SpriteComposition? GetFrame(MapSpriteId id) => id switch
+    internal SpriteComposition? GetFrame(MapSpriteId id) => id switch
     {
         MapSpriteId.ArrowRight => frames.ArrowRight,
         MapSpriteId.ArrowLeft => frames.ArrowLeft,
@@ -53,7 +53,7 @@ public sealed class MapSpriteCatalog
         _ => throw new KeyNotFoundException($"The given key '{id}' was not present in the dictionary."),
     };
 
-    private WorldMapLabelComposition? GetWorldLabel(MapSpriteId id) => id switch
+    internal WorldMapLabelComposition? GetWorldLabel(MapSpriteId id) => id switch
     {
         MapSpriteId.WorldCrateria => frames.WorldCrateria,
         MapSpriteId.WorldBrinstar => frames.WorldBrinstar,

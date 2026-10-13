@@ -47,10 +47,9 @@ internal static class SamusIndexedSpeedsVerification
         }
         AssertEqual(166, compiledCount, "Air 82 + water 56 + lava 28 authored address outcomes");
         // Every possible restored base word must preserve address wrapping and alignment.
-        var baseProperty = typeof(SamusHorizontalSpeedState).GetProperty(nameof(SamusHorizontalSpeedState.ActiveSpeedTableBaseAddress))!;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            baseProperty.SetValue(speed, (ushort)raw);
+            speed.ActiveSpeedTableBaseAddress = (ushort)raw;
             int address = speed.ResolveEntryAddress(SamusMovementType.Running);
             AssertEqual(0x900000 | unchecked((ushort)(raw + 12)), address, "Restored base wraps as a native word");
             if (address < 0x908000) continue; // Mutable aliases are separately exercised below.
@@ -68,7 +67,7 @@ internal static class SamusIndexedSpeedsVerification
             }
         }
         var mutable = new TestAddressSpace();
-        baseProperty.SetValue(speed, (ushort)0x0100);
+        speed.ActiveSpeedTableBaseAddress = (ushort)0x0100;
         foreach (ushort changed in new ushort[] { 0x1234, 0x4321 })
         {
             WriteTestWord(mutable, 0x90010c, changed);

@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class TitlePalettePresentation : IPaletteFxColorSource
 {
-    private readonly Bgr555[] colors;
-    private readonly Dictionary<ushort, Bgr555> animatedColors;
+    internal readonly Bgr555[] colors;
+    internal readonly Dictionary<ushort, Bgr555> animatedColors;
 
     private TitlePalettePresentation(
         Bgr555[] colors,

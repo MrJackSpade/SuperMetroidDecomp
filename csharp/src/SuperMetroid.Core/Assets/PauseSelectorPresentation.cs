@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Equipment-selector anchors, visual animation and compositions; selection rules stay compiled.</summary>
 public sealed class PauseSelectorPresentation
 {
-    private readonly Dictionary<string, (int? X, int? Y)> anchorOverrides;
-    private readonly PhaseComposition reserve, beam, equipment;
-    private readonly Dictionary<int, int>? durationOverrides;
+    internal readonly Dictionary<string, (int? X, int? Y)> anchorOverrides;
+    internal readonly PhaseComposition reserve, beam, equipment;
+    internal readonly Dictionary<int, int>? durationOverrides;
     /// <summary>Gets the initial selector dwell time in accepted update ticks.</summary>
     public int InitialDurationTicks { get; }
     /// <summary>Gets the selected three-bit OBJ palette encoded in its attribute-word position.</summary>
@@ -101,10 +101,10 @@ public sealed class PauseSelectorPresentation
     }
     /// <summary>Native $82:C137 has zero sprite offsets in every phase: each category
     /// holds its base composition. Capture only explicitly authored phase differences.</summary>
-    private sealed class PhaseComposition(PauseSelectorVisual basis)
+    internal sealed class PhaseComposition(PauseSelectorVisual basis)
     {
-        private readonly PauseSelectorVisual basis = basis;
-        private Dictionary<int, PauseSelectorVisual>? overrides;
+        internal readonly PauseSelectorVisual basis = basis;
+        internal Dictionary<int, PauseSelectorVisual>? overrides;
         public void Capture(int phase, PauseSelectorVisual value)
         {
             if (!ReferenceEquals(basis, value)) (overrides ??= new()).Add(phase, value);

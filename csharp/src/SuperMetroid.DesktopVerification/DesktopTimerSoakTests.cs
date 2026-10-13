@@ -27,12 +27,12 @@ internal static class DesktopTimerSoakTests
                 SkipOpeningCinematic = true, Invincibility = true, MasterVolumePercent = 0 };
             CreateDesktopSoakSeed(copy.Installation, options, paused);
             using var form = new GameForm(copy.Installation, options);
-            var control = Field<PlayableGameControl>(form, "gameControl");
+            var control = form.gameControl;
             _ = form.Handle; _ = control.Handle;
-            Call(control, "SetPlaying", false);
-            await CallAsync(control, "LoadDebuggerState", 0);
-            var game = Field<SuperMetroidGame>(control, "game");
-            var counter = Field<FrameTimingCounter>(control, "frameTimings");
+            control.SetPlaying(false);
+            await control.LoadDebuggerState(0);
+            var game = control.game ?? throw new InvalidOperationException("Host has no game.");
+            var counter = control.frameTimings;
             var samples = new List<double>(seconds * 60 + 120);
             double discardedWallClockFrames = 0;
             void RecordDiscard(double count) => discardedWallClockFrames += count;
@@ -50,13 +50,13 @@ internal static class DesktopTimerSoakTests
                 await control.InitializeRendererAsync((window, clientSize, generation) =>
                     new D3D11RenderWorker(window, clientSize, generation, D3D11DeviceKind.Hardware,
                         RenderTelemetryLimits.MaximumHistoryCapacity));
-                var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
+                var worker = control.gpuWorker ?? throw new InvalidOperationException("Host has no GPU worker.");
                 string adapter = await worker.Ready;
-                var output = Field<RecoveringAudioOutput>(control, "audioDevice");
+                var output = control.audioDevice ?? throw new InvalidOperationException("Host has no audio device.");
                 counter.EmulatedFrameMeasured += Measure;
                 counter.LateFramesRecorded += RecordDiscard;
                 ushort startFrame = game.FrameNumber;
-                Call(control, "SetPlaying", true);
+                control.SetPlaying(true);
                 var clock = Stopwatch.StartNew();
                 memory.Add(SoakMemorySample.Capture(process, 0));
                 int nextReport = 30;
@@ -84,7 +84,7 @@ internal static class DesktopTimerSoakTests
                         "soak timing history discarded samples; whole-run percentile claim is invalid");
                 Check(worker.SubmittedUploadBytes > 0 && worker.SubmittedUploadCalls > 0
                     && worker.CaptureUploadTimings().Observed > 0, "desktop renderer did not publish upload telemetry");
-                Call(control, "SetPlaying", false);
+                control.SetPlaying(false);
                 counter.EmulatedFrameMeasured -= Measure;
                 counter.LateFramesRecorded -= RecordDiscard;
                 memory.Add(SoakMemorySample.Capture(process, elapsed));

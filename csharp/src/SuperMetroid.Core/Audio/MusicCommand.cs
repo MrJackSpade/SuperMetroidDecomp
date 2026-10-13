@@ -89,7 +89,7 @@ public readonly record struct MusicCommand
 /// </summary>
 public readonly record struct MusicCommandDelay
 {
-    private MusicCommandDelay(ushort frames) => Frames = frames;
+    internal MusicCommandDelay(ushort frames) => Frames = frames;
 
     /// <summary>Effective native countdown frames.</summary>
     public ushort Frames { get; }

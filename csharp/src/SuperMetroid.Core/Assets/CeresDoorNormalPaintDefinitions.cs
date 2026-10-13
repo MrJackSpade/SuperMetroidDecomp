@@ -17,8 +17,8 @@ internal sealed class CeresDoorNormalPaintDefinitions
     private const int HighlightBlueTint = 14;
 
     internal CeresDoorWarmTargetPaintDefinitions WarmTargets { get; }
-    private readonly Dictionary<int, int> paint = [];
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, int> paint = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal CeresDoorNormalPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {

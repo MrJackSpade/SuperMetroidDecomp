@@ -44,15 +44,12 @@ internal static class LookupAtmosphereTilemapsVerification
         {
             int mask = type == RoomFxType.Rain ? 0x1c00 : 0x3c00;
             AssertEqual(mask, (int)RoomFxAtmosphereTilemapDefinitions.CalculatedMask(type), "Exact converted field mask");
-            object page = typeof(RoomFxLayer3TilemapCatalog).GetField(type.ToString().ToLowerInvariant(),
-                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-            FieldInfo edits = typeof(RoomFxAtmosphereTilemap).GetField("customFields", BindingFlags.Instance | BindingFlags.NonPublic)!;
-            var retained = (ushort[])typeof(RoomFxAtmosphereTilemap).GetField("preservedBits",
-                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(page)!;
-            AssertTrue(edits.GetValue(page) is null && retained.All(word => (word & mask) == 0),
+            RoomFxAtmosphereTilemap page = type == RoomFxType.Rain ? stock.rain : stock.fog;
+            var retained = page.preservedBits;
+            AssertTrue(page.customFields is null && retained.All(word => (word & mask) == 0),
                 "Calculated stock fields absent from both stores");
             _ = stock.Resolve(type);
-            AssertTrue(edits.GetValue(page) is null && retained.All(word => (word & mask) == 0),
+            AssertTrue(((RoomFxAtmosphereTilemap)page).customFields is null && retained.All(word => (word & mask) == 0),
                 "Transfer never caches stock fields");
             int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + (ushort)type);
             var original = new byte[0x840];

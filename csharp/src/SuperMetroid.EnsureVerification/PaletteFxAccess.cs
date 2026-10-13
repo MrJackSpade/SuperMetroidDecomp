@@ -1,11 +1,10 @@
 using SuperMetroid.Core.Game;
 
-/// <summary>Verification view of private palette-FX slot occupancy.</summary>
+/// <summary>Verification view of palette-FX slot occupancy.</summary>
 internal static class PaletteFxAccess
 {
     extension(RoomPaletteFxSystem fx)
     {
-        internal int ActiveCount => PrivateState.Field<Array>(fx, "slots").Cast<object>()
-            .Count(slot => PrivateState.Property<ushort>(slot, "Id") != 0);
+        internal int ActiveCount => fx.slots.Count(slot => slot.Id != 0);
     }
 }

@@ -55,8 +55,7 @@ internal static class SamusChargeColorsVerification
             Presentation = { ChargeColors = edited.SamusChargeColors },
         };
         var projectiles = new SamusProjectileSystem();
-        typeof(BeamChargeState).GetProperty(nameof(BeamChargeState.FlareCounter))!
-            .SetValue(projectiles.Charge, (ushort)60);
+        projectiles.Charge.FlareCounter = (ushort)60;
         var cgram = new SnesCgram();
         ushort[] suits = [0, 1, 0x20];
         for (int family = 0; family < 2; family++)
@@ -82,8 +81,7 @@ internal static class SamusChargeColorsVerification
         }
         AssertEqual(0, projectiles.Charge.SamusChargePaletteIndex, "six charge phases wrap");
         samus.HyperBeam = 0x8000;
-        typeof(BeamChargeState).GetProperty(nameof(BeamChargeState.ChargedShotGlowTimer))!
-            .SetValue(projectiles.Charge, (ushort)0x8014);
+        projectiles.Charge.ChargedShotGlowTimer = (ushort)0x8014;
         for (int call = 0; call < 20; call++)
         {
             Bgr555[] before = cgram.Colors.ToArray();
@@ -154,20 +152,17 @@ internal static class SamusChargeColorsVerification
         var cgram = new SnesCgram();
         for (int family = 0; family < 2; family++)
         {
-            object input = typeof(SamusChargeColorCatalog).GetField(family == 0 ? "chargedBeam" : "pseudoScrew",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-            var stored = (Dictionary<int, Bgr555>)input.GetType().GetField("colors",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(input)!;
+            var input = family == 0 ? catalog.chargedBeam : catalog.pseudoScrew;
+            var stored = input.colors;
             AssertEqual(family == 0 ? 25 : 24, stored.Count, "Charge catalog stores each native phase input once");
-            var tintInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)input.GetType().GetField("fadeInputs",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(input)!;
+            var tintInputs = input.fadeInputs;
             AssertEqual(family == 0 ? 0 : 2, tintInputs.Count, "Only Power/Varia pseudo-Screw ink2 need tint input overrides");
             if (family != 0)
             {
                 foreach (var entry in tintInputs)
                 {
                     AssertTrue(entry.Key is 2 or 98, "Pseudo-Screw tint input belongs to Power/Varia ink2");
-                    foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+                    foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                         AssertEqual(field.Name == "blue", field.GetValue(entry.Value) is not null, "Only differing blue channel remains stored");
                 }
             }
@@ -222,25 +217,16 @@ internal static class SamusChargeColorsVerification
         var selectors = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
             .Select(index => (ushort)rom.ReadCartridgeByte(SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + 2 * index + 1)).ToArray();
         var death = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(deathSuitless), ToColors(whiteout), selectors);
-        foreach (string fieldName in new[] { "suitedFadeInputs", "suitlessFadeInputs" })
-        {
-            var inputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
-                .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
+        foreach (var inputs in new[] { death.suitedFadeInputs, death.suitlessFadeInputs })
             AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");
-        }
-        foreach (var (fieldName, count) in new[] { ("suited", 25), ("suitless", 3), ("explosionPaletteIndices", 0) })
-        {
-            var inputs = (System.Collections.IDictionary)typeof(SamusDeathPaletteArtworkCatalog)
-                .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
-            AssertEqual(count, inputs.Count, "Only independent death rows remain stored");
-        }
-        var deathTintInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
-            .GetField("tintShadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
+        foreach (var (stored, count) in new[] { (death.suited.Count, 25), (death.suitless.Count, 3), (death.explosionPaletteIndices.Count, 0) })
+            AssertEqual(count, stored, "Only independent death rows remain stored");
+        var deathTintInputs = death.tintShadeInputs;
         AssertEqual(3, deathTintInputs.Count, "Two interior intensities and dark-endpoint red/blue remain supplied");
         foreach (var entry in deathTintInputs)
         {
             AssertTrue(entry.Key is 7 or 9 or 10, "Only the tint endpoint and two interior inks have inputs");
-            foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+            foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 AssertEqual(field.Name == "blue" || entry.Key == 10 && field.Name == "red",
                     field.GetValue(entry.Value) is not null, "Only independent native tint channels remain stored");
         }
@@ -265,10 +251,9 @@ internal static class SamusChargeColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(Bgr555.FromWord(checked((ushort)(invalid))), new Bgr555(0, 0, 0), out _), "Invalid bright tint endpoint");
             AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(new Bgr555(0, 0, 0), Bgr555.FromWord(checked((ushort)(invalid))), out _), "Invalid dark tint endpoint");
         }
-        var deathWarmInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
-            .GetField("warmShadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
+        var deathWarmInputs = death.warmShadeInputs;
         AssertEqual(1, deathWarmInputs.Count, "Only warm dark-endpoint components remain stored");
-        foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+        foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
             AssertEqual(field.Name != "blue", field.GetValue(deathWarmInputs[4]) is not null, "Warm endpoint stores only independent red/green");
         for (int blue = 0; blue < 32; blue++)
         for (int redGreen = 0; redGreen < 1024; redGreen++)
@@ -318,13 +303,12 @@ internal static class SamusChargeColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(Bgr555.FromWord(checked((ushort)(invalid))), new Bgr555(0, 0, 0), 0, 7, out _), "Invalid tint first endpoint");
             AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(new Bgr555(0, 0, 0), Bgr555.FromWord(checked((ushort)(invalid))), 0, 7, out _), "Invalid tint last endpoint");
         }
-        var neutralInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(SamusDeathPaletteArtworkCatalog)
-            .GetField("neutralInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
+        var neutralInputs = death.neutralInputs;
         AssertEqual(2, neutralInputs.Count, "Only gray peak and final neutral intensities remain");
         foreach (var entry in neutralInputs)
         {
             AssertTrue(entry.Key is 11 or 144, "Only native gray roots store shared intensity inputs");
-            foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+            foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 AssertEqual(field.Name == "red", field.GetValue(entry.Value) is not null, "Neutral stock inputs store one intensity only");
         }
         for (int peak = 0; peak < 32; peak++)
@@ -377,10 +361,8 @@ internal static class SamusChargeColorsVerification
             for (int color = 0; color < 16; color++)
                 AssertEqual(rows[palette][color], editedWarm.SuitlessColor(palette, color), "Warm endpoint-only edits preserve supplied middle inks and fades");
         }
-        object whiteoutInput = typeof(SamusDeathPaletteArtworkCatalog).GetField("whiteout",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(death)!;
-        var whiteoutOverrides = (Dictionary<int, LoadingPaletteInputView.Channels>)whiteoutInput.GetType().GetField("inputs",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(whiteoutInput)!;
+        var whiteoutInput = death.whiteout;
+        var whiteoutOverrides = whiteoutInput.inputs;
         AssertEqual(0, whiteoutOverrides.Count, "Native whiteout has no interpolation or neutral-channel corrections");
         for (int index = 0; index < whiteout.Length; index++)
         {
@@ -565,7 +547,7 @@ internal static class SamusChargeColorsVerification
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = (ushort)SamusBeamFlags.Charge, Presentation = { ChargeColors = catalog } };
         var projectiles = new SamusProjectileSystem();
-        typeof(BeamChargeState).GetProperty(nameof(BeamChargeState.FlareCounter))!.SetValue(projectiles.Charge, (ushort)60);
+        projectiles.Charge.FlareCounter = (ushort)60;
         ushort[] suits = [0, 1, 0x20];
         for (int family = 0; family < 2; family++)
         for (int suit = 0; suit < 3; suit++)

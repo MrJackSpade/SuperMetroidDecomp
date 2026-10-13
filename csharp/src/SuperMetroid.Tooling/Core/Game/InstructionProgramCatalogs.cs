@@ -79,6 +79,7 @@ internal sealed record InstructionProgramCatalog(
             Bind<int?>(nameof(DeclaredBankOf), typeof(IDeclaredProgramBank), implementation));
     }
 
+    [ReflectionAudit("catalog discovery: static abstract contract members are reached for types found by assembly scan")]
     private static T? Bind<T>(string helper, Type contract, Type type) =>
         contract.IsAssignableFrom(type)
             ? (T)typeof(InstructionProgramCatalog).GetMethod(helper, BindingFlags.NonPublic | BindingFlags.Static)!

@@ -21,18 +21,18 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 33312,
-    "PointerDispatch": 1290,
+    "RawHexLiteral": 33311,
+    "PointerDispatch": 1292,
     "OpaqueWordArray": 1152,
-    "CatalogHexLiteral": 101552,
+    "CatalogHexLiteral": 101607,
     "JustifiedHexLiteral": 76,
     "OwnedWidthOperation": 122,
     "JustifiedWidthOperation": 3,
-    "class:NumericQuantity": 56301,
+    "class:NumericQuantity": 56356,
     "class:DomainIdentity": 6975,
     "class:ComposableBits": 1902,
-    "class:StructuredInstruction": 44550,
-    "class:CartridgeAddress": 26746,
+    "class:StructuredInstruction": 44549,
+    "class:CartridgeAddress": 26748,
     "class:Unknown": 1033,
     "storageWidthMembers": 1947
   },
@@ -9429,16 +9429,16 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 27812,
-        "PointerDispatch": 430,
+        "RawHexLiteral": 27811,
+        "PointerDispatch": 432,
         "OpaqueWordArray": 1013,
-        "CatalogHexLiteral": 5361,
+        "CatalogHexLiteral": 5416,
         "OwnedWidthOperation": 59,
-        "class:NumericQuantity": 10496,
+        "class:NumericQuantity": 10551,
         "class:DomainIdentity": 619,
         "class:ComposableBits": 572,
-        "class:StructuredInstruction": 14299,
-        "class:CartridgeAddress": 8162,
+        "class:StructuredInstruction": 14298,
+        "class:CartridgeAddress": 8164,
         "class:Unknown": 527,
         "storageWidthMembers": 316
       },
@@ -9471,7 +9471,6 @@
         "ChozoTourianDustInstructionProgramDefinitionsTooling",
         "CommonEnemyProjectileInstructionProgramDefinitionsTooling",
         "CrocomireArenaPlmsVerification",
-        "CrocomireEffectFixture",
         "CrocomireProjectileInstructionProgramDefinitionsTooling",
         "CrocomireSkeletonArtworkVerification",
         "CrocomireTongueInstructionProgramDefinitionsTooling",
@@ -11692,8 +11691,6 @@
           "path": "csharp/src/SuperMetroid.Verification/NativeMovieCheckpoints.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1,
             "storageWidthMembers": 1
           }
         },
@@ -14184,9 +14181,7 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 4,
-            "PointerDispatch": 1,
             "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 1,
             "class:Unknown": 1
           }
         },
@@ -21282,8 +21277,8 @@
           "totals": {
             "RawHexLiteral": 49,
             "OpaqueWordArray": 2,
-            "class:NumericQuantity": 30,
-            "class:StructuredInstruction": 20,
+            "class:NumericQuantity": 31,
+            "class:StructuredInstruction": 19,
             "class:CartridgeAddress": 1
           }
         },
@@ -22510,6 +22505,14 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Verification/ReplayTraceMemoryCatalog.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 55,
+            "class:NumericQuantity": 55
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Verification/ReserveHandlerTraceDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
@@ -22741,10 +22744,10 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 10,
-            "PointerDispatch": 11,
+            "PointerDispatch": 14,
             "class:NumericQuantity": 4,
             "class:ComposableBits": 4,
-            "class:CartridgeAddress": 13,
+            "class:CartridgeAddress": 16,
             "storageWidthMembers": 4
           }
         },

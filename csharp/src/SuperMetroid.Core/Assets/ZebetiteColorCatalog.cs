@@ -19,7 +19,7 @@ public sealed class ZebetiteColorCatalog
             }
         });
 
-    private readonly Dictionary<int, Bgr555> edits;
+    internal readonly Dictionary<int, Bgr555> edits;
 
     private ZebetiteColorCatalog(Dictionary<int, Bgr555> edits) => this.edits = edits;
 

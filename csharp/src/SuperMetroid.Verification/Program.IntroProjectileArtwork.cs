@@ -16,15 +16,13 @@ internal static class IntroProjectileArtworkVerification
     {
         var intro = CreateRetailIntroFixture(bus);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!.Invoke(intro, null);
-        typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!.Invoke(intro, null);
-        var projectiles = (SamusProjectileSystem)typeof(IntroCinematicState).GetField("flashbackProjectiles", flags)!.GetValue(intro)!;
+        intro.SetupFirstIllustratedPage();
+        intro.SetupMotherBrainFlashback();
+        var projectiles = intro.flashbackProjectiles;
         var game = CreateRetailGameFixture(bus);
-        var introField = typeof(SuperMetroidGame).GetField("intro", flags)!;
-        introField.SetValue(game, intro);
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.IntroCinematic);
-        byte[] Draw(IntroCinematicState scene) => ((OamBuffer)typeof(IntroCinematicState)
-            .GetMethod("PrepareMotherBrainOam", flags)!.Invoke(scene, null)!).LowTable.ToArray();
+        game.intro = intro;
+        game.GameState = SuperMetroidGameState.IntroCinematic;
+        byte[] Draw(IntroCinematicState scene) => (scene.PrepareMotherBrainOam()).LowTable.ToArray();
         foreach (ushort family in new ushort[] { 0x10, 0x700 })
         {
             projectiles.Reset();
@@ -85,7 +83,7 @@ internal static class IntroProjectileArtworkVerification
         AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Intro snapshot excludes host appearance catalogs");
         with.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(with);
-        var restoredIntro = (IntroCinematicState)introField.GetValue(restored)!;
+        var restoredIntro = restored.intro;
         AssertTrue(restoredIntro.TrailArtwork is null && restoredIntro.ProjectileCompositions is null, "Restored intro requires host content rebind");
         BindRestoredIntroDrawFixture(restoredIntro);
         restored.BindArtwork(restored.Artwork with
@@ -105,8 +103,7 @@ internal static class IntroProjectileArtworkVerification
         // This fixture isolates projectile/trail rebinding. Supply the other draw
         // dependencies without invoking the separate cinematic-sheet reupload path,
         // which deliberately replaces VRAM and is covered by the cinematic art fixture.
-        typeof(IntroCinematicState).GetField("characterArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(intro, InstalledFixtures.IntroArtwork);
+        intro.characterArtwork = InstalledFixtures.IntroArtwork;
         intro.BindSamusBodyArtwork(InstalledFixtures.SamusBody);
         intro.ProjectileCompositions = InstalledFixtures.Projectiles.Catalog;
         intro.ProjectileFrameBindings = InstalledFixtures.Projectiles.FrameBindings;
@@ -116,8 +113,7 @@ internal static class IntroProjectileArtworkVerification
         SuperMetroidGame game, byte[] json, Func<IntroCinematicState, byte[]> draw)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var vramField = typeof(IntroCinematicState).GetField("vram", flags)!;
-        var vram = (SnesVram)vramField.GetValue(intro)!;
+        var vram = intro.vram;
         byte[] native = vram.Bytes.ToArray();
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);
         var stock = ProjectileTrailCatalog.Load(new MemoryStream(json), ProjectileTrailAtlas.Load(new MemoryStream(png)));
@@ -138,7 +134,7 @@ internal static class IntroProjectileArtworkVerification
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(saved, game);
         saved.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(saved);
-        var restoredIntro = (IntroCinematicState)typeof(SuperMetroidGame).GetField("intro", flags)!.GetValue(restored)!;
+        var restoredIntro = restored.intro;
         BindRestoredIntroDrawFixture(restoredIntro);
         foreach (var pair in new[] { (game, intro), (restored, restoredIntro) })
         {
@@ -146,7 +142,7 @@ internal static class IntroProjectileArtworkVerification
             {
                 TrailArtwork = edited,
             });
-            var actual = (SnesVram)vramField.GetValue(pair.Item2)!;
+            var actual = pair.Item2.vram;
             AssertTrue(native.AsSpan().SequenceEqual(actual.Bytes), "Intro PNG rebind does not mutate the retained display before preparation");
             draw(pair.Item2);
             for (int i = 0; i < native.Length; i++)

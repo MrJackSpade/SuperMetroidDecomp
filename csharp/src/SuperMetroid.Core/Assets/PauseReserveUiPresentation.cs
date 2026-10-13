@@ -9,13 +9,13 @@ public sealed class PauseReserveUiPresentation
 {
     private readonly Dictionary<string, ReserveLabel> labels;
     private readonly int digitOffset;
-    private readonly byte[][]? digits;
-    private readonly int[]? arrowOffsets;
+    internal readonly byte[][]? digits;
+    internal readonly int[]? arrowOffsets;
     private readonly int enabledPalette, disabledPalette;
     private readonly Bgr555 solidColor6, solidColor11;
     private readonly (Bgr555? Color6, Bgr555? Color11) arrowStartEdits;
     private readonly (int Color6, int Color11) arrowGreyLevels;
-    private readonly Dictionary<int, Bgr555> arrowColorEdits = [];
+    internal readonly Dictionary<int, Bgr555> arrowColorEdits = [];
 
     private PauseReserveUiPresentation(PauseReserveUiParts parts)
     {

@@ -37,8 +37,7 @@ internal static class BossMapMarkersVerification
                 system.SetAreaMapAcquired(area);
                 var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
                 // Center the marker under test without changing its authored position.
-                typeof(PauseMenuState).GetField("mapScrollPosition", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                    .SetValue(pause, new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112))));
+                pause.mapScrollPosition = new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112)));
                 var alive = pause.Render();
                 AssertEqual(0, record, "retail authored boss markers use area-boss bit zero");
                 for (int other = 0; other < 6; other++)
@@ -78,9 +77,7 @@ internal static class BossMapMarkersVerification
                 // slot. Compare that actual constructor path with the live source.
                 var savedMenu = new FileSelectMapMenuState(restored, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0,
                     RetailPresentationFixture());
-                var savedGraphics = (FileSelectRoomMapGraphics)typeof(FileSelectMapMenuState)
-                    .GetField("roomGraphics", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                    .GetValue(savedMenu)!;
+                var savedGraphics = savedMenu.roomGraphics;
                 var liveGraphics = new FileSelectRoomMapGraphics(bus, system, (AreaId)area, mapPresentation: RetailPresentationFixture());
                 var marker = new FileSelectStationMarker(bus, (AreaId)area, 0, RetailPresentationFixture().SaveMarkers);
                 ushort scrollX = unchecked((ushort)(x - 128)), scrollY = unchecked((ushort)(y - 112));
@@ -104,8 +101,7 @@ internal static class BossMapMarkersVerification
                 PauseMenuState CenteredPause(ISnesAddressSpace addressSpace, Bank80SystemState state)
                 {
                     var reopened = CreateRetailPauseFixture(addressSpace, new PauseMenuEntry { Samus = new SamusState(), System = state, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
-                    typeof(PauseMenuState).GetField("mapScrollPosition", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                        .SetValue(reopened, new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112))));
+                    reopened.mapScrollPosition = new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112)));
                     return reopened;
                 }
                 markers++;

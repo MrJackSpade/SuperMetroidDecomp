@@ -185,8 +185,7 @@ internal static class ProjectileTrailArtworkVerification
         side.Position = side.Position.WithX((ushort)(runtime.Room.Camera!.PixelPosition.X + 100)).WithY((ushort)(runtime.Room.Camera.PixelPosition.Y + 100));
         var game = CreateRetailGameFixture(bus);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var runtimeField = game.GetType().GetField("runtime", flags)!;
-        runtimeField.SetValue(game, runtime);
+        game.runtime = runtime;
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();
@@ -219,7 +218,7 @@ internal static class ProjectileTrailArtworkVerification
         AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Trail catalogs are excluded from both frontend and runtime snapshots");
         with.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
-        var restoredRuntime = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)runtimeField.GetValue(restored)!;
+        var restoredRuntime = restored.runtime;
         AssertTrue(restoredRuntime.Artwork.TrailArtwork is null, "Restored trail catalog requires host rebind");
         BindRetailRuntimeFixture(restoredRuntime);
         restored.BindArtwork(restored.Artwork with

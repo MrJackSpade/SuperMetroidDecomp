@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using static SuiteTimingVerification;
@@ -11,6 +12,7 @@ internal static class SuiteRunnerVerification
     /// <see cref="GameInstallation"/> (optional parameters take their defaults). Verifiers that need other
     /// prepared inputs keep running through their parent flag.
     /// </summary>
+    [ReflectionAudit("verifier discovery: a suite is selected by its method name from the command line")]
     internal static int RunNamedSuite(string name)
     {
         MethodInfo[] candidates = typeof(SuiteRunnerVerification).Assembly.GetTypes()

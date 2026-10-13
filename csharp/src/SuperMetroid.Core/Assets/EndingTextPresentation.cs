@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable, bounded post-credit labels with cinematic behavior kept in code.</summary>
 public sealed class EndingTextPresentation
 {
-    private readonly Dictionary<int, ushort> resultOverrides = new();
+    internal readonly Dictionary<int, ushort> resultOverrides = new();
     private readonly string resultText;
     private readonly ushort[] copyrightPanel;
-    private readonly Dictionary<int, ushort> subtitleOverrides = new();
+    internal readonly Dictionary<int, ushort> subtitleOverrides = new();
     private readonly EndingTextCharacter[] percentage;
     private readonly EndingTextCharacter[] finalMessage;
 

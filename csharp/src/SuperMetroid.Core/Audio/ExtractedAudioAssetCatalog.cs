@@ -15,11 +15,11 @@ public sealed class ExtractedAudioAssetCatalog
     /// <summary>JSON manifest filename beneath the selected audio root, identifying upload streams, canonical WAV samples, and authored bank/SFX definitions.</summary>
     public const string ManifestFileName = "audio-manifest.json";
     private readonly IReadOnlyDictionary<int, byte[]> streams;
-    private readonly IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks;
+    internal readonly IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks;
     private readonly IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>>
         instrumentBanks;
     private readonly IReadOnlyDictionary<int, AudioBankMetadata> musicBanks;
-    private readonly int canonicalSampleCount;
+    internal readonly int canonicalSampleCount;
 
     private ExtractedAudioAssetCatalog(ExtractedAudioAssetParts parts)
     {

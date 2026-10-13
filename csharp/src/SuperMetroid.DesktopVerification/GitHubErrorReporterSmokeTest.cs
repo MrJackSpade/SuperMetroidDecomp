@@ -99,13 +99,12 @@ public static class GitHubErrorReporterSmokeTest
         var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: colors);
         var samus = new SamusState { Pose = SamusPoseId.MovingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
         runtime.Player.Samus = samus;
-        typeof(SamusDrainedState).GetProperty(nameof(samus.Drained.GetUpHandler))!
-            .SetValue(samus.Drained, DrainedGetUpHandler.UnableToStand);
+        samus.Drained.GetUpHandler = DrainedGetUpHandler.UnableToStand;
         samus.Presentation.SetAnimationFrameFromSpecialHandler(8, 1);
         samus.LiquidPhysics.FxType = RoomFxType.Acid;
         samus.LiquidPhysics.LavaAcidYPosition = 100;
         var game = new SuperMetroidGame(bus);
-        typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
+        game.runtime = runtime;
         string before = game.CaptureGameplayFailureContext();
         samus.Presentation.SetAnimationFrameFromSpecialHandler(18, 1);
         string after = game.CaptureGameplayFailureContext();

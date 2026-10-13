@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class CeresDoorEscapeSurfacePaintDefinitions
 {
     private const int BlueTint = 3, BevelShadeStep = 5, MaximumChannel = (1 << 5) - 1;
-    private readonly int[] highlightAndEdgeLevels;
+    internal readonly int[] highlightAndEdgeLevels;
     private readonly int bevelPeak, bevelShadow, middleBevelBlue;
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal CeresDoorEscapeSurfacePaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {

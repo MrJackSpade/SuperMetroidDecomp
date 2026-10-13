@@ -7,8 +7,8 @@ namespace SuperMetroid.Rendering.Direct3D11;
 internal sealed class D3D11GpuTimer : IDisposable
 {
     private readonly D3D11RenderDevice owner;
-    private readonly Slot[] slots;
-    private int head, tail, pending;
+    internal readonly Slot[] slots;
+    internal int head, tail, pending;
     private bool active, disposed;
     internal long SkippedSamples { get; private set; }
 
@@ -102,7 +102,7 @@ internal sealed class D3D11GpuTimer : IDisposable
         disposed = true;
     }
 
-    private sealed class Slot : IDisposable
+    internal sealed class Slot : IDisposable
     {
         internal readonly ID3D11Query Disjoint, Start, Finish, CompositionFinished;
         internal bool HasCompositionBoundary;

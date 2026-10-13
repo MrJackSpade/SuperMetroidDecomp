@@ -12,7 +12,7 @@ internal readonly record struct TorizoInstructionVramTransferDefinition(
 internal static class TorizoInstructionVramTransferDefinitions
 {
 
-    private static readonly TorizoInstructionVramTransferDefinition[] Entries =
+    internal static readonly TorizoInstructionVramTransferDefinition[] Entries =
     [
         new(0xb0f1, 0x0040, 0xaab479, 0x7300),
         new(0xb0fa, 0x0040, 0xaab679, 0x7400),

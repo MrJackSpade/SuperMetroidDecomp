@@ -22,7 +22,7 @@ internal static class AreaAnimatedTileObjectDefinitions
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d); no selection matrix remains.
     /// Callers retain their distinct area bounds and validation order. Native area index 7,
     /// beyond the seven retail areas, selects only the shared spikes.</remarks>
-    private static AnimatedTileObject SelectObject(int nativeArea, int bit) => bit switch
+    internal static AnimatedTileObject SelectObject(int nativeArea, int bit) => bit switch
     {
         0 => AnimatedTileObject.HorizontalSpikes,
         1 => AnimatedTileObject.VerticalSpikes,

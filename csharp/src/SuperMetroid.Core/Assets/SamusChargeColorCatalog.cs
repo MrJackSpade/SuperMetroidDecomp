@@ -28,8 +28,8 @@ namespace SuperMetroid.Core.Assets;
 /// other selectors/timing require their own dispositions.</remarks>
 public sealed class SamusChargeColorCatalog
 {
-    private readonly ChargeInputs chargedBeam;
-    private readonly ChargeInputs pseudoScrew;
+    internal readonly ChargeInputs chargedBeam;
+    internal readonly ChargeInputs pseudoScrew;
     private readonly SamusHyperBeamColorCatalog hyperShot;
 
     private SamusChargeColorCatalog(ChargeInputs chargedBeam,
@@ -116,11 +116,11 @@ public sealed class SamusChargeColorCatalog
     /// bright and normal rows through91D805/D811/D81D. Bright colors reuse
     /// the active-shinespark operations; Power/Varia ink2 retain distinct blue
     /// inputs. All bright transparent words share Power normal color0.</remarks>
-    private sealed class ChargeInputs
+    internal sealed class ChargeInputs
     {
         private readonly bool pseudo;
-        private readonly Dictionary<int, Bgr555> colors = new();
-        private readonly Dictionary<int, LoadingPaletteInputView.Channels> fadeInputs = new();
+        internal readonly Dictionary<int, Bgr555> colors = new();
+        internal readonly Dictionary<int, LoadingPaletteInputView.Channels> fadeInputs = new();
 
         internal ChargeInputs(Bgr555[][][] source, bool pseudo)
         {

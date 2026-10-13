@@ -27,7 +27,7 @@ internal sealed class CeresRidleyFadeColorDefinitions
             return new(red, green, 0);
         }
     }
-    private readonly Dictionary<int, Bgr555> overrides = new();
+    internal readonly Dictionary<int, Bgr555> overrides = new();
     private int Colors => kind == CeresRidleyFadeKind.Eyes
         ? CeresRidleyPaletteRomData.EyeFadeColorCount : CeresRidleyPaletteRomData.BodyFadeColorCount;
     private int Rows => kind == CeresRidleyFadeKind.Eyes

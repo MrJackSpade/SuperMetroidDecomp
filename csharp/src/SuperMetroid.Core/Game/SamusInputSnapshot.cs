@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Game;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>The input Samus's handlers see: the filtered held and new input of the previous draw, the auto-jump timer and pending jump, and the pose input locks for Shinespark and Crystal Flash.</summary>
 internal sealed class SamusInputSnapshot

@@ -25,7 +25,6 @@ internal static class DoorEntryRoomFxSoundVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        FieldInfo timer = typeof(RoomLayer3FxState).GetField("earthquakeSoundTimer", flags)!;
         // Rising Tide's lava rises only under the FX record of a door that requests it.
         CartridgeDoorHeader entry = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
@@ -40,9 +39,9 @@ internal static class DoorEntryRoomFxSoundVerification
         var runtime = LoadRisingTide(entry);
         var samus = runtime.Player.Samus!;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
+        game.runtime = runtime;
+        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.GameState = SuperMetroidGameState.MainGameplay;
 
         SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(CartridgeDoorHeader door)
         {
@@ -57,7 +56,7 @@ internal static class DoorEntryRoomFxSoundVerification
 
         // Run real frames until the rising lava's rumble timer will fire on the next HDMA pass.
         StepUntil(() => runtime.RoomLayer3Fx.EarthquakeRequest.HasValue &&
-                (ushort)timer.GetValue(runtime.RoomLayer3Fx)! == 0,
+                runtime.RoomLayer3Fx.earthquakeSoundTimer == 0,
             _ => game.Step(0), maximumFrames: 600, context: "Rising Tide rumble timer reaches zero");
 
         var level = runtime.Room.LevelData!;
@@ -73,7 +72,7 @@ internal static class DoorEntryRoomFxSoundVerification
         AssertTrue(selected, "Rising Tide has an exit");
         var audio = game.AudioForVerification;
         byte start = audio.SoundQueueForVerification(1).Next;
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.HitDoorBlock);
+        game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
 
         AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,

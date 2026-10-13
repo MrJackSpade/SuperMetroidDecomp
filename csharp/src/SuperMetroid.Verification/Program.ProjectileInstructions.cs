@@ -98,8 +98,7 @@ internal static class ProjectileInstructionsVerification
         }
         AssertEqual(1816, words.Count, "All authored duration/trail/control words inventoried");
         var guard = NewProjectileInstructionReadGuard(rom, words);
-        var trailFrame = typeof(ProjectileTrails).GetMethod("GetTrailAnimationFrame", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Func<SamusProjectileSlot, ushort>>();
+        var trailFrame = new Func<SamusProjectileSlot, ushort>(ProjectileTrails.GetTrailAnimationFrame);
         var trailSlot = new SamusProjectileSlot(0);
         foreach (int address in words)
         {
@@ -128,7 +127,6 @@ internal static class ProjectileInstructionsVerification
 
         var system = CreateProjectileFixture();
         var bombs = CreateBombFixture();
-        var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler", BindingFlags.Instance | BindingFlags.NonPublic)!;
         int frames = 0;
         foreach (ushort entry in entries)
         {
@@ -154,7 +152,7 @@ internal static class ProjectileInstructionsVerification
                     }
                 }
                 AssertEqual(deleted, system.Animation.RunProjectileInstructionHandler(slot), "Native delete/timed outcome");
-                AssertEqual(deleted, (bool)runBomb.Invoke(bombs, new object[] { bomb })!, "Bomb native delete/timed outcome");
+                AssertEqual(deleted, bombs.RunProjectileInstructionHandler(bomb), "Bomb native delete/timed outcome");
                 frames++;
                 if (deleted)
                 {

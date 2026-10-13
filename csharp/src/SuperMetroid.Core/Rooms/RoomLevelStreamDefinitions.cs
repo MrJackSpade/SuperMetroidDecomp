@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public static class RoomLevelStreamDefinitions
 {
-    private const string ResourceName = "SuperMetroid.RoomLevelStreams.bin";
+    internal const string ResourceName = "SuperMetroid.RoomLevelStreams.bin";
     private const int FormatVersion = 1;
     private const int HeaderByteCount = 44;
-    private static readonly Lazy<Corpus> Installed = new(Load);
+    internal static readonly Lazy<Corpus> Installed = new(Load);
 
     /// <summary>Reads one complete decompressed native level stream by cartridge source identity.</summary>
     public static ReadOnlyMemory<byte> Get(int sourceAddress) =>
@@ -67,6 +67,6 @@ public static class RoomLevelStreamDefinitions
         return expected;
     }
 
-    private sealed record Corpus(
+    internal sealed record Corpus(
         IReadOnlyDictionary<int, ReadOnlyMemory<byte>> Streams);
 }

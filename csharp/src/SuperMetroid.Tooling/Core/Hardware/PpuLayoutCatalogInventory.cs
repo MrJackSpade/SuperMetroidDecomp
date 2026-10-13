@@ -32,6 +32,7 @@ internal static class PpuLayoutCatalogInventory
     ];
 
     /// <summary>Every static <see cref="PpuLayoutCell"/> field or property, ordered by owner then member.</summary>
+    [ReflectionAudit("inventory generation: every static PPU layout cell declared anywhere in the production assemblies is the subject")]
     internal static IReadOnlyList<PpuLayoutCatalogEntry> Enumerate(IEnumerable<Assembly> assemblies)
     {
         const BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;

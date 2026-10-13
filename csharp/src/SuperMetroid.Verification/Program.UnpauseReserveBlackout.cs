@@ -27,8 +27,6 @@ internal static class UnpauseReserveBlackoutVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        PropertyInfo state = typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!;
-        FieldInfo brightness = typeof(SuperMetroidGame).GetField("pauseBrightness", flags)!;
         (SuperMetroidGame Game, SuperMetroidRuntime Runtime) Create()
         {
             SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
@@ -38,8 +36,8 @@ internal static class UnpauseReserveBlackoutVerification
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
             runtime.Player.Samus!.InputLocked = false;
             var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-            typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-            typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
+            game.runtime = runtime;
+            game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
             return (game, runtime);
         }
 
@@ -48,17 +46,17 @@ internal static class UnpauseReserveBlackoutVerification
         samus.Health = 0;
         samus.MaxReserveEnergy = samus.ReserveEnergy = 100;
         samus.ReserveTankMode = 1;
-        brightness.SetValue(unpausing, (byte)0);
-        state.SetValue(unpausing, SuperMetroidGameState.Unpausing);
+        unpausing.pauseBrightness = (byte)0;
+        unpausing.GameState = SuperMetroidGameState.Unpausing;
         unpausing.Step(0);
         AssertEqual(SuperMetroidGameState.ReserveTanksAuto, unpausing.GameState,
             "state $12's gameplay pass routes zero health into the auto reserve refill");
-        AssertEqual((byte)0, (byte)brightness.GetValue(unpausing)!, "the interrupted fade-in leaves $51 black");
+        AssertEqual((byte)0, unpausing.pauseBrightness, "the interrupted fade-in leaves $51 black");
 
         // Once gameplay resumes the screen is still black; a pause darkens from there.
         var (pausing, _) = Create();
-        state.SetValue(pausing, SuperMetroidGameState.MainGameplay);
-        brightness.SetValue(pausing, (byte)0);
+        pausing.GameState = SuperMetroidGameState.MainGameplay;
+        pausing.pauseBrightness = (byte)0;
         pausing.Step(0);
         pausing.Step((ushort)SnesButton.Start);
         AssertEqual(SuperMetroidGameState.PausingDarkening, pausing.GameState, "Start pauses");

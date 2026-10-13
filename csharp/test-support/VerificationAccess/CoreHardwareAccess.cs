@@ -80,7 +80,7 @@ internal static class SnesBgTilemapWordAccess
     {
         /// <summary>Replaces only the priority bit.</summary>
         internal SnesBgTilemapWord WithPriority(bool priority) =>
-            new(unchecked((ushort)(priority ? self.Raw | PrivateState.StaticField<ushort>(typeof(SnesBgTilemapWord), "PriorityMask") : self.Raw & ~PrivateState.StaticField<ushort>(typeof(SnesBgTilemapWord), "PriorityMask"))));
+            new(unchecked((ushort)(priority ? self.Raw | SnesBgTilemapWord.PriorityMask : self.Raw & ~SnesBgTilemapWord.PriorityMask)));
     }
 }
 
@@ -90,7 +90,8 @@ internal static class SnesCgramAccess
     extension(SnesCgram self)
     {
         /// <summary>Clears all 256 colors to black.</summary>
-        internal void Clear() => Array.Clear(PrivateState.Field<Bgr555[]>(self, "_colors"));
+        [PpuLayoutBoundary("exact hardware test: clears the 256-color CGRAM backing store")]
+        internal void Clear() => Array.Clear(self._colors);
     }
 }
 
@@ -147,6 +148,7 @@ internal static class SnesVramAccess
         /// <param name="encodedDestination">
         /// Initial VMADD word plus this model's VMAIN-column marker in bit 15.
         /// </param>
+        [PpuLayoutBoundary("exact hardware test: drives one general-purpose DMA into VRAM")]
         internal void ExecuteHardwareMemoryDmaWrite(
             ISnesMutableMemory memory,
             int sourceAddress,
@@ -158,7 +160,7 @@ internal static class SnesVramAccess
                 throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "DMA source must be a 24-bit CPU address.");
 
             int effectiveSize = dmaSize == 0 ? 0x10000 : dmaSize;
-            PrivateState.Invoke(self, "ExecuteDmaWrite", (ISnesMutableMemory)(memory), (SnesAddress)(SnesAddress.FromBusAddress(sourceAddress)), (int)(effectiveSize), (ushort)(encodedDestination));
+            self.ExecuteDmaWrite((ISnesMutableMemory)(memory), (SnesAddress)(SnesAddress.FromBusAddress(sourceAddress)), (int)(effectiveSize), (ushort)(encodedDestination));
         }
     }
 }

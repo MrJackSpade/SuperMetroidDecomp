@@ -51,10 +51,7 @@ internal static class LookupFxAtlasSegmentsVerification
         var actual = RoomFxAnimatedTileAtlasFormat.Segments.ToArray();
         AssertEqual(expected.Length, actual.Length, "Atlas original segment count");
         var bytes = Enumerable.Range(0, 3616).Select(index => (byte)(index * 37 + index / 256)).ToArray();
-        var constructor = typeof(RoomFxAnimatedTileAtlas).GetConstructor(
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-            null, [typeof(byte[])], null)!;
-        var atlas = (RoomFxAnimatedTileAtlas)constructor.Invoke([bytes]);
+        var atlas = new RoomFxAnimatedTileAtlas(bytes);
         int offset = 0;
         foreach (var segment in expected)
         {

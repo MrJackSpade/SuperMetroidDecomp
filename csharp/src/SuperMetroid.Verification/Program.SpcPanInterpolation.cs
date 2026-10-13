@@ -17,6 +17,7 @@ internal static class SpcPanInterpolationVerification
 {
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pan interpolation")]
+    [SpcMemoryBoundary("exact APU memory test: fills APU RAM with the pan interpolation table")]
     internal static void VerifySpcPanInterpolation()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -24,11 +25,8 @@ internal static class SpcPanInterpolationVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pan interpolation oracle revision");
         byte Instruction(int address) => rom.ReadCartridgeByte(0xcf6c08 + address);
         var player = new ManagedSpcPlayer();
-        var ram = (byte[])(typeof(ManagedSpcPlayer).GetField("ram", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(player)
-            ?? throw new InvalidOperationException("Missing SPC RAM fixture access."));
-        var method = typeof(ManagedSpcPlayer).GetMethod("WriteVolume", BindingFlags.Instance | BindingFlags.NonPublic)
-            ?? throw new InvalidOperationException("Missing real music volume writer.");
-        var write = method.CreateDelegate<Action<ManagedSpcMusicChannel, ushort>>(player);
+        byte[] ram = player.ram;
+        Action<ManagedSpcMusicChannel, ushort> write = player.WriteVolume;
         var channel = new ManagedSpcMusicChannel { FinalVolume = 255 };
         for (int index = 0; index <= 256; index++)
             ram[0x1e1d + index] = rom.ReadCartridgeByte(0xcf8a25 + index);

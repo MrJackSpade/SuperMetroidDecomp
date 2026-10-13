@@ -13,12 +13,12 @@ namespace SuperMetroid.Core.Assets;
 public sealed class FileSelectPresentation
 {
     private readonly Dictionary<string, ushort[]> pages;
-    private readonly FileSelectCompiledPatch energyPatch;
-    private readonly FileSelectCompiledPatch noDataPatch;
-    private readonly FileSelectCompiledPatch timeColonPatch;
-    private readonly ushort[]? digits;
-    private readonly ushort[]? slotLetters;
-    private readonly Dictionary<string, SpriteComposition> sprites;
+    internal readonly FileSelectCompiledPatch energyPatch;
+    internal readonly FileSelectCompiledPatch noDataPatch;
+    internal readonly FileSelectCompiledPatch timeColonPatch;
+    internal readonly ushort[]? digits;
+    internal readonly ushort[]? slotLetters;
+    internal readonly Dictionary<string, SpriteComposition> sprites;
     private readonly FileSelectPresentationDocument document;
 
     private FileSelectPresentation(
@@ -439,7 +439,7 @@ public sealed record FileSelectSlotFieldDocument
 internal sealed class FileSelectCompiledPatch
 {
     private readonly string name;
-    private readonly FileSelectCompiledPatchCell[]? suppliedCells;
+    internal readonly FileSelectCompiledPatchCell[]? suppliedCells;
 
     internal FileSelectCompiledPatch(string name, FileSelectCompiledPatchCell[] cells)
     {

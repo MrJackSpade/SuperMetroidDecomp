@@ -12,7 +12,6 @@ internal static class EnemyEffectsFixtureVerification
     /// <summary>Known melt phases, pure RAM and authored PNG/JSON; no cartridge capability.</summary>
     internal sealed class CrocomireEffectFixture
     {
-        private const BindingFlags PrivateInstance = BindingFlags.Instance | BindingFlags.NonPublic;
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
         internal SnesVram Vram { get; } = new();
         internal RoomEnemySystem Enemies { get; } = new();
@@ -37,15 +36,20 @@ internal static class EnemyEffectsFixtureVerification
             Enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0x1234);
         }
 
-        private void Bind(string field, object value) => typeof(RoomEnemySystem)
-            .GetField(field, PrivateInstance)!.SetValue(Enemies, value);
-
-        internal void InitializeMap(int source) => typeof(RoomEnemySystem)
-            .GetMethod("InitializeCrocomireMeltingTilemap", PrivateInstance)!
-            .CreateDelegate<Action<CrocomireEnemyState, int, ushort>>(Enemies)(
-                Actor, source, source == (int)CrocomireMeltingTilemapAddress.SecondTilemap
-                    ? CrocomireInstructionProgramDefinitions.MeltingTwoTopRow
-                    : CrocomireInstructionProgramDefinitions.MeltingOneTopRow);
+        /// <summary>
+        /// Loads one melting tilemap through the death-sequence phase that owns it. Any other source exercises the
+        /// production tilemap resolution, which rejects it before a phase advances or an actor changes.
+        /// </summary>
+        internal void InitializeMap(int source)
+        {
+            var address = (CrocomireMeltingTilemapAddress)source;
+            if (address == CrocomireMeltingTilemapAddress.FirstTilemap)
+                Enemies.CrocomireBehavior.LoadFirstCrocomireMeltingTilemap(Actor);
+            else if (address == CrocomireMeltingTilemapAddress.SecondTilemap)
+                Enemies.CrocomireBehavior.LoadSecondCrocomireMeltingTilemap(Actor);
+            else
+                _ = Enemies.CrocomireBehavior.RequireCrocomireMeltingTilemap(address);
+        }
 
         /// <summary>Runs one Crocomire melting step, selected from the fixture's Crocomire behavior, on its actor.</summary>
         internal void Call(Func<CrocomireBehavior, Action<CrocomireEnemyState>> select) => select(Enemies.CrocomireBehavior)(Actor);

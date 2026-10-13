@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Exact bilateral composition of the three native Baby poses; independent half-artwork and drawing order remain required.</summary>
 internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
 {
-    private readonly EnemySpritemapPart[] halfParts;
+    internal readonly EnemySpritemapPart[] halfParts;
     private readonly sbyte[] drawingOrder;
-    private readonly BabyMetroidSpriteParts? sharedBody;
+    internal readonly BabyMetroidSpriteParts? sharedBody;
     private readonly sbyte[]? halfSelections;
 
     private BabyMetroidSpriteParts(EnemySpritemapPart[] halfParts, sbyte[] drawingOrder,

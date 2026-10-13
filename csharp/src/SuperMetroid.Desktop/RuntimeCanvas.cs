@@ -8,7 +8,7 @@ namespace SuperMetroid.Desktop;
 public sealed class RuntimeCanvas : Control
 {
     private Bitmap? frame;
-    private bool gpuOwned;
+    internal bool gpuOwned;
 
     /// <summary>Excludes GDI paint/erase from the swapchain-owned HWND.</summary>
     public void SetGpuOwned(bool value)

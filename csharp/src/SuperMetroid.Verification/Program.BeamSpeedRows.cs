@@ -51,9 +51,7 @@ internal static class BeamSpeedRowsVerification
         }
         // Unlike the twelve identical authored rows, C..F overread different adjacent
         // words. Exercise the actual initializer to detect a dropped combination index.
-        var initialize = typeof(BeamFiring).GetMethod("InitializePowerBeamVelocity",
-            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
-            .CreateDelegate<Action<ISnesAddressSpace, SamusProjectileSlot>>();
+        var initialize = new Action<ISnesAddressSpace, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
         var guarded = new BeamSpeedRowAddressSpace(retail);
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
             AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileMotionDefinitions.ReadWord(address),

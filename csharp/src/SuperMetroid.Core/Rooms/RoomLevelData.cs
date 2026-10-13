@@ -16,16 +16,16 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed class RoomLevelData
 {
-    private readonly ushort[] _foregroundEntries;
+    internal readonly ushort[] _foregroundEntries;
     internal readonly byte[] _behaviorBytes;
-    private readonly ushort[] _backgroundEntries;
-    private readonly byte[] _blockDefinitions;
-    private readonly ushort[] _streamingForegroundAllocation;
-    private readonly ushort[] _streamingBackgroundAllocation;
-    private readonly ushort[] _visualStreamingForegroundAllocation;
-    private readonly ushort[] _visualStreamingBackgroundAllocation;
-    private readonly ushort[] _plmForegroundAllocation;
-    private readonly byte[] _plmBehaviorAllocation;
+    internal readonly ushort[] _backgroundEntries;
+    internal readonly byte[] _blockDefinitions;
+    internal readonly ushort[] _streamingForegroundAllocation;
+    internal readonly ushort[] _streamingBackgroundAllocation;
+    internal readonly ushort[] _visualStreamingForegroundAllocation;
+    internal readonly ushort[] _visualStreamingBackgroundAllocation;
+    internal readonly ushort[] _plmForegroundAllocation;
+    internal readonly byte[] _plmBehaviorAllocation;
 
     /// <summary>Copies the logical BG1/BTS/BG2 planes and visual block definitions into one mutable room allocation, retaining bounded native streaming tails and prefilled PLM storage; an installed layout changes only initial visual references.</summary>
     /// <param name="size">Room size in 16-pixel blocks: the width is the row-major stride, 1..255, and the height is positive.</param>
@@ -158,14 +158,14 @@ public sealed class RoomLevelData
     /// Door definition selected by the most recent native type-$9 collision, mirroring
     /// the side effect on WRAM <c>door_def_ptr</c> made by <c>$94:938B/$93CE</c>.
     /// </summary>
-    public CartridgeDoorHeader? PendingDoorTransition { get; private set; }
+    public CartridgeDoorHeader? PendingDoorTransition { get; internal set; }
 
     /// <summary>
     /// Bank-$94 sets WRAM <c>elevator_flags</c> when a type-$9 block resolves to the special
     /// low-bank pseudo destination. EnemyMain runs before Samus collision, so the runtime
     /// consumes this publication at the beginning of the following gameplay frame.
     /// </summary>
-    public bool ElevatorDoorContactPending { get; private set; }
+    public bool ElevatorDoorContactPending { get; internal set; }
 
     /// <summary>Read-only logical BG1 words, including collision type in bits 12–15.</summary>
     public ReadOnlyMemory<ushort> ForegroundEntries => _foregroundEntries;

@@ -21,11 +21,11 @@ public sealed class ChozoAndTubeColorCatalog
             content.AppendColors("lowerNorfair", Statue(ChozoStatuePalette.LowerNorfair));
         });
 
-    private readonly Bgr555[] tubeColorSeeds;
-    private readonly Dictionary<int, Bgr555> tubeColorEdits = [];
+    internal readonly Bgr555[] tubeColorSeeds;
+    internal readonly Dictionary<int, Bgr555> tubeColorEdits = [];
     // Statue colors calculate from ChozoStatuePaintDefinitions; only supplied deviations are stored.
-    private readonly Dictionary<int, Bgr555> wreckedShipEdits = [];
-    private readonly Dictionary<int, Bgr555> lowerNorfairEdits = [];
+    internal readonly Dictionary<int, Bgr555> wreckedShipEdits = [];
+    internal readonly Dictionary<int, Bgr555> lowerNorfairEdits = [];
 
     private ChozoAndTubeColorCatalog(Bgr555[] tubeCracks, Bgr555[] wreckedShip,
         Bgr555[] lowerNorfair)
@@ -72,7 +72,7 @@ public sealed class ChozoAndTubeColorCatalog
         return new Bgr555(red, green, blue);
     }
 
-    private Bgr555 ResolveStatue(ChozoStatuePalette palette, int color)
+    internal Bgr555 ResolveStatue(ChozoStatuePalette palette, int color)
     {
         if ((uint)color >= ChozoAndTubeColorRomData.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));

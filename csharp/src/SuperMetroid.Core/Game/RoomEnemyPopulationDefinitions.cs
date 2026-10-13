@@ -27,7 +27,7 @@ public sealed class RoomEnemyPopulationDefinition
 /// </remarks>
 public static class RoomEnemyPopulationDefinitions
 {
-    private static readonly RoomEnemyPopulationDefinition[] Definitions =
+    internal static readonly RoomEnemyPopulationDefinition[] Definitions =
     [
         ..BuildSegment0(),
         ..BuildSegment1(),

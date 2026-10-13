@@ -16,8 +16,8 @@ public class SuperMetroidAddressSpace : ISnesMemoryBus
     /// <summary>8 KiB of battery-backed SRAM used by three save slots and metadata.</summary>
     public const int SaveRamByteCount = 0x2000;
 
-    private readonly byte[] _workRam = new byte[WorkRamByteCount];
-    private readonly byte[] _saveRam = new byte[SaveRamByteCount];
+    internal readonly byte[] _workRam = new byte[WorkRamByteCount];
+    internal readonly byte[] _saveRam = new byte[SaveRamByteCount];
 
     /// <summary>
     /// Creates the mutable WRAM/SRAM portion of the runtime address space without a

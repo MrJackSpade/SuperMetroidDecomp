@@ -135,7 +135,7 @@ internal static class EnemyGameplayAcceptanceVerification
             "enemy replacement persists through a fresh catalog load");
         AssertEqual(stockHash, Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(
             Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(editedPointer))))), "enemy replacement leaves stock untouched");
-        foreach (PropertyInfo property in typeof(RoomEnemySlot).GetProperties(BindingFlags.Instance | BindingFlags.Public))
+        foreach (PropertyInfo property in MetadataShape.Properties(typeof(RoomEnemySlot), BindingFlags.Instance | BindingFlags.Public))
         for (int index = 0; index < baseline.SlotTable.Slots.Count; index++)
             AssertEqual(property.GetValue(baseline.SlotTable.Slots[index]), property.GetValue(changed.SlotTable.Slots[index]),
                 $"enemy artwork cannot change slot {index} {property.Name}");

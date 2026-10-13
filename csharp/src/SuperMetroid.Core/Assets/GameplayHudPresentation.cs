@@ -9,14 +9,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable three-row gameplay-HUD tilemap, visual patches and layout anchors.</summary>
 public sealed class GameplayHudPresentation
 {
-    private readonly Dictionary<int, ushort> templateOverrides;
-    private readonly Dictionary<int, ushort> topRowOverrides;
-    private readonly Dictionary<int, ushort> healthDigits;
-    private readonly Dictionary<int, ushort> ammoDigits;
-    private readonly Dictionary<int, ushort> autoReserveOverrides;
-    private readonly Dictionary<int, int> autoAnchors;
-    private readonly Dictionary<int, int> energyTankAnchors;
-    private readonly CompiledIcon missile, superMissile, powerBomb, grapple, xray;
+    internal readonly Dictionary<int, ushort> templateOverrides;
+    internal readonly Dictionary<int, ushort> topRowOverrides;
+    internal readonly Dictionary<int, ushort> healthDigits;
+    internal readonly Dictionary<int, ushort> ammoDigits;
+    internal readonly Dictionary<int, ushort> autoReserveOverrides;
+    internal readonly Dictionary<int, int> autoAnchors;
+    internal readonly Dictionary<int, int> energyTankAnchors;
+    internal readonly CompiledIcon missile, superMissile, powerBomb, grapple, xray;
 
     private GameplayHudPresentation(GameplayHudPresentationDocument document, byte[] source)
     {
@@ -368,14 +368,14 @@ public sealed class GameplayHudPresentation
             throw new ArgumentException("Gameplay HUD requires exactly 96 mutable cells.", nameof(tiles));
     }
 
-    private sealed class CompiledIcon
+    internal sealed class CompiledIcon
     {
         private readonly int item;
-        private readonly Dictionary<int, ushort> edits = new();
+        internal readonly Dictionary<int, ushort> edits = new();
         internal int Width => GameplayHudDefinitions.IconWidth(item);
         internal const int Height = 2;
 
-        private readonly Position16<TilemapCells>? anchorOverride;
+        internal readonly Position16<TilemapCells>? anchorOverride;
         internal Position16<TilemapCells> Anchor => anchorOverride ?? StockAnchor(item);
         private static Position16<TilemapCells> StockAnchor(int item)
         {

@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable starting CGRAM image and common sprite colors restored on room entry.</summary>
 public sealed class GameplayBasePaletteCatalog
 {
-    private readonly Bgr555[] initial;
-    private readonly Bgr555[] commonSprites;
+    internal readonly Bgr555[] initial;
+    internal readonly Bgr555[] commonSprites;
 
     private GameplayBasePaletteCatalog(Bgr555[] initial, Bgr555[] commonSprites)
     {

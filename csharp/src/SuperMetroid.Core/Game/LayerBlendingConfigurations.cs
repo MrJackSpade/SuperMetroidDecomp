@@ -19,7 +19,7 @@ public static class LayerBlendingConfigurations
     /// slot has a named identity, including unused routines and repeated targets, so the
     /// enum's defined members are exactly the dispatcher's domain. Independently
     /// checked against supported NTSC J/U v1.0 and pinned bank_88.asm for #1165.</remarks>
-    private static void ValidateDefined(
+    internal static void ValidateDefined(
         LayerBlendingConfiguration configuration,
         string context,
         bool cartridgeData)

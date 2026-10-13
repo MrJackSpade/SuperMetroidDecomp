@@ -22,8 +22,8 @@ internal static class XrayNoFxDarkeningVerification
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
         InstalledFixtures.BindGame(game);
-        typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime",flags)!.Invoke(game,new object[]{false});
-        var runtime=(SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime",flags)!.GetValue(game)!;
+        game.CreateGameplayRuntime(false);
+        var runtime=game.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
@@ -36,7 +36,7 @@ internal static class XrayNoFxDarkeningVerification
         samus.Presentation.InitializeAnimation(bus);
         AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions()), "fixture enters X-ray");
         // The closed-beam setup state makes the selected pixels unambiguously outside.
-        typeof(SamusXrayState).GetProperty(nameof(SamusXrayState.SetupStage))!.SetValue(samus.Xray, XraySetupStage.ReadBg1FirstScreen);
+        samus.Xray.SetupStage = XraySetupStage.ReadBg1FirstScreen;
         runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
         var tile = new byte[32];
         for (int row = 0; row < 8; row++) tile[row * 2] = 255;
@@ -60,8 +60,7 @@ internal static class XrayNoFxDarkeningVerification
         var transparent = SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.TryCaptureFrame(runtime)!);
         AssertEqual(new Rgba32(255, 222, 189, 255), transparent[80 * 256 + 64],
             "transparent BG3 preserves native fixed-color fallback without halving");
-        typeof(RoomLayer3FxState).GetProperty(nameof(RoomLayer3FxState.Type))!
-            .SetValue(runtime.RoomLayer3Fx, RoomFxType.Fireflea);
+        runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
         var fireflea = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         var firefleaMath = (GameplayColorMathRenderLayer)fireflea.Layers[0];
         AssertTrue(!firefleaMath.AddSubscreen && firefleaMath.Subscreen is null,

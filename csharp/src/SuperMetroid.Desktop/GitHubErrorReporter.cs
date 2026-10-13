@@ -38,7 +38,7 @@ public sealed class GitHubErrorReporter : IDisposable
 {
     private readonly string repository;
     private readonly IGitHubIssueClient issueClient;
-    private readonly Channel<QueuedError> queue = Channel.CreateUnbounded<QueuedError>(
+    internal readonly Channel<QueuedError> queue = Channel.CreateUnbounded<QueuedError>(
         new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
     private readonly Dictionary<string, int> sessionOccurrences = new(StringComparer.Ordinal);
     private readonly Lock fingerprintLock = new();
@@ -288,7 +288,7 @@ public sealed class GitHubErrorReporter : IDisposable
         }
     }
 
-    private sealed record QueuedError(
+    internal sealed record QueuedError(
         string? Fingerprint,
         Exception? Exception,
         GitHubErrorContext? Context,

@@ -172,7 +172,7 @@ public sealed class SnesVram
     /// Shared mode-$01 transfer loop after a caller has interpreted its own size encoding.
     /// </summary>
     [CpuBusBoundary("CPU-bus implementation: a DMA channel's A-bus source reads, classified per byte")]
-    private void ExecuteDmaWrite(
+    internal void ExecuteDmaWrite(
         ISnesMutableMemory memory,
         SnesAddress sourceAddress,
         int sizeInBytes,

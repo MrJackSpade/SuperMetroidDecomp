@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable Grapple visual attributes; cadence, placement, geometry and physics are not editable here.</summary>
 public sealed class GrappleSpriteCatalog
 {
-    private readonly ushort[]? segments;
+    internal readonly ushort[]? segments;
     /// <summary>Selected small-OBJ endpoint attribute word used by both connected and unconnected drawing paths; native $94:B13D/$B17D supplies tile $20, palette 5 and priority 3.</summary>
     public ushort Endpoint { get; }
     private GrappleSpriteCatalog(ushort endpoint, ushort[] segments)

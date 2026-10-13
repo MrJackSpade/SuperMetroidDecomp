@@ -66,8 +66,8 @@ internal static class IntroContentIdentityVerification
             typeof(IntroEggEffectSpritePresentation), typeof(IntroDiscoveryActorSpritePresentation),
             typeof(IntroScientistSpritePresentation), typeof(CeresFlightSpritePresentation), typeof(CeresDestructionSpritePresentation),
         })
-            AssertTrue(type.GetField("<ContentIdentity>k__BackingField",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance) is null,
+            AssertTrue(!MetadataShape.DeclaresField(type, "<ContentIdentity>k__BackingField",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
                 type.Name + " adds no serialized derived-identity field");
         Console.WriteLine($"  Opening content: {edits.Count} independent bundle edits, all actor coordinates, " +
             "canonical frames, legacy caret selection, encoding invariance and host warnings pass without a ROM.");

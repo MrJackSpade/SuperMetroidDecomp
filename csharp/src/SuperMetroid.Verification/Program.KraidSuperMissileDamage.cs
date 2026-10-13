@@ -24,8 +24,8 @@ internal static class KraidSuperMissileDamageVerification
         var game=new SuperMetroidGame(bus);
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
-        typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime",flags)!.Invoke(game,new object[]{false});
-        var runtime=(SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime",flags)!.GetValue(game)!;
+        game.CreateGameplayRuntime(false);
+        var runtime=game.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
@@ -43,7 +43,7 @@ internal static class KraidSuperMissileDamageVerification
         samus.PoseMetadata.RefreshCollisionRadii(bus);samus.Presentation.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
         samus.Position = samus.Position.WithWhole(new(120, (ushort)(512-samus.Kinematics.Radius.Y)));samus.InputLocked=false;
         runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 384));
-        typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game,SuperMetroidGameState.MainGameplay);
+        game.GameState = SuperMetroidGameState.MainGameplay;
         if (collisionReport) return VerifyKraidReportedCollisions(bus, game, runtime, body, state);
         var renderer=new CartridgeAudioRenderer(installation.LoadAudio());
         ushort oldHealth=body.Health;
@@ -98,8 +98,7 @@ internal static class KraidSuperMissileDamageVerification
         void Prepare(ushort count)
         {
             projectiles.Reset();
-            typeof(ProjectileSlotTable).GetProperty(nameof(ProjectileSlotTable.ProjectileCounter))!
-                .SetValue(projectiles.SlotTable, count);
+            projectiles.SlotTable.ProjectileCounter = count;
             body.Position = body.Position.WithWhole(new(176, 592));
             body.Health = 1000;
             body.VariableA = (ushort)KraidAiFunction.MainAttackWithMouthOpen;

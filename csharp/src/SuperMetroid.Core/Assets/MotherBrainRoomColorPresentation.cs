@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Assets;
 public sealed class MotherBrainRoomColorPresentation
 {
     internal readonly RoomFlash flash;
-    private readonly FinalRoomPalette finalRoom;
-    private readonly AttackPalette phaseTwoAttack;
-    private readonly Bgr555[]? phaseTwoRearLeg;
-    private readonly GlassPalette initialGlassShard;
-    private readonly TubePalette initialTubeProjectile;
-    private readonly RecoveryLightFade recoveryLights;
+    internal readonly FinalRoomPalette finalRoom;
+    internal readonly AttackPalette phaseTwoAttack;
+    internal readonly Bgr555[]? phaseTwoRearLeg;
+    internal readonly GlassPalette initialGlassShard;
+    internal readonly TubePalette initialTubeProjectile;
+    internal readonly RecoveryLightFade recoveryLights;
 
     private MotherBrainRoomColorPresentation(Bgr555[][] flash, FinalRoomPalette finalRoom,
         Bgr555[] phaseTwoAttack, Bgr555[] phaseTwoRearLeg,
@@ -184,7 +184,7 @@ public sealed class MotherBrainRoomColorPresentation
 
     internal sealed class FinalRoomPalette
     {
-        private readonly Bgr555[]? supplied;
+        internal readonly Bgr555[]? supplied;
         public int Length { get; }
         public FinalRoomPalette(Bgr555[] colors)
         {
@@ -274,9 +274,9 @@ public sealed class MotherBrainRoomColorPresentation
     }
     // Shared shades use their definitions only after the installed output matches.
     // The shared recovery highlight is reviewed paint; supplied edits remain independent.
-    private sealed class AttackPalette
+    internal sealed class AttackPalette
     {
-        private readonly Bgr555[]? supplied;
+        internal readonly Bgr555[]? supplied;
         public AttackPalette(Bgr555[] colors)
         {
             for (int color = 0; color < colors.Length; color++)
@@ -309,10 +309,10 @@ public sealed class MotherBrainRoomColorPresentation
                     + b * shade + intervals / 2) / intervals));
         }
     }
-    private sealed class GlassPalette
+    internal sealed class GlassPalette
     {
         private readonly FinalRoomPalette room;
-        private readonly Bgr555[]? supplied;
+        internal readonly Bgr555[]? supplied;
         public GlassPalette(Bgr555[] colors, FinalRoomPalette room)
         {
             this.room = room;
@@ -346,10 +346,10 @@ public sealed class MotherBrainRoomColorPresentation
             Neutral = MotherBrainRoomColorRomData.GlassNeutralColor,
         }
     }
-    private sealed class TubePalette
+    internal sealed class TubePalette
     {
         private readonly FinalRoomPalette room;
-        private readonly Bgr555[]? supplied;
+        internal readonly Bgr555[]? supplied;
         public TubePalette(Bgr555[] colors, FinalRoomPalette room)
         {
             this.room = room;
@@ -365,8 +365,8 @@ public sealed class MotherBrainRoomColorPresentation
     /// <summary>Background highlight interpolation paired with darkening level colors.</summary>
     internal sealed class RoomFlash
     {
-        private readonly FinalRoomPalette basis;
-        private readonly Bgr555[][]? supplied;
+        internal readonly FinalRoomPalette basis;
+        internal readonly Bgr555[][]? supplied;
 
         public int FrameCount { get; }
 
@@ -397,10 +397,10 @@ public sealed class MotherBrainRoomColorPresentation
         }
     }
     /// <summary>Seven equal RGB5 intensity steps with shared room-palette endpoints.</summary>
-    private sealed class RecoveryLightFade
+    internal sealed class RecoveryLightFade
     {
-        private readonly FinalRoomPalette finalRoom;
-        private readonly Bgr555[][]? supplied;
+        internal readonly FinalRoomPalette finalRoom;
+        internal readonly Bgr555[][]? supplied;
 
         public RecoveryLightFade(Bgr555[][] rows, FinalRoomPalette finalRoom)
         {

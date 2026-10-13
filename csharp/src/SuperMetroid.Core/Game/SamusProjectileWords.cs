@@ -125,7 +125,7 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     private const ushort BeamCombinationMask = 0x000f;
     private const ushort ChargedBeamMarker = 0x0010;
     private const ushort FamilyMask = 0x0f00;
-    private const ushort LiveMarker = 0x8000;
+    internal const ushort LiveMarker = 0x8000;
     private const ushort ResidentPlmPayloadMask = 0x1fff;
 
     /// <summary>Gets the low-nibble beam combination; all sixteen values are defined.</summary>

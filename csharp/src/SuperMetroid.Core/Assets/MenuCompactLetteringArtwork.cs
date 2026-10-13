@@ -25,8 +25,8 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class MenuCompactLetteringArtwork
 {
     internal const int TileCount = 34;
-    private readonly Dictionary<char, uint> glyphs = [];
-    private readonly Dictionary<int, byte>? edits;
+    internal readonly Dictionary<char, uint> glyphs = [];
+    internal readonly Dictionary<int, byte>? edits;
 
     internal static bool Contains(int tile) => tile is >= 0 and <= 9 or 0x10 or >= 0x12 and <= 0x16 or
         0x18 or 0x19 or 0x20 or 0x32 or 0x44 or 0x45 or >= 0x53 and <= 0x56 or 0x5f or >= 0xa5 and <= 0xaa or 0xb7;

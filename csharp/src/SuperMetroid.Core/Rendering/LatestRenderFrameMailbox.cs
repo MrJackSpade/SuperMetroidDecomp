@@ -12,14 +12,14 @@ namespace SuperMetroid.Core.Rendering;
 /// </remarks>
 public sealed class LatestRenderFrameMailbox
 {
-    private readonly Lock sync = new();
-    private RenderFrameSnapshot? pending;
-    private long generation;
+    internal readonly Lock sync = new();
+    internal RenderFrameSnapshot? pending;
+    internal long generation;
     private long lastSequence;
-    private long published;
-    private long taken;
-    private long replaced;
-    private long invalidated;
+    internal long published;
+    internal long taken;
+    internal long replaced;
+    internal long invalidated;
 
     /// <summary>Creates an empty visual mailbox for one positive simulation load/reset generation.</summary>
     /// <param name="initialGeneration">Positive generation identity required on the first published packet.</param>

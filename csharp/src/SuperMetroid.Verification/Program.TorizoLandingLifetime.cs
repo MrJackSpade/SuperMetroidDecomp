@@ -18,8 +18,8 @@ internal static class TorizoLandingLifetimeVerification
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
         InstalledFixtures.BindGame(game);
-        typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime",flags)!.Invoke(game,new object[]{false});
-        var runtime=(SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime",flags)!.GetValue(game)!;
+        game.CreateGameplayRuntime(false);
+        var runtime=game.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
@@ -39,7 +39,7 @@ internal static class TorizoLandingLifetimeVerification
         samus.PoseMetadata.RefreshCollisionRadii(bus);samus.Presentation.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
         samus.Position = samus.Position.WithWhole(new(240, (ushort)(192-samus.Kinematics.Radius.Y)));samus.InputLocked=false;
         runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 0));
-        typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game,SuperMetroidGameState.MainGameplay);
+        game.GameState = SuperMetroidGameState.MainGameplay;
         var renderer=new CartridgeAudioRenderer(installation.LoadAudio());
         int shaken=0;
         for(int frame=0;frame<40;frame++)

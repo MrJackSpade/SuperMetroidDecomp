@@ -53,7 +53,7 @@ public sealed class BabyMetroidCutsceneState
     // eight-bit angle. Angle zero points down; positive rotation is anti-clockwise.
 
     /// <summary>Current native function-pointer equivalent.</summary>
-    public BabyMetroidCutscenePhase Phase { get; private set; } =
+    public BabyMetroidCutscenePhase Phase { get; internal set; } =
         BabyMetroidCutscenePhase.Inactive;
 
     /// <summary>Enemy properties after initialization ORs in <c>$3000</c>.</summary>
@@ -78,10 +78,10 @@ public sealed class BabyMetroidCutsceneState
     /// Native 16.16 room position. Only the high byte of each subposition participates in
     /// this actor's 8.8 mover; the low bytes are deliberately retained and untouched.
     /// </summary>
-    public FixedPosition<RoomPixels> Position { get; private set; }
+    public FixedPosition<RoomPixels> Position { get; internal set; }
 
     /// <summary>Signed 8.8 velocity.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; private set; }
+    public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Unsigned 8.8 magnitude used by the curved entrance.</summary>
     public ushort Speed { get; private set; }
@@ -111,7 +111,7 @@ public sealed class BabyMetroidCutsceneState
     /// Native enemy health. Header <c>$A0:ECBF</c> supplies 3,200; Mother Brain later drains
     /// this word after the healing hold, so it belongs to actor state rather than rendering.
     /// </summary>
-    public ushort Health { get; private set; }
+    public ushort Health { get; internal set; }
 
     /// <summary>
     /// Extra enemy word <c>$7E:7806,x</c>. Mother Brain's onion-ring collision handler
@@ -948,7 +948,7 @@ public sealed class BabyMetroidCutsceneState
             new SnesSignedEightEight(CalculateVelocityComponent(Speed, unchecked((byte)(angleByte + 0x40)))));
     }
 
-    private static ushort CalculateVelocityComponent(
+    internal static ushort CalculateVelocityComponent(
         ushort speed,
         byte sineIndex)
     {

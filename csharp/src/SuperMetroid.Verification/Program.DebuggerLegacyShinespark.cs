@@ -35,9 +35,9 @@ internal static class DebuggerLegacyShinesparkVerification
     private static MemoryStream BuildLegacyShinesparkGraph(ShinesparkPhase phase, sbyte delta, bool invalidField)
     {
         var state = new SamusShinesparkState();
-        typeof(SamusShinesparkState).GetProperty(nameof(SamusShinesparkState.Phase))!.SetValue(state, phase);
-        object echo = typeof(SamusShinesparkState).GetField("_firstReleasedCrashEcho", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(state)!;
-        echo.GetType().GetProperty("Position")!.SetValue(echo, new Position16<RoomPixels>(222, 333));
+        state.Phase = phase;
+        var echo = state._firstReleasedCrashEcho;
+        echo.Position = new Position16<RoomPixels>(222, 333);
         using var original = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(original, state);
         byte[] bytes = original.ToArray();

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class BeamTileAtlas
 {
     // Unresolved artwork remains required; only the five documented Plasma pen roles have a narrow exception.
-    private readonly Dictionary<int, byte> pixels = new();
+    internal readonly Dictionary<int, byte> pixels = new();
     private readonly SamusBeamCombination selection;
     private readonly BeamTileAtlas? sharedSource;
     private readonly bool wholeSheetShared;

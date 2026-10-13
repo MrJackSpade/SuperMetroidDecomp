@@ -12,7 +12,7 @@ internal static class SporeSpawnDeathColorDefinitions
     /// These thirteen chosen words are not exempted by deriving the intervening fade.
     /// Columns0,12,13 instead remain constant at the independently supplied final color.
     /// </summary>
-    private static readonly Bgr555[] InitialRoomBackgroundColors =
+    internal static readonly Bgr555[] InitialRoomBackgroundColors =
     [
         Bgr555.FromWord(0x5d22), Bgr555.FromWord(0x4463), Bgr555.FromWord(0x1840), Bgr555.FromWord(0x24c0), Bgr555.FromWord(0x1ca0), Bgr555.FromWord(0x1480), Bgr555.FromWord(0x1040),
         Bgr555.FromWord(0x16df), Bgr555.FromWord(0x15d7), Bgr555.FromWord(0x14ee), Bgr555.FromWord(0x1486), Bgr555.FromWord(0x16df), Bgr555.FromWord(0x0800),
@@ -22,7 +22,7 @@ internal static class SporeSpawnDeathColorDefinitions
     /// Required RoomStaticPalette.nativeBytes inputs at palette4 columns1..6,8..10,12..14.
     /// The chosen source colors remain pending independently of the calculated fade.
     /// </summary>
-    private static readonly Bgr555[] InitialRoomLevelColors =
+    internal static readonly Bgr555[] InitialRoomLevelColors =
     [
         Bgr555.FromWord(0x6318), Bgr555.FromWord(0x6318), Bgr555.FromWord(0x20e0), Bgr555.FromWord(0x1da7), Bgr555.FromWord(0x2d21), Bgr555.FromWord(0x28a0),
         Bgr555.FromWord(0x26a9), Bgr555.FromWord(0x25e9), Bgr555.FromWord(0x1542), Bgr555.FromWord(0x26a9), Bgr555.FromWord(0x0082), Bgr555.FromWord(0x2771),

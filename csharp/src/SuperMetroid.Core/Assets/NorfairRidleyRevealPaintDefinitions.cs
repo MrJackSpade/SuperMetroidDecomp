@@ -35,7 +35,7 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     /// levels or grouping would invent different categorical artwork content.
     /// </summary>
     private const int CavernHighlightRed = 14, CavernRedStep = 5, CavernHighlightBlue = 2;
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal NorfairRidleyRevealPaintDefinitions(Bgr555[][] rows)
     {

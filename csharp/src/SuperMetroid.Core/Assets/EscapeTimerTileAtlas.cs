@@ -8,9 +8,9 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
     // Native digit/label identities select a typeface; they do not generate its selected contours.
     // The reviewed original basis is275 fill sites plus their blank complement and four edge choices.
     // Independent PNG edits remain separate from calculated defaults and shared pixel relationships.
-    private readonly HashSet<int> fillPixels;
-    private readonly Dictionary<int, bool> fillOverrides;
-    private readonly Dictionary<int, byte> pixelOverrides;
+    internal readonly HashSet<int> fillPixels;
+    internal readonly Dictionary<int, bool> fillOverrides;
+    internal readonly Dictionary<int, byte> pixelOverrides;
 
     private EscapeTimerTileAtlas(byte[] pixels)
     {
@@ -53,7 +53,7 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
         return BasisFill(index) ? EscapeTimerGlyphDefinitions.FillInk(index) : EscapeTimerGlyphDefinitions.Outline(index, IsFill);
     }
 
-    private byte[] Transfer() => SnesPlanarTileEncoder.Encode(
+    internal byte[] Transfer() => SnesPlanarTileEncoder.Encode(
         Enumerable.Range(0, EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height).Select(Pixel).ToArray(),
         new(EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height), EscapeTimerTileAtlasFormat.BitsPerPixel);
 

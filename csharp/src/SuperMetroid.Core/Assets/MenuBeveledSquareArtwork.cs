@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class MenuBeveledSquareArtwork
 {
     internal const int TileCount = 2;
-    private readonly Dictionary<int, byte>? edits;
+    internal readonly Dictionary<int, byte>? edits;
     internal static bool Contains(int tile) => tile is 0x98 or 0x99;
 
     internal MenuBeveledSquareArtwork(IndexedPngImage image)

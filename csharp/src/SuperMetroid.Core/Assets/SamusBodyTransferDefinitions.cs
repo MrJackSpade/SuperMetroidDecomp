@@ -129,7 +129,7 @@ internal static class SamusBodyTransferDefinitions
     /// Only this decomposition is retained; row magnitudes derive from hardware
     /// block geometry and the independently required pixel payload length.
     /// </summary>
-    private static bool TrySelectedPacking(bool upper, int set, int position, int payloadBytes, out ushort firstSize)
+    internal static bool TrySelectedPacking(bool upper, int set, int position, int payloadBytes, out ushort firstSize)
     {
         int largeBlocks = (upper, set, position) switch
         {

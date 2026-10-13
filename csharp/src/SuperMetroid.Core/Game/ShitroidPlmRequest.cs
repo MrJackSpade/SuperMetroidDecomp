@@ -69,7 +69,7 @@ public readonly record struct ShitroidMusicRequest(MusicCommand Command, MusicCo
 /// <summary>Typed projection of Shitroid's common and extended enemy WRAM.</summary>
 public sealed class ShitroidEnemyState
 {
-    private readonly Bgr555[] _targetPalette = new Bgr555[256];
+    internal readonly Bgr555[] _targetPalette = new Bgr555[256];
 
     internal ShitroidEnemyState(RoomEnemySlot slot) => Slot = slot;
 

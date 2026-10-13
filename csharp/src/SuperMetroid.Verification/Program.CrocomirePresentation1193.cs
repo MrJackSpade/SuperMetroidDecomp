@@ -24,8 +24,8 @@ internal static class CrocomirePresentation1193Verification
         var maps = InstalledFixtures.Maps;
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
-        typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime",flags)!.Invoke(game,new object[]{false});
-        var runtime=(SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime",flags)!.GetValue(game)!;
+        game.CreateGameplayRuntime(false);
+        var runtime=game.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
@@ -41,7 +41,7 @@ internal static class CrocomirePresentation1193Verification
         samus.CommitPoseHistory(bus);
         samus.InputLocked = false;
         runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(512, 0));
-        typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game, SuperMetroidGameState.MainGameplay);
+        game.GameState = SuperMetroidGameState.MainGameplay;
         AssertEqual(RoomMainCallback.CrocomireRoomShaking, runtime.Room.ActiveRoom!.State.MainCallback,
             "Actual Crocomire room selects native shaking callback");
         if (!spikes)
@@ -103,13 +103,11 @@ internal static class CrocomirePresentation1193Verification
             VerifyCrocomireSpikeCompatibility(runtime, bus, maps.RoomFxAnimatedTiles);
             runtime.RoomSpikes.LoadRoom(bus, runtime.Room.ActiveRoom.State.FxPointer,
                 runtime.Room.ActiveDoor!.Pointer, runtime.Room.ActiveRoom.AreaIndex);
-            typeof(SamusXrayState).GetProperty(nameof(SamusXrayState.SuspendedSubsystems))!
-                .SetValue(samus.Xray, XraySuspendedSubsystems.AnimatedTiles);
+            samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.AnimatedTiles;
             game.Step(0);
             AssertEqual(false, runtime.VramWrites.Entries.Any(write => write.EncodedVramDestination == 0x3d60),
                 "X-ray's animation-disable word suspends spikes at the actual runtime seam");
-            typeof(SamusXrayState).GetProperty(nameof(SamusXrayState.SuspendedSubsystems))!
-                .SetValue(samus.Xray, XraySuspendedSubsystems.None);
+            samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.None;
             game.Step(0);
             AssertEqual(0x879d84, runtime.VramWrites.Entries.Single(write => write.EncodedVramDestination == 0x3d60).SourceAddress,
                 "Re-enabled spikes resume the pending first frame");
@@ -190,8 +188,7 @@ internal static class CrocomirePresentation1193Verification
             restored.Step(bus, runtime.Vram, actual);
             AssertTrue(expected.Entries.SequenceEqual(actual.Entries), "Current debugger graph retains exact spike cadence");
         }
-        typeof(SuperMetroidRuntime).GetField("<RoomSpikes>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(runtime, null);
+        runtime.RoomSpikes = null;
         var restarted = new VramWriteQueue();
         runtime.RoomSpikes.Step(bus, runtime.Vram, restarted);
         AssertEqual(0x879d84, restarted.Entries.Single().SourceAddress,

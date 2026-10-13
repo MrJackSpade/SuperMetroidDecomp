@@ -24,12 +24,12 @@ namespace SuperMetroid.Core.Assets;
 /// separate full-body Hyper Beam palette or palette-program controls.</remarks>
 public sealed class HyperBeamFxColorCatalog
 {
-    private readonly Dictionary<int, Bgr555> colors = new();
-    private readonly int neutralIntensity;
-    private readonly LoadingPaletteInputView.Channels neutralOverrides;
-    private readonly Dictionary<int, PairedChannels> pairedInputs = new();
-    private readonly Dictionary<int, LoadingPaletteInputView.Channels> endpointInputs = new();
-    private readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
+    internal readonly Dictionary<int, Bgr555> colors = new();
+    internal readonly int neutralIntensity;
+    internal readonly LoadingPaletteInputView.Channels neutralOverrides;
+    internal readonly Dictionary<int, PairedChannels> pairedInputs = new();
+    internal readonly Dictionary<int, LoadingPaletteInputView.Channels> endpointInputs = new();
+    internal readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
     private HyperBeamFxColorCatalog(Bgr555[][] frames)
     {
@@ -127,7 +127,7 @@ public sealed class HyperBeamFxColorCatalog
     {
         private readonly int? red;
         private readonly int? green;
-        private readonly int? blue;
+        internal readonly int? blue;
 
         internal PairedChannels(Bgr555 supplied, bool redHue, int? sharedRed = null, int? sharedGreen = null)
         {

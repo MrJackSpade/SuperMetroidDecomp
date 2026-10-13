@@ -117,7 +117,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         }
     });
 
-    private readonly Dictionary<int, ushort> edits;
+    internal readonly Dictionary<int, ushort> edits;
     private CeresEscapeOverlayTilemapCatalog(Dictionary<int, ushort> edits) => this.edits = edits;
 
     private byte[] Transfer(CeresEscapeOverlayTilemapDefinition page)

@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("SuperMetroid.RenderVerification")]
 [assembly: InternalsVisibleTo("SuperMetroid.DesktopVerification")]
 [assembly: InternalsVisibleTo("SuperMetroid.IntegrationVerification")]
+[assembly: InternalsVisibleTo("SuperMetroid.EnsureVerification")]
 [assembly: InternalsVisibleTo("SuperMetroid.DebugRunner")]
 // The separate importer shares the driver's cartridge definitions and PCM codecs.
 [assembly: InternalsVisibleTo("SuperMetroid.AssetExtraction")]

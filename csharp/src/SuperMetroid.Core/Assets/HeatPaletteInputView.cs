@@ -22,9 +22,9 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
     private readonly int redTarget;
     private readonly int mixedRedTarget;
     private readonly int mixedGreenTarget;
-    private readonly int? greenOverride;
-    private readonly int? blueOverride;
-    private readonly int? mixedBlueOverride;
+    internal readonly int? greenOverride;
+    internal readonly int? blueOverride;
+    internal readonly int? mixedBlueOverride;
 
     internal HeatPaletteInputView(Dictionary<ushort, Bgr555> colors)
     {

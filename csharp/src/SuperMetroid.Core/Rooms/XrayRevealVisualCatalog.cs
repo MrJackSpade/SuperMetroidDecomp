@@ -60,7 +60,7 @@ public sealed class XrayOverlayVisualCatalog
     {
     }
 
-    private XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
+    internal XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
         IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms,
         bool requireCompleteInstallation)
     {

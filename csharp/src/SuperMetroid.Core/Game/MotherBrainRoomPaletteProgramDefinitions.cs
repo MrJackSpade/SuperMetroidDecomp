@@ -19,10 +19,10 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
     internal const int PresentationWordCount = 14;
 
     /// <summary>$A9:D046-D07C, reviewed two-tick visual cadence for the fourteen-image flash performance; only the private palette timer consumes it.</summary>
-    private const ushort FlashImageTicks = 2;
+    internal const ushort FlashImageTicks = 2;
 
     /// <summary>$A9:D07E: closing Goto opcode following the timed frames.</summary>
-    private const ushort LoopInstruction = FlashStart + PresentationWordCount * 4;
+    internal const ushort LoopInstruction = FlashStart + PresentationWordCount * 4;
 
     internal static ushort PresentationWordAddress(int index) =>
         (uint)index < PresentationWordCount ? (ushort)(FlashStart + index * 4 + 2) :

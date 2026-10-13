@@ -7,9 +7,9 @@ namespace SuperMetroid.Game;
 /// <summary>The normal reset-to-gameplay desktop shell for the translated game.</summary>
 internal sealed class GameForm : Form
 {
-    private readonly PlayableGameControl gameControl;
+    internal readonly PlayableGameControl gameControl;
     private bool closingRenderer;
-    private bool rendererStopped;
+    internal bool rendererStopped;
 
     /// <summary>The normal ROM-independent host path after asset installation.</summary>
     public GameForm(

@@ -291,86 +291,86 @@ internal static class LookupStream2Verification
         byte[] json = ProjectileSpriteExtractor.Extract(rom);
         var selected = ProjectileSpriteCatalog.Load(new MemoryStream(json));
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var frames = (System.Collections.IDictionary)typeof(ProjectileSpriteCatalog).GetField("frames", fields)!.GetValue(selected)!;
+        var frames = (System.Collections.IDictionary)selected.frames;
         int calculatedCompositions = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.SingleBeamParts)
+            if (composition.parts is ProjectileSpriteDefinitions.SingleBeamParts)
                 calculatedCompositions++;
         AssertEqual(12, calculatedCompositions, "Eight Power and four Ice compositions calculate without cached part arrays");
         int calculatedQuads = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.ChargedBeamParts)
+            if (composition.parts is ProjectileSpriteDefinitions.ChargedBeamParts)
                 calculatedQuads++;
         AssertEqual(19, calculatedQuads, "Nineteen charged Power/Ice quadrant compositions calculate without cached part arrays");
         int calculatedWaves = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.WaveParts)
+            if (composition.parts is ProjectileSpriteDefinitions.WaveParts)
                 calculatedWaves++;
         AssertEqual(33, calculatedWaves, "All33 stock Wave compositions share directional geometry without cached parts");
         int calculatedLobes = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.VerticalChargedWaveParts)
+            if (composition.parts is ProjectileSpriteDefinitions.VerticalChargedWaveParts)
                 calculatedLobes++;
         AssertEqual(20, calculatedLobes, "Both charged-Wave families share centered/vertical lobe geometry without cached parts");
         int calculatedMissiles = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.AxialSuperMissileParts)
+            if (composition.parts is ProjectileSpriteDefinitions.AxialSuperMissileParts)
                 calculatedMissiles++;
         AssertEqual(4, calculatedMissiles, "Four SuperMissile axial poses share centered strip geometry without cached parts");
         int calculatedDiagonalMissiles = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.DiagonalMissileParts)
+            if (composition.parts is ProjectileSpriteDefinitions.DiagonalMissileParts)
                 calculatedDiagonalMissiles++;
         AssertEqual(8, calculatedDiagonalMissiles, "Eight diagonal missile poses share reflected footprint geometry without cached part arrays");
         int calculatedSimpleEffects = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.SimpleEffectParts)
+            if (composition.parts is ProjectileSpriteDefinitions.SimpleEffectParts)
                 calculatedSimpleEffects++;
         AssertEqual(8, calculatedSimpleEffects, "Four centered Bomb poses and four mirrored beam explosions calculate without cached parts");
         int calculatedHorizontalLobes = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.HorizontalChargedWaveParts)
+            if (composition.parts is ProjectileSpriteDefinitions.HorizontalChargedWaveParts)
                 calculatedHorizontalLobes++;
         AssertEqual(16, calculatedHorizontalLobes, "Sixteen horizontal charged Wave lobes calculate geometry with exact native corner order");
         int calculatedSpazerSeeds = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.SpazerSeedParts)
+            if (composition.parts is ProjectileSpriteDefinitions.SpazerSeedParts)
                 calculatedSpazerSeeds++;
         AssertEqual(8, calculatedSpazerSeeds, "Eight Spazer seed poses share tile/reflection geometry and one required diagonal origin");
         int calculatedSpazerSpreads = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.SpazerDiagonalSpreadParts)
+            if (composition.parts is ProjectileSpriteDefinitions.SpazerDiagonalSpreadParts)
                 calculatedSpazerSpreads++;
         AssertEqual(16, calculatedSpazerSpreads, "Sixteen diagonal Spazer spreads calculate repeated seed lanes");
         int calculatedAxialSpreads = 0;
         foreach (var composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.SpazerAxialSpreadParts)
+            if (((SpriteComposition)composition).parts is ProjectileSpriteDefinitions.SpazerAxialSpreadParts)
                 calculatedAxialSpreads++;
         AssertEqual(19, calculatedAxialSpreads, "Nineteen axial Spazer spreads calculate repeated lanes with exact traversal");
         int calculatedChargedSpazer = 0;
         foreach (var composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.HorizontalChargedSpazerParts)
+            if (((SpriteComposition)composition).parts is ProjectileSpriteDefinitions.HorizontalChargedSpazerParts)
                 calculatedChargedSpazer++;
         AssertEqual(6, calculatedChargedSpazer, "Six horizontal charged Spazer compositions calculate strip adjacency and lane geometry");
         int calculatedVerticalSpazer = 0;
         foreach (var composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.VerticalChargedSpazerSpreadParts)
+            if (((SpriteComposition)composition).parts is ProjectileSpriteDefinitions.VerticalChargedSpazerSpreadParts)
                 calculatedVerticalSpazer++;
         AssertEqual(4, calculatedVerticalSpazer, "Four vertical charged Spazer spreads calculate cell adjacency and mirrored side columns");
         int calculatedSpazerStartup = 0;
         foreach (var composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.SpazerAxialStartupParts)
+            if (((SpriteComposition)composition).parts is ProjectileSpriteDefinitions.SpazerAxialStartupParts)
                 calculatedSpazerStartup++;
         AssertEqual(12, calculatedSpazerStartup, "Twelve axial Spazer startup poses calculate centered single/pair geometry");
         int calculatedDiagonalStartup = 0;
         foreach (var composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.SpazerDiagonalStartupParts)
+            if (((SpriteComposition)composition).parts is ProjectileSpriteDefinitions.SpazerDiagonalStartupParts)
                 calculatedDiagonalStartup++;
         AssertEqual(6, calculatedDiagonalStartup, "Six diagonal Spazer startup poses calculate centered pair-strip geometry");
         int calculatedAlternateStartup = 0, calculatedPlasmaCores = 0;
         foreach (var composition in frames.Values)
         {
-            object? parts = typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition);
+            object? parts = ((SpriteComposition)composition).parts;
             if (parts is ProjectileSpriteDefinitions.AlternateDiagonalStartupParts) calculatedAlternateStartup++;
             if (parts is ProjectileSpriteDefinitions.PlasmaStartupCoreParts) calculatedPlasmaCores++;
         }
@@ -378,11 +378,11 @@ internal static class LookupStream2Verification
         AssertEqual(8, calculatedPlasmaCores, "Eight Plasma startup cores calculate centered cell geometry");
         int calculatedPlasmaShort = 0;
         foreach (var composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.HorizontalPlasmaWaveShortParts)
+            if (((SpriteComposition)composition).parts is ProjectileSpriteDefinitions.HorizontalPlasmaWaveShortParts)
                 calculatedPlasmaShort++;
         AssertEqual(5, calculatedPlasmaShort, "Five horizontal PlasmaWave Short poses calculate cell and lobe geometry");
         var firstCharged = (SpriteComposition)frames[(ushort)0xec3e]!;
-        AssertTrue(typeof(SpriteComposition).GetField("parts", fields)!.GetValue(firstCharged) is CompiledSpritePart[], "Distinct initial charged-Power ordering stays explicitly supplied/pending");
+        AssertTrue(firstCharged.parts is CompiledSpritePart[], "Distinct initial charged-Power ordering stays explicitly supplied/pending");
         foreach (ushort pointer in expected)
         {
             var native = new OamBuffer();
@@ -500,8 +500,8 @@ internal static class LookupStream2Verification
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseBackdropDocument>(json, MapPresentationFormat.JsonOptions)!;
         var stock = PauseBackdropPresentation.Load(new MemoryStream(json));
         const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
-        var areaResiduals = (Dictionary<int, ushort>[])typeof(PauseBackdropPresentation).GetField("areas", fields)!.GetValue(stock)!;
-        var buttonResiduals = (Dictionary<int, ushort>)typeof(PauseBackdropPresentation).GetField("buttons", fields)!.GetValue(stock)!;
+        var areaResiduals = stock.areas;
+        var buttonResiduals = stock.buttons;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             int index = AreaIds.ToIndex(area);
@@ -578,8 +578,7 @@ internal static class LookupStream2Verification
             System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2),
                 ReadVerificationWord(rom, 0xb6e800 + cell * 2));
         AssertTrue(native.AsSpan().SequenceEqual(stock.CreateTilemap()), "Calculated equipment template preserves all1024native words");
-        var residuals = (Dictionary<int, ushort>)typeof(PauseEquipmentBasePresentation)
-            .GetField("remainingCells", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var residuals = stock.remainingCells;
         for (int cell = 0; cell < 1024; cell++)
         {
             int x = cell % 32, y = cell / 32;
@@ -657,9 +656,7 @@ internal static class LookupStream2Verification
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2)));
             Confirm(stock, kind, native, "Actual mirrored stock wireframe preserves every native tile word");
-            const BindingFlags privateFields = BindingFlags.Instance | BindingFlags.NonPublic;
-            object frame = ((Array)typeof(PauseWireframePresentation).GetField("frames", privateFields)!.GetValue(stock)!).GetValue((int)kind)!;
-            var edits = (Dictionary<int, ushort>)frame.GetType().GetField("edits", privateFields)!.GetValue(frame)!;
+            var edits = stock.frames[(int)kind].edits;
             stockOverrides += edits.Count;
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
             {
@@ -895,8 +892,7 @@ internal static class LookupStream2Verification
             var presentation = PauseEquipmentLabelPresentation.Load(new MemoryStream(json));
             AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(json)),
                 presentation.ContentIdentity, "Blank edits retain serialized content identity");
-            var edits = (Dictionary<int, ushort>)typeof(PauseEquipmentLabelPresentation)
-                .GetField("blankEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(presentation)!;
+            var edits = presentation.blankEdits;
             AssertEqual(edited < 0 ? 0 : 1, edits.Count, "Only explicit blank edits are stored");
             foreach (bool hyper in new[] { false, true })
             {
@@ -995,10 +991,7 @@ internal static class LookupStream2Verification
                 SnesObjAttributeWord.Create(0, 7, 3, SnesTileFlipFlags.Horizontal))]),
         };
         var displayBindings = new Dictionary<int, int> { [0xa9d6e2] = 0xa9d6e2 };
-        var display = (EnemySpritemapCatalog)typeof(EnemySpritemapCatalog)
-            .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
-                [typeof(Dictionary<int, EnemySpritemapParts>), typeof(Dictionary<int, int>)], null)!
-            .Invoke([displayParts, displayBindings]);
+        var display = new EnemySpritemapCatalog(displayParts, displayBindings);
         AssertTrue(display.TryGetDisplay(0xa9, 0xd6e2, out EnemySpritemapParts selectedDisplay),
             "Edited Dead Torizo display is selected");
         var editedOam = new OamBuffer();
@@ -1431,8 +1424,7 @@ internal static class LookupStream2Verification
         byte[] json = ProjectileTrailExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<ProjectileTrailDocument>(json, MapPresentationFormat.JsonOptions)!;
         var stock = ProjectileTrailCatalog.Load(new MemoryStream(json));
-        var edits = (Dictionary<ushort, ushort>)typeof(ProjectileTrailCatalog)
-            .GetField("suppliedAttributes", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var edits = stock.suppliedAttributes;
         AssertEqual(0, edits.Count, "Stock trail appearance stores no repeated frame attributes");
         foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
         {
@@ -1566,7 +1558,6 @@ internal static class LookupStream2Verification
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2), "Trail selector rejects the preceding word");
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1), "Trail selector rejects unaligned reads");
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end), "Trail selector rejects the following word");
-        var spawn = typeof(ProjectileTrails).GetMethod("SpawnTrail", BindingFlags.NonPublic | BindingFlags.Instance)!;
         for (int selection = 0; selection < 64; selection++)
         {
             var projectiles = new SamusProjectileSystem();
@@ -1576,7 +1567,7 @@ internal static class LookupStream2Verification
                 InstructionPointer = 0x86e3,
                 Position = new(new(100, 0), new(200, 0)),
             };
-            spawn.Invoke(projectiles.Trails, [NewTrailSelectorGuard(start, end), projectile]);
+            projectiles.Trails.SpawnTrail(NewTrailSelectorGuard(start, end), projectile);
             var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects left trail including adjacent right-table entries");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Trails.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn retains right-table overrun behavior");
@@ -1603,12 +1594,11 @@ internal static class LookupStream2Verification
         var stock = Load(original);
         Check(stock, original);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        AssertEqual(8, ((Bgr555[])typeof(ChozoAndTubeColorCatalog).GetField("tubeColorSeeds", flags)!.GetValue(stock)!).Length,
+        AssertEqual(8, (stock.tubeColorSeeds).Length,
             "tube stores only its eight authored seed colors");
-        foreach (string statue in new[] { "wreckedShipEdits", "lowerNorfairEdits" })
-            AssertEqual(0, ((System.Collections.IDictionary)typeof(ChozoAndTubeColorCatalog).GetField(statue, flags)!.GetValue(stock)!).Count,
-                $"stock {statue} store no colors beyond the calculated statue paint");
-        AssertEqual(0, ((System.Collections.IDictionary)typeof(ChozoAndTubeColorCatalog).GetField("tubeColorEdits", flags)!.GetValue(stock)!).Count,
+        foreach (var (statue, edits) in new[] { ("wreckedShipEdits", stock.wreckedShipEdits), ("lowerNorfairEdits", stock.lowerNorfairEdits) })
+            AssertEqual(0, edits.Count, $"stock {statue} store no colors beyond the calculated statue paint");
+        AssertEqual(0, stock.tubeColorEdits.Count,
             "stock tube ramp and repeated half need no residuals");
         for (int color = 0; color < 32; color++)
         {
@@ -1623,8 +1613,8 @@ internal static class LookupStream2Verification
                 var statueDocument = wrecked ? original with { WreckedShip = statue } : original with { LowerNorfair = statue };
                 var edited = Load(statueDocument);
                 Check(edited, statueDocument);
-                int stored = ((System.Collections.IDictionary)typeof(ChozoAndTubeColorCatalog).GetField("wreckedShipEdits", flags)!.GetValue(edited)!).Count
-                    + ((System.Collections.IDictionary)typeof(ChozoAndTubeColorCatalog).GetField("lowerNorfairEdits", flags)!.GetValue(edited)!).Count;
+                int stored = edited.wreckedShipEdits.Count
+                    + edited.lowerNorfairEdits.Count;
                 AssertEqual(1, stored, "a statue edit stores only that color");
             }
         }
@@ -1759,8 +1749,7 @@ internal static class LookupStream2Verification
         byte[] source = PauseReserveUiExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseReserveUiDocument>(source, MapPresentationFormat.JsonOptions)!;
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
-        var edits = (Dictionary<int, Bgr555>)typeof(PauseReserveUiPresentation)
-            .GetField("arrowColorEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var edits = stock.arrowColorEdits;
         AssertEqual(0, edits.Count, "Native channel choices plus calculated ramps need no unexplained color overrides");
         var cgram = new SnesCgram();
         for (int frame = 0; frame < 32; frame++)
@@ -1824,8 +1813,8 @@ internal static class LookupStream2Verification
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseReserveUiDocument>(source, MapPresentationFormat.JsonOptions)!;
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        AssertTrue(typeof(PauseReserveUiPresentation).GetField("digits", fields)!.GetValue(stock) is null, "Stock digits discard stored lookup");
-        AssertTrue(typeof(PauseReserveUiPresentation).GetField("arrowOffsets", fields)!.GetValue(stock) is null, "Stock arrow discards stored offsets");
+        AssertTrue(stock.digits is null, "Stock digits discard stored lookup");
+        AssertTrue(stock.arrowOffsets is null, "Stock arrow discards stored offsets");
         Check(stock, document);
         for (int index = 0; index < 10; index++)
         {
@@ -2028,9 +2017,7 @@ internal static class LookupStream2Verification
         var document = System.Text.Json.JsonSerializer.Deserialize<CrystalFlashColorDocument>(
             source, MapPresentationFormat.JsonOptions)!;
         var stock = CrystalFlashColorCatalog.Load(new MemoryStream(source));
-        var storedBody = typeof(CrystalFlashColorCatalog).GetField("body",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        AssertTrue(storedBody.GetValue(stock) is null, "Original Crystal Flash body selects calculation without stored rows");
+        AssertTrue(stock.body is null, "Original Crystal Flash body selects calculation without stored rows");
         var cgram = new SnesCgram();
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
         {
@@ -2045,7 +2032,7 @@ internal static class LookupStream2Verification
                 rows[frame][color] = rows[frame][color] with { Red = (rows[frame][color].Red + 1) % 32 };
                 var changedDocument = document with { Body = rows };
                 var changed = CrystalFlashColorCatalog.Load(new MemoryStream(CrystalFlashColorCatalog.Write(changedDocument)));
-                AssertTrue(storedBody.GetValue(changed) is not null, "Independent supplied body edit retains its rows");
+                AssertTrue(changed.body is not null, "Independent supplied body edit retains its rows");
                 for (int verifyFrame = 0; verifyFrame < rows.Length; verifyFrame++)
                 {
                     changed.ApplyBody(cgram, verifyFrame);
@@ -2061,9 +2048,7 @@ internal static class LookupStream2Verification
                 stock.ApplyBody(cgram, frame);
             }
         }
-        var storedBubble = typeof(CrystalFlashColorCatalog).GetField("bubble",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        var residuals = (Dictionary<int, Bgr555>)storedBubble.GetValue(stock)!;
+        var residuals = stock.bubble;
         AssertEqual(1, residuals.Count, "One stock bubble residual remains pending");
         AssertEqual((ushort)0x7fff, residuals[30], "Final-frame leading white remains supplied data");
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
@@ -2089,7 +2074,7 @@ internal static class LookupStream2Verification
                     AssertEqual(word, cgram.Colors[SamusPaletteRomData.CrystalFlash.BubbleCgramStart + verifyColor], "Supplied bubble color reaches CGRAM");
                 }
             }
-            AssertTrue(storedBody.GetValue(changed) is null, "Independent bubble edit preserves body calculation");
+            AssertTrue(changed.body is null, "Independent bubble edit preserves body calculation");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBubble(-1, 0), "Bubble lower frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBubble(6, 0), "Bubble upper frame bound");
@@ -2119,14 +2104,19 @@ internal static class LookupStream2Verification
         };
         var stock = KraidColorCatalog.Load(new MemoryStream(KraidColorCatalog.Write(document)));
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        object health = typeof(KraidColorCatalog).GetField("health", fields)!.GetValue(stock)!;
-        object secondary = typeof(KraidColorCatalog).GetField("secondary", fields)!.GetValue(stock)!;
+        object health = stock.health;
+        object secondary = stock.secondary;
         AssertTrue(ReferenceEquals(health, secondary), "Identical Kraid secondary colors share calculated primary source");
-        foreach (string name in new[] { "health", "roomBackdrop", "initialTarget", "deathArm" })
+        foreach (var (name, band) in new (string, IReadOnlyList<Bgr555>)[]
+                 { ("health", stock.health), ("roomBackdrop", stock.roomBackdrop), ("initialTarget", stock.initialTarget), ("deathArm", stock.deathArm) })
         {
-            object band = typeof(KraidColorCatalog).GetField(name, fields)!.GetValue(stock)!;
-            var deviations = (System.Collections.IDictionary)band.GetType().GetField("deviations", fields)!.GetValue(band)!;
-            AssertEqual(0, deviations.Count, $"Stock Kraid {name} stores no colors beyond the calculated paint");
+            int deviations = band switch
+            {
+                KraidColorCatalog.StockBand stored => stored.deviations.Count,
+                KraidColorCatalog.HealthPalette palette => palette.deviations.Count,
+                _ => throw new InvalidDataException($"Stock Kraid {name} is not a deviation-storing band."),
+            };
+            AssertEqual(0, deviations, $"Stock Kraid {name} stores no colors beyond the calculated paint");
         }
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         for (int index = 0; index < KraidPaletteRomData.ColorCount(source); index++)
@@ -2188,7 +2178,7 @@ internal static class LookupStream2Verification
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(json));
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var remaining = (System.Collections.IDictionary)typeof(ProjectileFrameBindingCatalog).GetField("sprites", fields)!.GetValue(stock)!;
+        var remaining = (System.Collections.IDictionary)stock.sprites;
         AssertEqual(0, remaining.Count, "All805 stock selector operands calculate; independent selection policies remain required");
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), stock.Resolve(pointer), "Every installed selector retains its exact native target");
@@ -2266,15 +2256,13 @@ internal static class LookupStream2Verification
         AssertEqual(797, checkedWaveIce, "All other calculated beam/effect records including18 explicit exceptional policies");
         AssertEqual(8, checkedAxialEndPairs, "All four reversed axial end-pairs use exact native operands");
         AssertEqual(10, checkedCappedSweep, "All ten capped sweep phases use exact native operands");
-        var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         int checkedBombs = 0;
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
             var bomb = new SamusBombProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1, Type = 0x0500 };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
-            _ = runBomb.Invoke(bombs, [bomb]);
+            _ = bombs.RunProjectileInstructionHandler(bomb);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");
             checkedBombs++;
         }

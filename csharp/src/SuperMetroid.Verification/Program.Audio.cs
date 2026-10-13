@@ -65,14 +65,10 @@ internal static class AudioVerification
             () => MusicCommandDelay.FromEffectiveFrames(7),
             "invalid effective music delay fails loudly");
         AssertTrue(
-            typeof(CartridgeAudioState).GetMethod(
-                nameof(CartridgeAudioState.QueueMusicDelayed8),
-                [typeof(MusicCommand)]) is not null,
+            MetadataShape.DeclaresMethod(typeof(CartridgeAudioState), nameof(CartridgeAudioState.QueueMusicDelayed8), [typeof(MusicCommand)]),
             "music queue accepts typed commands");
         AssertTrue(
-            typeof(CartridgeAudioState).GetMethod(
-                nameof(CartridgeAudioState.QueueMusicDelayed8),
-                [typeof(ushort)]) is null,
+            !MetadataShape.DeclaresMethod(typeof(CartridgeAudioState), nameof(CartridgeAudioState.QueueMusicDelayed8), [typeof(ushort)]),
             "music queue exposes no raw-word overload");
 
         byte[] rom = new byte[0x10_0000];
@@ -263,14 +259,10 @@ internal static class AudioVerification
         AssertEqual(SoundEffectLibrary.Library2, libraryTwoUnknown.Library,
             "unknown cartridge sound retains its library");
         AssertTrue(
-            typeof(CartridgeAudioState).GetMethod(
-                nameof(CartridgeAudioState.QueueSound),
-                [typeof(SoundEffectId), typeof(byte)]) is not null,
+            MetadataShape.DeclaresMethod(typeof(CartridgeAudioState), nameof(CartridgeAudioState.QueueSound), [typeof(SoundEffectId), typeof(byte)]),
             "QueueSound accepts one indivisible sound identity");
         AssertTrue(
-            typeof(CartridgeAudioState).GetMethod(
-                nameof(CartridgeAudioState.QueueSound),
-                [typeof(SoundEffectLibrary), typeof(byte), typeof(byte)]) is null,
+            !MetadataShape.DeclaresMethod(typeof(CartridgeAudioState), nameof(CartridgeAudioState.QueueSound), [typeof(SoundEffectLibrary), typeof(byte), typeof(byte)]),
             "QueueSound exposes no reversible library-and-ID argument list");
         AssertThrows<InvalidDataException>(
             () => SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x0100),

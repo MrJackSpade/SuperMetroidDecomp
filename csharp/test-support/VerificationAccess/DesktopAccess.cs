@@ -14,8 +14,8 @@ internal static class DesktopAccess
         {
             get
             {
-                lock (PrivateState.Field<object>(device, "deviceGate"))
-                    return Slots(device).Count(slot => PrivateState.Property<bool>(slot, "Prepared"));
+                lock (device.deviceGate)
+                    return device.slots.Count(slot => slot.Prepared);
             }
         }
 
@@ -23,27 +23,26 @@ internal static class DesktopAccess
         {
             get
             {
-                lock (PrivateState.Field<object>(device, "deviceGate"))
-                    return Slots(device).Count(slot => PrivateState.Property<bool>(slot, "Prepared")
-                        && !PrivateState.Property<bool>(slot, "IsDone"));
+                lock (device.deviceGate)
+                    return device.slots.Count(slot => slot.Prepared && !slot.IsDone);
             }
         }
 
         /// <summary>Waits until the worker completes every accepted PCM frame, within the device's own buffer-return bound.</summary>
         internal void WaitForPendingSubmissions()
         {
-            long target = PrivateState.Field<long>(device, "enqueuedFrames");
+            long target = device.enqueuedFrames;
             Stopwatch elapsed = Stopwatch.StartNew();
-            while (PrivateState.Field<long>(device, "completedFrames") < target)
+            while (device.completedFrames < target)
             {
-                PrivateState.Invoke(device, "ThrowWorkerFailure");
+                device.ThrowWorkerFailure();
                 if (elapsed.ElapsedMilliseconds >= WaveOutAudioPolicy.BufferReturnTimeoutMilliseconds)
                     throw new TimeoutException(
-                        $"waveOut worker completed {PrivateState.Field<long>(device, "completedFrames")} of " +
+                        $"waveOut worker completed {device.completedFrames} of " +
                         $"{target} accepted PCM frames within the bounded audit interval.");
                 Thread.Sleep(1);
             }
-            PrivateState.Invoke(device, "ThrowWorkerFailure");
+            device.ThrowWorkerFailure();
         }
     }
 
@@ -53,11 +52,8 @@ internal static class DesktopAccess
         internal async Task FlushAsync()
         {
             var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-            object queue = PrivateState.Field<object>(reporter, "queue");
-            Type queuedError = queue.GetType().GetGenericArguments()[0];
-            object marker = Activator.CreateInstance(queuedError, [null, null, null, completion])!;
-            object writer = PrivateState.Property<object>(queue, "Writer");
-            if (!(bool)PrivateState.Invoke(writer, "TryWrite", marker)!)
+            var marker = new GitHubErrorReporter.QueuedError(null, null, null, completion);
+            if (!reporter.queue.Writer.TryWrite(marker))
                 throw new ObjectDisposedException(nameof(GitHubErrorReporter));
             await completion.Task.ConfigureAwait(false);
         }
@@ -91,8 +87,6 @@ internal static class DesktopAccess
         return GameAssetInstaller.OpenOrRepair(root) ?? GameAssetInstaller.Install(fullRomPath, root);
     }
 
-    private static IEnumerable<object> Slots(WaveOutAudioDevice device) =>
-        PrivateState.Field<Array>(device, "slots").Cast<object>();
 }
 
 namespace SuperMetroid.Desktop

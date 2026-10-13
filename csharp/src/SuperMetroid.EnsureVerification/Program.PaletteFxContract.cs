@@ -37,7 +37,7 @@ internal static class PaletteFxContractTests
         if (steps.Length != 1 || !steps[0].GetParameters().Any(parameter =>
                 parameter.ParameterType == typeof(IPaletteFxColorSource) && !parameter.IsOptional))
             throw new InvalidOperationException("Palette FX must expose exactly one Step with mandatory colors.");
-        if (typeof(RoomPaletteFxSystem).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+        if (MetadataShape.Fields(typeof(RoomPaletteFxSystem), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             .Any(field => typeof(IPaletteFxColorSource).IsAssignableFrom(field.FieldType)))
             throw new InvalidOperationException("Palette FX must not retain a hidden color binding across execution/state restore.");
 

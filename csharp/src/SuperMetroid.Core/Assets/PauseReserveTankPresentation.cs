@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable reserve-strip artwork and origins, independent of reserve energy and fill selection.</summary>
 public sealed class PauseReserveTankPresentation
 {
-    private readonly Dictionary<int, (int? X, int? Y)> anchorOverrides;
-    private readonly FrameSet frames;
+    internal readonly Dictionary<int, (int? X, int? Y)> anchorOverrides;
+    internal readonly FrameSet frames;
     private readonly ushort paletteBits;
     private PauseReserveTankPresentation(Dictionary<int, (int? X, int? Y)> anchorOverrides, FrameSet frames, int palette)
     { this.anchorOverrides = anchorOverrides; this.frames = frames; paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
@@ -87,7 +87,7 @@ public sealed class PauseReserveTankPresentation
         return new(anchorOverrides, frames, document.Palette);
     }
     /// <summary>Distinct reserve strip roles selected by the native fill renderer.</summary>
-    private sealed record FrameSet(SpriteComposition? Full, SpriteComposition? EndCap, SpriteComposition? Empty,
+    internal sealed record FrameSet(SpriteComposition? Full, SpriteComposition? EndCap, SpriteComposition? Empty,
         SpriteComposition? Fill1, SpriteComposition? Fill2, SpriteComposition? Fill3, SpriteComposition? Fill4,
         SpriteComposition? Fill5, SpriteComposition? Fill6, SpriteComposition? Fill7);
     /// <summary>Validates and writes an editable reserve-tank presentation document as JSON.</summary>

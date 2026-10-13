@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
@@ -46,7 +47,7 @@ internal static class InstallationOverrideLifecycleVerification
                 Assert(session.ContentIdentity.MapContentSha256 == selected[nameof(GameInstallation.LoadMaps)] &&
                     session.ContentIdentity.AudioContentSha256 == selected[nameof(GameInstallation.LoadAudio)],
                     "fresh portable Android session binds selected map/font and audio identities");
-                Assert(session.Bus.GetType().GetProperty("Rom") is null,
+                Assert(!MetadataShape.DeclaresProperty(session.Bus.GetType(), "Rom"),
                     "fresh portable session retains no cartridge payload");
             }
             File.Move(heldRom, installation.RomPath);
@@ -84,6 +85,7 @@ internal static class InstallationOverrideLifecycleVerification
         }
     }
 
+    [ReflectionAudit("public coverage discovery: every override directory the installation exposes must match a declared installed domain")]
     private static string[] CopyEveryOverrideDomain(GameInstallation installation)
     {
         string[] directories = typeof(GameInstallation).GetProperties()
@@ -91,7 +93,7 @@ internal static class InstallationOverrideLifecycleVerification
                 property.Name.EndsWith("OverrideDirectory", StringComparison.Ordinal))
             .Select(property => Path.GetFileName((string)property.GetValue(installation)!))
             .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
-        string[] declared = typeof(GameInstallationLayout).GetFields(BindingFlags.Public | BindingFlags.Static)
+        string[] declared = MetadataShape.Fields(typeof(GameInstallationLayout), BindingFlags.Public | BindingFlags.Static)
             .Where(field => field.FieldType == typeof(string) && field.Name.EndsWith("DirectoryName", StringComparison.Ordinal) &&
                 field.Name != nameof(GameInstallationLayout.ContentDirectoryName))
             .Select(field => (string)field.GetValue(null)!).Distinct(StringComparer.Ordinal)
@@ -109,6 +111,7 @@ internal static class InstallationOverrideLifecycleVerification
         return directories;
     }
 
+    [ReflectionAudit("public catalog discovery: every parameterless public Load* method of the installation must persist overrides")]
     private static Dictionary<string, string> CatalogSnapshot(GameInstallation installation)
     {
         var result = new Dictionary<string, string>(StringComparer.Ordinal);

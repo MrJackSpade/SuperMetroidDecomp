@@ -232,7 +232,7 @@ internal static class FullMovieReplayVerification
         string Native(int address) => Word(memory, address).ToString("X4");
         Console.WriteLine($"trace {update}@{step.SourceFrame} in={step.Input:X4} state={(ushort)game.GameState:X2}/{Native(MovieDesyncMemory.GameState)} " +
             $"door={game.DoorTransitionPhaseForVerification}/{Native(0x099c)} rng={game.DispatcherRandomNumber:X4}/{Native(MovieDesyncMemory.Random)}");
-        if (PrivateState.Field<IntroCinematicState?>(game, "intro") is { } intro)
+        if (game.intro is { } intro)
             Console.WriteLine($"  intro port={intro.Phase} native cinematic={Native(0x1f51)}");
         if (samus is null) return;
         Console.WriteLine($"  port   pose={(int)samus.Pose:X2} X={samus.Position.X.Whole:X4}.{samus.Kinematics.Position.X.Fraction:X4} Y={samus.Position.Y.Whole:X4}.{samus.Kinematics.Position.Y.Fraction:X4} " +

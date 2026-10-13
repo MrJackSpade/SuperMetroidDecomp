@@ -142,8 +142,7 @@ internal static class InstalledPowerBombIsolationTests
     {
         // Include private phase timers and every future serialized field. Only the
         // three COLDATA presentation outputs and nonserialized host binding may differ.
-        foreach (FieldInfo field in typeof(SamusPowerBombExplosionState).GetFields(
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+        foreach (FieldInfo field in MetadataShape.Fields(typeof(SamusPowerBombExplosionState), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
             if (field.IsDefined(typeof(NonSerializedAttribute)) || field.Name is
                 "<FixedColorRed>k__BackingField" or "<FixedColorGreen>k__BackingField" or
@@ -285,7 +284,7 @@ internal static class InstalledPowerBombIsolationTests
         // Construct the exact prior field envelope while using the production codec
         // for primitive values. No fixture changes the production serializer's API.
         const byte newObjectMarker = 2, fieldPayloadKind = 5;
-        var fields = typeof(SamusPowerBombExplosionState).GetFields(BindingFlags.Instance |
+        var fields = MetadataShape.Fields(typeof(SamusPowerBombExplosionState), BindingFlags.Instance |
             BindingFlags.Public | BindingFlags.NonPublic).Where(field =>
             !field.IsDefined(typeof(NonSerializedAttribute)) &&
             field.Name != "_crystalFlashAfterglowStepsRemaining").ToArray();

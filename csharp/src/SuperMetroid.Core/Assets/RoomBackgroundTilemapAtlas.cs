@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class RoomBackgroundTilemapAtlas
 {
     private readonly byte[] transfer;
-    private RoomBackgroundTilemapAtlas(byte[] transfer) => this.transfer = transfer;
+    internal RoomBackgroundTilemapAtlas(byte[] transfer) => this.transfer = transfer;
 
     /// <summary>Owned compiled tilemap bytes: complete little-endian SNES BG words in page order, with row-major cells inside each 32-by-32 page.</summary>
     public ReadOnlyMemory<byte> Transfer => transfer;

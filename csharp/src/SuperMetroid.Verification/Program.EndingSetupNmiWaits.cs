@@ -25,17 +25,17 @@ internal static class EndingSetupNmiWaitsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime", flags)!.Invoke(game, [false]);
-        var runtime = (SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime", flags)!.GetValue(game)!;
+        game.CreateGameplayRuntime(false);
+        var runtime = game.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        typeof(SuperMetroidGame).GetMethod("BeginZebesEscapeFade", flags)!.Invoke(game, null);
+        game.BeginZebesEscapeFade();
         while (game.GameState == SuperMetroidGameState.SamusEscapesFromZebes)
             game.Step(0);
         AssertEqual(SuperMetroidGameState.EndingAndCredits, game.GameState, "the fade hands off to state $27");
 
-        var ending = (EndingCreditsState)typeof(SuperMetroidGame).GetField("endingCredits", flags)!.GetValue(game)!;
+        var ending = game.endingCredits;
         var expected = new Bank80SystemState();
         expected.SetRandomNumber(game.DispatcherRandomNumber);
         for (int call = 1; call <= 11; call++)

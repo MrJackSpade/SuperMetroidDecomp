@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Four editable 3x2 Samus-eye BG2 rectangles; blink timing stays in code.</summary>
 public sealed class IntroEyeTilemapPresentation
 {
-    private readonly EyeRectangle[] frames;
+    internal readonly EyeRectangle[] frames;
 
     private IntroEyeTilemapPresentation(ushort[][] frames) => this.frames = frames.Select((words, index) => new EyeRectangle(words, index)).ToArray();
 
@@ -26,10 +26,10 @@ public sealed class IntroEyeTilemapPresentation
         return frames[index].Words;
     }
 
-    private sealed class EyeRectangle
+    internal sealed class EyeRectangle
     {
         private readonly int frame;
-        private readonly ushort[]? supplied;
+        internal readonly ushort[]? supplied;
         internal EyeRectangle(ushort[] words, int frame)
         {
             this.frame = frame;

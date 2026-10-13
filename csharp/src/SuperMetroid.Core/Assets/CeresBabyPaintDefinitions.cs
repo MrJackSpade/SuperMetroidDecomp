@@ -20,7 +20,7 @@ internal sealed class CeresBabyPaintDefinitions
     private readonly int rowCount;
     private readonly int glassRed, glassBlue, glassMiddleRed, glassGreenStep;
     private readonly int domeTint, domeGreen, domeShadeStep, outlineRed;
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal CeresBabyPaintDefinitions(Bgr555[][] rows, CeresRidleyFadeColorDefinitions body)
         : this(rows[0], 4)

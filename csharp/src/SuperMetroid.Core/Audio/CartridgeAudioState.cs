@@ -15,24 +15,24 @@ public sealed class CartridgeAudioState
 {
     private readonly MusicCommand[] _musicEntries =
         new MusicCommand[AudioRomData.Queues.MusicCapacity];
-    private readonly MusicCommandDelay[] _musicDelays =
+    internal readonly MusicCommandDelay[] _musicDelays =
         new MusicCommandDelay[AudioRomData.Queues.MusicCapacity];
-    private readonly byte[,] _soundQueues = new byte[
+    internal readonly byte[,] _soundQueues = new byte[
         AudioRomData.Queues.SoundLibraryCount,
         AudioRomData.Queues.SoundCapacity];
-    private readonly byte[] _soundReadPositions =
+    internal readonly byte[] _soundReadPositions =
         new byte[AudioRomData.Queues.SoundLibraryCount];
-    private readonly byte[] _soundWritePositions =
+    internal readonly byte[] _soundWritePositions =
         new byte[AudioRomData.Queues.SoundLibraryCount];
-    private readonly byte[] _soundStates = new byte[AudioRomData.Queues.SoundLibraryCount];
+    internal readonly byte[] _soundStates = new byte[AudioRomData.Queues.SoundLibraryCount];
     private readonly byte[] _currentSounds = new byte[AudioRomData.Queues.SoundLibraryCount];
     private readonly byte[] _soundClearDelays =
         new byte[AudioRomData.Queues.SoundLibraryCount];
     private readonly List<CartridgeAudioCommand> _pendingImmediateCommands = [];
 
-    private byte _musicReadPosition;
-    private byte _musicWritePosition;
-    private ushort _musicTimer;
+    internal byte _musicReadPosition;
+    internal byte _musicWritePosition;
+    internal ushort _musicTimer;
     private MusicCommand _musicEntry;
     private byte _soundHandlerDowntime;
 

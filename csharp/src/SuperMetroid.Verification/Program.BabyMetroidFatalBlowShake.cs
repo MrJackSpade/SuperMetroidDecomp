@@ -24,10 +24,9 @@ internal static class BabyMetroidFatalBlowShakeVerification
         var motherBrain = new MotherBrainRainbowBeamAttackSequence();
         var baby = new BabyMetroidCutsceneState();
         baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
-        void Set(string name, object value) => typeof(BabyMetroidCutsceneState).GetProperty(name)!.SetValue(baby, value);
-        Set(nameof(baby.Phase), BabyMetroidCutscenePhase.FinalCharge);
-        Set(nameof(baby.Position), FixedPosition<RoomPixels>.FromWhole(new(0x00c8, 0x0057)).WithFractionsOf(baby.Position));
-        Set(nameof(baby.Health), (ushort)0);
+        baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
+        baby.Position = FixedPosition<RoomPixels>.FromWhole(new(0x00c8, 0x0057)).WithFractionsOf(baby.Position);
+        baby.Health = (ushort)0;
         var head = new Position16<RoomPixels>(0x00c8, 0x0077);
 
         // Frame-counter index 0: zero offsets around the origin; velocity zeroed then decremented.

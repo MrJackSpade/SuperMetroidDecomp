@@ -39,7 +39,7 @@ public sealed class IntroCinematicState
     }
 
     [NonSerialized] private IntroFontAtlas? introFont;
-    [NonSerialized] private IntroCinematicArtworkCatalog? characterArtwork;
+    [NonSerialized] internal IntroCinematicArtworkCatalog? characterArtwork;
     [NonSerialized] private BeamTileCatalog? beamArtwork;
     [NonSerialized] private SamusBodyArtworkCatalog? samusBodyArtwork;
     [NonSerialized] private SamusHurtColorCatalog? samusHurtColors;
@@ -134,34 +134,34 @@ public sealed class IntroCinematicState
 
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
-    private readonly SnesVram vram = new();
+    internal readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
     private readonly ControllerInputState controller = new();
-    private readonly SamusProjectileSystem flashbackProjectiles = new();
+    internal readonly SamusProjectileSystem flashbackProjectiles = new();
     private readonly SamusBombProjectileSystem flashbackBombProjectiles = new();
     private readonly ushort[] textTilemap =
         new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
     private byte[] japaneseBlankCharacter = [];
     private readonly Bgr555[] introPalette = new Bgr555[CgramPalettes.ColorCount];
-    private IntroCinematicObjectSystem? objects;
+    internal IntroCinematicObjectSystem? objects;
     private readonly IntroJapaneseSubtitles subtitles;
     private CinematicPaletteFader? paletteFader;
-    private SamusState? flashbackSamus;
+    internal SamusState? flashbackSamus;
     /// <summary>$1A57 during the Mother Brain flashback: $8B:AF65 sets it, $8B:B842 clears it.</summary>
     private IntroSamusDisplay flashbackSamusDisplay;
-    private IntroMotherBrainSpriteState? flashbackMotherBrain;
-    private IntroMotherBrainExplosionSystem? flashbackMotherBrainExplosions;
-    private IntroRinkaSystem? flashbackRinkas;
-    private IntroBabyDiscoveryState? babyDiscovery;
-    private IntroScientistCutsceneState? scientistCutscene;
-    private IntroCeresFlightState? ceresFlight;
-    private DemoInputState? flashbackDemoInput;
-    private RoomLevelData? flashbackLevel;
+    internal IntroMotherBrainSpriteState? flashbackMotherBrain;
+    internal IntroMotherBrainExplosionSystem? flashbackMotherBrainExplosions;
+    internal IntroRinkaSystem? flashbackRinkas;
+    internal IntroBabyDiscoveryState? babyDiscovery;
+    internal IntroScientistCutsceneState? scientistCutscene;
+    internal IntroCeresFlightState? ceresFlight;
+    internal DemoInputState? flashbackDemoInput;
+    internal RoomLevelData? flashbackLevel;
     private ushort crossfadeCounter;
     private ushort introCrossfadeCounter;
     private ushort nmiFrameCounter;
     /// <summary>$51: the INIDISP byte the cinematic fades; the intro starts in forced blank.</summary>
-    private int inidisp = ScreenFade.ForcedBlank;
+    internal int inidisp = ScreenFade.ForcedBlank;
     private readonly ScreenFade fade = new();
     private int timer = 8;
 
@@ -628,7 +628,7 @@ public sealed class IntroCinematicState
         return pixels;
     }
 
-    private void SetupMotherBrainFlashback()
+    internal void SetupMotherBrainFlashback()
     {
         // Shared native setup $8B:B018 moves the persistent narration caret to Y=$F8.
         // It remains alive and will be restored by the next text-page setup.
@@ -747,7 +747,7 @@ public sealed class IntroCinematicState
             Phase = completedPhase;
     }
 
-    private void SetupBabyDiscoveryCrossfade()
+    internal void SetupBabyDiscoveryCrossfade()
     {
         objects!.PlaceCaretOffScreen();
 
@@ -776,7 +776,7 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.BabyDiscoveryCrossfade;
     }
 
-    private void StepBabyDiscoveryCrossfade()
+    internal void StepBabyDiscoveryCrossfade()
     {
         if ((crossfadeCounter & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
         {
@@ -815,7 +815,7 @@ public sealed class IntroCinematicState
         StepReverseGameplayToTextCrossfade(IntroCinematicPhase.PageThreeText);
     }
 
-    private void SetupBabyMetroidDelivery()
+    internal void SetupBabyMetroidDelivery()
     {
         // Scientist crossfades use the sibling native setup at $8B:B151, which performs
         // the same off-screen caret move before changing the visible layer configuration.
@@ -838,7 +838,7 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
     }
 
-    private void StepBabyMetroidDeliveryCrossfade()
+    internal void StepBabyMetroidDeliveryCrossfade()
     {
         // $B2D2 fades the portrait/text ranges away while bringing in laboratory BG/OBJ
         // palettes. Only CinematicFunctionTimer is decremented on this direction.
@@ -947,7 +947,7 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.PageSixText;
     }
 
-    private void StepMotherBrainDemo()
+    internal void StepMotherBrainDemo()
     {
         flashbackDemoInput!.Step(bus, new FlashbackDemoProgram(this));
 
@@ -1127,7 +1127,7 @@ public sealed class IntroCinematicState
         return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, new byte[width * height], new ushort[width * height]), Array.Empty<byte>());
     }
 
-    private Rgba32[] RenderMotherBrainFlashback()
+    internal Rgba32[] RenderMotherBrainFlashback()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
         OamBuffer oam = PrepareMotherBrainOam();
@@ -1145,7 +1145,7 @@ public sealed class IntroCinematicState
 
     // Preparation remains on the simulation/display boundary: trail drawing advances
     // trail state, so a consumer must never call it to redraw an already captured frame.
-    private OamBuffer PrepareMotherBrainOam()
+    internal OamBuffer PrepareMotherBrainOam()
     {
         // Both direct rendering and detached capture enter here once per display.
         // The intro's standard OBJ upload owns these same trail regions; its separate
@@ -1185,7 +1185,7 @@ public sealed class IntroCinematicState
         return oam;
     }
 
-    private Rgba32[] RenderBabyDiscovery()
+    internal Rgba32[] RenderBabyDiscovery()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
         OamBuffer oam = PrepareBabyDiscoveryOam();
@@ -1227,7 +1227,7 @@ public sealed class IntroCinematicState
         babyDiscovery.Samus.Presentation.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
     }
 
-    private Rgba32[] RenderScientistCutscene()
+    internal Rgba32[] RenderScientistCutscene()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
         OamBuffer oam = PrepareScientistOam();
@@ -1302,7 +1302,7 @@ public sealed class IntroCinematicState
         return pixels;
     }
 
-    private OamBuffer PrepareIllustratedPageOam()
+    internal OamBuffer PrepareIllustratedPageOam()
     {
         var oam = new OamBuffer();
         oam.BeginFrame();
@@ -1355,7 +1355,7 @@ public sealed class IntroCinematicState
         SnesLayerCompositor.Composite(pixels, sprites);
     }
 
-    private void SetupFirstIllustratedPage()
+    internal void SetupFirstIllustratedPage()
     {
         // BlankOut_JapanText_Tiles writes the same 16-byte 2-bpp character 96 times to
         // $7E:4000, then DMA copies the resulting $600 bytes to VMADD $4180 (byte $8300).

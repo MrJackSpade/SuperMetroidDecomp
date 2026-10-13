@@ -61,27 +61,25 @@ internal static class IntroPoseHistoryVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var intro = CreateRetailIntroFixture(bus);
-        T? ReadOwner<T>(string name) where T : class =>
-            (T?)typeof(IntroCinematicState).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(intro);
         var failures = new List<string>();
         int transitions = 0;
         bool setup = false, terminal = false, handoff = false;
         bool jumpRadiusRetained = false, jumpRadiusPublished = false;
         for (int tick = 0; tick < 20000 && !handoff; tick++)
         {
-            SamusState? before = ReadOwner<SamusState>("flashbackSamus");
+            SamusState? before = intro.flashbackSamus;
             SamusPoseId? oldPose = before?.Pose;
             SamusPoseId priorPose = before?.PoseHistory.PreviousPose ?? 0;
             ushort priorMetadata = before?.PoseHistory.PreviousDirectionAndMovement ?? 0;
             SamusPoseId olderPose = before?.PoseHistory.LastDifferentPose ?? 0;
             ushort olderMetadata = before?.PoseHistory.LastDifferentDirectionAndMovement ?? 0;
-            bool demoEnabled = ReadOwner<DemoInputState>("flashbackDemoInput")?.Enabled == true;
+            bool demoEnabled = intro.flashbackDemoInput?.Enabled == true;
             bool hurtExpiry = before is { KnockbackTimer: 0, KnockbackDirection: not 0 };
             intro.Render();
             intro.Step(tick % 47 == 0 ? (ushort)SnesButton.A : (ushort)0);
-            SamusState? after = ReadOwner<SamusState>("flashbackSamus");
-            IntroBabyDiscoveryState? discovery = ReadOwner<IntroBabyDiscoveryState>("babyDiscovery");
-            bool ended = demoEnabled && ReadOwner<DemoInputState>("flashbackDemoInput")?.Enabled == false;
+            SamusState? after = intro.flashbackSamus;
+            IntroBabyDiscoveryState? discovery = intro.babyDiscovery;
+            bool ended = demoEnabled && intro.flashbackDemoInput?.Enabled == false;
             string? context = null;
             if (before is null && after is not null) { setup = true; context = "flashback setup"; }
             else if (before is not null && discovery is not null)

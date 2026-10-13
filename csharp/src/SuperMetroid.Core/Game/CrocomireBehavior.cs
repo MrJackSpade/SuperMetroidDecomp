@@ -1802,7 +1802,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
 
     // Resolve the complete resource before advancing the phase or touching actors,
     // scratch buffers or VRAM. Recoverable host errors must not partially start a melt.
-    private ReadOnlySpan<ushort> RequireCrocomireMeltingTilemap(CrocomireMeltingTilemapAddress tilemapAddress) =>
+    internal ReadOnlySpan<ushort> RequireCrocomireMeltingTilemap(CrocomireMeltingTilemapAddress tilemapAddress) =>
         (_room.Artwork?.CrocomireMelting ?? throw new InvalidDataException(
             "Crocomire melting requires installed tilemap artwork.")).Tilemap(tilemapAddress);
 

@@ -25,14 +25,13 @@ internal static class GrappleTileBindingVerification
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
         samus.Grapple.Angle = SnesAngle.FromRaw(0x6000);
         var game = CreateRetailGameFixture(bus);
-        var runtimeField = typeof(SuperMetroidGame).GetField("runtime", flags)!;
-        runtimeField.SetValue(game, runtime);
+        game.runtime = runtime;
         Draw(runtime);
         AssertEqual(2, runtime.VramWrites.Entries.Count, "Actual actor fixture queues endpoint/rope transfers");
         AssertTrue(runtime.VramWrites.Entries.All(entry => entry.AssetId != VramAssetId.None), "Installed actor queues typed endpoint/rope transfers");
         // Reconstruct the native records an older snapshot stores, preserving queue order,
         // byte counts and destinations from the actual actor draw.
-        var entries = (List<VramWriteEntry>)typeof(VramWriteQueue).GetField("_entries", flags)!.GetValue(runtime.VramWrites)!;
+        var entries = runtime.VramWrites._entries;
         for (int i = 0; i < entries.Count; i++)
             entries[i] = entries[i] with
             {
@@ -60,7 +59,7 @@ internal static class GrappleTileBindingVerification
         byte[] nativeVram = runtime.Vram.Bytes.ToArray();
         using var stream = new MemoryStream(legacy);
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
-        var restoredRuntime = (SuperMetroidRuntime)runtimeField.GetValue(restored)!;
+        var restoredRuntime = restored.runtime;
         AssertTrue(restoredRuntime.Artwork.GrappleArtwork is null, "Restored state requires current host Grapple artwork");
         byte[] retained = restoredRuntime.Vram.Bytes.ToArray();
         BindRetailRuntimeFixture(restoredRuntime);
@@ -82,7 +81,7 @@ internal static class GrappleTileBindingVerification
         {
             GrappleArtwork = stock,
         });
-        var typedRuntime = (SuperMetroidRuntime)runtimeField.GetValue(typedRestored)!;
+        var typedRuntime = typedRestored.runtime;
         BindRetailRuntimeFixture(typedRuntime);
         typedRestored.BindArtwork(typedRestored.Artwork with
         {

@@ -21,12 +21,12 @@ public sealed class HudState
     /// <summary>VRAM word $5820, one 32-cell row beyond the BG3 tilemap base $5800; direct VRAM byte access uses twice this address.</summary>
     public const ushort VramDestination = 0x5820;
 
-    private readonly ushort[] _tiles = new ushort[MutableTileCount];
-    private ushort _previousSelectedItem;
+    internal readonly ushort[] _tiles = new ushort[MutableTileCount];
+    internal ushort _previousSelectedItem;
     [NonSerialized] private GameplayHudPresentation? presentation;
 
     /// <summary>Native $05F7: suppress minimap updates after a boss initializer.</summary>
-    public bool MinimapDisabled { get; private set; }
+    public bool MinimapDisabled { get; internal set; }
 
     /// <summary>$90:A7E2 blanks the fifteen minimap cells and disables updates.</summary>
     internal void DisableMinimapForBoss()

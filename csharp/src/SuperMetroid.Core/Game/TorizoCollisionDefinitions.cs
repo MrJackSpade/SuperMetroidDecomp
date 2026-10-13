@@ -31,7 +31,7 @@ internal static class TorizoCollisionDefinitions
     internal const byte Bank = TorizoInstructionProgramDefinitions.Bank;
 
     /// <summary>The two frames whose collision is a single empty component.</summary>
-    private enum EmptyFrame : ushort
+    internal enum EmptyFrame : ushort
     {
         /// <summary>$AA:87D0, the native blank frame.</summary>
         Blank = 0x87d0,
@@ -39,11 +39,11 @@ internal static class TorizoCollisionDefinitions
         Turning = 0xa4f0,
     }
     /// <summary>$AA:A4FA, first left-facing frame after the turning frame.</summary>
-    private const ushort LeftStart = 0xa4fa;
+    internal const ushort LeftStart = 0xa4fa;
     /// <summary>$AA:AA12, first awakening frame.</summary>
-    private const ushort AwakeningStart = 0xaa12;
+    internal const ushort AwakeningStart = 0xaa12;
     /// <summary>$AA:AA98, first right-facing frame.</summary>
-    private const ushort RightStart = 0xaa98;
+    internal const ushort RightStart = 0xaa98;
     /// <summary>$AA:87C7, empty hitbox list shared by both facings.</summary>
     internal const ushort EmptyList = 0x87c7;
     /// <summary>Right-facing hitbox lists follow the left-facing block by this many bytes.</summary>
@@ -52,7 +52,7 @@ internal static class TorizoCollisionDefinitions
     private static readonly GoldenTorizoCollisionComponent[] SingleEmpty = [new(new(0, 0), EmptyList)];
 
     /// <summary>The 42 left-facing frames from $AA:A4FA, in native order.</summary>
-    private static readonly GoldenTorizoCollisionComponent[][] LeftFrames =
+    internal static readonly GoldenTorizoCollisionComponent[][] LeftFrames =
     [
         [new(new(-15, -30), 0x87c7), new(new(-5, -24), 0x8858), new(new(0, 0), 0x892a), new(new(-5, -24), 0x88dc)],
         [new(new(-15, -30), 0x87c7), new(new(-5, -25), 0x8858), new(new(0, 0), 0x884a), new(new(-5, -25), 0x88cc)],
@@ -99,7 +99,7 @@ internal static class TorizoCollisionDefinitions
     ];
 
     /// <summary>The seven awakening frames from $AA:AA12, in native order.</summary>
-    private static readonly GoldenTorizoCollisionComponent[][] AwakeningFrames =
+    internal static readonly GoldenTorizoCollisionComponent[][] AwakeningFrames =
     [
         [new(new(0, 0), 0x87e8)],
         [new(new(0, 0), 0x87f6)],
@@ -111,7 +111,7 @@ internal static class TorizoCollisionDefinitions
     ];
 
     /// <summary>The six jump-back frames ending the right-facing run (three per facing).</summary>
-    private static readonly GoldenTorizoCollisionComponent[][] JumpBackFrames =
+    internal static readonly GoldenTorizoCollisionComponent[][] JumpBackFrames =
     [
         [new(new(-16, -29), 0x87c7), new(new(-4, -22), 0x885a), new(new(0, 0), 0x891c)],
         [new(new(-16, -30), 0x87c7), new(new(-4, -24), 0x8858), new(new(0, 0), 0x891c)],
@@ -121,7 +121,7 @@ internal static class TorizoCollisionDefinitions
         [new(new(15, -29), 0x87c7), new(new(3, -24), 0x89b6), new(new(0, 0), 0x8a7a)],
     ];
 
-    private static int MirroredCount => LeftFrames.Length + AwakeningFrames.Length;
+    internal static int MirroredCount => LeftFrames.Length + AwakeningFrames.Length;
 
     /// <summary>Components of <paramref name="frame"/>; right-facing frames mirror on read.</summary>
     internal static TorizoCollisionComponents ComponentsAt(ushort frame)
@@ -146,7 +146,7 @@ internal static class TorizoCollisionDefinitions
     }
 
     /// <summary>The <paramref name="index"/>th left-facing frame in mirror order.</summary>
-    private static GoldenTorizoCollisionComponent[] LeftFacing(int index) =>
+    internal static GoldenTorizoCollisionComponent[] LeftFacing(int index) =>
         index < LeftFrames.Length ? LeftFrames[index] : AwakeningFrames[index - LeftFrames.Length];
 
     private static bool TryFind(GoldenTorizoCollisionComponent[][] run, ushort start, ushort frame,
@@ -166,7 +166,7 @@ internal static class TorizoCollisionDefinitions
         return false;
     }
 
-    private static ushort Next(ushort frame, int components) => (ushort)(frame + 2 + 8 * components);
+    internal static ushort Next(ushort frame, int components) => (ushort)(frame + 2 + 8 * components);
 
     private static readonly GoldenTorizoCollisionHitbox[] List87E8 = [new(-16, -27, 16, 27, 0xc977, 0xc9c2)];
     private static readonly GoldenTorizoCollisionHitbox[] List87F6 = [new(-14, -27, 13, 27, 0xc977, 0xc9c2)];

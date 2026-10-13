@@ -84,7 +84,7 @@ public sealed class Bank80SystemState
     // corruption extremely difficult to trace.
     private readonly byte[] _events = new byte[EventByteCount];
     private readonly byte[] _bossBitsByArea = new byte[AreaCount];
-    private readonly byte[] _roomChozoBits = new byte[RoomChozoBitByteCount];
+    internal readonly byte[] _roomChozoBits = new byte[RoomChozoBitByteCount];
     private readonly byte[] _collectedItemBits = new byte[ItemBitByteCount];
     private readonly byte[] _openedDoorBits = new byte[DoorBitByteCount];
     private readonly byte[] _exploredMapTiles =
@@ -197,30 +197,30 @@ public sealed class Bank80SystemState
     /// Countdown at WRAM <c>$05DB</c>. A signed underflow from zero to <c>$FFFF</c>
     /// causes the held input to become active.
     /// </summary>
-    public ushort TimedHeldInputTimer { get; private set; }
+    public ushort TimedHeldInputTimer { get; internal set; }
 
     /// <summary>
     /// Reload value at WRAM <c>$05DD</c>. A value of N requires N + 1 stable update
     /// calls after the held-input value changes.
     /// </summary>
-    public ushort TimedHeldInputTimerReset { get; private set; }
+    public ushort TimedHeldInputTimerReset { get; internal set; }
 
     /// <summary>
     /// Filtered input at WRAM <c>$05DF</c>. Bits appear after their buttons have remained
     /// stable long enough for the timer to underflow.
     /// </summary>
-    public ushort TimedHeldInput { get; private set; }
+    public ushort TimedHeldInput { get; internal set; }
 
     /// <summary>
     /// Rising-edge bits for <see cref="TimedHeldInput"/>, stored at WRAM <c>$05E1</c>.
     /// </summary>
-    public ushort NewlyTimedHeldInput { get; private set; }
+    public ushort NewlyTimedHeldInput { get; internal set; }
 
     /// <summary>
     /// Prior active filtered input at WRAM <c>$05E3</c>. The original routine updates
     /// this only on timer underflow, not on every frame.
     /// </summary>
-    public ushort TimedHeldInputPrevious { get; private set; }
+    public ushort TimedHeldInputPrevious { get; internal set; }
 
     /// <summary>
     /// Diagnostic-only observer of each <see cref="NextRandom"/> call, used by movie-replay
@@ -731,7 +731,7 @@ public sealed class Bank80SystemState
             "Collected-item bit index must fit the native 64-byte table.");
     }
 
-    private static (int ByteIndex, byte BitMask) ResolvePersistentRoomBit(
+    internal static (int ByteIndex, byte BitMask) ResolvePersistentRoomBit(
         int bitIndex,
         int byteCount,
         string errorMessage)

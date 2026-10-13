@@ -22,10 +22,8 @@ internal static class AbsoluteTangentDefinitionsVerification
     internal static void VerifyCompiledAbsoluteTangent(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var guard = NewTangentReadGuard(rom);
-        var eye = typeof(EyeBeamWindowBuilder).GetMethod("Tangent", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<int, int>>();
-        var mother = typeof(MotherBrainRainbowBeamHdmaState).GetMethod("Tangent", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<int, int>>();
+        var eye = new Func<int, int>(EyeBeamWindowBuilder.Tangent);
+        var mother = new Func<int, int>(MotherBrainRainbowBeamHdmaState.Tangent);
         for (int index = 0; index <= 128; index++)
         {
             AssertEqual((ushort)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), AbsoluteTangentDefinitions.Sample(index), "All native tangent words including endpoint");
@@ -39,7 +37,6 @@ internal static class AbsoluteTangentDefinitionsVerification
                 AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangentDefinitions.Sample(invalid), "Tangent invalid index rejected");
             return;
         }
-        var direction = typeof(SnesGameplayFrameRenderer).GetMethod("ReadXrayDirection", BindingFlags.NonPublic | BindingFlags.Static)!;
         for (int angle = -256; angle < 512; angle++)
         {
             int wrapped = angle & 255;
@@ -51,7 +48,7 @@ internal static class AbsoluteTangentDefinitionsVerification
                 x = wrapped < 128 ? tangent : -tangent;
                 y = wrapped is < 64 or >= 192 ? -256 : 256;
             }
-            var actual = (Offset16<ScreenPixels>)direction.Invoke(null, [angle])!;
+            var actual = SnesGameplayFrameRenderer.ReadXrayDirection(angle);
             AssertEqual(x, (int)actual.X, "X-ray wrapped/cardinal X direction");
             AssertEqual(y, (int)actual.Y, "X-ray wrapped/cardinal Y direction");
         }

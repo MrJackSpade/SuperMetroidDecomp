@@ -17,8 +17,8 @@ namespace SuperMetroid.Core.Game;
 public sealed class CeresElevatorArrivalState
 {
     private readonly ISnesAddressSpace bus;
-    private readonly CeresElevatorProjectile pad;
-    private readonly CeresElevatorProjectile platform;
+    internal readonly CeresElevatorProjectile pad;
+    internal readonly CeresElevatorProjectile platform;
     [NonSerialized] private EnemyProjectileSpritemapCatalog? projectileSpritemaps;
 
     /// <summary>Installs both compiled definitions and performs their initialization AIs.</summary>
@@ -191,7 +191,7 @@ public sealed class CeresElevatorArrivalState
             originYIsOnScreen: (SnesLittleEndian.HighByteInPlace(screen.Y)) == 0);
     }
 
-    private sealed class CeresElevatorProjectile
+    internal sealed class CeresElevatorProjectile
     {
         public CeresElevatorProjectile(
             ushort definitionPointer,

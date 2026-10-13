@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Assets;
 public sealed class CreditsPresentation
 {
     private readonly CreditsLineDocument[]? lines;
-    private readonly ushort[][]? fixtureRows;
+    internal readonly ushort[][]? fixtureRows;
 
-    private CreditsPresentation(CreditsLineDocument[]? lines, ushort[][]? fixtureRows, string contentIdentity)
+    internal CreditsPresentation(CreditsLineDocument[]? lines, ushort[][]? fixtureRows, string contentIdentity)
     {
         this.lines = lines;
         this.fixtureRows = fixtureRows;

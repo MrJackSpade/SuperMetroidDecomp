@@ -24,8 +24,7 @@ internal static class SpeedBoosterEchoStopVerification
         var queue = new CartridgeAudioState();
         renderer.RenderFrame(queue.AdvanceFrame(bus, renderer.ReadAcknowledgements()));
         renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.GreenBrinstar)]);
-        var libraries = (ManagedSpcSoundLibrary[])typeof(ManagedSpcPlayer)
-            .GetField("soundLibraries", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(renderer.Player)!;
+        var libraries = renderer.Player.soundLibraries;
         var samus = new SamusState { Pose = SamusPoseId.RanIntoWallRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);

@@ -181,10 +181,7 @@ internal static class FileSelectRoomMapVerification
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         int ArrowPhase(int index)
         {
-            const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-            var states = (Array)typeof(FileSelectMapAnimations).GetField("arrows", fields)!.GetValue(animations)!;
-            object state = states.GetValue(index)!;
-            return (int)state.GetType().GetField("Frame")!.GetValue(state)!;
+            return animations.arrows[index].Frame;
         }
         var cgram = new SnesCgram();
         cgram.SetColor(175, new Bgr555(13, 2, 0)); cgram.SetColor(192, new Bgr555(24, 2, 0));

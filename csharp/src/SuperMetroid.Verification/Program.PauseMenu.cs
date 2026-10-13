@@ -204,9 +204,7 @@ internal static class PauseMenuVerification
         beamFiles[BeamTileAtlasDefinitions.FileName(SamusBeamCombination.Wave)] = wavePng.ToArray();
         var colors = Enumerable.Range(0, 12).Select(_ => new ushort[16]).ToArray();
         colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();
-        var beamPalettes = (BeamPaletteCatalog)typeof(BeamPaletteCatalog)
-            .GetConstructors(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-            .Single().Invoke([ToColors(colors)]);
+        var beamPalettes = new BeamPaletteCatalog(ToColors(colors));
         resumeRuntime.Artwork.BeamArtwork = BeamTileCatalog.Load(beamFiles, beamPalettes);
         resumeRuntime.SamusPhases.QueueGameplayBeamTilesAndLoadPalette(samus.EquippedBeams);
         resumeRuntime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);

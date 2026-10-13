@@ -23,11 +23,11 @@ public sealed class KraidColorCatalog
             }
         });
 
-    private readonly IReadOnlyList<Bgr555> roomBackdrop;
-    private readonly IReadOnlyList<Bgr555> initialTarget;
-    private readonly IReadOnlyList<Bgr555> health;
-    private readonly IReadOnlyList<Bgr555> secondary;
-    private readonly IReadOnlyList<Bgr555> deathArm;
+    internal readonly IReadOnlyList<Bgr555> roomBackdrop;
+    internal readonly IReadOnlyList<Bgr555> initialTarget;
+    internal readonly IReadOnlyList<Bgr555> health;
+    internal readonly IReadOnlyList<Bgr555> secondary;
+    internal readonly IReadOnlyList<Bgr555> deathArm;
 
     private KraidColorCatalog(KraidColorDocument document)
     {
@@ -66,10 +66,10 @@ public sealed class KraidColorCatalog
     /// One sixteen-color source stored as its supplied deviations from the stock paint in
     /// <see cref="KraidPaintDefinitions"/>; an unedited stock band stores nothing.
     /// </summary>
-    private sealed class StockBand : IReadOnlyList<Bgr555>
+    internal sealed class StockBand : IReadOnlyList<Bgr555>
     {
         private readonly KraidPaletteSource source;
-        private readonly Dictionary<int, Bgr555> deviations = new();
+        internal readonly Dictionary<int, Bgr555> deviations = new();
 
         internal StockBand(KraidPaletteSource source, Bgr555[] supplied)
         {
@@ -112,9 +112,9 @@ public sealed class KraidColorCatalog
     /// interpolate the current endpoints, and their transparent slot is the final band's.
     /// Only supplied deviations are stored, so edited endpoints still drive every step.
     /// </summary>
-    private sealed class HealthPalette : IReadOnlyList<Bgr555>
+    internal sealed class HealthPalette : IReadOnlyList<Bgr555>
     {
-        private readonly Dictionary<int, Bgr555> deviations = new();
+        internal readonly Dictionary<int, Bgr555> deviations = new();
 
         internal HealthPalette(Bgr555[] supplied)
         {

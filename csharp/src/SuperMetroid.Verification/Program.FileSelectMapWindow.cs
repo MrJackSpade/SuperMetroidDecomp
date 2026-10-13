@@ -40,7 +40,7 @@ internal static class FileSelectMapWindowVerification
         TestAddressSpace fake = CreateFractionalMapWindowCartridge();
         var fractional = new FileSelectMapWindow(fake, 0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(new(1, 1)));
         // This arithmetic fixture starts below the authored label domain to exercise the lower clamp.
-        var edges = (uint[])typeof(FileSelectMapWindow).GetField("edges", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(fractional)!;
+        var edges = fractional.edges;
         Array.Clear(edges);
         AssertTrue(!fractional.Step(), "map window timer zero is not complete");
         AssertEqual(1, fractional.Left, "map window lower clamp on first frame");

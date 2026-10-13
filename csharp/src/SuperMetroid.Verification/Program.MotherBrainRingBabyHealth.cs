@@ -42,8 +42,7 @@ internal static class MotherBrainRingBabyHealthVerification
         ring.Radius = new(1, 1);
         ring.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         ring.Variable0 = 0;
-        typeof(BabyMetroidCutsceneState).GetProperty(nameof(BabyMetroidCutsceneState.Position))!
-            .SetValue(state.BabyMetroid, state.BabyMetroid!.Position.WithWhole(new(0x00ce, 0x00b0)));
+        state.BabyMetroid.Position = state.BabyMetroid!.Position.WithWhole(new(0x00ce, 0x00b0));
 
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainOnionRingPreInstruction(ring, runtime.Player.Samus, (ushort)0);
         AssertEqual((ushort)0x0c30, state.BabyMetroid!.Health, "the ring charges the Baby $50");

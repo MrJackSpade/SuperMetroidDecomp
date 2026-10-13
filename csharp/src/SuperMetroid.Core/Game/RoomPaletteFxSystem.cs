@@ -18,14 +18,14 @@ public sealed class RoomPaletteFxSystem
 {
     private const int SlotCount = 8;
 
-    private readonly PaletteFxSlot[] slots = Enumerable.Range(0, SlotCount)
+    internal readonly PaletteFxSlot[] slots = Enumerable.Range(0, SlotCount)
         .Select(_ => new PaletteFxSlot())
         .ToArray();
     private readonly List<PaletteFxSoundRequest> soundRequests = [];
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
     private readonly List<PaletteFxMusicRequest> musicRequests = [];
-    private ushort samusInHeatPaletteIndex;
-    private ushort previousSamusInHeatPaletteIndex;
+    internal ushort samusInHeatPaletteIndex;
+    internal ushort previousSamusInHeatPaletteIndex;
 
     /// <summary>
     /// Bit 15 of <c>PaletteFXObject_Enable</c> ($1E79), checked first by the handler. Game
@@ -79,7 +79,7 @@ public sealed class RoomPaletteFxSystem
         bool areaMiniBossDefeated) =>
         LoadRoomCore(bus, fxPointer, doorPointer, area, equippedItems, areaMiniBossDefeated, null);
 
-    private void LoadRoomCore(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer,
+    internal void LoadRoomCore(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer,
         AreaId area, ushort equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
@@ -568,7 +568,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX byte $8D:{pointer:X4} has no compiled mechanics definition.");
     }
 
-    private sealed class PaletteFxSlot
+    internal sealed class PaletteFxSlot
     {
         public ushort Id { get; set; }
         public ushort ColorByteIndex { get; set; }

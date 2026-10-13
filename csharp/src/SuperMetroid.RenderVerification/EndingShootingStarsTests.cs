@@ -68,8 +68,8 @@ internal static class EndingShootingStarsTests
         scene.BindPaletteArtwork(installed.LoadEndingPalettes());
         scene.BindPaletteFxColors(maps.RoomPaletteFx);
         scene.BindEndingFont(maps.EndingFont); scene.BindEndingText(maps.EndingText);
-        typeof(EndingCreditsState).GetMethod("LoadCreditsAndPostCreditsAssets", flags)!.Invoke(scene, null);
-        typeof(EndingCreditsState).GetMethod("SetupPostCreditsBlank", flags)!.Invoke(scene, null);
+        scene.LoadCreditsAndPostCreditsAssets();
+        scene.SetupPostCreditsBlank();
         var seen = new HashSet<EndingCreditsPhase>();
         for (int tick = 0; tick < 400; tick++)
         {
@@ -94,12 +94,12 @@ internal static class EndingShootingStarsTests
             seen.Contains(EndingCreditsPhase.PostCreditsWaitingBackdrop) && seen.Contains(EndingCreditsPhase.PostCreditsWaitingSamus), "Confirmation covers star fade, additive reveal, wave and text masking");
         // A later logo owner must append stars after its own actors, including after
         // the icon's actor program completes and the final text remains on screen.
-        var cgram = (SnesCgram)typeof(EndingCreditsState).GetField("cgram", flags)!.GetValue(scene)!;
+        var cgram = scene.cgram;
         var logo = new EndingLogo(installed.OpenRuntimeAddressSpace(), cgram, () => { }, installed.LoadEndingPalettes());
-        typeof(EndingCreditsState).GetField("endingLogo", flags)!.SetValue(scene, logo);
-        typeof(EndingCreditsState).GetProperty(nameof(scene.Phase))!.SetValue(scene, EndingCreditsPhase.PostCreditsLogo);
-        typeof(EndingLogo).GetProperty(nameof(logo.PaletteStep))!.SetValue(logo, 16);
-        typeof(EndingLogo).GetProperty(nameof(logo.CrossfadeStarted))!.SetValue(logo, true);
+        scene.endingLogo = logo;
+        scene.Phase = EndingCreditsPhase.PostCreditsLogo;
+        logo.PaletteStep = 16;
+        logo.CrossfadeStarted = true;
         var final = scene.Presentation.CaptureRenderSnapshot();
         Require(final.Memory.ModeledSpriteCount > 0 && final.Layers.ToArray().OfType<ObjRenderLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");
         Console.WriteLine($"{device.Kind}: 40 native star definitions, delay/trajectory/animation/reset, visible ending stars, phase masks and late-scene ownership passed.");

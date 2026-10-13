@@ -15,7 +15,7 @@ internal sealed class CeresRidleyMode7PaintDefinitions
 {
     private readonly CeresRidleyBodyPaintDefinitions body;
     private readonly CeresRidleyFadeColorDefinitions.EyePaint eyes;
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal CeresRidleyMode7PaintDefinitions(Bgr555[][] rows)
     {

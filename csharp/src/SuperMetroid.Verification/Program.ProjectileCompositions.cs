@@ -175,8 +175,7 @@ internal static class ProjectileCompositionsVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var runtimeField = typeof(SuperMetroid.Core.Frontend.SuperMetroidGame).GetField("runtime", flags)!;
-        runtimeField.SetValue(game, runtime);
+        game.runtime = runtime;
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();
@@ -209,15 +208,13 @@ internal static class ProjectileCompositionsVerification
             {
                 ProjectileCompositions = stock,
             });
-            AssertTrue(baseline.SequenceEqual(Draw((SuperMetroid.Core.Runtime.SuperMetroidRuntime)
-                runtimeField.GetValue(stockCopy)!)),
+            AssertTrue(baseline.SequenceEqual(Draw(stockCopy.runtime)),
                 "Restored stock projectile actor matches the same initial state");
             editedCopy.BindArtwork(editedCopy.Artwork with
             {
                 ProjectileCompositions = edited,
             });
-            AssertTrue(!baseline.SequenceEqual(Draw((SuperMetroid.Core.Runtime.SuperMetroidRuntime)
-                runtimeField.GetValue(editedCopy)!)),
+            AssertTrue(!baseline.SequenceEqual(Draw(editedCopy.runtime)),
                 "Edited composition reaches runtime actor drawing");
         }
         game.BindArtwork(game.Artwork with
@@ -235,7 +232,7 @@ internal static class ProjectileCompositionsVerification
         AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Projectile content excluded from frontend and runtime state graph");
         with.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
-        var restoredRuntime = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)runtimeField.GetValue(restored)!;
+        var restoredRuntime = restored.runtime;
         AssertTrue(restoredRuntime.Artwork.ProjectileCompositions is null, "Restored runtime requires external composition rebind");
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;
@@ -259,8 +256,7 @@ internal static class ProjectileCompositionsVerification
             snapshot.Position = 0;
             var clone = SuperMetroid.Desktop.DebuggerObjectGraphSerializer
                 .Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(snapshot);
-            var cloneRuntime = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)
-                runtimeField.GetValue(clone)!;
+            var cloneRuntime = clone.runtime;
             roomAssets.Bind(cloneRuntime);
             cloneRuntime.Artwork.MapPresentation = maps;
             cloneRuntime.Player.Samus!.Presentation.TileTransfers.BindArtwork(roomAssets.SamusBody);

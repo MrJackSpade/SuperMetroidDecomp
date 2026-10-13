@@ -17,7 +17,7 @@ public sealed class ManagedSnesDsp
     public const int VoiceCount = 8;
 
     private readonly byte[] apuRam;
-    private readonly byte[] registers = new byte[SnesDspRegisterMap.RegisterFileSize];
+    internal readonly byte[] registers = new byte[SnesDspRegisterMap.RegisterFileSize];
     private readonly Voice[] voices = Enumerable.Range(0, VoiceCount)
         .Select(_ => new Voice())
         .ToArray();

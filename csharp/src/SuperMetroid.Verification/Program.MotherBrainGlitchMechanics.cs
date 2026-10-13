@@ -45,11 +45,10 @@ internal static class MotherBrainGlitchMechanicsVerification
             samus.PoseMetadata.RefreshCollisionRadii(bus);
             var baby = new BabyMetroidCutsceneState();
             baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
-            void Set(string name, object value) => typeof(BabyMetroidCutsceneState).GetProperty(name)!.SetValue(baby, value);
-            Set(nameof(baby.Phase), BabyMetroidCutscenePhase.LatchOntoSamus);
-            Set(nameof(baby.Position), FixedPosition<RoomPixels>.FromWhole(new((ushort)(0x0080 + startDx), 0x008c)).WithFractionsOf(baby.Position));
+            baby.Phase = BabyMetroidCutscenePhase.LatchOntoSamus;
+            baby.Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(0x0080 + startDx), 0x008c)).WithFractionsOf(baby.Position);
             // Moving left a whole pixel per frame: after this frame's mover the gap shrinks by one.
-            Set(nameof(baby.Velocity), new EightEightVector<RoomPixels>(new SnesSignedEightEight(0xff00), new SnesSignedEightEight(0)));
+            baby.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0xff00), new SnesSignedEightEight(0));
             var motherBrain = new MotherBrainRainbowBeamAttackSequence();
             baby.Step(bus, samus, motherBrain, HeadOf(motherBrain), layer1: Position16<RoomPixels>.Zero);
             return baby.Velocity.X.RawValue;

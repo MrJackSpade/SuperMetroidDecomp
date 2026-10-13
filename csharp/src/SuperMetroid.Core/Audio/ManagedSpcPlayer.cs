@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 public sealed class ManagedSpcPlayer
 {
-    private void WriteVolume(ManagedSpcMusicChannel channel, ushort volume)
+    internal void WriteVolume(ManagedSpcMusicChannel channel, ushort volume)
     {
         // A sound effect owns this hardware voice while its bit is set. Music state continues
         // advancing underneath it, but must not overwrite the SFX's live DSP registers.
@@ -157,7 +157,7 @@ public sealed class ManagedSpcPlayer
             globalTransposition + channel.ChannelTransposition)));
     }
 
-    private void HandleEffect(ManagedSpcMusicChannel channel, byte rawEffect)
+    internal void HandleEffect(ManagedSpcMusicChannel channel, byte rawEffect)
     {
         int tableIndex = rawEffect - SpcDriverData.Music.FirstEffect;
         if ((uint)tableIndex >= SpcMusicTables.EffectCount)
@@ -738,11 +738,11 @@ public sealed class ManagedSpcPlayer
 
     /// <summary>The next byte of a music sequence stream at <paramref name="cursor"/>, advancing it with 16-bit wrap.</summary>
     [SpcMemoryBoundary("driver-memory view: music sequence stream bytes")]
-    private byte NextSequenceByte(ref ushort cursor) => ram[cursor++];
+    internal byte NextSequenceByte(ref ushort cursor) => ram[cursor++];
 
     /// <summary>The music sequence byte at <paramref name="cursor"/>, without advancing.</summary>
     [SpcMemoryBoundary("driver-memory view: music sequence stream bytes")]
-    private byte PeekSequenceByte(ushort cursor) => ram[cursor];
+    internal byte PeekSequenceByte(ushort cursor) => ram[cursor];
 
     /// <summary>The next byte of a sound-effect stream: the channel's stream pointer plus its index, wrapping at 16 bits.</summary>
     [SpcMemoryBoundary("driver-memory view: sound-effect instruction stream bytes")]
@@ -755,29 +755,29 @@ public sealed class ManagedSpcPlayer
 
     /// <summary>The little-endian pointer word at <paramref name="address"/>; the high byte wraps at 16 bits.</summary>
     [SpcMemoryBoundary("driver-memory view: little-endian pointer words")]
-    private ushort ReadWord(int address) => SpcRamWords.Read(ram, address);
+    internal ushort ReadWord(int address) => SpcRamWords.Read(ram, address);
 
     /// <summary>Entry <paramref name="index"/> of the pointer table at <paramref name="table"/> (two bytes per entry).</summary>
     [SpcMemoryBoundary("driver-memory view: pointer tables")]
-    private ushort ReadPointerEntry(int table, int index) => ReadWord(table + index * 2);
+    internal ushort ReadPointerEntry(int table, int index) => ReadWord(table + index * 2);
 
     /// <summary>The pan-volume table pair (this entry and the next) at <paramref name="address"/>.</summary>
     [SpcMemoryBoundary("driver-memory view: pan volume table")]
-    private (byte Base, byte Next) ReadPanVolumePair(int address) => (ram[address], ram[address + 1]);
+    internal (byte Base, byte Next) ReadPanVolumePair(int address) => (ram[address], ram[address + 1]);
 
     /// <summary>Byte <paramref name="index"/> of the echo FIR coefficient preset table.</summary>
     [SpcMemoryBoundary("driver-memory view: echo FIR preset table")]
-    private sbyte ReadFirCoefficient(int index) => unchecked((sbyte)ram[SpcDriverData.Echo.FirCoefficientTableAddress + index]);
+    internal sbyte ReadFirCoefficient(int index) => unchecked((sbyte)ram[SpcDriverData.Echo.FirCoefficientTableAddress + index]);
 
     /// <summary>The instrument record at <paramref name="address"/> (pitch base big-endian).</summary>
     [SpcMemoryBoundary("driver-memory view: instrument records")]
-    private SpcInstrumentRecord ReadInstrument(int address) => new(
+    internal SpcInstrumentRecord ReadInstrument(int address) => new(
         ram[address], ram[address + 1], ram[address + 2], ram[address + 3],
         unchecked((ushort)(SnesLittleEndian.Word(ram[address + 5], ram[address + 4]))));
 
     /// <summary>Stores an instrument record at <paramref name="address"/> in the native byte order.</summary>
     [SpcMemoryBoundary("driver-memory view: instrument records")]
-    private void WriteInstrument(int address, SpcInstrumentRecord record)
+    internal void WriteInstrument(int address, SpcInstrumentRecord record)
     {
         ram[address] = record.SourceOrNoiseRate;
         ram[address + 1] = record.Adsr1;
@@ -880,7 +880,7 @@ public sealed class ManagedSpcPlayer
     /// <remarks>#1165 original-handler proof covers all policy cases. Mode is unchanged
     /// except for library-three cancel/low-health operations; low-health preserves priority.
     /// Native handler identities are documented on the SpcLibraryNPolicy catalog members.</remarks>
-    private static void ConfigureSoundLibrary(
+    internal static void ConfigureSoundLibrary(
         int libraryIndex,
         ManagedSpcSoundLibrary library,
         byte configuration)
@@ -1175,7 +1175,7 @@ public sealed class ManagedSpcPlayer
     }
 
     [SpcMemoryAccess]
-    private readonly byte[] ram = new byte[SpcDriverData.ApuRamSize];
+    internal readonly byte[] ram = new byte[SpcDriverData.ApuRamSize];
     private readonly byte[] portsToSnes = new byte[AudioRomData.Apu.PortCount];
     private readonly byte[] inputPorts = new byte[AudioRomData.Apu.PortCount];
     // SPC $01-$03: each SFX port's value latched by the previous service's $1621 read.
@@ -1186,11 +1186,11 @@ public sealed class ManagedSpcPlayer
         .Range(0, SpcDriverData.ChannelCount)
         .Select(index => new ManagedSpcMusicChannel { Index = unchecked((byte)index) })
         .ToArray();
-    private readonly ManagedSpcSoundLibrary[] soundLibraries = Enumerable
+    internal readonly ManagedSpcSoundLibrary[] soundLibraries = Enumerable
         .Range(0, SpcDriverData.SoundEffects.LibraryCount)
         .Select(_ => new ManagedSpcSoundLibrary())
         .ToArray();
-    private readonly ManagedSpcSoundChannel[][] soundChannels =
+    internal readonly ManagedSpcSoundChannel[][] soundChannels =
     [
         Enumerable.Range(0, SpcDriverData.SoundEffects.LibraryOneChannelCount)
             .Select(_ => new ManagedSpcSoundChannel()).ToArray(),
@@ -1200,7 +1200,7 @@ public sealed class ManagedSpcPlayer
             .Select(_ => new ManagedSpcSoundChannel()).ToArray(),
     ];
 
-    private readonly ManagedSnesDsp dsp;
+    internal readonly ManagedSnesDsp dsp;
     private byte timerCycles;
     private ushort counter;
     private byte affectedVolumeOrPitch;
@@ -1209,15 +1209,15 @@ public sealed class ManagedSpcPlayer
     private ushort musicTopLevelPointer;
     private byte blockCount;
     private byte soundEffectTimerAccumulator;
-    private byte keyOn;
-    private byte keyOff;
+    internal byte keyOn;
+    internal byte keyOff;
     private byte currentChannelBit;
-    private byte dspFlags;
-    private byte noiseEnable;
-    private byte echoEnable;
-    private byte echoStoredTime;
-    private byte echoDelay;
-    private byte echoFeedback;
+    internal byte dspFlags;
+    internal byte noiseEnable;
+    internal byte echoEnable;
+    internal byte echoStoredTime;
+    internal byte echoDelay;
+    internal byte echoFeedback;
     private byte globalTransposition;
     private byte mainTempoAccumulator;
     private ushort tempo;
@@ -1230,8 +1230,8 @@ public sealed class ManagedSpcPlayer
     private ushort masterVolumeFadeAdd;
     private byte volumeDirty;
     private byte percussionBaseId;
-    private ushort echoVolumeLeft;
-    private ushort echoVolumeRight;
+    internal ushort echoVolumeLeft;
+    internal ushort echoVolumeRight;
     private ushort echoVolumeFadeAddLeft;
     private ushort echoVolumeFadeAddRight;
     private byte echoVolumeFadeTicks;
@@ -1474,7 +1474,7 @@ public sealed class ManagedSpcPlayer
     /// Negative echo countdown skips FLG/echo; an unsettled delay skips only echo.
     /// Independently checked against the original maps and pinned Spc_Loop_Part1
     /// for1165; the pending key masks clear only after publication.</summary>
-    private void LoopPartOne()
+    internal void LoopPartOne()
     {
         Dsp.Global.KeyOff(new DspVoiceMask(keyOff));
         Dsp.Global.WritePitchModulation(DspVoiceMask.None);

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -33,7 +33,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
     private readonly List<BotwoonDropRequest> _botwoonDropRequests = new();
 
     /// <summary>Last library-two sound selected by Botwoon in the current enemy frame.</summary>
-    public ushort? LastBotwoonSoundEffect { get; private set; }
+    public ushort? LastBotwoonSoundEffect { get; internal set; }
 
     /// <summary>Specialized drop request published when all body pieces have landed.</summary>
     public BotwoonDropRequest? LastBotwoonDropRequest { get; private set; }

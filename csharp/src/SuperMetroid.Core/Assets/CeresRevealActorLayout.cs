@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresRevealActorLayout
 {
-    private readonly CeresRevealActorPlacement[]? placements;
+    internal readonly CeresRevealActorPlacement[]? placements;
 
     private CeresRevealActorLayout(CeresRevealActorPlacement[] placements)
     {

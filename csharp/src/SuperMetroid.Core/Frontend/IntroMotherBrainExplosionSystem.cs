@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroMotherBrainExplosionSystem
 {
-    private readonly List<ExplosionActor> actors = [];
+    internal readonly List<ExplosionActor> actors = [];
 
     /// <summary>
     /// Replays the eight spawn calls at $8B:B7C6-$B80B in their original order.
@@ -57,7 +57,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         }
     }
 
-    private sealed class ExplosionActor
+    internal sealed class ExplosionActor
     {
         private ushort instructionPointer;
         private ushort instructionTimer;

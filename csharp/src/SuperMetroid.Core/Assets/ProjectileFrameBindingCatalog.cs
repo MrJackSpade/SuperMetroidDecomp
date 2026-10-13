@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class ProjectileFrameBindingCatalog
 {
-    private readonly Dictionary<ushort, ushort> sprites;
+    internal readonly Dictionary<ushort, ushort> sprites;
     private ProjectileFrameBindingCatalog(Dictionary<ushort, ushort> sprites) => this.sprites = sprites;
 
     /// <summary>Returns the selected spritemap for one native timed projectile record, using an installed override or its compiled visual binding without reading cartridge memory.</summary>

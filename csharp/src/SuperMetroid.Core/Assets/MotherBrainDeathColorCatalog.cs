@@ -19,10 +19,10 @@ public sealed class MotherBrainDeathColorCatalog
             corpseFade.AppendIdentity(content, "corpseFade");
         });
 
-    private readonly ColorFade bodyFade;
-    private readonly ColorFade legFade;
-    private readonly ColorFade corpseFade;
-    private readonly Bgr555[]? explodedDoor;
+    internal readonly ColorFade bodyFade;
+    internal readonly ColorFade legFade;
+    internal readonly ColorFade corpseFade;
+    internal readonly Bgr555[]? explodedDoor;
 
     private MotherBrainDeathColorCatalog(Bgr555[][] bodyFade, Bgr555[][] legFade,
         Bgr555[][] corpseFade, Bgr555[] explodedDoor)
@@ -134,12 +134,12 @@ public sealed class MotherBrainDeathColorCatalog
     /// drained shade rules from the three narrowly approved drained-paint anchors.
     /// Unmatched edited endpoints and frames remain exact and independent of the health document.
     /// </summary>
-    private sealed class ColorFade
+    internal sealed class ColorFade
     {
-        private readonly Bgr555[]? first;
+        internal readonly Bgr555[]? first;
         private readonly bool backLeg;
-        private readonly MotherBrainRainbowPalettePresentation.DrainedBodyColors? last;
-        private readonly Bgr555[][]? supplied;
+        internal readonly MotherBrainRainbowPalettePresentation.DrainedBodyColors? last;
+        internal readonly Bgr555[][]? supplied;
         internal int FrameCount { get; }
         internal int ColorCount { get; }
 

@@ -18,11 +18,11 @@ public enum SamusHurtColorVariant
 public sealed class SamusHurtColorCatalog
 {
     // Only independent installed edits are stored; native shade samples all calculate.
-    private readonly Bgr555? hurtZero;
-    private readonly Bgr555? introZero;
-    private readonly Dictionary<int, byte> introLevels;
-    private readonly Dictionary<int, Bgr555> introOverrides;
-    private readonly Dictionary<int, Bgr555> hurtOverrides;
+    internal readonly Bgr555? hurtZero;
+    internal readonly Bgr555? introZero;
+    internal readonly Dictionary<int, byte> introLevels;
+    internal readonly Dictionary<int, Bgr555> introOverrides;
+    internal readonly Dictionary<int, Bgr555> hurtOverrides;
 
     private SamusHurtColorCatalog(Bgr555[] hurt, Bgr555[] intro)
     {

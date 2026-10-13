@@ -32,14 +32,14 @@ namespace SuperMetroid.Core.Assets;
 /// This disposition covers only these full-body inputs, not other palettes.</remarks>
 public sealed class SamusFullBodyCycleColorCatalog
 {
-    private readonly Dictionary<int, Bgr555> colors;
+    internal readonly Dictionary<int, Bgr555> colors;
     // Independent channel inputs for the seven remaining Speed Booster endpoints.
-    private readonly LoadingPaletteInputView.Channels powerDim1, powerDim2, powerBright9, powerDim12;
-    private readonly LoadingPaletteInputView.Channels variaBright10, variaDim12, gravityDim2;
+    internal readonly LoadingPaletteInputView.Channels powerDim1, powerDim2, powerBright9, powerDim12;
+    internal readonly LoadingPaletteInputView.Channels variaBright10, variaDim12, gravityDim2;
     /// <summary>Active-shinespark blue inputs at9C64/9C84 and9C50; Varia9E84 shares Power9C64.</summary>
-    private readonly LoadingPaletteInputView.Channels activePowerMiddle2, activePowerBright2, activePowerDim8;
+    internal readonly LoadingPaletteInputView.Channels activePowerMiddle2, activePowerBright2, activePowerDim8;
     /// <summary>Screw Attack endpoint components at9D14/9D1E/9F04.</summary>
-    private readonly LoadingPaletteInputView.Channels screwPowerBright10, screwPowerBright15, screwVariaBright2;
+    internal readonly LoadingPaletteInputView.Channels screwPowerBright10, screwPowerBright15, screwVariaBright2;
 
     private SamusFullBodyCycleColorCatalog(Bgr555[][] palettes)
     {

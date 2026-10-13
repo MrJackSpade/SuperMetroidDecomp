@@ -121,7 +121,7 @@ internal static class SnesGameplayFrameRendererAccess
                     .CopyTo(output.AsSpan(screenY * SnesGameplayFrameRenderer.Width, SnesGameplayFrameRenderer.Width));
             }
 
-            PrivateState.InvokeStatic(typeof(SnesGameplayFrameRenderer), "DrawHudAndObjects", (Rgba32[])(output), (SnesVram)(vram), (SnesCgram)(cgram), (OamBuffer)(oam), (byte)(obsel));
+            SnesGameplayFrameRenderer.DrawHudAndObjects((Rgba32[])(output), (SnesVram)(vram), (SnesCgram)(cgram), (OamBuffer)(oam), (byte)(obsel));
             return output;
         }
 
@@ -180,8 +180,8 @@ internal static class SnesGameplayFrameRendererAccess
             bool horizontalLine = angularWidth == 0 &&
                 (centerAngle == SnesAngle.QuarterTurn.TableIndex ||
                  centerAngle == SnesAngle.ThreeQuarterTurn.TableIndex);
-            var leftEdge = (Offset16<ScreenPixels>)PrivateState.InvokeStatic(typeof(SnesGameplayFrameRenderer), "ReadXrayDirection", (int)(leftEdgeAngle))!;
-            var rightEdge = (Offset16<ScreenPixels>)PrivateState.InvokeStatic(typeof(SnesGameplayFrameRenderer), "ReadXrayDirection", (int)(rightEdgeAngle))!;
+            var leftEdge = SnesGameplayFrameRenderer.ReadXrayDirection((int)(leftEdgeAngle));
+            var rightEdge = SnesGameplayFrameRenderer.ReadXrayDirection((int)(rightEdgeAngle));
 
             for (int screenY = SnesGameplayFrameRenderer.HudHeight; screenY < SnesGameplayFrameRenderer.Height; screenY++)
             {

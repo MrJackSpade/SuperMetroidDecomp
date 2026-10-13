@@ -139,7 +139,7 @@ public sealed class MotherBrainRainbowBeamHdmaState
         }
     }
 
-    private static int Tangent(int angle) =>
+    internal static int Tangent(int angle) =>
         AbsoluteTangentDefinitions.Sample(unchecked((byte)angle));
     private bool TryReadColor(int cursor, out Bgr555 color) =>
         (PresentationColors ?? throw new InvalidOperationException(

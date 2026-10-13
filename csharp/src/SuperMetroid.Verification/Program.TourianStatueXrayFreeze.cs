@@ -33,23 +33,17 @@ internal static class TourianStatueXrayFreezeVerification
         runtime.Player.Samus!.InputLocked = true;
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var objects = (System.Collections.IList)typeof(TourianStatueSequence)
-            .GetField("objects", flags)!.GetValue(runtime.TourianStatues)!;
-        string Snapshot() => string.Join(" ", objects.Cast<object>().Select(o =>
-        {
-            Type t = o.GetType();
-            return $"{t.GetField("Pointer")!.GetValue(o)}/{t.GetField("Timer")!.GetValue(o)}";
-        }));
-        var suspended = typeof(SamusXrayState).GetProperty(nameof(SamusXrayState.SuspendedSubsystems))!;
+        var objects = runtime.TourianStatues.objects;
+        string Snapshot() => string.Join(" ", objects.Select(o => $"{o.Pointer}/{o.Timer}"));
 
         runtime.StepFrame(0);
-        suspended.SetValue(runtime.Player.Samus.Xray, XraySuspendedSubsystems.All);
+        runtime.Player.Samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.All;
         string frozen = Snapshot();
         for (int frame = 0; frame < 20; frame++)
             runtime.StepFrame(0);
         AssertEqual(frozen, Snapshot(), "the X-ray scope freezes every statue program");
 
-        suspended.SetValue(runtime.Player.Samus.Xray, XraySuspendedSubsystems.None);
+        runtime.Player.Samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.None;
         runtime.StepFrame(0);
         AssertTrue(frozen != Snapshot(), "the statues resume once the scope re-enables animated tiles");
         Console.WriteLine("Tourian statue X-ray freeze: the scope suspends the statues' animated-tile programs.");

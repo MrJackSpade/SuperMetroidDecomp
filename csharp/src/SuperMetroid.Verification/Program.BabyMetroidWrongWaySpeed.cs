@@ -25,10 +25,9 @@ internal static class BabyMetroidWrongWaySpeedVerification
         var motherBrain = new MotherBrainRainbowBeamAttackSequence();
         var baby = new BabyMetroidCutsceneState();
         baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.FromWords(0, 0x1400, 0, 0x3100));
-        void Set(string name, object value) => typeof(BabyMetroidCutsceneState).GetProperty(name)!.SetValue(baby, value);
-        Set(nameof(baby.Phase), BabyMetroidCutscenePhase.MoveToFinalChargeStart);
-        Set(nameof(baby.Position), FixedPosition<RoomPixels>.FromWhole(new(0x0133, 0x004d)).WithFractionsOf(baby.Position));
-        Set(nameof(baby.Velocity), new EightEightVector<RoomPixels>(new SnesSignedEightEight(0x015f), new SnesSignedEightEight(0x012b)));
+        baby.Phase = BabyMetroidCutscenePhase.MoveToFinalChargeStart;
+        baby.Position = FixedPosition<RoomPixels>.FromWhole(new(0x0133, 0x004d)).WithFractionsOf(baby.Position);
+        baby.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0x015f), new SnesSignedEightEight(0x012b));
 
         // Layer-1 X zero puts X $133 beyond the $120-wide vaguely-on-screen band.
         baby.Step(bus, samus, motherBrain, HeadOf(motherBrain), layer1: Position16<RoomPixels>.Zero);

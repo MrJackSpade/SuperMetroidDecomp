@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;

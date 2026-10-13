@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Assets;
 /// separate background, pulse, health and fade colors are excluded.</summary>
 internal sealed class BabyMetroidInitialPalette
 {
-    private readonly Bgr555[]? supplied;
+    internal readonly Bgr555[]? supplied;
 
     internal BabyMetroidInitialPalette(Bgr555[] colors)
     {

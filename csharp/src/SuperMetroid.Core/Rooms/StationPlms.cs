@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
@@ -295,7 +295,7 @@ internal sealed class StationPlms
             roomWidthInBlocks,
             bypassSetupGate: false);
 
-    private bool TryNotifyStationCollision(
+    internal bool TryNotifyStationCollision(
         int accessBlockIndex,
         RoomBlockBehavior behavior,
         SamusPoseId collisionPose,

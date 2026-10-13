@@ -32,12 +32,10 @@ internal static class LookupSporeTilemapVerification
 
     private static void VerifySporeAttributeStorageAndEdits(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
-        object page = typeof(RoomFxLayer3TilemapCatalog).GetField("spores", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .GetValue(stock)!;
-        FieldInfo edits = typeof(RoomFxSporeTilemap).GetField("customAttributes", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        AssertTrue(edits.GetValue(page) is null, "Stock spore attributes are not stored");
+        object page = stock.spores;
+        AssertTrue(((RoomFxSporeTilemap)page).customAttributes is null, "Stock spore attributes are not stored");
         _ = stock.Resolve(RoomFxType.Spores);
-        AssertTrue(edits.GetValue(page) is null, "Resolving spores does not cache attributes");
+        AssertTrue(((RoomFxSporeTilemap)page).customAttributes is null, "Resolving spores does not cache attributes");
 
         var original = new byte[0x840];
         for (int offset = 0; offset < original.Length; offset++) original[offset] = SporeAttributeStorageAndEditsRomByte(rom, 0x8a98c0 + offset);

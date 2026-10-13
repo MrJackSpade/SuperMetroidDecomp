@@ -1271,7 +1271,6 @@ csharp/src/SuperMetroid.Verification/Program.EnemyDrops.cs	SME6342	3
 csharp/src/SuperMetroid.Verification/Program.EnemyEffectIsolation.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Program.EnemyEffectResources.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Program.EnemyEffects.Fixture.cs	SME6340	4
-csharp/src/SuperMetroid.Verification/Program.EnemyEffects.Fixture.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Program.EnemyExtendedFrameArtwork.CommonEmpty.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Program.EnemyExtendedFrameArtwork.SporeSpawnSelectors.cs	SME6340	22
 csharp/src/SuperMetroid.Verification/Program.EnemyExtendedFrameArtwork.cs	SME6340	338
@@ -2159,7 +2158,7 @@ csharp/test-support/VerificationAccess/CoreGameAccess.cs	SME6342	1
 csharp/test-support/VerificationAccess/CoreHardwareAccess.cs	SME6340	2
 csharp/test-support/VerificationAccess/CoreRenderingAccess.cs	SME6340	5
 csharp/test-support/VerificationAccess/CoreRoomsAccess.cs	SME6340	10
-csharp/test-support/VerificationAccess/CoreRoomsAccess.cs	SME6341	11
+csharp/test-support/VerificationAccess/CoreRoomsAccess.cs	SME6341	14
 csharp/test-support/VerificationAccess/CoreRuntimeAccess.cs	SME6340	3
 csharp/test-support/WindowsConsole/NativeConsoleErrors.cs	SME6340	3
 csharp/tools/ProductionMagicNumberAudit.cs	SME6340	11

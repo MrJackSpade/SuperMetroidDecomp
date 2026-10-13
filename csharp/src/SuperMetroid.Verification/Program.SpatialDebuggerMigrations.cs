@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -15,6 +16,7 @@ internal static class SpatialDebuggerMigrationsVerification
     /// owners: an older capture's parallel scalar words restore into the typed spatial values
     /// exactly, a capture missing one component is rejected, and current graphs round-trip.
     /// </summary>
+    [ReflectionAudit("debugger object-graph serialization compatibility: legacy states are keyed by serialized field and backing-field names")]
     private static void VerifySpatialDebuggerMigrations()
     {
         var camera = (ScrollBoundaryCamera)RuntimeHelpers.GetUninitializedObject(typeof(ScrollBoundaryCamera));
@@ -163,9 +165,9 @@ internal static class SpatialDebuggerMigrationsVerification
             ]);
         AssertEqual(new Position16<Bg3Pixels>(0xfff3, 0x0123), restoredFx.Scroll, "legacy BG3 scroll words");
         AssertEqual<object?>(new Offset16<Bg3Subpixels>(unchecked((short)0x8040), 0x7fc0),
-            PrivateState.Field<Offset16<Bg3Subpixels>>(restoredFx, "drift"), "legacy 8.8 drift accumulators keep their words");
+            restoredFx.drift, "legacy 8.8 drift accumulators keep their words");
         AssertEqual<object?>(new Position16<RoomPixels>(0x0400, 0x0200),
-            PrivateState.Field<Position16<RoomPixels>>(restoredFx, "previousCamera"), "legacy rain camera checkpoint");
+            restoredFx.previousCamera, "legacy rain camera checkpoint");
 
         object transform = RestoreSpatialLegacy(new SamusMode7Transform(0x0100, 0, 0, default), ["<Center>k__BackingField"],
             [("<CenterX>k__BackingField", (ushort)0x0080), ("<CenterY>k__BackingField", (ushort)0x03f0)]);
@@ -237,6 +239,7 @@ internal static class SpatialDebuggerMigrationsVerification
     /// Mother Brain's five neck joints were stored as the retired <c>MotherBrainNeckPoint</c> pair;
     /// an older capture's joints restore into the typed room positions word for word.
     /// </summary>
+    [ReflectionAudit("debugger object-graph serialization compatibility: legacy states are keyed by serialized field and backing-field names")]
     private static void VerifyMotherBrainNeckPointMigration()
     {
         var state = new MotherBrainEnemyState(new RoomEnemySlot(0));
@@ -315,13 +318,13 @@ internal static class SpatialDebuggerMigrationsVerification
     /// their place, all with the production codec. A retired <c>SamusCameraPoint</c> value is
     /// written under its historical identity.
     /// </summary>
+    [ReflectionAudit("debugger object-graph serialization compatibility: legacy states are keyed by serialized field and backing-field names")]
     private static object RestoreSpatialLegacy(object instance, string[] typedFields, (string Name, object Value)[] legacy,
         (string Field, ushort[] Words)? retiredCheckpoint = null)
     {
         const byte newObjectMarker = 2, fieldPayloadKind = 5;
         Type type = instance.GetType();
-        var fields = ((FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
-                BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [type])!)
+        var fields = (DebuggerObjectGraphSerializer.GetSerializableFields(type))
             .Where(field => !typedFields.Contains(field.Name)).ToArray();
         string typeName = DebuggerStateTypeIdentity.GetSerializedName(type);
         using var data = new MemoryStream();

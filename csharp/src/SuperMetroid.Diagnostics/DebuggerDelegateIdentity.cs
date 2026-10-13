@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Reflection;
 
 namespace SuperMetroid.Desktop;
@@ -18,6 +19,7 @@ internal static class DebuggerDelegateIdentity
         foreach (ParameterInfo parameter in parameters) writer.Write(parameter.ParameterType.AssemblyQualifiedName!);
     }
 
+    [ReflectionAudit("debugger state restore: a captured delegate is rebound to its method by serialized signature")]
     public static MethodInfo Read(BinaryReader reader, Type declaringType, Func<string, Type> resolveType)
     {
         string name = reader.ReadString();

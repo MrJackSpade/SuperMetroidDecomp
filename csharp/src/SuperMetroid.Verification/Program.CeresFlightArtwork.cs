@@ -141,8 +141,7 @@ internal static class CeresFlightArtworkVerification
             var parent = CreateRetailIntroFixture(guard,
                 characterArtwork: IntroCinematicArtworkFiles.Load(
                     installation.IntroCinematicDirectory, null));
-            typeof(IntroCinematicState).GetField("ceresFlight",
-                BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(parent, restored);
+            parent.ceresFlight = restored;
             parent.BindCharacterArtwork(installation.LoadIntroCinematicArt());
             AssertTrue(restored.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(
                     ExpectedCeresFlightVram(edited, rear: true)),
@@ -231,12 +230,9 @@ internal static class CeresFlightArtworkVerification
             "Ceres actor-layout fixture reaches the rear-view handoff");
         AssertEqual(original.Phase, changed.Phase,
             "edited rear-view position preserves cinematic phase timing");
-        var actorField = typeof(IntroCeresFlightState).GetField("rearViewActors",
-            BindingFlags.Instance | BindingFlags.NonPublic) ??
-            throw new InvalidOperationException("Ceres rear-view actor array is unavailable.");
-        var nativeActors = (IntroDiscoverySprite[]?)actorField.GetValue(original) ??
+        var nativeActors = original.rearViewActors ??
             throw new InvalidOperationException("Stock Ceres rear-view actors did not spawn.");
-        var editedActors = (IntroDiscoverySprite[]?)actorField.GetValue(changed) ??
+        var editedActors = changed.rearViewActors ??
             throw new InvalidOperationException("Edited Ceres rear-view actors did not spawn.");
         AssertEqual(unchecked((ushort)(nativeActors[0].WholePosition.X + 16)),
             editedActors[0].WholePosition.X,

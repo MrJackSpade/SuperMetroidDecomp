@@ -45,9 +45,9 @@ internal static class KiHunterSpitAudioVerification
         body.InstructionTimer = 1;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
+        game.runtime = runtime;
+        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.GameState = SuperMetroidGameState.MainGameplay;
         byte[] ports = new byte[4];
         var spit = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4c);
         int requests = 0, writes = 0;
@@ -82,7 +82,7 @@ internal static class KiHunterSpitAudioVerification
             selected = true;
         }
         AssertTrue(selected, "real KiHunter room has an exit");
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.HitDoorBlock);
+        game.GameState = SuperMetroidGameState.HitDoorBlock;
         int waitFrames = 0;
         for (int frame = 0; frame < 32; frame++)
         {

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -559,7 +559,7 @@ internal sealed class EnemyTerrain
         return adjustedFloor || adjustedCeiling;
     }
 
-    private static bool AlignAgainstSlopeAtPixel(
+    internal static bool AlignAgainstSlopeAtPixel(
         RoomLevelData level,
         RoomEnemySlot slot,
         Position16<RoomPixels> pixel,

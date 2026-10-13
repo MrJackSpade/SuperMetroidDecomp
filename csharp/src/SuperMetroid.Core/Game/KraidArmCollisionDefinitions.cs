@@ -41,12 +41,12 @@ internal static class KraidArmCollisionDefinitions
          new(-42, 9), new(-42, -2)];
 
     /// <summary>$A7:8F59, ExtendedSpritemap_KraidArm_General_0; twenty five-component frames follow.</summary>
-    private const ushort FirstGeneralFrame = 0x8f59;
+    internal const ushort FirstGeneralFrame = 0x8f59;
     /// <summary>$A7:92A1, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_0.</summary>
-    private const ushort FirstSingleComponentFrame = 0x92a1;
+    internal const ushort FirstSingleComponentFrame = 0x92a1;
     /// <summary>$A7:92AB, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_1.</summary>
     private const ushort SecondSingleComponentFrame = 0x92ab;
-    private const int GeneralFrameBytes = 2 + 5 * 8;
+    internal const int GeneralFrameBytes = 2 + 5 * 8;
     private static readonly KraidArmCollisionGeometry[] Geometry =
     [
         new(-13, -11, -3, -5),

@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable escape-timer spritemap compositions, palette and screen-relative anchors.</summary>
 public sealed class EscapeTimerPresentation
 {
-    private readonly Dictionary<string, SpriteComposition> frames;
-    private readonly Dictionary<string, Offset16<OamPixels>> anchors;
+    internal readonly Dictionary<string, SpriteComposition> frames;
+    internal readonly Dictionary<string, Offset16<OamPixels>> anchors;
 
     private EscapeTimerPresentation(Dictionary<string, SpriteComposition> frames,
         Dictionary<string, Offset16<OamPixels>> anchors, int digitSpacing, int palette)

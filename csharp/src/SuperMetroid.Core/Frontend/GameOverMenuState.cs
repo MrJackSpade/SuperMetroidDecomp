@@ -20,11 +20,11 @@ public sealed class GameOverMenuState
     private readonly OamBuffer oam = new();
     private readonly ControllerInputState controller = new();
     private int brightness;
-    private int missileTimer = 1;
+    internal int missileTimer = 1;
     private int missileFrame;
-    private ushort babyInstructionPointer;
-    private ushort babyInstructionTimer;
-    private ushort babySpritemap = GameOverRomData.BabyAnimation.InitialSpritemap;
+    internal ushort babyInstructionPointer;
+    internal ushort babyInstructionTimer;
+    internal ushort babySpritemap = GameOverRomData.BabyAnimation.InitialSpritemap;
     private readonly bool continueLoadsCeresArrival;
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
@@ -60,13 +60,13 @@ public sealed class GameOverMenuState
     public int SelectedItem { get; private set; }
 
     /// <summary>Current native menu index; these enum ordinals are not native menu-index words.</summary>
-    public GameOverMenuPhase Phase { get; private set; }
+    public GameOverMenuPhase Phase { get; internal set; }
 
     /// <summary>
     /// True when the current menu index stopped at its own NMI wait (<c>$81:8D1D</c> or
     /// <c>$81:9260</c>); the next update finishes that index instead of entering MainGameLoop.
     /// </summary>
-    public bool ResumesAfterNmiWait { get; private set; }
+    public bool ResumesAfterNmiWait { get; internal set; }
 
     /// <summary>Sticky request raised when the accepted Yes answer has faded fully to black; the outer dispatcher opens file-select map view rather than reloading the save inside this scene.</summary>
     public bool ContinueRequested { get; private set; }

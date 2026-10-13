@@ -271,8 +271,7 @@ internal static class IntroCinematicArtworkVerification
             var nativeDividerState = CreateRetailIntroFixture(bus);
             var stockDividerState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
             foreach (IntroCinematicState scene in new[] { nativeDividerState, stockDividerState })
-                typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", dividerSetupFlags)!
-                    .Invoke(scene, null);
+                scene.SetupFirstIllustratedPage();
             byte[] stockDividerVram = stockDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
             AssertTrue(stockDividerVram.SequenceEqual(
                     nativeDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram),
@@ -289,8 +288,7 @@ internal static class IntroCinematicArtworkVerification
                 IntroFinalLineTilemap.Write(output, dividerDocument);
             IntroCinematicArtworkCatalog editedDivider = installation.LoadIntroCinematicArt();
             var editedDividerState = CreateRetailIntroFixture(guarded, characterArtwork: editedDivider);
-            typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", dividerSetupFlags)!
-                .Invoke(editedDividerState, null);
+            editedDividerState.SetupFirstIllustratedPage();
             byte[] expectedDividerVram = stockDividerVram.ToArray();
             int dividerByte = (IntroCinematicRomData.Layers.NarrationTilemapWord +
                 IntroCinematicRomData.Text.FinalLineDestinationStart + changedCell) * sizeof(ushort);
@@ -317,10 +315,8 @@ internal static class IntroCinematicArtworkVerification
             var editedDividerVisual = CreateRetailIntroFixture(guarded, characterArtwork: visibleDivider);
             foreach (IntroCinematicState scene in new[] { stockDividerVisual, editedDividerVisual })
             {
-                typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", dividerSetupFlags)!
-                    .Invoke(scene, null);
-                typeof(IntroCinematicState).GetField("inidisp", dividerSetupFlags)!
-                    .SetValue(scene, ScreenFade.FullyLit);
+                scene.SetupFirstIllustratedPage();
+                scene.inidisp = ScreenFade.FullyLit;
             }
             AssertEqual(stockDividerVisual.Phase, editedDividerVisual.Phase,
                 "visual divider override leaves page phase unchanged");
@@ -452,10 +448,8 @@ internal static class IntroCinematicArtworkVerification
                     var editedScene = CreateRetailIntroFixture(bus, characterArtwork: edited);
                     foreach (IntroCinematicState scene in new[] { stockScene, editedScene })
                     {
-                        typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
-                            .Invoke(scene, null);
-                        typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!
-                            .Invoke(scene, null);
+                        scene.SetupFirstIllustratedPage();
+                        scene.SetupMotherBrainFlashback();
                     }
                     // The setup begins with gameplay colors cleared; wait for the
                     // cartridge's 128-frame palette crossfade before checking pixels.
@@ -466,10 +460,8 @@ internal static class IntroCinematicArtworkVerification
                     }
                     // The full game owns INIDISP during this synthetic setup; force
                     // the already-composed layer to visible brightness for this probe.
-                    typeof(IntroCinematicState).GetField("inidisp", flags)!
-                        .SetValue(stockScene, ScreenFade.FullyLit);
-                    typeof(IntroCinematicState).GetField("inidisp", flags)!
-                        .SetValue(editedScene, ScreenFade.FullyLit);
+                    stockScene.inidisp = ScreenFade.FullyLit;
+                    editedScene.inidisp = ScreenFade.FullyLit;
                     AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(stockScene.CaptureTranslatedRenderSnapshot())
                             .AsSpan().SequenceEqual(RenderForComparison(
                                 editedScene.CaptureTranslatedRenderSnapshot())),
@@ -524,8 +516,7 @@ internal static class IntroCinematicArtworkVerification
 
                 const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
                 var restoredLate = CreateRetailIntroFixture(guarded, characterArtwork: stock);
-                typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
-                    .Invoke(restoredLate, null);
+                restoredLate.SetupFirstIllustratedPage();
                 byte[] lateBefore = restoredLate.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
                 restoredLate.BindCharacterArtwork(edited);
                 byte[] lateAfter = restoredLate.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
@@ -646,16 +637,12 @@ internal static class IntroCinematicArtworkVerification
         IntroEyeTilemapPresentation.Write(editedJson, document);
         editedJson.Position = 0;
         IntroEyeTilemapPresentation edited = IntroEyeTilemapPresentation.Load(editedJson);
-        var timerField = typeof(IntroCinematicObjectSystem).GetField("eyeInstructionTimer",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var pointerField = typeof(IntroCinematicObjectSystem).GetField("eyeInstructionPointer",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
-        ushort timer = (ushort)timerField.GetValue(installed)!;
-        ushort pointer = (ushort)pointerField.GetValue(installed)!;
+        ushort timer = installed.eyeInstructionTimer;
+        ushort pointer = installed.eyeInstructionPointer;
         installed.BindEyeArtwork(edited);
-        AssertEqual(timer, (ushort)timerField.GetValue(installed)!,
+        AssertEqual(timer, installed.eyeInstructionTimer,
             "eye art rebind preserves blink timer");
-        AssertEqual(pointer, (ushort)pointerField.GetValue(installed)!,
+        AssertEqual(pointer, installed.eyeInstructionPointer,
             "eye art rebind preserves blink script position");
         int packedPosition = SnesLittleEndian.Word(IntroEyeAnimationDefinitions.ReadByte(
             (ushort)(IntroEyeAnimationDefinitions.StartPointer + 2)),IntroEyeAnimationDefinitions.ReadByte(
@@ -774,16 +761,12 @@ internal static class IntroCinematicArtworkVerification
         var nativeState = CreateRetailIntroFixture(bus);
         var installedState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
-            .Invoke(nativeState, null);
-        typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
-            .Invoke(installedState, null);
-        var objectField = typeof(IntroCinematicState).GetField("objects", flags)!;
-        ((IntroCinematicObjectSystem)objectField.GetValue(nativeState)!).Step(0);
-        ((IntroCinematicObjectSystem)objectField.GetValue(installedState)!).Step(0);
-        var prepare = typeof(IntroCinematicState).GetMethod("PrepareIllustratedPageOam", flags)!;
-        var nativeOam = (OamBuffer)prepare.Invoke(nativeState, null)!;
-        var installedOam = (OamBuffer)prepare.Invoke(installedState, null)!;
+        nativeState.SetupFirstIllustratedPage();
+        installedState.SetupFirstIllustratedPage();
+        (nativeState.objects).Step(0);
+        (installedState.objects).Step(0);
+        var nativeOam = nativeState.PrepareIllustratedPageOam();
+        var installedOam = installedState.PrepareIllustratedPageOam();
         AssertTrue(installedOam.ImageEquals(nativeOam),
             "installed illustrated page draws caret without cartridge spritemap reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -792,9 +775,8 @@ internal static class IntroCinematicArtworkVerification
         var nativeBlink = new IntroCinematicObjectSystem(bus, new SnesVram(), new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         var installedBlink = new IntroCinematicObjectSystem(guarded, new SnesVram(),
             new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
-        var setBlink = typeof(IntroCinematicObjectSystem).GetMethod("SetCaretBlinking", flags)!;
-        setBlink.Invoke(nativeBlink, null);
-        setBlink.Invoke(installedBlink, null);
+        nativeBlink.SetCaretBlinking();
+        installedBlink.SetCaretBlinking();
         for (int frame = 0; frame < 20; frame++)
         {
             nativeBlink.Step(0);
@@ -816,15 +798,12 @@ internal static class IntroCinematicArtworkVerification
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var state = CreateRetailIntroFixture(guarded, characterArtwork: stock);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
-            .Invoke(state, null);
-        typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!
-            .Invoke(state, null);
+        state.SetupFirstIllustratedPage();
+        state.SetupMotherBrainFlashback();
         AssertTrue(state.MotherBrainLevelData is not null &&
                 state.MotherBrainLevelData.AsSpan().SequenceEqual(native),
             "flashback setup retains the exact native physical level without ROM reads");
-        var level = (RoomLevelData)typeof(IntroCinematicState)
-            .GetField("flashbackLevel", flags)!.GetValue(state)!;
+        var level = state.flashbackLevel;
         for (int index = 0; index < level.ForegroundEntries.Length; index++)
         {
             ushort expected = index * sizeof(ushort) < native.Length
@@ -899,20 +878,16 @@ internal static class IntroCinematicArtworkVerification
         var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
-            typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
-                .Invoke(state, null);
-            typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!
-                .Invoke(state, null);
-            ((IntroMotherBrainSpriteState)typeof(IntroCinematicState)
-                .GetField("flashbackMotherBrain", flags)!.GetValue(state)!).Step(guarded);
+            state.SetupFirstIllustratedPage();
+            state.SetupMotherBrainFlashback();
+            (state.flashbackMotherBrain).Step(guarded);
         }
-        var render = typeof(IntroCinematicState).GetMethod("RenderMotherBrainFlashback", flags)!;
-        Rgba32[] stockPixels = (Rgba32[])render.Invoke(stockState, null)!;
-        Rgba32[] editedPixels = (Rgba32[])render.Invoke(editedState, null)!;
+        Rgba32[] stockPixels = stockState.RenderMotherBrainFlashback();
+        Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
         AssertTrue(!editedPixels.SequenceEqual(stockPixels),
             "intro Mother Brain palette override changes visible production scene pixels");
         stockState.BindCharacterArtwork(edited);
-        AssertTrue(((Rgba32[])render.Invoke(stockState, null)!).SequenceEqual(editedPixels),
+        AssertTrue((stockState.RenderMotherBrainFlashback()).SequenceEqual(editedPixels),
             "restored intro Mother Brain scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed intro Mother Brain rendering avoids all three native spritemap records");
@@ -985,22 +960,16 @@ internal static class IntroCinematicArtworkVerification
         var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
-            typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
-                .Invoke(state, null);
-            typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!
-                .Invoke(state, null);
-            typeof(IntroCinematicState)
-                .GetField("flashbackMotherBrainExplosions", flags)!
-                .SetValue(state, explosions);
+            state.SetupFirstIllustratedPage();
+            state.SetupMotherBrainFlashback();
+            state.flashbackMotherBrainExplosions = explosions;
         }
-        var render = typeof(IntroCinematicState)
-            .GetMethod("RenderMotherBrainFlashback", flags)!;
-        Rgba32[] stockPixels = (Rgba32[])render.Invoke(stockState, null)!;
-        Rgba32[] editedPixels = (Rgba32[])render.Invoke(editedState, null)!;
+        Rgba32[] stockPixels = stockState.RenderMotherBrainFlashback();
+        Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "intro explosion art override changes visible production flashback pixels");
         stockState.BindCharacterArtwork(edited);
-        AssertTrue(((Rgba32[])render.Invoke(stockState, null)!).SequenceEqual(editedPixels),
+        AssertTrue((stockState.RenderMotherBrainFlashback()).SequenceEqual(editedPixels),
             "restored intro explosion scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production intro explosion render avoids all twelve native compositions");

@@ -310,21 +310,16 @@ internal static class RoomPaletteFxPresentationVerification
     internal static void VerifyExtractedSamusLoadingPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
-        var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation)
-            .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .GetValue(presentation)!;
-        var inputView = (LoadingPaletteInputView)typeof(RoomPaletteFxPresentation)
-            .GetField("loadingInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .GetValue(presentation)!;
+        var stored = presentation.colors;
+        var inputView = presentation.loadingInputs;
         ushort[] splitEndpoints = [0xdc7e, 0xdc80, 0xdba1, 0xdc94, 0xdd09, 0xdd0b, 0xddfa, 0xdf4c];
-        int independentComponents = 0;
-        foreach (var field in typeof(LoadingPaletteInputView).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
-        {
-            if (field.Name == "colors") continue;
-            object channels = field.GetValue(inputView)!;
-            independentComponents += channels.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                .Count(component => component.GetValue(channels) is not null);
-        }
+        LoadingPaletteInputView.Channels[] endpointChannels =
+        [
+            inputView.powerDim1, inputView.powerDim2, inputView.powerBright9, inputView.powerDim12,
+            inputView.variaBright10, inputView.variaBright11, inputView.variaDim12, inputView.gravityDim2,
+        ];
+        int independentComponents = endpointChannels.Sum(channels =>
+            (channels.red is null ? 0 : 1) + (channels.green is null ? 0 : 1) + (channels.blue is null ? 0 : 1));
         AssertEqual(9, independentComponents, "Stock endpoint words reduce to nine independent channel inputs");
         var endpointFixture = splitEndpoints.Concat(new ushort[] { 0xdb6d, 0xdb6f, 0xdb7d, 0xdb83, 0xdce5, 0xdce7, 0xdce9, 0xde3b })
             .ToDictionary(pointer => pointer, pointer => ReadVerificationWord(bus, 0x8d0000 | pointer));
@@ -475,15 +470,10 @@ internal static class RoomPaletteFxPresentationVerification
     internal static void VerifyExtractedSamusHeatPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
-        var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation)
-            .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .GetValue(presentation)!;
-        var inputs = (HeatPaletteInputView)typeof(RoomPaletteFxPresentation)
-            .GetField("heatInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .GetValue(presentation)!;
-        foreach (string field in new[] { "greenOverride", "blueOverride", "mixedBlueOverride" })
-            AssertTrue(typeof(HeatPaletteInputView).GetField(field, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                .GetValue(inputs) is null, "Stock endpoint channels are calculated, not stored overrides");
+        var stored = presentation.colors;
+        var inputs = presentation.heatInputs;
+        foreach (int? channel in new[] { inputs.greenOverride, inputs.blueOverride, inputs.mixedBlueOverride })
+            AssertTrue(channel is null, "Stock endpoint channels are calculated, not stored overrides");
         foreach (ushort endpoint in new ushort[] { 0xe55c, 0xe55e })
         for (int rgb = 0; rgb < 32768; rgb++)
         {

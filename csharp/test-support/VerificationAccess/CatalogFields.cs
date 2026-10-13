@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Reflection;
 
 /// <summary>
@@ -6,6 +7,7 @@ using System.Reflection;
 /// (nested names flattened), and values only tools read live in the catalog's development
 /// adapter, so a complete scan covers all three.
 /// </summary>
+[ReflectionAudit("coverage scan: every static constant a cartridge catalog, its adapter and its companion declare")]
 internal static class CatalogFields
 {
     /// <summary>The catalog's static fields matching <paramref name="flags"/>, its adapter's, then its companion's.</summary>

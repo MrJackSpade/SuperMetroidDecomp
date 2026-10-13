@@ -8,8 +8,7 @@ internal static class AudioQueueHealthTests
     {
         using var device = new WaveOutAudioDevice(48000, 2, 1600, volumePercent: 0);
         var silence = new short[1600];
-        object gate = typeof(WaveOutAudioDevice).GetField("deviceGate",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(device)!;
+        var gate = device.deviceGate;
         int polls = 0, advances = 0;
         lock (gate)
         {

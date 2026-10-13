@@ -30,7 +30,7 @@ internal static class DraygonEyeEffectsVerification
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 256)) };
             foreach (ushort frame in new ushort[] { 127, 128, 129 })
             {
-                typeof(RoomEnemySlot).GetProperty(nameof(eye.FrameCounter))!.SetValue(eye, frame);
+                eye.FrameCounter = frame;
                 runtime.Enemies.DraygonBehavior.TrackSamusWithDraygonEye(eye, samus, facingRight);
                 var particles = runtime.Enemies.Projectiles.EnemyProjectiles.Where(p =>
                     p.Kind == RoomEnemyProjectileKind.MiscDustExplosion).ToArray();

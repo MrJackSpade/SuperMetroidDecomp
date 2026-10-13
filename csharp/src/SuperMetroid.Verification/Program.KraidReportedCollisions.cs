@@ -99,8 +99,7 @@ internal static class KraidReportedCollisionsVerification
             shot.Type = 0x8004; shot.Damage = 40;
             shot.Position = shot.Position.WithWhole(new(200, (ushort)(body.Position.Y.Whole - 106)));
             shot.Radius = new(8, 8);
-            typeof(ProjectileSlotTable).GetProperty(nameof(ProjectileSlotTable.ProjectileCounter))!
-                .SetValue(runtime.Projectiles.SlotTable, (ushort)1);
+            runtime.Projectiles.SlotTable.ProjectileCounter = (ushort)1;
             runtime.Enemies.ResolveKraidProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles);
             AssertEqual(true, shot.PackedDirection.HasLowByteLifecycleState,
                 "Initial closed head blocks shots before the first head animation executes");

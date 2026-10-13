@@ -23,7 +23,7 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     private const ushort CharacterMask = 0x03ff;
     private const int PaletteShift = 10;
     private const ushort PaletteMask = 0x0007;
-    private const ushort PriorityMask = 0x2000;
+    internal const ushort PriorityMask = 0x2000;
     private const ushort FlipMask = 0xc000;
 
     /// <summary>Gets the ten-bit character number, from 0 through 1023, relative to the background's character base.</summary>

@@ -22,10 +22,10 @@ public sealed class EnemySpritemapCatalog
             }
         });
 
-    private readonly Dictionary<int, EnemySpritemapParts> frames;
+    internal readonly Dictionary<int, EnemySpritemapParts> frames;
     private readonly Dictionary<int, int> displayFrames;
 
-    private EnemySpritemapCatalog(Dictionary<int, EnemySpritemapParts> frames,
+    internal EnemySpritemapCatalog(Dictionary<int, EnemySpritemapParts> frames,
         Dictionary<int, int> displayFrames)
     {
         this.frames = frames;

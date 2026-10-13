@@ -35,11 +35,11 @@ public sealed class DraygonColorCatalog
             }
         });
 
-    private readonly DraygonIntroPaintDefinitions intro;
-    private readonly DraygonMaterialPaintDefinitions background;
-    private readonly DraygonMaterialPaintDefinitions sprite;
-    private readonly Dictionary<int, Bgr555> whiteFlash = new();
-    private readonly DraygonHealthPaintDefinitions healthBands;
+    internal readonly DraygonIntroPaintDefinitions intro;
+    internal readonly DraygonMaterialPaintDefinitions background;
+    internal readonly DraygonMaterialPaintDefinitions sprite;
+    internal readonly Dictionary<int, Bgr555> whiteFlash = new();
+    internal readonly DraygonHealthPaintDefinitions healthBands;
 
     private DraygonColorCatalog(Bgr555[] intro, Bgr555[] background, Bgr555[] sprite,
         Bgr555[] whiteFlash, Bgr555[][] healthBands)

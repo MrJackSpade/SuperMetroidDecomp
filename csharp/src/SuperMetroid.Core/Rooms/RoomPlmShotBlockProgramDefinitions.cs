@@ -15,7 +15,7 @@ internal static class RoomPlmShotBlockProgramDefinitions
     internal const byte BreakSoundId = 0x0a;
 
     /// <summary>Program roles in the native control-address enumeration order.</summary>
-    private enum Role
+    internal enum Role
     {
         RespawningShot1x1,
         RespawningShot2x1,
@@ -32,7 +32,7 @@ internal static class RoomPlmShotBlockProgramDefinitions
         EnemyBreakableTerrain,
     }
 
-    private readonly record struct Program(Role Role, ushort Start, bool Respawns, bool RestoresLevelWord,
+    internal readonly record struct Program(Role Role, ushort Start, bool Respawns, bool RestoresLevelWord,
         ushort FirstDraw, int DrawStride, ushort RestoreDraw = 0,
         RoomPlmInstruction SoundOpcode = RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct)
     {
@@ -42,7 +42,7 @@ internal static class RoomPlmShotBlockProgramDefinitions
 
     // Enumeration preserves the public control-address order; named program roles
     // determine shape, restoration and sound routing instead of stored records.
-    private static readonly Program[] Programs = [.. Enum.GetValues<Role>().Select(ProgramFor)];
+    internal static readonly Program[] Programs = [.. Enum.GetValues<Role>().Select(ProgramFor)];
 
     private static ushort StartOf(Role role) => role switch
     {

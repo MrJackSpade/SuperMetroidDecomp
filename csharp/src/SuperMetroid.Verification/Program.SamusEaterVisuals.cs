@@ -254,8 +254,7 @@ internal static class SamusEaterVisualsVerification
         var plms = new RoomPlmSystem { Drawing = { SamusEaterVisuals = visuals } };
         var guard = NewSamusEaterVisualSourceGuard();
         var streamer = level.CreateBackgroundStreamer();
-        MethodInfo draw = typeof(PlmBlockDrawing)
-            .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
+        MethodInfo draw = MetadataShape.Methods(typeof(PlmBlockDrawing), BindingFlags.Instance | BindingFlags.NonPublic)
             .Single(method => method.Name == "DrawPlmInstruction" &&
                 method.GetParameters().Length == 7);
         int origin = 8 * width + 8;

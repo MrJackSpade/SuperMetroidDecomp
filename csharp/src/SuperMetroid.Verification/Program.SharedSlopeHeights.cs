@@ -27,12 +27,9 @@ internal static class SharedSlopeHeightsVerification
         var forbidden = NewSlopeHeightNoReadBus();
         var enemies = new RoomEnemySystem();
         var enemy = enemies.SlotTable.Slots[0];
-        var align = typeof(EnemyTerrain).GetMethod("AlignAgainstSlopeAtPixel", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<RoomLevelData, RoomEnemySlot, Position16<RoomPixels>, bool, bool>>();
-        var missile = typeof(ProjectileMotion).GetMethod("MissileSlopePointReaction", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<RoomCollisionBlock, SamusProjectileSlot, bool, bool>>();
-        var bomb = typeof(SamusBombProjectileSystem).GetMethod("BombSpreadCollides", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<RoomLevelData, SamusBombProjectileSlot, bool>>();
+        var align = new Func<RoomLevelData, RoomEnemySlot, Position16<RoomPixels>, bool, bool>(EnemyTerrain.AlignAgainstSlopeAtPixel);
+        var missile = new Func<RoomCollisionBlock, SamusProjectileSlot, bool, bool>(ProjectileMotion.MissileSlopePointReaction);
+        var bomb = new Func<RoomLevelData, SamusBombProjectileSlot, bool>(SamusBombProjectileSystem.BombSpreadCollides);
         var projectile = new SamusProjectileSlot(0);
         var spread = new SamusBombProjectileSlot(0);
         int collisionCases = 0;

@@ -111,7 +111,7 @@ public sealed class RoomFxPaletteBlendCatalog
         SelectColors(selection).Apply(cgram);
     }
 
-    private RoomFxBlendColors SelectColors(RoomFxPaletteBlend selection) => selection switch
+    internal RoomFxBlendColors SelectColors(RoomFxPaletteBlend selection) => selection switch
     {
         RoomFxPaletteBlend.Lava => lava,
         RoomFxPaletteBlend.LandingSiteRain => landingSiteRain,
@@ -146,9 +146,9 @@ public sealed class RoomFxPaletteBlendCatalog
 /// </remarks>
 internal sealed class RoomFxBlendColors
 {
-    private readonly RoomFxPairColor primary;
-    private readonly RoomFxPairColor secondary;
-    private readonly RoomFxThirdColor? thirdOverride;
+    internal readonly RoomFxPairColor primary;
+    internal readonly RoomFxPairColor secondary;
+    internal readonly RoomFxThirdColor? thirdOverride;
 
     public RoomFxBlendColors(RoomFxPaletteBlend selection, Bgr555 primary, Bgr555 secondary, Bgr555 third)
     {
@@ -169,9 +169,9 @@ internal sealed class RoomFxPairColor
 {
     private readonly RoomFxPaletteBlend selection;
     private readonly bool isPrimary;
-    private readonly int? redOverride;
-    private readonly int? greenOverride;
-    private readonly int? blueOverride;
+    internal readonly int? redOverride;
+    internal readonly int? greenOverride;
+    internal readonly int? blueOverride;
 
     public RoomFxPairColor(RoomFxPaletteBlend selection, Bgr555 color, bool isPrimary)
     {
@@ -196,8 +196,8 @@ internal sealed class RoomFxThirdColor
 {
     private readonly RoomFxPaletteBlend selection;
     private readonly int red;
-    private readonly int? greenOverride;
-    private readonly int? blueOverride;
+    internal readonly int? greenOverride;
+    internal readonly int? blueOverride;
 
     public RoomFxThirdColor(RoomFxPaletteBlend selection, Bgr555 color)
     {

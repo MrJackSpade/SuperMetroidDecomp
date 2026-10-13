@@ -22,10 +22,13 @@ internal sealed class EnemyRoomBinding
     /// </summary>
     internal IRoomEnemyServices Services
     {
-        get => field ?? throw new InvalidOperationException(
+        get => installedServices ?? throw new InvalidOperationException(
             "Room enemy AI ran before RoomEnemySystem.Load installed its services.");
-        set => field = Ensure.NotNull(value);
+        set => installedServices = Ensure.NotNull(value);
     }
+
+    /// <summary>The services <see cref="Services"/> holds; null until <see cref="RoomEnemySystem.Load"/> installs them.</summary>
+    internal IRoomEnemyServices? installedServices;
 
     /// <summary>The cartridge random source of the current room's services.</summary>
     internal IEnemyRandomNumbers Random => Services.Random;

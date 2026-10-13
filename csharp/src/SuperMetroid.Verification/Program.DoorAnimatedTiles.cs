@@ -49,9 +49,9 @@ internal static class DoorAnimatedTilesVerification
 
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.HitDoorBlock);
+        game.runtime = runtime;
+        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.GameState = SuperMetroidGameState.HitDoorBlock;
         int handlerFrames = 0;
         for (int frame = 0; frame < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; frame++)
         {
@@ -81,13 +81,7 @@ internal static class DoorAnimatedTilesVerification
 
         static string StatueSnapshot(SuperMetroid.Core.Runtime.SuperMetroidRuntime source)
         {
-            var objects = (System.Collections.IList)typeof(TourianStatueSequence)
-                .GetField("objects", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(source.TourianStatues)!;
-            return string.Join(" ", objects.Cast<object>().Select(o =>
-            {
-                Type t = o.GetType();
-                return $"{t.GetField("Pointer")!.GetValue(o)}/{t.GetField("Timer")!.GetValue(o)}";
-            }));
+            return string.Join(" ", source.TourianStatues.objects.Select(o => $"{o.Pointer}/{o.Timer}"));
         }
     }
 

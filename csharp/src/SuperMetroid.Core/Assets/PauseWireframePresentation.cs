@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable wireframe artwork. It cannot change which equipment selects a visual.</summary>
 public sealed class PauseWireframePresentation
 {
-    private readonly Wireframe[] frames;
+    internal readonly Wireframe[] frames;
     private PauseWireframePresentation(Wireframe[] frames) => this.frames = frames;
 
     /// <summary>Patches the selected eight-column, seventeen-row wireframe into the equipment page at tile (12, 7), matching native <c>EquipmentScreen_WriteSamusWireframeTilemap</c> at <c>$82:B20C</c>; leaves all other cells untouched and does not choose the inventory variant or queue VRAM.</summary>
@@ -46,10 +46,10 @@ public sealed class PauseWireframePresentation
     }
 
     /// <summary>Calculated authored composition with independent supplied word overrides.</summary>
-    private sealed class Wireframe
+    internal sealed class Wireframe
     {
         private readonly PauseWireframeKind kind;
-        private readonly Dictionary<int, ushort> edits = [];
+        internal readonly Dictionary<int, ushort> edits = [];
 
         internal Wireframe(PauseWireframeKind kind, ReadOnlySpan<byte> words)
         {

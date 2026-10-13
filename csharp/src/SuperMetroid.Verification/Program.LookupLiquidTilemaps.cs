@@ -70,11 +70,16 @@ internal static class LookupLiquidTilemapsVerification
             foreach (int invalid in new[] { int.MinValue, -1, 1056, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomFxLiquidTilemapDefinitions.Cell(type, invalid),
                     "Calculated cell rejects outside full33-row domain");
-            FieldInfo field = typeof(RoomFxLayer3TilemapCatalog).GetField(type.ToString().ToLowerInvariant(),
-                BindingFlags.Instance | BindingFlags.NonPublic)!;
-            AssertTrue(field.GetValue(stock) is null, "Stock catalog retains no liquid page bytes");
+            byte[]? StoredPage() => type switch
+            {
+                RoomFxType.Lava => stock.lava,
+                RoomFxType.Acid => stock.acid,
+                RoomFxType.Water => stock.water,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Only three liquid identities have stock pages."),
+            };
+            AssertTrue(StoredPage() is null, "Stock catalog retains no liquid page bytes");
             _ = stock.Resolve(type);
-            AssertTrue(field.GetValue(stock) is null, "Transfer does not create a cached page");
+            AssertTrue(StoredPage() is null, "Transfer does not create a cached page");
         }
     }
 

@@ -120,7 +120,7 @@ public sealed class GameOptionsMenuState
     public bool MoonwalkEnabled { get; private set; }
 
     /// <summary>Gets the current options-menu coroutine phase.</summary>
-    public GameOptionsPhase Phase { get; private set; }
+    public GameOptionsPhase Phase { get; internal set; }
 
     /// <summary>Gets whether the completed start-game fade requested the opening sequence.</summary>
     public bool IntroRequested { get; private set; }

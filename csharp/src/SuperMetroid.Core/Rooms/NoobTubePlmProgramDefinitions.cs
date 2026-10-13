@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Rooms;
 internal static class NoobTubePlmProgramDefinitions
 {
     /// <summary>Main n00b-tube instruction list at $84:D4D4.</summary>
-    private const ushort MainStart = 0xd4d4;
+    internal const ushort MainStart = 0xd4d4;
     /// <summary>One-byte library-two break sound at $84:D506.</summary>
-    private const ushort BreakSoundAddress = 0xd506;
+    internal const ushort BreakSoundAddress = 0xd506;
     /// <summary>Continuation after the break-sound byte at $84:D507.</summary>
-    private const ushort MainAfterSound = 0xd507;
+    internal const ushort MainAfterSound = 0xd507;
     /// <summary>Already-broken room-state branch at $84:D521.</summary>
-    private const ushort AlreadyBrokenStart = 0xd521;
+    internal const ushort AlreadyBrokenStart = 0xd521;
 
     /// <summary>$84:D4E8: install the accepted-input wake callback after a power-bomb hit.</summary>
     private const ushort WaitForInput = 0xd4e8;

@@ -31,7 +31,7 @@ internal static class CeresSteamCollisionDefinitions
     /// rectangles per direction). List addresses derive from their order; each direction's
     /// rectangles are fitted to its drawing and are not exact rotations of another direction.
     /// </summary>
-    private static readonly CollisionRecordRuns<CeresSteamCollisionHitbox> Lists = CollisionRecordRuns<CeresSteamCollisionHitbox>.HitboxLists(
+    internal static readonly CollisionRecordRuns<CeresSteamCollisionHitbox> Lists = CollisionRecordRuns<CeresSteamCollisionHitbox>.HitboxLists(
         new CollisionRecordRun<CeresSteamCollisionHitbox>(EmptyHitboxes,
         [
             [],

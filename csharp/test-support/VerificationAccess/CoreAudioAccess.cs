@@ -6,7 +6,7 @@ internal static class ManagedSnesDspAccess
     extension(ManagedSnesDsp self)
     {
         [DspRegisterAccess]
-        internal byte ReadRegister(byte address) => PrivateState.Field<byte[]>(self, "registers")[address & 0x7f];
+        internal byte ReadRegister(byte address) => self.registers[address & 0x7f];
     }
 }
 
@@ -33,15 +33,16 @@ internal static class ManagedSpcPlayerAccess
         /// <summary>Exposes the mirrored DSP register file to deterministic verification.</summary>
         [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
         [DspRegisterAccess]
-        internal byte ReadDspRegisterForVerification(byte address) => PrivateState.Field<ManagedSnesDsp>(self, "dsp").ReadRegister(address);
+        internal byte ReadDspRegisterForVerification(byte address) => self.dsp.ReadRegister(address);
 
         /// <summary>Exposes one APU byte only to deterministic friend-assembly verification.</summary>
         [SpcMemoryAccess]
+        [SpcMemoryBoundary("exact APU memory test: reads one byte of the SPC700's 64 KiB RAM")]
         internal byte ReadApuByteForVerification(int address)
         {
-            if ((uint)address >= PrivateState.Field<byte[]>(self, "ram").Length)
+            if ((uint)address >= self.ram.Length)
                 throw new ArgumentOutOfRangeException(nameof(address), address, "APU address must be 0..65535.");
-            return PrivateState.Field<byte[]>(self, "ram")[address];
+            return self.ram[address];
         }
     }
 }
@@ -62,7 +63,7 @@ internal static class MusicCommandDelayAccess
                     $"Effective music delay {frames} is below bank $80's minimum of eight frames.");
             }
 
-            return ((MusicCommandDelay)PrivateState.Construct(typeof(MusicCommandDelay), (ushort)(frames)));
+            return new MusicCommandDelay(frames);
         }
     }
 }

@@ -197,8 +197,7 @@ internal static class MapLoadAnchorsVerification
             AssertTrue(before.AsSpan().SequenceEqual(ReadSram()), "map entry leaves entire SRAM and progression unchanged");
         }
         byte[] ReadSram() => SaveRamImage.Capture(SnesMemoryBusRequirement.Require(bus, "Map load anchors compare the whole SRAM image before and after map entry."));
-        static FileSelectMapScroll Scroll(FileSelectMapMenuState menu) => (FileSelectMapScroll)typeof(FileSelectMapMenuState)
-            .GetField("scroll", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(menu)!;
+        static FileSelectMapScroll Scroll(FileSelectMapMenuState menu) => menu.scroll;
         static (Position16<MapPixels>, Position16<MapPixels>, Position16<MapPixels>, MapScrollDirection) ScrollState(FileSelectMapScroll value) =>
             (value.Scroll, value.Minimum, value.Maximum, value.Direction);
     }

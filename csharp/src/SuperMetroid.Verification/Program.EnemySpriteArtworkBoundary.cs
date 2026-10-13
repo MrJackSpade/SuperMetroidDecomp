@@ -97,19 +97,17 @@ internal static class EnemySpriteArtworkBoundaryVerification
         elevator.Step(samus);
         var elevatorActual = new OamBuffer(); var elevatorExpected = new OamBuffer();
         elevator.Draw(elevatorActual, Position16<RoomPixels>.Zero);
-        foreach (string name in new[] { "pad", "platform" })
+        foreach (var actor in new[] { elevator.pad, elevator.platform })
         {
-            object actor = typeof(CeresElevatorArrivalState).GetField(name, flags)!.GetValue(elevator)!;
-            ushort Read(string property) => (ushort)actor.GetType().GetProperty(property)!.GetValue(actor)!;
-            var position = (Position16<RoomPixels>)actor.GetType().GetProperty("Position")!.GetValue(actor)!;
-            DrawImportedEnemyProjectileSpritemap(source, elevatorExpected, Read("SpritemapPointer"),
-                position.ToScreen(Position16<RoomPixels>.Zero).ToOam(), Read("GraphicsIndex"), (SnesLittleEndian.HighByteInPlace(position.Y)) == 0);
+            var position = actor.Position;
+            DrawImportedEnemyProjectileSpritemap(source, elevatorExpected, actor.SpritemapPointer,
+                position.ToScreen(Position16<RoomPixels>.Zero).ToOam(), actor.GraphicsIndex, (SnesLittleEndian.HighByteInPlace(position.Y)) == 0);
         }
         Equal(elevatorExpected, elevatorActual, "Ceres elevator owner ordering and placements");
 
         Suite(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking());
-        AssertTrue(typeof(OamBuffer).GetMethod("AddEnemyProjectileSpritemap") is null &&
-            typeof(OamBuffer).GetMethod("ReadSpritemapByte", BindingFlags.Static | BindingFlags.NonPublic) is null,
+        AssertTrue(!MetadataShape.DeclaresMethod(typeof(OamBuffer), "AddEnemyProjectileSpritemap") &&
+            !MetadataShape.DeclaresMethod(typeof(OamBuffer), "ReadSpritemapByte", BindingFlags.Static | BindingFlags.NonPublic),
             "Core OAM cannot recover a generic spritemap address reader");
         Console.WriteLine($"Enemy OAM boundary: {enemyCases} enemy cases, {spriteObjectCases} room-object frames and {projectileCases} program-frame cases pass through ROM-free owners; Ceres and synthetic arithmetic/timed-projectile checks pass.");
 

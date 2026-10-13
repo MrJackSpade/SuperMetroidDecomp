@@ -23,11 +23,11 @@ internal static class EndingWavySamusTests
         scene.BindPaletteFxColors(maps.RoomPaletteFx);
         scene.BindEndingFont(maps.EndingFont);
         scene.BindEndingText(maps.EndingText);
-        typeof(EndingCreditsState).GetMethod("LoadCreditsAndPostCreditsAssets", flags)!.Invoke(scene, null);
-        typeof(EndingCreditsState).GetMethod("SetupPostCreditsBlank", flags)!.Invoke(scene, null);
-        typeof(EndingCreditsState).GetProperty(nameof(scene.Phase))!.SetValue(scene, EndingCreditsPhase.PostCreditsShootingStars);
-        typeof(EndingCreditsState).GetField("phaseTimer", flags)!.SetValue(scene, 1);
-        typeof(EndingCreditsState).GetField("brightness", flags)!.SetValue(scene, (byte)15);
+        scene.LoadCreditsAndPostCreditsAssets();
+        scene.SetupPostCreditsBlank();
+        scene.Phase = EndingCreditsPhase.PostCreditsShootingStars;
+        scene.phaseTimer = 1;
+        scene.brightness = (byte)15;
         Require(!scene.Presentation.CaptureRenderSnapshot().Layers.ToArray().OfType<BgSubscreenAddRenderLayer>().Any(), "Wave must not start during the palette fade");
         scene.Step();
         Rgba32[]? previous = null;

@@ -41,8 +41,7 @@ internal static class GrappleFlarePlacementVerification
             editedOffset["y"] = unchecked((short)(offset.Y - 9));
         }
         var edited = ChargeFlarePlacementCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
-        var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
+        var refresh = new Action<ISnesAddressSpace, SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringDrawOrigins);
         Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var empty = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
         int locked = 0;

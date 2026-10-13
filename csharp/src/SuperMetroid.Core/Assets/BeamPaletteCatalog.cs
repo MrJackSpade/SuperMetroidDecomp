@@ -10,8 +10,8 @@ public sealed class BeamPaletteCatalog
 {
     // Reviewed exact material paint and copied target metadata have bounded dispositions;
     // every stock output calculates, while independently supplied words stay exact.
-    private readonly Dictionary<int, Bgr555> palettes = new();
-    private BeamPaletteCatalog(Bgr555[][] rows)
+    internal readonly Dictionary<int, Bgr555> palettes = new();
+    internal BeamPaletteCatalog(Bgr555[][] rows)
     {
         for (int index = 0; index < rows.Length; index++)
         for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)

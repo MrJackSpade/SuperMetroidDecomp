@@ -24,34 +24,34 @@ internal sealed class PauseMenuState
 {
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
-    private readonly MapPaletteAnimation paletteAnimation;
+    internal readonly MapPaletteAnimation paletteAnimation;
     private readonly SamusState samus;
     private readonly Bank80SystemState system;
     private readonly AreaId area;
     private readonly Position16<MapTiles> roomMapPosition;
     private readonly MapRevealMode mapRevealMode;
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
-    private readonly SnesVram vram = new();
-    private readonly SnesCgram cgram = new();
-    private readonly OamBuffer oam = new();
-    private readonly byte[] equipmentTilemap;
+    internal readonly SnesVram vram = new();
+    internal readonly SnesCgram cgram = new();
+    internal readonly OamBuffer oam = new();
+    internal readonly byte[] equipmentTilemap;
     private readonly byte[] pauseButtonTilemap;
-    private PauseMenuTransition transition;
+    internal PauseMenuTransition transition;
     private int transitionFadeCounter;
-    private int transitionBrightness = 15;
-    private PauseEquipmentCategory selectedCategory;
-    private int selectedItem;
-    private Position16<MapPixels> mapScrollPosition;
-    private PauseMapScroll mapScroll = null!;
-    private FileSelectMapAnimations? mapArrows;
+    internal int transitionBrightness = 15;
+    internal PauseEquipmentCategory selectedCategory;
+    internal int selectedItem;
+    internal Position16<MapPixels> mapScrollPosition;
+    internal PauseMapScroll mapScroll = null!;
+    internal FileSelectMapAnimations? mapArrows;
     private bool mapLabelsBeforeIcons;
-    private int mapIndicatorAnimationFrame;
-    private int mapIndicatorAnimationTimer;
-    private int itemSelectorAnimationFrame;
-    private int itemSelectorAnimationTimer;
+    internal int mapIndicatorAnimationFrame;
+    internal int mapIndicatorAnimationTimer;
+    internal int itemSelectorAnimationFrame;
+    internal int itemSelectorAnimationTimer;
     private bool plasmaLabelOverrunActive;
-    private Position16<OamPixels> lastIndicatorOrigin;
-    private ushort lastIndicatorSpritemapId;
+    internal Position16<OamPixels> lastIndicatorOrigin;
+    internal ushort lastIndicatorSpritemapId;
 
     public PauseMenuState(ISnesAddressSpace bus, PauseMenuEntry entry)
     {
@@ -1103,7 +1103,7 @@ internal sealed class PauseMenuState
 
     // Native $0757 persists while the selector moves away. It is not a host
     // task or timer: only the selected reserve-transfer subdispatcher ticks it.
-    private ushort reserveTransferSoundDelay;
+    internal ushort reserveTransferSoundDelay;
 
     /// <summary>The selected item while the reserve-tank category is selected.</summary>
     private PauseReserveItem SelectedReserveItem => Enum.IsDefined((PauseReserveItem)selectedItem)

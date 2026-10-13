@@ -12,7 +12,7 @@ internal static class RoomPlmBombBlockProgramDefinitions
     /// <summary>Projectile-triggered library-two sound at the eight $84:CC3C-$CD3E heads.</summary>
     internal const byte ProjectileBreakSoundId = 0x0a;
 
-    private readonly record struct Program(
+    internal readonly record struct Program(
         ushort CollisionHead, ushort ReactionHead, bool Respawns, int Dimension)
     {
         internal bool SingleBlock => Dimension == 0;
@@ -21,11 +21,11 @@ internal static class RoomPlmBombBlockProgramDefinitions
         internal ushort Terminal => checked((ushort)(Tail + 4 * FrameCount));
     }
 
-    private const int ProgramCount = 8;
+    internal const int ProgramCount = 8;
 
     // BTS low bits select size; bit two selects permanent versus respawning.
     // The collision and projectile heads enter the same shape-specific tail.
-    private static Program ProgramAt(int index) => new(
+    internal static Program ProgramAt(int index) => new(
         RoomPlmInstructionLists.CollisionBombByReactionIndex(index),
         RoomPlmInstructionLists.ReactionBombByReactionIndex(index), index < 4, index & 3);
 

@@ -126,7 +126,7 @@ internal sealed partial class WindowsGamepadInput
             capabilities.ManufacturerId,
             capabilities.ProductId);
 
-    private static GenericGamepadSnapshot CreateSnapshot(
+    internal static GenericGamepadSnapshot CreateSnapshot(
         JoystickPosition position,
         JoystickCapabilities capabilities)
     {
@@ -174,7 +174,7 @@ internal sealed partial class WindowsGamepadInput
 
     [StructLayout(LayoutKind.Sequential)]
     [SpatialComponents("Win32 interop: winmm's JOYCAPSW declares each axis range as separate fields.")]
-    private struct JoystickCapabilities
+    internal struct JoystickCapabilities
     {
         public ushort ManufacturerId;
         public ushort ProductId;
@@ -208,7 +208,7 @@ internal sealed partial class WindowsGamepadInput
 
     /// <summary>JOYCAPSW's inline <c>WCHAR[MAXPNAMELEN]</c> field, kept blittable for LibraryImport.</summary>
     [InlineArray(32)]
-    private struct FixedUtf16Name
+    internal struct FixedUtf16Name
     {
         private ushort first;
 
@@ -218,7 +218,7 @@ internal sealed partial class WindowsGamepadInput
 
     /// <summary>JOYCAPSW's inline <c>WCHAR[MAX_PATH]</c> field, kept blittable for LibraryImport.</summary>
     [InlineArray(260)]
-    private struct FixedUtf16Path
+    internal struct FixedUtf16Path
     {
         private ushort first;
 
@@ -239,7 +239,7 @@ internal sealed partial class WindowsGamepadInput
 
     [StructLayout(LayoutKind.Sequential)]
     [SpatialComponents("Win32 interop: winmm's JOYINFOEX declares each axis reading as separate fields.")]
-    private struct JoystickPosition
+    internal struct JoystickPosition
     {
         public uint Size;
         public uint Flags;

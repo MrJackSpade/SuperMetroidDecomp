@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>One of the six cartridge-authored shell fragments spawned by egg opcode $A918.</summary>
 internal sealed class IntroEggParticle
 {
-    private readonly IntroDiscoverySprite sprite;
+    internal readonly IntroDiscoverySprite sprite;
 
     public IntroEggParticle(byte index)
     {

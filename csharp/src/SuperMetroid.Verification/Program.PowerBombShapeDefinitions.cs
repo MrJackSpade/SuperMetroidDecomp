@@ -65,17 +65,15 @@ internal static class PowerBombShapeDefinitionsVerification
             return result;
         }
         var explosion = new SamusPowerBombExplosionState();
-        void Set(string property, object value) => typeof(SamusPowerBombExplosionState).GetProperty(property)!.SetValue(explosion, value);
-        var read = typeof(SnesGameplayFrameRenderer).GetMethod("ReadPowerBombHalfWidth", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<SamusPowerBombExplosionState, int, int>>();
+        var read = new Func<SamusPowerBombExplosionState, int, int>(SnesGameplayFrameRenderer.ReadPowerBombHalfWidth);
         var forbidden = NewPowerBombShapeReadGuard();
         foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite, PowerBombExplosionPhase.ExplosionYellow })
         {
-            Set(nameof(explosion.RenderedPhase), phase);
+            explosion.RenderedPhase = phase;
             for (int radius = 0; radius < 256; radius++)
             {
-                Set(nameof(explosion.RenderedPreExplosionRadius), (ushort)((radius << 8) | 123));
-                Set(nameof(explosion.RenderedExplosionRadius), (ushort)((radius << 8) | 234));
+                explosion.RenderedPreExplosionRadius = (ushort)((radius << 8) | 123);
+                explosion.RenderedExplosionRadius = (ushort)((radius << 8) | 234);
                 int[] expected = Profile(radius);
                 for (int y = -192; y <= 192; y++)
                     AssertEqual(expected[Math.Abs(y)], read(explosion, y), "Power Bomb complete signed band profile without bus");
@@ -87,9 +85,9 @@ internal static class PowerBombShapeDefinitionsVerification
         foreach (short centerY in new short[] { -16, 128, 240 })
         {
             explosion.Spawn(new(unchecked((ushort)centerX), unchecked((ushort)centerY)));
-            Set(nameof(explosion.RenderedPhase), PowerBombExplosionPhase.ExplosionYellow);
-            Set(nameof(explosion.RenderedExplosionRadius), (ushort)(radius << 8));
-            Set(nameof(explosion.FixedColorRed), (byte)31);
+            explosion.RenderedPhase = PowerBombExplosionPhase.ExplosionYellow;
+            explosion.RenderedExplosionRadius = (ushort)(radius << 8);
+            explosion.FixedColorRed = (byte)31;
             var frame = Enumerable.Repeat(new Rgba32(0, 0, 0, 255), 256 * 224).ToArray();
             SnesGameplayFrameRenderer.ApplyPowerBombColorMath(frame, forbidden, explosion, new Position16<RoomPixels>(0, 0));
             int[] profile = Profile(radius);

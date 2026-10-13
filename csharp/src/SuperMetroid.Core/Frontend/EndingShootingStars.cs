@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>$8B:E7BB/E812: bounded post-credits star records, independent of explosion stars.</summary>
 internal sealed class EndingShootingStars
 {
-    private readonly EndingShootingStar[] stars = new EndingShootingStar[EndingShootingStarDefinitions.Count];
+    internal readonly EndingShootingStar[] stars = new EndingShootingStar[EndingShootingStarDefinitions.Count];
 
     internal EndingShootingStars()
     {

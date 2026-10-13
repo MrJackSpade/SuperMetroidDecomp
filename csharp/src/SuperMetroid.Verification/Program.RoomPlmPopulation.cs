@@ -572,10 +572,7 @@ internal static class RoomPlmPopulationVerification
         // A saved/corrupt live state can still supply an unsupported callback even
         // though the compiled retail list cannot. Inject that state after install so
         // the family dispatcher remains loudly exhaustive without reopening ROM reads.
-        Array slots = plms.SlotTable._slots;
-        object liveSlot = slots.GetValue(39)!;
-        liveSlot.GetType().GetProperty("PreInstruction")!.SetValue(liveSlot,
-            (ushort)0x9876);
+        plms.SlotTable._slots[39].PreInstruction = 0x9876;
         AssertThrows<InvalidDataException>(
             () => plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }),
             "unknown Wrecked Ship attic pre-instruction fails loudly");

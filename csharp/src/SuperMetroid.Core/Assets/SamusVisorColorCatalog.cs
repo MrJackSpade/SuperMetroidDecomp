@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable RGB5 visor colors shared by X-ray and room palette cycling.</summary>
 public sealed class SamusVisorColorCatalog
 {
-    private readonly Dictionary<int, Bgr555> colors;
+    internal readonly Dictionary<int, Bgr555> colors;
 
     private SamusVisorColorCatalog(Dictionary<int, Bgr555> colors) => this.colors = colors;
 

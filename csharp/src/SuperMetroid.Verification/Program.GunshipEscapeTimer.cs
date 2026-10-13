@@ -24,8 +24,8 @@ internal static class GunshipEscapeTimerVerification
         var maps = InstalledFixtures.Maps;
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
-        typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime",flags)!.Invoke(game,new object[]{false});
-        var runtime=(SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime",flags)!.GetValue(game)!;
+        game.CreateGameplayRuntime(false);
+        var runtime=game.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
@@ -39,7 +39,7 @@ internal static class GunshipEscapeTimerVerification
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));
         samus.Presentation.InitializeAnimation(bus);
         samus.Presentation.PrimeGraphics(bus);
-        typeof(EscapeTimer).GetProperty(nameof(EscapeTimer.RawStatus))!.SetValue(runtime.EscapeTimer, (ushort)0x8006);
+        runtime.EscapeTimer.RawStatus = (ushort)0x8006;
         runtime.EscapeTimer.SetTime(2, 0x59, 0x50);
         runtime.QueueEscapeTimerSpriteTiles();
         runtime.StepFrame(0);

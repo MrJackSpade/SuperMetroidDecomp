@@ -32,7 +32,7 @@ internal static class MaridiaLargeSnailCollisionDefinitions
     /// The 30 contiguous hitbox lists from $A2:D034, one per frame in frame order. List
     /// addresses derive from their order; the rectangles are fitted to the drawings.
     /// </summary>
-    private static readonly CollisionRecordRuns<MaridiaLargeSnailCollisionHitbox> Lists = CollisionRecordRuns<MaridiaLargeSnailCollisionHitbox>.HitboxLists(
+    internal static readonly CollisionRecordRuns<MaridiaLargeSnailCollisionHitbox> Lists = CollisionRecordRuns<MaridiaLargeSnailCollisionHitbox>.HitboxLists(
         new CollisionRecordRun<MaridiaLargeSnailCollisionHitbox>(FirstHitboxList,
         [
             [new(-16, -17, -8, 16, SafeTouch, Shot), new(-8, -17, 14, 16, SafeTouch, NoShot)],

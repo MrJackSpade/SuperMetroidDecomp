@@ -29,9 +29,9 @@ public sealed class PhantoonColorCatalog
             content.AppendColorFrames("healthBands", frames);
         });
 
-    private readonly Dictionary<int, Bgr555> healthEdits = [];
-    private readonly Dictionary<int, Bgr555> fadeOutEdits = [];
-    private readonly Dictionary<int, Bgr555> powerEdits = [];
+    internal readonly Dictionary<int, Bgr555> healthEdits = [];
+    internal readonly Dictionary<int, Bgr555> fadeOutEdits = [];
+    internal readonly Dictionary<int, Bgr555> powerEdits = [];
 
     private PhantoonColorCatalog(Bgr555[][] healthBands, Bgr555[] fadeOut, Bgr555[] powerOn)
     {

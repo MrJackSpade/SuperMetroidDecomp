@@ -20,11 +20,9 @@ internal static class HyperBeamFxColorArtworkVerification
         AssertEqual(HyperBeamPaletteFxProgramDefinitions.ColorsPerFrame,
             HyperBeamFxColorFormat.ColorsPerFrame, "Extracted Hyper Beam color count matches compiled control");
 
-        var stored = (Dictionary<int, Bgr555>)typeof(HyperBeamFxColorCatalog).GetField("colors",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        var stored = catalog.colors;
         AssertEqual(2, stored.Count, "Shared endpoint extrema remove eight whole inputs");
-        var endpointInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(HyperBeamFxColorCatalog)
-            .GetField("endpointInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        var endpointInputs = catalog.endpointInputs;
         AssertEqual(8, endpointInputs.Count, "Eight endpoint colors keep only independent channels");
         int endpointComponentCount = 0;
         foreach (var entry in endpointInputs)
@@ -33,11 +31,9 @@ internal static class HyperBeamFxColorArtworkVerification
             HyperBeamFxColorFormat.TrySharedEndpoint(frame, color, Bgr555.FromWord(checked((ushort)(ReadVerificationWord(bus, 0x8dd906)))),
                 Bgr555.FromWord(checked((ushort)(ReadVerificationWord(bus, 0x8dd90c)))), out Bgr555 basis, out int independentMask);
             AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color), entry.Value.Apply(basis), "Original endpoint shared extrema");
-            string[] names = ["red", "green", "blue"];
             for (int channel = 0; channel < 3; channel++)
             {
-                object? fieldValue = typeof(LoadingPaletteInputView.Channels).GetField(names[channel],
-                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(entry.Value);
+                object? fieldValue = entry.Value.Component(channel);
                 AssertEqual((independentMask & 1 << channel) != 0, fieldValue is not null, "Only independent original endpoint channels are stored");
                 if (fieldValue is not null) endpointComponentCount++;
             }
@@ -46,10 +42,8 @@ internal static class HyperBeamFxColorArtworkVerification
         for (int mask = 0; mask < 8; mask++)
         {
             var zero = new LoadingPaletteInputView.Channels(new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), mask);
-            string[] names = ["red", "green", "blue"];
             for (int channel = 0; channel < 3; channel++)
-                AssertEqual((mask & 1 << channel) != 0, typeof(LoadingPaletteInputView.Channels).GetField(names[channel],
-                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(zero) is not null,
+                AssertEqual((mask & 1 << channel) != 0, zero.Component(channel) is not null,
                     "Independent zero channels are kept as inputs");
             for (int rgb = 0; rgb < 32768; rgb++)
             {
@@ -57,19 +51,16 @@ internal static class HyperBeamFxColorArtworkVerification
                 AssertEqual((ushort)rgb, new LoadingPaletteInputView.Channels(Bgr555.FromWord(checked((ushort)((ushort)rgb))), Bgr555.FromWord(checked((ushort)(basis))), mask).Apply(Bgr555.FromWord(checked((ushort)(basis)))), "Complete RGB5 capture for every independent channel mask");
             }
         }
-        int neutralIntensity = (int)typeof(HyperBeamFxColorCatalog).GetField("neutralIntensity",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        int neutralIntensity = catalog.neutralIntensity;
         AssertEqual((int)(ReadVerificationWord(bus, 0x8dd906) & 31), neutralIntensity, "Original neutral intensity");
-        object neutralOverrides = typeof(HyperBeamFxColorCatalog).GetField("neutralOverrides",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
-        foreach (var field in typeof(LoadingPaletteInputView.Channels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+        object neutralOverrides = catalog.neutralOverrides;
+        foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
             AssertTrue(field.GetValue(neutralOverrides) is null, "No duplicate original neutral channels are stored");
         for (int intensity = 0; intensity < 32; intensity++)
             AssertEqual((ushort)(intensity * 1057), HyperBeamFxColorFormat.Neutral(intensity), "Complete neutral RGB5 domain");
         foreach (int invalidIntensity in new[] { int.MinValue, -1, 32, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => HyperBeamFxColorFormat.Neutral(invalidIntensity), "Neutral intensity bounds");
-        var shadeInputs = (Dictionary<int, LoadingPaletteInputView.Channels>)typeof(HyperBeamFxColorCatalog)
-            .GetField("shadeInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        var shadeInputs = catalog.shadeInputs;
         AssertEqual(4, shadeInputs.Count, "Four middle colors have differing components");
         int shadeComponentCount = 0;
         foreach (var entry in shadeInputs)
@@ -78,21 +69,18 @@ internal static class HyperBeamFxColorArtworkVerification
             ushort native = ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color);
             ushort first = ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * (color - 1));
             ushort second = ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * (color + 1));
-            string[] names = ["red", "green", "blue"];
             for (int channel = 0; channel < 3; channel++)
             {
                 int shift = 5 * channel;
                 int expected = (int)Math.Ceiling(((first >> shift & 31) + (second >> shift & 31)) / 2.0);
                 int? differing = (native >> shift & 31) == expected ? null : native >> shift & 31;
-                object? actual = typeof(LoadingPaletteInputView.Channels).GetField(names[channel],
-                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(entry.Value);
+                object? actual = entry.Value.Component(channel);
                 AssertTrue(Equals(differing, actual), "Only originally differing middle-shade channels are stored");
                 if (actual is not null) shadeComponentCount++;
             }
         }
         AssertEqual(6, shadeComponentCount, "Six differing middle-shade components remain under review");
-        var pairedInputs = (Dictionary<int, HyperBeamFxColorCatalog.PairedChannels>)typeof(HyperBeamFxColorCatalog)
-            .GetField("pairedInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!;
+        var pairedInputs = catalog.pairedInputs;
         AssertEqual(7, pairedInputs.Count, "Hue endpoint transforms remove two paired inputs");
         int pairedComponentCount = 0;
         foreach (var entry in pairedInputs)
@@ -103,10 +91,9 @@ internal static class HyperBeamFxColorArtworkVerification
             int sharedRed = frame == 0 ? whiteSource & 31 : redSource & 31;
             int sharedGreen = frame == 4 ? redSource & 31 : redSource >> 5 & 31;
             AssertEqual(original, entry.Value.Resolve(frame == 0, sharedRed, sharedGreen), "Original paired endpoint shared-intensity reconstruction");
-            foreach (var field in typeof(HyperBeamFxColorCatalog.PairedChannels).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+            foreach (var field in MetadataShape.Fields(typeof(HyperBeamFxColorCatalog.PairedChannels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
                 if (field.GetValue(entry.Value) is not null) pairedComponentCount++;
-            AssertTrue(typeof(HyperBeamFxColorCatalog.PairedChannels).GetField("blue",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(entry.Value) is null,
+            AssertTrue(entry.Value.blue is null,
                 "No original duplicate blue channel is stored");
         }
         AssertEqual(7, pairedComponentCount, "Seven varying paired components remain; duplicate extrema are calculated");

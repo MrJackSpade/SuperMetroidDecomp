@@ -132,12 +132,9 @@ internal static class CeresDestructionArtworkVerification
             "Zebes placement fixture reaches the planet reveal");
         AssertEqual(stockReveal.Phase, movedReveal.Phase,
             "visual placement edit preserves cinematic handoff timing");
-        var planetField = typeof(CeresDestructionCinematicState).GetField("zebesPlanetActor",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic) ??
-            throw new InvalidOperationException("Zebes planet actor field is unavailable.");
-        var stockPlanet = (IntroDiscoverySprite?)planetField.GetValue(stockReveal) ??
+        var stockPlanet = stockReveal.zebesPlanetActor ??
             throw new InvalidOperationException("Stock Zebes planet actor did not spawn.");
-        var editedPlanet = (IntroDiscoverySprite?)planetField.GetValue(movedReveal) ??
+        var editedPlanet = movedReveal.zebesPlanetActor ??
             throw new InvalidOperationException("Edited Zebes planet actor did not spawn.");
         AssertEqual(unchecked((ushort)(stockPlanet.WholePosition.X + 16)), editedPlanet.WholePosition.X,
             "edited scene position moves the actual planet actor by one tile");
@@ -202,14 +199,10 @@ internal static class CeresDestructionArtworkVerification
         }
         AssertEqual(stockDestruction.Phase, movedDestruction.Phase,
             "edited Ceres asteroid placement preserves cinematic phase timing");
-        var destructionActorsField = typeof(CeresDestructionCinematicState).GetField("actors",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic) ??
-            throw new InvalidOperationException("Ceres destruction actor list is unavailable.");
-        var stockDestructionActors =
-            (List<IntroDiscoverySprite>?)destructionActorsField.GetValue(stockDestruction) ??
+        var stockDestructionActors = stockDestruction.actors ??
             throw new InvalidOperationException("Stock Ceres destruction actors did not spawn.");
         var movedDestructionActors =
-            (List<IntroDiscoverySprite>?)destructionActorsField.GetValue(movedDestruction) ??
+            movedDestruction.actors ??
             throw new InvalidOperationException("Edited Ceres destruction actors did not spawn.");
         AssertEqual(unchecked((ushort)(stockDestructionActors[0].WholePosition.X + 16)),
             movedDestructionActors[0].WholePosition.X,

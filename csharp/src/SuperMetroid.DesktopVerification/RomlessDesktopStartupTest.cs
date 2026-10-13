@@ -32,52 +32,33 @@ internal static class RomlessDesktopStartupTest
                     AudioEnabled = false,
                     Renderer = RendererSelection.Software,
                 });
-            var memory = (SuperMetroidAddressSpace)(typeof(PlayableGameControl)
-                .GetField("addressSpace", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .GetValue(host) ?? throw new InvalidOperationException("Host has no address space."));
-            if (memory.GetType().GetProperty("Rom") is not null)
+            var memory = (SuperMetroidAddressSpace)(host.addressSpace ?? throw new InvalidOperationException("Host has no address space."));
+            if (MetadataShape.DeclaresProperty(memory.GetType(), "Rom"))
                 throw new InvalidOperationException(
                     "Windows host retained cartridge bytes after ROM-less startup.");
-            var game = (SuperMetroidGame)(typeof(PlayableGameControl)
-                .GetField("game", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .GetValue(host) ?? throw new InvalidOperationException("Host has no game."));
+            var game = (SuperMetroidGame)(host.game ?? throw new InvalidOperationException("Host has no game."));
             long startFrame = game.FrameNumber;
-            MethodInfo step = typeof(PlayableGameControl).GetMethod("StepFrame",
-                BindingFlags.Instance | BindingFlags.NonPublic)
-                ?? throw new InvalidOperationException("Windows host has no frame step.");
             for (int frame = 0; frame < 6; frame++)
-                step.Invoke(host, [(ushort?)0]);
+                host.StepFrame(0);
             if (game.FrameNumber != startFrame + 6)
                 throw new InvalidOperationException(
                     "Windows host did not advance six title frames without its ROM copy.");
 
-            MethodInfo saveState = typeof(PlayableGameControl).GetMethod(
-                "SaveDebuggerState", BindingFlags.Instance | BindingFlags.NonPublic)
-                ?? throw new InvalidOperationException("Windows host has no debugger state save.");
-            MethodInfo loadState = typeof(PlayableGameControl).GetMethod(
-                "LoadDebuggerState", BindingFlags.Instance | BindingFlags.NonPublic)
-                ?? throw new InvalidOperationException("Windows host has no debugger state load.");
             long savedFrame = game.FrameNumber;
             var savedPixels = game.CurrentFrame.Pixels.ToArray();
-            saveState.Invoke(host, [0]);
+            host.SaveDebuggerState(0);
             if (!File.Exists(Path.Combine(root, "debug-states",
                     "SuperMetroid-debug-slot-0.smstate")))
                 throw new InvalidOperationException(
                     "Windows host did not save a debugger state without its ROM copy.");
-            step.Invoke(host, [(ushort?)0]);
-            ((Task)(loadState.Invoke(host, [0]) ?? throw new InvalidOperationException(
-                "Windows host did not start debugger state loading.")))
-                .GetAwaiter().GetResult();
-            memory = (SuperMetroidAddressSpace)(typeof(PlayableGameControl)
-                .GetField("addressSpace", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .GetValue(host) ?? throw new InvalidOperationException("Restored host has no address space."));
-            game = (SuperMetroidGame)(typeof(PlayableGameControl)
-                .GetField("game", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .GetValue(host) ?? throw new InvalidOperationException("Restored host has no game."));
-            if (memory.GetType().GetProperty("Rom") is not null || game.FrameNumber != savedFrame)
+            host.StepFrame(0);
+            host.LoadDebuggerState(0).GetAwaiter().GetResult();
+            memory = (SuperMetroidAddressSpace)(host.addressSpace ?? throw new InvalidOperationException("Restored host has no address space."));
+            game = (SuperMetroidGame)(host.game ?? throw new InvalidOperationException("Restored host has no game."));
+            if (MetadataShape.DeclaresProperty(memory.GetType(), "Rom") || game.FrameNumber != savedFrame)
                 throw new InvalidOperationException(
                     "Windows debugger state did not restore the zero-ROM frame exactly.");
-            step.Invoke(host, [(ushort?)0]);
+            host.StepFrame(0);
             if (game.FrameNumber != savedFrame + 1)
                 throw new InvalidOperationException(
                     "Windows host did not resume frames after zero-ROM state loading.");
@@ -104,16 +85,12 @@ internal static class RomlessDesktopStartupTest
                 },
                 replay: recordedReset);
             for (int frame = 0; frame < 6; frame++)
-                step.Invoke(replayHost, [(ushort?)null]);
-            var replayMemory = (SuperMetroidAddressSpace)(typeof(PlayableGameControl)
-                .GetField("addressSpace", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .GetValue(replayHost) ?? throw new InvalidOperationException(
+                replayHost.StepFrame(null);
+            var replayMemory = (SuperMetroidAddressSpace)(replayHost.addressSpace ?? throw new InvalidOperationException(
                     "Replay host has no address space."));
-            var replayGame = (SuperMetroidGame)(typeof(PlayableGameControl)
-                .GetField("game", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .GetValue(replayHost) ?? throw new InvalidOperationException(
+            var replayGame = (SuperMetroidGame)(replayHost.game ?? throw new InvalidOperationException(
                     "Replay host has no game."));
-            if (replayMemory.GetType().GetProperty("Rom") is not null || replayGame.FrameNumber != savedFrame ||
+            if (MetadataShape.DeclaresProperty(replayMemory.GetType(), "Rom") || replayGame.FrameNumber != savedFrame ||
                 !replayGame.CurrentFrame.Pixels.AsSpan().SequenceEqual(savedPixels))
                 throw new InvalidOperationException(
                     "Zero-ROM Windows input replay diverged from the captured frame.");

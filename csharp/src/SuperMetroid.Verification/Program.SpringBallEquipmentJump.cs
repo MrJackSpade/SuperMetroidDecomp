@@ -76,7 +76,7 @@ internal static class SpringBallEquipmentJumpVerification
                 else samus.EquippedItems &= unchecked((ushort)~(ushort)SamusEquipmentFlags.SpringBall);
                 // The equipment screen writes this live word. Exercise its real forced-blank
                 // teardown, where cartridge command $0C must reconcile the pose.
-                typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game, SuperMetroidGameState.UnpausingB);
+                game.GameState = SuperMetroidGameState.UnpausingB;
                 game.Step(0);
                 AssertEqual(SuperMetroidGameState.Unpausing, game.GameState, "actual frontend teardown completes");
                 AssertEqual(y, samus.Position.Y.Whole, "equipment switch does not move Samus");

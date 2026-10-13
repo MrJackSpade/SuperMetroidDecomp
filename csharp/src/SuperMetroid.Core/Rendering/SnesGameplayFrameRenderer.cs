@@ -771,7 +771,7 @@ public static class SnesGameplayFrameRenderer
         }
     }
 
-    private static int ReadPowerBombHalfWidth(
+    internal static int ReadPowerBombHalfWidth(
         SamusPowerBombExplosionState explosion,
         int yFromCenter)
     {
@@ -854,7 +854,7 @@ public static class SnesGameplayFrameRenderer
         (byte)Math.Max(byte.MinValue, left - right);
 
     /// <summary>One signed 8.8 screen-space direction vector reconstructed from `$91:C9D4`.</summary>
-    private static Offset16<ScreenPixels> ReadXrayDirection(int angle)
+    internal static Offset16<ScreenPixels> ReadXrayDirection(int angle)
     {
         int wrappedAngle = SnesAngle.NormalizeTableIndex(angle).TableIndex;
 
@@ -897,7 +897,7 @@ public static class SnesGameplayFrameRenderer
         return output;
     }
 
-    private static void DrawHudAndObjects(
+    internal static void DrawHudAndObjects(
         Rgba32[] output,
         SnesVram vram,
         SnesCgram cgram,

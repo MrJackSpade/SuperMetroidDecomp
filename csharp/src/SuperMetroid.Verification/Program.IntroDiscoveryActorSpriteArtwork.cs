@@ -62,30 +62,23 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
-            typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
-                .Invoke(state, null);
-            typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!
-                .Invoke(state, null);
-            typeof(IntroCinematicState).GetMethod("SetupBabyDiscoveryCrossfade", flags)!
-                .Invoke(state, null);
-            var crossfade = typeof(IntroCinematicState).GetMethod(
-                "StepBabyDiscoveryCrossfade", flags)!;
+            state.SetupFirstIllustratedPage();
+            state.SetupMotherBrainFlashback();
+            state.SetupBabyDiscoveryCrossfade();
             for (int frame = 0; frame < 128 &&
                 state.Phase == IntroCinematicPhase.BabyDiscoveryCrossfade; frame++)
-                crossfade.Invoke(state, null);
+                state.StepBabyDiscoveryCrossfade();
             AssertEqual(IntroCinematicPhase.BabyDiscovery, state.Phase,
                 "discovery actor visual probe reached the lit gameplay palette");
-            var discovery = (IntroBabyDiscoveryState)typeof(IntroCinematicState)
-                .GetField("babyDiscovery", flags)!.GetValue(state)!;
+            var discovery = state.babyDiscovery;
             discovery.Step(0, 1);
         }
-        var render = typeof(IntroCinematicState).GetMethod("RenderBabyDiscovery", flags)!;
-        Rgba32[] stockPixels = (Rgba32[])render.Invoke(stockState, null)!;
-        Rgba32[] editedPixels = (Rgba32[])render.Invoke(editedState, null)!;
+        Rgba32[] stockPixels = stockState.RenderBabyDiscovery();
+        Rgba32[] editedPixels = editedState.RenderBabyDiscovery();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "egg visual override changes visible production discovery pixels");
         stockState.BindCharacterArtwork(edited);
-        AssertTrue(((Rgba32[])render.Invoke(stockState, null)!).SequenceEqual(editedPixels),
+        AssertTrue((stockState.RenderBabyDiscovery()).SequenceEqual(editedPixels),
             "restored discovery scene rebinds selected egg and baby visual compositions");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production discovery actors never reread twenty native spritemaps");

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Assets;
 internal static class GoldenTorizoStrideGeometryDefinitions
 {
     /// <summary>$AA:A4FA-A64D: ten four-component left-walking extended frames, each2+4*8bytes.</summary>
-    private const int FirstFrame = 0xaaa4fa, FrameBytes = 2 + 4 * 8, BodyComponent = 2;
+    internal const int FirstFrame = 0xaaa4fa, FrameBytes = 2 + 4 * 8, BodyComponent = 2;
     /// <summary>$AA:968D/8FE0/9720/91B4: the incoming support foot begins at X=-37.</summary>
     private const int ForwardPlantX = -37;
     /// <summary>$AA:905F/9233: early planted-foot origins for the two alternating legs.</summary>

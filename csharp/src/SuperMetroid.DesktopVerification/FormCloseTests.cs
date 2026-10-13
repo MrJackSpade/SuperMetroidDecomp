@@ -17,12 +17,12 @@ internal static class FormCloseTests
         File.Copy(Path.GetFullPath("Super Metroid.smc"), rom);
         using var form = new GameForm(DesktopAccess.InstallationFor(rom), new SuperMetroidGameOptions { Renderer = renderer, AudioEnabled = false });
         _ = form.Handle;
-        var control = Field<PlayableGameControl>(form, "gameControl");
+        var control = form.gameControl;
         _ = control.Handle;
-        Call(control, "SetPlaying", false);
+        control.SetPlaying(false);
         Task startup = control.InitializeRendererAsync();
         D3D11RenderWorker? worker = renderer == RendererSelection.Direct3D11
-            ? Field<D3D11RenderWorker>(control, "gpuWorker") : null;
+            ? control.gpuWorker : null;
         try
         {
             if (!duringStartup) await startup;
@@ -38,7 +38,7 @@ internal static class FormCloseTests
             await startup;
             Check(!destroyedBeforeWorkerStopped, "canvas HWND destroyed before GPU owner stopped");
             Check(worker is null || worker.Completion.IsCompletedSuccessfully, "form close did not join GPU owner");
-            Check(Field<bool>(form, "rendererStopped"), "form did not complete its renderer shutdown path");
+            Check(form.rendererStopped, "form did not complete its renderer shutdown path");
         }
         finally
         {

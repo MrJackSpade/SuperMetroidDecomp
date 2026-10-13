@@ -16,11 +16,11 @@ internal sealed class IntroBabyDiscoveryState
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
     private readonly Func<ushort, ushort> demoWordReader;
-    private readonly DemoInputState demo = new();
-    private readonly List<IntroEggParticle> eggParticles = [];
+    internal readonly DemoInputState demo = new();
+    internal readonly List<IntroEggParticle> eggParticles = [];
     private readonly List<IntroEggSlimeDrop> slimeDrops = [];
-    private readonly IntroDiscoverySprite egg;
-    private readonly IntroDiscoverySprite confusedBaby;
+    internal readonly IntroDiscoverySprite egg;
+    internal readonly IntroDiscoverySprite confusedBaby;
 
     public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
         SamusState? existingSamus = null, Func<ushort, ushort>? demoWordReader = null)

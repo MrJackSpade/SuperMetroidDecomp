@@ -15,8 +15,8 @@ internal sealed class IntroCeresFlightState
     // Final frame, reused by every render: a returned frame is valid until this scene renders again.
     [NonSerialized] private Rgba32[]? frameBuffer;
 
-    private readonly ISnesAddressSpace bus;
-    private readonly CartridgeAudioState audio;
+    internal readonly ISnesAddressSpace bus;
+    internal readonly CartridgeAudioState audio;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
     private byte[] tilemap;
@@ -30,7 +30,7 @@ internal sealed class IntroCeresFlightState
     private ushort zoom = 0x0200;
     private SnesAngle angle = SnesAngle.FromTableIndex(0xe0);
     private byte brightness;
-    private IntroDiscoverySprite[] rearViewActors = [];
+    internal IntroDiscoverySprite[] rearViewActors = [];
     private byte fixedColorRed = 0x20;
     private byte fixedColorGreen = 0x40;
     private byte fixedColorBlue = 0x80;
@@ -511,7 +511,7 @@ internal sealed class IntroCeresFlightState
         return (a, b, unchecked((short)-b), a);
     }
 
-    private static short ReadSine(byte tableIndex) => EnemyTrigonometryTables.SignedSine(tableIndex);
+    internal static short ReadSine(byte tableIndex) => EnemyTrigonometryTables.SignedSine(tableIndex);
 
     private static short Scale(short component, ushort scalar) =>
         unchecked((short)(SnesEightEight.Multiply(component, (short)scalar)));

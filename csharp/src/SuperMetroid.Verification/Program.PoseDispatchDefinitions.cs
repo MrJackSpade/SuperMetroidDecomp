@@ -24,9 +24,7 @@ internal static class PoseDispatchDefinitionsVerification
     {
         var forbidden = NewSlopeHeightNoReadBus();
         var samus = new SamusState();
-        var commit = typeof(SamusState).GetMethod("CommitPoseHistory",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .CreateDelegate<Action<SamusState, ISnesAddressSpace>>();
+        Action<SamusState, ISnesAddressSpace> commit = (state, memory) => state.CommitPoseHistory(memory);
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             int address = SamusMovementRomData.Poses.Definitions + pose * SamusMovementRomData.Poses.DefinitionByteCount;

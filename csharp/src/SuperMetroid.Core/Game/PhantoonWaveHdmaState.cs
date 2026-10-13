@@ -7,8 +7,8 @@ public sealed class PhantoonWaveHdmaState
 {
     private bool _pendingSetup;
     private ushort _pendingMode;
-    private ushort[] _cycle = new ushort[PhantoonWaveRomData.LongHalfCycle * 2];
-    private int _cycleLength;
+    internal ushort[] _cycle = new ushort[PhantoonWaveRomData.LongHalfCycle * 2];
+    internal int _cycleLength;
     /// <summary>Whether an HDMA setup has run and the channel has not subsequently observed eye parameter one equal to zero; scheduling Begin alone does not activate it.</summary>
     public bool Active { get; private set; }
     /// <summary>Native sine-table byte phase: setup seeds $FFFE, then active calls add twice mouth variable F and mask to nine bits; not a pixel coordinate or word index.</summary>

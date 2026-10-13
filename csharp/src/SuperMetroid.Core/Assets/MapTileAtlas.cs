@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class MapTileAtlas
 {
     private readonly byte[] planar;
-    private MapTileAtlas(byte[] planar) => this.planar = planar;
+    internal MapTileAtlas(byte[] planar) => this.planar = planar;
 
     /// <summary>Compiles a 256-by-64 noninterlaced indexed PNG into 256 row-major 8-by-8 SNES 4-bpp characters, requiring pixel indices 0..15; PNG palette RGB values do not determine the runtime display palette.</summary>
     /// <param name="png">Caller-owned stream containing shared map artwork or the same-sized additional pause-menu atlas.</param>

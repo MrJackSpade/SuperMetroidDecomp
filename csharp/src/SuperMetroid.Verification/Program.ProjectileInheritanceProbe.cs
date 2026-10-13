@@ -23,9 +23,7 @@ internal static class ProjectileInheritanceProbeVerification
     // The original initialized-WRAM reproduction is retained alongside live producers.
     internal static void ProbeProjectileVelocityInheritance()
     {
-        var initialize = typeof(BeamFiring)
-            .GetMethod("InitializePowerBeamVelocity", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<ISnesAddressSpace, SamusProjectileSlot>>();
+        var initialize = new Action<ISnesAddressSpace, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
         var memory = new TestAddressSpace();
         var bus = new MutableCartridgeReadGuard(memory);
         bus.Forbid(address => SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) == SnesDmaSourceKind.SaveRam,

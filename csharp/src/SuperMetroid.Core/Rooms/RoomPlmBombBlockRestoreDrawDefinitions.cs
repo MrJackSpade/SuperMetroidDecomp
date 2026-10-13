@@ -64,7 +64,7 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitions
         }
     }
 
-    private static RoomPlmShotBlockDrawDefinitions.DrawList Export(Draw draw)
+    internal static RoomPlmShotBlockDrawDefinitions.DrawList Export(Draw draw)
     {
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
         for (int run = 0; run < runs.Length; run++)

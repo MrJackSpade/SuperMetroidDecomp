@@ -18,10 +18,9 @@ internal static class LookupFxWeatherBlueVerification
             var cgram = new SnesCgram(); stock.Apply(cgram, (RoomFxPaletteBlend)id);
             AssertEqual(expected, (cgram.Colors[27].ToWord() >> 5) & 31, "Applied weather third green");
             var owner = new RoomFxThirdColor((RoomFxPaletteBlend)id, Bgr555.FromWord(checked((ushort)(native))));
-            var field = typeof(RoomFxThirdColor).GetField("greenOverride", BindingFlags.Instance | BindingFlags.NonPublic)!;
-            AssertTrue(field.GetValue(owner) is null, "Stock weather third green is not stored");
+            AssertTrue(owner.greenOverride is null, "Stock weather third green is not stored");
             _ = owner.CreateColor();
-            AssertTrue(field.GetValue(owner) is null, "Weather output does not cache green");
+            AssertTrue(owner.greenOverride is null, "Weather output does not cache green");
         }
         for (int value = 0; value <= byte.MaxValue; value++)
         {
@@ -45,10 +44,9 @@ internal static class LookupFxWeatherBlueVerification
             stock.Apply(cgram, (RoomFxPaletteBlend)id);
             AssertEqual(expected, (cgram.Colors[27].ToWord() >> 10) & 31, "Applied weather third blue");
             var owner = new RoomFxThirdColor((RoomFxPaletteBlend)id, Bgr555.FromWord(checked((ushort)(native))));
-            var field = typeof(RoomFxThirdColor).GetField("blueOverride", BindingFlags.Instance | BindingFlags.NonPublic)!;
-            AssertTrue(field.GetValue(owner) is null, "Stock weather third blue is not stored");
+            AssertTrue(owner.blueOverride is null, "Stock weather third blue is not stored");
             _ = owner.CreateColor();
-            AssertTrue(field.GetValue(owner) is null, "Weather output does not create a blue cache");
+            AssertTrue(owner.blueOverride is null, "Weather output does not create a blue cache");
         }
         foreach (byte id in OriginalFxBlendIds())
         {

@@ -19,8 +19,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class SuperMetroidGame
 {
-    private readonly ScreenFadeTimer screenFade = new();
-    private readonly MenuNmiFrameCounters menuNmi = new();
+    internal readonly ScreenFadeTimer screenFade = new();
+    internal readonly MenuNmiFrameCounters menuNmi = new();
 
     /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
     [field: NonSerialized]
@@ -272,48 +272,48 @@ public sealed class SuperMetroidGame
         }
     }
 
-    private readonly ISnesAddressSpace bus;
+    internal readonly ISnesAddressSpace bus;
 
     /// <summary>Current host options; interactive state restoration rebinds these to the active session.</summary>
     public SuperMetroidGameOptions ConfiguredOptions { get; private set; }
     private readonly FrontendDisplay display;
-    private readonly SuperMetroidSaveRam saveRam;
+    internal readonly SuperMetroidSaveRam saveRam;
 
     /// <summary>Boot-time <see cref="Bank80SystemState.MainGameLoopCarry"/>; fixed for the session.</summary>
     private readonly bool bootMainLoopCarry;
-    private readonly CartridgeAudioState audio = new();
+    internal readonly CartridgeAudioState audio = new();
     private TitleSequenceState? title;
     private FileSelectMenuState? fileSelect;
     private FileSelectMapMenuState? fileSelectMap;
-    private GameOptionsMenuState? options;
-    private GameOverMenuState? gameOver;
-    private IntroCinematicState? intro;
-    private CeresDestructionCinematicState? ceresDestruction;
-    private EndingCreditsState? endingCredits;
-    private PauseMenuState? pauseMenu;
-    private SuperMetroidRuntime? runtime;
+    internal GameOptionsMenuState? options;
+    internal GameOverMenuState? gameOver;
+    internal IntroCinematicState? intro;
+    internal CeresDestructionCinematicState? ceresDestruction;
+    internal EndingCreditsState? endingCredits;
+    internal PauseMenuState? pauseMenu;
+    internal SuperMetroidRuntime? runtime;
     private readonly CeresDepartureState ceresDeparture = new();
-    private readonly SamusReserveAutoRecoveryState reserveRecovery = new();
-    private readonly DoorTransitionState doorTransition = new();
+    internal readonly SamusReserveAutoRecoveryState reserveRecovery = new();
+    internal readonly DoorTransitionState doorTransition = new();
 
     private int selectedSaveSlot;
-    private bool loadingExistingSave;
+    internal bool loadingExistingSave;
     private SuperMetroidSaveSlot? spacetimeIntroRestartSlot;
     private byte postCeresFadeBrightness;
     private int postCeresFadeCounter = 1;
     private bool gameplayFadeLeadsToCeresArrival;
-    private byte pauseBrightness = PauseFadeTiming.FullyLit;
+    internal byte pauseBrightness = PauseFadeTiming.FullyLit;
     private CartridgePaletteTransition? deathPaletteFade;
     private CartridgePaletteTransition? timeUpPaletteFade;
-    private byte deathFadeBrightness = 15;
-    private int deathFadeCounter;
+    internal byte deathFadeBrightness = 15;
+    internal int deathFadeCounter;
     private byte endingFadeBrightness = 15;
     private int endingFadeCounter;
     private IReadOnlyList<CartridgeAudioCommand> lastAudioCommands =
         Array.Empty<CartridgeAudioCommand>();
     private CartridgeAudioAcknowledgements audioAcknowledgements;
     private ulong? lastAudioRuntimeGameplayPublication;
-    private ushort? lastAudioRoomStatePointer;
+    internal ushort? lastAudioRoomStatePointer;
 
     /// <summary>Creates a reset-state session, reading the selected SRAM slot and capturing the native boot carry before any dispatcher frame runs.</summary>
     /// <param name="bus">Retained cartridge address space with <see cref="ISnesMutableMemory"/> support for WRAM and SRAM changes throughout the session.</param>
@@ -368,7 +368,7 @@ public sealed class SuperMetroidGame
         audioAcknowledgements = acknowledgements;
 
     /// <summary>Current value of the native game-state word at WRAM $0998.</summary>
-    public SuperMetroidGameState GameState { get; private set; } = SuperMetroidGameState.Reset;
+    public SuperMetroidGameState GameState { get; internal set; } = SuperMetroidGameState.Reset;
 
     /// <summary>Wrapping frame counter corresponding to the game's 16-bit NMI counter.</summary>
     public ushort FrameNumber { get; private set; }
@@ -1544,7 +1544,7 @@ public sealed class SuperMetroidGame
     /// running full gameplay, so Samus and the RNG advance behind the fade. State eight has
     /// already completed on this publication frame; the following call owns the fade.
     /// </summary>
-    private void BeginZebesEscapeFade()
+    internal void BeginZebesEscapeFade()
     {
         endingFadeBrightness = 15;
         endingFadeCounter = 0;
@@ -1765,7 +1765,7 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>Starts a pause fade from <paramref name="initialBrightness"/> with both fade words reloaded.</summary>
-    private void BeginPauseFade(byte initialBrightness)
+    internal void BeginPauseFade(byte initialBrightness)
     {
         pauseBrightness = initialBrightness;
         screenFade.Reload();
@@ -1786,7 +1786,7 @@ public sealed class SuperMetroidGame
 
     /// <summary>Allocates and binds the gameplay owner without selecting a room.</summary>
     [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(runtime))]
-    private void CreateGameplayRuntime(bool forAttractDemo = false)
+    internal void CreateGameplayRuntime(bool forAttractDemo = false)
     {
         ushort incomingRandom = FrontendRandomOwner.RandomNumber;
         if (runtime is not null)
@@ -1903,7 +1903,7 @@ public sealed class SuperMetroidGame
             slot.ReserveEnergy,
             slot.ReserveMode));
 
-    private bool SetupSelectedGame()
+    internal bool SetupSelectedGame()
     {
         CreateGameplayRuntime();
 
@@ -2082,9 +2082,9 @@ public sealed class SuperMetroidGame
     }
 
     private int demoSet;
-    private int demoScene;
-    private int demoFramesRemaining;
-    private int demoHoldFramesRemaining;
+    internal int demoScene;
+    internal int demoFramesRemaining;
+    internal int demoHoldFramesRemaining;
     private int demoLoadFramesRemaining = -1;
     private bool demoCancelled;
     private bool demoHasNextScene;
@@ -2338,7 +2338,7 @@ public sealed class SuperMetroidGame
     // Before a room exists, the frontend still owns the cartridge's live RNG word.
     private Bank80SystemState? menuRandom;
 
-    private Bank80SystemState FrontendRandomOwner =>
+    internal Bank80SystemState FrontendRandomOwner =>
         runtime?.System ?? (menuRandom ??= new Bank80SystemState());
 
     private void ReleaseRuntimePreservingRandom()
@@ -2389,7 +2389,7 @@ public sealed class SuperMetroidGame
     /// loading. These menu dispatchers return once per frame; they do not run the
     /// gameplay runtime's prologue. SRAM contains no copy of the live RNG word.
     /// </summary>
-    private void AdvanceMenuRandom()
+    internal void AdvanceMenuRandom()
     {
         switch (GameState)
         {

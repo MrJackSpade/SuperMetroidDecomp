@@ -39,10 +39,10 @@ namespace SuperMetroid.Core.Assets;
 public sealed class SamusHyperBeamColorCatalog
 {
 
-    private readonly Dictionary<int, Bgr555> colors = new();
-    private readonly Dictionary<int, LoadingPaletteInputView.Channels> intermediateInputs = new();
-    private readonly Dictionary<int, EndpointChannels> endpointInputs = new();
-    private readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
+    internal readonly Dictionary<int, Bgr555> colors = new();
+    internal readonly Dictionary<int, LoadingPaletteInputView.Channels> intermediateInputs = new();
+    internal readonly Dictionary<int, EndpointChannels> endpointInputs = new();
+    internal readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
     private SamusHyperBeamColorCatalog(Bgr555[][] frames)
     {
@@ -253,9 +253,9 @@ public sealed class SamusHyperBeamColorCatalog
     /// class-level artwork disposition; intermediate relationships are calculated.</remarks>
     internal readonly struct EndpointChannels
     {
-        private readonly int? red;
-        private readonly int? green;
-        private readonly int? blue;
+        internal readonly int? red;
+        internal readonly int? green;
+        internal readonly int? blue;
 
         internal EndpointChannels(Bgr555 supplied, bool redHue, int? expectedRed, int? expectedGreen = null)
         {

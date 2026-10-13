@@ -42,7 +42,7 @@ internal static class FileCopyArrowVerification
             OamBuffer Capture()
             {
                 menu.CaptureRenderSnapshot();
-                return (OamBuffer)typeof(FileSelectMenuState).GetField("oam", flags)!.GetValue(menu)!;
+                return menu.oam;
             }
             Until(FileSelectPhase.Main);
             for (int i = 0; i < 3; i++) Press(SnesButton.Down);
@@ -73,7 +73,7 @@ internal static class FileCopyArrowVerification
                 AssertEqual(expected.GetEntry(part), actual.GetEntry(noArrowCount + part),
                     $"copy {pair.slots}: exact arrow position, tile, flip, palette and priority, part {part}");
             }
-            var ppu = (MenuPpuState)typeof(FileSelectMenuState).GetField("ppu", flags)!.GetValue(menu)!;
+            var ppu = menu.ppu;
             expected.FinalizeFrame();
             Rgba32[] arrowPixels = SnesObjRenderer.Render(expected, ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
             Rgba32[] menuPixels = menu.Render();

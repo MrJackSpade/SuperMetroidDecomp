@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -16,13 +16,13 @@ internal sealed class SamusPresentation
         _samus = owner;
     }
     /// <summary>Last top-half index passed to bank-$81's Samus spritemap routine.</summary>
-    public ushort TopSpritemapIndex { get; private set; }
+    public ushort TopSpritemapIndex { get; internal set; }
 
     /// <summary>Last bottom-half index passed to bank-$81's Samus spritemap routine.</summary>
-    public ushort BottomSpritemapIndex { get; private set; }
+    public ushort BottomSpritemapIndex { get; internal set; }
 
     /// <summary>Last screen-space origin calculated from world position and layer-1 scroll.</summary>
-    public Position16<ScreenPixels> SpritemapPosition { get; private set; }
+    public Position16<ScreenPixels> SpritemapPosition { get; internal set; }
 
     /// <summary>The exact pending bank-$92 definitions consumed by accepted NMI.</summary>
     public SamusTileTransferState TileTransfers { get; } = new();
@@ -465,7 +465,7 @@ internal sealed class SamusPresentation
     /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.
     /// Cadence and command position are compiled mechanics; displayed artwork is separate.
     /// </summary>
-    private static byte ReadDefaultRunningAnimationByte(ISnesAddressSpace bus, ushort byteIndex)
+    internal static byte ReadDefaultRunningAnimationByte(ISnesAddressSpace bus, ushort byteIndex)
     {
         return SamusRunningCadenceDefinitions.ReadAnimationByte(
             bus,

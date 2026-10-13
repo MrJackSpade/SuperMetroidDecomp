@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresDestructionActorLayout
 {
-    private readonly CeresDestructionActorPlacement[]? placements;
+    internal readonly CeresDestructionActorPlacement[]? placements;
 
     private CeresDestructionActorLayout(CeresDestructionActorPlacement[] placements)
     {

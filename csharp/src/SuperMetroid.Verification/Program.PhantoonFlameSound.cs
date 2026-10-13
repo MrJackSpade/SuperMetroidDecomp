@@ -22,10 +22,8 @@ internal static class PhantoonFlameSoundVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = CreatePhantoonInstructionSystem(NewSlopeHeightNoReadBus());
         Func<RoomEnemySlot, ushort, bool> callback = enemies.PhantoonBehavior.ProcessPhantoonInstructionFunction;
-        var begin = typeof(RoomEnemySystem).GetMethod("BeginEnemySoundRequestFrame", flags)!
-            .CreateDelegate<Action>(enemies);
-        var collect = typeof(RoomEnemySystem).GetMethod("CollectLegacyEnemyAudioRequests", flags)!
-            .CreateDelegate<Action>(enemies);
+        var begin = new Action(enemies.BeginEnemySoundRequestFrame);
+        var collect = new Action(enemies.CollectLegacyEnemyAudioRequests);
         begin();
         callback(enemies.SlotTable.Slots[3], (ushort)PhantoonInstruction.SpawnCasualFlame);
         collect();

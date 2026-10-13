@@ -16,7 +16,7 @@ internal sealed class CrocomireMeltingTilemap
     private const int AtlasColumns = 16;
     private const int BgColumns = 32;
     private readonly bool second;
-    private readonly Dictionary<int, ushort> edits = [];
+    internal readonly Dictionary<int, ushort> edits = [];
 
     internal CrocomireMeltingTilemap(bool second, ReadOnlySpan<ushort> supplied)
     {

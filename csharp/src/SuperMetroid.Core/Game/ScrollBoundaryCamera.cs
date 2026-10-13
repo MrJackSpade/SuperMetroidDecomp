@@ -25,7 +25,7 @@ public sealed class ScrollBoundaryCamera
     /// Gets the layer-one 16.16 position: the integer words <c>$0911/$0915</c> and the fraction
     /// words <c>$090F/$0913</c>.
     /// </summary>
-    public FixedPosition<RoomPixels> Position { get; private set; }
+    public FixedPosition<RoomPixels> Position { get; internal set; }
 
     /// <summary>Gets the layer-one integer position (the camera's top-left room pixel).</summary>
     public Position16<RoomPixels> PixelPosition => Position.Whole;
@@ -34,13 +34,13 @@ public sealed class ScrollBoundaryCamera
     /// Gets the camera target calculated from Samus's position: horizontally from her facing
     /// context, vertically from the scroller offsets (<c>$0939/$093B</c>).
     /// </summary>
-    public Position16<RoomPixels> IdealPosition { get; private set; }
+    public Position16<RoomPixels> IdealPosition { get; internal set; }
 
     /// <summary>
     /// Gets the most recently calculated 16.16 camera speed on each axis (<c>$0DA0-$0DA6</c>):
     /// Samus's unsigned distance moved plus one pixel, held as its native word pattern.
     /// </summary>
-    public FixedVector<RoomPixels> Speed { get; private set; }
+    public FixedVector<RoomPixels> Speed { get; internal set; }
 
     /// <summary>
     /// Samus's four previous-position words written at the end of $90:94EC.
@@ -420,7 +420,7 @@ public sealed class ScrollBoundaryCamera
             : NextScreenStart(proposed));
     }
 
-    private void HandleScrollingRight()
+    internal void HandleScrollingRight()
     {
         ushort proposed = Position.X.Whole;
 
@@ -453,7 +453,7 @@ public sealed class ScrollBoundaryCamera
         SetWholeX(candidate);
     }
 
-    private void HandleScrollingLeft()
+    internal void HandleScrollingLeft()
     {
         ushort proposed = Position.X.Whole;
         if (SignedDifference(Position.X.Whole, IdealPosition.X) < 0)
@@ -480,7 +480,7 @@ public sealed class ScrollBoundaryCamera
         SetWholeX(candidate);
     }
 
-    private void HandleScrollingDown()
+    internal void HandleScrollingDown()
     {
         ushort proposed = Position.Y.Whole;
         int currentCell = VerticalCellIndex();
@@ -523,7 +523,7 @@ public sealed class ScrollBoundaryCamera
         }
     }
 
-    private void HandleScrollingUp()
+    internal void HandleScrollingUp()
     {
         ushort proposed = Position.Y.Whole;
         if (SignedDifference(Position.Y.Whole, IdealPosition.Y) < 0)

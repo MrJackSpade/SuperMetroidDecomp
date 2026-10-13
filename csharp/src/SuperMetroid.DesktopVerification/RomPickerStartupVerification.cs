@@ -1,9 +1,11 @@
+using SuperMetroid.Core;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
 /// <summary>Opens and cancels the real setup button's native dialog on the player's entry apartment.</summary>
 internal static partial class RomPickerStartupVerification
 {
+    [ReflectionAudit("published-assembly dialog test: the form type comes from the loaded package, and Button.PerformClick is inert on an unshown form, so WinForms OnClick is raised directly")]
     public static void Run(string gameAssemblyPath)
     {
         Assembly game = Assembly.LoadFrom(Path.GetFullPath(gameAssemblyPath));

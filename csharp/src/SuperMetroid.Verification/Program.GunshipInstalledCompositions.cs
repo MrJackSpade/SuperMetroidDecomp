@@ -101,10 +101,8 @@ internal static class GunshipInstalledCompositionsVerification
         game.RuntimeForVerification!.System.LoadSavedLoadingGameState(SaveLoadingGameStates.CeresDestruction);
         SetState(game, SuperMetroidGameState.CeresGoesBoom);
         game.StepCaptured(0, ++sequence, 1);
-        var scene = (CeresDestructionCinematicState)typeof(SuperMetroidGame)
-            .GetField("ceresDestruction", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
-        typeof(CeresDestructionCinematicState).GetProperty(nameof(scene.Phase))!
-            .SetValue(scene, CeresDestructionPhase.Finished);
+        var scene = game.ceresDestruction;
+        scene.Phase = CeresDestructionPhase.Finished;
         game.StepCaptured(0, ++sequence, 1);
         game.StepCaptured(0, ++sequence, 1);
         AssertEqual(AreaId.Crateria, game.RuntimeForVerification!.Room.ActiveRoom!.AreaIndex,

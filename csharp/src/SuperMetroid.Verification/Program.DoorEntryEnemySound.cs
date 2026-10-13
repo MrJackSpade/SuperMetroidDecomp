@@ -43,8 +43,8 @@ internal static class DoorEntryEnemySoundVerification
         body.InstructionTimer = 1;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
+        game.runtime = runtime;
+        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
         var level = runtime.Room.LevelData!;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)
@@ -58,7 +58,7 @@ internal static class DoorEntryEnemySoundVerification
         AssertTrue(selected, "the Ki Hunter room has an exit");
         var audio = game.AudioForVerification;
         byte start = audio.SoundQueueForVerification(1).Next;
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.HitDoorBlock);
+        game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
 
         AssertEqual((byte)0x4c, audio.SoundQueueEntryForVerification(1, start),

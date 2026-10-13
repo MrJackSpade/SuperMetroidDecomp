@@ -103,35 +103,34 @@ internal static class NativeSnapshotImportMotherBrainVerification
     {
         var artwork = runtime.Enemies.Room.MotherBrainCorpseArtwork;
         var sequence = new MotherBrainRainbowBeamAttackSequence(artwork);
-        void Set(string property, object value) => PrivateState.SetProperty(sequence, property, value);
-        Set(nameof(sequence.Phase), phase);
-        Set(nameof(sequence.HeadInstructionTimer), W(MotherBrainMemory.BrainInstructionTimer));
-        Set(nameof(sequence.HeadInstructionPointer), W(MotherBrainMemory.BrainInstructionList));
-        Set(nameof(sequence.FunctionTimer), W(MotherBrainMemory.BodyFunctionTimer));
-        Set(nameof(sequence.AngularWidth), W(MotherBrainMemory.RainbowBeamAngularWidth));
-        Set(nameof(sequence.SoundQueueCount), W(MotherBrainMemory.RainbowBeamSoundQueueCount));
-        Set(nameof(sequence.RainbowBeamSoundPlaying), W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0);
-        Set(nameof(sequence.BrainMainShakeTimer), W(MotherBrainMemory.BrainMainShakeTimer));
-        Set(nameof(sequence.BrainPaletteHandlingEnabled), W(MotherBrainMemory.BrainPaletteHandling) != 0);
-        Set(nameof(sequence.HealthBasedPaletteHandlingEnabled), W(MotherBrainMemory.HealthBasedPaletteHandling) != 0);
-        Set(nameof(sequence.DroolGenerationEnabled), W(MotherBrainMemory.DroolGeneration) != 0);
-        Set(nameof(sequence.SmallPurpleBreathGenerationEnabled), W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0);
-        Set(nameof(sequence.GreyTransitionCounter), W(MotherBrainMemory.GreyTransitionCounter));
-        Set(nameof(sequence.Phase2CorpseState), W(MotherBrainMemory.Phase2CorpseState));
-        Set(nameof(sequence.BabyMetroidAttackCounter), W(MotherBrainMemory.BabyMetroidAttackCounter));
-        Set(nameof(sequence.BrainPaletteIndex), W(MotherBrainMemory.BrainPaletteIndex));
-        Set(nameof(sequence.MotherBrainUnpauseHookEnabled), W(MotherBrainMemory.EnableUnpauseHook) != 0);
-        Set(nameof(sequence.RainbowBeamPaletteAnimationIndex), W(MotherBrainMemory.RainbowPaletteIndex));
-        Set(nameof(sequence.DeathExplosionIntervalTimer), W(MotherBrainMemory.BrainSubFunction));
-        Set(nameof(sequence.DeathAndEscapeExplosionIndex), W(MotherBrainMemory.BrainSubFunctionTimer));
-        Set(nameof(sequence.LowerNeckAngle), W(MotherBrainMemory.LowerNeckAngle));
-        Set(nameof(sequence.UpperNeckAngle), W(MotherBrainMemory.UpperNeckAngle));
-        Set(nameof(sequence.NeckAngleDelta), W(MotherBrainMemory.NeckAngleDelta));
-        Set(nameof(sequence.NeckMovementEnabled), W(MotherBrainMemory.NeckMovementEnabled));
-        Set(nameof(sequence.LowerNeckMovementIndex), ClosedNativeWords.Decode<MotherBrainNeckMovement>(
-            W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index"));
-        Set(nameof(sequence.UpperNeckMovementIndex), ClosedNativeWords.Decode<MotherBrainNeckMovement>(
-            W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index"));
+        sequence.Phase = phase;
+        sequence.HeadInstructionTimer = W(MotherBrainMemory.BrainInstructionTimer);
+        sequence.HeadInstructionPointer = W(MotherBrainMemory.BrainInstructionList);
+        sequence.FunctionTimer = W(MotherBrainMemory.BodyFunctionTimer);
+        sequence.AngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);
+        sequence.SoundQueueCount = W(MotherBrainMemory.RainbowBeamSoundQueueCount);
+        sequence.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
+        sequence.BrainMainShakeTimer = W(MotherBrainMemory.BrainMainShakeTimer);
+        sequence.BrainPaletteHandlingEnabled = W(MotherBrainMemory.BrainPaletteHandling) != 0;
+        sequence.HealthBasedPaletteHandlingEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
+        sequence.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
+        sequence.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
+        sequence.GreyTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
+        sequence.Phase2CorpseState = W(MotherBrainMemory.Phase2CorpseState);
+        sequence.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
+        sequence.BrainPaletteIndex = W(MotherBrainMemory.BrainPaletteIndex);
+        sequence.MotherBrainUnpauseHookEnabled = W(MotherBrainMemory.EnableUnpauseHook) != 0;
+        sequence.RainbowBeamPaletteAnimationIndex = W(MotherBrainMemory.RainbowPaletteIndex);
+        sequence.DeathExplosionIntervalTimer = W(MotherBrainMemory.BrainSubFunction);
+        sequence.DeathAndEscapeExplosionIndex = W(MotherBrainMemory.BrainSubFunctionTimer);
+        sequence.LowerNeckAngle = W(MotherBrainMemory.LowerNeckAngle);
+        sequence.UpperNeckAngle = W(MotherBrainMemory.UpperNeckAngle);
+        sequence.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);
+        sequence.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled);
+        sequence.LowerNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
+            W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
+        sequence.UpperNeckMovementIndex = ClosedNativeWords.Decode<MotherBrainNeckMovement>(
+            W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.RainbowBeamSequence = sequence;
     }
 }

@@ -21,32 +21,27 @@ internal static class MotherBrainWalkBackwardsPoseVerification
     internal static void VerifyMotherBrainWalkBackwardsPose()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo step = typeof(MotherBrainRainbowBeamAttackSequence).GetMethod("StepPainfulWalking", flags)!;
-        PropertyInfo forward = typeof(MotherBrainRainbowBeamAttackSequence).GetProperty(
-            nameof(MotherBrainRainbowBeamAttackSequence.PainfulWalkingForward))!;
 
         MotherBrainRainbowBeamAttackSequence Walking(ushort x, MotherBrainBodyPose pose)
         {
             var sequence = new MotherBrainRainbowBeamAttackSequence();
-            forward.SetValue(sequence, false);
-            typeof(MotherBrainRainbowBeamAttackSequence).GetProperty(
-                    nameof(MotherBrainRainbowBeamAttackSequence.PainfulWalkingAnimationDelay))!
-                .SetValue(sequence, (ushort)0x0002);
+            sequence.PainfulWalkingForward = false;
+            sequence.PainfulWalkingAnimationDelay = (ushort)0x0002;
             sequence.Body.Position = sequence.Body.Position.WithX(x);
             sequence.Body.Pose = pose;
             return sequence;
         }
 
         MotherBrainRainbowBeamAttackSequence midStep = Walking(0x0029, pose: MotherBrainBodyPose.Walking);
-        step.Invoke(midStep, null);
+        midStep.StepPainfulWalking();
         AssertEqual((ushort)0, midStep.PainfulWalkingFunctionTimer, "a mid-step body short of the target has not arrived");
 
         MotherBrainRainbowBeamAttackSequence standing = Walking(0x0029, pose: MotherBrainBodyPose.Standing);
-        step.Invoke(standing, null);
+        standing.StepPainfulWalking();
         AssertEqual((ushort)0x0010, standing.PainfulWalkingFunctionTimer, "a standing body inside the $30 limit has arrived");
 
         MotherBrainRainbowBeamAttackSequence arrived = Walking(0x0026, pose: MotherBrainBodyPose.Walking);
-        step.Invoke(arrived, null);
+        arrived.StepPainfulWalking();
         AssertEqual((ushort)0x0010, arrived.PainfulWalkingFunctionTimer, "a mid-step body at the target has arrived");
         Console.WriteLine("Mother Brain walk backwards: pose gates the $30 limit, not the target.");
     }

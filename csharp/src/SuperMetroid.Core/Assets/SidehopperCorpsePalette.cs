@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class SidehopperCorpsePalette
 {
-    private readonly Bgr555[] independentOrSupplied;
+    internal readonly Bgr555[] independentOrSupplied;
     private readonly bool calculated;
     private readonly bool stockTarget;
     internal int Count { get; }

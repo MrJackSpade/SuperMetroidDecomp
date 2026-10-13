@@ -92,7 +92,7 @@ internal readonly struct InstructionItem
 /// </remarks>
 internal sealed class InstructionProgramLayout
 {
-    private readonly InstructionItem[] items;
+    internal readonly InstructionItem[] items;
     // Lookups run per instruction and per byte; the layout is immutable, so its words are laid
     // out once and indexed by address instead of walked on every query.
     internal readonly Lazy<WordIndex> index;

@@ -89,10 +89,10 @@ public sealed class EnemyTileArtworkCatalog
     public CeresEscapeOverlayTilemapCatalog? CeresEscapeOverlayTilemaps { get; }
 
     /// <summary>Installed visual-only OAM frames; null for constructed legacy fixtures.</summary>
-    public EnemySpritemapCatalog? Spritemaps { get; private set; }
+    public EnemySpritemapCatalog? Spritemaps { get; internal set; }
 
     /// <summary>Installed extended visual frames; hitbox and AI data stay engine-owned.</summary>
-    public EnemyExtendedFrameCatalog? ExtendedFrames { get; private set; }
+    public EnemyExtendedFrameCatalog? ExtendedFrames { get; internal set; }
 
     /// <summary>Editable Phantoon BG2 tilemap frames; collision remains engine-owned.</summary>
     public PhantoonBg2FrameCatalog? PhantoonBg2Frames { get; }
@@ -240,7 +240,7 @@ public sealed class EnemyTileArtworkCatalog
         });
     }
 
-    private EnemyTileArtworkCatalog(EnemyTileArtworkParts parts)
+    internal EnemyTileArtworkCatalog(EnemyTileArtworkParts parts)
     {
         Ensure.NotNull(parts);
         Ensure.NotNull(parts.Sheets);

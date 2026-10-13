@@ -19,7 +19,7 @@ internal static class MagdollitePhaseDefinitions
     /// left: <c>LDY EnemyIndex</c> at $A0:9073. The table holds nine words; every slot
     /// but zero therefore reads the bank-$A8 bytes that follow it.
     /// </summary>
-    private static readonly ushort[] s_apexThresholdsByEnemySlot =
+    internal static readonly ushort[] s_apexThresholdsByEnemySlot =
     [
         0x0000, 0x20af, 0xae9d, 0xbd0f, 0x0f86, 0x0f96, 0x0a0a, 0xfc7e,
         0xa0af, 0xbf0e, 0xa9b3, 0x0fb0, 0x1d10, 0x54ae, 0x30af, 0xd0b1,

@@ -61,11 +61,8 @@ internal static class PaletteJsonContractsVisibleVerification
         for (int tick = 0; tick < 90; tick++)
         {
             AssertEqual(stockMap.Step(stockCgram), editedMap.Step(editedCgram), "map cycle sound/wrap timing unchanged");
-            foreach (string fieldName in new[] { "timer", "frame" })
-            {
-                FieldInfo field = typeof(MapPaletteAnimation).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)!;
-                AssertEqual((byte)field.GetValue(stockMap)!, (byte)field.GetValue(editedMap)!, "map cycle frame/timer unchanged");
-            }
+            AssertEqual(stockMap.timer, editedMap.timer, "map cycle frame/timer unchanged");
+            AssertEqual(stockMap.frame, editedMap.frame, "map cycle frame/timer unchanged");
             int destination = MapAnimationRomData.PaletteDestination + 1;
             AssertEqual((ushort)(stockCgram.Colors[destination].ToWord() ^ 0x7fff), editedCgram.Colors[destination],
                 "map replacement changes exactly the selected color");
@@ -89,9 +86,8 @@ internal static class PaletteJsonContractsVisibleVerification
         AssertAnimationValues(stock, edited, "FX state and heat phase unchanged");
         AssertTrue(stock.SoundRequests.SequenceEqual(edited.SoundRequests), "FX sound requests unchanged");
         AssertTrue(stock.MusicRequests.SequenceEqual(edited.MusicRequests), "FX music requests unchanged");
-        FieldInfo field = typeof(RoomPaletteFxSystem).GetField("slots", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var stockSlots = (Array)field.GetValue(stock)!;
-        var editedSlots = (Array)field.GetValue(edited)!;
+        var stockSlots = (Array)stock.slots;
+        var editedSlots = (Array)edited.slots;
         for (int slot = 0; slot < stockSlots.Length; slot++)
         {
             object stockSlot = stockSlots.GetValue(slot)!;

@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class GameplayMessageBoxState
 {
-    private ushort[] _tilemap = [];
+    internal ushort[] _tilemap = [];
     [NonSerialized] private GameplayMessageTitlePresentation? titlePresentation;
     [NonSerialized] private GameplayMessagePanelPresentation? panelPresentation;
     [NonSerialized] private GameplayMessageNoticePresentation? noticePresentation;
@@ -426,7 +426,7 @@ public sealed class GameplayMessageBoxState
         throw new InvalidOperationException("Save confirmation requires installed notice artwork.");
     }
 
-    private void PatchConfiguredButton(GameplayMessageId messageId, ushort binding)
+    internal void PatchConfiguredButton(GameplayMessageId messageId, ushort binding)
     {
         int byteOffset = GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(messageId);
         if ((byteOffset & 1) != 0 || byteOffset + 1 >= _tilemap.Length * 2)
@@ -457,7 +457,7 @@ public sealed class GameplayMessageBoxState
         }
     }
 
-    private static ushort ResolveButtonTilemapWord(ushort binding) =>
+    internal static ushort ResolveButtonTilemapWord(ushort binding) =>
         GameplayMessageRomData.Buttons.ResolveGlyphWord(binding);
 
 }

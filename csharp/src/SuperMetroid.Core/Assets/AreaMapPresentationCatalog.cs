@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class AreaMapPresentationCatalog : IVramAssetProvider
 {
     private readonly IAreaMapView[] areas;
-private AreaMapPresentationCatalog(AreaMapPresentationParts parts)
+internal AreaMapPresentationCatalog(AreaMapPresentationParts parts)
     {
         this.areas = parts.Areas;
         ContentIdentity = parts.ContentIdentity;

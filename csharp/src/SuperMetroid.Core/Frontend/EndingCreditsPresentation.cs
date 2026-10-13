@@ -251,7 +251,7 @@ internal sealed class EndingCreditsPresentation
         return oam;
     }
 
-    private static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(index);
+    internal static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(index);
 
     private byte CurrentRewardObjectSelection => _ending.rewardJump?.ObjectSelection
         ?? EndingCreditsRomData.Rendering.RewardObjectSelection;

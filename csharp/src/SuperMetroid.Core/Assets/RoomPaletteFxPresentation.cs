@@ -12,8 +12,8 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
 {
     internal readonly Dictionary<ushort, Bgr555> colors;
 
-    private readonly HeatPaletteInputView heatInputs;
-    private readonly LoadingPaletteInputView loadingInputs;
+    internal readonly HeatPaletteInputView heatInputs;
+    internal readonly LoadingPaletteInputView loadingInputs;
     private readonly EndingGunshipPaletteInputView gunshipInputs;
 
     private RoomPaletteFxPresentation(Dictionary<ushort, Bgr555> colors)

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Assets;
 /// OAM placement, sequence timing and every other atlas.</remarks>
 public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
 {
-    private readonly Dictionary<int, byte> sourceBytes;
+    internal readonly Dictionary<int, byte> sourceBytes;
 
     private SamusDeathTileAtlas(byte[] planar)
     {

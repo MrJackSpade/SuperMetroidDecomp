@@ -100,10 +100,10 @@ public sealed class EscapeTypewriterPresentation
         return new(programs, Convert.ToHexString(SHA256.HashData(source)));
     }
 
-    private sealed class LineSequence(EscapeTypewriterProgramId id, int count,
+    internal sealed class LineSequence(EscapeTypewriterProgramId id, int count,
         Dictionary<int, EscapeTypewriterLine> differences) : IReadOnlyList<EscapeTypewriterLine>
     {
-        private readonly Dictionary<int, EscapeTypewriterLine> overrides = differences;
+        internal readonly Dictionary<int, EscapeTypewriterLine> overrides = differences;
         public int Count => count;
         public EscapeTypewriterLine this[int index] => (uint)index < Count
             ? overrides.TryGetValue(index, out EscapeTypewriterLine? line) ? line : EscapeTypewriterDefinitions.Line(id, index)

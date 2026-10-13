@@ -362,6 +362,7 @@ internal static class DebuggerObjectGraphSerializer
             return Register(referenceId, combined!);
         }
 
+        [ReflectionAudit("debugger state restore: an object is rebuilt from its serialized fields, not by a constructor")]
         private object ReadFields(Type type, int referenceId)
         {
             object instance = RuntimeHelpers.GetUninitializedObject(type);
@@ -460,9 +461,10 @@ internal static class DebuggerObjectGraphSerializer
     // Callers treat the returned array as read-only (migrations build filtered copies).
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, FieldInfo[]> serializableFields = new();
 
-    private static FieldInfo[] GetSerializableFields(Type type) =>
+    internal static FieldInfo[] GetSerializableFields(Type type) =>
         serializableFields.GetOrAdd(type, CollectSerializableFields);
 
+    [ReflectionAudit("debugger state capture serializes every instance field of the object graph by name")]
     private static FieldInfo[] CollectSerializableFields(Type type) =>
         EnumerateHierarchy(type)
             .SelectMany(level => level.GetFields(

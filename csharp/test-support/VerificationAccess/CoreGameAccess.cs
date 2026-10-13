@@ -37,7 +37,7 @@ internal static class AreaAnimatedTileObjectDefinitionsAccess
                     "bit", bit, $"Animated-tile bit must be 0..{AreaAnimatedTileObjectDefinitions.ObjectsPerArea - 1}.");
             }
 
-            return ((ushort)(PrivateState.InvokeStatic(typeof(AreaAnimatedTileObjectDefinitions), "SelectObject", (int)(nativeAreaIndex), (int)(bit)))!);
+            return ((ushort)(AreaAnimatedTileObjectDefinitions.SelectObject((int)(nativeAreaIndex), (int)(bit)))!);
         }
 
         internal static void ValidateNativeAreaIndex(int nativeAreaIndex)
@@ -76,8 +76,7 @@ internal static class Bank80SystemStateAccess
     }
 
     private static (int ByteIndex, byte BitMask) RoomChozoBit(int bitIndex) =>
-        ((int, byte))PrivateState.InvokeStatic(typeof(Bank80SystemState), "ResolvePersistentRoomBit", bitIndex,
-            Bank80SystemState.RoomChozoBitByteCount, "Chozo-room bit index must fit the native 64-byte table.")!;
+        ((int, byte))Bank80SystemState.ResolvePersistentRoomBit(bitIndex, Bank80SystemState.RoomChozoBitByteCount, "Chozo-room bit index must fit the native 64-byte table.");
 
     extension(Bank80SystemState self)
     {
@@ -85,14 +84,14 @@ internal static class Bank80SystemStateAccess
         internal bool HasRoomChozoBit(int bitIndex)
         {
             (int byteIndex, byte bitMask) = RoomChozoBit(bitIndex);
-            return (PrivateState.Field<byte[]>(self, "_roomChozoBits")[byteIndex] & bitMask) != 0;
+            return (self._roomChozoBits[byteIndex] & bitMask) != 0;
         }
 
         /// <summary>Sets the room's Chozo-statue bit in the native 64-byte table.</summary>
         internal void SetRoomChozoBit(int bitIndex)
         {
             (int byteIndex, byte bitMask) = RoomChozoBit(bitIndex);
-            PrivateState.Field<byte[]>(self, "_roomChozoBits")[byteIndex] |= bitMask;
+            self._roomChozoBits[byteIndex] |= bitMask;
         }
 
         /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
@@ -151,7 +150,7 @@ internal static class CeresDoorInstructionProgramDefinitionsAccess
 {
     extension(CeresDoorInstructionProgramDefinitions)
     {
-        internal static ushort PresentationWordFrame(int index) => (((ushort Address, ushort Frame))(PrivateState.InvokeStatic(typeof(CeresDoorInstructionProgramDefinitions), "PresentationWord", (int)(index)))!).Frame;
+        internal static ushort PresentationWordFrame(int index) => (((ushort Address, ushort Frame))(CeresDoorInstructionProgramDefinitions.PresentationWord((int)(index)))!).Frame;
     }
 }
 
@@ -165,7 +164,7 @@ internal static class CeresEscapeVramTransferDefinitionsAccess
             if ((SnesAddressMath.BankBase(address)) != 0xa60000)
                 return false;
             ushort offset = unchecked((ushort)address);
-            foreach (CeresEscapeVramTransferDefinition record in PrivateState.StaticField<IReadOnlyList<CeresEscapeVramTransferDefinition>>(typeof(CeresEscapeVramTransferDefinitions), "Records"))
+            foreach (CeresEscapeVramTransferDefinition record in CeresEscapeVramTransferDefinitions.Records)
                 if (offset >= record.Pointer && offset < record.Pointer + 7)
                     return true;
             return CeresEscapeVramTransferDefinitions.IsTerminator(offset) ||
@@ -188,7 +187,7 @@ internal static class CeresSteamCollisionDefinitionsAccess
 {
     extension(CeresSteamCollisionDefinitions)
     {
-        internal static IEnumerable<ushort> HitboxPointers => PrivateState.StaticField<CollisionRecordRuns<CeresSteamCollisionHitbox>>(typeof(CeresSteamCollisionDefinitions), "Lists").Pointers;
+        internal static IEnumerable<ushort> HitboxPointers => CeresSteamCollisionDefinitions.Lists.Pointers;
     }
 }
 
@@ -246,11 +245,11 @@ internal static class CrateriaLightningPaletteFxProgramDefinitionAccess
     extension(CrateriaLightningPaletteFxProgramDefinition self)
     {
         /// <summary>$8D:F765 live surface-lightning definition or $F769 unused dark-lightning definition.</summary>
-        internal ushort DefinitionPointer => PrivateState.Property<bool>(self, "IsSurface") ? (ushort)0xf765 : (ushort)0xf769;
+        internal ushort DefinitionPointer => self.IsSurface ? (ushort)0xf765 : (ushort)0xf769;
 
-        internal int CycleFrames => 240 * (1 + PrivateState.Property<int>(self, "NeutralCount")) + 2 * 9 + 5;
+        internal int CycleFrames => 240 * (1 + self.NeutralCount) + 2 * 9 + 5;
 
-        internal int DisplayedRecordsPerCycle => 1 + 14 + PrivateState.Property<int>(self, "NeutralCount") + 4 + 1;
+        internal int DisplayedRecordsPerCycle => 1 + 14 + self.NeutralCount + 4 + 1;
     }
 }
 
@@ -266,9 +265,9 @@ internal static class CrocomireBg2ScrollDefinitionsAccess
         internal static CrocomireBg2VerticalCorrection Entry(int index)
         {
             if ((uint)index >= CrocomireBg2ScrollDefinitions.EntryCount) throw new IndexOutOfRangeException();
-            ushort frame = (ushort)(index < 12 ? PrivateState.StaticField<ushort>(typeof(CrocomireBg2ScrollDefinitions), "ChargeStepFrameStart") + 0x32 * index
-                : PrivateState.StaticField<ushort>(typeof(CrocomireBg2ScrollDefinitions), "MovingClawsFrameStart") + 0x32 * (index - 12));
-            return new(frame, unchecked((ushort)((int)(PrivateState.InvokeStatic(typeof(CrocomireBg2ScrollDefinitions), "Correction", (ushort)(frame)))!)));
+            ushort frame = (ushort)(index < 12 ? CrocomireBg2ScrollDefinitions.ChargeStepFrameStart + 0x32 * index
+                : CrocomireBg2ScrollDefinitions.MovingClawsFrameStart + 0x32 * (index - 12));
+            return new(frame, unchecked((ushort)((int)(CrocomireBg2ScrollDefinitions.Correction((ushort)(frame)))!)));
         }
     }
 }
@@ -279,7 +278,7 @@ internal static class CrocomireDeathStateAccess
     extension(CrocomireDeathState self)
     {
         /// <summary>Resultant per-column erase heights, exposed read-only to the debugger.</summary>
-        internal IReadOnlyList<byte> MeltingColumnHeights => PrivateState.Field<byte[]>(self, "_meltingColumnHeights");
+        internal IReadOnlyList<byte> MeltingColumnHeights => self._meltingColumnHeights;
     }
 }
 
@@ -352,7 +351,7 @@ internal static class DachoraInstructionProgramDefinitionsAccess
         internal static DachoraInstructionProgram Program(int index)
         {
             ushort entry = ProgramEntries[index];
-            (int frames, ushort terminator) = PrivateState.StaticField<InstructionProgramLayout>(typeof(DachoraInstructionProgramDefinitions), "Layout").FramesFrom(entry);
+            (int frames, ushort terminator) = DachoraInstructionProgramDefinitions.Layout.FramesFrom(entry);
             return new(entry, frames, terminator == (ushort)CommonEnemyInstruction.Goto);
         }
     }
@@ -419,9 +418,9 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsAccess
             if (offset is >= 6 and < 28 && offset % 4 == 2) return true;
             offset = address - EnemyProjectileInstructionMechanicsDefinitions.MotherBrainDroolInitial;
             if (offset is >= 2 and < 20 && offset % 4 == 2 || offset == 28) return true;
-            for (int index = 0; index < PrivateState.StaticField<int>(typeof(EnemyProjectileInstructionMechanicsDefinitions), "TimedProgramCount"); index++)
+            for (int index = 0; index < EnemyProjectileInstructionMechanicsDefinitions.TimedProgramCount; index++)
             {
-                var program = ((EnemyProjectileTimedProgramDefinition)(PrivateState.InvokeStatic(typeof(EnemyProjectileInstructionMechanicsDefinitions), "TimedProgram", (int)(index)))!);
+                var program = ((EnemyProjectileTimedProgramDefinition)(EnemyProjectileInstructionMechanicsDefinitions.TimedProgram((int)(index)))!);
                 offset = address - program.InitialPointer - (program.PrefixInstruction.HasValue ? 2 : 0);
                 if (offset is >= 2 && offset < program.FrameCount * 4 && offset % 4 == 2) return true;
             }
@@ -465,7 +464,7 @@ internal static class EnemyPropertyFlagExtensionsAccess
 
     internal static bool HasAll(this ushort word, EnemyExtraProperties flags)
     {
-        PrivateState.InvokeStatic(typeof(EnemyPropertyFlagExtensions), "ValidateKnown", (EnemyExtraProperties)(flags));
+        EnemyPropertyFlagExtensions.ValidateKnown(flags);
         return ((EnemyExtraProperties)word & flags) == flags;
     }
 }
@@ -521,7 +520,7 @@ internal static class GoldenTorizoEyeBeamAttackInstructionProgramDefinitionsAcce
     extension(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
+            GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.Layout.TryReadMechanicsWord(address, out value);
     }
 }
 
@@ -573,7 +572,7 @@ internal static class GoldenTorizoLeftFootOrbInstructionProgramDefinitionsAccess
     extension(GoldenTorizoLeftFootOrbInstructionProgramDefinitions)
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoLeftFootOrbInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
+            GoldenTorizoLeftFootOrbInstructionProgramDefinitions.Layout.TryReadMechanicsWord(address, out value);
     }
 }
 
@@ -583,7 +582,7 @@ internal static class GoldenTorizoLeftOrbInstructionProgramDefinitionsAccess
     extension(GoldenTorizoLeftOrbInstructionProgramDefinitions)
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoLeftOrbInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
+            GoldenTorizoLeftOrbInstructionProgramDefinitions.Layout.TryReadMechanicsWord(address, out value);
     }
 }
 
@@ -593,7 +592,7 @@ internal static class GoldenTorizoLeftTurnInstructionProgramDefinitionsAccess
     extension(GoldenTorizoLeftTurnInstructionProgramDefinitions)
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoLeftTurnInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
+            GoldenTorizoLeftTurnInstructionProgramDefinitions.Layout.TryReadMechanicsWord(address, out value);
     }
 }
 
@@ -603,7 +602,7 @@ internal static class GoldenTorizoRightOrbInstructionProgramDefinitionsAccess
     extension(GoldenTorizoRightOrbInstructionProgramDefinitions)
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoRightOrbInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
+            GoldenTorizoRightOrbInstructionProgramDefinitions.Layout.TryReadMechanicsWord(address, out value);
     }
 }
 
@@ -613,7 +612,7 @@ internal static class GoldenTorizoRightSonicInstructionProgramDefinitionsAccess
     extension(GoldenTorizoRightSonicInstructionProgramDefinitions)
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoRightSonicInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
+            GoldenTorizoRightSonicInstructionProgramDefinitions.Layout.TryReadMechanicsWord(address, out value);
     }
 }
 
@@ -623,7 +622,7 @@ internal static class GoldenTorizoRightwardInstructionProgramDefinitionsAccess
     extension(GoldenTorizoRightwardInstructionProgramDefinitions)
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoRightwardInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
+            GoldenTorizoRightwardInstructionProgramDefinitions.Layout.TryReadMechanicsWord(address, out value);
     }
 }
 
@@ -633,7 +632,7 @@ internal static class GoldenTorizoStunnedInstructionProgramDefinitionsAccess
     extension(GoldenTorizoStunnedInstructionProgramDefinitions)
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoStunnedInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
+            GoldenTorizoStunnedInstructionProgramDefinitions.Layout.TryReadMechanicsWord(address, out value);
     }
 }
 
@@ -643,7 +642,7 @@ internal static class GoldenTorizoWalkingInstructionProgramDefinitionsAccess
     extension(GoldenTorizoWalkingInstructionProgramDefinitions)
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoWalkingInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
+            GoldenTorizoWalkingInstructionProgramDefinitions.Layout.TryReadMechanicsWord(address, out value);
     }
 }
 
@@ -688,7 +687,7 @@ internal static class HyperBeamPaletteFxStateAccess
     extension(HyperBeamPaletteFxState self)
     {
         /// <summary>Current bank-$8D instruction pointer, exposed for exact-step debugging.</summary>
-        internal ushort InstructionPointer => PrivateState.Field<ushort>(self, "_instructionPointer");
+        internal ushort InstructionPointer => self._instructionPointer;
     }
 }
 
@@ -703,12 +702,12 @@ internal static class InstructionProgramLayoutAccess
         /// </summary>
         internal (int Frames, ushort Terminator) FramesFrom(ushort entry)
         {
-            int index = Array.FindIndex(PrivateState.Field<InstructionItem[]>(self, "items"), item => item.Kind == InstructionItemKind.Entry && item.Value == entry);
+            int index = Array.FindIndex(self.items, item => item.Kind == InstructionItemKind.Entry && item.Value == entry);
             if (index < 0) throw new ArgumentOutOfRangeException(nameof(entry), entry, "Entry is not part of this layout.");
             int frames = 0;
-            for (index++; index < PrivateState.Field<InstructionItem[]>(self, "items").Length; index++)
+            for (index++; index < self.items.Length; index++)
             {
-                InstructionItem item = PrivateState.Field<InstructionItem[]>(self, "items")[index];
+                InstructionItem item = self.items[index];
                 if (item.Kind != InstructionItemKind.Words) continue;
                 if (item.Words is [{ IsPresentation: false }, { IsPresentation: true }]) { frames++; continue; }
                 return (frames, item.Words[0].Value);
@@ -723,11 +722,9 @@ internal static class InstructionProgramLayoutAccess
             if (SnesAddressMath.BankNumber(longAddress) != self.Bank) return false;
             int bankAddress = SnesAddressMath.OffsetInBank(longAddress);
             // Words never overlap, so the byte belongs to the word starting one byte before it or at it.
-            object?[] containing = [bankAddress, null, null];
-            if ((bool)PrivateState.InvokeWithOut(self, "TryWordContaining", containing)! &&
-                ((InstructionWord)containing[2]!).IsPresentation)
+            if (self.TryWordContaining(bankAddress, out ushort start, out InstructionWord word) && word.IsPresentation)
             {
-                wordAddress = (ushort)containing[1]!;
+                wordAddress = start;
                 return true;
             }
             return false;
@@ -750,8 +747,8 @@ internal static class KraidArmCollisionDefinitionsAccess
         internal static ushort FramePointer(int index)
         {
             if ((uint)index >= KraidArmCollisionDefinitions.FrameCount) throw new IndexOutOfRangeException();
-            return (ushort)(index < 20 ? PrivateState.StaticField<ushort>(typeof(KraidArmCollisionDefinitions), "FirstGeneralFrame") + PrivateState.StaticField<int>(typeof(KraidArmCollisionDefinitions), "GeneralFrameBytes") * index
-                : PrivateState.StaticField<ushort>(typeof(KraidArmCollisionDefinitions), "FirstSingleComponentFrame") + SingleComponentFrameBytes * (index - 20));
+            return (ushort)(index < 20 ? KraidArmCollisionDefinitions.FirstGeneralFrame + KraidArmCollisionDefinitions.GeneralFrameBytes * index
+                : KraidArmCollisionDefinitions.FirstSingleComponentFrame + SingleComponentFrameBytes * (index - 20));
         }
     }
 }
@@ -785,7 +782,7 @@ internal static class KraidFootCollisionDefinitionsAccess
     extension(KraidFootCollisionDefinitions)
     {
         internal static ushort FramePointer(int index) =>
-            checked((ushort)(KraidFootCollisionDefinitions.FirstFrame + index * PrivateState.StaticField<int>(typeof(KraidFootCollisionDefinitions), "FrameByteCount")));
+            checked((ushort)(KraidFootCollisionDefinitions.FirstFrame + index * KraidFootCollisionDefinitions.FrameByteCount));
     }
 }
 
@@ -821,7 +818,7 @@ internal static class LayerBlendingConfigurationsAccess
         internal static void Validate(
             LayerBlendingConfiguration configuration,
             string parameterName) =>
-            PrivateState.InvokeStatic(typeof(LayerBlendingConfigurations), "ValidateDefined", (LayerBlendingConfiguration)(configuration), (string)(parameterName), (bool)(false));
+            LayerBlendingConfigurations.ValidateDefined(configuration, parameterName, cartridgeData: false);
     }
 }
 
@@ -918,7 +915,7 @@ internal static class MamaTurtleShellContourDefinitionsAccess
         {
             if ((uint)index >= MamaTurtleShellContourDefinitions.EntryCount)
                 throw new ArgumentOutOfRangeException(nameof(index));
-            return PrivateState.StaticSpanProperty<short>(typeof(MamaTurtleShellContourDefinitions), "Offsets")[index];
+            return MamaTurtleShellContourDefinitions.Offsets[index];
         }
     }
 }
@@ -941,7 +938,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsAccess
 {
     extension(MaridiaLargeSnailCollisionDefinitions)
     {
-        internal static IEnumerable<ushort> HitboxPointers => PrivateState.StaticField<CollisionRecordRuns<MaridiaLargeSnailCollisionHitbox>>(typeof(MaridiaLargeSnailCollisionDefinitions), "Lists").Pointers;
+        internal static IEnumerable<ushort> HitboxPointers => MaridiaLargeSnailCollisionDefinitions.Lists.Pointers;
     }
 }
 
@@ -996,22 +993,22 @@ internal static class MotherBrainHandBeamInstructionProgramDefinitionsAccess
 {
     extension(MotherBrainHandBeamInstructionProgramDefinitions)
     {
-        internal static int ExternalCallCount => PrivateState.StaticField<int>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "StageCount");
+        internal static int ExternalCallCount => MotherBrainHandBeamInstructionProgramDefinitions.StageCount;
 
         internal static ushort ExternalCallInstruction(int index)
         {
             if ((uint)index >= MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallCount) throw new ArgumentOutOfRangeException(nameof(index));
-            return (ushort)(((int)(PrivateState.InvokeStatic(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "StageStart", (int)(index)))!) + PrivateState.StaticField<int>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "FrameBytes"));
+            return (ushort)(((int)(MotherBrainHandBeamInstructionProgramDefinitions.StageStart((int)(index)))!) + MotherBrainHandBeamInstructionProgramDefinitions.FrameBytes);
         }
 
         internal static bool IsPresentationByte(int address)
         {
             if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;
             int bankAddress = (ushort)address;
-            if (bankAddress < MotherBrainHandBeamInstructionProgramDefinitions.Initial || bankAddress >= PrivateState.StaticField<ushort>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "TerminalDelete")) return false;
-            int offset = (bankAddress - MotherBrainHandBeamInstructionProgramDefinitions.Initial) % PrivateState.StaticField<int>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "StageBytes");
-            if (offset < PrivateState.StaticField<int>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "FrameBytes")) return offset >= sizeof(ushort);
-            return offset >= PrivateState.StaticField<int>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "FrameBytes") + PrivateState.StaticField<int>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "CallbackBytes") && (offset - PrivateState.StaticField<int>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "CallbackBytes")) % PrivateState.StaticField<int>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "FrameBytes") >= sizeof(ushort);
+            if (bankAddress is < MotherBrainHandBeamInstructionProgramDefinitions.Initial or >= MotherBrainHandBeamInstructionProgramDefinitions.TerminalDelete) return false;
+            int offset = (bankAddress - MotherBrainHandBeamInstructionProgramDefinitions.Initial) % MotherBrainHandBeamInstructionProgramDefinitions.StageBytes;
+            if (offset < MotherBrainHandBeamInstructionProgramDefinitions.FrameBytes) return offset >= sizeof(ushort);
+            return offset >= MotherBrainHandBeamInstructionProgramDefinitions.FrameBytes + MotherBrainHandBeamInstructionProgramDefinitions.CallbackBytes && (offset - MotherBrainHandBeamInstructionProgramDefinitions.CallbackBytes) % MotherBrainHandBeamInstructionProgramDefinitions.FrameBytes >= sizeof(ushort);
         }
     }
 }
@@ -1039,7 +1036,7 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         /// Its WRAM table and graphics buffer remain public debugger evidence rather than being
         /// hidden behind a host-only opacity value.
         /// </summary>
-        internal MotherBrainCorpseRottingState CorpseRotting => PrivateState.Field<MotherBrainCorpseRottingState>(self, "_corpseRotting");
+        internal MotherBrainCorpseRottingState CorpseRotting => self._corpseRotting;
 
         /// <summary>
         /// Starts at the low-health handoff in `$A9:BB1A`, including its immediate really-slow
@@ -1048,10 +1045,10 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         /// </summary>
         internal void StartFinishOffSequence()
         {
-            PrivateState.Invoke(self, "RequestWalkForwardReallySlow", (ushort)(unchecked((ushort)(self.Body.Position.X + 0x0010))));
-            PrivateState.SetProperty(self, "BabyMetroidTileTransferIndex", 0);
-            PrivateState.SetProperty(self, "BabyMetroidSpawned", false);
-            PrivateState.SetProperty(self, "Phase", MotherBrainRainbowBeamAttackPhase.FinishSamusOff);
+            self.RequestWalkForwardReallySlow((ushort)(unchecked((ushort)(self.Body.Position.X + 0x0010))));
+            self.BabyMetroidTileTransferIndex = 0;
+            self.BabyMetroidSpawned = false;
+            self.Phase = MotherBrainRainbowBeamAttackPhase.FinishSamusOff;
         }
 
         /// <summary>
@@ -1065,9 +1062,9 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         {
             // Generic enemy damage saturates at zero. A host subtraction with ushort wrapping
             // would resurrect a nearly dead boss, so perform the borrow test before the write.
-            PrivateState.SetProperty(self, "BrainHealth", damage >= self.BrainHealth
+            self.BrainHealth = damage >= self.BrainHealth
                 ? (ushort)0
-                : unchecked((ushort)(self.BrainHealth - damage)));
+                : unchecked((ushort)(self.BrainHealth - damage));
         }
 
         /// <summary>
@@ -1093,10 +1090,10 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
                     self.NeckAngleDelta,
                     self.BrainPosition.Y,
                     samus.Position.Y.Whole);
-                PrivateState.SetProperty(self, "LowerNeckAngle", lowerAngle);
-                PrivateState.SetProperty(self, "UpperNeckAngle", upperAngle);
-                PrivateState.SetProperty(self, "LowerNeckMovementIndex", lowerIndex);
-                PrivateState.SetProperty(self, "UpperNeckMovementIndex", upperIndex);
+                self.LowerNeckAngle = lowerAngle;
+                self.UpperNeckAngle = upperAngle;
+                self.LowerNeckMovementIndex = lowerIndex;
+                self.UpperNeckMovementIndex = upperIndex;
             }
 
             MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(self.Body.Position, self.LowerNeckAngle, self.UpperNeckAngle, new MotherBrainNeckSegmentDistances());
@@ -1111,7 +1108,7 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         internal ushort StepBrainShakeForDraw()
         {
             if (self.BrainMainShakeTimer != 0)
-                PrivateState.SetProperty(self, "BrainMainShakeTimer", unchecked((ushort)(self.BrainMainShakeTimer - 1)));
+                self.BrainMainShakeTimer = unchecked((ushort)(self.BrainMainShakeTimer - 1));
             return unchecked((ushort)(self.BrainMainShakeTimer & 6));
         }
     }
@@ -1126,8 +1123,8 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsAccess
         {
             if ((uint)index >= MotherBrainRoomPaletteProgramDefinitions.MechanicsWordCount) throw new IndexOutOfRangeException();
             return index < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount
-                ? new((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart + index * 4), PrivateState.StaticField<ushort>(typeof(MotherBrainRoomPaletteProgramDefinitions), "FlashImageTicks"))
-                : new((ushort)(PrivateState.StaticField<ushort>(typeof(MotherBrainRoomPaletteProgramDefinitions), "LoopInstruction") + (index - MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount) * 2),
+                ? new((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart + index * 4), MotherBrainRoomPaletteProgramDefinitions.FlashImageTicks)
+                : new((ushort)(MotherBrainRoomPaletteProgramDefinitions.LoopInstruction + (index - MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount) * 2),
                     index == MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount ? MotherBrainRoomPaletteProgramDefinitions.GotoInstruction : MotherBrainRoomPaletteProgramDefinitions.FlashStart);
         }
 
@@ -1162,7 +1159,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsAccess
             MotherBrainTurretInstructionProgramDefinitions.DirectionProgram(MotherBrainTurretInstructionProgramDefinitions.TurretLeft, direction);
 
         internal static ushort BulletProgram(MotherBrainTurretDirection direction) =>
-            MotherBrainTurretInstructionProgramDefinitions.DirectionProgram(PrivateState.StaticField<ushort>(typeof(MotherBrainTurretInstructionProgramDefinitions), "BulletLeft"), direction);
+            MotherBrainTurretInstructionProgramDefinitions.DirectionProgram(MotherBrainTurretInstructionProgramDefinitions.BulletLeft, direction);
 
         internal static ushort DirectionProgram(ushort first, MotherBrainTurretDirection direction)
         {
@@ -1241,7 +1238,7 @@ internal static class PhantoonWaveHdmaStateAccess
 {
     extension(PhantoonWaveHdmaState self)
     {
-        internal ReadOnlySpan<ushort> ScrollCycle => PrivateState.Field<ushort[]>(self, "_cycle").AsSpan(0, PrivateState.Field<int>(self, "_cycleLength"));
+        internal ReadOnlySpan<ushort> ScrollCycle => self._cycle.AsSpan(0, self._cycleLength);
     }
 }
 
@@ -1265,14 +1262,13 @@ internal static class RidleyCollisionDefinitionsAccess
         {
             get
             {
-                Type bodyFrame = PrivateState.Nested(typeof(RidleyCollisionDefinitions), "BodyFrame");
-                ushort left = Convert.ToUInt16(Enum.Parse(bodyFrame, "Left"));
-                int stride = PrivateState.StaticField<int>(typeof(RidleyCollisionDefinitions), "SideFrameBytes");
+                ushort left = (ushort)RidleyCollisionDefinitions.BodyFrame.Left;
+                int stride = RidleyCollisionDefinitions.SideFrameBytes;
                 return [.. Enumerable.Range(0, 11).Select(index => (ushort)(left + index * stride))];
             }
         }
 
-        internal static IEnumerable<ushort> HitboxPointers => PrivateState.StaticField<CollisionRecordRuns<RidleyCollisionHitbox>>(typeof(RidleyCollisionDefinitions), "Lists").Pointers;
+        internal static IEnumerable<ushort> HitboxPointers => RidleyCollisionDefinitions.Lists.Pointers;
     }
 }
 
@@ -1282,7 +1278,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalogAccess
     extension(RoomEnemyAuxiliaryDefinitionCatalog)
     {
         /// <summary>The five auxiliary header identities missing from room lists.</summary>
-        internal static IEnumerable<EnemyDefinitionId> Pointers => PrivateState.StaticField<IReadOnlyDictionary<EnemyDefinitionId, RoomEnemyDefinition>>(typeof(RoomEnemyAuxiliaryDefinitionCatalog), "Definitions").Keys;
+        internal static IEnumerable<EnemyDefinitionId> Pointers => RoomEnemyAuxiliaryDefinitionCatalog.Definitions.Keys;
     }
 }
 
@@ -1292,7 +1288,7 @@ internal static class RoomEnemyDefinitionCatalogAccess
     extension(RoomEnemyDefinitionCatalog)
     {
         /// <summary>Enumerates every compiled native definition pointer for ROM-oracle tests.</summary>
-        internal static IEnumerable<EnemyDefinitionId> Pointers => PrivateState.StaticField<(EnemyDefinitionId Pointer, RoomEnemyDefinition Definition)[]>(typeof(RoomEnemyDefinitionCatalog), "Definitions").Select(entry => entry.Pointer);
+        internal static IEnumerable<EnemyDefinitionId> Pointers => RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Pointer);
     }
 }
 
@@ -1302,7 +1298,7 @@ internal static class RoomEnemyPopulationDefinitionsAccess
     extension(RoomEnemyPopulationDefinitions)
     {
         /// <summary>Enumerates every compiled population identity for ROM-oracle tests.</summary>
-        internal static IEnumerable<ushort> Pointers => PrivateState.StaticField<RoomEnemyPopulationDefinition[]>(typeof(RoomEnemyPopulationDefinitions), "Definitions").Select(list => list.Pointer);
+        internal static IEnumerable<ushort> Pointers => RoomEnemyPopulationDefinitions.Definitions.Select(list => list.Pointer);
     }
 }
 
@@ -1638,7 +1634,7 @@ internal static class RoomFxRecordDefinitionsAccess
             get
             {
                 for (int pointer = 0x8000; pointer <= ushort.MaxValue; pointer++)
-                    if (((RoomFxRecordDefinition?)(PrivateState.InvokeStatic(typeof(RoomFxRecordDefinitions), "SelectRecord", (ushort)((ushort)pointer)))!) is { } record)
+                    if (((RoomFxRecordDefinition?)(RoomFxRecordDefinitions.SelectRecord((ushort)((ushort)pointer)))!) is { } record)
                         yield return record;
             }
         }
@@ -1655,7 +1651,7 @@ internal static class RoomLayer3FxStateAccess
             RoomFxRecordDefinition definition, ushort randomNumber)
         {
             Ensure.NotNull(definition);
-            PrivateState.Invoke(self, "LoadCore", (ISnesAddressSpace)(bus), (SnesVram)(vram), (SnesCgram)(cgram), new RoomFxLoadSource
+            self.LoadCore((ISnesAddressSpace)(bus), (SnesVram)(vram), (SnesCgram)(cgram), new RoomFxLoadSource
             {
                 FxPointer = definition.Pointer,
                 DoorPointer = definition.DoorPointer,
@@ -1695,20 +1691,20 @@ internal static class RoomPaletteFxSystemAccess
         /// Heat-animation phase at WRAM $1EED, published by Norfair palette streams and
         /// consumed one descending-slot pass later by the shared Samus-in-heat object.
         /// </summary>
-        internal ushort SamusInHeatPaletteIndex => PrivateState.Field<ushort>(self, "samusInHeatPaletteIndex");
+        internal ushort SamusInHeatPaletteIndex => self.samusInHeatPaletteIndex;
 
         /// <summary>
         /// Last heat-animation phase consumed by the shared Samus-in-heat object, corresponding
         /// to WRAM $1EEF. Exposing both words makes native one-frame handoff timing inspectable.
         /// </summary>
-        internal ushort PreviousSamusInHeatPaletteIndex => PrivateState.Field<ushort>(self, "previousSamusInHeatPaletteIndex");
+        internal ushort PreviousSamusInHeatPaletteIndex => self.previousSamusInHeatPaletteIndex;
 
         /// <summary>Loads an explicit FX record through the normal room palette-object path.</summary>
         internal void LoadDefinition(ISnesAddressSpace bus, RoomFxRecordDefinition definition,
             AreaId area, ushort equippedItems, bool areaMiniBossDefeated)
         {
             Ensure.NotNull(definition);
-            PrivateState.Invoke(self, "LoadRoomCore", (ISnesAddressSpace)(bus), (ushort)(definition.Pointer), (ushort)(definition.DoorPointer), (AreaId)(area), (ushort)(equippedItems), (bool)(areaMiniBossDefeated), (RoomFxRecordDefinition?)(definition));
+            self.LoadRoomCore((ISnesAddressSpace)(bus), (ushort)(definition.Pointer), (ushort)(definition.DoorPointer), (AreaId)(area), (ushort)(equippedItems), (bool)(areaMiniBossDefeated), (RoomFxRecordDefinition?)(definition));
         }
     }
 }
@@ -1719,7 +1715,7 @@ internal static class RoomSandAnimatedTilesStateAccess
     extension(RoomSandAnimatedTilesState self)
     {
         /// <summary>Number of sand objects selected by the current room/door FX bitset.</summary>
-        internal int Count => PrivateState.Field<List<RoomFxAnimatedTilesState>>(self, "objects").Count;
+        internal int Count => self.objects.Count;
     }
 }
 
@@ -1733,7 +1729,7 @@ internal static class RoomScrollGridAccess
         /// loader at <c>$82:E878-$82:E889</c> copies 25 words unconditionally, so edge reads can
         /// observe data following a shorter ROM table rather than an invented zero padding.
         /// </summary>
-        internal ReadOnlySpan<byte> Storage => PrivateState.Field<byte[]>(self, "_cells");
+        internal ReadOnlySpan<byte> Storage => self._cells;
     }
 }
 
@@ -1743,7 +1739,7 @@ internal static class RoomSpriteObjectInstructionProgramDefinitionsAccess
     extension(RoomSpriteObjectInstructionProgramDefinitions)
     {
         internal static bool TryGetPresentationWord(int address, out ushort wordAddress) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(RoomSpriteObjectInstructionProgramDefinitions), "Layout").TryGetPresentationWord(address, out wordAddress);
+            RoomSpriteObjectInstructionProgramDefinitions.Layout.TryGetPresentationWord(address, out wordAddress);
     }
 }
 
@@ -1753,7 +1749,7 @@ internal static class RoomTreadmillAnimatedTilesStateAccess
     extension(RoomTreadmillAnimatedTilesState self)
     {
         /// <summary>Number of treadmill objects selected by the current room/door FX bitset.</summary>
-        internal int Count => PrivateState.Field<List<WreckedShipTreadmillAnimatedTilesState>>(self, "objects").Count;
+        internal int Count => self.objects.Count;
     }
 }
 
@@ -1799,7 +1795,7 @@ internal static class SamusAnimationDelayProgramsAccess
 {
     extension(SamusAnimationDelayPrograms)
     {
-        internal static ReadOnlySpan<SamusAnimationSegment> Segments => PrivateState.StaticField<SamusAnimationSegment[]>(typeof(SamusAnimationDelayPrograms), "segments");
+        internal static ReadOnlySpan<SamusAnimationSegment> Segments => SamusAnimationDelayPrograms.segments;
     }
 }
 
@@ -1937,7 +1933,7 @@ internal static class SamusGrappleMovementAccess
             grapple.SpecialAngleHandling = false;
             grapple.WallJumpTimer = 0;
             grapple.CancelFromConnectedPose = false;
-            PrivateState.InvokeStatic(typeof(SamusGrappleMovement), "InitializeBeamAnimation", (SamusGrappleState)(grapple));
+            SamusGrappleMovement.InitializeBeamAnimation((SamusGrappleState)(grapple));
 
             samus.Pose = faceRight
                 ? SamusPoseId.GrappleSwingRightPose
@@ -1947,7 +1943,7 @@ internal static class SamusGrappleMovementAccess
 
             // $94:AC11 and $9B:BD95 run as soon as the connection is accepted. Publishing the
             // first pendulum position now prevents one frame of stale pre-grapple coordinates.
-            PrivateState.InvokeStatic(typeof(SamusGrappleMovement), "PositionSamusFromPendulum", (ISnesAddressSpace)(bus), (SamusState)(samus), (SamusGrappleState)(grapple));
+            SamusGrappleMovement.PositionSamusFromPendulum((ISnesAddressSpace)(bus), (SamusState)(samus), (SamusGrappleState)(grapple));
 
             // This helper represents a connection that has already passed `$9B:C79D`; publish
             // the handler-tail flag that retail would leave for the following swing frame.
@@ -1965,7 +1961,7 @@ internal static class SamusKinematicsStateAccess
         /// Native left/right/up/down collision-index words retained for debugger inspection.
         /// <c>$FFFF</c> means that direction did not encounter a solid enemy.
         /// </summary>
-        internal IReadOnlyList<ushort> SolidEnemyCollisionIndexes => PrivateState.Field<ushort[]>(self, "_solidEnemyCollisionIndexes");
+        internal IReadOnlyList<ushort> SolidEnemyCollisionIndexes => self._solidEnemyCollisionIndexes;
     }
 }
 
@@ -1983,13 +1979,13 @@ internal static class SamusLiquidPhysicsStateAccess
         {
             Ensure.NotNull(samus);
             ushort bottom = samus.Kinematics.BottomBoundary;
-            PrivateState.SetProperty(self, "LiquidPhysicsType", self.FxType switch
+            self.LiquidPhysicsType = self.FxType switch
             {
                 RoomFxType.Lava or RoomFxType.Acid
-                    when ((bool)(PrivateState.InvokeStatic(typeof(SamusLiquidPhysicsState), "IsBelowSurface", (ushort)(self.LavaAcidYPosition), (ushort)(bottom)))!) => SamusLiquidMedium.LavaOrAcid,
-                RoomFxType.Water or RoomFxType.TourianEntranceStatue when ((bool)(PrivateState.Invoke(self, "WaterAffectsBoundary", (ushort)(bottom)))!) => SamusLiquidMedium.Water,
+                    when ((bool)(SamusLiquidPhysicsState.IsBelowSurface((ushort)(self.LavaAcidYPosition), (ushort)(bottom)))!) => SamusLiquidMedium.LavaOrAcid,
+                RoomFxType.Water or RoomFxType.TourianEntranceStatue when ((bool)(self.WaterAffectsBoundary((ushort)(bottom)))!) => SamusLiquidMedium.Water,
                 _ => SamusLiquidMedium.Air,
-            });
+            };
         }
     }
 }
@@ -2051,7 +2047,7 @@ internal static class SamusProjectileTypeWordAccess
 {
     extension(SamusProjectileTypeWord self)
     {
-        internal bool IsLive => (self.Raw & PrivateState.StaticField<ushort>(typeof(SamusProjectileTypeWord), "LiveMarker")) != 0;
+        internal bool IsLive => (self.Raw & SamusProjectileTypeWord.LiveMarker) != 0;
     }
 }
 
@@ -2063,9 +2059,8 @@ internal static class SamusRunningCadenceDefinitionsAccess
         /// <summary>Returns one byte from the complete bounded native cadence catalog.</summary>
         internal static byte ReadCompiledByte(int address)
         {
-            object?[] read = [address, null];
-            if ((bool)PrivateState.InvokeStaticWithOut(typeof(SamusRunningCadenceDefinitions), "TryReadCompiledByte", read)!)
-                return (byte)read[1]!;
+            if (SamusRunningCadenceDefinitions.TryReadCompiledByte(address, out byte value))
+                return value;
             throw new ArgumentOutOfRangeException(
                 "address", address, "Address is outside the compiled Samus running-cadence catalog.");
         }
@@ -2079,8 +2074,8 @@ internal static class SamusShinesparkStateAccess
     {
         /// <summary>Number of enabled departing echo drawings, independent of slot ownership.</summary>
         internal int ReleasedCrashEchoCount =>
-            (PrivateState.Property<bool>(PrivateState.Field<object>(self, "_firstReleasedCrashEcho"), "Active") ? 1 : 0) +
-            (PrivateState.Property<bool>(PrivateState.Field<object>(self, "_secondReleasedCrashEcho"), "Active") ? 1 : 0);
+            (self._firstReleasedCrashEcho.Active ? 1 : 0) +
+            (self._secondReleasedCrashEcho.Active ? 1 : 0);
 
         /// <summary>
         /// Runs <c>ProjPreInstr_SpeedEcho</c> at <c>$90:D4D2</c> for the two fixed crash-echo
@@ -2093,8 +2088,8 @@ internal static class SamusShinesparkStateAccess
         {
             Ensure.NotNull(bus);
             Ensure.NotNull(samus);
-            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), layer1, PrivateState.Field<object>(self, "_firstReleasedCrashEcho"));
-            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), layer1, PrivateState.Field<object>(self, "_secondReleasedCrashEcho"));
+            self.StepReleasedCrashEcho((SamusState)(samus), layer1, self._firstReleasedCrashEcho);
+            self.StepReleasedCrashEcho((SamusState)(samus), layer1, self._secondReleasedCrashEcho);
         }
     }
 }
@@ -2170,7 +2165,7 @@ internal static class SamusStateAccess
             }
 
             self.PoseMetadata.PublishBombJumpDirection(direction);
-            PrivateState.Invoke(self.PoseMetadata, "ArmPublishedBombJump");
+            self.PoseMetadata.ArmPublishedBombJump();
         }
     }
 }
@@ -2183,8 +2178,8 @@ internal static class SamusTileTransferStateAccess
         /// <summary>Clears both transfer flags as the game-state reset routines do.</summary>
         internal void ClearTransferFlags()
         {
-            PrivateState.SetProperty(self, "TopTransferEnabled", false);
-            PrivateState.SetProperty(self, "BottomTransferEnabled", false);
+            self.TopTransferEnabled = false;
+            self.BottomTransferEnabled = false;
         }
     }
 }
@@ -2220,17 +2215,17 @@ internal static class ScrollBoundaryCameraAccess
         /// </summary>
         private void ApplyDebugStimulusX(ushort pixelDistance, ushort target)
         {
-            PrivateState.SetProperty(self, "Speed", self.Speed.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.X.Fraction)));
-            PrivateState.SetProperty(self, "IdealPosition", self.IdealPosition.WithX(target));
-            PrivateState.SetProperty(self, "Position", self.Position.WithX(self.Position.X.WithWhole(target)));
+            self.Speed = self.Speed.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.X.Fraction));
+            self.IdealPosition = self.IdealPosition.WithX(target);
+            self.Position = self.Position.WithX(self.Position.X.WithWhole(target));
         }
 
         /// <summary>The vertical counterpart of <see cref="ApplyDebugStimulusX"/>.</summary>
         private void ApplyDebugStimulusY(ushort pixelDistance, ushort target)
         {
-            PrivateState.SetProperty(self, "Speed", self.Speed.WithY(SnesSignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.Y.Fraction)));
-            PrivateState.SetProperty(self, "IdealPosition", self.IdealPosition.WithY(target));
-            PrivateState.SetProperty(self, "Position", self.Position.WithY(self.Position.Y.WithWhole(target)));
+            self.Speed = self.Speed.WithY(SnesSignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.Y.Fraction));
+            self.IdealPosition = self.IdealPosition.WithY(target);
+            self.Position = self.Position.WithY(self.Position.Y.WithWhole(target));
         }
 
         /// <summary>Applies a debug rightward stimulus, then runs <c>$80:A641</c>.</summary>
@@ -2238,7 +2233,7 @@ internal static class ScrollBoundaryCameraAccess
         {
             ScrollBoundaryCamera.RequireDistance(pixelDistance);
             self.ApplyDebugStimulusX(pixelDistance, unchecked((ushort)(self.PixelPosition.X + pixelDistance)));
-            PrivateState.Invoke(self, "HandleScrollingRight");
+            self.HandleScrollingRight();
         }
 
         /// <summary>Applies a debug leftward stimulus, then runs <c>$80:A6BB</c>.</summary>
@@ -2246,7 +2241,7 @@ internal static class ScrollBoundaryCameraAccess
         {
             ScrollBoundaryCamera.RequireDistance(pixelDistance);
             self.ApplyDebugStimulusX(pixelDistance, unchecked((ushort)(self.PixelPosition.X - pixelDistance)));
-            PrivateState.Invoke(self, "HandleScrollingLeft");
+            self.HandleScrollingLeft();
         }
 
         /// <summary>Applies a debug downward stimulus, then runs <c>$80:A893</c>.</summary>
@@ -2254,7 +2249,7 @@ internal static class ScrollBoundaryCameraAccess
         {
             ScrollBoundaryCamera.RequireDistance(pixelDistance);
             self.ApplyDebugStimulusY(pixelDistance, unchecked((ushort)(self.PixelPosition.Y + pixelDistance)));
-            PrivateState.Invoke(self, "HandleScrollingDown");
+            self.HandleScrollingDown();
         }
 
         /// <summary>Applies a debug upward stimulus, then runs <c>$80:A936</c>.</summary>
@@ -2262,7 +2257,7 @@ internal static class ScrollBoundaryCameraAccess
         {
             ScrollBoundaryCamera.RequireDistance(pixelDistance);
             self.ApplyDebugStimulusY(pixelDistance, unchecked((ushort)(self.PixelPosition.Y - pixelDistance)));
-            PrivateState.Invoke(self, "HandleScrollingUp");
+            self.HandleScrollingUp();
         }
     }
 }
@@ -2274,7 +2269,7 @@ internal static class ShitroidEnemyStateAccess
     extension(ShitroidEnemyState self)
     {
         /// <summary>The independent 256-color target palette written during initialization.</summary>
-        internal ReadOnlyMemory<Bgr555> TargetPalette => PrivateState.Field<Bgr555[]>(self, "_targetPalette");
+        internal ReadOnlyMemory<Bgr555> TargetPalette => self._targetPalette;
     }
 }
 
@@ -2303,15 +2298,15 @@ internal static class SpacePirateCollisionDefinitionsAccess
 {
     extension(SpacePirateCollisionDefinitions)
     {
-        internal static int FrameCount => PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionComponent>>(typeof(SpacePirateCollisionDefinitions), "Frames").Count;
+        internal static int FrameCount => SpacePirateCollisionDefinitions.Frames.Count;
 
-        internal static int ListCount => PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionHitbox>>(typeof(SpacePirateCollisionDefinitions), "Lists").Count;
+        internal static int ListCount => SpacePirateCollisionDefinitions.Lists.Count;
 
         internal static SpacePirateCollisionFrame Frame(int index) =>
-            new(PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionComponent>>(typeof(SpacePirateCollisionDefinitions), "Frames").PointerAt(index), PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionComponent>>(typeof(SpacePirateCollisionDefinitions), "Frames").RecordAt(index));
+            new(SpacePirateCollisionDefinitions.Frames.PointerAt(index), SpacePirateCollisionDefinitions.Frames.RecordAt(index));
 
         internal static SpacePirateCollisionList List(int index) =>
-            new(PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionHitbox>>(typeof(SpacePirateCollisionDefinitions), "Lists").PointerAt(index), PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionHitbox>>(typeof(SpacePirateCollisionDefinitions), "Lists").RecordAt(index));
+            new(SpacePirateCollisionDefinitions.Lists.PointerAt(index), SpacePirateCollisionDefinitions.Lists.RecordAt(index));
     }
 }
 
@@ -2353,7 +2348,7 @@ internal static class SporeSpawnEnemyStateAccess
         /// presents completed room fades directly in CGRAM, but retaining this buffer makes the
         /// cartridge's separate target/current ownership inspectable and testable.
         /// </summary>
-        internal ReadOnlyMemory<Bgr555> TargetPalette => PrivateState.Field<Bgr555[]>(self, "_targetPalette");
+        internal ReadOnlyMemory<Bgr555> TargetPalette => self._targetPalette;
     }
 }
 
@@ -2414,7 +2409,7 @@ internal static class TitleScreenAmbientPaletteFxProgramDefinitionAccess
     extension(TitleScreenAmbientPaletteFxProgramDefinition self)
     {
         /// <summary>Native palette definitions $8D:E1A0 (tube) / $E1A4 (displays).</summary>
-        internal ushort DefinitionPointer => PrivateState.Property<bool>(self, "IsTubeLight") ? TitleSequenceRomData.ConsolePaletteFx.SlowLights : TitleSequenceRomData.ConsolePaletteFx.FastLights;
+        internal ushort DefinitionPointer => self.IsTubeLight ? TitleSequenceRomData.ConsolePaletteFx.SlowLights : TitleSequenceRomData.ConsolePaletteFx.FastLights;
 
         /// <summary>The complete loop duration in frames.</summary>
         internal int CycleFrames => self.FrameCount * self.FrameDuration;
@@ -2432,37 +2427,37 @@ internal static class TorizoCollisionDefinitionsAccess
 
     extension(TorizoCollisionDefinitions)
     {
-        internal static int FrameCount => 2 + PrivateState.StaticProperty<int>(typeof(TorizoCollisionDefinitions), "MirroredCount") * 2 + PrivateState.StaticField<GoldenTorizoCollisionComponent[][]>(typeof(TorizoCollisionDefinitions), "JumpBackFrames").Length;
+        internal static int FrameCount => 2 + TorizoCollisionDefinitions.MirroredCount * 2 + TorizoCollisionDefinitions.JumpBackFrames.Length;
 
         /// <summary>Every frame pointer, derived from the four runs.</summary>
         internal static IEnumerable<ushort> FramePointers
         {
             get
             {
-                foreach (object emptyFrame in Enum.GetValues(PrivateState.Nested(typeof(TorizoCollisionDefinitions), "EmptyFrame")))
-                    yield return Convert.ToUInt16(emptyFrame, System.Globalization.CultureInfo.InvariantCulture);
-                ushort cursor = PrivateState.StaticField<ushort>(typeof(TorizoCollisionDefinitions), "LeftStart");
-                foreach (GoldenTorizoCollisionComponent[] frame in PrivateState.StaticField<GoldenTorizoCollisionComponent[][]>(typeof(TorizoCollisionDefinitions), "LeftFrames"))
+                foreach (TorizoCollisionDefinitions.EmptyFrame emptyFrame in Enum.GetValues<TorizoCollisionDefinitions.EmptyFrame>())
+                    yield return (ushort)emptyFrame;
+                ushort cursor = TorizoCollisionDefinitions.LeftStart;
+                foreach (GoldenTorizoCollisionComponent[] frame in TorizoCollisionDefinitions.LeftFrames)
                 {
                     yield return cursor;
-                    cursor = ((ushort)(PrivateState.InvokeStatic(typeof(TorizoCollisionDefinitions), "Next", (ushort)(cursor), (int)(frame.Length)))!);
+                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(frame.Length)))!);
                 }
-                cursor = PrivateState.StaticField<ushort>(typeof(TorizoCollisionDefinitions), "AwakeningStart");
-                foreach (GoldenTorizoCollisionComponent[] frame in PrivateState.StaticField<GoldenTorizoCollisionComponent[][]>(typeof(TorizoCollisionDefinitions), "AwakeningFrames"))
+                cursor = TorizoCollisionDefinitions.AwakeningStart;
+                foreach (GoldenTorizoCollisionComponent[] frame in TorizoCollisionDefinitions.AwakeningFrames)
                 {
                     yield return cursor;
-                    cursor = ((ushort)(PrivateState.InvokeStatic(typeof(TorizoCollisionDefinitions), "Next", (ushort)(cursor), (int)(frame.Length)))!);
+                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(frame.Length)))!);
                 }
-                cursor = PrivateState.StaticField<ushort>(typeof(TorizoCollisionDefinitions), "RightStart");
-                for (int index = 0; index < PrivateState.StaticProperty<int>(typeof(TorizoCollisionDefinitions), "MirroredCount"); index++)
+                cursor = TorizoCollisionDefinitions.RightStart;
+                for (int index = 0; index < TorizoCollisionDefinitions.MirroredCount; index++)
                 {
                     yield return cursor;
-                    cursor = ((ushort)(PrivateState.InvokeStatic(typeof(TorizoCollisionDefinitions), "Next", (ushort)(cursor), (int)(((GoldenTorizoCollisionComponent[])(PrivateState.InvokeStatic(typeof(TorizoCollisionDefinitions), "LeftFacing", (int)(index)))!).Length)))!);
+                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(((GoldenTorizoCollisionComponent[])(TorizoCollisionDefinitions.LeftFacing((int)(index)))!).Length)))!);
                 }
-                foreach (GoldenTorizoCollisionComponent[] frame in PrivateState.StaticField<GoldenTorizoCollisionComponent[][]>(typeof(TorizoCollisionDefinitions), "JumpBackFrames"))
+                foreach (GoldenTorizoCollisionComponent[] frame in TorizoCollisionDefinitions.JumpBackFrames)
                 {
                     yield return cursor;
-                    cursor = ((ushort)(PrivateState.InvokeStatic(typeof(TorizoCollisionDefinitions), "Next", (ushort)(cursor), (int)(frame.Length)))!);
+                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(frame.Length)))!);
                 }
             }
         }
@@ -2491,7 +2486,7 @@ internal static class TorizoFallingLeftInstructionProgramDefinitionsAccess
     extension(TorizoFallingLeftInstructionProgramDefinitions)
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(TorizoFallingLeftInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
+            TorizoFallingLeftInstructionProgramDefinitions.Layout.TryReadMechanicsWord(address, out value);
     }
 }
 
@@ -2501,7 +2496,7 @@ internal static class TorizoInstructionProgramDefinitionsAccess
     extension(TorizoInstructionProgramDefinitions)
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(TorizoInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
+            TorizoInstructionProgramDefinitions.Layout.TryReadMechanicsWord(address, out value);
     }
 }
 
@@ -2510,7 +2505,7 @@ internal static class TorizoInstructionVramTransferDefinitionsAccess
 {
     extension(TorizoInstructionVramTransferDefinitions)
     {
-        internal static ReadOnlySpan<TorizoInstructionVramTransferDefinition> All => PrivateState.StaticField<TorizoInstructionVramTransferDefinition[]>(typeof(TorizoInstructionVramTransferDefinitions), "Entries");
+        internal static ReadOnlySpan<TorizoInstructionVramTransferDefinition> All => TorizoInstructionVramTransferDefinitions.Entries;
     }
 }
 
@@ -2520,7 +2515,7 @@ internal static class TorizoJumpBackInstructionProgramDefinitionsAccess
     extension(TorizoJumpBackInstructionProgramDefinitions)
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(TorizoJumpBackInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
+            TorizoJumpBackInstructionProgramDefinitions.Layout.TryReadMechanicsWord(address, out value);
     }
 }
 
@@ -2530,7 +2525,7 @@ internal static class TorizoJumpBackLeftInstructionProgramDefinitionsAccess
     extension(TorizoJumpBackLeftInstructionProgramDefinitions)
     {
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
-            PrivateState.StaticField<InstructionProgramLayout>(typeof(TorizoJumpBackLeftInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
+            TorizoJumpBackLeftInstructionProgramDefinitions.Layout.TryReadMechanicsWord(address, out value);
     }
 }
 
@@ -2569,7 +2564,7 @@ internal static class WreckedShipTreadmillObjectDefinitionAccess
     {
         /// <summary>The four timed frame-control addresses in execution order.</summary>
         internal IReadOnlyList<ushort> FrameInstructionPointers =>
-            PrivateState.Field<IReadOnlyList<ushort>>(self, "frameInstructionPointers");
+            self.frameInstructionPointers;
     }
 }
 
@@ -2592,7 +2587,7 @@ internal static class MagdollitePhaseDefinitionsAccess
     {
         /// <summary>Number of enemy slots covered by <see cref="MagdollitePhaseDefinitions.ApexThreshold"/>.</summary>
         internal static int ApexThresholdSlotCount =>
-            PrivateState.StaticField<Array>(typeof(MagdollitePhaseDefinitions), "s_apexThresholdsByEnemySlot").Length;
+            MagdollitePhaseDefinitions.s_apexThresholdsByEnemySlot.Length;
 
         /// <summary>$A8:AF55, <c>MagdolliteArmHeightThreshold</c>.</summary>
         internal static ushort ArmHeightThresholdTable => 0xaf55;

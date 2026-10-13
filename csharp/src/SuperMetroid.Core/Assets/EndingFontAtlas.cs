@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Assets;
 public sealed class EndingFontAtlas
 {
     // Footprint positions, native cutouts and all other artwork remain required.
-    private readonly HashSet<int> glyphFootprint = new();
-    private readonly Dictionary<int, byte> pixels = new();
-    private EndingFontAtlas(byte[] supplied)
+    internal readonly HashSet<int> glyphFootprint = new();
+    internal readonly Dictionary<int, byte> pixels = new();
+    internal EndingFontAtlas(byte[] supplied)
     {
         for (int pixel = 0; pixel < supplied.Length; pixel++)
             if (EndingFontAtlasFormat.IsOutlinedAlphabetPixel(pixel) && supplied[pixel] == EndingFontAtlasFormat.GlyphFillInk)

@@ -118,10 +118,10 @@ internal static class SaveSchemaTranslationVerification
         ending.BindPaletteFxColors(SuperMetroid.Core.Assets.RoomPaletteFxPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.RoomPaletteFxPresentationExtractor.Extract(native), writable: false)));
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        typeof(EndingCreditsState).GetProperty("Phase")!.SetValue(ending, EndingCreditsPhase.ItemPercentageScrollDown);
-        typeof(EndingCreditsState).GetField("phaseTimer", flags)!.SetValue(ending, 1);
-        typeof(SuperMetroidGame).GetField("endingCredits", flags)!.SetValue(frontend, ending);
-        typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(frontend, SuperMetroidGameState.EndingAndCredits);
+        ending.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
+        ending.phaseTimer = 1;
+        frontend.endingCredits = ending;
+        frontend.GameState = SuperMetroidGameState.EndingAndCredits;
         int writes = 0;
         frontend.SaveRamChanged += () => writes++;
         frontend.Step(0);

@@ -1,3 +1,4 @@
+using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 
@@ -33,7 +34,7 @@ internal static void VerifyGameConfigurationIni()
         .Select(line => line[..line.IndexOf('=')].Trim())
         .Select(key => key == "Enabled" ? nameof(SuperMetroidGameOptions.AudioEnabled) : key)
         .OrderBy(key => key, StringComparer.Ordinal).ToArray();
-    string[] optionProperties = typeof(SuperMetroidGameOptions).GetProperties()
+    string[] optionProperties = MetadataShape.Properties(typeof(SuperMetroidGameOptions), BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public)
         .Select(property => property.Name).OrderBy(key => key, StringComparer.Ordinal).ToArray();
     AssertEqual(string.Join(',', optionProperties), string.Join(',', documentedKeys),
         "shipped INI explicitly documents every supported option exactly once");

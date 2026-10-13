@@ -63,7 +63,7 @@ internal static class LookupStream3Verification
             .Select(color => ReadVerificationWord(rom, IntroCinematicRomData.Assets.Palette + 2 * color)).ToArray();
         IntroCinematicPalette stock = Load(native);
         Confirm(stock, native);
-        var rows = (Array)typeof(IntroCinematicPalette).GetField("rows", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
+        var rows = (Array)stock.rows;
         AssertEqual(0, rows.Length, "intro complete stock palette stores no rows or paint words");
         for (int color = 0; color < native.Length; color++)
         for (int channel = 0; channel < 4; channel++)
@@ -103,11 +103,11 @@ internal static class LookupStream3Verification
             .Select(cell => ReadVerificationWord(rom, 0x8cd785 + 16 * frame + 2 * cell)).ToArray()).ToArray();
         IntroEyeTilemapPresentation stock = Load(native);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        foreach (object rectangle in (Array)typeof(IntroEyeTilemapPresentation).GetField("frames", fields)!.GetValue(stock)!)
+        foreach (var rectangle in stock.frames)
         {
-            AssertTrue(rectangle.GetType().GetField("supplied", fields)!.GetValue(rectangle) is null,
+            AssertTrue(rectangle.supplied is null,
                 "stock eye rectangle stores no native word payload");
-            AssertTrue(rectangle.GetType().GetField("origin", fields) is null,
+            AssertTrue(!MetadataShape.DeclaresField(rectangle.GetType(), "origin", fields),
                 "stock eye rectangle no longer stores independent origin words");
         }
         Confirm(stock, native);
@@ -129,11 +129,9 @@ internal static class LookupStream3Verification
                 AssertTrue(expected[frame].AsSpan().SequenceEqual(selected.FrameWords(frame)), $"eye rectangle {frame}");
             var vram = new SnesVram();
             var objects = new IntroCinematicObjectSystem(new TestAddressSpace(), vram, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), eyeArtwork: selected);
-            var draw = typeof(IntroCinematicObjectSystem).GetMethod("ProcessTileData",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
             for (int frame = 0; frame < expected.Length; frame++)
             {
-                draw.Invoke(objects, [(ushort)(17 | 13 << 8), (ushort)(0xd781 + frame * 16)]);
+                objects.ProcessTileData((ushort)(17 | 13 << 8), (ushort)(0xd781 + frame * 16));
                 for (int cell = 0; cell < 6; cell++)
                     AssertEqual(expected[frame][cell], vram.ReadWord(0x4800 + (13 + cell / 3) * 32 + 17 + cell % 3),
                         "actual eye patch draw preserves native and independently supplied cells");
@@ -180,7 +178,7 @@ internal static class LookupStream3Verification
         IntroFinalLineTilemap stock = Load(native);
         AssertTrue(native.AsSpan().SequenceEqual(stock.Words.Span), "all128 native intro divider cells");
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        AssertTrue(typeof(IntroFinalLineTilemap).GetField("suppliedWords", fields)!.GetValue(stock) is null,
+        AssertTrue(stock.suppliedWords is null,
             "native divider retains no generated lookup");
         for (int changed = 0; changed < native.Length; changed++)
         {
@@ -237,7 +235,7 @@ internal static class LookupStream3Verification
         Dictionary<string, SpriteComposition> Load(GameOptionsPresentationDocument document)
         {
             var value = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
-            return (Dictionary<string, SpriteComposition>)typeof(GameOptionsPresentation).GetField("sprites", flags)!.GetValue(value)!;
+            return value.sprites;
         }
         void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
         {
@@ -253,7 +251,7 @@ internal static class LookupStream3Verification
         {
             var original = Read();
             var stock = Load(original)[name];
-            AssertTrue(typeof(SpriteComposition).GetField("parts", flags)!.GetValue(stock) is MenuHeadingBorderDefinitions,
+            AssertTrue(stock.parts is MenuHeadingBorderDefinitions,
                 "native heading stores only semantic title identity instead of supplied bounds/order/style");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
@@ -307,7 +305,7 @@ internal static class LookupStream3Verification
         Dictionary<string, SpriteComposition> Load(FileSelectPresentationDocument document)
         {
             var value = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
-            return (Dictionary<string, SpriteComposition>)typeof(FileSelectPresentation).GetField("sprites", flags)!.GetValue(value)!;
+            return value.sprites;
         }
         void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
         {
@@ -323,7 +321,7 @@ internal static class LookupStream3Verification
         {
             var original = Read();
             var stock = Load(original)[name];
-            AssertTrue(typeof(SpriteComposition).GetField("parts", flags)!.GetValue(stock) is MenuHeadingBorderDefinitions,
+            AssertTrue(stock.parts is MenuHeadingBorderDefinitions,
                 "native file border uses semantic title and calculated perimeter");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
@@ -396,10 +394,10 @@ internal static class LookupStream3Verification
         var stock = Load();
         Check(stock);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        AssertEqual(64, ((byte[])typeof(GrappleTileAtlas).GetField("independentTiles", fields)!.GetValue(stock)!).Length,
+        AssertEqual(64, (stock.independentTiles).Length,
             "stream 3 Grapple retains only eight independent binary coverage patterns");
-        foreach (string field in new[] { "firstPoint", "secondPoint", "thirdPoint", "fourthPoint", "verticalSegments" })
-            AssertTrue(typeof(GrappleTileAtlas).GetField(field, fields)!.GetValue(stock) is null,
+        foreach (object? cache in new object?[] { stock.firstPoint, stock.secondPoint, stock.thirdPoint, stock.fourthPoint, stock.verticalSegments })
+            AssertTrue(cache is null,
                 "stream 3 calculated Grapple pixels have no cached stock characters");
         for (int tile = 0; tile < 16; tile++)
         for (int plane = 0; plane < 4; plane++)
@@ -426,10 +424,10 @@ internal static class LookupStream3Verification
         int nativeCharacters = 0;
         foreach (var source in IntroNarrationDefinitions.Pages)
         {
-            object selected = stock.GetLines(source.Id);
-            AssertTrue(selected.GetType().GetField("supplied", fields)!.GetValue(selected) is null,
+            var selected = (IntroNarrationPresentation.NarrationPage)stock.GetLines(source.Id);
+            AssertTrue(selected.supplied is null,
                 "native narration calculates line boundaries and rows");
-            string text = (string)selected.GetType().GetField("text", fields)!.GetValue(selected)!;
+            string text = selected.text ?? throw new InvalidOperationException("native narration keeps its reviewed page text");
             AssertEqual(source.Id == IntroNarrationPageId.Page1 ? 1 : 0, text.Count(character => character == '\n'),
                 "narration retains only the one independently chosen hard break");
             var expected = new List<IntroNarrationCharacter>();
@@ -510,8 +508,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3MenuSpriteGeometry(ISnesAddressSpace rom)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        static Dictionary<string, SpriteComposition> Sprites(object presentation) =>
-            (Dictionary<string, SpriteComposition>)presentation.GetType().GetField("sprites", flags)!.GetValue(presentation)!;
+        static Dictionary<string, SpriteComposition> Sprites(GameOverPresentation presentation) => presentation.sprites;
         static void Confirm(SpriteComposition actual, SpriteVisualPart[] expectedParts)
         {
             var expected = MenuSpriteCompiler.Compile(expectedParts, "native or independently edited menu composition");
@@ -520,7 +517,7 @@ internal static class LookupStream3Verification
                 AssertEqual(expected.Part(part), actual.Part(part), "menu composition exact ordered geometry, tiles, attributes and palette inheritance");
         }
         static bool Calculated(SpriteComposition composition) =>
-            typeof(SpriteComposition).GetField("parts", flags)!.GetValue(composition) is not CompiledSpritePart[];
+            composition.parts is not CompiledSpritePart[];
 
         byte[] imported = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(rom);
         GameOverPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<GameOverPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
@@ -588,12 +585,12 @@ internal static class LookupStream3Verification
             expanded.Sprites[name] = [.. expanded.Sprites[name], expanded.Sprites[name][0] with { OffsetX = 17 }];
             Confirm(Sprites(Load(expanded))[name], expanded.Sprites[name]);
         }
-        ConfirmCursorCaller(SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom), source => FileSelectPresentation.Load(source));
-        ConfirmCursorCaller(SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(rom), source => GameOptionsPresentation.Load(source));
+        ConfirmCursorCaller(SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom), source => FileSelectPresentation.Load(source).sprites);
+        ConfirmCursorCaller(SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(rom), source => GameOptionsPresentation.Load(source).sprites);
 
-        void ConfirmCursorCaller(byte[] json, Func<Stream, object> load)
+        void ConfirmCursorCaller(byte[] json, Func<Stream, Dictionary<string, SpriteComposition>> load)
         {
-            var presentation = Sprites(load(new MemoryStream(json)));
+            var presentation = load(new MemoryStream(json));
             for (int frame = 0; frame < 4; frame++)
             {
                 string name = GameOverPresentationDefinitions.CursorFrameName(frame);
@@ -603,7 +600,7 @@ internal static class LookupStream3Verification
                 Confirm(presentation[name], parts);
                 parts[0] = parts[0] with { OffsetX = parts[0].OffsetX + 1, TileColumn = parts[0].TileColumn ^ 1 };
                 node["sprites"]![name] = System.Text.Json.JsonSerializer.SerializeToNode(parts, MapPresentationFormat.JsonOptions);
-                var edited = Sprites(load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString()))));
+                var edited = load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
                 Confirm(edited[name], parts);
             }
         }
@@ -669,15 +666,15 @@ internal static class LookupStream3Verification
         FileSelectPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
         FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
-        foreach ((string name, string field, int address, int count) in new[]
+        foreach ((string name, Func<FileSelectPresentation, FileSelectCompiledPatch> Compiled, int address, int count) in
+            new (string, Func<FileSelectPresentation, FileSelectCompiledPatch>, int, int)[]
         {
-            (FileSelectPresentationDefinitions.EnergyPatch, "energyPatch", 0x81b496, 4),
-            (FileSelectPresentationDefinitions.TimeColonPatch, "timeColonPatch", 0x81b4a8, 1),
-            (FileSelectPresentationDefinitions.NoDataPatch, "noDataPatch", 0x81b4ac, 11),
+            (FileSelectPresentationDefinitions.EnergyPatch, value => value.energyPatch, 0x81b496, 4),
+            (FileSelectPresentationDefinitions.TimeColonPatch, value => value.timeColonPatch, 0x81b4a8, 1),
+            (FileSelectPresentationDefinitions.NoDataPatch, value => value.noDataPatch, 0x81b4ac, 11),
         })
         {
-            FileSelectCompiledPatch Compiled(FileSelectPresentation value) => (FileSelectCompiledPatch)typeof(FileSelectPresentation).GetField(field, flags)!.GetValue(value)!;
-            AssertTrue(typeof(FileSelectCompiledPatch).GetField("suppliedCells", flags)!.GetValue(Compiled(stock)) is null,
+            AssertTrue(Compiled(stock).suppliedCells is null,
                 "file-select stock patch retains no cells " + name);
             for (int index = 0; index < count; index++)
             {
@@ -742,8 +739,7 @@ internal static class LookupStream3Verification
         GameOverPresentation Load() => GameOverPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
         var stock = Load();
-        AssertTrue(typeof(GameOverPresentation).GetField("tilemap", System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.NonPublic)!.GetValue(stock) is null, "game-over stock text retains no tilemap row");
+        AssertTrue(stock.tilemap is null, "game-over stock text retains no tilemap row");
         Confirm(stock);
         foreach (GameOverTextStream stream in GameOverRomData.Text.All)
         {
@@ -780,9 +776,12 @@ internal static class LookupStream3Verification
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
         var stock = ReadDocument();
         var loaded = Load(stock);
-        foreach (string field in new[] { "controllerLabelAnchors", "languageRegions", "specialToggles", "headingAnchors", "cursorAnchors" })
-            AssertTrue(typeof(GameOptionsPresentation).GetField(field, System.Reflection.BindingFlags.Instance |
-                System.Reflection.BindingFlags.NonPublic)!.GetValue(loaded) is null, "stock options geometry calculates " + field);
+        foreach (var (field, geometry) in new (string, object?)[]
+        {
+            ("controllerLabelAnchors", loaded.controllerLabelAnchors), ("languageRegions", loaded.languageRegions),
+            ("specialToggles", loaded.specialToggles), ("headingAnchors", loaded.headingAnchors), ("cursorAnchors", loaded.cursorAnchors),
+        })
+            AssertTrue(geometry is null, "stock options geometry calculates " + field);
         for (int action = 0; action < 7; action++)
         {
             ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f639 + action * 2));
@@ -798,8 +797,7 @@ internal static class LookupStream3Verification
             for (int row = 0; row < count; row++)
                 AssertEqual(new Position16<OamPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4 + 2))),
                     loaded.CursorPosition(page, row), "native options cursor anchor");
-        var stockLabels = (Dictionary<string, ushort[]>)typeof(GameOptionsPresentation).GetField("controllerLabels",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(loaded)!;
+        var stockLabels = loaded.controllerLabels;
         AssertEqual(0, stockLabels.Count, "options stock button glyphs retain no tilemap rows");
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
@@ -1206,8 +1204,7 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyMotherBrainContactHitboxes), () => VerifyMotherBrainContactHitboxes());
         byte[] grappleSpriteJson = SuperMetroid.AssetExtraction.GrappleSpriteExtractor.Extract(rom);
         var grappleSprites = GrappleSpriteCatalog.Load(new MemoryStream(grappleSpriteJson));
-        AssertTrue(typeof(GrappleSpriteCatalog).GetField("segments", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .GetValue(grappleSprites) is null, "stream 3 stock rope attribute rows discarded");
+        AssertTrue(grappleSprites.segments is null, "stream 3 stock rope attribute rows discarded");
         AssertTrue(GrappleSpriteDefinitions.SegmentAttributeAddresses.SequenceEqual(new[] { 0x94b18d, 0x94b191, 0x94b195, 0x94b199 }),
             "stream 3 segment address enumeration");
         for (int frame = 0; frame < 4; frame++)
@@ -1235,8 +1232,7 @@ internal static class LookupStream3Verification
             SuperMetroid.AssetExtraction.GrappleSwingFrameExtractor.Extract(rom)));
         for (int angle = 0; angle < 256; angle++)
             AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve((byte)angle), "stream 3 native calculated swing art frame");
-        AssertTrue(typeof(GrappleSwingFrameCatalog).GetField("frames", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .GetValue(swingFrames) is null, "stream 3 stock swing frame lookup discarded");
+        AssertTrue(swingFrames.frames is null, "stream 3 stock swing frame lookup discarded");
         int[] editedFrames = Enumerable.Range(0, 256).Select(angle => (int)rom.ReadCartridgeByte(0x9bc1c2 + angle)).ToArray();
         for (int editedAngle = 0; editedAngle < 256; editedAngle++)
         {
@@ -1250,9 +1246,8 @@ internal static class LookupStream3Verification
         }
         byte[] fileSelectJson = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom);
         var fileSelect = FileSelectPresentation.Load(new MemoryStream(fileSelectJson));
-        foreach (string field in new[] { "digits", "slotLetters" })
-            AssertTrue(typeof(FileSelectPresentation).GetField(field, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                .GetValue(fileSelect) is null, "stream 3 stock file-select glyph sequence discarded");
+        foreach (object? sequence in new object?[] { fileSelect.digits, fileSelect.slotLetters })
+            AssertTrue(sequence is null, "stream 3 stock file-select glyph sequence discarded");
         var glyphTilemap = new ushort[1024];
         for (int glyph = 0; glyph < 13; glyph++)
         {
@@ -1281,8 +1276,7 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyCreditsPresentation), () => VerifyCreditsPresentation(Path.GetFullPath("Super Metroid.smc")));
         byte[] creditsJson = SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(rom);
         var credits = CreditsPresentation.Load(new MemoryStream(creditsJson));
-        AssertTrue(typeof(CreditsPresentation).GetField("fixtureRows", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .GetValue(credits) is null, "stream 3 credits stock has no cached row storage");
+        AssertTrue(credits.fixtureRows is null, "stream 3 credits stock has no cached row storage");
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(creditsJson)), credits.ContentIdentity, "stream 3 credits source identity preserved");
         foreach (int invalid in new[] { -1, credits.RowCount, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = credits.GetRow(invalid).Length, "stream 3 calculated credits row bounds");
@@ -1353,19 +1347,17 @@ internal static class LookupStream3Verification
         for (int index = 0; index < 28; index++)
             AssertEqual(((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b099 + 4 * index)), (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 4 * index))),
                 MotherBrainDeathExplosionDefinitions.Anchor(index), "stream 3 native decorative death anchor");
-        var generate = typeof(MotherBrainRainbowBeamAttackSequence).GetMethod("GenerateDeathExplosions",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         foreach (bool mixed in new[] { false, true })
         {
             var scatter = new MotherBrainRainbowBeamAttackSequence();
             scatter.Body.Position = new(320, 192);
             for (int burst = 0; burst < 8; burst++)
             {
-                typeof(MotherBrainRainbowBeamAttackSequence).GetProperty("DeathExplosionIntervalTimer")!.SetValue(scatter, (ushort)0);
+                scatter.DeathExplosionIntervalTimer = (ushort)0;
                 int calls = 0;
                 Func<ushort> random = () => { calls++; return ushort.MaxValue; };
                 var requests = new List<MotherBrainDeathExplosionRequest>();
-                generate.Invoke(scatter, [mixed, random, requests]);
+                scatter.GenerateDeathExplosions(mixed, random, requests);
                 int group = 6 - burst % 7;
                 AssertEqual(mixed ? 4 : 2, requests.Count, "stream 3 death scatter burst size");
                 AssertEqual(requests.Count, calls, "stream 3 one RNG call per death projectile");
@@ -1382,8 +1374,7 @@ internal static class LookupStream3Verification
             }
         }
         var sequence = new MotherBrainRainbowBeamAttackSequence();
-        typeof(MotherBrainRainbowBeamAttackSequence).GetProperty("Phase")!.SetValue(sequence,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape);
+        sequence.Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape;
         var bus = new TestAddressSpace();
         var samus = new SamusState { Health = 99 };
         var firstPage = sequence.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
@@ -1412,14 +1403,12 @@ internal static class LookupStream3Verification
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(invalid), "stream 3 stagger neck bounds");
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainPainfulWalkingDefinitions.FunctionTimer(invalid), "stream 3 stagger timer bounds");
         }
-        var step = typeof(MotherBrainRainbowBeamAttackSequence).GetMethod("StepPainfulWalking",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         foreach (ushort stage in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, ushort.MaxValue })
         {
             var sequence = new MotherBrainRainbowBeamAttackSequence();
             sequence.Body.Position = sequence.Body.Position.WithX(0);
-            typeof(MotherBrainRainbowBeamAttackSequence).GetProperty("PainfulWalkingStage")!.SetValue(sequence, stage);
-            step.Invoke(sequence, null);
+            sequence.PainfulWalkingStage = stage;
+            sequence.StepPainfulWalking();
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * Math.Min(stage, (ushort)7))), sequence.PainfulWalkingFunctionTimer,
                 "stream 3 real stagger timer clamps terminal stages");
         }
@@ -1429,9 +1418,8 @@ internal static class LookupStream3Verification
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
         var sequence = new MotherBrainRainbowBeamAttackSequence();
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var timer = typeof(MotherBrainRainbowBeamAttackSequence).GetMethod("CreateNextEscapeTimerTileTransfer", flags)!;
-        var door = typeof(MotherBrainRainbowBeamAttackSequence).GetMethod("CreateNextExplodedDoorTileTransfer", flags)!;
+        Func<MotherBrainSpriteTileTransferRequest> timer = sequence.CreateNextEscapeTimerTileTransfer;
+        Func<MotherBrainSpriteTileTransferRequest> door = sequence.CreateNextExplodedDoorTileTransfer;
         foreach (bool timerList in new[] { true, false })
         {
             int count = timerList ? 7 : 2;
@@ -1445,17 +1433,17 @@ internal static class LookupStream3Verification
                 var calculated = timerList ? MotherBrainEscapeTextArtworkDefinitions.Transfer(index)
                     : MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(index);
                 AssertEqual(expected, calculated, "stream 3 native escape graphics record");
-                AssertEqual(expected, (MotherBrainSpriteTileTransferRequest)method.Invoke(sequence, null)!,
+                AssertEqual(expected, method(),
                     "stream 3 production escape transfer selection");
                 AssertEqual((ushort)(index + 1), timerList ? sequence.EscapeTimerTileTransferIndex : sequence.ExplodedDoorTileTransferIndex,
                     "stream 3 production escape cursor advances once");
             }
             try
             {
-                method.Invoke(sequence, null);
+                method();
                 throw new InvalidDataException("Completed escape transfer list unexpectedly produced another entry.");
             }
-            catch (System.Reflection.TargetInvocationException error) when (error.InnerException is InvalidOperationException) { }
+            catch (InvalidOperationException) { }
         }
         foreach (int invalid in new[] { -1, 5, int.MaxValue })
         {
@@ -1497,8 +1485,6 @@ internal static class LookupStream3Verification
         int[] minimumY = [16, 8, 0, 0, 0, 8, 32]; // CMP/BCC gates in native $A9:EA40/$EB0B.
         for (int column = 0; column < 7; column++)
             AssertEqual(minimumY[column], MotherBrainCorpseArtworkDefinitions.ColumnMinimumY(column), "stream 3 corpse native outline gate");
-        var copy = typeof(MotherBrainCorpseRottingState).GetMethod("CopyOrMovePixelRow",
-            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
         // Confirm the changed row/column geometry through the real pixel-copy path.
         for (ushort y = 0; y < 48; y++)
         foreach (bool move in new[] { false, true })
@@ -1538,7 +1524,7 @@ internal static class LookupStream3Verification
                     expectedTiles[start + source + 17] = 0;
                 }
             }
-            copy.Invoke(null, [actual, actual, y, move]);
+            MotherBrainCorpseRottingState.CopyOrMovePixelRow(actualTiles, y, move);
             for (int offset = 0; offset < 0x600; offset++)
                 AssertEqual(expectedTiles[offset], actualTiles[offset], "stream 3 corpse row geometry");
         }
@@ -1599,17 +1585,15 @@ internal static class LookupStream3Verification
         var stock = Load();
         Check(stock);
         var targetFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        object selectedSidehopper = typeof(ShitroidColorCatalog).GetField("sidehopper", targetFlags)!.GetValue(stock)!;
-        AssertEqual(0, ((ushort[])selectedSidehopper.GetType().GetField("independentOrSupplied", targetFlags)!.GetValue(selectedSidehopper)!).Length,
+        var selectedSidehopper = stock.sidehopper;
+        AssertEqual(0, selectedSidehopper.independentOrSupplied.Length,
             "stream 3 complete standalone Sidehopper target keeps no stock color array");
-        object selectedCorpse = typeof(ShitroidColorCatalog).GetField("deadSidehopper", targetFlags)!.GetValue(stock)!;
-        AssertEqual(0, ((ushort[])selectedCorpse.GetType().GetField("independentOrSupplied", targetFlags)!.GetValue(selectedCorpse)!).Length,
+        var selectedCorpse = stock.deadSidehopper;
+        AssertEqual(0, selectedCorpse.independentOrSupplied.Length,
             "stream 3 complete standalone corpse target keeps no stock color array");
-        var pulse = typeof(ShitroidColorCatalog).GetField("normal",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
-        AssertTrue(pulse.GetType().GetField("supplied", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .GetValue(pulse) is null, "stream 3 Shitroid original pulse rows discarded");
-        AssertTrue(!pulse.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+        var pulse = stock.normal;
+        AssertTrue(pulse.supplied is null, "stream 3 Shitroid original pulse rows discarded");
+        AssertTrue(!MetadataShape.Fields(pulse.GetType(), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
             .Any(field => field.FieldType == typeof(uint[]) || field.FieldType == typeof(ushort) || field.FieldType == typeof(Bgr555)),
             "stream 3 Shitroid pulse owns no duplicate paint origins or floor words");
         for (int frame = 0; frame < 8; frame++)
@@ -1756,8 +1740,8 @@ internal static class LookupStream3Verification
         }
         CheckBeam(stock);
         const System.Reflection.BindingFlags beamFields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        object beamColors = typeof(MotherBrainRainbowPalettePresentation).GetField("beamCycle", beamFields)!.GetValue(stock)!;
-        AssertTrue(beamColors.GetType().GetField("supplied", beamFields)!.GetValue(beamColors) is null,
+        var beamColors = stock.beamCycle;
+        AssertTrue(beamColors.supplied is null,
             "stream 3 beam wheel retains no stock lookup row");
         for (int index = 0; index < 38; index++)
         for (int channel = 0; channel < 3; channel++)
@@ -1812,23 +1796,20 @@ internal static class LookupStream3Verification
         }
         CheckRevival(stock);
         const System.Reflection.BindingFlags privateFields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        object revivalFade = typeof(MotherBrainRainbowPalettePresentation).GetField("fromGrey", privateFields)!.GetValue(stock)!;
-        var revivalOverrides = (Dictionary<(int Frame, int Color), ushort>)revivalFade.GetType()
-            .GetField("suppliedOverrides", privateFields)!.GetValue(revivalFade)!;
+        var revivalFade = stock.fromGrey;
+        var revivalOverrides = revivalFade.suppliedOverrides;
         AssertEqual(0, revivalOverrides.Count, "revival calculates all words with one reviewed tissue-shade hold");
         AssertEqual(Word(revival[1].Body[10]), Word(revival[2].Body[10]),
             "native revival EE80 repeats EEA6 without an independently stored paint word");
-        foreach (string endpointName in new[] { "first", "last" })
+        foreach (var endpoint in new[] { revivalFade.first, revivalFade.last })
         {
-            object endpoint = revivalFade.GetType().GetField(endpointName, privateFields)!.GetValue(revivalFade)!;
-            object body = endpoint.GetType().GetProperty("Body")!.GetValue(endpoint)!;
-            AssertTrue(body.GetType().GetField("supplied", privateFields)!.GetValue(body) is null,
+            AssertTrue(endpoint.Body.supplied is null,
                 "revival endpoint body reuses reviewed health/drained paint calculations");
-            AssertTrue(endpoint.GetType().GetField("backLegs", privateFields)!.GetValue(endpoint) is null,
+            AssertTrue(endpoint.backLegs is null,
                 "revival rear endpoint calculates from reviewed normal/half-shadow paint");
-            AssertTrue(endpoint.GetType().GetField("<TrailingColor>k__BackingField", privateFields)!.GetValue(endpoint) is null,
-                "revival trailing endpoint shares its calculated rear highlight");
         }
+        AssertTrue(!MetadataShape.DeclaresField(typeof(MotherBrainRainbowPalettePresentation.PaletteFrame), "<TrailingColor>k__BackingField", privateFields),
+            "revival trailing endpoint shares its calculated rear highlight");
         for (int frame = 0; frame < 8; frame++)
         for (int color = 0; color < 19; color++)
         for (int component = 0; component < 3; component++)
@@ -1846,66 +1827,51 @@ internal static class LookupStream3Verification
             Set(original);
         }
         CheckRainbow(stock);
-        object fakeFade = typeof(MotherBrainRainbowPalettePresentation).GetField("fakeDeathToGrey", privateFields)!.GetValue(stock)!;
-        foreach (string endpointName in new[] { "first", "last" })
-        {
-            object endpoint = fakeFade.GetType().GetField(endpointName, privateFields)!.GetValue(fakeFade)!;
-            object body = endpoint.GetType().GetProperty("Body")!.GetValue(endpoint)!;
-            AssertTrue(body.GetType().GetField("supplied", privateFields)!.GetValue(body) is null,
+        var fakeFade = stock.fakeDeathToGrey;
+        foreach (var endpoint in new[] { fakeFade.first, fakeFade.last })
+            AssertTrue(endpoint.Body.supplied is null,
                 "stream 3 fake-death endpoints reuse approved normal/drained cortex paint without stored rows");
-        }
-        object drainFade = typeof(MotherBrainRainbowPalettePresentation).GetField("toGrey", privateFields)!.GetValue(stock)!;
-        object drainEnd = drainFade.GetType().GetField("last", privateFields)!.GetValue(drainFade)!;
-        object drainBody = drainEnd.GetType().GetProperty("Body")!.GetValue(drainEnd)!;
-        var drainedPaint = (MotherBrainRainbowPalettePresentation.DrainedBodyColors)drainBody.GetType()
-            .GetField("drained", privateFields)!.GetValue(drainBody)!;
+        var drainFade = stock.toGrey;
+        var drainEnd = drainFade.last;
+        var drainBody = drainEnd.Body;
+        var drainedPaint = drainBody.drained;
         AssertTrue(drainedPaint.Calculated, "stream 3 drained final gray body palette has no stored row");
-        object normalFrame = typeof(MotherBrainRainbowPalettePresentation).GetField("normal", privateFields)!.GetValue(stock)!;
-        object normalBody = normalFrame.GetType().GetProperty("Body")!.GetValue(normalFrame)!;
-        AssertTrue(normalBody.GetType().GetField("supplied", privateFields)!.GetValue(normalBody) is null,
+        var normalFrame = stock.normal;
+        var normalBody = normalFrame.Body;
+        AssertTrue(normalBody.supplied is null,
             "stream 3 normal body calculates from shared health paint without a stored row");
-        AssertTrue(normalFrame.GetType().GetField("backLegs", privateFields)!.GetValue(normalFrame) is null,
+        AssertTrue(normalFrame.backLegs is null,
             "stream 3 normal rear palette calculates from shared health lighting without a stored row");
-        var storedRainbow = (Array)typeof(MotherBrainRainbowPalettePresentation).GetField("rainbow",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
-        object RainbowBody(int phase)
-        {
-            object selected = storedRainbow.GetValue(phase)!;
-            return selected.GetType().GetProperty("Body")!.GetValue(selected)!;
-        }
-        object redBody = RainbowBody(0);
-        object redBasis = redBody.GetType().GetField("redOrigin", privateFields)!.GetValue(redBody)!;
-        AssertTrue(redBasis is not null, "native rainbow actually selects calculated red-origin shades");
-        AssertEqual(11, ((ushort[])redBasis!.GetType().GetField("inputs", privateFields)!.GetValue(redBasis)!).Length,
+        var storedRainbow = stock.rainbow;
+        MotherBrainRainbowPalettePresentation.BodyColors RainbowBody(int phase) => storedRainbow[phase].Body;
+        if (RainbowBody(0).redOrigin is not { } redBasis)
+            throw new InvalidOperationException("native rainbow actually selects calculated red-origin shades");
+        // RedOriginColors now stores named shades rather than a packed input array; this expectation predates that change.
+        AssertTrue(MetadataShape.DeclaresField(redBasis.GetType(), "inputs",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
             "red-origin basis retains eleven packed independent words");
         int independentChannels = 0;
         foreach (int phase in new[] { 1, 2, 5, 6, 7 })
         {
-            object body = RainbowBody(phase);
-            object sharing = body.GetType().GetField("sharedChannels", privateFields)!.GetValue(body)!;
-            AssertTrue(sharing is not null, $"rainbow phase {phase} actually uses shared channels");
-            object channel = sharing!.GetType().GetField("independent", privateFields)!.GetValue(sharing)!;
-            independentChannels += ((Array)channel.GetType().GetField("inputs", privateFields)!.GetValue(channel)!).Length;
+            if (RainbowBody(phase).sharedChannels is not { } sharing)
+                throw new InvalidOperationException($"rainbow phase {phase} actually uses shared channels");
+            independentChannels += sharing.independent.inputs.Length;
         }
         AssertEqual(28, independentChannels, "remaining independently supplied channels outside red-origin basis");
         foreach (int phase in new[] { 3, 4, 8, 9 })
-        {
-            object body = RainbowBody(phase);
-            AssertTrue(body.GetType().GetField("tintSource", privateFields)!.GetValue(body) is not null,
+            AssertTrue(RainbowBody(phase).tintSource is not null,
                 $"rainbow phase {phase} actually uses exact whole-palette tint");
-        }
-        object drainStart = drainFade.GetType().GetField("first", privateFields)!.GetValue(drainFade)!;
-        AssertTrue(ReferenceEquals(drainStart.GetType().GetProperty("Body")!.GetValue(drainStart), RainbowBody(6)),
+        var drainStart = drainFade.first;
+        AssertTrue(ReferenceEquals(drainStart.Body, RainbowBody(6)),
             "stream 3 drain body starts from the exact matching rainbow phase-six source");
-        AssertTrue(ReferenceEquals(drainStart.GetType().GetField("rearSource", privateFields)!.GetValue(drainStart), storedRainbow.GetValue(6)),
+        AssertTrue(ReferenceEquals(drainStart.rearSource, storedRainbow[6]),
             "stream 3 drain rear and trailing start share only matching rainbow content");
-        AssertTrue(drainEnd.GetType().GetField("backLegs", privateFields)!.GetValue(drainEnd) is null,
+        AssertTrue(drainEnd.backLegs is null,
             "stream 3 drained rear endpoint calculates from approved normal rear lighting");
-        AssertTrue(drainEnd.GetType().GetField("<TrailingColor>k__BackingField", privateFields)!.GetValue(drainEnd) is null,
+        AssertTrue(drainEnd.TrailingColor is null,
             "stream 3 drained trailing word reuses its rear highlight without a stored value");
-        foreach (object frame in storedRainbow)
-            AssertTrue(frame.GetType().GetField("backLegs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                .GetValue(frame) is null, "stream 3 rainbow shadow tables discarded");
+        foreach (var frame in storedRainbow)
+            AssertTrue(frame.backLegs is null, "stream 3 rainbow shadow tables discarded");
         for (int frame = 0; frame <= 10; frame++)
         for (int color = 0; color < 30; color++)
         for (int channel = 0; channel < 3; channel++)
@@ -1923,13 +1889,8 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 10, int.MaxValue })
             AssertThrows<InvalidDataException>(() => stock.ApplyRainbow(new SnesCgram(), invalid), "stream 3 rainbow bounds");
-        foreach (string field in new[] { "toGrey", "fakeDeathToGrey" })
-        {
-            var fade = typeof(MotherBrainRainbowPalettePresentation).GetField(field,
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
-            AssertTrue(fade.GetType().GetField("supplied", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                .GetValue(fade) is null, "stream 3 drain stock intermediate rows discarded");
-        }
+        foreach (var fade in new[] { stock.toGrey, stock.fakeDeathToGrey })
+            AssertTrue(fade.supplied is null, "stream 3 drain stock intermediate rows discarded");
         Check(Load(document with { Version = 2, FakeDeathToGrey = null }, stock));
         // Independently edited channels must still be delivered exactly, including endpoints and WRAM.
         for (int frame = 0; frame < 8; frame++)
@@ -2000,8 +1961,8 @@ internal static class LookupStream3Verification
         var stock = Load();
         Check(stock);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        object selectedInitial = typeof(BabyMetroidCutsceneColorCatalog).GetField("initial", fields)!.GetValue(stock)!;
-        AssertTrue(selectedInitial.GetType().GetField("supplied", fields)!.GetValue(selectedInitial) is null,
+        var selectedInitial = stock.initial;
+        AssertTrue(selectedInitial.supplied is null,
             "stream 3 Baby initial calculates from reviewed paints without a stock color array");
         for (int color = 0; color < initial.Length; color++)
         for (int channel = 0; channel < 3; channel++)
@@ -2011,10 +1972,10 @@ internal static class LookupStream3Verification
             Check(Load());
             initial[color] = original;
         }
-        object selectedFade = typeof(BabyMetroidCutsceneColorCatalog).GetField("fade", fields)!.GetValue(stock)!;
-        AssertTrue(selectedFade.GetType().GetField("supplied", fields)!.GetValue(selectedFade) is null,
+        var selectedFade = stock.fade;
+        AssertTrue(selectedFade.supplied is null,
             "stream 3 original Baby fade discards its stored frame table");
-        AssertEqual(0, selectedFade.GetType().GetFields(fields).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(ushort[]) || field.FieldType == typeof(Bgr555) || field.FieldType == typeof(Bgr555[])), "stream 3 Baby fade keeps no stock endpoint payload");
+        AssertEqual(0, MetadataShape.Fields(selectedFade.GetType(), fields).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(ushort[]) || field.FieldType == typeof(Bgr555) || field.FieldType == typeof(Bgr555[])), "stream 3 Baby fade keeps no stock endpoint payload");
         static ushort ScaleHealth(ushort value, int remaining)
         {
             int result = 0;
@@ -2022,15 +1983,14 @@ internal static class LookupStream3Verification
                 result |= (((value >> (5 * channel) & 31) * remaining / 7) << (5 * channel));
             return (ushort)result;
         }
-        var endpointMethod = selectedFade.GetType().GetMethod("Endpoint", fields | System.Reflection.BindingFlags.Static)!;
         for (int color = 0; color < 14; color++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xade8f0 + 2 * color)), ScaleHealth(((Bgr555)endpointMethod.Invoke(null, [color])!).ToWord(), 6),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xade8f0 + 2 * color)), ScaleHealth((BabyMetroidCutsceneColorCatalog.ColorFade.Endpoint(color)).ToWord(), 6),
                 "stream 3 reviewed final-health endpoint reproduces original undisplayed fade step");
             int healthAddress = color < 4 ? 0xade870 + 2 * color :
                 color < 9 ? 0xade8d8 + 2 * (color - 4) : 0xade878 + 2 * (color - 9);
             ushort nativeHealth = CartridgeImportSource.Require(rom).ReadCartridgeWord(healthAddress);
-            AssertEqual(nativeHealth, (Bgr555)endpointMethod.Invoke(null, [color])!, "stream 3 exact native final-health endpoint");
+            AssertEqual(nativeHealth, BabyMetroidCutsceneColorCatalog.ColorFade.Endpoint(color), "stream 3 exact native final-health endpoint");
             for (int frame = 0; frame < fade.Length; frame++)
                 AssertEqual(fade[frame][color], ScaleHealth(nativeHealth, 5 - frame),
                     "stream 3 native final health colors produce the exact seven-part fade");
@@ -2114,7 +2074,7 @@ internal static class LookupStream3Verification
         var stock = Load();
         Check(stock);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        AssertTrue(typeof(MotherBrainDeathColorCatalog).GetField("explodedDoor", fields)!.GetValue(stock) is null,
+        AssertTrue(stock.explodedDoor is null,
             "stream 3 exploded-door stock paint keeps no stored word array");
         for (int color = 0; color < door.Length; color++)
         for (int channel = 0; channel < 3; channel++)
@@ -2127,17 +2087,15 @@ internal static class LookupStream3Verification
         Check(stock);
         foreach (int invalid in new[] { -1, 14, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ExplodedDoorColor(invalid), "stream 3 exploded-door color bounds");
-        foreach (string name in new[] { "bodyFade", "legFade", "corpseFade" })
+        foreach (var fade in new[] { stock.bodyFade, stock.legFade, stock.corpseFade })
         {
-            object fade = typeof(MotherBrainDeathColorCatalog).GetField(name, fields)!.GetValue(stock)!;
-            AssertTrue(fade.GetType().GetField("first", fields)!.GetValue(fade) is null,
+            AssertTrue(fade.first is null,
                 "stream 3 death starts reuse calculated health state three without stored endpoint rows");
-            AssertTrue(fade.GetType().GetField("supplied", fields)!.GetValue(fade) is null,
+            AssertTrue(fade.supplied is null,
                 "stream 3 original death fade discards its stored frame table");
-            if (name == "corpseFade")
+            if (ReferenceEquals(fade, stock.corpseFade))
             {
-                var endpoint = (MotherBrainRainbowPalettePresentation.DrainedBodyColors)fade.GetType()
-                    .GetField("last", fields)!.GetValue(fade)!;
+                var endpoint = fade.last ?? throw new InvalidOperationException("stream 3 corpse fade has a final gray endpoint");
                 AssertTrue(endpoint.Calculated, "stream 3 corpse final gray palette has no stored row");
                 AssertEqual(0, endpoint[14], "stream 3 corpse neutral black endpoint");
             }
@@ -2473,8 +2431,7 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        AssertTrue(typeof(WorkRobotPaletteCycle).GetField("frames",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock) is null,
+        AssertTrue(stock.frames is null,
             "stream 3 original Work Robot colors discard their stored frame table");
         for (int frame = 0; frame < 6; frame++)
         for (int color = 0; color < 4; color++)
@@ -2509,18 +2466,17 @@ internal static class LookupStream3Verification
         var stock = MotherBrainHealthPalettePresentation.Load(new MemoryStream(json));
         var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        foreach (string name in new[] { "body", "backLegs" })
+        foreach (var palette in new[] { stock.body, stock.backLegs })
         {
-            object palette = typeof(MotherBrainHealthPalettePresentation).GetField(name, flags)!.GetValue(stock)!;
-            AssertTrue(palette.GetType().GetField("supplied", flags)!.GetValue(palette) is null,
+            AssertTrue(palette.supplied is null,
                 "stream 3 native health tint has no stored intermediate rows");
-            object basis = palette.GetType().GetField("basis", flags)!.GetValue(palette)!;
-            AssertTrue(basis.GetType().GetField("supplied", flags)!.GetValue(basis) is null,
+            var basis = palette.basis;
+            AssertTrue(basis.supplied is null,
                 "stream 3 native health shade ramps calculated from paint endpoints");
-            Bgr555[] anchors = basis.GetType().GetFields(flags).Where(field => field.FieldType == typeof(Bgr555))
-                .Select(field => (Bgr555)field.GetValue(basis)!).ToArray();
-            AssertEqual(6, anchors.Length, "stream 3 health base exposes only six possible paint anchors");
-            AssertTrue(name == "body" ? anchors.All(value => value != Bgr555.Black) : anchors.All(value => value == Bgr555.Black),
+            AssertEqual(6, MetadataShape.Fields(basis.GetType(), flags).Count(field => field.FieldType == typeof(Bgr555)),
+                "stream 3 health base exposes only six possible paint anchors");
+            Bgr555[] anchors = [basis.highlight, basis.midtone, basis.shadow, basis.brown];
+            AssertTrue(ReferenceEquals(palette, stock.body) ? anchors.All(value => value != Bgr555.Black) : anchors.All(value => value == Bgr555.Black),
                 "stream 3 stock rear palette stores no independent paint colors");
         }
         for (int state = 0; state < 4; state++)
@@ -2585,13 +2541,13 @@ internal static class LookupStream3Verification
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
         var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        object fade = typeof(MotherBrainRoomColorPresentation).GetField("recoveryLights", flags)!.GetValue(stock)!;
-        AssertTrue(fade.GetType().GetField("supplied", flags)!.GetValue(fade) is null,
+        var fade = stock.recoveryLights;
+        AssertTrue(fade.supplied is null,
             "stream 3 stock recovery light rows discarded");
-        AssertTrue(ReferenceEquals(fade.GetType().GetField("finalRoom", flags)!.GetValue(fade),
-            typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", flags)!.GetValue(stock)),
+        AssertTrue(ReferenceEquals(fade.finalRoom,
+            stock.finalRoom),
             "stream 3 recovery endpoint reuses the final room palette");
-        AssertEqual(0, fade.GetType().GetFields(flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(Bgr555)),
+        AssertEqual(0, MetadataShape.Fields(fade.GetType(), flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(Bgr555)),
             "stream 3 reviewed recovery paints reside only in their domain catalog");
         for (int frame = 0; frame < 7; frame++)
         {
@@ -2680,13 +2636,13 @@ internal static class LookupStream3Verification
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
         var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        object flash = typeof(MotherBrainRoomColorPresentation).GetField("flash", flags)!.GetValue(stock)!;
-        AssertTrue(flash.GetType().GetField("supplied", flags)!.GetValue(flash) is null,
+        var flash = stock.flash;
+        AssertTrue(flash.supplied is null,
             "stream 3 stock flash rows discarded");
-        AssertTrue(ReferenceEquals(flash.GetType().GetField("basis", flags)!.GetValue(flash),
-            typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", flags)!.GetValue(stock)),
+        AssertTrue(ReferenceEquals(flash.basis,
+            stock.finalRoom),
             "stream 3 stock flash reuses final room paint basis");
-        AssertEqual(0, flash.GetType().GetFields(flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(Bgr555)),
+        AssertEqual(0, MetadataShape.Fields(flash.GetType(), flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(Bgr555)),
             "stream 3 room flash keeps no per-instance selected paint");
         for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; frame++)
         {
@@ -2826,7 +2782,7 @@ internal static class LookupStream3Verification
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
         var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        AssertTrue(typeof(MotherBrainRoomColorPresentation).GetField("phaseTwoRearLeg", flags)!.GetValue(stock) is null,
+        AssertTrue(stock.phaseTwoRearLeg is null,
             "stream 3 phase-two rear uses approved calculated health basis without stored rows");
         var phaseTwo = new SnesCgram();
         stock.ApplyPhaseTwoInitial(phaseTwo);
@@ -2906,15 +2862,14 @@ internal static class LookupStream3Verification
         var stock = Load();
         Check(stock);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        foreach (string name in new[] { "faceBlock", "deadSidehopper", "torizoBody", "torizoBelly" })
+        foreach (var palette in new[] { stock.faceBlock, stock.deadSidehopper, stock.torizoBody, stock.torizoBelly })
         {
-            object palette = typeof(EnemyAuxiliaryColorCatalog).GetField(name, fields)!.GetValue(stock)!;
-            AssertTrue(palette.GetType().GetField("supplied", fields)!.GetValue(palette) is null,
+            AssertTrue(palette.supplied is null,
                 "stream 3 calculated auxiliary cycles have no stored frame rows");
-            foreach (string endpoint in new[] { "first", "last" })
-                AssertEqual(0, ((Bgr555[])palette.GetType().GetField(endpoint, fields)!.GetValue(palette)!).Length,
+            foreach (Bgr555[] endpoint in new[] { palette.first, palette.last })
+                AssertEqual(0, endpoint.Length,
                     "stream 3 complete auxiliary palette keeps no stock endpoint arrays");
-            AssertTrue(palette.GetType().GetField("corpse", fields)!.GetValue(palette) is null,
+            AssertTrue(palette.corpse is null,
                 "stream 3 complete auxiliary palette keeps no stock corpse array");
         }
         foreach (var palette in definitions.Select(definition => definition.Id))
@@ -2997,9 +2952,8 @@ internal static class LookupStream3Verification
         {
             AssertTrue(stock.TryGetDisplay(frame.Bank, frame.Pointer, out var parts), "stream 3 Baby display view");
             AssertTrue(parts is BabyMetroidSpriteParts, "stream 3 stock Baby full part arrays are discarded");
-            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-            bool sharedBody = parts.GetType().GetField("sharedBody", flags)!.GetValue(parts) is not null;
-            AssertEqual(sharedBody ? 6 : 15, ((EnemySpritemapPart[])parts.GetType().GetField("halfParts", flags)!.GetValue(parts)!).Length,
+            var baby = (BabyMetroidSpriteParts)parts;
+            AssertEqual(baby.sharedBody is not null ? 6 : 15, baby.halfParts.Length,
                 "stream 3 Baby shares nine upper-body halves and stores independent lower halves");
             var nativeOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
@@ -3126,8 +3080,8 @@ internal static class LookupStream3Verification
         var document = System.Text.Json.Nodes.JsonNode.Parse(json)!;
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        object attack = typeof(MotherBrainRoomColorPresentation).GetField("phaseTwoAttack", fields)!.GetValue(stock)!;
-        AssertTrue(attack.GetType().GetField("supplied", fields)!.GetValue(attack) is null,
+        var attack = stock.phaseTwoAttack;
+        AssertTrue(attack.supplied is null,
             "stock attack palette calculates every color without a stored row");
         var native = new SnesCgram();
         stock.ApplyPhaseTwoInitial(native);
@@ -3180,9 +3134,9 @@ internal static class LookupStream3Verification
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
         var stock = Load();
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        object finalRoom = typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", fields)!.GetValue(stock)!;
-        AssertTrue(finalRoom.GetType().GetField("supplied", fields)!.GetValue(finalRoom) is null, "final-room stock has no supplied output array");
-        AssertEqual(0, finalRoom.GetType().GetFields(fields).Count(field => field.FieldType == typeof(ushort)), "final-room paint choices live only in reviewed catalog");
+        var finalRoom = stock.finalRoom;
+        AssertTrue(finalRoom.supplied is null, "final-room stock has no supplied output array");
+        AssertEqual(0, MetadataShape.Fields(finalRoom.GetType(), fields).Count(field => field.FieldType == typeof(ushort)), "final-room paint choices live only in reviewed catalog");
         for (int color = 0; color < document.FinalRoom.Length; color++)
         {
             int address = MotherBrainRoomColorRomData.SourceBank + MotherBrainRoomPaletteProgramDefinitions.FinalPalette + color * sizeof(ushort);
@@ -3257,20 +3211,22 @@ internal static class LookupStream3Verification
         }
         Confirm(stock, document);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        foreach (string name in new[] { "finalRoom", "phaseTwoAttack", "initialGlassShard", "initialTubeProjectile" })
+        foreach (var (name, supplied) in new (string, object?)[]
         {
-            object palette = typeof(MotherBrainRoomColorPresentation).GetField(name, fields)!.GetValue(stock)!;
-            AssertTrue(palette.GetType().GetField("supplied", fields)!.GetValue(palette) is null,
-                "stream 3 room initial palette calculates dependent stock shades: " + name);
-        }
-        object finalRoom = typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", fields)!.GetValue(stock)!;
-        AssertEqual(0, finalRoom.GetType().GetFields(fields).Count(field => field.FieldType == typeof(ushort)),
+            ("finalRoom", stock.finalRoom.supplied),
+            ("phaseTwoAttack", stock.phaseTwoAttack.supplied),
+            ("initialGlassShard", stock.initialGlassShard.supplied),
+            ("initialTubeProjectile", stock.initialTubeProjectile.supplied),
+        })
+            AssertTrue(supplied is null, "stream 3 room initial palette calculates dependent stock shades: " + name);
+        var finalRoom = stock.finalRoom;
+        AssertEqual(0, MetadataShape.Fields(finalRoom.GetType(), fields).Count(field => field.FieldType == typeof(ushort)),
             "final room calculates from reviewed catalog choices without per-instance paint words");
-        object attack = typeof(MotherBrainRoomColorPresentation).GetField("phaseTwoAttack", fields)!.GetValue(stock)!;
-        AssertTrue(!attack.GetType().GetFields(fields).Any(field => field.FieldType == typeof(ushort)),
+        var attack = stock.phaseTwoAttack;
+        AssertTrue(!MetadataShape.Fields(attack.GetType(), fields).Any(field => field.FieldType == typeof(ushort)),
             "stock attack keeps no duplicated scalar paint endpoints");
-        object glass = typeof(MotherBrainRoomColorPresentation).GetField("initialGlassShard", fields)!.GetValue(stock)!;
-        AssertTrue(!glass.GetType().GetFields(fields).Any(field => field.FieldType == typeof(ushort)),
+        var glass = stock.initialGlassShard;
+        AssertTrue(!MetadataShape.Fields(glass.GetType(), fields).Any(field => field.FieldType == typeof(ushort)),
             "stock glass keeps no duplicated scalar paint endpoint");
         foreach (PaletteRgb5[] palette in new[] { document.InitialGlassShard!, document.InitialTubeProjectile! })
         for (int color = 0; color < palette.Length; color++)
@@ -3344,9 +3300,9 @@ internal static class LookupStream3Verification
         var stock = LoadBaby(babyDocument);
         var liveStock = LoadLive(liveDocument);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        object initial = typeof(BabyMetroidCutsceneColorCatalog).GetField("initial", fields)!.GetValue(stock)!;
-        AssertTrue(initial.GetType().GetField("supplied", fields)!.GetValue(initial) is null, "Baby stock initial has no stored color array");
-        AssertEqual(0, initial.GetType().GetFields(fields).Count(field => field.FieldType == typeof(ushort)), "Baby initial paint choices reside only in dedicated catalog");
+        var initial = stock.initial;
+        AssertTrue(initial.supplied is null, "Baby stock initial has no stored color array");
+        AssertEqual(0, MetadataShape.Fields(initial.GetType(), fields).Count(field => field.FieldType == typeof(ushort)), "Baby initial paint choices reside only in dedicated catalog");
         for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
         {
             int address = BabyMetroidCutsceneColorRomData.InitialSource + color * sizeof(ushort);
@@ -3410,14 +3366,11 @@ internal static class LookupStream3Verification
                 IntroCinematicRomData.Assets.FirstNarrationTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
-            const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-            var pageConstructor = typeof(RoomBackgroundTilemapAtlas).GetConstructors(flags).Single();
-            RoomBackgroundTilemapAtlas Page(byte[] bytes) => (RoomBackgroundTilemapAtlas)pageConstructor.Invoke([bytes]);
+            static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(bytes);
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(stock.BackgroundPages.Slice(index * 2048, 2048).ToArray())).ToArray();
             IntroCinematicArtworkCatalog Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(stock.PortraitTilemap.ToArray()), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(native), "all 1024 initial narration words match native");
-            var field = typeof(IntroCinematicArtworkCatalog).GetField("suppliedInitialNarration", flags)!;
-            AssertTrue(field.GetValue(stock) is null, "stock initial narration stores no page array");
+            AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
             var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(new TestAddressSpace(), introFont: font, characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles);
@@ -3429,7 +3382,7 @@ internal static class LookupStream3Verification
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
                 (IntroVramLayout.NarrationTilemap.Offset * 2), native.Length).SequenceEqual(native),
                 "actual opening constructor transfers calculated narration to native VRAM destination");
-            typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!.Invoke(intro, null);
+            intro.SetupFirstIllustratedPage();
             var subtitleUpload = intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
                 (IntroVramLayout.NarrationTilemap.Offset * 2) + IntroCinematicRomData.Text.FinalLineDestinationStart * 2,
                 IntroFinalLineTilemapFormat.CellCount * 2);
@@ -3468,14 +3421,14 @@ internal static class LookupStream3Verification
         FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
         SpriteComposition Composition(FileSelectPresentation owner, string name) =>
-            ((Dictionary<string, SpriteComposition>)typeof(FileSelectPresentation).GetField("sprites", flags)!.GetValue(owner)!)[name];
+            (owner.sprites)[name];
         var original = Read();
         var stock = Load(original);
         for (int frame = 0; frame < 8; frame++)
         {
             string name = FileSelectPresentationDefinitions.HelmetFrameName(frame);
             var composition = Composition(stock, name);
-            AssertTrue(typeof(SpriteComposition).GetField("parts", flags)!.GetValue(composition) is FileSelectHelmetParts,
+            AssertTrue(composition.parts is FileSelectHelmetParts,
                 "stock helmet retains semantic frame only");
             Confirm(stock, original, frame);
             int pointer = ReadVerificationWord(rom, 0x82c569 + FileSelectHelmetAnimation.SpritemapId(frame) * 2);
@@ -3547,26 +3500,19 @@ internal static class LookupStream3Verification
         byte[] native = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
             IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
         var stock = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(rom)));
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var constructor = typeof(IntroFontAtlas).GetConstructors(flags).Single();
-        var field = typeof(IntroFontAtlas).GetField("suppliedTransfer", flags)!;
         AssertTrue(stock.Transfer.Span.SequenceEqual(native), "144 calculated font tiles match native 2304 bytes");
-        AssertTrue(field.GetValue(stock) is null, "native font retains no planar output array");
+        AssertTrue(stock.suppliedTransfer is null, "native font retains no planar output array");
         for (int index = 0; index < native.Length; index++)
         {
             byte[] edit = native.ToArray();
             edit[index] ^= 0xff;
-            var selected = (IntroFontAtlas)constructor.Invoke([edit.ToArray()]);
+            var selected = new IntroFontAtlas(edit.ToArray());
             AssertTrue(selected.Transfer.Span.SequenceEqual(edit), "independent font planar-byte edit survives");
         }
         AssertTrue(stock.Transfer.Span.SequenceEqual(native), "edited glyphs do not cross-couple stock or aliases");
         byte[] output = stock.Transfer.ToArray();
         output[0] ^= 1;
         AssertTrue(stock.Transfer.Span.SequenceEqual(native), "font output is freshly calculated");
-        var type = typeof(IntroFontAtlas).Assembly.GetType("SuperMetroid.Core.Assets.IntroFontGlyphDefinitions")!;
-        const System.Reflection.BindingFlags methods = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
-        var add = type.GetMethod("AddedContour", methods)!;
-        var remove = type.GetMethod("RemovedContour", methods)!;
         int additions = 0, removals = 0;
         for (int tile = 0; tile < 144; tile++)
         {
@@ -3578,8 +3524,9 @@ internal static class LookupStream3Verification
                 int gx = glyph == 0x26 ? x - 1 : x;
                 int source = glyph == 0x26 ? 0x24 : glyph;
                 if (gx < 0) continue;
-                if ((bool)add.Invoke(null, [source, gx, y + dy])!) additions++;
-                if ((bool)remove.Invoke(null, [source, gx, y + dy])!) removals++;
+                var point = new Position16<ImagePixels>((ushort)gx, (ushort)(y + dy));
+                if (IntroFontGlyphDefinitions.AddedContour(source, point)) additions++;
+                if (IntroFontGlyphDefinitions.RemovedContour(source, point)) removals++;
             }
         }
         AssertEqual(4, additions, "only four authored outline additions");
@@ -3604,16 +3551,13 @@ internal static class LookupStream3Verification
                 IntroCinematicRomData.Assets.BackgroundPageTilemaps, maximumOutputBytes: 8192);
             var installation = SuperMetroid.AssetExtraction.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
-            const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-            var pageConstructor = typeof(RoomBackgroundTilemapAtlas).GetConstructors(flags).Single();
-            RoomBackgroundTilemapAtlas Page(byte[] bytes) => (RoomBackgroundTilemapAtlas)pageConstructor.Invoke([bytes]);
+            static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(bytes);
             IntroCinematicArtworkCatalog Copy(byte[] background)
             {
                 RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(background.AsSpan(index * 2048, 2048).ToArray())).ToArray();
                 return new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(stock.PortraitTilemap.ToArray()), InitialNarrationTilemap = Page(stock.InitialNarrationTilemap.ToArray()), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             }
-            var generator = typeof(IntroCinematicArtworkCatalog).Assembly.GetType("SuperMetroid.Core.Assets.IntroBackgroundTilemapDefinitions")!;
-            byte[] calculated = (byte[])generator.GetMethod("Compile", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!.Invoke(null, null)!;
+            byte[] calculated = IntroBackgroundTilemapDefinitions.Compile();
             var mismatches = new List<string>();
             for (int cell = 0; cell < native.Length / 2; cell++)
             {
@@ -3621,7 +3565,7 @@ internal static class LookupStream3Verification
                 if (expected != actual) mismatches.Add($"page{cell / 1024} ({cell % 32},{cell % 1024 / 32}) expected{expected:X4}/actual{actual:X4}");
             }
             AssertTrue(mismatches.Count == 0, "all 4096 background words match native: " + string.Join("; ", mismatches.Take(32)));
-            AssertTrue(typeof(IntroCinematicArtworkCatalog).GetField("suppliedBackgroundPages", flags)!.GetValue(stock) is null,
+            AssertTrue(stock.suppliedBackgroundPages is null,
                 "native background pages store no output array");
             string hash = stock.ContentIdentity;
             for (int word = 0; word < native.Length / 2; word++)
@@ -3751,13 +3695,11 @@ internal static class LookupStream3Verification
                 IntroCinematicRomData.Assets.SamusHeadTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
-            const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-            var pageConstructor = typeof(RoomBackgroundTilemapAtlas).GetConstructors(flags).Single();
-            RoomBackgroundTilemapAtlas Page(byte[] bytes) => (RoomBackgroundTilemapAtlas)pageConstructor.Invoke([bytes]);
+            static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(bytes);
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(stock.BackgroundPages.Slice(index * 2048, 2048).ToArray())).ToArray();
             IntroCinematicArtworkCatalog Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(stock.InitialNarrationTilemap.ToArray()), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(native), "all 1024 calculated portrait words match native");
-            AssertTrue(typeof(IntroCinematicArtworkCatalog).GetField("suppliedPortrait", flags)!.GetValue(stock) is null,
+            AssertTrue(stock.suppliedPortrait is null,
                 "native portrait stores no output word array");
             string hash = stock.ContentIdentity;
             for (int word = 0; word < 1024; word++)

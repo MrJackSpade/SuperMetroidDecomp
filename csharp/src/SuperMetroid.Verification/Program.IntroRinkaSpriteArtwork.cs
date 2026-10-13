@@ -100,21 +100,16 @@ internal static class IntroRinkaSpriteArtworkVerification
         var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
-            typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
-                .Invoke(state, null);
-            typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!
-                .Invoke(state, null);
-            typeof(IntroCinematicState).GetField("flashbackRinkas", flags)!
-                .SetValue(state, rinkas);
+            state.SetupFirstIllustratedPage();
+            state.SetupMotherBrainFlashback();
+            state.flashbackRinkas = rinkas;
         }
-        var render = typeof(IntroCinematicState)
-            .GetMethod("RenderMotherBrainFlashback", flags)!;
-        Rgba32[] stockPixels = (Rgba32[])render.Invoke(stockState, null)!;
-        Rgba32[] editedPixels = (Rgba32[])render.Invoke(editedState, null)!;
+        Rgba32[] stockPixels = stockState.RenderMotherBrainFlashback();
+        Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "intro Rinka override changes visible production flashback pixels");
         stockState.BindCharacterArtwork(edited);
-        AssertTrue(((Rgba32[])render.Invoke(stockState, null)!).SequenceEqual(editedPixels),
+        AssertTrue((stockState.RenderMotherBrainFlashback()).SequenceEqual(editedPixels),
             "restored intro Rinka scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production intro Rinkas never reread the three native compositions");

@@ -122,7 +122,7 @@ public sealed class MotherBrainCorpseRottingState
             DustRequests: dustRequests);
     }
 
-    private static void CopyOrMovePixelRow(WorkRamByteTable tiles, ushort yOffset, bool move)
+    internal static void CopyOrMovePixelRow(WorkRamByteTable tiles, ushort yOffset, bool move)
     {
         // Divide by eight to choose the tile row, then multiply the remaining pixel index
         // by two because each 4bpp bitplane row stores a 16-bit planes-0/1 word.

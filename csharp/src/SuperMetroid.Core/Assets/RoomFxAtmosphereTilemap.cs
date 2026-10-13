@@ -47,8 +47,8 @@ public static class RoomFxAtmosphereTilemapDefinitions
 internal sealed class RoomFxAtmosphereTilemap
 {
     private readonly RoomFxType type;
-    private readonly ushort[] preservedBits;
-    private readonly Dictionary<int, ushort>? customFields;
+    internal readonly ushort[] preservedBits;
+    internal readonly Dictionary<int, ushort>? customFields;
 
     public RoomFxAtmosphereTilemap(RoomFxType type, ReadOnlySpan<byte> bytes)
     {

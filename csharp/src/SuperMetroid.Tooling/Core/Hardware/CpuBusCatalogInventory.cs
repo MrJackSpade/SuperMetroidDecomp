@@ -33,6 +33,7 @@ internal static class CpuBusCatalogInventory
     ];
 
     /// <summary>Every static <see cref="CpuBusCell"/> field or property, ordered by owner then member.</summary>
+    [ReflectionAudit("inventory generation: every static CPU-bus cell declared anywhere in the production assemblies is the subject")]
     internal static IReadOnlyList<CpuBusCatalogEntry> Enumerate(IEnumerable<Assembly> assemblies)
     {
         const BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;

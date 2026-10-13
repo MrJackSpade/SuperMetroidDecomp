@@ -86,7 +86,7 @@ public sealed class TitleScreenAmbientPaletteFxProgramDefinition
     internal TitleScreenAmbientPaletteFxProgramDefinition(TitleScreenAmbientPaletteFxProgramOwner owner) => Owner = owner;
     /// <summary>Semantic title-palette owner selecting native definition $8D:E1A0 (tube) or $8D:E1A4 (displays); not a runtime palette-object slot index.</summary>
     public TitleScreenAmbientPaletteFxProgramOwner Owner { get; }
-    private bool IsTubeLight => Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight;
+    internal bool IsTubeLight => Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight;
     /// <summary>Native instruction entries $8D:C7FA (tube) / $C862 (displays).</summary>
     public ushort ProgramStart => IsTubeLight ? TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeProgram
         : (ushort)(TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeLight.LoopInstructionPointer + 2 * sizeof(ushort));

@@ -127,7 +127,6 @@ internal static class ProjectileRadiiVerification
             new MemoryStream(ProjectileFrameBindingCatalog.Write(editedDocument)));
         var projectiles = new SamusProjectileSystem();
         var bombs = new SamusBombProjectileSystem();
-        var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler", BindingFlags.Instance | BindingFlags.NonPublic)!;
         int bombFrames = 0;
         foreach (int address in addresses)
         {
@@ -155,7 +154,7 @@ internal static class ProjectileRadiiVerification
                 // existing contract instead of treating arbitrary beam records as bombs.
                 if (duration == 0) continue;
                 var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = pointer, Type = 0x0500 };
-                AssertEqual(false, (bool)runBomb.Invoke(bombs, new object[] { bomb })!, "Bomb timed record survives");
+                AssertEqual(false, bombs.RunProjectileInstructionHandler(bomb), "Bomb timed record survives");
                 AssertEqual(duration, bomb.InstructionTimer, "Bomb duration unchanged");
                 AssertEqual(expectedSprite, bomb.SpritemapPointer, "Bomb artwork reference changes independently");
                 AssertEqual((ushort)rom.ReadCartridgeByte(address), bomb.Radius.X, "Bomb physical X independent of artwork");

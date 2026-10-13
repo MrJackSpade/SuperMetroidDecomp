@@ -42,15 +42,15 @@ internal static class EnemyContentIdentityVerification
         Suite(nameof(VerifyLegacyEnemyIdentityMerges), () => VerifyLegacyEnemyIdentityMerges());
         // Inspect serialization shape, not data, so computed digests cannot silently change
         // the field count of a debugger snapshot. The hash itself uses typed production fields.
-        Type[] childTypes = typeof(EnemyTileArtworkCatalog).GetProperties()
+        Type[] childTypes = MetadataShape.Properties(typeof(EnemyTileArtworkCatalog), BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public)
             .Where(property => property.Name != nameof(EnemyTileArtworkCatalog.ContentIdentity))
             .Select(property => property.PropertyType).ToArray();
         AssertEqual(35, childTypes.Length, "all enemy bundle subdomains are accounted for");
         foreach (Type type in childTypes.Append(typeof(EnemyTileArtworkCatalog)).Append(typeof(EnemyPaletteSheet)))
         {
-            AssertTrue(type.GetProperty("ContentIdentity") is not null,
+            AssertTrue(MetadataShape.DeclaresProperty(type, "ContentIdentity"),
                 type.Name + " exposes typed selected content identity");
-            AssertTrue(type.GetField("<ContentIdentity>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic) is null,
+            AssertTrue(!MetadataShape.DeclaresField(type, "<ContentIdentity>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic),
                 type.Name + " adds no persisted derived-identity field");
         }
         Console.WriteLine($"  Enemy content: {fixture.Edits.Count} independent edits across all 35 subdomains, " +

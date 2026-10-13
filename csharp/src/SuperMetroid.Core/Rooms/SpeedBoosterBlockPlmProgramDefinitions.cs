@@ -14,7 +14,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
     /// <summary>Library-two destruction sound operand <c>$06</c> in all five contact lists.</summary>
     internal const byte BreakSoundId = 0x06;
 
-    private readonly record struct Program(
+    internal readonly record struct Program(
         ushort Start, bool Respawns, ushort InitialCrumbleDelay,
         bool UseDrawBlockClone)
     {
@@ -22,7 +22,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         internal ushort Terminal => checked((ushort)(Start + 3 + FrameCount * 4));
     }
 
-    private const int ProgramCount = 5;
+    internal const int ProgramCount = 5;
 
     /// <summary>The five reachable Speed Booster collision programs, in native table order.</summary>
     private enum SpeedBlockProgram
@@ -39,7 +39,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         Permanent,
     }
 
-    private static Program ProgramAt(int index) => ProgramOf(index switch
+    internal static Program ProgramAt(int index) => ProgramOf(index switch
     {
         0 => SpeedBlockProgram.BrinstarSlowRespawning,
         1 => SpeedBlockProgram.Respawning,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Collections;
 using System.Reflection;
@@ -16,6 +17,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class PaletteDefinitionAudit
 {
+    [ReflectionAudit("coverage audit: catalogs are discovered by their color-pointer method and row-table naming conventions")]
     public static void Run(string root, ResourceIndex exports, AuditReport report)
     {
         InstallColorIdentities(exports);
@@ -123,6 +125,7 @@ internal static class PaletteDefinitionAudit
         return true;
     }
 
+    [ReflectionAudit("coverage audit: a discovered row declares its count under a conventional member name")]
     private static int? ReadCount(Type type, object? row, string name)
     {
         const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;

@@ -21,8 +21,8 @@ public sealed class DachoraColorCatalog
 
     private readonly Bgr555[] normal;
     // Speed and shine frames calculate from the normal colors; only supplied deviations are stored.
-    private readonly Dictionary<int, Bgr555> speedEdits = new();
-    private readonly Dictionary<int, Bgr555> shineEdits = new();
+    internal readonly Dictionary<int, Bgr555> speedEdits = new();
+    internal readonly Dictionary<int, Bgr555> shineEdits = new();
 
     private DachoraColorCatalog(Bgr555[] normal, Bgr555[][] speed, Bgr555[][] shine)
     {

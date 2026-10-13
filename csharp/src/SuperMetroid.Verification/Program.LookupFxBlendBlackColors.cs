@@ -36,15 +36,14 @@ internal static class LookupFxBlendBlackColorsVerification
             else if (id is 0x22 or 0x62) AssertTrue(RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id) is null, "Weather third color stays independent");
             else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id), "Unknown calculated-color selector rejects");
         }
-        var overrideField = typeof(RoomFxBlendColors).GetField("thirdOverride", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        foreach (var field in typeof(RoomFxPaletteBlendCatalog).GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
+        foreach (var field in MetadataShape.Fields(typeof(RoomFxPaletteBlendCatalog), BindingFlags.Instance | BindingFlags.NonPublic)
                      .Where(field => field.FieldType == typeof(RoomFxBlendColors)))
         {
             var owner = (RoomFxBlendColors)field.GetValue(stock)!;
             bool weather = field.Name is "landingSiteRain" or "fog";
-            AssertEqual(weather, overrideField.GetValue(owner) is not null, "Stock black values are not stored");
+            AssertEqual(weather, owner.thirdOverride is not null, "Stock black values are not stored");
             _ = owner.CreateColors();
-            AssertEqual(weather, overrideField.GetValue(owner) is not null, "Output creation does not cache black");
+            AssertEqual(weather, owner.thirdOverride is not null, "Output creation does not cache black");
         }
         foreach (byte id in OriginalBlackBlendIds())
         foreach (ushort third in new ushort[] { 0, 1, 31, 32, 1023, 1024, 32767 })

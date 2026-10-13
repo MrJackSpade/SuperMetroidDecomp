@@ -51,13 +51,13 @@ internal static class LookupFxPairColorsVerification
             for (int color = 0; color < 2; color++)
             {
                 var owner = new RoomFxPairColor((RoomFxPaletteBlend)id, Bgr555.FromWord(checked((ushort)(ReadVerificationWord(rom, 0x89aa02 + id + color * 2)))), color == 0);
-                foreach (var field in new[] { (Name: "redOverride", Shift: 0), (Name: "greenOverride", Shift: 5), (Name: "blueOverride", Shift: 10) })
+                foreach (var field in new (Func<RoomFxPairColor, int?> Read, int Shift)[]
+                         { (pair => pair.redOverride, 0), (pair => pair.greenOverride, 5), (pair => pair.blueOverride, 10) })
                 {
-                    var info = typeof(RoomFxPairColor).GetField(field.Name, BindingFlags.Instance | BindingFlags.NonPublic)!;
                     bool stored = (OriginalFxPairCalculatedMask(id, color) & (31 << field.Shift)) == 0;
-                    AssertEqual(stored, info.GetValue(owner) is not null, "Stock derived component is not stored");
+                    AssertEqual(stored, field.Read(owner) is not null, "Stock derived component is not stored");
                     _ = owner.CreateColor();
-                    AssertEqual(stored, info.GetValue(owner) is not null, "Output creates no component cache");
+                    AssertEqual(stored, field.Read(owner) is not null, "Output creates no component cache");
                 }
             }
             // Exact property: every externally valid RGB5 edit round-trips unchanged,

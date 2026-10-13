@@ -89,12 +89,12 @@ internal static class BeamPaletteArtworkVerification
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Accepted NMI refreshes normal beam palette");
 
         var flash = runtime.Player.Samus!.CrystalFlash;
-        typeof(SamusCrystalFlashState).GetProperty(nameof(SamusCrystalFlashState.SpecialPaletteType))!.SetValue(flash, (ushort)SamusSpecialPaletteType.CrystalFlash);
+        flash.SpecialPaletteType = (ushort)SamusSpecialPaletteType.CrystalFlash;
         runtime.Cgram.SetColor(224, new Bgr555(27, 3, 0));
         runtime.Artwork.BeamArtwork = artwork;
         runtime.NmiHandler.RunNmi(0, true);
         AssertEqual(123, runtime.Cgram.Colors[224], "Rebind cannot erase active Crystal Flash palette");
-        typeof(SamusCrystalFlashState).GetProperty(nameof(SamusCrystalFlashState.SpecialPaletteTimer))!.SetValue(flash, ushort.MaxValue);
+        flash.SpecialPaletteTimer = ushort.MaxValue;
         AssertTrue(flash.UpdatePalette(NewProjectileCompositionForbiddenBus(), runtime.Cgram, runtime.Player.Samus, palettes), "Crystal Flash restores catalog without ROM reads");
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Crystal Flash completion restores selected palette");
         AssertEqual(SamusSpecialPaletteType.None, flash.SpecialPaletteKind, "Crystal Flash still clears its owner on completion");

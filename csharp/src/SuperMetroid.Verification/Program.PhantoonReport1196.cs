@@ -24,10 +24,10 @@ internal static class PhantoonReport1196Verification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = CreatePhantoonInstructionSystem(bus);
         var state = enemies.PhantoonBehavior.Phantoon!;
-        typeof(RoomEnemySystem).GetMethod("BeginEnemySoundRequestFrame", flags)!.Invoke(enemies, null);
+        enemies.BeginEnemySoundRequestFrame();
         state.Body.VariableE = 1;
         enemies.PhantoonBehavior.RunPhantoonStartingFlameSpawner(state.Body, state);
-        typeof(RoomEnemySystem).GetMethod("CollectLegacyEnemyAudioRequests", flags)!.Invoke(enemies, null);
+        enemies.CollectLegacyEnemyAudioRequests();
         AssertEqual(1, state.StartingFlamesSpawned, "intro producer actually spawns a starting flame");
         var audio = new CartridgeAudioState();
         var renderer = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());

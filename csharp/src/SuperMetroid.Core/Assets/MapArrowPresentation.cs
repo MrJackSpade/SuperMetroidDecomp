@@ -50,7 +50,7 @@ public sealed class MapArrowPresentation
 /// <summary>Provides one map arrow's screen anchor and cyclic cosmetic phase timing.</summary>
 public sealed class MapArrowVisual
 {
-    private readonly Dictionary<int, byte>? durationOverrides;
+    internal readonly Dictionary<int, byte>? durationOverrides;
     internal MapArrowVisual(Position16<OamPixels> position, int[] durations)
     {
         Position = position;

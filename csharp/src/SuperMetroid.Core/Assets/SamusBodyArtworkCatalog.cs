@@ -32,14 +32,14 @@ public sealed class SamusBodyArtworkCatalog
     /// <summary>Maximum planar-byte capacity of one definition slot.</summary>
     public const int BytesPerDefinitionSlot = TilesPerDefinition * 32;
 
-    private readonly Dictionary<int, ushort> topPointers;
-    private readonly Dictionary<int, ushort> bottomPointers;
-    private readonly Dictionary<int, ushort> posePointers;
-    private readonly Dictionary<int, sbyte> graphicsYOffsets;
-    private readonly Dictionary<int, ushort> landingYOffsets;
-    private readonly Dictionary<int, sbyte> postureYOffsets;
-    private readonly Dictionary<int, sbyte> drainedYOffsets;
-    private readonly Dictionary<int, byte> frames;
+    internal readonly Dictionary<int, ushort> topPointers;
+    internal readonly Dictionary<int, ushort> bottomPointers;
+    internal readonly Dictionary<int, ushort> posePointers;
+    internal readonly Dictionary<int, sbyte> graphicsYOffsets;
+    internal readonly Dictionary<int, ushort> landingYOffsets;
+    internal readonly Dictionary<int, sbyte> postureYOffsets;
+    internal readonly Dictionary<int, sbyte> drainedYOffsets;
+    internal readonly Dictionary<int, byte> frames;
     private readonly SamusBodyTileDefinition[][] top;
     private readonly SamusBodyTileDefinition[][] bottom;
     private readonly Dictionary<int, SamusBodyTileDefinition> definitionsByAddress = [];
@@ -369,11 +369,11 @@ public readonly record struct SamusBodyFrameSelection(
 public sealed class SamusBodyTileDefinition
 {
     private readonly byte[]? standalonePlanar;
-    private readonly Dictionary<int, byte>? pixelInputs;
-    private readonly Dictionary<int, byte>? contourEdits;
+    internal readonly Dictionary<int, byte>? pixelInputs;
+    internal readonly Dictionary<int, byte>? contourEdits;
     internal int PayloadLength { get; }
-    private readonly int? sourceAddressOverride;
-    private readonly ushort? firstSizeOverride;
+    internal readonly int? sourceAddressOverride;
+    internal readonly ushort? firstSizeOverride;
     // The body's pointers and frames are fixed once it is bound, so the calculated first
     // transfer size is resolved at binding instead of rescanning every pose on each read.
     private readonly ushort? calculatedFirstSize;

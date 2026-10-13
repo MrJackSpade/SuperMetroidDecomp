@@ -22,22 +22,22 @@ internal sealed class CeresDestructionCinematicState
 {
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
-    private readonly SnesVram vram = new();
-    private readonly SnesCgram cgram = new();
+    internal readonly SnesVram vram = new();
+    internal readonly SnesCgram cgram = new();
     private byte[] ceresTilemaps;
     [NonSerialized] private IntroCinematicArtworkCatalog? artwork;
     [NonSerialized] private IIntroCinematicSpritePresentation? spriteArtwork;
-    private readonly List<IntroDiscoverySprite> actors = [];
+    internal readonly List<IntroDiscoverySprite> actors = [];
     private readonly Dictionary<IntroDiscoverySprite, int> ceresActorSlots = [];
     private readonly SamusPowerBombExplosionState stationExplosion = new();
-    private RoomPaletteFxSystem? paletteFx;
+    internal RoomPaletteFxSystem? paletteFx;
     [NonSerialized] private IPaletteFxColorSource? paletteFxColors;
-    private IntroDiscoverySprite? zebesPlanetActor;
+    internal IntroDiscoverySprite? zebesPlanetActor;
     private IntroDiscoverySprite? zebesCompletionStarActor;
     private IntroDiscoverySprite? zebesTitleActor;
 
-    private FixedPosition<Mode7Pixels> background = new(new(unchecked((ushort)-44), 0), new(unchecked((ushort)-112), 0));
-    private ushort zoom = CeresDestructionRomData.Motion.IdentityScale;
+    internal FixedPosition<Mode7Pixels> background = new(new(unchecked((ushort)-44), 0), new(unchecked((ushort)-112), 0));
+    internal ushort zoom = CeresDestructionRomData.Motion.IdentityScale;
     private SnesAngle angle;
     private byte brightness;
     private int fadeCounter = 1;
@@ -153,7 +153,7 @@ internal sealed class CeresDestructionCinematicState
         return maps;
     }
 
-    public CeresDestructionPhase Phase { get; private set; }
+    public CeresDestructionPhase Phase { get; internal set; }
 
     public bool Finished => Phase == CeresDestructionPhase.Finished;
 
@@ -899,7 +899,7 @@ internal sealed class CeresDestructionCinematicState
         return (a, b, unchecked((short)-b), a);
     }
 
-    private static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(index);
+    internal static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(index);
 
     private static short Scale(short component, ushort scalar) =>
         unchecked((short)(SnesEightEight.Multiply(component, (short)scalar)));

@@ -92,13 +92,7 @@ internal static class MapArrowsVerification
         }
         static int[] Counters(FileSelectMapAnimations animation)
         {
-            var arrows = (Array)typeof(FileSelectMapAnimations).GetField("arrows", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(animation)!;
-            return arrows.Cast<object>().SelectMany(arrow => new[]
-            {
-                (int)arrow.GetType().GetField("Timer")!.GetValue(arrow)!,
-                (int)arrow.GetType().GetField("Frame")!.GetValue(arrow)!,
-                (bool)arrow.GetType().GetField("Visible")!.GetValue(arrow)! ? 1 : 0
-            }).ToArray();
+            return [.. animation.arrows.SelectMany(arrow => new[] { arrow.Timer, arrow.Frame, arrow.Visible ? 1 : 0 })];
         }
     }
 

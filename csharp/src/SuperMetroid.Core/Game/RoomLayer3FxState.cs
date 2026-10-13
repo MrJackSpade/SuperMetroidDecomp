@@ -31,13 +31,13 @@ public sealed class RoomLayer3FxState
     public RoomFxPaletteBlendCatalog? PaletteBlendColors { get; set; }
     // The rain/fog/spores texture drift: one 8.8 accumulator per axis, whose signed high
     // byte is added to the BG3 scroll before each axis's velocity is applied.
-    private Offset16<Bg3Subpixels> drift;
+    internal Offset16<Bg3Subpixels> drift;
     private ushort horizontalVelocity;
     // Rain scrolls by the layer-one movement since its previous frame.
-    private Position16<RoomPixels> previousCamera;
-    private ushort baseYSubposition;
-    private ushort tidePhase;
-    private int tideFixedOffset;
+    internal Position16<RoomPixels> previousCamera;
+    internal ushort baseYSubposition;
+    internal ushort tidePhase;
+    internal int tideFixedOffset;
     private ushort waterHorizontalSubscroll;
     private ushort waterBg3WaveTimer;
     private ushort waterBg2WaveTimer;
@@ -50,21 +50,21 @@ public sealed class RoomLayer3FxState
     // subsequent passes execute it before the main-loop RNG call. The water lists at
     // $88:D856 have the same shape, so this latch serves every liquid; the serialized
     // name predates water's use of it.
-    private bool lavaAcidBg3PreInstructionInstalled;
+    internal bool lavaAcidBg3PreInstructionInstalled;
     // A liquid's scroll HDMA objects own every per-frame liquid update. A direct
     // HDMA-object deletion ($A9:8C0C) ends them until the next room load.
-    private bool liquidHdmaObjectsDeleted;
+    internal bool liquidHdmaObjectsDeleted;
 
     /// <summary>HDMA-object variable two of the lava/acid BG3 object: the ambient sound timer.</summary>
     private ushort lavaSoundTimer;
     private LiquidRisePhase liquidRisePhase;
     private readonly List<RoomFxSoundRequest> soundRequests = [];
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
-    private ushort earthquakeSoundTimer;
-    private int earthquakeSoundSequenceIndex;
+    internal ushort earthquakeSoundTimer;
+    internal int earthquakeSoundSequenceIndex;
 
     /// <summary>The literal FX type byte selected from the active room/door record.</summary>
-    public RoomFxType Type { get; private set; }
+    public RoomFxType Type { get; internal set; }
 
     /// <summary>Native <c>FX_BaseYPosition</c> word loaded from record offset two.</summary>
     public ushort BaseYPosition { get; private set; }
@@ -93,10 +93,10 @@ public sealed class RoomLayer3FxState
         RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
 
     /// <summary>Live liquid surface used by bank-$88 after rising/tide processing.</summary>
-    public ushort CurrentYPosition { get; private set; } = ushort.MaxValue;
+    public ushort CurrentYPosition { get; internal set; } = ushort.MaxValue;
 
     /// <summary>Native liquid-options byte, zero-extended for consumers of WRAM <c>$197E</c>.</summary>
-    public ushort LiquidOptions { get; private set; }
+    public ushort LiquidOptions { get; internal set; }
 
     /// <summary>
     /// Sound requests emitted by the current bank-$88 effect pass in cartridge queue order.
@@ -121,7 +121,7 @@ public sealed class RoomLayer3FxState
         ushort roomHeaderPointer = 0) =>
         LoadCore(bus, vram, cgram, new RoomFxLoadSource { FxPointer = fxPointer, DoorPointer = doorPointer, RandomNumber = randomNumber, RoomHeaderPointer = roomHeaderPointer, SuppliedDefinition = null });
 
-    private void LoadCore(ISnesAddressSpace bus, SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
+    internal void LoadCore(ISnesAddressSpace bus, SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(vram);
@@ -684,7 +684,7 @@ public sealed class RoomLayer3FxState
     /// one byte into the 16.16 offset pair, equivalent to the eight-bit shift below. The
     /// asymmetric phase deltas deliberately spend different durations in each half-wave.
     /// </summary>
-    private void StepLiquidTide()
+    internal void StepLiquidTide()
     {
         int scale;
         ushort positiveDelta;

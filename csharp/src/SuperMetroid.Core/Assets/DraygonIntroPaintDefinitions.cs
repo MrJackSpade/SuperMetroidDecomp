@@ -11,9 +11,9 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class DraygonIntroPaintDefinitions
 {
-    private readonly DraygonMaterialPaintDefinitions primary;
-    private readonly CeresDoorEscapeSurfacePaintDefinitions surface;
-    private readonly Bgr555? clearEdit;
+    internal readonly DraygonMaterialPaintDefinitions primary;
+    internal readonly CeresDoorEscapeSurfacePaintDefinitions surface;
+    internal readonly Bgr555? clearEdit;
 
     internal DraygonIntroPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {

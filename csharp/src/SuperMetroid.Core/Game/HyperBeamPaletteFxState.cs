@@ -18,7 +18,7 @@ public sealed class HyperBeamPaletteFxState
     private const int DestinationColorIndex =
         SamusPaletteRomData.HyperBeamFx.DestinationByteIndex / sizeof(ushort);
 
-    private ushort _instructionPointer;
+    internal ushort _instructionPointer;
 
     /// <summary>True after controller function three has spawned object <c>$E1F0</c>.</summary>
     public bool IsActive { get; private set; }

@@ -10,15 +10,15 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
     /// <summary>Library-two sound operand at $84:CD70 and $84:CDAF.</summary>
     internal const byte BreakSoundId = 0x0a;
 
-    private readonly record struct Program(ushort Start, bool Respawns)
+    internal readonly record struct Program(ushort Start, bool Respawns)
     {
         internal int FrameCount => Respawns ? 7 : 4;
         internal ushort TerminalAddress => checked((ushort)(Start + 7 + 4 * FrameCount));
     }
 
-    private const int ProgramCount = 2;
+    internal const int ProgramCount = 2;
 
-    private static Program ProgramAt(int index) => index switch
+    internal static Program ProgramAt(int index) => index switch
     {
         0 => new(RoomPlmInstructionLists.RespawningBreakableGrappleBlock, true),
         1 => new(RoomPlmInstructionLists.PermanentBreakableGrappleBlock, false),

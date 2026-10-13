@@ -15,26 +15,26 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusArmCannonState
 {
-    private ushort _previousSelectedHudItem;
+    internal ushort _previousSelectedHudItem;
 
     /// <summary>Host-owned visual data; rebound after a restored debugger state.</summary>
     [field: NonSerialized]
     public SamusArmCannonArtworkCatalog? Artwork { get; set; }
 
     /// <summary>Low byte of WRAM `$0AA6`: zero closed, one open/opening.</summary>
-    public byte OpenFlag { get; private set; }
+    public byte OpenFlag { get; internal set; }
 
     /// <summary>High byte at WRAM `$0AA7`: one while either transition is incomplete.</summary>
-    public byte CloseFlag { get; private set; }
+    public byte CloseFlag { get; internal set; }
 
     /// <summary>WRAM `$0AA8`; zero is invisible, one/two transition, three fully open.</summary>
-    public ushort Frame { get; private set; }
+    public ushort Frame { get; internal set; }
 
     /// <summary>WRAM `$0AAA`; the HUD selection producer saturates this at two.</summary>
-    public ushort ToggleFlag { get; private set; }
+    public ushort ToggleFlag { get; internal set; }
 
     /// <summary>Pose-record byte one copied to WRAM `$0AAC` on every draw pass.</summary>
-    public ushort DrawingMode { get; private set; }
+    public ushort DrawingMode { get; internal set; }
 
     /// <summary>
     /// Low-nibble dispatch value consumed by `$90:EB55/$90:EBA3`. The full source byte is

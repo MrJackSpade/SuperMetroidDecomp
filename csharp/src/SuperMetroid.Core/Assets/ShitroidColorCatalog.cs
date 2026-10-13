@@ -29,14 +29,14 @@ public sealed class ShitroidColorCatalog
             }
         });
 
-    private readonly ColorPulse normal;
-    private readonly SidehopperInitialPalette sidehopper;
+    internal readonly ColorPulse normal;
+    internal readonly SidehopperInitialPalette sidehopper;
     private readonly BabyMetroidInitialPalette shitroid;
     /// <summary>$A9:F8E6 is copied by EF9F-EFA8 to target slot A0. Stock3800 is an exact
     /// transparent-slot compatibility payload: OBJ ink0 is skipped before color lookup.
     /// It has no visible hue to derive; independently supplied replacements remain exact.</summary>
     private readonly Bgr555 shitroidTransparentSlot;
-    private readonly SidehopperCorpsePalette deadSidehopper;
+    internal readonly SidehopperCorpsePalette deadSidehopper;
 
     private ShitroidColorCatalog(Bgr555[][] normal, Bgr555[] sidehopper,
         Bgr555[] shitroid, Bgr555[] deadSidehopper)
@@ -132,10 +132,10 @@ public sealed class ShitroidColorCatalog
         return compiled;
     }
 
-    private sealed class ColorPulse
+    internal sealed class ColorPulse
     {
         private readonly BabyMetroidInitialPalette target;
-        private readonly Bgr555[][]? supplied;
+        internal readonly Bgr555[][]? supplied;
 
         public ColorPulse(Bgr555[][] frames, BabyMetroidInitialPalette target)
         {

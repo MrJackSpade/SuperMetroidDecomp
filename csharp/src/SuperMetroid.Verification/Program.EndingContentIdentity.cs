@@ -146,8 +146,8 @@ internal static class EndingContentIdentityVerification
             typeof(EndingCompletionTextSpritePresentation), typeof(EndingRewardSpritePresentation),
             typeof(EndingLogoSpritePresentation),
         })
-            AssertTrue(type.GetField("<ContentIdentity>k__BackingField",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance) is null,
+            AssertTrue(!MetadataShape.DeclaresField(type, "<ContentIdentity>k__BackingField",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
                 type.Name + " adds no serialized derived-identity field");
         Console.WriteLine($"  Ending content: {edits.Count} independent character/map/composition/palette edits, " +
             "ordered transfers and parts, canonical frames, encoding invariance and host warnings pass without a ROM.");

@@ -44,7 +44,7 @@ public sealed class SamusXrayState
     /// time freeze, automatic Reserve completion and a room transition do not restore
     /// these words; that mismatch is the cartridge's direct/indirect G-Mode state.
     /// </summary>
-    public XraySuspendedSubsystems SuspendedSubsystems { get; private set; }
+    public XraySuspendedSubsystems SuspendedSubsystems { get; internal set; }
 
     /// <summary>Whether X-ray's independent enemy-projectile disable remains set; gates projectile updates and drawing even if Reserve recovery has cleared shared time freeze.</summary>
     public bool AreEnemyProjectilesSuspended =>
@@ -72,7 +72,7 @@ public sealed class SamusXrayState
     /// The eight setup calls in `$91:D22E-$D26F` which prepare/transfer the two BG2 screens
     /// before the bank-$88 main pre-instruction begins changing the beam state.
     /// </summary>
-    public XraySetupStage SetupStage { get; private set; }
+    public XraySetupStage SetupStage { get; internal set; }
 
     /// <summary>WRAM `$0A7A`; values zero through five index `$88:8726`.</summary>
     public XrayBeamPhase BeamPhase { get; private set; }

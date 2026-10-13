@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
@@ -149,7 +149,7 @@ internal sealed class ProjectileAnimation
         DrawFlareComponentWithMetadata(oam, samus, layer1, component, mode7Transform, artwork, new ChargeFlarePose { Direction = direction, Running = samus.PoseMetadata.ReadMovementKind(bus) == SamusMovementType.Running, PoseYOffset = unchecked((byte)samus.PoseMetadata.ReadGraphicsYOffset(bus)), FacingLeft = samus.PoseMetadata.IsFacingLeft(bus) });
     }
 
-    private void DrawFlareComponentWithMetadata(OamBuffer oam, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork, ChargeFlarePose pose)
+    internal void DrawFlareComponentWithMetadata(OamBuffer oam, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork, ChargeFlarePose pose)
     {
         var visualOffset = (artwork.Placement ?? throw new InvalidOperationException(
             "Charge flare requires installed placement definitions."))

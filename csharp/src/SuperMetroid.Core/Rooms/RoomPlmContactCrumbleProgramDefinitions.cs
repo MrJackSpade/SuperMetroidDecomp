@@ -10,17 +10,17 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
     /// <summary>Direct library-two sound operand at the eight $84:C9F9-$CACA entries.</summary>
     internal const byte BreakSoundId = 0x0a;
 
-    private readonly record struct Program(ushort Start, bool Respawns, int Dimension)
+    internal readonly record struct Program(ushort Start, bool Respawns, int Dimension)
     {
         internal int FrameCount => Respawns ? 7 : 4;
         internal ushort Terminal => checked((ushort)(Start + 3 + 4 * FrameCount));
     }
 
-    private const int ProgramCount = 8;
+    internal const int ProgramCount = 8;
 
     // Native BTS order selects size in its low two bits and permanent versus
     // respawning behavior in bit two. Descriptors are values, not a stored table.
-    private static Program ProgramAt(int index) => new(
+    internal static Program ProgramAt(int index) => new(
         RoomPlmInstructionLists.ContactCrumbleByReactionIndex(index), index < 4, index & 3);
 
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)

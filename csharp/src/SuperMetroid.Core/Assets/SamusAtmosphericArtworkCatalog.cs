@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 public sealed class SamusAtmosphericArtworkCatalog
 {
-    private readonly Dictionary<int, ushort> typeOne = new();
-    private readonly Dictionary<int, ushort> sharedTypeFour = new();
+    internal readonly Dictionary<int, ushort> typeOne = new();
+    internal readonly Dictionary<int, ushort> sharedTypeFour = new();
 
     /// <summary>Captures selected four-frame attribute lists, retaining independent differences from calculated stock words without retaining caller arrays.</summary>
     /// <param name="typeOne">Four type-one footstep words in animation-frame order, corresponding to $90:8C0F.</param>

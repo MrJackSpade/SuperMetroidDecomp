@@ -296,7 +296,7 @@ public sealed class SuperMetroidRuntime
     public RoomSandAnimatedTilesState SandAnimatedTiles { get; } = new();
 
     /// <summary>FX-selected horizontal spikes.</summary>
-    public RoomSpikeAnimatedTilesState RoomSpikes { get; } = new();
+    public RoomSpikeAnimatedTilesState RoomSpikes { get; internal set; } = new();
 
     /// <summary>Room-main owner for Maridia elevatube routine $8F:E2B6.</summary>
     public MaridiaElevatubeRoomMainState MaridiaElevatube { get; } = new();

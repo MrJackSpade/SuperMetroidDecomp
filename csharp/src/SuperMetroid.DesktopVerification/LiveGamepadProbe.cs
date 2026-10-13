@@ -8,21 +8,14 @@ internal static class LiveGamepadProbe
 {
     public static void VerifyMissingAxes()
     {
-        const System.Reflection.BindingFlags hidden = System.Reflection.BindingFlags.NonPublic;
-        var type = typeof(WindowsGamepadInput);
-        var capsType = type.GetNestedType("JoystickCapabilities", hidden)!;
-        var positionType = type.GetNestedType("JoystickPosition", hidden)!;
-        object caps = Activator.CreateInstance(capsType)!;
-        object position = Activator.CreateInstance(positionType)!;
         // Reproduce the live driver: no axes, zero X/Y, advertised ranges retained.
-        capsType.GetField("XMaximum")!.SetValue(caps, (uint)65535);
-        capsType.GetField("YMaximum")!.SetValue(caps, (uint)65535);
-        var method = type.GetMethod("CreateSnapshot", hidden | System.Reflection.BindingFlags.Static)!;
-        var snapshot = (GenericGamepadSnapshot)method.Invoke(null, [position, caps])!;
+        var caps = new WindowsGamepadInput.JoystickCapabilities { XMaximum = 65535, YMaximum = 65535 };
+        var position = new WindowsGamepadInput.JoystickPosition();
+        var snapshot = WindowsGamepadInput.CreateSnapshot(position, caps);
         if (GenericGamepadInput.Map(snapshot) != SnesButton.None)
             throw new InvalidDataException("Zero-axis controller emitted phantom directional input.");
-        capsType.GetField("AxisCount")!.SetValue(caps, (uint)2);
-        snapshot = (GenericGamepadSnapshot)method.Invoke(null, [position, caps])!;
+        caps.AxisCount = 2;
+        snapshot = WindowsGamepadInput.CreateSnapshot(position, caps);
         if (GenericGamepadInput.Map(snapshot) != (SnesButton.Up | SnesButton.Left))
             throw new InvalidDataException("Real zero-valued axes must retain their full up-left deflection.");
         Console.WriteLine("Missing-axis controls pass: absent axes neutral, present axes preserved.");

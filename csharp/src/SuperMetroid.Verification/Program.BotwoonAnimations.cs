@@ -214,11 +214,10 @@ internal static class BotwoonAnimationsVerification
     private static void CompareBotwoonHead(SuperMetroidAddressSpace rom, ushort nativeList, RoomEnemySystem enemies,
         RoomEnemySlot head, BotwoonEnemyState state, string label, HashSet<ushort>? drawn = null)
     {
-        PropertyInfo sound = typeof(BotwoonBehavior).GetProperty(nameof(BotwoonBehavior.LastBotwoonSoundEffect))!;
         var native = new NativeBotwoonHead(nativeList, head.InstructionTimer, head.Radius);
         for (int update = 0; update < 70; update++)
         {
-            sound.SetValue(enemies.BotwoonBehavior, null);
+            enemies.BotwoonBehavior.LastBotwoonSoundEffect = null;
             enemies.Instructions.ProcessInstructions(head, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             bool nativeSound = native.Step(rom);
             string at = $"Botwoon {label} update {update}";

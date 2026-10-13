@@ -26,8 +26,7 @@ internal static class GpuTimingTests
             for (int i = 0; i < 2; i++)
             {
                 // The oldest pending slot (the ring tail) is the one TryRead consumes.
-                object oldest = PrivateState.Field<Array>(timer, "slots").GetValue(PrivateState.Field<int>(timer, "tail"))!;
-                RenderFrameIdentity oldestIdentity = PrivateState.Field<RenderFrameIdentity>(oldest, "Identity");
+                RenderFrameIdentity oldestIdentity = timer.slots[timer.tail].Identity;
                 if (!timer.TryRead(out var sample) || oldestIdentity.Sequence != batch * 2 + i + 1)
                     throw new InvalidOperationException("Completed GPU timer lost FIFO frame identity.");
                 if (!sample.Valid || !double.IsFinite(sample.Milliseconds) || sample.Milliseconds < 0)

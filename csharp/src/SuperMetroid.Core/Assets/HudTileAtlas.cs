@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class HudTileAtlas : IInstalledArtworkTransferSource
 {
     private readonly byte[] transfer;
-    private HudTileAtlas(byte[] transfer) => this.transfer = transfer;
+    internal HudTileAtlas(byte[] transfer) => this.transfer = transfer;
     internal ReadOnlyMemory<byte> Transfer => transfer;
 
     /// <summary>Resolves the complete native gameplay upload, including its clearing half, from current PNG content.</summary>

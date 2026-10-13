@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Collections;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -31,6 +32,7 @@ internal sealed class PortStateDiff
         return diff.differences;
     }
 
+    [ReflectionAudit("structural diff: every instance field of the port state graph is compared, so new state cannot escape")]
     private void Visit(string path, object? expected, object? actual)
     {
         if (excludePath(path))

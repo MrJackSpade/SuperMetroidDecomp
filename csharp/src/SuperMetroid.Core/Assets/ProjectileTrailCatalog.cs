@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable small-OBJ appearance keyed by native trail frame; no timing or movement fields.</summary>
 public sealed class ProjectileTrailCatalog
 {
-    private readonly Dictionary<ushort, ushort> suppliedAttributes = [];
+    internal readonly Dictionary<ushort, ushort> suppliedAttributes = [];
     /// <summary>Optional installed twelve-tile trail artwork provider retained from loading; resolving appearances neither uploads nor replaces its pixels.</summary>
     public ProjectileTrailAtlas? Tiles { get; }
     private ProjectileTrailCatalog(Dictionary<ushort, ushort> attributes, ProjectileTrailAtlas? tiles)

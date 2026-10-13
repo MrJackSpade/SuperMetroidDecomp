@@ -63,32 +63,24 @@ internal static class IntroScientistSpriteArtworkVerification
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
-            typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
-                .Invoke(state, null);
-            typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!
-                .Invoke(state, null);
-            typeof(IntroCinematicState).GetMethod("SetupBabyDiscoveryCrossfade", flags)!
-                .Invoke(state, null);
-            typeof(IntroCinematicState).GetMethod("SetupBabyMetroidDelivery", flags)!
-                .Invoke(state, null);
-            var crossfade = typeof(IntroCinematicState).GetMethod(
-                "StepBabyMetroidDeliveryCrossfade", flags)!;
+            state.SetupFirstIllustratedPage();
+            state.SetupMotherBrainFlashback();
+            state.SetupBabyDiscoveryCrossfade();
+            state.SetupBabyMetroidDelivery();
             for (int frame = 0; frame < 128 &&
                 state.Phase == IntroCinematicPhase.BabyMetroidDeliveryCrossfade; frame++)
-                crossfade.Invoke(state, null);
+                state.StepBabyMetroidDeliveryCrossfade();
             AssertEqual(IntroCinematicPhase.BabyMetroidDelivery, state.Phase,
                 "scientist sprite probe reached the lit delivery scene");
-            var scientist = (IntroScientistCutsceneState)typeof(IntroCinematicState)
-                .GetField("scientistCutscene", flags)!.GetValue(state)!;
+            var scientist = state.scientistCutscene;
             scientist.Step(0, introCrossfadeTimer: 0x007f);
         }
-        var render = typeof(IntroCinematicState).GetMethod("RenderScientistCutscene", flags)!;
-        Rgba32[] stockPixels = (Rgba32[])render.Invoke(stockState, null)!;
-        Rgba32[] editedPixels = (Rgba32[])render.Invoke(editedState, null)!;
+        Rgba32[] stockPixels = stockState.RenderScientistCutscene();
+        Rgba32[] editedPixels = editedState.RenderScientistCutscene();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "scientist sprite override changes visible delivery-scene pixels");
         stockState.BindCharacterArtwork(edited);
-        AssertTrue(((Rgba32[])render.Invoke(stockState, null)!).SequenceEqual(editedPixels),
+        AssertTrue((stockState.RenderScientistCutscene()).SequenceEqual(editedPixels),
             "restored scientist scene rebinds selected baby artwork");
 
         var examination = IntroScientistCutsceneState.CreateExamination();
@@ -99,8 +91,7 @@ internal static class IntroScientistSpriteArtworkVerification
         installedExamination.FinalizeFrame();
         var nativeExamination = new OamBuffer();
         nativeExamination.BeginFrame();
-        DrawImportedCinematicActor(bus, nativeExamination, (IntroDiscoverySprite)typeof(IntroScientistCutsceneState)
-            .GetField("baby", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(examination)!);
+        DrawImportedCinematicActor(bus, nativeExamination, examination.baby);
         nativeExamination.FinalizeFrame();
         AssertTrue(installedExamination.ImageEquals(nativeExamination),
             "installed examination actor preserves live native OAM");

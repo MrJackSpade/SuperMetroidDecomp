@@ -28,8 +28,8 @@ public sealed class OamBuffer
     // One four-byte record per OAM-low object; one two-bit pair per OAM-high object, four per byte.
     private const int LowRecordByteCount = 4;
     private const int HighPairsPerByte = 4;
-    private readonly byte[] _lowTable = new byte[PpuMemoryLayout.OamLow.Count * LowRecordByteCount];
-    private readonly byte[] _highTable = new byte[PpuMemoryLayout.OamHigh.Count / HighPairsPerByte];
+    internal readonly byte[] _lowTable = new byte[PpuMemoryLayout.OamLow.Count * LowRecordByteCount];
+    internal readonly byte[] _highTable = new byte[PpuMemoryLayout.OamHigh.Count / HighPairsPerByte];
 
     /// <summary>Raw 512-byte low OAM table used by PPU DMA.</summary>
     [PpuLayoutAccess]

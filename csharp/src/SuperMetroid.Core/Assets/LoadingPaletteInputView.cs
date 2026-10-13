@@ -21,21 +21,21 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
 {
     private readonly Dictionary<ushort, Bgr555> colors;
     /// <summary>Power dim slot1, $8D:DC7E.</summary>
-    private readonly Channels powerDim1;
+    internal readonly Channels powerDim1;
     /// <summary>Power dim slot2, $8D:DC80.</summary>
-    private readonly Channels powerDim2;
+    internal readonly Channels powerDim2;
     /// <summary>Power bright slot9, $8D:DBA1.</summary>
-    private readonly Channels powerBright9;
+    internal readonly Channels powerBright9;
     /// <summary>Power dim slot12, $8D:DC94.</summary>
-    private readonly Channels powerDim12;
+    internal readonly Channels powerDim12;
     /// <summary>Varia bright slot10, $8D:DD09.</summary>
-    private readonly Channels variaBright10;
+    internal readonly Channels variaBright10;
     /// <summary>Varia bright slot11, $8D:DD0B; shares slot10 blue.</summary>
-    private readonly Channels variaBright11;
+    internal readonly Channels variaBright11;
     /// <summary>Varia dim slot12, $8D:DDFA.</summary>
-    private readonly Channels variaDim12;
+    internal readonly Channels variaDim12;
     /// <summary>Gravity dim slot2, $8D:DF4C.</summary>
-    private readonly Channels gravityDim2;
+    internal readonly Channels gravityDim2;
 
     internal LoadingPaletteInputView(Dictionary<ushort, Bgr555> colors)
     {
@@ -78,9 +78,9 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
 
     internal readonly struct Channels
     {
-        private readonly int? red;
-        private readonly int? green;
-        private readonly int? blue;
+        internal readonly int? red;
+        internal readonly int? green;
+        internal readonly int? blue;
         /// <summary>Captures differing channels; independentMask bits0/1/2 always retain red/green/blue inputs.</summary>
         internal Channels(Bgr555 supplied, Bgr555 expected, int independentMask = 0)
         {

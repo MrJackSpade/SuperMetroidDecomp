@@ -55,7 +55,7 @@ public sealed class SamusDrainedState
     /// or <c>$18</c>. It deliberately survives the later `$91:E4AD` pose changes, just as
     /// native WRAM's function pointer does.
     /// </summary>
-    public DrainedGetUpHandler GetUpHandler { get; private set; }
+    public DrainedGetUpHandler GetUpHandler { get; internal set; }
 
     /// <summary>
     /// Another owner replaced the physical movement pointer and pose before drained art
@@ -399,7 +399,7 @@ public sealed class SamusDrainedState
     /// <summary>Ends the Samus-side drain lock after release art reaches `$FD,$01/$02`.</summary>
     internal void CompleteRelease() => Phase = DrainedSamusPhase.Inactive;
 
-    private void SetupForRainbowBeam(ISnesAddressSpace bus, SamusState samus)
+    internal void SetupForRainbowBeam(ISnesAddressSpace bus, SamusState samus)
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(samus);

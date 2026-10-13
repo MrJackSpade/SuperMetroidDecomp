@@ -43,7 +43,7 @@ public sealed class SamusLiquidPhysicsState
     /// Remembered native medium at WRAM <c>$0AD2</c>. This is intentionally stateful:
     /// Space Jump reads it, and the animation handlers use changes to detect entry/exit.
     /// </summary>
-    public SamusLiquidMedium LiquidPhysicsType { get; private set; }
+    public SamusLiquidMedium LiquidPhysicsType { get; internal set; }
 
 
     /// <summary>The four native water/lava/footstep particle slots and their OAM renderer.</summary>
@@ -82,10 +82,10 @@ public sealed class SamusLiquidPhysicsState
         QueueSound(soundEffect, maximumQueued);
 
     /// <summary>WRAM <c>$0A4E</c>, the fractional half of pending periodic damage.</summary>
-    public ushort PeriodicSubDamage { get; private set; }
+    public ushort PeriodicSubDamage { get; internal set; }
 
     /// <summary>WRAM <c>$0A50</c>, the whole-energy half of pending periodic damage.</summary>
-    public ushort PeriodicDamage { get; private set; }
+    public ushort PeriodicDamage { get; internal set; }
 
     /// <summary>Logical room pair consumed by area/room-specific footstep graphics.</summary>
     public RoomIdentity RoomIdentity { get; set; }
@@ -614,7 +614,7 @@ public sealed class SamusLiquidPhysicsState
             PeriodicDamage + wholeDamage + SnesCarry.OutOfWord(fractional)));
     }
 
-    private void SpawnWaterSplash(
+    internal void SpawnWaterSplash(
         SamusState samus,
         SamusMovementType movementType,
         ushort bottom)
@@ -769,11 +769,11 @@ public sealed class SamusLiquidPhysicsState
         return IsBelowSurface(LavaAcidYPosition, boundary) ? SamusLiquidMedium.LavaOrAcid : SamusLiquidMedium.Air;
     }
 
-    private bool WaterAffectsBoundary(ushort boundary) =>
+    internal bool WaterAffectsBoundary(ushort boundary) =>
         (LiquidOptions & RoomFxRomData.Water.PhysicsDisabledOption) == 0 &&
         IsBelowSurface(FxYPosition, boundary);
 
-    private static bool IsBelowSurface(ushort surface, ushort boundary) =>
+    internal static bool IsBelowSurface(ushort surface, ushort boundary) =>
         unchecked((short)surface) >= 0 &&
         unchecked((short)(surface - boundary)) < 0;
 

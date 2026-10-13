@@ -33,7 +33,7 @@ public sealed class SamusPowerBombExplosionState
     public ushort PreExplosionRadius { get; private set; }
 
     /// <summary>WRAM $0CEA, the damaging explosion's unsigned 8.8 radius.</summary>
-    public ushort ExplosionRadius { get; private set; }
+    public ushort ExplosionRadius { get; internal set; }
 
     /// <summary>
     /// WRAM $0CF0, deliberately shared by the pre-explosion and explosion phases.
@@ -59,16 +59,16 @@ public sealed class SamusPowerBombExplosionState
     /// Keeping the consumed phase separate prevents the host renderer from displaying the
     /// next phase one frame early at the yellow/white transition boundaries.
     /// </remarks>
-    public PowerBombExplosionPhase RenderedPhase { get; private set; }
+    public PowerBombExplosionPhase RenderedPhase { get; internal set; }
 
     /// <summary>Pre-explosion radius consumed before the native end-of-frame update.</summary>
-    public ushort RenderedPreExplosionRadius { get; private set; }
+    public ushort RenderedPreExplosionRadius { get; internal set; }
 
     /// <summary>Explosion radius consumed before the native end-of-frame update.</summary>
-    public ushort RenderedExplosionRadius { get; private set; }
+    public ushort RenderedExplosionRadius { get; internal set; }
 
     /// <summary>Current fixed-color red component written through COLDATA.</summary>
-    public byte FixedColorRed { get; private set; }
+    public byte FixedColorRed { get; internal set; }
 
     /// <summary>Current fixed-color green component written through COLDATA.</summary>
     public byte FixedColorGreen { get; private set; }

@@ -66,8 +66,6 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
 
     private static void VerifyProductionWaterSplashSelection()
     {
-        MethodInfo spawn = typeof(SamusLiquidPhysicsState).GetMethod(
-            "SpawnWaterSplash", BindingFlags.Instance | BindingFlags.NonPublic)!;
         for (int movement = 0; movement <= (byte)SamusMovementType.Special; movement++)
         {
             var samus = new SamusState
@@ -75,8 +73,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            spawn.Invoke(samus.LiquidPhysics,
-                [samus, (SamusMovementType)movement, samus.Kinematics.BottomPixel]);
+            samus.LiquidPhysics.SpawnWaterSplash(samus, (SamusMovementType)movement, samus.Kinematics.BottomPixel);
 
             WaterSplashKind expected =
                 SamusAtmosphericEffectDefinitions.WaterSplashFor((SamusMovementType)movement);

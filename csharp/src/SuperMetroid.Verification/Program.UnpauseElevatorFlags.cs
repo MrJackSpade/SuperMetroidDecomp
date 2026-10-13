@@ -32,12 +32,12 @@ internal static class UnpauseElevatorFlagsVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
+        game.runtime = runtime;
+        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
 
         runtime.Enemies.ElevatorBehavior.PublishElevatorDoorContact();
         AssertEqual((ushort)1, runtime.Enemies.ElevatorBehavior.ElevatorFlags, "the elevator is armed before the pause");
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.UnpausingB);
+        game.GameState = SuperMetroidGameState.UnpausingB;
         game.Step(0);
 
         AssertEqual(SuperMetroidGameState.Unpausing, game.GameState, "state $11 hands off to the brightening state");

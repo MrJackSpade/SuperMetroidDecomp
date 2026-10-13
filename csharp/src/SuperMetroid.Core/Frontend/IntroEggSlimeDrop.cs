@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>One of four Baby-Metroid slime drops created by $8B:BA73.</summary>
 internal sealed class IntroEggSlimeDrop
 {
-    private readonly IntroDiscoverySprite sprite;
+    internal readonly IntroDiscoverySprite sprite;
     private bool motionEnabled = true;
 
     public IntroEggSlimeDrop(Position16<ScreenPixels> babyPosition, byte index)

@@ -26,27 +26,23 @@ internal static class NativeSnapshotImportPauseVerification
         runtime.Cgram.LoadBytes(memory.AsSpan(PauseMemory.GameplayPaletteBackup, CgramPalettes.ByteCount));
 
         CartridgeRoomHeader room = runtime.Room.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
-        var menu = new PauseMenuState(bus, new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, Audio = PrivateState.Field<CartridgeAudioState>(game, "audio"), GameplayVram = runtime.Vram, MapRevealMode = game.ConfiguredOptions.MapReveal, MapPresentation = game.Artwork.MapPresentation ?? throw new InvalidDataException("Paused snapshot has no map presentation.") });
-        PrivateState.SetField(menu, "mapScrollPosition",
-            new Position16<MapPixels>(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll)));
-        object palette = PrivateState.Field<object>(menu, "paletteAnimation");
-        PrivateState.SetField(palette, "timer", memory[PauseMemory.PaletteAnimationTimer]);
-        PrivateState.SetField(palette, "frame", memory[PauseMemory.PaletteAnimationFrame]);
+        var menu = new PauseMenuState(bus, new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, Audio = game.audio, GameplayVram = runtime.Vram, MapRevealMode = game.ConfiguredOptions.MapReveal, MapPresentation = game.Artwork.MapPresentation ?? throw new InvalidDataException("Paused snapshot has no map presentation.") });
+        menu.mapScrollPosition = new Position16<MapPixels>(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll));
+        var palette = menu.paletteAnimation;
+        palette.timer = memory[PauseMemory.PaletteAnimationTimer];
+        palette.frame = memory[PauseMemory.PaletteAnimationFrame];
         // $0776 is a byte offset into $82:BA25's word tables; the port keeps the phase index.
-        PrivateState.SetField(menu, "mapIndicatorAnimationFrame", W(PauseMemory.IndicatorAnimationFrame) / 2);
-        PrivateState.SetField(menu, "mapIndicatorAnimationTimer", (int)W(PauseMemory.IndicatorAnimationTimer));
-        PrivateState.SetField(game, "pauseMenu", menu);
-        PrivateState.Field<ScreenFadeTimer>(game, "screenFade").Delay = W(PauseMemory.ScreenFadeDelay);
-        PrivateState.Field<ScreenFadeTimer>(game, "screenFade").Counter = W(PauseMemory.ScreenFadeCounter);
+        menu.mapIndicatorAnimationFrame = W(PauseMemory.IndicatorAnimationFrame) / 2;
+        menu.mapIndicatorAnimationTimer = (int)W(PauseMemory.IndicatorAnimationTimer);
+        game.pauseMenu = menu;
+        game.screenFade.Delay = W(PauseMemory.ScreenFadeDelay);
+        game.screenFade.Counter = W(PauseMemory.ScreenFadeCounter);
 
-        foreach (var (property, address) in new[]
-        {
-            (nameof(Bank80SystemState.TimedHeldInputTimer), PauseMemory.TimedHeldTimer),
-            (nameof(Bank80SystemState.TimedHeldInputTimerReset), PauseMemory.TimedHeldReset),
-            (nameof(Bank80SystemState.TimedHeldInput), PauseMemory.TimedHeldInput),
-            (nameof(Bank80SystemState.NewlyTimedHeldInput), PauseMemory.TimedHeldNew),
-            (nameof(Bank80SystemState.TimedHeldInputPrevious), PauseMemory.TimedHeldPrevious),
-        }) PrivateState.SetProperty(runtime.System, property, W(address));
+        runtime.System.TimedHeldInputTimer = W(PauseMemory.TimedHeldTimer);
+        runtime.System.TimedHeldInputTimerReset = W(PauseMemory.TimedHeldReset);
+        runtime.System.TimedHeldInput = W(PauseMemory.TimedHeldInput);
+        runtime.System.NewlyTimedHeldInput = W(PauseMemory.TimedHeldNew);
+        runtime.System.TimedHeldInputPrevious = W(PauseMemory.TimedHeldPrevious);
     }
 }
 

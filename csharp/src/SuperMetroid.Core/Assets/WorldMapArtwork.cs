@@ -8,12 +8,12 @@ public sealed class WorldMapArtwork
 {
     // Reviewed drawings, letter contours, ink roles and mechanical shading;
     // calculated geometry and independent supplied differences stay separate.
-    private readonly Dictionary<int, byte> foreground;
-    private readonly Dictionary<int, ulong> fontFill = new();
+    internal readonly Dictionary<int, byte> foreground;
+    internal readonly Dictionary<int, ulong> fontFill = new();
     // Exact remaining BG3 font/icon contours and selected edge decisions, plus
     // independent supplied differences from the calculated primitive/outline view.
-    private readonly Dictionary<int, byte> background;
-    private readonly Dictionary<int, ulong> digitFill = new();
+    internal readonly Dictionary<int, byte> background;
+    internal readonly Dictionary<int, ulong> digitFill = new();
     // One delegate for the per-pixel font derivation, rather than one per pixel.
     private readonly Func<int, ulong> fontMask;
     private WorldMapArtwork(byte[] foreground, byte[] background)

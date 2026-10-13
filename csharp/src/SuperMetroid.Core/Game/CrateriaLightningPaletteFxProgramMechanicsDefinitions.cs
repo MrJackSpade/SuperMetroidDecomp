@@ -94,7 +94,7 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
 
     /// <summary>Program identity selecting either the live $F765 surface lightning or retained unused $F769 dark-lightning mechanics and color resource.</summary>
     public CrateriaLightningPaletteOwner Owner { get; }
-    private bool IsSurface => Owner == CrateriaLightningPaletteOwner.SurfaceLightning;
+    internal bool IsSurface => Owner == CrateriaLightningPaletteOwner.SurfaceLightning;
     /// <summary>$8D:EB3B/$EC6E setup starts: pre-instruction and CGRAM destination.</summary>
     public ushort ProgramStart => IsSurface ? (ushort)0xeb3b : (ushort)0xec6e;
     /// <summary>Surface uses CGRAM byte $A8; unused dark lightning uses byte $82.</summary>
@@ -110,13 +110,13 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
     /// <summary>Two opaque entries marking this program's byte-sized timer operands in first/final group order; their addresses and values are resolved through <see cref="CrateriaLightningPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte"/>.</summary>
     public IReadOnlyList<PaletteFxMechanicsByte> MechanicsBytes { get; }
 
-    private int NeutralCount => IsSurface ? 1 : 2;
+    internal int NeutralCount => IsSurface ? 1 : 2;
     private int FrameByteCount => 2 * (ColorsPerFrame + 2);
-    private ushort TimerTwoPointer => (ushort)(FirstFramePointer + FrameByteCount);
+    internal ushort TimerTwoPointer => (ushort)(FirstFramePointer + FrameByteCount);
     private ushort RepeatedFramesPointer => (ushort)(TimerTwoPointer + 3);
     private ushort DecrementTwoPointer => (ushort)(RepeatedFramesPointer + 7 * FrameByteCount);
     private ushort NeutralFramesPointer => (ushort)(DecrementTwoPointer + 4);
-    private ushort TimerOnePointer => (ushort)(NeutralFramesPointer + NeutralCount * FrameByteCount);
+    internal ushort TimerOnePointer => (ushort)(NeutralFramesPointer + NeutralCount * FrameByteCount);
     private ushort FinalFramesPointer => (ushort)(TimerOnePointer + 3);
     private ushort DecrementOnePointer => (ushort)(FinalFramesPointer + 4 * FrameByteCount);
     private ushort GotoPointer => (ushort)(DecrementOnePointer + 4);

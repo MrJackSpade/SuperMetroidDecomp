@@ -79,8 +79,8 @@ internal static class RidleyFullMovieVerification
         samus.Position = samus.Position.WithWhole(new(110, 300)); samus.Pose = SamusPoseId.NormalJumpAimDiagonalUpRightPose;
         samus.Health = 399; samus.EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit;
         samus.InvincibilityTimer = 0; samus.PoseMetadata.RefreshCollisionRadii(bus);
-        var enemyPhase = typeof(SuperMetroidRuntime).GetMethod("RunEnemyMainPhase", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        enemyPhase.Invoke(runtime, null);
+        // One EnemyMain pass outside the frame loop, as the door-transition wait runs it: no prepared processing list.
+        runtime.EnemyPhase.RunEnemyMainPhase(processingListPrepared: false, runtime.Room.Camera?.PreviousSamusPoint);
         AssertEqual((ushort)399, samus.Health, "source4234 body entering overlap cannot damage before next contact pass");
         AssertTrue(body.Position.X.Whole < 139, "fixture advances body into collision boundary");
         body.SpritemapPointer = 0xe9e9;
@@ -154,7 +154,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual((ushort)0xfbfc, state.Velocity.Y.RawValue, "native same-update grab Y acceleration");
         AssertTrue(samus.ScriptLocks.StationaryScriptControlLocked, "native grab installs command-zero alpha/beta pair");
         var bombs = CreateBombFixture();
-        typeof(SamusBombProjectileSystem).GetMethod("SetSharedCooldown", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(bombs, [(ushort)10]);
+        bombs.SetSharedCooldown((ushort)10);
         bombs.StepFrame(new SamusTerrain { Bus = bus, Level = runtime.Room.LevelData! }, samus, 0, 0, advancePowerBombHdma: false);
         AssertEqual((ushort)10, bombs.CooldownTimer, "native locked alpha preserves cooldown");
         runtime.Enemies.RidleyBehavior.ReleaseNorfairRidleyGrab(state, samus);
@@ -276,17 +276,16 @@ internal static class RidleyFullMovieVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
+        game.runtime = runtime;
         // The recorded pause enters an already-running room HDMA callback.
         runtime.RoomLayer3Fx.AdvanceHdmaSharedState(runtime.System, false);
-        var advance = typeof(SuperMetroidGame).GetMethod("AdvanceMenuRandom", BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (var state in new[] { SuperMetroidGameState.Pausing, SuperMetroidGameState.PausedA,
             SuperMetroidGameState.PausedB, SuperMetroidGameState.UnpausingA, SuperMetroidGameState.UnpausingB,
             SuperMetroidGameState.PausingDarkening, SuperMetroidGameState.Unpausing })
         {
             runtime.System.SetRandomNumber(0x117d);
-            typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, state);
-            advance.Invoke(game, null);
+            game.GameState = state;
+            game.AdvanceMenuRandom();
             bool gameplayOwnsRandom = state is SuperMetroidGameState.PausingDarkening or SuperMetroidGameState.Unpausing;
             ushort expected = gameplayOwnsRandom ? (ushort)0x117d :
                 state == SuperMetroidGameState.Pausing ? (ushort)0x7266 : (ushort)0x5882;
@@ -379,7 +378,7 @@ internal static class RidleyFullMovieVerification
             AssertEqual((ushort)1, samus.AnimationFrame, "roomless landing shares native frame skip");
             SamusPoseId standing = pose == SamusPoseId.FallingAimUpRightPose
                 ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.StandingAimUpLeftPose;
-            typeof(SamusState).GetProperty("PendingTransitionalPose")!.SetValue(samus, standing);
+            samus.PendingTransitionalPose = standing;
             AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "landing completes through animation command");
             AssertEqual((ushort)1, samus.AnimationFrame, "native landing completion retains raised-gun frame");
             AssertEqual((ushort)16, samus.AnimationFrameTimer, "native source3606 standing delay");
@@ -612,7 +611,6 @@ internal static class RidleyFullMovieVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = 1 };
         var menu = new PauseMenuState(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture() });
-        T Get<T>(string field) => (T)typeof(PauseMenuState).GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(menu)!;
         for (int direction = 0; direction < 2; direction++)
         {
             int source = direction, destination = 1 - direction;
@@ -622,18 +620,18 @@ internal static class RidleyFullMovieVerification
             {
                 menu.Step(0, 0);
                 AssertEqual(source, menu.ScreenMode, "source page remains through fade-out");
-                AssertEqual(15 - update, Get<int>("transitionBrightness"), "native zero-delay fade-out brightness");
+                AssertEqual(15 - update, menu.transitionBrightness, "native zero-delay fade-out brightness");
             }
             AssertEqual(direction == 0 ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad,
-                Get<PauseMenuTransition>("transition"), "black frame returns into separate load dispatcher");
+                menu.transition, "black frame returns into separate load dispatcher");
             menu.Step(0, 0);
             AssertEqual(destination, menu.ScreenMode, "separate load dispatch installs destination");
-            AssertEqual(0, Get<int>("transitionBrightness"), "load dispatch remains black");
+            AssertEqual(0, menu.transitionBrightness, "load dispatch remains black");
             for (int update = 1; update <= 30; update++)
             {
                 menu.Step(0, 0);
-                AssertEqual(update / 2, Get<int>("transitionBrightness"), "native delay-one fade-in brightness");
-                AssertEqual(update == 30, Get<PauseMenuTransition>("transition") == PauseMenuTransition.None,
+                AssertEqual(update / 2, menu.transitionBrightness, "native delay-one fade-in brightness");
+                AssertEqual(update == 30, menu.transition == PauseMenuTransition.None,
                     "input returns only after the thirtieth fade-in update");
             }
         }
@@ -665,12 +663,11 @@ internal static class RidleyFullMovieVerification
             "HUD handler restores all suit colors even when charge was zero");
         Console.WriteLine("HUD selection restores the complete suit palette without an active charge.");
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
-        var stateProperty = typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!;
-        stateProperty.SetValue(game, SuperMetroidGameState.Pausing);
+        game.runtime = runtime;
+        game.GameState = SuperMetroidGameState.Pausing;
         game.Step(0);
-        var menu = typeof(SuperMetroidGame).GetField("pauseMenu", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
-        var menuPalette = (SnesCgram)typeof(PauseMenuState).GetField("cgram", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(menu)!;
+        var menu = game.pauseMenu;
+        var menuPalette = ((PauseMenuState)menu).cgram;
         Bgr555[] initial = menuPalette.Colors.ToArray();
         int fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.PausedA && fadeFrames++ < 32)
@@ -682,9 +679,8 @@ internal static class RidleyFullMovieVerification
         game.Step(0);
         AssertTrue(!menuPalette.Colors.SequenceEqual(initial), "stable pause starts palette animation");
         Bgr555[] animated = menuPalette.Colors.ToArray();
-        stateProperty.SetValue(game, SuperMetroidGameState.UnpausingA);
-        typeof(SuperMetroidGame).GetMethod("BeginPauseFade", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(game, [(byte)15]);
+        game.GameState = SuperMetroidGameState.UnpausingA;
+        game.BeginPauseFade((byte)15);
         fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.UnpausingA && fadeFrames++ < 32)
         {
@@ -726,9 +722,9 @@ internal static class RidleyFullMovieVerification
         samus.Position = new(new(20, 0x2000), new(111, 0x5bff));
         uint xFixed = samus.Kinematics.Position.X.RawValue, yFixed = samus.Kinematics.Position.Y.RawValue;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
-        typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, SuperMetroidGameState.HitDoorBlock);
+        game.runtime = runtime;
+        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
         AssertEqual((ushort)0xef3a, runtime.System.RandomNumber, "native entry HDMA swap then RNG");
         AssertEqual((ushort)0xa4e0, runtime.Nmi.NmiFrameCounter, "entry accepts exactly one NMI");
@@ -896,8 +892,6 @@ internal static class RidleyFullMovieVerification
         NativeCheckpointMemory memory = ReadFrame(0);
         ushort W(int address) => memory.Word(address);
         var (bus, runtime, samus, game) = ImportNativeSnapshot(memory.ToWorkRam(), ridleyMovie.InitialSaveRam);
-        var previousHudSelection = typeof(HudState)
-            .GetField("_previousSelectedItem", BindingFlags.Instance | BindingFlags.NonPublic)!;
         Array initialPlms = runtime.Plms.SlotTable._slots;
         var checkedProjectileCompositions = new HashSet<(ushort Operand, ushort Direct, ushort Native)>();
         var audio = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
@@ -951,7 +945,7 @@ internal static class RidleyFullMovieVerification
                 SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB))
                 for (int tile = 0; tile < HudState.MutableTileCount; tile++)
                     Check($"HUD tile {tile}", runtime.Hud.Tiles[tile], NativeSnapshotMemory.HudTilemap + tile * 2);
-            Check("Previous HUD selection", (ushort)previousHudSelection.GetValue(runtime.Hud)!, NativeSnapshotMemory.PreviousHudSelection);
+            Check("Previous HUD selection", runtime.Hud._previousSelectedItem, NativeSnapshotMemory.PreviousHudSelection);
             CheckBytes("Save/elevator markers", Bank80SystemState.UsedSaveStationByteCount,
                 runtime.System.GetUsedSaveStationByteRaw, NativeSnapshotMemory.SaveElevatorMarkers);
             CheckBytes("Map-station markers", Bank80SystemState.MapStationByteCount,
@@ -1100,7 +1094,7 @@ internal static class RidleyFullMovieVerification
                 Check("PeriodicSubDamage", samus.LiquidPhysics.PeriodicSubDamage, NativeSnapshotMemory.PeriodicSubDamage);
                 Check("PeriodicDamage", samus.LiquidPhysics.PeriodicDamage, NativeSnapshotMemory.PeriodicDamage);
                 Check("Acid damage surface", samus.LiquidPhysics.LavaAcidYPosition, NativeSnapshotMemory.AcidSurface);
-                Check("Liquid tide phase", (ushort)typeof(RoomLayer3FxState).GetField("tidePhase", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.RoomLayer3Fx)!, NativeSnapshotMemory.TidePhase);
+                Check("Liquid tide phase", runtime.RoomLayer3Fx.tidePhase, NativeSnapshotMemory.TidePhase);
             }
             Check("Samus X", samus.Position.X.Whole, NativeSnapshotMemory.X);
             Check("Samus X fraction", samus.Kinematics.Position.X.Fraction, NativeSnapshotMemory.XFraction);
@@ -1215,10 +1209,8 @@ internal static class RidleyFullMovieVerification
             if (game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or
                 SuperMetroidGameState.UnpausingA or SuperMetroidGameState.UnpausingB)
             {
-                object menu = typeof(SuperMetroidGame).GetField("pauseMenu", BindingFlags.Instance | BindingFlags.NonPublic)!
-                    .GetValue(game) ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
-                comparedPalette = (SnesCgram)typeof(PauseMenuState).GetField("cgram", BindingFlags.Instance | BindingFlags.NonPublic)!
-                    .GetValue(menu)!;
+                object menu = game.pauseMenu ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
+                comparedPalette = ((PauseMenuState)menu).cgram;
             }
             if (!deferLoadingOwners)
             for (int color = 0; color < SnesCgram.ColorCount; color++)

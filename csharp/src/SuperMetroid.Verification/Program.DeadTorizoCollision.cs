@@ -67,8 +67,6 @@ internal static class DeadTorizoCollisionVerification
             Require(slot.VariableA == 0xd3c7, "An ignored corpse must not restart from another power bomb.");
             Require(phase == 0xd3e6, "Each trigger must enter the native rotting phase.");
 
-            void Call(string name, params object?[] arguments) =>
-                typeof(RoomEnemySystem).GetMethod(name, flags)!.Invoke(enemies, arguments);
             bool IsInteractive()
             {
                 enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(Position16<RoomPixels>.Zero);

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Cartridge-scripted Ceres laboratory vignette between intro pages three and four.</summary>
 internal sealed class IntroScientistCutsceneState
 {
-    private readonly IntroDiscoverySprite baby;
+    internal readonly IntroDiscoverySprite baby;
     private readonly CartridgeAudioState? audio;
     private readonly ScientistSceneKind kind;
     private readonly Func<ushort, ushort> instructionWord;

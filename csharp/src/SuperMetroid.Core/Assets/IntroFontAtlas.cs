@@ -3,9 +3,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable 2-bpp font used by the English opening narration.</summary>
 public sealed class IntroFontAtlas
 {
-    private readonly byte[]? suppliedTransfer;
+    internal readonly byte[]? suppliedTransfer;
 
-    private IntroFontAtlas(byte[] transfer) => suppliedTransfer =
+    internal IntroFontAtlas(byte[] transfer) => suppliedTransfer =
         transfer.AsSpan().SequenceEqual(IntroFontGlyphDefinitions.Compile()) ? null : transfer;
 
     /// <summary>Gets the 2,304-byte SNES two-bit planar transfer for all 144 narration glyph tiles.</summary>

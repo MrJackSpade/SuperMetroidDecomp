@@ -47,7 +47,7 @@ public static class WreckedShipTreadmillMechanicsDefinitions
 /// <summary>One direction-specific treadmill header and boss-gated four-frame loop.</summary>
 public sealed class WreckedShipTreadmillObjectDefinition
 {
-    private readonly CalculatedFramePointers frameInstructionPointers;
+    internal readonly CalculatedFramePointers frameInstructionPointers;
 
     internal WreckedShipTreadmillObjectDefinition(
         WreckedShipTreadmillDirection direction,
@@ -62,7 +62,7 @@ public sealed class WreckedShipTreadmillObjectDefinition
 
     // The native two-byte boss wait is followed by four four-byte timed entries.
     // Store the first cursor only; indexing and enumeration calculate the layout.
-    private sealed class CalculatedFramePointers(ushort first) : IReadOnlyList<ushort>
+    internal sealed class CalculatedFramePointers(ushort first) : IReadOnlyList<ushort>
     {
         public int Count => 4;
         public ushort this[int index] => (uint)index < 4

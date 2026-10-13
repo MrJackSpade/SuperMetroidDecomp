@@ -182,7 +182,7 @@ public static class EnemyPropertyFlagExtensions
         }
     }
 
-    private static void ValidateKnown(EnemyExtraProperties flags)
+    internal static void ValidateKnown(EnemyExtraProperties flags)
     {
         const EnemyExtraProperties known =
             EnemyExtraProperties.UsesExtendedSpritemap |

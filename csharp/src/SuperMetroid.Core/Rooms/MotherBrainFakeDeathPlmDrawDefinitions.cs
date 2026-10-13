@@ -166,7 +166,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
-    private static bool TryGetRegular(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    internal static bool TryGetRegular(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
         if (!TryDescribeRegular(pointer, out var shape)) return false;
@@ -239,7 +239,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return owned;
     }
 
-    private static bool TryGetBackground(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    internal static bool TryGetBackground(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
         if (!TryDescribeBackground(pointer, out var row)) return false;
@@ -325,7 +325,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return owned;
     }
 
-    private static bool TryGetBoundary(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    internal static bool TryGetBoundary(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
         if (!TryDescribeBoundary(pointer, out var shape)) return false;

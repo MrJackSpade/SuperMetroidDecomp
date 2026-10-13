@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 public sealed class FileSelectMapWindow
 {
     private readonly uint[] velocities = new uint[4];
-    private readonly uint[] edges = new uint[4];
+    internal readonly uint[] edges = new uint[4];
     private ushort timer;
 
     /// <summary>Creates the area-to-room expanding window at the installed label anchor, with collapsed edges and native area-specific 16.16 velocities/timer; editable anchors do not change compiled motion.</summary>

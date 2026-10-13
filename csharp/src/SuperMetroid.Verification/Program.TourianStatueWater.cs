@@ -22,8 +22,8 @@ internal static class TourianStatueWaterVerification
         var game=new SuperMetroidGame(bus);
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
-        typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime",flags)!.Invoke(game,new object[]{false});
-        var runtime=(SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime",flags)!.GetValue(game)!;
+        game.CreateGameplayRuntime(false);
+        var runtime=game.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
@@ -39,7 +39,7 @@ internal static class TourianStatueWaterVerification
         samus.CommitPoseHistory(bus);
         samus.InputLocked = false;
         runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 0));
-        typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game, SuperMetroidGameState.MainGameplay);
+        game.GameState = SuperMetroidGameState.MainGameplay;
         for (int frame = 0; frame < 3; frame++) game.Step(0);
         AssertEqual(RoomFxType.TourianEntranceStatue, samus.LiquidPhysics.FxType, "Samus retains native special FX identity");
         AssertEqual((ushort)0xb0, samus.LiquidPhysics.FxYPosition, "Water physics receives the visible surface");
@@ -65,7 +65,7 @@ internal static class TourianStatueWaterVerification
         AssertTrue(direct.SequenceEqual(wetPixels), "Immediate and captured composition agree for the actual water room");
         AssertEqual<ushort[]?>(null, SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(displayed, new Position16<Bg2Pixels>(0, 0)),
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");
-        typeof(TourianStatueSequence).GetField("descent", flags)!.SetValue(runtime.TourianStatues, 64 << 16);
+        runtime.TourianStatues.descent = 64 << 16;
         runtime.TourianStatues.LatchDisplay();
         runtime.NmiHandler.RunNmi(0, true);
         var descending = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];

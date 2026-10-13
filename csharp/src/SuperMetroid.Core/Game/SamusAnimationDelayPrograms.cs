@@ -138,7 +138,7 @@ internal static class SamusAnimationDelayPrograms
 {
     // Native segments are contiguous from $91:B20A: each starts where the previous one ends,
     // so start addresses are laid out from the stream start rather than stored.
-    private static readonly SamusAnimationSegment[] segments = Layout(
+    internal static readonly SamusAnimationSegment[] segments = Layout(
         SnesLittleEndian.LowWord(SamusAnimationDelayDefinitions.DelayStreamsAddress),
     [
         Loop([2, 3, 2, 3, 2, 3, 2, 3, 2, 3]),

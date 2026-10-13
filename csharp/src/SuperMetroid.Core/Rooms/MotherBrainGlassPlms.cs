@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
@@ -22,8 +22,8 @@ internal sealed class MotherBrainGlassPlms
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
     private int _motherBrainGlassSlotIndex = -1;
-    private bool _motherBrainGlassWasLoaded;
-    private ushort _motherBrainGlassLastRoomArgument;
+    internal bool _motherBrainGlassWasLoaded;
+    internal ushort _motherBrainGlassLastRoomArgument;
 
     /// <summary>Shard actors requested by the most recent PLM handler pass.</summary>
     public IReadOnlyList<MotherBrainGlassProjectileRequest> MotherBrainGlassProjectileRequests =>
@@ -211,7 +211,7 @@ internal sealed class MotherBrainGlassPlms
 
     private int _motherBrainGlassRoomWidth;
 
-    private bool TryGetMotherBrainGlassSlot(out PlmSlot? slot)
+    internal bool TryGetMotherBrainGlassSlot(out PlmSlot? slot)
     {
         if ((uint)_motherBrainGlassSlotIndex < (uint)_slotTable._slots.Length)
         {

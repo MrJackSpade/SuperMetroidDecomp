@@ -9,8 +9,8 @@ namespace SuperMetroid.Rendering.Direct3D11;
 /// never synchronously block its message pump while DXGI may be interacting with the window.</remarks>
 public sealed class D3D11RenderWorker
 {
-    private readonly LatestRenderFrameMailbox mailbox;
-    private readonly RenderPresentationGate gate;
+    internal readonly LatestRenderFrameMailbox mailbox;
+    internal readonly RenderPresentationGate gate;
     private readonly AutoResetEvent wake = new(false);
     private readonly Lock lifecycle = new();
     private readonly TaskCompletionSource<string> ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -18,13 +18,13 @@ public sealed class D3D11RenderWorker
     private ExceptionDispatchInfo? fault;
     private bool stopping;
     private Extent16<DisplayPixels>? resize;
-    private long presented, occluded, stale;
-    private long lastConsumedSequence;
-    private long retainedRedraws;
-    private long lastDrawnSize;
-    private bool surfaceSuspended;
+    internal long presented, occluded, stale;
+    internal long lastConsumedSequence;
+    internal long retainedRedraws;
+    internal long lastDrawnSize;
+    internal bool surfaceSuspended;
     private long deviceRecoveries;
-    private D3D11DeviceLossDiagnostic? lastDeviceLoss;
+    internal D3D11DeviceLossDiagnostic? lastDeviceLoss;
     private readonly RenderTimingWindow cpuCompositionTiming;
     private readonly RenderTimingWindow cpuPresentationTiming;
     private readonly RenderTimingWindow gpuCompositionTiming;

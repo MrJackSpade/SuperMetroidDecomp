@@ -27,7 +27,7 @@ public sealed class CrocomireDeathState
     internal const int MeltingGraphicsByteCount = 0x1200;
     internal const int Bg2WorkingWordCount = 0x0800;
 
-    private readonly byte[] _meltingColumnHeights = new byte[MeltingColumnCount];
+    internal readonly byte[] _meltingColumnHeights = new byte[MeltingColumnCount];
     private readonly byte[] _meltingGraphics = new byte[MeltingGraphicsByteCount];
     private readonly ushort[] _bg2WorkingTilemap = new ushort[Bg2WorkingWordCount];
     private readonly ushort[] _bg2ScrollByScanline = new ushort[256];

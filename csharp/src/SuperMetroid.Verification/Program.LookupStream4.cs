@@ -103,8 +103,7 @@ internal static class LookupStream4Verification
             AssertTrue(stock.TryReadColor(pointer, out Bgr555 value), "calculated title ambient color resolves");
             AssertEqual(native[pointer], value, "native title ambient color");
         }
-        var stored = (Dictionary<ushort, Bgr555>)typeof(TitlePalettePresentation).GetField("animatedColors",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var stored = stock.animatedColors;
         AssertEqual(0, stored.Count, "all ambient stock colors calculate from independent initial-palette paint");
         AssertEqual(36, TitlePalettePresentationTooling.ColorPointers.Count, "title color identity count preserved");
         AssertEqual(36, TitlePalettePresentationTooling.ColorPointers.Distinct().Count(), "title color identities enumerate once");
@@ -289,8 +288,8 @@ internal static class LookupStream4Verification
         byte[] png = EndingFontAtlasExtractor.Extract(rom);
         var image = IndexedPng.Read(new MemoryStream(png), new(128, 80));
         var atlas = EndingFontAtlas.Load(new MemoryStream(png));
-        var stored = (Dictionary<int, byte>)typeof(EndingFontAtlas).GetField("pixels", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(atlas)!;
-        var footprint = (HashSet<int>)typeof(EndingFontAtlas).GetField("glyphFootprint", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(atlas)!;
+        var stored = atlas.pixels;
+        var footprint = atlas.glyphFootprint;
         AssertEqual(3875, stored.Count, "ending font stores exactly other artwork plus35 required deviations, without stock outline/space overrides");
         AssertEqual(2026, footprint.Count, "all2026 small/large-letter and digit footprint positions remain explicitly required");
         AssertTrue(native.AsSpan().SequenceEqual(atlas.Transfer.Span), "all5120 original ending font bytes match");
@@ -355,8 +354,7 @@ internal static class LookupStream4Verification
     {
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
-        var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation)
-            .GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var stored = stock.colors;
         var sites = new List<(int Owner, int Frame, int Color, ushort Pointer)>();
         for (int owner = 0; owner < 3; owner++)
         {
@@ -428,8 +426,7 @@ internal static class LookupStream4Verification
         Suite(nameof(VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions), () => VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(rom));
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
-        var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation)
-            .GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var stored = stock.colors;
         int storedCount = 0;
         for (int owner = 0; owner < 2; owner++)
         for (int frame = 0; frame < 8; frame++)
@@ -514,11 +511,8 @@ internal static class LookupStream4Verification
                     AssertEqual(golden, Native(15, color), "Exact native shared armor source identity");
                     AssertEqual(golden, GoldenTorizoHealthPaintDefinitions.Color(0, color + 1, rear: false), "Shared immutable stock endpoint and clipped armor ramp");
                 }
-            var definition = (CeresRidleyFadeColorDefinitions)typeof(CeresRidleyColorCatalog)
-                .GetField(eyes ? "eyeFade" : "bodyFade", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-            Dictionary<int, ushort> Stored(string name) => (Dictionary<int, ushort>)typeof(CeresRidleyFadeColorDefinitions)
-                .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
-            AssertEqual(0, Stored("overrides").Count, "stock fade never hides residual samples as edit overrides");
+            var definition = eyes ? stock.eyeFade : stock.bodyFade;
+            AssertEqual(0, definition.overrides.Count, "stock fade never hides residual samples as edit overrides");
             for (int row = 0; row < 16; row++)
             for (int color = 0; color < count; color++)
             {
@@ -579,10 +573,8 @@ internal static class LookupStream4Verification
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
         var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
-        var definition = (CeresRidleyAlarmColorDefinitions)typeof(CeresRidleyColorCatalog)
-            .GetField("alarm", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        var inputs = (Dictionary<int, Bgr555>)typeof(CeresRidleyAlarmColorDefinitions)
-            .GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
+        var definition = stock.alarm;
+        var inputs = definition.edits;
         AssertEqual(0, inputs.Count, "all stock alarm words calculate with zero overrides");
         for (int row = 0; row < 16; row++)
         for (int color = 0; color < 3; color++)
@@ -722,19 +714,14 @@ internal static class LookupStream4Verification
         AssertEqual(-32768, EndingCreditsRomData.Motion.PlanetFastDelta(11), "native DD2E fast sample11 is negative half-pixel");
         AssertEqual(2 << 16, Enumerable.Range(0, 16).Sum(EndingCreditsRomData.Motion.PlanetFastDelta), "fast cycle shares exact two-pixel translation");
         AssertEqual(2 << 16, Enumerable.Range(0, 8).Sum(EndingCreditsRomData.Motion.PlanetSlowDelta), "slow cycle shares exact two-pixel translation");
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (bool fast in new[] { true, false })
         {
             int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
             var state = new EndingCreditsState(NewFrontendCartridgeReadGuard(rom), new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
-            var type = typeof(EndingCreditsState);
-            void Set(string name, object value) => type.GetField(name, flags)!.SetValue(state, value);
-            ushort Get(string name) => (ushort)type.GetField(name, flags)!.GetValue(state)!;
-            Set("mode7X", (ushort)100); Set("mode7XSubposition", (ushort)0xC000);
-            Set("mode7Zoom", (ushort)0xC00); Set("phaseTimer", 100);
-            type.GetProperty(nameof(EndingCreditsState.Phase))!.SetValue(state,
-                fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow);
-            var step = type.GetMethod(fast ? "StepPlanetEscapeFast" : "StepPlanetEscapeSlow", flags)!.CreateDelegate<Action>(state);
+            state.mode7 = state.mode7.WithWholeX(100).WithFractionX(0xC000);
+            state.mode7Zoom = 0xC00; state.phaseTimer = 100;
+            state.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
+            Action step = fast ? state.StepPlanetEscapeFast : state.StepPlanetEscapeSlow;
             uint expected = 100u << 16 | 0xC000;
             int expectedAngle = 0, expectedZoom = 0xC00;
             for (int frame = 0; frame <= count; frame++)
@@ -743,25 +730,25 @@ internal static class LookupStream4Verification
                 if (fast || expectedAngle != 0xe0) expectedAngle = unchecked((byte)(expectedAngle - (fast ? 4 : 1)));
                 expectedZoom -= fast ? 8 : 2;
                 step();
-                AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), (SnesAngle)type.GetField("mode7Angle", flags)!.GetValue(state)!, "rotation context advances independently of selected signs");
-                AssertEqual((ushort)expectedZoom, Get("mode7Zoom"), "zoom context advances independently of selected signs");
-                AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), Get("mode7X"), "production shake whole position follows native indexed values");
-                AssertEqual((ushort)expected, Get("mode7XSubposition"), "production shake fraction preserves carry/borrow");
-                AssertEqual((ushort)((frame + 1) % count), Get("planetMotionIndex"), "production shake advances after selection and wraps native mask");
+                AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), state.mode7Angle, "rotation context advances independently of selected signs");
+                AssertEqual((ushort)expectedZoom, state.mode7Zoom, "zoom context advances independently of selected signs");
+                AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), state.mode7.X.Whole, "production shake whole position follows native indexed values");
+                AssertEqual((ushort)expected, state.mode7.X.Fraction, "production shake fraction preserves carry/borrow");
+                AssertEqual((ushort)((frame + 1) % count), state.planetMotionIndex, "production shake advances after selection and wraps native mask");
             }
-            Set("mode7Zoom", fast ? EndingCreditsRomData.Motion.PlanetFastEndScale : EndingCreditsRomData.Motion.PlanetSlowEndScale);
-            Set("planetMotionIndex", (ushort)(count - 1));
-            Set("mode7X", (ushort)0); Set("mode7XSubposition", (ushort)0x4000);
+            state.mode7Zoom = fast ? EndingCreditsRomData.Motion.PlanetFastEndScale : EndingCreditsRomData.Motion.PlanetSlowEndScale;
+            state.planetMotionIndex = (ushort)(count - 1);
+            state.mode7 = state.mode7.WithWholeX(0).WithFractionX(0x4000);
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
-            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)finalPosition)), Get("mode7X"), "terminal negative sample wraps whole position before handoff");
-            AssertEqual((ushort)finalPosition, Get("mode7XSubposition"), "terminal fraction is preserved before handoff");
+            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)finalPosition)), state.mode7.X.Whole, "terminal negative sample wraps whole position before handoff");
+            AssertEqual((ushort)finalPosition, state.mode7.X.Fraction, "terminal fraction is preserved before handoff");
             AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Phase, "native zoom boundary chooses next phase after selected motion");
-            AssertEqual((ushort)0, Get("planetMotionIndex"), "handoff preserves wrapped/reset index");
+            AssertEqual((ushort)0, state.planetMotionIndex, "handoff preserves wrapped/reset index");
             if (!fast)
             {
-                AssertEqual((short)0, (short)type.GetField("planetVelocityWhole", flags)!.GetValue(state)!, "slow handoff initializes independent acceleration whole");
-                AssertEqual((ushort)0x8000, Get("planetVelocityFraction"), "slow handoff initializes independent acceleration fraction");
+                AssertEqual((short)0, state.planetVelocityWhole, "slow handoff initializes independent acceleration whole");
+                AssertEqual((ushort)0x8000, state.planetVelocityFraction, "slow handoff initializes independent acceleration fraction");
             }
         }
         foreach (int index in new[] { -1, 16, int.MinValue, int.MaxValue })
@@ -795,8 +782,8 @@ internal static class LookupStream4Verification
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
         const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
-        object rows = typeof(SporeSpawnColorCatalog).GetField("health", fields)!.GetValue(stock)!;
-        var edits = (System.Collections.IDictionary)rows.GetType().GetField("intermediateEdits", fields)!.GetValue(rows)!;
+        var rows = stock.health;
+        var edits = rows.intermediateEdits;
         AssertEqual(0, edits.Count, "Stock intermediate health colors store nothing beyond the interpolation");
         Check(stock, native);
         int stored = 0;
@@ -812,9 +799,8 @@ internal static class LookupStream4Verification
             // Every supplied cell resolves exactly; cells that no longer follow the (edited)
             // endpoints are kept as stored deviations rather than recalculated.
             Check(edited, expected);
-            object editedRows = typeof(SporeSpawnColorCatalog).GetField("health", fields)!.GetValue(edited)!;
-            int deviations = ((System.Collections.IDictionary)editedRows.GetType()
-                .GetField("intermediateEdits", fields)!.GetValue(editedRows)!).Count;
+            var editedRows = edited.health;
+            int deviations = ((System.Collections.IDictionary)editedRows.intermediateEdits).Count;
             int expectedDeviations = 0;
             for (int step = 1; step <= 2; step++)
             for (int calculated = 0; calculated < 16; calculated++)
@@ -838,8 +824,7 @@ internal static class LookupStream4Verification
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
-        var values = (Dictionary<int, Bgr555>)typeof(SporeSpawnColorCatalog).GetField("spores",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var values = stock.spores;
         AssertEqual(0, values.Count, "Stock spores retain no duplicate healthy-body colors");
         for (int color = 0; color < 16; color++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e379 + color * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e359 + color * 2)), "Original separate spore and healthy-body rows have identical coloring");
@@ -889,13 +874,11 @@ internal static class LookupStream4Verification
     {
         byte[] palette = SuperMetroid.Core.Rom.RomDataReader.Decompress(
             SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
-        var basis = (ushort[])typeof(SporeSpawnDeathColorDefinitions).GetField("InitialRoomLevelColors",
-            BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+        Bgr555[] basis = SporeSpawnDeathColorDefinitions.InitialRoomLevelColors;
         AssertEqual(12, basis.Length, "Level fade retains twelve required original room-color sites");
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
-        var values = (Dictionary<int, Bgr555>)typeof(SporeSpawnColorCatalog).GetField("deathLevel",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var values = stock.deathLevel;
         AssertEqual(40, values.Count, "Level fade stores28 unresolved trajectory words and12 other final colors");
         for (int color = 0; color < 16; color++)
         {
@@ -961,8 +944,7 @@ internal static class LookupStream4Verification
     {
         byte[] palette = SuperMetroid.Core.Rom.RomDataReader.Decompress(
             SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
-        var basis = (ushort[])typeof(SporeSpawnDeathColorDefinitions).GetField("InitialRoomBackgroundColors",
-            BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+        Bgr555[] basis = SporeSpawnDeathColorDefinitions.InitialRoomBackgroundColors;
         AssertEqual(13, basis.Length, "Background fade retains exactly thirteen required original room-color sites");
         foreach (int color in Enumerable.Range(1, 11).Concat(new[] { 14, 15 }))
         {
@@ -972,8 +954,7 @@ internal static class LookupStream4Verification
         }
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
-        var values = (Dictionary<int, Bgr555>)typeof(SporeSpawnColorCatalog).GetField("deathBackground",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var values = stock.deathBackground;
         AssertEqual(16, values.Count, "Stock background fade stores exactly sixteen required final words");
         for (int frame = 0; frame < 7; frame++)
             for (int color = 0; color < 16; color++)
@@ -1032,8 +1013,7 @@ internal static class LookupStream4Verification
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
-        var values = (Dictionary<int, Bgr555>)typeof(SporeSpawnColorCatalog).GetField("deathSprite",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var values = stock.deathSprite;
         AssertEqual(16, values.Count, "Stock sprite fade stores only sixteen final colors; initial colors share required critical-health row");
         for (int frame = 0; frame < 8; frame++)
             for (int color = 0; color < 16; color++)
@@ -1108,7 +1088,7 @@ internal static class LookupStream4Verification
         var stock = EndingTextPresentation.Load(new MemoryStream(source));
         AssertTrue(native.AsSpan().SequenceEqual(stock.BuildResultPanel()), "Calculated credit lines preserve all288 original producer-panel cells");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var stockOverrides = (Dictionary<int, ushort>)typeof(EndingTextPresentation).GetField("resultOverrides", flags)!.GetValue(stock)!;
+        var stockOverrides = stock.resultOverrides;
         AssertEqual(0, stockOverrides.Count, "Every stock producer-panel cell is calculated, without fallback samples");
         for (int cell = 0; cell < native.Length; cell++)
             AssertEqual(native[cell], EndingTextLayoutDefinitions.ResultWord(cell, "PRODUCED BY"), "Direct credit layout agrees with original cell independently of overrides");
@@ -1149,7 +1129,7 @@ internal static class LookupStream4Verification
         ushort[] native = ReadEndingWords(rom, EndingTextDefinitions.Native.JapaneseSubtitle,
             EndingTextDefinitions.JapaneseSubtitleRows * EndingTextDefinitions.TilemapWidth);
         var stock = EndingTextPresentation.Load(new MemoryStream(source));
-        var stockOverrides = (Dictionary<int, ushort>)typeof(EndingTextPresentation).GetField("subtitleOverrides", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var stockOverrides = stock.subtitleOverrides;
         AssertEqual(0, stockOverrides.Count, "Every stock subtitle cell is calculated without fallback samples");
         for (int cell = 0; cell < native.Length; cell++)
             AssertEqual(native[cell], EndingTextLayoutDefinitions.SubtitleWord(cell), "Direct subtitle calculation agrees with native independently of overrides");
@@ -1185,9 +1165,8 @@ internal static class LookupStream4Verification
             ushort[] tilemap = Enumerable.Repeat((ushort)0x2222, EndingCreditsRomData.Rendering.TilemapWords).ToArray();
             var state = new EndingBackgroundTextState(NewFrontendCartridgeReadGuard(rom), new EndingBackgroundTextSetup { Tilemap = tilemap, InstructionPointer = EndingTextDefinitions.Native.ItemPercentage, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = EndingTextSequence.ItemPercentage });
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            typeof(EndingBackgroundTextState).GetField("installedInitialMarkerPending", flags)!.SetValue(state, false);
-            typeof(EndingBackgroundTextState).GetField("installedCharacterIndex", flags)!.SetValue(state,
-                presentation.Compile(EndingTextSequence.ItemPercentage).Length);
+            state.installedInitialMarkerPending = false;
+            state.installedCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
             var vram = new SnesVram();
             state.Step(vram);
             int destination = EndingCreditsRomData.Text.JapaneseSubtitleDestination;
@@ -1197,7 +1176,7 @@ internal static class LookupStream4Verification
                 int address = (EndingCreditsRomData.Rendering.PostCreditsTilemapWord + destination + cell) * 2;
                 AssertEqual(expected[cell], (ushort)(SnesLittleEndian.Word(vram.Bytes[address], vram.Bytes[address + 1])), "Actual subtitle reaches VRAM unchanged");
             }
-            typeof(EndingBackgroundTextState).GetField("instructionTimer", flags)!.SetValue(state, (ushort)1);
+            state.instructionTimer = (ushort)1;
             state.Step(vram);
             AssertTrue(tilemap.AsSpan(destination, expected.Length).ToArray().All(word => word == EndingCreditsRomData.Rendering.BlankTile), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
@@ -1315,11 +1294,10 @@ internal static class LookupStream4Verification
         static ushort Word(GameplayHudCell cell)=>SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,
             (cell.FlipX?SnesTileFlipFlags.Horizontal:0)|(cell.FlipY?SnesTileFlipFlags.Vertical:0)).Raw;
         var stock=GameplayHudPresentation.Load(new MemoryStream(json));
-        foreach(string name in new[]{"missile","superMissile","powerBomb","grapple","xray"})
+        foreach(var icon in new[]{stock.missile,stock.superMissile,stock.powerBomb,stock.grapple,stock.xray})
         {
-            object icon=typeof(GameplayHudPresentation).GetField(name,BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(stock)!;
-            AssertEqual(0,((Dictionary<int,ushort>)icon.GetType().GetField("edits",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(icon)!).Count,"Stock icon has no stored cell overrides");
-            AssertEqual<object?>(null,icon.GetType().GetField("<Anchor>k__BackingField",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(icon),"Stock icon derives anchor");
+            AssertEqual(0,icon.edits.Count,"Stock icon has no stored cell overrides");
+            AssertTrue(icon.anchorOverride is null,"Stock icon derives anchor");
         }
         for(int edit=-1;edit<132;edit++)
         {
@@ -1384,7 +1362,7 @@ internal static class LookupStream4Verification
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
         var stock=GameplayHudPresentation.Load(new MemoryStream(json));
-        AssertEqual(0,((Dictionary<int,ushort>)typeof(GameplayHudPresentation).GetField("templateOverrides",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(stock)!).Count,"HUD template zero native overrides");
+        AssertEqual(0,(stock.templateOverrides).Count,"HUD template zero native overrides");
         for(int edit=-1;edit<576;edit++)
         {
             var document=JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions)!;
@@ -1421,7 +1399,7 @@ internal static class LookupStream4Verification
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
         var stock=GameplayHudPresentation.Load(new MemoryStream(json));
-        AssertEqual(0,((Dictionary<int,ushort>)typeof(GameplayHudPresentation).GetField("topRowOverrides",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(stock)!).Count,"HUD top row zero native overrides");
+        AssertEqual(0,(stock.topRowOverrides).Count,"HUD top row zero native overrides");
         for(int edit=-1;edit<192;edit++)
         {
             var document=JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions)!;
@@ -1501,8 +1479,8 @@ internal static class LookupStream4Verification
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         GameplayHudPresentation stock = GameplayHudPresentation.Load(new MemoryStream(json));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        AssertEqual<object?>(null, typeof(GameplayHudPresentation).GetField("autoReserveBasis", flags), "AUTO no longer stores whole-word basis cells");
-        AssertEqual(0, ((Dictionary<int, ushort>)typeof(GameplayHudPresentation).GetField("autoReserveOverrides", flags)!.GetValue(stock)!).Count,
+        AssertTrue(!MetadataShape.DeclaresField(typeof(GameplayHudPresentation), "autoReserveBasis", flags), "AUTO no longer stores whole-word basis cells");
+        AssertEqual(0, (stock.autoReserveOverrides).Count,
             "AUTO all twelve stock words calculate without stored overrides");
         ushort[] tiles = new ushort[96];
         for (int state = 0; state < 2; state++)
@@ -1548,11 +1526,8 @@ internal static class LookupStream4Verification
         var document = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         GameplayHudPresentation stock = GameplayHudPresentation.Load(new MemoryStream(json));
-        int Stored(GameplayHudPresentation value, string name) =>
-            ((Dictionary<int, ushort>)typeof(GameplayHudPresentation).GetField(name,
-                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(value)!).Count;
-        AssertEqual(0, Stored(stock, "healthDigits"), "stock health digits are calculated");
-        AssertEqual(0, Stored(stock, "ammoDigits"), "stock ammo digits are calculated");
+        AssertEqual(0, stock.healthDigits.Count, "stock health digits are calculated");
+        AssertEqual(0, stock.ammoDigits.Count, "stock ammo digits are calculated");
         ushort[] tiles = new ushort[96];
         for (int digit = 0; digit < 10; digit++)
         {
@@ -1571,8 +1546,8 @@ internal static class LookupStream4Verification
         GameplayHudPresentation.Write(changedJson, document);
         changedJson.Position = 0;
         GameplayHudPresentation changed = GameplayHudPresentation.Load(changedJson);
-        AssertEqual(1, Stored(changed, "healthDigits"), "only edited health digit stored");
-        AssertEqual(1, Stored(changed, "ammoDigits"), "only edited ammo digit stored");
+        AssertEqual(1, changed.healthDigits.Count, "only edited health digit stored");
+        AssertEqual(1, changed.ammoDigits.Count, "only edited ammo digit stored");
         changed.ApplyEnergy(tiles, 23, 99);
         changed.ApplyAmmo(tiles, 0, 234);
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dbf + 4)), tiles[70], "unedited health digit unchanged");
@@ -1696,7 +1671,7 @@ internal static class LookupStream4Verification
     {
         byte[] source = BeamPaletteExtractor.Extract(rom);
         var stock = BeamPaletteCatalog.Load(new MemoryStream(source));
-        var stored = (Dictionary<int, Bgr555>)typeof(BeamPaletteCatalog).GetField("palettes", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var stored = stock.palettes;
         AssertEqual(0, stored.Count, "Every stock beam color calculates with zero overrides");
         var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(rom), stock);
         for (int edit = -1; edit < 576; edit++)
@@ -1910,8 +1885,7 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for message dispatch")]
     private static void VerifyLookupStream4MessageDispatch(ISnesAddressSpace rom)
     {
-        var resolve = typeof(GameplayMessageBoxState).GetMethod("ResolveButtonTilemapWord", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Func<ushort, ushort>>();
+        var resolve = new Func<ushort, ushort>(GameplayMessageBoxState.ResolveButtonTilemapWord);
         for (int bits = 0; bits <= ushort.MaxValue; bits++)
         {
             int winner = 0;
@@ -1920,9 +1894,7 @@ internal static class LookupStream4Verification
             AssertEqual(expected, GameplayMessageRomData.Buttons.ResolveGlyphWord((ushort)bits), "Native BIT order and all button glyph attributes");
             AssertEqual(expected, resolve((ushort)bits), "Actual message button resolver retains first-match precedence");
         }
-        var patch = typeof(GameplayMessageBoxState).GetMethod("PatchConfiguredButton", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<GameplayMessageBoxState, GameplayMessageId, ushort>>();
-        var tilemapField = typeof(GameplayMessageBoxState).GetField("_tilemap", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        Action<GameplayMessageBoxState, GameplayMessageId, ushort> patch = (state, message, raw) => state.PatchConfiguredButton(message, raw);
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
             var id = (GameplayMessageId)raw;
@@ -1935,7 +1907,7 @@ internal static class LookupStream4Verification
             AssertEqual(expected, GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "Native message button placement case");
             var state = new GameplayMessageBoxState();
             var cells = Enumerable.Range(0, 192).Select(index => (ushort)(0x4000 + index)).ToArray();
-            tilemapField.SetValue(state, cells);
+            state._tilemap = cells;
             patch(state, id, ushort.MaxValue);
             for (int index = 0; index < cells.Length; index++)
                 AssertEqual(index == expected / 2 ? CartridgeImportSource.Require(rom).ReadCartridgeWord(0x858426) : (ushort)(0x4000 + index), cells[index],
@@ -2034,7 +2006,7 @@ internal static class LookupStream4Verification
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
         var original = RoomPaletteFxPresentation.Load(originalStream);
-        var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(original)!;
+        var stored = original.colors;
         for (int frame = 0; frame < 14; frame++)
         for (int index = 0; index < 7; index++)
         {
@@ -2075,7 +2047,7 @@ internal static class LookupStream4Verification
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
         var original = RoomPaletteFxPresentation.Load(originalStream);
-        var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(original)!;
+        var stored = original.colors;
         for (int frame = 0; frame < 13; frame++)
         for (int index = 0; index < 8; index++)
         {
@@ -2250,7 +2222,7 @@ internal static class LookupStream4Verification
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
         var original = RoomPaletteFxPresentation.Load(originalStream);
-        var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(original)!;
+        var stored = original.colors;
         int storedStatueColors = 0;
         foreach (var pair in native)
         {
@@ -2354,11 +2326,8 @@ internal static class LookupStream4Verification
     {
         byte[] original = PowerBombFixedColorExtractor.Extract(rom);
         var catalog = PowerBombFixedColorCatalog.Load(new MemoryStream(original));
-        int Stored(PowerBombFixedColorCatalog value, string field) =>
-            ((System.Collections.IDictionary)typeof(PowerBombFixedColorCatalog)
-                .GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(value)!).Count;
-        AssertEqual(0, Stored(catalog, "preExplosion"), "stock pre-explosion colors are entirely calculated");
-        AssertEqual(11, Stored(catalog, "explosion"), "only unresolved explosion tail remains stored");
+        AssertEqual(0, catalog.preExplosion.Count, "stock pre-explosion colors are entirely calculated");
+        AssertEqual(11, catalog.explosion.Count, "only unresolved explosion tail remains stored");
         foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
         {
             int count = PowerBombFixedColorFormat.Count(sequence);
@@ -2391,8 +2360,8 @@ internal static class LookupStream4Verification
                 AssertEqual(((byte)source.Red, (byte)source.Green, (byte)source.Blue), installed.Resolve(sequence, index),
                     "Power Bomb supplied JSON color edits remain independent");
             }
-            AssertEqual(edit.Item1 == PowerBombFixedColorSequence.PreExplosion ? 1 : 0, Stored(installed, "preExplosion"), "only changed pre-explosion content stays stored");
-            AssertEqual(edit.Item1 == PowerBombFixedColorSequence.Explosion && edit.Item2 <= 20 ? 12 : 11, Stored(installed, "explosion"), "only changed calculated explosion content joins unresolved tail");
+            AssertEqual(edit.Item1 == PowerBombFixedColorSequence.PreExplosion ? 1 : 0, installed.preExplosion.Count, "only changed pre-explosion content stays stored");
+            AssertEqual(edit.Item1 == PowerBombFixedColorSequence.Explosion && edit.Item2 <= 20 ? 12 : 11, installed.explosion.Count, "only changed calculated explosion content joins unresolved tail");
         }
     }
 
@@ -2518,12 +2487,12 @@ internal static class LookupStream4Verification
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorCatalog.Load(new MemoryStream(json));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var intro = (DraygonIntroPaintDefinitions)typeof(DraygonColorCatalog).GetField("intro",flags)!.GetValue(stock)!;
-        var primary = (DraygonMaterialPaintDefinitions)typeof(DraygonIntroPaintDefinitions).GetField("primary",flags)!.GetValue(intro)!;
-        var surface = (CeresDoorEscapeSurfacePaintDefinitions)typeof(DraygonIntroPaintDefinitions).GetField("surface",flags)!.GetValue(intro)!;
-        AssertEqual(0,((Dictionary<int, Bgr555>)typeof(DraygonMaterialPaintDefinitions).GetField("edits",flags)!.GetValue(primary)!).Count,"Intro primary zero native overrides");
-        AssertEqual(0,((Dictionary<int, Bgr555>)typeof(CeresDoorEscapeSurfacePaintDefinitions).GetField("edits",flags)!.GetValue(surface)!).Count,"Intro surface zero native overrides");
-        AssertEqual<object?>(null,typeof(DraygonIntroPaintDefinitions).GetField("clearEdit",flags)!.GetValue(intro),"Intro clear has no native override");
+        var intro = stock.intro;
+        var primary = intro.primary;
+        var surface = intro.surface;
+        AssertEqual(0,(primary.edits).Count,"Intro primary zero native overrides");
+        AssertEqual(0,(surface.edits).Count,"Intro surface zero native overrides");
+        AssertEqual<object?>(null,intro.clearEdit,"Intro clear has no native override");
         for(int edit=-1;edit<75;edit++)
         {
             var document=JsonSerializer.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions)!;
@@ -2587,8 +2556,8 @@ internal static class LookupStream4Verification
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorCatalog.Load(new MemoryStream(json));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var material = (DraygonMaterialPaintDefinitions)typeof(DraygonColorCatalog).GetField("sprite",flags)!.GetValue(stock)!;
-        AssertEqual(0,((Dictionary<int, Bgr555>)typeof(DraygonMaterialPaintDefinitions).GetField("edits",flags)!.GetValue(material)!).Count,"Shared native sprite material has zero overrides");
+        var material = stock.sprite;
+        AssertEqual(0,(material.edits).Count,"Shared native sprite material has zero overrides");
         for(int edit=-1;edit<48;edit++)
         {
             var document=JsonSerializer.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions)!;
@@ -2650,8 +2619,8 @@ internal static class LookupStream4Verification
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorCatalog.Load(new MemoryStream(json));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var material = (DraygonMaterialPaintDefinitions)typeof(DraygonColorCatalog).GetField("background",flags)!.GetValue(stock)!;
-        AssertEqual(0,((Dictionary<int,Bgr555>)typeof(DraygonMaterialPaintDefinitions).GetField("edits",flags)!.GetValue(material)!).Count,"All16 background colors calculate without unexplained stock overrides");
+        var material = stock.background;
+        AssertEqual(0,(material.edits).Count,"All16 background colors calculate without unexplained stock overrides");
         for (int edit = -1; edit < 48; edit++)
         {
             var document = JsonSerializer.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions)!;
@@ -2780,11 +2749,9 @@ internal static class LookupStream4Verification
         byte[] original = DraygonColorExtractor.Extract(rom);
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var stock = DraygonColorCatalog.Load(new MemoryStream(original));
-        int Stored(string field) => ((System.Collections.IDictionary)typeof(DraygonColorCatalog)
-            .GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count;
-        AssertEqual(0, Stored("whiteFlash"), "Draygon stock flash is calculated without stored colors");
-        var health = (DraygonHealthPaintDefinitions)typeof(DraygonColorCatalog).GetField("healthBands", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(DraygonHealthPaintDefinitions).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(health)!).Count, "All native Draygon health colors calculate without overrides");
+        AssertEqual(0, stock.whiteFlash.Count, "Draygon stock flash is calculated without stored colors");
+        var health = stock.healthBands;
+        AssertEqual(0, (health.edits).Count, "All native Draygon health colors calculate without overrides");
         for (int variation = -1; variation < 4; variation++)
         {
             var document = JsonSerializer.Deserialize<DraygonColorDocument>(original, options)!;
@@ -2840,8 +2807,8 @@ internal static class LookupStream4Verification
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
         var stock = NorfairRidleyColorCatalog.Load(new MemoryStream(json));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var definition = (NorfairRidleyRevealPaintDefinitions)typeof(NorfairRidleyColorCatalog).GetField("reveal", flags)!.GetValue(stock)!;
-        AssertEqual(0, ((Dictionary<int, Bgr555>)typeof(NorfairRidleyRevealPaintDefinitions).GetField("edits", flags)!.GetValue(definition)!).Count,
+        var definition = stock.reveal;
+        AssertEqual(0, (definition.edits).Count,
             "All210 native reveal words calculate without residual samples");
         byte[] roomPalette = RomDataReader.Decompress(CartridgeImportSource.Require(rom), RoomTilesetDefinitions.Get(9).PaletteAddress);
         for (int color = 0; color < 14; color++)
@@ -2932,19 +2899,16 @@ internal static class LookupStream4Verification
         ushort[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + i * 2))).ToArray();
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        static void NoEdits(object provider)
-        {
-            var edits = (Dictionary<int, Bgr555>)provider.GetType().GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(provider)!;
+        static void NoEdits(Dictionary<int, Bgr555> edits) =>
             AssertEqual(0, edits.Count, "Native material has no unexplained output overrides");
-        }
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
         var original = JsonSerializer.Deserialize<NorfairRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
         var stock = NorfairRidleyColorCatalog.Load(new MemoryStream(json));
-        var initial = (NorfairRidleyInitialPaintDefinitions)typeof(NorfairRidleyColorCatalog).GetField("initial", flags)!.GetValue(stock)!;
-        var armor = (CeresDoorEscapePaintDefinitions)typeof(NorfairRidleyInitialPaintDefinitions).GetField("armor", flags)!.GetValue(initial)!;
-        var organ = (CeresBabyPaintDefinitions)typeof(NorfairRidleyInitialPaintDefinitions).GetField("organ", flags)!.GetValue(initial)!;
-        NoEdits(initial); NoEdits(armor); NoEdits(organ);
-        NoEdits(typeof(CeresDoorEscapePaintDefinitions).GetField("warm", flags)!.GetValue(armor)!);
+        var initial = stock.initial;
+        var armor = initial.armor;
+        var organ = initial.organ;
+        NoEdits(initial.edits); NoEdits(armor.edits); NoEdits(organ.edits);
+        NoEdits(armor.warm.edits);
         for (int color = 0; color < 15; color++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6f50e + color * 2)), stock.ResolveInitial(color + 1), "Exact escape material occurrence");
@@ -2999,7 +2963,7 @@ internal static class LookupStream4Verification
         }
         ushort[] normalWords = Read(0xa6f4ee, 15), escapeWords = Read(0xa6f50e, 15);
         var normalStock = new CeresDoorNormalPaintDefinitions(ToColors(normalWords));
-        NoEdits(normalStock); NoEdits(normalStock.WarmTargets);
+        NoEdits(normalStock.edits); NoEdits(normalStock.WarmTargets.edits);
         for (int edit = -1; edit < 90; edit++)
         {
             ushort[] normal = normalWords.ToArray(), escape = escapeWords.ToArray();
@@ -3032,8 +2996,8 @@ internal static class LookupStream4Verification
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var stock = BotwoonColorCatalog.Load(new MemoryStream(original));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var paint = (BotwoonHealthPaintDefinitions)typeof(BotwoonColorCatalog).GetField("health", flags)!.GetValue(stock)!;
-        int stored = ((System.Collections.IDictionary)typeof(BotwoonHealthPaintDefinitions).GetField("edits", flags)!.GetValue(paint)!).Count;
+        var paint = stock.health;
+        int stored = paint.edits.Count;
         AssertEqual(0, stored, "Botwoon all stock channels calculate with zero overrides");
         for (int color = 0; color < 16; color++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb39319 + color * 2)), stock.HealthColor(0, color), "native initial/header alias remains exact");
@@ -3208,15 +3172,14 @@ internal static class LookupStream4Verification
         var catalog = BeamTileCatalog.Load(files, palettes);
         int derivedTotal = 0;
         int runtimeBasisTotal = 0;
-        var compiled = (BeamTileAtlas[])typeof(BeamTileCatalog).GetField("sheets", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(catalog)!;
+        var compiled = catalog.sheets;
         for (int selection = 0; selection < 12; selection++)
         {
             int sourceAddress = 0x9a0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + selection * 2));
             byte[] native = Enumerable.Range(0, 256).Select(offset => rom.ReadCartridgeByte(sourceAddress + offset)).ToArray();
             byte[] png = files[BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))];
             var atlas = BeamTileAtlas.Load(new MemoryStream(png), SamusBeamCombinations.FromTableIndex(selection));
-            var stored = (Dictionary<int, byte>)typeof(BeamTileAtlas).GetField("pixels",
-                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(atlas)!;
+            var stored = atlas.pixels;
             int expectedBasis = selection switch { 0 => 224, 2 => 288, 1 or 3 => 400, >= 4 and <= 7 => 181, _ => 299 };
             AssertEqual(expectedBasis, stored.Count, "Beam sheet stores exactly its required pixel basis with no stock derived fallbacks");
             for (int pixel = 0; pixel < 512; pixel++)
@@ -3238,8 +3201,7 @@ internal static class LookupStream4Verification
             }
             int canonical = BeamTileAtlasDefinitions.CanonicalSelection(SamusBeamCombinations.FromTableIndex(selection)).TableIndex;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + canonical * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + selection * 2)), "Canonical beam family matches original native source-pointer identity");
-            var compiledPixels = (Dictionary<int, byte>)typeof(BeamTileAtlas).GetField("pixels",
-                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(compiled[selection])!;
+            var compiledPixels = compiled[selection].pixels;
             int expectedRuntimeBasis = selection switch { 0 => 224, 1 => 272, 2 => 288, 4 => 10, 8 => 299, _ => 0 };
             AssertEqual(expectedRuntimeBasis, compiledPixels.Count, "Runtime catalog stores only independent primary-family artwork pixels");
             runtimeBasisTotal += compiledPixels.Count;
@@ -3330,10 +3292,8 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6F4EC + color * 2)), stock.ResolveStart(color), "Native normal door material occurrence");
         for (int color = 0; color < 15; color++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E1F1 + color * 2)), stock.ResolveStart(17 + color), "Native Baby initial identity");
-        var definition = (CeresRidleyStartColorDefinitions)typeof(CeresRidleyColorCatalog)
-            .GetField("start", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        var edits = (Dictionary<int, Bgr555>)typeof(CeresRidleyStartColorDefinitions)
-            .GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
+        var definition = stock.start;
+        var edits = definition.edits;
         AssertEqual(0, edits.Count, "No native start residuals hidden as edits");
         for (int channel = 0; channel < 3; channel++)
         for (int edit = -1; edit < 47; edit++)
@@ -3387,8 +3347,8 @@ internal static class LookupStream4Verification
             int a = 0xa6e1f1 + (row * 15 + color) * 2;
             return CartridgeImportSource.Require(rom).ReadCartridgeWord(a);
         }
-        var definition = (CeresBabyPaintDefinitions)typeof(CeresRidleyColorCatalog).GetField("baby", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        var overrides = (Dictionary<int, Bgr555>)typeof(CeresBabyPaintDefinitions).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
+        var definition = stock.baby;
+        var overrides = definition.edits;
         AssertEqual(0, overrides.Count, "No unexplained native Baby residuals");
         for (int color = 0; color < 3; color++)
         {
@@ -3474,7 +3434,7 @@ internal static class LookupStream4Verification
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
         var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
-        var stored = (Dictionary<int, Bgr555>)typeof(CeresRidleyColorCatalog).GetField("retreatShared", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var stored = stock.retreatShared;
         AssertEqual(0, stored.Count, "No native retreat shared paints retained");
         for (int color = 0; color < 8; color++)
         {
@@ -3516,8 +3476,8 @@ internal static class LookupStream4Verification
         byte[] zoomJson = CeresRidleyMode7ColorExtractor.Extract(rom);
         var zoomDocument = JsonSerializer.Deserialize<CeresRidleyMode7ColorDocument>(zoomJson, MapPresentationFormat.JsonOptions)!;
         var zoomStock = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(zoomJson));
-        var zoomDefinition = (CeresRidleyMode7PaintDefinitions)typeof(CeresRidleyMode7ColorCatalog).GetField("rows", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(zoomStock)!;
-        var zoomEdits = (Dictionary<int, Bgr555>)typeof(CeresRidleyMode7PaintDefinitions).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(zoomDefinition)!;
+        var zoomDefinition = zoomStock.rows;
+        var zoomEdits = zoomDefinition.edits;
         AssertEqual(0, zoomEdits.Count, "All native zoom words calculate without residuals");
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x848050), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6b123), "Native neutral contour identity shared with Golden Torizo");
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6b123), GoldenTorizoHealthPaintDefinitions.Color(0, 15, rear: false), "Existing immutable neutral source owner");
@@ -3554,7 +3514,7 @@ internal static class LookupStream4Verification
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
         var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
-        var retreatEdits = (Dictionary<int, Bgr555>)typeof(CeresRidleyColorCatalog).GetField("retreatBg", flags)!.GetValue(stock)!;
+        var retreatEdits = stock.retreatBg;
         AssertEqual(0, retreatEdits.Count, "All native retreat background words calculate");
         for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 29; edit++)
         {
@@ -3604,8 +3564,8 @@ internal static class LookupStream4Verification
             return CartridgeImportSource.Require(rom).ReadCartridgeWord(a);
         }
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var definition = (CeresRidleyHealthPaintDefinitions)typeof(CeresRidleyColorCatalog).GetField("health", flags)!.GetValue(stock)!;
-        var overrides = (Dictionary<int, Bgr555>)typeof(CeresRidleyHealthPaintDefinitions).GetField("edits", flags)!.GetValue(definition)!;
+        var definition = stock.health;
+        var overrides = definition.edits;
         AssertEqual(0, overrides.Count, "All42 native health colors calculate");
         static PaletteRgb5 Change(PaletteRgb5 value, int channel) => channel switch
         { 0 => value with { Red = value.Red ^ 1 }, 1 => value with { Green = value.Green ^ 1 }, _ => value with { Blue = value.Blue ^ 1 } };
@@ -3681,11 +3641,8 @@ internal static class LookupStream4Verification
         var document = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         GameplayHudPresentation stock = GameplayHudPresentation.Load(new MemoryStream(json));
-        int Stored(GameplayHudPresentation value, string name) =>
-            ((Dictionary<int, int>)typeof(GameplayHudPresentation).GetField(name,
-                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(value)!).Count;
-        AssertEqual(0, Stored(stock, "energyTankAnchors"), "HUD stock tank positions are calculated");
-        AssertEqual(0, Stored(stock, "autoAnchors"), "HUD stock AUTO positions are calculated");
+        AssertEqual(0, stock.energyTankAnchors.Count, "HUD stock tank positions are calculated");
+        AssertEqual(0, stock.autoAnchors.Count, "HUD stock AUTO positions are calculated");
         for (int tank = 0; tank < 14; tank++)
         {
             int native = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809cce + tank * 2));
@@ -3720,8 +3677,8 @@ internal static class LookupStream4Verification
         GameplayHudPresentation.Write(editedJson, document);
         editedJson.Position = 0;
         GameplayHudPresentation edited = GameplayHudPresentation.Load(editedJson);
-        AssertEqual(2, Stored(edited, "energyTankAnchors"), "only edited tank positions are stored");
-        AssertEqual(2, Stored(edited, "autoAnchors"), "only edited AUTO positions are stored");
+        AssertEqual(2, edited.energyTankAnchors.Count, "only edited tank positions are stored");
+        AssertEqual(2, edited.autoAnchors.Count, "only edited AUTO positions are stored");
         edited.ApplyEnergy(tiles, 100, 1400);
         AssertEqual(edited.FilledEnergyTank, tiles[0x44 / 2], "edited first tank moves to second native anchor");
         AssertEqual(edited.EmptyEnergyTank, tiles[0x42 / 2], "edited second tank moves to first native anchor");

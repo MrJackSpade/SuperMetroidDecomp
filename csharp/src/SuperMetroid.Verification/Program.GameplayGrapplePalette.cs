@@ -24,8 +24,8 @@ internal static class GameplayGrapplePaletteVerification
         var game=new SuperMetroidGame(bus);
         var projectiles=installation.LoadProjectiles();
         InstalledFixtures.BindGame(game);
-        typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime",flags)!.Invoke(game,new object[]{false});
-        var runtime=(SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime",flags)!.GetValue(game)!;
+        game.CreateGameplayRuntime(false);
+        var runtime=game.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
@@ -34,7 +34,7 @@ internal static class GameplayGrapplePaletteVerification
         var words = new ushort[32 * 16];
         for (int i = 12 * 32; i < 13 * 32; i++) words[i] = 0x8000;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, new byte[512], new ushort[512]), new byte[8]);
-        typeof(ActiveRoomState).GetProperty(nameof(ActiveRoomState.LevelData))!.SetValue(runtime.Room, level);
+        runtime.Room.LevelData = level;
         var samus = runtime.Player.Samus!;
         var expected = new SnesCgram();
         var palettes = projectiles.BeamTiles.Palettes ?? throw new InvalidDataException("Missing beam palettes.");

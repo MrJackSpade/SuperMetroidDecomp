@@ -109,10 +109,10 @@ public sealed class SamusHorizontalSpeedState
     public ushort SecondSpeedEchoXSpeed { get; private set; }
 
     /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBC</c>.</summary>
-    public ushort TotalSpeed { get; private set; }
+    public ushort TotalSpeed { get; internal set; }
 
     /// <summary>Fractional part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBE</c>.</summary>
-    public ushort TotalSubspeed { get; private set; }
+    public ushort TotalSubspeed { get; internal set; }
 
     /// <summary>
     /// Right-shift count at WRAM <c>$0A66</c>. The native code caps the effective shift at
@@ -136,7 +136,7 @@ public sealed class SamusHorizontalSpeedState
     /// Bank-$90 offset stored by the current inside-block/environment reaction. Normal air,
     /// water, and lava/acid select three complete ROM tables before movement type is added.
     /// </summary>
-    public ushort ActiveSpeedTableBaseAddress { get; private set; } =
+    public ushort ActiveSpeedTableBaseAddress { get; internal set; } =
         SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable;
 
     /// <summary>
@@ -763,7 +763,7 @@ public sealed class SamusHorizontalSpeedState
         return ReadEntryAtAddress(bus, address);
     }
 
-    private static SpeedTableEntry ReadEntryAtAddress(ISnesAddressSpace bus, int address)
+    internal static SpeedTableEntry ReadEntryAtAddress(ISnesAddressSpace bus, int address)
     {
         if (SamusHorizontalMotionDefinitions.TryResolveIndexed(address, out SpeedTableEntry compiled) ||
             SamusHorizontalMotionDefinitions.TryResolveStandalone(address, out compiled))
@@ -804,7 +804,7 @@ public sealed class SamusHorizontalSpeedState
         return CalculateBaseSpeed(ReadEntryAtAddress(bus, address));
     }
 
-    private uint CalculateBaseSpeed(SpeedTableEntry entry)
+    internal uint CalculateBaseSpeed(SpeedTableEntry entry)
     {
 
         if (AccelerationMode != 0)

@@ -20,8 +20,8 @@ public sealed class FileSelectMapMenuState
     private readonly int area;
     private readonly ushort[] usedStations = new ushort[FileSelectMapRomData.AreaCount];
     private readonly FileSelectAreaMapGraphics areaGraphics;
-    private readonly FileSelectRoomMapGraphics roomGraphics;
-    private FileSelectMapScroll scroll;
+    internal readonly FileSelectRoomMapGraphics roomGraphics;
+    internal FileSelectMapScroll scroll;
     private FileSelectStationMarker marker;
     private readonly ushort stationIndex;
     private bool markerDrawn;

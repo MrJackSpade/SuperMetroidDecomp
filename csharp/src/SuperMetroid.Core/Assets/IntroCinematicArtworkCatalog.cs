@@ -65,13 +65,13 @@ public sealed class IntroCinematicArtworkCatalog
     public RoomCharacterAtlas CinematicObjectCharacters { get; }
     /// <summary>Four ordered 32x32 BG tilemap pages uploaded at VRAM byte $A000.</summary>
     public ReadOnlyMemory<byte> BackgroundPages => suppliedBackgroundPages ?? IntroBackgroundTilemapDefinitions.Compile();
-    private readonly byte[]? suppliedBackgroundPages;
+    internal readonly byte[]? suppliedBackgroundPages;
     /// <summary>Samus-head portrait BG tilemap uploaded at VRAM byte $9000.</summary>
     public ReadOnlyMemory<byte> PortraitTilemap => suppliedPortrait ?? IntroPortraitTilemapDefinitions.Compile();
-    private readonly byte[]? suppliedPortrait;
+    internal readonly byte[]? suppliedPortrait;
     /// <summary>First, pre-typewriter narration BG3 tilemap uploaded at VRAM byte $9800.</summary>
     public ReadOnlyMemory<byte> InitialNarrationTilemap => suppliedInitialNarration ?? IntroInitialNarrationTilemapDefinitions.Compile();
-    private readonly byte[]? suppliedInitialNarration;
+    internal readonly byte[]? suppliedInitialNarration;
     /// <summary>Four BG3 rows mapping Japanese subtitle glyph staging beneath illustrated-page text.</summary>
     public IntroFinalLineTilemap FinalLine { get; }
     /// <summary>Four editable Samus-portrait eye rectangles, without their blink timing.</summary>

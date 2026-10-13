@@ -112,18 +112,12 @@ internal static class IntroBabyActorDefinitionsVerification
         discovery.Samus.Position = discovery.Samus.Position.WithWholeX(0x00a8);
         reference.Samus.Position = reference.Samus.Position.WithWholeX(0x00a8);
         BindingFlags actorFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var egg = (IntroDiscoverySprite)typeof(IntroBabyDiscoveryState)
-            .GetField("egg", actorFlags)!.GetValue(discovery)!;
-        var baby = (IntroDiscoverySprite)typeof(IntroBabyDiscoveryState)
-            .GetField("confusedBaby", actorFlags)!.GetValue(discovery)!;
-        var nativeEgg = (IntroDiscoverySprite)typeof(IntroBabyDiscoveryState)
-            .GetField("egg", actorFlags)!.GetValue(reference)!;
-        var nativeBaby = (IntroDiscoverySprite)typeof(IntroBabyDiscoveryState)
-            .GetField("confusedBaby", actorFlags)!.GetValue(reference)!;
-        var demo = (DemoInputState)typeof(IntroBabyDiscoveryState)
-            .GetField("demo", actorFlags)!.GetValue(discovery)!;
-        var nativeDemo = (DemoInputState)typeof(IntroBabyDiscoveryState)
-            .GetField("demo", actorFlags)!.GetValue(reference)!;
+        var egg = discovery.egg;
+        var baby = discovery.confusedBaby;
+        var nativeEgg = reference.egg;
+        var nativeBaby = reference.confusedBaby;
+        var demo = discovery.demo;
+        var nativeDemo = reference.demo;
         int pageThreeFrame = -1;
         for (int frame = 0; frame < 1024; frame++)
         {
@@ -177,14 +171,10 @@ internal static class IntroBabyActorDefinitionsVerification
             IntroScientistCutsceneState.CreateDelivery(instructionWord: RomScientistWord);
         IntroScientistCutsceneState nativeExamination =
             IntroScientistCutsceneState.CreateExamination(instructionWord: RomScientistWord);
-        var deliveredBaby = (IntroDiscoverySprite)typeof(IntroScientistCutsceneState)
-            .GetField("baby", actorFlags)!.GetValue(delivery)!;
-        var examinedBaby = (IntroDiscoverySprite)typeof(IntroScientistCutsceneState)
-            .GetField("baby", actorFlags)!.GetValue(examination)!;
-        var nativeDeliveredBaby = (IntroDiscoverySprite)typeof(IntroScientistCutsceneState)
-            .GetField("baby", actorFlags)!.GetValue(nativeDelivery)!;
-        var nativeExaminedBaby = (IntroDiscoverySprite)typeof(IntroScientistCutsceneState)
-            .GetField("baby", actorFlags)!.GetValue(nativeExamination)!;
+        var deliveredBaby = delivery.baby;
+        var examinedBaby = examination.baby;
+        var nativeDeliveredBaby = nativeDelivery.baby;
+        var nativeExaminedBaby = nativeExamination.baby;
         for (ushort frame = 0; frame < 1024 &&
             (!delivery.PageFourRequested || !examination.PageFiveRequested); frame++)
         {

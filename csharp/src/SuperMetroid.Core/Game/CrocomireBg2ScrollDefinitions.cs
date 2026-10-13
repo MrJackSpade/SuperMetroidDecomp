@@ -13,10 +13,10 @@ internal static class CrocomireBg2ScrollDefinitions
 
     /// <summary>$A4:BFC4 ExtendedSpritemap_Crocomire_ChargeForward_StepBack_0,
     /// first of twelve consecutive $32-byte extended frame records.</summary>
-    private const ushort ChargeStepFrameStart = 0xbfc4;
+    internal const ushort ChargeStepFrameStart = 0xbfc4;
     /// <summary>$A4:C47A ExtendedSpritemap_Crocomire_MovingClaws_0,
     /// first of five consecutive $32-byte extended frame records.</summary>
-    private const ushort MovingClawsFrameStart = 0xc47a;
+    internal const ushort MovingClawsFrameStart = 0xc47a;
 
     /// <summary>The extended frames whose $A4:8B79 search entry has a nonzero Y adjustment.</summary>
     private enum CorrectedFrame : ushort
@@ -48,7 +48,7 @@ internal static class CrocomireBg2ScrollDefinitions
     /// <summary>Aligns BG2 to the selected body's extended-frame pose. These named
     /// pose cases reproduce the native pointer search and signed Y adjustment;
     /// all unlisted identities, including mapped zero-offset poses, add zero.</summary>
-    private static int Correction(ushort frame)
+    internal static int Correction(ushort frame)
     {
         if (!Enum.IsDefined((CorrectedFrame)frame))
             return 0;

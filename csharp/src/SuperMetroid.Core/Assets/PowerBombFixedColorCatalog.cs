@@ -16,8 +16,8 @@ public enum PowerBombFixedColorSequence
 /// <summary>Editable RGB5 colors for Power Bomb, Crystal Flash and Ceres explosions.</summary>
 public sealed class PowerBombFixedColorCatalog
 {
-    private readonly Dictionary<int, (byte Red, byte Green, byte Blue)> preExplosion;
-    private readonly Dictionary<int, (byte Red, byte Green, byte Blue)> explosion;
+    internal readonly Dictionary<int, (byte Red, byte Green, byte Blue)> preExplosion;
+    internal readonly Dictionary<int, (byte Red, byte Green, byte Blue)> explosion;
 
     private PowerBombFixedColorCatalog(
         Dictionary<int, (byte Red, byte Green, byte Blue)> preExplosion,

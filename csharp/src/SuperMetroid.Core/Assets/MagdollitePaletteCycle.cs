@@ -25,7 +25,7 @@ public sealed class MagdollitePaletteCycle
 
     // The four independent glow colors remain required artwork under issue1165.
     private readonly Bgr555[] colors;
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     /// <summary>
     /// Palette_Magdollite_Glow_0..3 at $A8:AC2E-AC34 rotates left one color per

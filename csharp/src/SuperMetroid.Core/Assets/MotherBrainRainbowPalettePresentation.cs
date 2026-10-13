@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable rainbow, drain, revival, and normal-restoration colors for Mother Brain.</summary>
 public sealed class MotherBrainRainbowPalettePresentation
 {
-    private readonly PaletteFrame[] rainbow;
-    private readonly PaletteFade toGrey;
-    private readonly RevivalPaletteFade fromGrey;
-    private readonly PaletteFade fakeDeathToGrey;
-    private readonly PaletteFrame normal;
-    private readonly BeamColors beamCycle;
+    internal readonly PaletteFrame[] rainbow;
+    internal readonly PaletteFade toGrey;
+    internal readonly RevivalPaletteFade fromGrey;
+    internal readonly PaletteFade fakeDeathToGrey;
+    internal readonly PaletteFrame normal;
+    internal readonly BeamColors beamCycle;
 
     private MotherBrainRainbowPalettePresentation(PaletteFrame[] rainbow, PaletteFrame[] toGrey,
         PaletteFrame[] fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal,
@@ -59,9 +59,9 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// Falling green/blue changes its rounding bias after local step eight.
     /// These phase boundaries preserve the source's asymmetric wheel exactly.
     /// </summary>
-    private sealed class BeamColors
+    internal sealed class BeamColors
     {
-        private readonly Bgr555[]? supplied;
+        internal readonly Bgr555[]? supplied;
         public int Length { get; }
         public BeamColors(Bgr555[] colors)
         {
@@ -292,13 +292,13 @@ public sealed class MotherBrainRainbowPalettePresentation
         json.Write(bytes);
     }
 
-    private sealed class PaletteFrame
+    internal sealed class PaletteFrame
     {
-        private readonly Bgr555[]? backLegs;
+        internal readonly Bgr555[]? backLegs;
         private readonly bool stockRear;
         private readonly bool drainedRear;
         private readonly bool normalRearSubset;
-        private readonly PaletteFrame? rearSource;
+        internal readonly PaletteFrame? rearSource;
 
         public PaletteFrame(Bgr555[] body, Bgr555[] legs, Bgr555? trailingColor)
         {
@@ -394,7 +394,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     /// <summary>Exact red-origin shading from the narrowly reviewed temporal material paints; calculated shades are not retained rows.</summary>
-    private sealed class RedOriginColors
+    internal sealed class RedOriginColors
     {
         private readonly Bgr555 head, plateStart, plateEnd, tissueStart, tissueEnd;
         /// <summary>The dark head keeps its own green/blue under the shared head red ramp.</summary>
@@ -453,12 +453,12 @@ public sealed class MotherBrainRainbowPalettePresentation
         }
     }
     /// <summary>Exact shared channels with all unexplained RGB5 samples retained independently.</summary>
-    private sealed class SharedBodyChannels
+    internal sealed class SharedBodyChannels
     {
         private readonly BodyColors source;
         private readonly bool red, green, blue;
         private readonly int redAddition, greenAddition, independentCount;
-        private readonly MotherBrainRainbowShadeChannel independent;
+        internal readonly MotherBrainRainbowShadeChannel independent;
         internal int Length => source.Length;
         private SharedBodyChannels(BodyColors source, BodyColors selected, MotherBrainRainbowShadeProfile profile, RainbowChannelSelection channels)
         {
@@ -501,22 +501,22 @@ public sealed class MotherBrainRainbowPalettePresentation
         }
     }
     /// <summary>Recognizes normal and drained body paint without repeated palette rows.</summary>
-    private sealed class BodyColors
+    internal sealed class BodyColors
     {
-        private readonly Bgr555[]? supplied;
-        private readonly RedOriginColors? redOrigin;
+        internal readonly Bgr555[]? supplied;
+        internal readonly RedOriginColors? redOrigin;
         internal BodyColors(RedOriginColors colors)
         {
             redOrigin = colors;
             Length = MotherBrainRainbowPaletteRomData.ColorCount;
         }
-        private readonly SharedBodyChannels? sharedChannels;
+        internal readonly SharedBodyChannels? sharedChannels;
         internal BodyColors(SharedBodyChannels channels)
         {
             sharedChannels = channels;
             Length = channels.Length;
         }
-        private readonly BodyColors? tintSource;
+        internal readonly BodyColors? tintSource;
         private readonly int redTint, greenTint, blueTint;
         internal BodyColors(BodyColors source, int red, int green, int blue)
         {
@@ -530,7 +530,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             int r = color.Red + red, g = color.Green + green, b = color.Blue + blue;
             return (uint)r > 31 || (uint)g > 31 || (uint)b > 31 ? null : new Bgr555(r, g, b);
         }
-        private readonly DrainedBodyColors? drained;
+        internal readonly DrainedBodyColors? drained;
         public int Length { get; }
         public BodyColors(Bgr555[] colors)
         {
@@ -646,11 +646,11 @@ public sealed class MotherBrainRainbowPalettePresentation
     // Revival rounds RGB5 endpoint interpolation to the nearest channel value. Stock
     // holds the prior shade at one independently reviewed tissue-ink/phase choice.
     // Sparse differences also preserve every independently edited output and endpoint.
-    private sealed class RevivalPaletteFade : IPaletteFade
+    internal sealed class RevivalPaletteFade : IPaletteFade
     {
-        private readonly PaletteFrame first;
-        private readonly PaletteFrame last;
-        private readonly Dictionary<(int Frame, int Color), Bgr555> suppliedOverrides = new();
+        internal readonly PaletteFrame first;
+        internal readonly PaletteFrame last;
+        internal readonly Dictionary<(int Frame, int Color), Bgr555> suppliedOverrides = new();
 
         public RevivalPaletteFade(PaletteFrame[] frames)
         {
@@ -689,11 +689,11 @@ public sealed class MotherBrainRainbowPalettePresentation
                     + b * frame + intervals / 2) / intervals));
         }
     }
-    private sealed class PaletteFade : IPaletteFade
+    internal sealed class PaletteFade : IPaletteFade
     {
-        private readonly PaletteFrame first;
-        private readonly PaletteFrame last;
-        private readonly PaletteFrame[]? supplied;
+        internal readonly PaletteFrame first;
+        internal readonly PaletteFrame last;
+        internal readonly PaletteFrame[]? supplied;
 
         public PaletteFade(PaletteFrame[] frames)
         {

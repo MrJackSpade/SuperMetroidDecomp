@@ -22,8 +22,8 @@ internal sealed class IntroRinkaSystem
     private const int SpawnerSlot = 14;
     private const int LowestSlot = 1;
 
-    private readonly IntroDiscoverySprite?[] slots = new IntroDiscoverySprite?[SpawnerSlot + 1];
-    private readonly IntroDiscoverySprite spawner;
+    internal readonly IntroDiscoverySprite?[] slots = new IntroDiscoverySprite?[SpawnerSlot + 1];
+    internal readonly IntroDiscoverySprite spawner;
     private bool spawnsForbidden;
 
     public IntroRinkaSystem()

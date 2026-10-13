@@ -58,14 +58,10 @@ internal static class IntroMotherBrainInputDefinitionsVerification
         // constructor-time object load and frame-time interpreter must use installed data.
         var intro = CreateRetailIntroFixture(guarded, characterArtwork: stock);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
-            .Invoke(intro, null);
-        typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!
-            .Invoke(intro, null);
-        typeof(IntroCinematicState).GetMethod("StepMotherBrainDemo", flags)!
-            .Invoke(intro, null);
-        var live = (DemoInputState)typeof(IntroCinematicState)
-            .GetField("flashbackDemoInput", flags)!.GetValue(intro)!;
+        intro.SetupFirstIllustratedPage();
+        intro.SetupMotherBrainFlashback();
+        intro.StepMotherBrainDemo();
+        var live = intro.flashbackDemoInput;
         var nativeFirst = new DemoInputState();
         nativeFirst.Clear();
         nativeFirst.Enable();

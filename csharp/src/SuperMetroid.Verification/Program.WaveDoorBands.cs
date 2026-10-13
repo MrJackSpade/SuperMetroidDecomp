@@ -32,8 +32,7 @@ internal static class WaveDoorBandsVerification
                 behaviors[target - 16] = behaviors[target];
                 level = CreateRoom(new(16, 32), words, behaviors);
             }
-            typeof(ProjectileTerrainCollision).GetMethod("ScanHorizontalWaveShotReactions", BindingFlags.Static | BindingFlags.NonPublic)!
-                .Invoke(null, [level, shot, plms]);
+            ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, plms);
             AssertEqual(inside ? ((y & 15) == 0 && y > 0 ? 2 : 1) : 0, plms.SlotTable.ActiveCount,
                 $"Wave door reaction at Y={y}, left={left}: XBA tests the original high byte");
         }

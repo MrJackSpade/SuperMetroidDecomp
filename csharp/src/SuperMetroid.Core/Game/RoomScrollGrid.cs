@@ -16,7 +16,7 @@ public sealed class RoomScrollGrid
     /// <summary>Size in bytes of the fixed native room scroll-zone allocation.</summary>
     public const int StorageByteCount = 0x32;
 
-    private readonly byte[] _cells = new byte[StorageByteCount];
+    internal readonly byte[] _cells = new byte[StorageByteCount];
     private readonly ISnesMemoryBus _bus;
 
     private RoomScrollGrid(ISnesMemoryBus bus, Extent16<RoomScreens> size)

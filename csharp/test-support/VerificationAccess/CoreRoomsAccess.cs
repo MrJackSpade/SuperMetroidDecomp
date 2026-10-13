@@ -177,9 +177,9 @@ internal static class DownwardGatePlmProgramDefinitionsAccess
         {
             get
             {
-                for (int address = PrivateState.StaticField<ushort>(typeof(DownwardGatePlmProgramDefinitions), "OpenStart"); address < ResidentEnd; address++)
+                for (int address = DownwardGatePlmProgramDefinitions.OpenStart; address < ResidentEnd; address++)
                     if (DownwardGatePlmProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value)) yield return ((ushort)address, value);
-                for (int address = RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft; address < PrivateState.StaticField<ushort>(typeof(DownwardGatePlmProgramDefinitions), "TriggerEnd"); address += 2)
+                for (int address = RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft; address < DownwardGatePlmProgramDefinitions.TriggerEnd; address += 2)
                     if (DownwardGatePlmProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value)) yield return ((ushort)address, value);
             }
         }
@@ -188,8 +188,8 @@ internal static class DownwardGatePlmProgramDefinitionsAccess
         {
             get
             {
-                yield return (PrivateState.StaticField<ushort>(typeof(DownwardGatePlmProgramDefinitions), "ClosingSoundAddress"), DownwardGatePlmRomData.MovementSound);
-                yield return (PrivateState.StaticField<ushort>(typeof(DownwardGatePlmProgramDefinitions), "OpeningSoundAddress"), DownwardGatePlmRomData.MovementSound);
+                yield return (DownwardGatePlmProgramDefinitions.ClosingSoundAddress, DownwardGatePlmRomData.MovementSound);
+                yield return (DownwardGatePlmProgramDefinitions.OpeningSoundAddress, DownwardGatePlmRomData.MovementSound);
             }
         }
     }
@@ -292,15 +292,10 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitionsAccess
         internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
         {
             // Native order: background, regular, then boundary draw families.
-            foreach (string family in new[] { "TryGetBackground", "TryGetRegular", "TryGetBoundary" })
-            {
-                object?[] lookup = [pointer, null];
-                if ((bool)PrivateState.InvokeStaticWithOut(typeof(MotherBrainFakeDeathPlmDrawDefinitions), family, lookup)!)
-                {
-                    draw = (RoomPlmShotBlockDrawDefinitions.DrawList)lookup[1]!;
-                    return true;
-                }
-            }
+            if (MotherBrainFakeDeathPlmDrawDefinitions.TryGetBackground(pointer, out draw)
+                || MotherBrainFakeDeathPlmDrawDefinitions.TryGetRegular(pointer, out draw)
+                || MotherBrainFakeDeathPlmDrawDefinitions.TryGetBoundary(pointer, out draw))
+                return true;
             draw = default;
             return false;
         }
@@ -328,16 +323,16 @@ internal static class NoobTubePlmProgramDefinitionsAccess
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
             for (int offset = 0; offset <= 0x30; offset += 2)
-                yield return checked((ushort)(PrivateState.StaticField<ushort>(typeof(NoobTubePlmProgramDefinitions), "MainStart") + offset));
+                yield return checked((ushort)(NoobTubePlmProgramDefinitions.MainStart + offset));
             for (int offset = 0; offset <= 0x10; offset += 2)
-                yield return checked((ushort)(PrivateState.StaticField<ushort>(typeof(NoobTubePlmProgramDefinitions), "MainAfterSound") + offset));
-            yield return PrivateState.StaticField<ushort>(typeof(NoobTubePlmProgramDefinitions), "AlreadyBrokenStart");
-            yield return checked((ushort)(PrivateState.StaticField<ushort>(typeof(NoobTubePlmProgramDefinitions), "AlreadyBrokenStart") + 2));
+                yield return checked((ushort)(NoobTubePlmProgramDefinitions.MainAfterSound + offset));
+            yield return NoobTubePlmProgramDefinitions.AlreadyBrokenStart;
+            yield return checked((ushort)(NoobTubePlmProgramDefinitions.AlreadyBrokenStart + 2));
         }
 
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
-            yield return PrivateState.StaticField<ushort>(typeof(NoobTubePlmProgramDefinitions), "BreakSoundAddress");
+            yield return NoobTubePlmProgramDefinitions.BreakSoundAddress;
         }
     }
 }
@@ -416,27 +411,27 @@ internal static class RoomLevelDataAccess
             Ensure.NotNull(source);
             if (source.Size.X != self.Size.X || source.Size.Y != self.Size.Y ||
                 source.DoorListPointer != self.DoorListPointer ||
-                PrivateState.Field<byte[]>(source, "_blockDefinitions").Length != PrivateState.Field<byte[]>(self, "_blockDefinitions").Length ||
-                PrivateState.Field<ushort[]>(source, "_streamingForegroundAllocation").Length != PrivateState.Field<ushort[]>(self, "_streamingForegroundAllocation").Length ||
-                PrivateState.Field<ushort[]>(source, "_streamingBackgroundAllocation").Length != PrivateState.Field<ushort[]>(self, "_streamingBackgroundAllocation").Length ||
-                PrivateState.Field<ushort[]>(source, "_plmForegroundAllocation").Length != PrivateState.Field<ushort[]>(self, "_plmForegroundAllocation").Length ||
-                object.ReferenceEquals(PrivateState.Field<ushort[]>(source, "_visualStreamingForegroundAllocation"), PrivateState.Field<ushort[]>(source, "_streamingForegroundAllocation")) !=
-                    object.ReferenceEquals(PrivateState.Field<ushort[]>(self, "_visualStreamingForegroundAllocation"), PrivateState.Field<ushort[]>(self, "_streamingForegroundAllocation")) ||
-                object.ReferenceEquals(PrivateState.Field<ushort[]>(source, "_visualStreamingBackgroundAllocation"), PrivateState.Field<ushort[]>(source, "_streamingBackgroundAllocation")) !=
-                    object.ReferenceEquals(PrivateState.Field<ushort[]>(self, "_visualStreamingBackgroundAllocation"), PrivateState.Field<ushort[]>(self, "_streamingBackgroundAllocation")))
+                source._blockDefinitions.Length != self._blockDefinitions.Length ||
+                source._streamingForegroundAllocation.Length != self._streamingForegroundAllocation.Length ||
+                source._streamingBackgroundAllocation.Length != self._streamingBackgroundAllocation.Length ||
+                source._plmForegroundAllocation.Length != self._plmForegroundAllocation.Length ||
+                object.ReferenceEquals(source._visualStreamingForegroundAllocation, source._streamingForegroundAllocation) !=
+                    object.ReferenceEquals(self._visualStreamingForegroundAllocation, self._streamingForegroundAllocation) ||
+                object.ReferenceEquals(source._visualStreamingBackgroundAllocation, source._streamingBackgroundAllocation) !=
+                    object.ReferenceEquals(self._visualStreamingBackgroundAllocation, self._streamingBackgroundAllocation))
                 throw new ArgumentException("A level can only be restored from one with the same layout.", nameof(source));
-            PrivateState.Field<ushort[]>(source, "_foregroundEntries").CopyTo(PrivateState.Field<ushort[]>(self, "_foregroundEntries"), 0);
-            PrivateState.Field<byte[]>(source, "_behaviorBytes").CopyTo(PrivateState.Field<byte[]>(self, "_behaviorBytes"), 0);
-            PrivateState.Field<ushort[]>(source, "_backgroundEntries").CopyTo(PrivateState.Field<ushort[]>(self, "_backgroundEntries"), 0);
-            PrivateState.Field<byte[]>(source, "_blockDefinitions").CopyTo(PrivateState.Field<byte[]>(self, "_blockDefinitions"), 0);
-            PrivateState.Field<ushort[]>(source, "_streamingForegroundAllocation").CopyTo(PrivateState.Field<ushort[]>(self, "_streamingForegroundAllocation"), 0);
-            PrivateState.Field<ushort[]>(source, "_streamingBackgroundAllocation").CopyTo(PrivateState.Field<ushort[]>(self, "_streamingBackgroundAllocation"), 0);
-            PrivateState.Field<ushort[]>(source, "_visualStreamingForegroundAllocation").CopyTo(PrivateState.Field<ushort[]>(self, "_visualStreamingForegroundAllocation"), 0);
-            PrivateState.Field<ushort[]>(source, "_visualStreamingBackgroundAllocation").CopyTo(PrivateState.Field<ushort[]>(self, "_visualStreamingBackgroundAllocation"), 0);
-            PrivateState.Field<ushort[]>(source, "_plmForegroundAllocation").CopyTo(PrivateState.Field<ushort[]>(self, "_plmForegroundAllocation"), 0);
-            PrivateState.Field<byte[]>(source, "_plmBehaviorAllocation").CopyTo(PrivateState.Field<byte[]>(self, "_plmBehaviorAllocation"), 0);
-            PrivateState.SetProperty(self, "PendingDoorTransition", source.PendingDoorTransition);
-            PrivateState.SetProperty(self, "ElevatorDoorContactPending", source.ElevatorDoorContactPending);
+            source._foregroundEntries.CopyTo(self._foregroundEntries, 0);
+            source._behaviorBytes.CopyTo(self._behaviorBytes, 0);
+            source._backgroundEntries.CopyTo(self._backgroundEntries, 0);
+            source._blockDefinitions.CopyTo(self._blockDefinitions, 0);
+            source._streamingForegroundAllocation.CopyTo(self._streamingForegroundAllocation, 0);
+            source._streamingBackgroundAllocation.CopyTo(self._streamingBackgroundAllocation, 0);
+            source._visualStreamingForegroundAllocation.CopyTo(self._visualStreamingForegroundAllocation, 0);
+            source._visualStreamingBackgroundAllocation.CopyTo(self._visualStreamingBackgroundAllocation, 0);
+            source._plmForegroundAllocation.CopyTo(self._plmForegroundAllocation, 0);
+            source._plmBehaviorAllocation.CopyTo(self._plmBehaviorAllocation, 0);
+            self.PendingDoorTransition = source.PendingDoorTransition;
+            self.ElevatorDoorContactPending = source.ElevatorDoorContactPending;
         }
     }
 }
@@ -445,13 +440,12 @@ internal static class RoomLevelDataAccess
 internal static class RoomLevelStreamDefinitionsAccess
 {
     /// <summary>The lazily loaded installed stream set.</summary>
-    private static object InstalledStreams =>
-        PrivateState.Property<object>(PrivateState.StaticField<object>(typeof(RoomLevelStreamDefinitions), "Installed"), "Value");
+    private static RoomLevelStreamDefinitions.Corpus InstalledStreams => RoomLevelStreamDefinitions.Installed.Value;
 
     extension(RoomLevelStreamDefinitions)
     {
         /// <summary>Every distinct level-data source referenced by the compiled retail room states.</summary>
-        internal static int Count => PrivateState.Property<IReadOnlyDictionary<int, ReadOnlyMemory<byte>>>(InstalledStreams, "Streams").Count;
+        internal static int Count => InstalledStreams.Streams.Count;
 
         /// <summary>
         /// Source-cartridge provenance in the embedded corpus header (bytes 8..40), written at
@@ -461,7 +455,7 @@ internal static class RoomLevelStreamDefinitionsAccess
         {
             get
             {
-                string resource = PrivateState.StaticField<string>(typeof(RoomLevelStreamDefinitions), "ResourceName");
+                string resource = RoomLevelStreamDefinitions.ResourceName;
                 using Stream source = typeof(RoomLevelStreamDefinitions).Assembly.GetManifestResourceStream(resource)
                     ?? throw new InvalidDataException($"Missing compiled resource {resource}.");
                 byte[] header = new byte[40];
@@ -480,9 +474,9 @@ internal static class RoomLevelWordAccess
         /// <summary>Replaces only the parent-block visual transforms.</summary>
         internal RoomLevelWord WithVisualFlipFlags(LevelBlockFlipFlags visualFlipFlags)
         {
-            PrivateState.InvokeStatic(typeof(RoomLevelWord), "ValidateVisualFlipFlags", (LevelBlockFlipFlags)(visualFlipFlags));
+            RoomLevelWord.ValidateVisualFlipFlags((LevelBlockFlipFlags)(visualFlipFlags));
             return new RoomLevelWord(unchecked((ushort)(
-                (self.Raw & ~PrivateState.StaticField<ushort>(typeof(RoomLevelWord), "VisualFlipMask")) | (ushort)visualFlipFlags)));
+                (self.Raw & ~RoomLevelWord.VisualFlipMask) | (ushort)visualFlipFlags)));
         }
     }
 }
@@ -492,8 +486,8 @@ internal static class RoomPlmBlueDoorVisualCatalogAccess
 {
     extension(RoomPlmBlueDoorVisualCatalog)
     {
-        /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
-        internal static RoomPlmBlueDoorVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmBlueDoorVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmBlueDoorVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmBlueDoorVisuals();
     }
 }
 
@@ -504,29 +498,29 @@ internal static class RoomPlmBombBlockProgramDefinitionsAccess
     {
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
-            for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmBombBlockProgramDefinitions), "ProgramCount"); index++)
+            for (int index = 0; index < RoomPlmBombBlockProgramDefinitions.ProgramCount; index++)
             {
-                object program = ((object)(PrivateState.InvokeStatic(typeof(RoomPlmBombBlockProgramDefinitions), "ProgramAt", (int)(index)))!);
-                yield return PrivateState.Property<ushort>(program, "CollisionHead");
-                yield return checked((ushort)(PrivateState.Property<ushort>(program, "CollisionHead") + 3));
-                yield return checked((ushort)(PrivateState.Property<ushort>(program, "CollisionHead") + 5));
-                yield return PrivateState.Property<ushort>(program, "ReactionHead");
-                for (int frame = 0; frame < PrivateState.Property<int>(program, "FrameCount"); frame++)
-                    yield return checked((ushort)(PrivateState.Property<ushort>(program, "Tail") + 4 * frame));
-                yield return PrivateState.Property<ushort>(program, "Terminal");
-                if (PrivateState.Property<bool>(program, "Respawns"))
-                    yield return checked((ushort)(PrivateState.Property<ushort>(program, "Terminal") +
-                        (PrivateState.Property<bool>(program, "SingleBlock") ? 2 : 4)));
+                var program = RoomPlmBombBlockProgramDefinitions.ProgramAt((int)(index));
+                yield return program.CollisionHead;
+                yield return checked((ushort)(program.CollisionHead + 3));
+                yield return checked((ushort)(program.CollisionHead + 5));
+                yield return program.ReactionHead;
+                for (int frame = 0; frame < program.FrameCount; frame++)
+                    yield return checked((ushort)(program.Tail + 4 * frame));
+                yield return program.Terminal;
+                if (program.Respawns)
+                    yield return checked((ushort)(program.Terminal +
+                        (program.SingleBlock ? 2 : 4)));
             }
         }
 
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
-            for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmBombBlockProgramDefinitions), "ProgramCount"); index++)
+            for (int index = 0; index < RoomPlmBombBlockProgramDefinitions.ProgramCount; index++)
             {
-                object program = ((object)(PrivateState.InvokeStatic(typeof(RoomPlmBombBlockProgramDefinitions), "ProgramAt", (int)(index)))!);
-                yield return checked((ushort)(PrivateState.Property<ushort>(program, "CollisionHead") + 2));
-                yield return checked((ushort)(PrivateState.Property<ushort>(program, "ReactionHead") + 2));
+                var program = RoomPlmBombBlockProgramDefinitions.ProgramAt((int)(index));
+                yield return checked((ushort)(program.CollisionHead + 2));
+                yield return checked((ushort)(program.ReactionHead + 2));
             }
         }
     }
@@ -541,7 +535,7 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitionsAccess
         {
             if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(pointer, out RoomPlmBombBlockRestoreDrawDefinitions.Draw draw))
             {
-                list = ((RoomPlmShotBlockDrawDefinitions.DrawList)(PrivateState.InvokeStatic(typeof(RoomPlmBombBlockRestoreDrawDefinitions), "Export", (RoomPlmBombBlockRestoreDrawDefinitions.Draw)(draw)))!);
+                list = ((RoomPlmShotBlockDrawDefinitions.DrawList)(RoomPlmBombBlockRestoreDrawDefinitions.Export((RoomPlmBombBlockRestoreDrawDefinitions.Draw)(draw)))!);
                 return true;
             }
             list = default;
@@ -555,8 +549,8 @@ internal static class RoomPlmBombTorizoHandVisualCatalogAccess
 {
     extension(RoomPlmBombTorizoHandVisualCatalog)
     {
-        /// <summary>Calculate original appearances directly; store only customized frames.</summary>
-        internal static RoomPlmBombTorizoHandVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmBombTorizoHandVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmBombTorizoHandVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmBombTorizoHandVisuals();
     }
 }
 
@@ -565,9 +559,8 @@ internal static class RoomPlmBotwoonWallVisualCatalogAccess
 {
     extension(RoomPlmBotwoonWallVisualCatalog)
     {
-        /// <summary>The native stock appearance is the visual part of the calculated
-        /// nine-block air fill. Only custom artwork needs a stored payload.</summary>
-        internal static RoomPlmBotwoonWallVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmBotwoonWallVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmBotwoonWallVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmBotwoonWallVisuals();
     }
 }
 
@@ -576,8 +569,8 @@ internal static class RoomPlmChozoStatueVisualCatalogAccess
 {
     extension(RoomPlmChozoStatueVisualCatalog)
     {
-        /// <summary>Calculate original appearances directly; store only customized frames.</summary>
-        internal static RoomPlmChozoStatueVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmChozoStatueVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmChozoStatueVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmChozoStatueVisuals();
     }
 }
 
@@ -586,8 +579,8 @@ internal static class RoomPlmCollectibleVisualCatalogAccess
 {
     extension(RoomPlmCollectibleVisualCatalog)
     {
-        /// <summary>Calculate stock appearances directly; retain only customized frames.</summary>
-        internal static RoomPlmCollectibleVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmCollectibleVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmCollectibleVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmCollectibleVisuals();
     }
 }
 
@@ -596,8 +589,8 @@ internal static class RoomPlmColoredDoorVisualCatalogAccess
 {
     extension(RoomPlmColoredDoorVisualCatalog)
     {
-        /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
-        internal static RoomPlmColoredDoorVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmColoredDoorVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmColoredDoorVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmColoredDoorVisuals();
     }
 }
 
@@ -608,23 +601,23 @@ internal static class RoomPlmContactCrumbleProgramDefinitionsAccess
     {
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
-            for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmContactCrumbleProgramDefinitions), "ProgramCount"); index++)
+            for (int index = 0; index < RoomPlmContactCrumbleProgramDefinitions.ProgramCount; index++)
             {
-                object program = ((object)(PrivateState.InvokeStatic(typeof(RoomPlmContactCrumbleProgramDefinitions), "ProgramAt", (int)(index)))!);
-                yield return PrivateState.Property<ushort>(program, "Start");
-                for (int frame = 0; frame < PrivateState.Property<int>(program, "FrameCount"); frame++)
-                    yield return checked((ushort)(PrivateState.Property<ushort>(program, "Start") + 3 + 4 * frame));
-                yield return PrivateState.Property<ushort>(program, "Terminal");
-                if (PrivateState.Property<bool>(program, "Respawns"))
-                    yield return checked((ushort)(PrivateState.Property<ushort>(program, "Terminal") +
-                        (PrivateState.Property<int>(program, "Dimension") == 0 ? 2 : 4)));
+                var program = RoomPlmContactCrumbleProgramDefinitions.ProgramAt((int)(index));
+                yield return program.Start;
+                for (int frame = 0; frame < program.FrameCount; frame++)
+                    yield return checked((ushort)(program.Start + 3 + 4 * frame));
+                yield return program.Terminal;
+                if (program.Respawns)
+                    yield return checked((ushort)(program.Terminal +
+                        (program.Dimension == 0 ? 2 : 4)));
             }
         }
 
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
-            for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmContactCrumbleProgramDefinitions), "ProgramCount"); index++)
-                yield return checked((ushort)(PrivateState.Property<ushort>(((object)(PrivateState.InvokeStatic(typeof(RoomPlmContactCrumbleProgramDefinitions), "ProgramAt", (int)(index)))!), "Start") + 2));
+            for (int index = 0; index < RoomPlmContactCrumbleProgramDefinitions.ProgramCount; index++)
+                yield return checked((ushort)((RoomPlmContactCrumbleProgramDefinitions.ProgramAt((int)(index))).Start + 2));
         }
     }
 }
@@ -638,7 +631,7 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitionsAccess
         {
             if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(pointer, out RoomPlmContactCrumbleRestoreDrawDefinitions.Draw draw))
             {
-                list = ((RoomPlmShotBlockDrawDefinitions.DrawList)(PrivateState.InvokeStatic(typeof(RoomPlmContactCrumbleRestoreDrawDefinitions), "Export", (RoomPlmContactCrumbleRestoreDrawDefinitions.Draw)(draw)))!);
+                list = ((RoomPlmShotBlockDrawDefinitions.DrawList)(RoomPlmContactCrumbleRestoreDrawDefinitions.Export((RoomPlmContactCrumbleRestoreDrawDefinitions.Draw)(draw)))!);
                 return true;
             }
             list = default;
@@ -652,8 +645,8 @@ internal static class RoomPlmCrocomireVisualCatalogAccess
 {
     extension(RoomPlmCrocomireVisualCatalog)
     {
-        /// <summary>Calculate stock appearances from the draw geometry; retain only customized frames.</summary>
-        internal static RoomPlmCrocomireVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmCrocomireVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmCrocomireVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmCrocomireVisuals();
     }
 }
 
@@ -662,8 +655,8 @@ internal static class RoomPlmDownwardGateVisualCatalogAccess
 {
     extension(RoomPlmDownwardGateVisualCatalog)
     {
-        /// <summary>Calculate stock appearances from physical draws; store only customized frames.</summary>
-        internal static RoomPlmDownwardGateVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmDownwardGateVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmDownwardGateVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmDownwardGateVisuals();
     }
 }
 
@@ -672,8 +665,8 @@ internal static class RoomPlmDraygonCannonVisualCatalogAccess
 {
     extension(RoomPlmDraygonCannonVisualCatalog)
     {
-        /// <summary>Calculate original appearances directly; store only customized frames.</summary>
-        internal static RoomPlmDraygonCannonVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmDraygonCannonVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmDraygonCannonVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmDraygonCannonVisuals();
     }
 }
 
@@ -682,8 +675,8 @@ internal static class RoomPlmDynamicCollectibleArtCatalogAccess
 {
     extension(RoomPlmDynamicCollectibleArtCatalog)
     {
-        /// <summary>Resolve stock directly; retain only customized item artwork.</summary>
-        internal static RoomPlmDynamicCollectibleArtCatalog Stock() => PrivateState.Uninitialized<RoomPlmDynamicCollectibleArtCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmDynamicCollectibleArtCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmDynamicCollectibleArt();
     }
 }
 
@@ -692,8 +685,8 @@ internal static class RoomPlmElevatorPlatformVisualCatalogAccess
 {
     extension(RoomPlmElevatorPlatformVisualCatalog)
     {
-        /// <summary>Calculate stock appearances directly; retain only customized frames.</summary>
-        internal static RoomPlmElevatorPlatformVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmElevatorPlatformVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmElevatorPlatformVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmElevatorPlatformVisuals();
     }
 }
 
@@ -702,8 +695,8 @@ internal static class RoomPlmEscapeGateVisualCatalogAccess
 {
     extension(RoomPlmEscapeGateVisualCatalog)
     {
-        /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
-        internal static RoomPlmEscapeGateVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmEscapeGateVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmEscapeGateVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmEscapeGateVisuals();
     }
 }
 
@@ -712,8 +705,8 @@ internal static class RoomPlmEyeDoorVisualCatalogAccess
 {
     extension(RoomPlmEyeDoorVisualCatalog)
     {
-        /// <summary>Calculate stock visuals directly; retain only customized frames.</summary>
-        internal static RoomPlmEyeDoorVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmEyeDoorVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmEyeDoorVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmEyeDoorVisuals();
     }
 }
 
@@ -724,26 +717,26 @@ internal static class RoomPlmGrappleBlockProgramDefinitionsAccess
     {
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
-            for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmGrappleBlockProgramDefinitions), "ProgramCount"); index++)
+            for (int index = 0; index < RoomPlmGrappleBlockProgramDefinitions.ProgramCount; index++)
             {
-                object program = ((object)(PrivateState.InvokeStatic(typeof(RoomPlmGrappleBlockProgramDefinitions), "ProgramAt", (int)(index)))!);
-                yield return PrivateState.Property<ushort>(program, "Start");
-                yield return checked((ushort)(PrivateState.Property<ushort>(program, "Start") + 4));
-                for (int frame = 0; frame < PrivateState.Property<int>(program, "FrameCount"); frame++)
-                    yield return checked((ushort)(PrivateState.Property<ushort>(program, "Start") + 7 + 4 * frame));
-                yield return PrivateState.Property<ushort>(program, "TerminalAddress");
-                if (PrivateState.Property<bool>(program, "Respawns"))
+                var program = RoomPlmGrappleBlockProgramDefinitions.ProgramAt((int)(index));
+                yield return program.Start;
+                yield return checked((ushort)(program.Start + 4));
+                for (int frame = 0; frame < program.FrameCount; frame++)
+                    yield return checked((ushort)(program.Start + 7 + 4 * frame));
+                yield return program.TerminalAddress;
+                if (program.Respawns)
                 {
-                    yield return checked((ushort)(PrivateState.Property<ushort>(program, "TerminalAddress") + 2));
-                    yield return checked((ushort)(PrivateState.Property<ushort>(program, "TerminalAddress") + 4));
+                    yield return checked((ushort)(program.TerminalAddress + 2));
+                    yield return checked((ushort)(program.TerminalAddress + 4));
                 }
             }
         }
 
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
-            for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmGrappleBlockProgramDefinitions), "ProgramCount"); index++)
-                yield return checked((ushort)(PrivateState.Property<ushort>(((object)(PrivateState.InvokeStatic(typeof(RoomPlmGrappleBlockProgramDefinitions), "ProgramAt", (int)(index)))!), "Start") + 6));
+            for (int index = 0; index < RoomPlmGrappleBlockProgramDefinitions.ProgramCount; index++)
+                yield return checked((ushort)((RoomPlmGrappleBlockProgramDefinitions.ProgramAt((int)(index))).Start + 6));
         }
     }
 }
@@ -753,8 +746,8 @@ internal static class RoomPlmGrappleBlockVisualCatalogAccess
 {
     extension(RoomPlmGrappleBlockVisualCatalog)
     {
-        /// <summary>Stock visuals use the calculated draw word without storing derived entries.</summary>
-        internal static RoomPlmGrappleBlockVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmGrappleBlockVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmGrappleBlockVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmGrappleBlockVisuals();
     }
 }
 
@@ -763,8 +756,8 @@ internal static class RoomPlmGreyDoorVisualCatalogAccess
 {
     extension(RoomPlmGreyDoorVisualCatalog)
     {
-        /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
-        internal static RoomPlmGreyDoorVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmGreyDoorVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmGreyDoorVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmGreyDoorVisuals();
     }
 }
 
@@ -788,8 +781,8 @@ internal static class RoomPlmLinkedRestoreVisualCatalogAccess
 {
     extension(RoomPlmLinkedRestoreVisualCatalog)
     {
-        /// <summary>Stock words are calculated from the physical draw's visual portion.</summary>
-        internal static RoomPlmLinkedRestoreVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmLinkedRestoreVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmLinkedRestoreVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmLinkedRestoreVisuals();
     }
 }
 
@@ -810,8 +803,8 @@ internal static class RoomPlmMotherBrainFakeDeathVisualCatalogAccess
 {
     extension(RoomPlmMotherBrainFakeDeathVisualCatalog)
     {
-        /// <summary>Project stock appearance from physical cells without a duplicate stock cache.</summary>
-        internal static RoomPlmMotherBrainFakeDeathVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmMotherBrainFakeDeathVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmMotherBrainFakeDeathVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmMotherBrainFakeDeathVisuals();
     }
 }
 
@@ -820,8 +813,8 @@ internal static class RoomPlmMotherBrainGlassVisualCatalogAccess
 {
     extension(RoomPlmMotherBrainGlassVisualCatalog)
     {
-        /// <summary>Calculate original appearances directly; store only customized frames.</summary>
-        internal static RoomPlmMotherBrainGlassVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmMotherBrainGlassVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmMotherBrainGlassVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmMotherBrainGlassVisuals();
     }
 }
 
@@ -830,8 +823,8 @@ internal static class RoomPlmNoobTubeVisualCatalogAccess
 {
     extension(RoomPlmNoobTubeVisualCatalog)
     {
-        /// <summary>Calculate original appearances directly; store only customized frames.</summary>
-        internal static RoomPlmNoobTubeVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmNoobTubeVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmNoobTubeVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmNoobTubeVisuals();
     }
 }
 
@@ -857,8 +850,8 @@ internal static class RoomPlmSamusEaterVisualCatalogAccess
 {
     extension(RoomPlmSamusEaterVisualCatalog)
     {
-        /// <summary>Stock appearance is calculated from the physical draw's visual bits without a cache.</summary>
-        internal static RoomPlmSamusEaterVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmSamusEaterVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmSamusEaterVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmSamusEaterVisuals();
     }
 }
 
@@ -895,21 +888,21 @@ internal static class RoomPlmShotBlockProgramDefinitionsAccess
         /// <summary>All authored control-word addresses, excluding draw-list operands.</summary>
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
-            foreach (object program in PrivateState.StaticField<Array>(typeof(RoomPlmShotBlockProgramDefinitions), "Programs"))
+            foreach (var program in RoomPlmShotBlockProgramDefinitions.Programs)
             {
-                yield return PrivateState.Property<ushort>(program, "Start");
-                for (int frame = 0; frame < PrivateState.Property<int>(program, "FrameCount"); frame++)
-                    yield return checked((ushort)(PrivateState.Property<ushort>(program, "Start") + 3 + 4 * frame));
-                yield return PrivateState.Property<ushort>(program, "TerminalAddress");
-                if (PrivateState.Property<bool>(program, "RestoresLevelWord"))
-                    yield return checked((ushort)(PrivateState.Property<ushort>(program, "TerminalAddress") + 2));
+                yield return program.Start;
+                for (int frame = 0; frame < program.FrameCount; frame++)
+                    yield return checked((ushort)(program.Start + 3 + 4 * frame));
+                yield return program.TerminalAddress;
+                if (program.RestoresLevelWord)
+                    yield return checked((ushort)(program.TerminalAddress + 2));
             }
         }
 
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
-            foreach (object program in PrivateState.StaticField<Array>(typeof(RoomPlmShotBlockProgramDefinitions), "Programs"))
-                yield return checked((ushort)(PrivateState.Property<ushort>(program, "Start") + 2));
+            foreach (var program in RoomPlmShotBlockProgramDefinitions.Programs)
+                yield return checked((ushort)(program.Start + 2));
         }
     }
 }
@@ -919,8 +912,8 @@ internal static class RoomPlmShotBlockVisualCatalogAccess
 {
     extension(RoomPlmShotBlockVisualCatalog)
     {
-        /// <summary>Native visual selections, useful when no installed override is present.</summary>
-        internal static RoomPlmShotBlockVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmShotBlockVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmShotBlockVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmShotBlockVisuals();
     }
 }
 
@@ -942,8 +935,8 @@ internal static class RoomPlmSporeSpawnCeilingVisualCatalogAccess
 {
     extension(RoomPlmSporeSpawnCeilingVisualCatalog)
     {
-        /// <summary>Calculate each stock square from its physical draw word; retain only custom artwork.</summary>
-        internal static RoomPlmSporeSpawnCeilingVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmSporeSpawnCeilingVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmSporeSpawnCeilingVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmSporeSpawnCeilingVisuals();
     }
 }
 
@@ -952,8 +945,8 @@ internal static class RoomPlmStationVisualCatalogAccess
 {
     extension(RoomPlmStationVisualCatalog)
     {
-        /// <summary>Calculate stock appearances directly; retain only customized frames.</summary>
-        internal static RoomPlmStationVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmStationVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmStationVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmStationVisuals();
     }
 }
 
@@ -1008,24 +1001,24 @@ internal static class RoomPlmSystemAccess
         /// <summary>Every resident colored-door actor in the shared native PLM pool.</summary>
         internal IReadOnlyList<ColoredDoorPlmSnapshot> ColoredDoors =>
         [
-            .. ActiveSlots(self).Select(slot => (slot, door: PrivateState.Property<ColoredDoorPlmState?>(slot, "ColoredDoor")))
+            .. ActiveSlots(self).Select(slot => (slot, door: slot.ColoredDoor))
                 .Where(entry => entry.door is not null)
                 .Select(entry => new ColoredDoorPlmSnapshot(
-                    PrivateState.Property<PlmHeaderId>(entry.slot, "HeaderPointer"),
-                    PrivateState.Property<int>(entry.slot, "BlockIndex"),
-                    PrivateState.Property<ushort>(entry.slot, "RoomArgument"),
+                    entry.slot.HeaderPointer,
+                    entry.slot.BlockIndex,
+                    entry.slot.RoomArgument,
                     entry.door!.Color, entry.door.Orientation, entry.door.Phase, entry.door.HitCounter)),
         ];
 
         /// <summary>Debugger-stable views of every resident grey-door PLM.</summary>
         internal IReadOnlyList<GreyDoorPlmSnapshot> GreyDoorSnapshots =>
         [
-            .. ActiveSlots(self).Select(slot => (slot, door: PrivateState.Property<GreyDoorPlmState?>(slot, "GreyDoor")))
+            .. ActiveSlots(self).Select(slot => (slot, door: slot.GreyDoor))
                 .Where(entry => entry.door is not null)
                 .Select(entry => new GreyDoorPlmSnapshot(
-                    PrivateState.Property<PlmHeaderId>(entry.slot, "HeaderPointer"),
-                    PrivateState.Property<int>(entry.slot, "BlockIndex"),
-                    PrivateState.Property<ushort>(entry.slot, "RoomArgument"),
+                    entry.slot.HeaderPointer,
+                    entry.slot.BlockIndex,
+                    entry.slot.RoomArgument,
                     entry.door!.Orientation, entry.door.Condition, entry.door.Phase,
                     entry.door.InitialList, entry.door.FlashList, entry.door.OpeningList)),
         ];
@@ -1033,16 +1026,16 @@ internal static class RoomPlmSystemAccess
         /// <summary>Debugger-visible projections of every live eye-door component.</summary>
         internal IReadOnlyList<EyeDoorPlmSnapshot> EyeDoorSnapshots =>
         [
-            .. ActiveSlots(self).Select(slot => (slot, door: PrivateState.Property<object?>(slot, "EyeDoor")))
+            .. ActiveSlots(self).Select(slot => (slot, door: slot.EyeDoor))
                 .Where(entry => entry.door is not null)
                 .Select(entry => new EyeDoorPlmSnapshot(
-                    PrivateState.Property<PlmHeaderId>(entry.slot, "HeaderPointer"),
-                    PrivateState.Property<int>(entry.slot, "BlockIndex"),
-                    PrivateState.Property<ushort>(entry.slot, "RoomArgument"),
-                    PrivateState.Property<EyeDoorComponent>(entry.door!, "Component"),
-                    PrivateState.Property<byte>(entry.door!, "HitCounter"),
-                    PrivateState.Property<ushort>(entry.slot, "InstructionPointer"),
-                    PrivateState.Property<ushort>(entry.slot, "PreInstruction"))),
+                    entry.slot.HeaderPointer,
+                    entry.slot.BlockIndex,
+                    entry.slot.RoomArgument,
+                    (entry.door!).Component,
+                    (entry.door!).HitCounter,
+                    entry.slot.InstructionPointer,
+                    entry.slot.PreInstruction)),
         ];
 
         /// <summary>
@@ -1054,10 +1047,10 @@ internal static class RoomPlmSystemAccess
             if (self.TryNotifyEyeDoorHit(blockIndex, projectileType))
                 return true;
 
-            foreach (object slot in ActiveSlots(self))
+            foreach (var slot in ActiveSlots(self))
             {
-                if (PrivateState.Property<int>(slot, "BlockIndex") != blockIndex ||
-                    PrivateState.Property<ColoredDoorPlmState?>(slot, "ColoredDoor") is not { } door)
+                if (slot.BlockIndex != blockIndex ||
+                    slot.ColoredDoor is not { } door)
                     continue;
 
                 // Once the threshold branch has selected the opening list, native clears the
@@ -1077,10 +1070,10 @@ internal static class RoomPlmSystemAccess
         /// <summary>Publishes the native projectile word to a resident grey-door actor.</summary>
         internal bool TryNotifyGreyDoorHit(int blockIndex, SamusProjectileTypeWord projectileType)
         {
-            foreach (object slot in ActiveSlots(self))
+            foreach (var slot in ActiveSlots(self))
             {
-                if (PrivateState.Property<int>(slot, "BlockIndex") != blockIndex ||
-                    PrivateState.Property<GreyDoorPlmState?>(slot, "GreyDoor") is not { } door)
+                if (slot.BlockIndex != blockIndex ||
+                    slot.GreyDoor is not { } door)
                     continue;
 
                 // Once the one-hit instruction selects the opening stream, native clears the
@@ -1096,16 +1089,16 @@ internal static class RoomPlmSystemAccess
         }
 
         /// <summary>Whether the cartridge's room population installed PLM <c>$D6DE</c>.</summary>
-        internal bool MotherBrainGlassWasLoaded => PrivateState.Field<bool>(self.MotherBrainGlass, "_motherBrainGlassWasLoaded");
+        internal bool MotherBrainGlassWasLoaded => self.MotherBrainGlass._motherBrainGlassWasLoaded;
 
         /// <summary>Current native room argument, retained after the header deletes itself.</summary>
         internal ushort MotherBrainGlassRoomArgument => MotherBrainGlassSlot(self) is { } slot
-            ? PrivateState.Property<ushort>(slot, "RoomArgument")
-            : PrivateState.Field<ushort>(self.MotherBrainGlass, "_motherBrainGlassLastRoomArgument");
+            ? slot.RoomArgument
+            : self.MotherBrainGlass._motherBrainGlassLastRoomArgument;
 
         /// <summary>Current bank-$84 instruction pointer, or zero after deletion.</summary>
         internal ushort MotherBrainGlassInstructionPointer => MotherBrainGlassSlot(self) is { } slot
-            ? PrivateState.Property<ushort>(slot, "InstructionPointer")
+            ? slot.InstructionPointer
             : (ushort)0;
 
         /// <summary>
@@ -1136,13 +1129,10 @@ internal static class RoomPlmSystemAccess
         internal void DrawSolePlmFrameForVerification(ISnesAddressSpace bus, RoomLevelData level,
             BackgroundTilemapStreamer streamer, ushort drawPointer)
         {
-            object[] active = [.. ActiveSlots(self)];
+            PlmSlot[] active = [.. ActiveSlots(self)];
             if (active.Length != 1)
                 throw new InvalidOperationException("Draw probe requires exactly one active PLM slot.");
-            PrivateState.Invoke(self.Drawing, "DrawPlmInstruction", bus, level, streamer,
-                PrivateState.Property<PlmHeaderId>(active[0], "HeaderPointer"),
-                PrivateState.Property<int>(active[0], "BlockIndex"),
-                drawPointer, default(PlmView));
+            self.Drawing.DrawPlmInstruction(bus, level, streamer, active[0].HeaderPointer, active[0].BlockIndex, drawPointer, default(PlmView));
         }
 
         /// <summary>
@@ -1154,17 +1144,17 @@ internal static class RoomPlmSystemAccess
         /// </summary>
         internal void SetSoleInstructionPointerForVerification(ushort instructionPointer)
         {
-            object[] active = self.SlotTable._slots.Where(slot => PrivateState.Property<bool>(slot, "Active")).ToArray();
+            PlmSlot[] active = [.. self.SlotTable._slots.Where(slot => slot.Active)];
             if (active.Length != 1)
                 throw new InvalidOperationException(
                     "Instruction probe requires exactly one active PLM slot.");
-            PrivateState.SetProperty(active[0], "InstructionPointer", instructionPointer);
-            PrivateState.SetProperty(active[0], "InstructionTimer", 1);
+            active[0].InstructionPointer = instructionPointer;
+            active[0].InstructionTimer = 1;
         }
 
         /// <summary>Current PLM instruction countdown, or zero after deletion.</summary>
         internal ushort MotherBrainGlassInstructionTimer => MotherBrainGlassSlot(self) is { } slot
-            ? PrivateState.Property<ushort>(slot, "InstructionTimer")
+            ? slot.InstructionTimer
             : (ushort)0;
 
         /// <summary>
@@ -1175,19 +1165,19 @@ internal static class RoomPlmSystemAccess
             int blockIndex,
             SamusProjectileTypeWord projectileType)
         {
-            foreach (object slot in self.SlotTable._slots)
+            foreach (var slot in self.SlotTable._slots)
             {
-                if (!PrivateState.Property<bool>(slot, "Active") || PrivateState.Property<int>(slot, "BlockIndex") != blockIndex ||
-                    PrivateState.Property<object?>(slot, "EyeDoor") is not { } door ||
-                    PrivateState.Property<EyeDoorComponent>(door, "Component") != EyeDoorComponent.Eye)
+                if (!slot.Active || slot.BlockIndex != blockIndex ||
+                    slot.EyeDoor is not { } door ||
+                    door.Component != EyeDoorComponent.Eye)
                 {
                     continue;
                 }
 
                 // PLM_Timers is a single pending word. A later collision before the handler
                 // pass replaces it rather than accumulating a host-side queue.
-                PrivateState.SetProperty(slot, "LoopTimer", projectileType.Raw);
-                PrivateState.SetProperty(door, "HasPendingHit", true);
+                slot.LoopTimer = projectileType.Raw;
+                door.HasPendingHit = true;
                 return true;
             }
             return false;
@@ -1195,7 +1185,7 @@ internal static class RoomPlmSystemAccess
 
         /// <summary>Every live elevator-platform PLM in native physical-slot order.</summary>
         internal IReadOnlyList<RoomPlmSlotSnapshot> ElevatorPlatforms => self.PopulationSlots
-            .Where(snapshot => PrivateState.Property<bool>(self.SlotTable._slots[snapshot.NativeSlotIndex], "IsElevatorPlatform"))
+            .Where(snapshot => self.SlotTable._slots[snapshot.NativeSlotIndex].IsElevatorPlatform)
             .ToArray();
 
         /// <summary>Physical-slot views in cartridge handler order, highest ID first.</summary>
@@ -1206,24 +1196,24 @@ internal static class RoomPlmSystemAccess
                 var snapshots = new RoomPlmSlotSnapshot[self.SlotTable.ActiveCount];
                 int next = 0;
                 for (int index = self.SlotTable._slots.Length - 1; index >= 0; index--)
-                    if (PrivateState.Property<bool>(self.SlotTable._slots[index], "Active")) snapshots[next++] = self.Snapshot(index);
+                    if (self.SlotTable._slots[index].Active) snapshots[next++] = self.Snapshot(index);
                 return snapshots;
             }
         }
 
         internal RoomPlmSlotSnapshot Snapshot(int index)
         {
-            object slot = self.SlotTable._slots[index];
+            PlmSlot slot = self.SlotTable._slots[index];
             return new RoomPlmSlotSnapshot(
                 NativeSlotIndex: index,
-                HeaderPointer: PrivateState.Property<PlmHeaderId>(slot, "HeaderPointer"),
-                BlockIndex: PrivateState.Property<int>(slot, "BlockIndex"),
-                RoomArgument: PrivateState.Property<ushort>(slot, "RoomArgument"),
-                InstructionPointer: PrivateState.Property<ushort>(slot, "InstructionPointer"),
-                PreInstruction: PrivateState.Property<ushort>(slot, "PreInstruction"),
-                InstructionTimer: PrivateState.Property<ushort>(slot, "InstructionTimer"),
-                LinkInstruction: PrivateState.Property<ushort>(slot, "LinkInstruction"),
-                LoopTimer: PrivateState.Property<ushort>(slot, "LoopTimer"));
+                HeaderPointer: slot.HeaderPointer,
+                BlockIndex: slot.BlockIndex,
+                RoomArgument: slot.RoomArgument,
+                InstructionPointer: slot.InstructionPointer,
+                PreInstruction: slot.PreInstruction,
+                InstructionTimer: slot.InstructionTimer,
+                LinkInstruction: slot.LinkInstruction,
+                LoopTimer: slot.LoopTimer);
         }
 
         /// <summary>Visible BG1 mutations emitted during the most recent handler pass.</summary>
@@ -1238,7 +1228,7 @@ internal static class RoomPlmSystemAccess
 
         /// <summary>Typed BTS overload used by room collision dispatch.</summary>
         internal bool TryNotifyStationTouch(int accessBlockIndex, RoomBlockBehavior behavior)
-            => (bool)PrivateState.Invoke(self.Stations, "TryNotifyStationCollision", accessBlockIndex, behavior, (SamusPoseId)byte.MaxValue, true, true, 0, true)!;
+            => self.Stations.TryNotifyStationCollision(accessBlockIndex, behavior, (SamusPoseId)byte.MaxValue, true, true, 0, true);
 
         /// <summary>
         /// Runs setup <c>$84:CFB5</c> for BTS one or two and installs the corresponding PLM.
@@ -1362,21 +1352,21 @@ internal static class RoomPlmSystemAccess
             for (int slotIndex = self.SlotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
             {
                 PlmSlot slot = self.SlotTable._slots[slotIndex];
-                if (PrivateState.Property<bool>(slot, "Active"))
+                if (slot.Active)
                     continue;
 
                 RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
                 PlmPopulationLoader.ClearSlot(slot);
-                PrivateState.SetProperty(slot, "Active", true);
-                PrivateState.SetProperty(slot, "BlockIndex", blockIndex);
-                PrivateState.SetProperty(slot, "InstructionTimer", 1);
-                PrivateState.SetProperty(slot, "RestoreLevelWord", 0);
+                slot.Active = true;
+                slot.BlockIndex = blockIndex;
+                slot.InstructionTimer = 1;
+                slot.RestoreLevelWord = 0;
 
                 if (areaDependent)
                 {
                     // `$94:9E8D-$9E9E` indexes the current area's eight-entry table before
                     // Spawn_PLM. Every retail entry at `$94:9F46-$9FC4` is PLMEntries_nothing.
-                    PrivateState.SetProperty(slot, "InstructionPointer", RoomPlmInstructionLists.Delete);
+                    slot.InstructionPointer = RoomPlmInstructionLists.Delete;
                     return true;
                 }
 
@@ -1385,11 +1375,11 @@ internal static class RoomPlmSystemAccess
                     // CE6B throws away the original visual/BTS low twelve bits. The generated
                     // `$x052` word is both PLM_Vars and the source of the temporary collision
                     // word, exactly like the retail setup's two consecutive stores.
-                    PrivateState.SetProperty(slot, "RestoreLevelWord", unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052)));
-                    PrivateState.SetProperty(slot, "InstructionPointer", RoomPlmInstructionLists.RespawningShotBySize(bts.NormalReactionIndex));
+                    slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
+                    slot.InstructionPointer = RoomPlmInstructionLists.RespawningShotBySize(bts.NormalReactionIndex);
                     level.SetForegroundEntry(
                         blockIndex,
-                        unchecked((ushort)(PrivateState.Property<ushort>(slot, "RestoreLevelWord") & 0x8fff)));
+                        unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
                     return true;
                 }
 
@@ -1398,7 +1388,7 @@ internal static class RoomPlmSystemAccess
                     // Setup_DeactivatePLM does not synthesize a restore word. Clearing bits
                     // `$7000` turns type-$4 air into ordinary air and type-$C solid into type-$8
                     // solid until the same-frame list draws its first breaking frame.
-                    PrivateState.SetProperty(slot, "InstructionPointer", RoomPlmInstructionLists.PermanentShotBySize(bts.NormalReactionIndex - 4));
+                    slot.InstructionPointer = RoomPlmInstructionLists.PermanentShotBySize(bts.NormalReactionIndex - 4);
                     level.SetForegroundEntry(
                         blockIndex,
                         unchecked((ushort)(block.LevelWord & 0x8fff)));
@@ -1409,7 +1399,7 @@ internal static class RoomPlmSystemAccess
                 {
                     // CF2E sees projectile family `$0500` and replaces the entry's normal
                     // power-bomb animation pointer with the one-frame visible `$C057` reveal.
-                    PrivateState.SetProperty(slot, "InstructionPointer", RoomPlmInstructionLists.BombedPowerBombBlockUnused);
+                    slot.InstructionPointer = RoomPlmInstructionLists.BombedPowerBombBlockUnused;
                     return true;
                 }
 
@@ -1417,11 +1407,11 @@ internal static class RoomPlmSystemAccess
                 {
                     // CF67 performs the analogous redirect to visible super-missile word
                     // `$C09F`; it neither clears collision nor queues the shot-block sound.
-                    PrivateState.SetProperty(slot, "InstructionPointer", RoomPlmInstructionLists.BombedSuperMissileBlockUnused);
+                    slot.InstructionPointer = RoomPlmInstructionLists.BombedSuperMissileBlockUnused;
                     return true;
                 }
 
-                PrivateState.SetProperty(slot, "InstructionPointer", RoomPlmInstructionLists.Delete);
+                slot.InstructionPointer = RoomPlmInstructionLists.Delete;
                 return true;
             }
 
@@ -1506,15 +1496,12 @@ internal static class RoomPlmSystemAccess
             => self.Step(bus, level, streamer, view, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
     }
 
-    private static IEnumerable<object> ActiveSlots(RoomPlmSystem plms) =>
-        plms.SlotTable._slots.Where(slot => PrivateState.Property<bool>(slot, "Active"));
+    private static IEnumerable<PlmSlot> ActiveSlots(RoomPlmSystem plms) =>
+        plms.SlotTable._slots.Where(slot => slot.Active);
 
     /// <summary>The live Mother Brain glass PLM slot, as the system's own slot search finds it.</summary>
-    private static object? MotherBrainGlassSlot(RoomPlmSystem plms)
-    {
-        object?[] arguments = [null];
-        return (bool)PrivateState.InvokeWithOut(plms.MotherBrainGlass, "TryGetMotherBrainGlassSlot", arguments)! ? arguments[0] : null;
-    }
+    private static PlmSlot? MotherBrainGlassSlot(RoomPlmSystem plms) =>
+        plms.MotherBrainGlass.TryGetMotherBrainGlassSlot(out PlmSlot? slot) ? slot : null;
 }
 
 /// <summary>Verification access to <see cref="RoomPlmTourianAccessVisualCatalog"/> members production does not use.</summary>
@@ -1522,8 +1509,8 @@ internal static class RoomPlmTourianAccessVisualCatalogAccess
 {
     extension(RoomPlmTourianAccessVisualCatalog)
     {
-        /// <summary>Calculate stock row appearance from physical draw words; retain only custom artwork.</summary>
-        internal static RoomPlmTourianAccessVisualCatalog Stock() => PrivateState.Uninitialized<RoomPlmTourianAccessVisualCatalog>();
+        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        internal static RoomPlmTourianAccessVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomPlmTourianAccessVisuals();
     }
 }
 
@@ -1535,7 +1522,7 @@ internal static class RoomVisualLayoutCatalogAccess
         /// <summary>Explicitly partial geometry fixtures; never an installed production catalog.</summary>
         internal static RoomVisualLayoutCatalog FromLayoutsForVerification(
             IReadOnlyDictionary<int, RoomVisualLayout> layouts) =>
-            ((RoomVisualLayoutCatalog)PrivateState.Construct(typeof(RoomVisualLayoutCatalog), (IReadOnlyDictionary<int, RoomVisualLayout>)(layouts), (bool)(false)));
+            new RoomVisualLayoutCatalog(layouts, false);
     }
 }
 
@@ -1568,25 +1555,25 @@ internal static class SpeedBoosterBlockPlmProgramDefinitionsAccess
             yield return SpeedBoosterBlockPlmProgramDefinitions.BombReveal;
             yield return checked((ushort)(SpeedBoosterBlockPlmProgramDefinitions.BombReveal + 2));
             yield return checked((ushort)(SpeedBoosterBlockPlmProgramDefinitions.BombReveal + 4));
-            for (int index = 0; index < PrivateState.StaticField<int>(typeof(SpeedBoosterBlockPlmProgramDefinitions), "ProgramCount"); index++)
+            for (int index = 0; index < SpeedBoosterBlockPlmProgramDefinitions.ProgramCount; index++)
             {
-                object program = ((object)(PrivateState.InvokeStatic(typeof(SpeedBoosterBlockPlmProgramDefinitions), "ProgramAt", (int)(index)))!);
-                yield return PrivateState.Property<ushort>(program, "Start");
-                for (int frame = 0; frame < PrivateState.Property<int>(program, "FrameCount"); frame++)
+                var program = SpeedBoosterBlockPlmProgramDefinitions.ProgramAt((int)(index));
+                yield return program.Start;
+                for (int frame = 0; frame < program.FrameCount; frame++)
                 {
-                    yield return checked((ushort)(PrivateState.Property<ushort>(program, "Start") + 3 + frame * 4));
-                    yield return checked((ushort)(PrivateState.Property<ushort>(program, "Start") + 5 + frame * 4));
+                    yield return checked((ushort)(program.Start + 3 + frame * 4));
+                    yield return checked((ushort)(program.Start + 5 + frame * 4));
                 }
-                yield return PrivateState.Property<ushort>(program, "Terminal");
-                if (PrivateState.Property<bool>(program, "Respawns"))
-                    yield return checked((ushort)(PrivateState.Property<ushort>(program, "Terminal") + 2));
+                yield return program.Terminal;
+                if (program.Respawns)
+                    yield return checked((ushort)(program.Terminal + 2));
             }
         }
 
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
-            for (int index = 0; index < PrivateState.StaticField<int>(typeof(SpeedBoosterBlockPlmProgramDefinitions), "ProgramCount"); index++)
-                yield return checked((ushort)(PrivateState.Property<ushort>(((object)(PrivateState.InvokeStatic(typeof(SpeedBoosterBlockPlmProgramDefinitions), "ProgramAt", (int)(index)))!), "Start") + 2));
+            for (int index = 0; index < SpeedBoosterBlockPlmProgramDefinitions.ProgramCount; index++)
+                yield return checked((ushort)((SpeedBoosterBlockPlmProgramDefinitions.ProgramAt((int)(index))).Start + 2));
         }
     }
 }
@@ -1684,7 +1671,7 @@ internal static class XrayOverlayVisualCatalogAccess
         /// <summary>Explicitly partial room overlays for focused fixtures; never an installed catalog.</summary>
         internal static XrayOverlayVisualCatalog FromOverlaysForVerification(IEnumerable<ushort> itemMetatiles,
             IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms) =>
-            ((XrayOverlayVisualCatalog)PrivateState.Construct(typeof(XrayOverlayVisualCatalog), (IEnumerable<ushort>)(itemMetatiles), (IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)>)(rooms), (bool)(false)));
+            new XrayOverlayVisualCatalog(itemMetatiles, rooms, false);
     }
 }
 

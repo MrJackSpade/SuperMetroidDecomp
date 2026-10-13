@@ -22,7 +22,7 @@ internal static class LookupDachoraColorsVerification
 
         byte[] source = DachoraColorExtractor.Extract(rom);
         var stock = DachoraColorCatalog.Load(new MemoryStream(source));
-        AssertEqual(0, Stored(stock, "speedEdits") + Stored(stock, "shineEdits"),
+        AssertEqual(0, stock.speedEdits.Count + stock.shineEdits.Count,
             "Stock Dachora speed and shine frames store no colors beyond the calculation");
         Check(stock, normal, speed, shine);
 
@@ -39,7 +39,7 @@ internal static class LookupDachoraColorsVerification
             ushort[][] expectedShine = shine.Select(values => (ushort[])values.Clone()).ToArray();
             (phase == DachoraPalettePhase.Speed ? expectedSpeed : expectedShine)[frame][color] ^= 1;
             Check(edited, normal, expectedSpeed, expectedShine);
-            AssertEqual(1, Stored(edited, "speedEdits") + Stored(edited, "shineEdits"),
+            AssertEqual(1, edited.speedEdits.Count + edited.shineEdits.Count,
                 $"Dachora {phase} frame {frame} color {color} edit stores only that cell");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraPalettePhase.Speed, 4, 0), "Speed frame bound");
@@ -47,9 +47,6 @@ internal static class LookupDachoraColorsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraPalettePhase.Shine, 0, 16), "Color bound");
         Console.WriteLine("Dachora colors: all 144 native words, 128 calculated speed/shine colors with no stored stock values, and all 128 single-cell edits pass.");
 
-        static int Stored(DachoraColorCatalog catalog, string field) =>
-            ((System.Collections.IDictionary)typeof(DachoraColorCatalog)
-                .GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(catalog)!).Count;
         static void Check(DachoraColorCatalog catalog, ushort[] normal, ushort[][] speed, ushort[][] shine)
         {
             for (int color = 0; color < 16; color++)

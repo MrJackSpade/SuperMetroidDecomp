@@ -73,7 +73,7 @@ internal static class MapArrowDurationsVerification
     private static void VerifyMapArrowDurationTicks(ISnesAddressSpace rom, MapArrowPresentation presentation)
     {
         var actual = new FileSelectMapAnimations(NewForbiddenMapBus(), presentation);
-        Array arrows = (Array)typeof(FileSelectMapAnimations).GetField("arrows", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(actual)!;
+        var arrows = actual.arrows;
         int offset = 0, timer = 0;
         for (int tick = 0; tick < 90; tick++)
         {
@@ -85,10 +85,10 @@ internal static class MapArrowDurationsVerification
                 timer = rom.ReadCartridgeByte(0x82c137 + offset);
             }
             actual.StepArrows(_ => visible);
-            foreach (object arrow in arrows)
+            foreach (var arrow in arrows)
             {
-                AssertEqual(offset / 3, (int)arrow.GetType().GetField("Frame")!.GetValue(arrow)!, "actual arrow phase");
-                AssertEqual(timer, (int)arrow.GetType().GetField("Timer")!.GetValue(arrow)!, "actual arrow delay and hidden pause");
+                AssertEqual(offset / 3, arrow.Frame, "actual arrow phase");
+                AssertEqual(timer, arrow.Timer, "actual arrow delay and hidden pause");
             }
         }
     }

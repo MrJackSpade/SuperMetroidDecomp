@@ -21,8 +21,8 @@ public sealed class CrocomireMeltingArtwork
             content.AppendWords("second-map", secondTilemap.Words());
         });
 
-    private readonly RoomCharacterAtlas first;
-    private readonly RoomCharacterAtlas second;
+    internal readonly RoomCharacterAtlas first;
+    internal readonly RoomCharacterAtlas second;
     private readonly CrocomireMeltingTilemap firstTilemap;
     private readonly CrocomireMeltingTilemap secondTilemap;
 

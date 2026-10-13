@@ -19,13 +19,13 @@ internal sealed class EndingBackgroundTextState
     private readonly EndingInventorySnapshot inventory;
     private readonly bool japaneseText;
     private ushort instructionPointer;
-    private ushort instructionTimer = 1;
+    internal ushort instructionTimer = 1;
     private readonly ushort tilemapDestination;
     [NonSerialized] private EndingTextPresentation? presentation;
     [NonSerialized] private EndingTextCharacter[]? installedProgram;
     private readonly EndingTextSequence? installedSequence;
-    private int installedCharacterIndex;
-    private bool installedInitialMarkerPending = true;
+    internal int installedCharacterIndex;
+    internal bool installedInitialMarkerPending = true;
     private bool installedHoldStarted;
 
     public EndingBackgroundTextState(ISnesAddressSpace bus, EndingBackgroundTextSetup setup)

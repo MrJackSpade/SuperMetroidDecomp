@@ -13,10 +13,10 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class CeresDoorEscapePaintDefinitions
 {
     private const int MaximumChannel = (1 << 5) - 1;
-    private readonly CeresDoorWarmTargetPaintDefinitions warm;
-    private readonly CeresDoorEscapeSurfacePaintDefinitions surface;
+    internal readonly CeresDoorWarmTargetPaintDefinitions warm;
+    internal readonly CeresDoorEscapeSurfacePaintDefinitions surface;
     private readonly int accentBlue;
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal CeresDoorEscapePaintDefinitions(ReadOnlySpan<Bgr555> colors, CeresDoorNormalPaintDefinitions normal)
         : this(colors, (Ensure.NotNull(normal)).WarmTargets) { }

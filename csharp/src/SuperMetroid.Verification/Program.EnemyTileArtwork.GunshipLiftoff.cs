@@ -113,16 +113,11 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
 
         static VramWriteQueue QueueAllTakeoffFrames(EnemyTileArtworkCatalog art)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = art };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var queue = new VramWriteQueue();
-            MethodInfo method = typeof(GunshipBehavior).GetMethod(
-                "QueueGunshipTakeoffTiles", flags) ??
-                throw new MissingMethodException(nameof(GunshipBehavior),
-                    "QueueGunshipTakeoffTiles");
             for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
-                method.Invoke(enemies.GunshipBehavior, [top, queue]);
+                enemies.GunshipBehavior.QueueGunshipTakeoffTiles(top, queue);
             AssertEqual(GunshipLiftoffTransferDefinitions.Frames.Length,
                 queue.Entries.Count, "five native takeoff calls append five uploads");
             return queue;

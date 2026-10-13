@@ -18,10 +18,10 @@ internal sealed class CeresDoorAnimationPaintDefinitions
     private const int GoldBrightening = 3;
     private const int GoldHighlightGreenBrightening = 4;
     private readonly CeresDoorNormalPaintDefinitions normal;
-    private readonly int firstSeedBlue;
-    private readonly int dimMiddleAmberRed;
-    private readonly Dictionary<int, Bgr555> seedEdits = [];
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly int firstSeedBlue;
+    internal readonly int dimMiddleAmberRed;
+    internal readonly Dictionary<int, Bgr555> seedEdits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal CeresDoorAnimationPaintDefinitions(Bgr555[][] rows, CeresDoorNormalPaintDefinitions normal)
     {

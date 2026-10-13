@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -336,7 +336,7 @@ internal sealed class ProjectileMotion
         return true;
     }
 
-    private void SpawnSuperMissileLink(
+    internal void SpawnSuperMissileLink(
         ISnesAddressSpace bus,
         SamusState samus,
         SamusProjectileSlot owner)
@@ -550,7 +550,7 @@ internal sealed class ProjectileMotion
         };
     }
 
-    private static bool MissileSlopePointReaction(
+    internal static bool MissileSlopePointReaction(
         RoomCollisionBlock block,
         SamusProjectileSlot slot,
         bool horizontalMovement)

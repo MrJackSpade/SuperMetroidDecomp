@@ -41,14 +41,14 @@ public sealed class TourianStatueSequence
         _vramWrites = dependencies.VramWrites;
     }
 
-    private sealed class TileObject
+    internal sealed class TileObject
     {
         public required TourianStatueAnimatedTileProgramDefinition Definition;
         public ushort Pointer, Timer = 1;
     }
-    private readonly List<TileObject> objects = [];
+    internal readonly List<TileObject> objects = [];
     private int delay = -2;
-    private int descent;
+    internal int descent;
     /// <summary>Whether the last loaded room uses <c>RunStatueUnlockingAnimations</c>; remains true after the descent finishes and is reset by the next <see cref="Load"/>.</summary>
     public bool Enabled { get; private set; }
     /// <summary>
@@ -94,7 +94,7 @@ public sealed class TourianStatueSequence
     /// and handler traversal both descend through slots, so insertion order also
     /// preserves execution order and which statue can acquire the shared busy bit.
     /// </summary>
-    private void SpawnAnimatedObjects()
+    internal void SpawnAnimatedObjects()
     {
         Spawn(AnimatedTileObject.TourianStatueKraid);
         Spawn(AnimatedTileObject.TourianStatuePhantoon);

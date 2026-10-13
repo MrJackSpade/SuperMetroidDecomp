@@ -18,7 +18,7 @@ public sealed class EscapeTimer
     /// Raw state word at WRAM <c>$0943</c>. The dispatch index is only its low byte;
     /// active timers conventionally retain flag bit 15, producing values <c>$8003-$8006</c>.
     /// </summary>
-    public ushort RawStatus { get; private set; }
+    public ushort RawStatus { get; internal set; }
 
     /// <summary>Low-byte dispatch state used by the seven-entry pointer table.</summary>
     public EscapeTimerState State => (EscapeTimerState)(byte)RawStatus;

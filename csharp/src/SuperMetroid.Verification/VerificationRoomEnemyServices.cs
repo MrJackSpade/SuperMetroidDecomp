@@ -113,7 +113,7 @@ internal static class RoomEnemyServicesAccess
         internal VerificationRoomEnemyServices VerificationServices()
         {
             // The installed services, if any; the case layers its own over them.
-            IRoomEnemyServices? current = PrivateState.Field<IRoomEnemyServices?>(self.Room, "<Services>k__BackingField");
+            IRoomEnemyServices? current = self.Room.installedServices;
             if (current is VerificationRoomEnemyServices installed)
                 return installed;
             var services = new VerificationRoomEnemyServices(current);

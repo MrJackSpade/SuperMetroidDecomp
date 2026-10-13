@@ -1,7 +1,7 @@
 <Project>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/RoomScreenOf.cs" Link="TestSupport/VerificationAccess/RoomScreenOf.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/PrivateState.cs" Link="TestSupport/VerificationAccess/PrivateState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/MetadataShape.cs" Link="TestSupport/VerificationAccess/MetadataShape.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreAccess.cs" Link="TestSupport/VerificationAccess/CoreAccess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/RenderMailboxCounterView.cs" Link="TestSupport/VerificationAccess/RenderMailboxCounterView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/SamusProjectileSlotObservation.cs" Link="TestSupport/VerificationAccess/SamusProjectileSlotObservation.cs" />

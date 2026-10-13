@@ -9,10 +9,10 @@ internal static class AsyncLoadBoundaryTests
 {
     internal static async Task VerifyAsyncLoadBoundary(PlayableGameControl control, bool restart = false)
     {
-        var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
-        var gate = Field<RenderPresentationGate>(worker, "gate");
-        var oldGame = Field<SuperMetroidGame>(control, "game");
-        var packet = Field<RenderFrameSnapshot>(control, "pendingDisplay");
+        var worker = control.gpuWorker ?? throw new InvalidOperationException("Host has no GPU worker.");
+        var gate = worker.gate;
+        var oldGame = control.game ?? throw new InvalidOperationException("Host has no game.");
+        var packet = control.pendingDisplay ?? throw new InvalidOperationException("Host has no pending display.");
         using var entered = new ManualResetEventSlim();
         using var release = new ManualResetEventSlim();
         Task held = Task.Run(() => gate.TryPresent(packet.Identity, () =>
@@ -24,12 +24,12 @@ internal static class AsyncLoadBoundaryTests
         try
         {
             if (!entered.Wait(TimeSpan.FromSeconds(5))) throw new TimeoutException("Load boundary was not acquired.");
-            load = restart ? CallAsync(control, "RestartAsync") : CallAsync(control, "LoadDebuggerState", 0);
+            load = restart ? control.RestartAsync() : control.LoadDebuggerState(0);
             Check(!load.IsCompleted, "load must await an entered presentation");
             // A continuation on the WinForms synchronization context must execute
             // while the boundary is held; synchronously waiting here deadlocks it.
             await Task.Delay(25);
-            Check(ReferenceEquals(oldGame, Field<SuperMetroidGame>(control, "game")), "restore occurred before old Present finished");
+            Check(ReferenceEquals(oldGame, control.game), "restore occurred before old Present finished");
             Check(!control.Enabled, "frame-affecting controls remained enabled during load");
         }
         finally

@@ -123,9 +123,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         var explosions = new IntroMotherBrainExplosionSystem();
         explosions.SpawnFourthHitExplosions();
         AssertEqual(8, explosions.ActiveCount, "intro Mother Brain allocates all explosion actors");
-        var explosionActors = (IList)typeof(IntroMotherBrainExplosionSystem)
-            .GetField("actors", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .GetValue(explosions)!;
+        var explosionActors = explosions.actors;
         for (int frame = 0; frame < 192; frame++)
         {
             explosions.Step(guarded, introCrossfadeTimer: 1);
@@ -141,9 +139,9 @@ internal static class IntroMotherBrainDefinitionsVerification
                     (IntroMotherBrainExplosionInstructionDefinitions.StartPointer +
                         (bigPhase / 6) * 4 + 2)))
                 : (ushort)0;
-            AssertEqual(expectedSmall, SpritePointer(explosionActors[0]!),
+            AssertEqual(expectedSmall, explosionActors[0].SpriteMapPointer,
                 $"intro first small explosion frame {frame} follows native timing");
-            AssertEqual(expectedBig, SpritePointer(explosionActors[3]!),
+            AssertEqual(expectedBig, explosionActors[3].SpriteMapPointer,
                 $"intro first big explosion frame {frame} follows native timing");
         }
         AssertEqual(8, explosions.ActiveCount,
@@ -156,9 +154,6 @@ internal static class IntroMotherBrainDefinitionsVerification
 
         Console.WriteLine(
             "  Intro Mother Brain definitions: actor/placement words and 112 instruction/delete bytes match; normal/page-two and both staggered explosion loops are ROM-table independent.");
-
-        static ushort SpritePointer(object actor) => (ushort)actor.GetType()
-            .GetProperty("SpriteMapPointer")!.GetValue(actor)!;
     }
 
     private static CartridgeReadGuard NewIntroMotherBrainDefinitionGuard(ISnesAddressSpace source) =>

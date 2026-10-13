@@ -75,7 +75,7 @@ public sealed class RoomVisualLayoutCatalog
     {
     }
 
-    private RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts,
+    internal RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts,
         bool requireCompleteInstallation)
     {
         Ensure.NotNull(layouts);

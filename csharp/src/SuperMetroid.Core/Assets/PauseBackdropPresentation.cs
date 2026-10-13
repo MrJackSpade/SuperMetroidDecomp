@@ -10,8 +10,8 @@ public sealed class PauseBackdropPresentation
 {
     // Exact independent stock differences and supplied edits remain explicit;
     // calculated complete backdrops are never cached.
-    private readonly Dictionary<int, ushort>[] areas;
-    private readonly Dictionary<int, ushort> buttons;
+    internal readonly Dictionary<int, ushort>[] areas;
+    internal readonly Dictionary<int, ushort> buttons;
     private PauseBackdropPresentation(Dictionary<int, ushort>[] areas, Dictionary<int, ushort> buttons)
     { this.areas = areas; this.buttons = buttons; }
 

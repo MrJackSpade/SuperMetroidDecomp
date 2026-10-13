@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable BG3 tile references for the six cartridge room-FX pages.</summary>
 public sealed class RoomFxLayer3TilemapCatalog
 {
-    private readonly byte[]? lava, acid, water;
-    private readonly RoomFxSporeTilemap spores;
-    private readonly RoomFxAtmosphereTilemap rain, fog;
+    internal readonly byte[]? lava, acid, water;
+    internal readonly RoomFxSporeTilemap spores;
+    internal readonly RoomFxAtmosphereTilemap rain, fog;
 
     private RoomFxLayer3TilemapCatalog(byte[] lava, byte[] acid, byte[] water,
         byte[] spores, byte[] rain, byte[] fog)

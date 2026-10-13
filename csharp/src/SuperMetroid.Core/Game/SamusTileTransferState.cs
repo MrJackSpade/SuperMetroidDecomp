@@ -23,16 +23,16 @@ public sealed class SamusTileTransferState
     public void BindArtwork(SamusBodyArtworkCatalog? value) => Artwork = value;
 
     /// <summary>Bank-$92 address of the selected seven-byte top-half DMA definition.</summary>
-    public int TopDefinitionAddress { get; private set; }
+    public int TopDefinitionAddress { get; internal set; }
 
     /// <summary>Bank-$92 address of the selected seven-byte bottom-half DMA definition.</summary>
-    public int BottomDefinitionAddress { get; private set; }
+    public int BottomDefinitionAddress { get; internal set; }
 
     /// <summary>Low byte of WRAM <c>$071D</c>; nonzero enables top-half NMI DMA.</summary>
-    public bool TopTransferEnabled { get; private set; }
+    public bool TopTransferEnabled { get; internal set; }
 
     /// <summary>Low byte of WRAM <c>$071E</c>; nonzero enables bottom-half NMI DMA.</summary>
-    public bool BottomTransferEnabled { get; private set; }
+    public bool BottomTransferEnabled { get; internal set; }
 
     /// <summary>
     /// Ports <c>Set_SamusTilesDefinitions_ForCurrentAnimation</c> at <c>$92:8000</c>.

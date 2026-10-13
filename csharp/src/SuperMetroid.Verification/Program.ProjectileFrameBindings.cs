@@ -38,8 +38,6 @@ internal static class ProjectileFrameBindingsVerification
                 $"timed projectile $93:{pointer:X4} keeps its native sprite reference");
         }
         var guard = NewProjectileFrameBindingReadGuard(rom, blocked);
-        var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
         {
             int record = SamusProjectileRomData.Banks.Projectile | pointer;
@@ -69,7 +67,7 @@ internal static class ProjectileFrameBindingsVerification
                 "native inventory contains timed records");
             AssertEqual(false, shots.Animation.RunProjectileInstructionHandler(installedShot),
                 "installed projectile timed record survives");
-            AssertEqual(false, (bool)runBomb.Invoke(bombs, [installedBomb])!,
+            AssertEqual(false, bombs.RunProjectileInstructionHandler(installedBomb),
                 "installed bomb timed record survives");
             AssertEqual(nativeShot.SpritemapPointer, installedShot.SpritemapPointer,
                 "installed projectile frame selects the native sprite");

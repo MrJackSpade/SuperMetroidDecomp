@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
@@ -88,7 +88,7 @@ internal sealed class ProjectileTrails
         trail.Right.Position = trail.Right.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, rightX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, rightY, -4));
     }
 
-    private static ushort GetTrailAnimationFrame(SamusProjectileSlot projectile)
+    internal static ushort GetTrailAnimationFrame(SamusProjectileSlot projectile)
     {
         // $93:81D8-$81E3 unconditionally reads (instruction pointer - 8) + 6.
         // The upstream C port's timer-one lookahead is absent from the pinned ROM.

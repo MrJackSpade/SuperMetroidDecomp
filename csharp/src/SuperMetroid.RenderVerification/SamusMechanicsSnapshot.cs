@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Globalization;
@@ -48,6 +49,7 @@ internal sealed class SamusMechanicsSnapshot
         }
     }
 
+    [ReflectionAudit("structural snapshot: every serializable field of the Samus graph participates, so new gameplay state cannot escape the comparison")]
     private static FieldInfo[] SerializableFields(Type type)
     {
         var result = new List<FieldInfo>();

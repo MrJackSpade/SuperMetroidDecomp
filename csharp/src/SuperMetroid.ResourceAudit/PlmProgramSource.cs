@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -20,6 +21,7 @@ internal sealed class PlmProgramSource
     private readonly HashSet<ushort> directDraws = [];
     private readonly Dictionary<ushort, bool> draws = [];
 
+    [ReflectionAudit("static source audit: constants and draw providers named in parsed PLM source are resolved to their compiled values")]
     internal PlmProgramSource(string root, PlmProgramAuditReport report)
     {
         this.report = report;
@@ -90,6 +92,7 @@ internal sealed class PlmProgramSource
         return result;
     }
 
+    [ReflectionAudit("static source audit: constants named in parsed PLM source are resolved to their compiled values")]
     internal IEnumerable<(ushort Address, string Owner)> AssignedConstantRoots()
     {
         foreach (MethodDeclarationSyntax method in methods)
@@ -168,6 +171,7 @@ internal sealed class PlmProgramSource
         method.DescendantNodes().OfType<InvocationExpressionSyntax>().Any(call =>
             call.Expression.ToString() is "ReadProgramWord" or "ReadProgramByte");
 
+    [ReflectionAudit("static source audit: draw providers named in parsed PLM source are resolved to their compiled signatures")]
     private MethodInfo ResolveMethod(string type, string name) => types[type].GetMethods(
         BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
         .Single(method => method.Name == name && method.GetParameters() is

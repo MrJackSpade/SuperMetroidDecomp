@@ -75,11 +75,10 @@ internal static class ChargeFlareProductionVerification
         runtime.Player.Samus!.Pose = SamusPoseId.FacingRightNormalPose;
         runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
         runtime.Player.Samus.Presentation.InitializeAnimation(bus); runtime.Player.Samus.Presentation.PrimeGraphics(bus);
-        typeof(BeamChargeState).GetProperty("FlareCounter")!.SetValue(runtime.Projectiles.Charge, (ushort)30);
+        runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, (ushort)100);
         var game = new SuperMetroidGame(bus);
-        var runtimeField = typeof(SuperMetroidGame).GetField("runtime", flags)!;
-        runtimeField.SetValue(game, runtime);
+        game.runtime = runtime;
         byte[] baseline = Draw(runtime);
         game.BindArtwork(game.Artwork with
         {
@@ -104,7 +103,7 @@ internal static class ChargeFlareProductionVerification
         AssertTrue(unbound.SequenceEqual(System.Security.Cryptography.SHA256.HashData(bound)), "Charge-flare compositions are excluded from saved frontend/runtime graphs");
         using var stream = new MemoryStream(bound);
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
-        var restoredRuntime = (SuperMetroidRuntime)runtimeField.GetValue(restored)!;
+        var restoredRuntime = restored.runtime;
         AssertTrue(restoredRuntime.Artwork.ChargeFlareCompositions is null, "Saved state does not retain old composition content");
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;
@@ -130,7 +129,7 @@ internal static class ChargeFlareProductionVerification
         static SamusProjectileSystem Create()
         {
             var system = new SamusProjectileSystem();
-            typeof(BeamChargeState).GetProperty("FlareCounter")!.SetValue(system.Charge, (ushort)30);
+            system.Charge.FlareCounter = (ushort)30;
             var frames = system.Charge._flareFrames;
             Array.Fill(frames, (ushort)3);
             Array.Fill(system.Charge._flareTimers, (ushort)3);

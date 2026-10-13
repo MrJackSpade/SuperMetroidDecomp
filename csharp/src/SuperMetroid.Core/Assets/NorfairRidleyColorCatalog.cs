@@ -23,8 +23,8 @@ public sealed class NorfairRidleyColorCatalog
             content.AppendColorFrames("reveal", revealWords);
         });
 
-    private readonly NorfairRidleyInitialPaintDefinitions initial;
-    private readonly NorfairRidleyRevealPaintDefinitions reveal;
+    internal readonly NorfairRidleyInitialPaintDefinitions initial;
+    internal readonly NorfairRidleyRevealPaintDefinitions reveal;
 
     private NorfairRidleyColorCatalog(Bgr555[] initial, Bgr555[][] reveal)
     {

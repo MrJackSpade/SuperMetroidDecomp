@@ -17,8 +17,8 @@ internal static class ReportedEyeStateFixture
         using var data = new AndroidSessionData(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
         const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(SuperMetroidGame).GetMethod("SetupSelectedGame", fields)!.Invoke(data.Game, null);
-        var runtime = (SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime", fields)!.GetValue(data.Game)!;
+        data.Game.SetupSelectedGame();
+        var runtime = data.Game.runtime;
         // Room identity is fixture data; normal room loading owns its population,
         // graphics, HDMA initialization, and camera-dependent render snapshots.
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BlueBrinstarEnergyTankRoom, new Position16<RoomPixels>(384, 512));
@@ -27,8 +27,7 @@ internal static class ReportedEyeStateFixture
         samus.CollectedItems = (ushort)SamusEquipmentFlags.MorphBall;
         samus.InputLocked = true;
         samus.Position = samus.Position.WithWhole(new((ushort)(body.Position.X.Whole - 64), (ushort)(body.Position.Y.Whole - 32)));
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!
-            .SetValue(data.Game, SuperMetroidGameState.MainGameplay);
+        data.Game.GameState = SuperMetroidGameState.MainGameplay;
         for (long frame = 1; frame <= 80; frame++)
         {
             data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());

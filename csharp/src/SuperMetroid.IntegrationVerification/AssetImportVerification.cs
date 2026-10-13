@@ -58,13 +58,13 @@ try
         SuperMetroidAddressSpace romFreeMemory = (romFreeContent ??
             throw new InvalidOperationException("Complete ROM-free installation was not reopened."))
             .OpenRuntimeAddressSpace();
-        Check(romFreeMemory.GetType().GetProperty("Rom") is null &&
+        Check(!MetadataShape.DeclaresProperty(romFreeMemory.GetType(), "Rom") &&
             romFreeMemory.WorkRam.Length == SuperMetroidAddressSpace.WorkRamByteCount &&
             romFreeMemory.SaveRam.Length == SuperMetroidAddressSpace.SaveRamByteCount,
             "installed runtime starts with mutable memory but no cartridge allocation");
         using (var romFreeSession = new SuperMetroid.Android.AndroidSessionData(root))
         {
-            Check(romFreeSession.Bus.GetType().GetProperty("Rom") is null,
+            Check(!MetadataShape.DeclaresProperty(romFreeSession.Bus.GetType(), "Rom"),
                 "installed Android host boots from extracted assets with no ROM copy");
             for (int frame = 0; frame < 90; frame++)
             {
@@ -78,7 +78,7 @@ try
             string loaded = romFreeSession.LoadSlot(0);
             Check(saved.Contains("slot 0", StringComparison.OrdinalIgnoreCase) &&
                 loaded.Contains("slot 0", StringComparison.OrdinalIgnoreCase) &&
-                romFreeSession.Bus.GetType().GetProperty("Rom") is null,
+                !MetadataShape.DeclaresProperty(romFreeSession.Bus.GetType(), "Rom"),
                 "installed Android state save/load retains cartridge-free memory");
         }
         Check(GameAssetInstaller.EnsureInstalled(root) is null,
@@ -182,7 +182,7 @@ try
             var captured = session.Game.StepCaptured(0, frame + 1, session.Generation);
             session.Audio.RenderFrame(captured.Frame.AudioCommands);
         }
-        Check(session.Bus.GetType().GetProperty("Rom") is null,
+        Check(!MetadataShape.DeclaresProperty(session.Bus.GetType(), "Rom"),
             "Android session boots from extracted content without retaining cartridge bytes");
     }
     Console.WriteLine("PASS ROM import, header normalization, exact audio parity, non-seekable input, cancellation, repair, recovery, and Android startup.");

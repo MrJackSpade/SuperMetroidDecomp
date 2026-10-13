@@ -34,7 +34,6 @@ internal static class ProjectileCooldownsVerification
                 () => SamusProjectileCooldownDefinitions.ReadByte(address),
                 "Unknown cooldown address fails instead of reading adjacent presentation data");
         var room = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
-        var fire = typeof(BeamFiring).GetMethod("TryFireBeam", BindingFlags.NonPublic | BindingFlags.Instance)!;
         for (ushort beam = 0; beam < 12; beam++)
         foreach (bool charged in new[] { false, true })
         foreach (ushort edge in new ushort[] { 0, (ushort)SnesButton.X })
@@ -42,8 +41,7 @@ internal static class ProjectileCooldownsVerification
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = beam };
-            var result = ((int? Slot, ushort Sound))fire.Invoke(projectiles.Firing,
-                new object?[] { bus, room, samus, edge, shared, null, charged })!;
+            var result = projectiles.Firing.TryFireBeam(bus, room, samus, edge, shared, null, charged);
             AssertEqual((int?)0, result.Slot, "Cooldown check exercises the actual successful producer");
             int address = charged ? 0x90c264 + beam : edge == 0 ? 0x90c283 + beam : 0x90c254 + beam;
             AssertEqual((ushort)retail.ReadCartridgeByte(address), shared.CooldownTimer,
@@ -57,8 +55,7 @@ internal static class ProjectileCooldownsVerification
             var shared = CreateBombFixture();
             var samus = new SamusState { Pose = SamusPoseId.NormalJumpGunExtendedLeftPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(211, 288)), EquippedBeams = (ushort)(chargeEquipped ? 0x1009 : 9) };
-            typeof(SamusState).GetProperty(nameof(SamusState.PoseTransitionShotDirection))!
-                .SetValue(samus, (ushort)0x8007);
+            samus.PoseTransitionShotDirection = (ushort)0x8007;
             SamusProjectileSlotObservation slotsBefore = projectiles.ObserveSlots();
             projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? (ushort)0 : (ushort)SnesButton.X }, new(0, 0), shared);
             AssertEqual((int?)0, slotsBefore.FiredSlot(projectiles),

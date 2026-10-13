@@ -22,7 +22,7 @@ internal sealed class DraygonHealthPaintDefinitions
     /// rule selecting alternate paint. Pixels and health thresholds are separate.
     /// </summary>
     private const int HealthyRedStep = 5, HealthyGreenStep = 6;
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal DraygonHealthPaintDefinitions(Bgr555[][] rows)
     {

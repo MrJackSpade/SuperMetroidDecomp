@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CrystalFlashColorCatalog
 {
-    private readonly Bgr555[][]? body;
-    private readonly Dictionary<int, Bgr555> bubble = [];
+    internal readonly Bgr555[][]? body;
+    internal readonly Dictionary<int, Bgr555> bubble = [];
 
     private CrystalFlashColorCatalog(Bgr555[][] body, Bgr555[][] bubble)
     {

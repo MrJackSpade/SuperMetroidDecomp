@@ -36,9 +36,9 @@ public sealed class CeresDoorVisualCatalog
 
     private readonly RoomCharacterAtlas tiles;
     private readonly CeresDoorNormalPaintDefinitions normal;
-    private readonly CeresDoorEscapePaintDefinitions escape;
-    private readonly CeresDoorAnimationPaintDefinitions animation;
-    private readonly Dictionary<int, byte> platformEdits = [];
+    internal readonly CeresDoorEscapePaintDefinitions escape;
+    internal readonly CeresDoorAnimationPaintDefinitions animation;
+    internal readonly Dictionary<int, byte> platformEdits = [];
 
     private CeresDoorVisualCatalog(RoomCharacterAtlas tiles, Bgr555[] normal,
         Bgr555[] escape, Bgr555[][] animation, byte[][] mode7DoorFrames)

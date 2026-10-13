@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable, ROM-independent projectile visual compositions; no damage, collision or timing fields.</summary>
 public sealed class ProjectileSpriteCatalog
 {
-    private readonly Dictionary<ushort, SpriteComposition> frames;
+    internal readonly Dictionary<ushort, SpriteComposition> frames;
     private ProjectileSpriteCatalog(Dictionary<ushort, SpriteComposition> frames) => this.frames = frames;
 
     /// <summary>Emits one installed projectile composition in authored OAM order using native projectile coordinate wrapping, without advancing animation or collision state.</summary>

@@ -26,7 +26,7 @@ public static class RoomFxSporeTilemapDefinitions
 internal sealed class RoomFxSporeTilemap
 {
     private readonly ushort[] characters;
-    private readonly Dictionary<int, ushort>? customAttributes;
+    internal readonly Dictionary<int, ushort>? customAttributes;
 
     public RoomFxSporeTilemap(ReadOnlySpan<byte> bytes)
     {

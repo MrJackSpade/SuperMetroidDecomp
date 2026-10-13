@@ -105,7 +105,7 @@ internal static class SamusRunningCadenceDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(StandaloneWord)} {(int)word}."),
     };
 
-    private static bool TryReadCompiledByte(int address, out byte value)
+    internal static bool TryReadCompiledByte(int address, out byte value)
     {
         foreach (StandaloneWord word in Enum.GetValues<StandaloneWord>())
         {

@@ -13,7 +13,7 @@ internal sealed class SidehopperInitialPalette
     /// <summary>$A9:EBD2/EBD4 and $F8CC/F8CE: cyan body/leg colors3180 and18C0.
     /// The exact shadow halves each RGB5 channel. This selected ratio is reviewed for the standalone target only; the shifted auxiliary disposition is separate.</summary>
     private const int BodyShadowDivisor = 2;
-    private readonly Bgr555[] independentOrSupplied;
+    internal readonly Bgr555[] independentOrSupplied;
     private readonly bool calculated;
     private readonly bool stockTarget;
     internal int Count { get; }

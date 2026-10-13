@@ -35,9 +35,7 @@ internal static class MotherBrainMissileWalkResetVerification
 
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         sequence.Body.Form = 4;
-        typeof(MotherBrainRainbowBeamAttackSequence)
-            .GetProperty(nameof(MotherBrainRainbowBeamAttackSequence.Phase3WalkCounter))!
-            .SetValue(sequence, (ushort)0x0040);
+        sequence.Phase3WalkCounter = (ushort)0x0040;
         state.RainbowBeamSequence = sequence;
         state.Form = 4;
         state.WalkCounter = 0x0040;

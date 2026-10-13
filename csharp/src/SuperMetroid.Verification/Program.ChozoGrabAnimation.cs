@@ -21,8 +21,8 @@ internal static class ChozoGrabAnimationVerification
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
         InstalledFixtures.BindGame(game);
-        typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime",flags)!.Invoke(game,new object[]{false});
-        var runtime=(SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime",flags)!.GetValue(game)!;
+        game.CreateGameplayRuntime(false);
+        var runtime=game.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
@@ -35,7 +35,7 @@ internal static class ChozoGrabAnimationVerification
         samus.Presentation.InitializeAnimation(bus);
         samus.CommitPoseHistory(bus);
         samus.AnimationFrame = 2;
-        typeof(SamusState).GetProperty(nameof(SamusState.AnimationFrameTimer))!.SetValue(samus, (ushort)3);
+        samus.AnimationFrameTimer = (ushort)3;
         samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y)));
         var level = runtime.Room.LevelData!;
         var block = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(0x4a, 0x17)));

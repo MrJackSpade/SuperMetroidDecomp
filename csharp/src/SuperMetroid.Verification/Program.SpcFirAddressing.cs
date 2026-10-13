@@ -17,6 +17,7 @@ internal static class SpcFirAddressingVerification
 {
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC FIR addressing")]
+    [SpcMemoryBoundary("exact APU memory test: fills APU RAM around the echo FIR preset table")]
     internal static void VerifySpcFirAddressing()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -30,11 +31,8 @@ internal static class SpcFirAddressingVerification
         AssertEqual((byte)0x3d, Read(0x1aa0), "native INC X");
         int nativeBase = SnesLittleEndian.Word(Read(0x1a9b), Read(0x1a9c));
         var player = new ManagedSpcPlayer();
-        var ram = (byte[])(typeof(ManagedSpcPlayer).GetField("ram", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(player)
-            ?? throw new InvalidOperationException("Missing SPC RAM fixture access."));
-        var method = typeof(ManagedSpcPlayer).GetMethod("HandleEffect", BindingFlags.Instance | BindingFlags.NonPublic)
-            ?? throw new InvalidOperationException("Missing real music-effect handler.");
-        var effect = method.CreateDelegate<Action<ManagedSpcMusicChannel, byte>>(player);
+        byte[] ram = player.ram;
+        Action<ManagedSpcMusicChannel, byte> effect = player.HandleEffect;
         // Distinguish low-byte aliases from incorrectly carrying into later RAM pages.
         for (int address = nativeBase; address < nativeBase + 2048; address++)
             ram[address] = (byte)(SnesLittleEndian.HighByte(unchecked((ushort)address)) ^ unchecked((byte)address));

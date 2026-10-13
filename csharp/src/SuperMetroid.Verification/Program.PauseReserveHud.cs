@@ -39,10 +39,10 @@ internal static class PauseReserveHudVerification
         var game = new SuperMetroidGame(bus);
         // Construct just the paused dispatcher boundary. Input, HUD updates, queued
         // DMA and presentation below are real production calls, not a fake refill.
-        typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("pauseMenu", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, pause);
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.PausedB);
-        var displayed = (SnesVram)typeof(PauseMenuState).GetField("vram", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(pause)!;
+        game.runtime = runtime;
+        game.pauseMenu = pause;
+        game.GameState = SuperMetroidGameState.PausedB;
+        var displayed = pause.vram;
         ushort originalAuto = displayed.ReadWord(HudState.VramDestination + 8);
         byte[] initialHud = displayed.Bytes.Slice(HudState.VramDestination * 2, HudState.MutableByteCount).ToArray();
         byte[] initialFx = displayed.Bytes.Slice(0xb100, 0x700).ToArray();

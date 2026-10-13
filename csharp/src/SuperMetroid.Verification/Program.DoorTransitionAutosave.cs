@@ -43,7 +43,7 @@ internal static class DoorTransitionAutosaveVerification
             runtime.RoomLoader.InitializeCeresStartSamus();
             var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
+            game.runtime = runtime;
             var assets = RepositoryInstallation.Installation.LoadAudio();
             var audio = new CartridgeAudioRenderer(assets);
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),
@@ -162,8 +162,8 @@ internal static class DoorTransitionAutosaveVerification
                     samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));
                     samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
                     runtime.Room.LevelData!.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
-                    typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
-                    typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.HitDoorBlock);
+                    game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+                    game.GameState = SuperMetroidGameState.HitDoorBlock;
                     return;
                 }
                 throw new InvalidDataException("Requested fixture door is absent.");

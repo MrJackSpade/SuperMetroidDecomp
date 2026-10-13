@@ -12,7 +12,7 @@ internal sealed class MapObjectTileArtwork
     internal const int FirstHighlightTile = 0x5b, HighlightTileCount = 4;
     /// <summary>Shared reserve cursor46 atB6:C8C0, reused in the left selector corner with swapped colors1/2.</summary>
     private const int CursorTile = 0x46;
-    private readonly byte[] otherCharacters;
+    internal readonly byte[] otherCharacters;
     private readonly MenuSmallFontArtwork smallFont;
     private readonly MenuLargeFontArtwork largeFont;
     private readonly MenuCompactLetteringArtwork elevatorLettering;
@@ -22,8 +22,8 @@ internal sealed class MapObjectTileArtwork
     private readonly MapMarkerTileArtwork markers;
     private readonly MenuBeveledSquareArtwork squares;
     private readonly MenuThinBorderArtwork thinBorder;
-    private readonly Dictionary<int, byte>? reserveEdits;
-    private readonly Dictionary<int, byte>? highlightEdits;
+    internal readonly Dictionary<int, byte>? reserveEdits;
+    internal readonly Dictionary<int, byte>? highlightEdits;
 
     internal MapObjectTileArtwork(IndexedPngImage image)
     {

@@ -52,7 +52,7 @@ public sealed class SamusCrystalFlashState
     public ushort CrystalPaletteTimer { get; private set; }
 
     /// <summary>WRAM <c>$0ACC</c>; seven dispatches the cartridge's Crystal Flash palette.</summary>
-    public ushort SpecialPaletteType { get; private set; }
+    public ushort SpecialPaletteType { get; internal set; }
 
     /// <summary>Typed view of the native special-palette handler index.</summary>
     public SamusSpecialPaletteType SpecialPaletteKind =>
@@ -62,7 +62,7 @@ public sealed class SamusCrystalFlashState
     public ushort SpecialPaletteFrame { get; private set; }
 
     /// <summary>WRAM <c>$0A68</c>; <c>$FFFF</c> requests beam-palette restoration at finish.</summary>
-    public ushort SpecialPaletteTimer { get; private set; }
+    public ushort SpecialPaletteTimer { get; internal set; }
 
     /// <summary>
     /// WRAM <c>$0AD0</c>, a byte offset into the ten interleaved pointer/timer records at

@@ -47,7 +47,7 @@ public sealed class SamusShinesparkState
     public ushort PaletteFrameOffset { get; private set; }
 
     /// <summary>WRAM <c>$0A64</c>, the shared 30-frame windup/crash countdown.</summary>
-    public ushort StartStopTimer { get; private set; }
+    public ushort StartStopTimer { get; internal set; }
 
     /// <summary>
     /// Whole word of vertical spark acceleration. Native aliases it to <c>substate</c> and
@@ -70,7 +70,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>Debugger-readable replacement for the installed bank-$90 handler pointer.</summary>
-    public ShinesparkPhase Phase { get; private set; }
+    public ShinesparkPhase Phase { get; internal set; }
 
     /// <summary>
     /// Relinquishes the movement-handler pointer when bank $90 installs normal movement.
@@ -193,8 +193,8 @@ public sealed class SamusShinesparkState
     /// </summary>
     public ShinesparkReleasedEchoClear? LastReleasedCrashEchoClear { get; private set; }
 
-    private readonly ReleasedEchoSlot _firstReleasedCrashEcho = new();
-    private readonly ReleasedEchoSlot _secondReleasedCrashEcho = new();
+    internal readonly ReleasedEchoSlot _firstReleasedCrashEcho = new();
+    internal readonly ReleasedEchoSlot _secondReleasedCrashEcho = new();
 
     /// <summary>
     /// Samus_HandleTransitionsB_5 ($91:EEA6) clears $0A6A and replaces the shared
@@ -622,7 +622,7 @@ false);
     /// Ports `$90:D40D-$D4D1`: convert the crash copies into fixed projectile slots three
     /// and four when capacity permits, restore standing, and expire palette handler six.
     /// </summary>
-    private ShinesparkMovementResult FinishCrash(
+    internal ShinesparkMovementResult FinishCrash(
         SamusState samus,
         ushort projectileCounter,
         SamusProjectileSystem? projectiles)
@@ -698,7 +698,7 @@ false,             CrashSequenceFinished: true);
         return true;
     }
 
-    private bool StepReleasedCrashEcho(
+    internal bool StepReleasedCrashEcho(
         SamusState samus,
         Position16<RoomPixels> layer1,
         ReleasedEchoSlot slot,
@@ -738,7 +738,7 @@ false,             CrashSequenceFinished: true);
     }
 
     /// <summary>Exact byte-split multiplication used by `$90:CC39/$90:CC8A`.</summary>
-    private static Offset16<RoomPixels> ProjectileSinLookup(
+    internal static Offset16<RoomPixels> ProjectileSinLookup(
         SnesAngle angle,
         byte radius)
     {
@@ -874,7 +874,7 @@ false,             CrashSequenceFinished: true);
     /// Mutable storage corresponding to one of native fixed projectile slots three/four.
     /// It is deliberately private so callers cannot manufacture a live visual projectile.
     /// </summary>
-    private sealed class ReleasedEchoSlot
+    internal sealed class ReleasedEchoSlot
     {
         public bool Active { get; private set; }
         public SnesAngle Angle { get; set; }

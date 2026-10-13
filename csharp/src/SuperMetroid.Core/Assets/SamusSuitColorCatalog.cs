@@ -21,8 +21,8 @@ namespace SuperMetroid.Core.Assets;
 public sealed class SamusSuitColorCatalog
 {
     private readonly Bgr555[] power;
-    private readonly Dictionary<int, Bgr555> varia;
-    private readonly Dictionary<int, Bgr555> gravity;
+    internal readonly Dictionary<int, Bgr555> varia;
+    internal readonly Dictionary<int, Bgr555> gravity;
 
     /// <summary>Stores a Power palette and only differing colors for the other suits.</summary>
     /// <remarks>Original $9B:9400/9520/9800 share twelve of sixteen slots

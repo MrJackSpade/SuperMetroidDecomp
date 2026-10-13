@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class PauseEquipmentLabelPresentation
 {
     private readonly Dictionary<string, CompiledLabel> labels;
-    private readonly Dictionary<int, ushort> blankEdits;
+    internal readonly Dictionary<int, ushort> blankEdits;
 
     private PauseEquipmentLabelPresentation(Dictionary<string, CompiledLabel> labels, Dictionary<int, ushort> blankEdits,
         int disabledPalette, string contentIdentity)

@@ -29,16 +29,16 @@ public sealed class FileSelectMenuState
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
     private readonly SuperMetroidSaveRam saveRam;
-    private readonly MenuPpuState ppu;
-    private readonly OamBuffer oam = new();
+    internal readonly MenuPpuState ppu;
+    internal readonly OamBuffer oam = new();
     private readonly ControllerInputState controller = new();
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
-    private readonly ushort[] bg1Tilemap = new ushort[32 * 32];
+    internal readonly ushort[] bg1Tilemap = new ushort[32 * 32];
     private readonly SuperMetroidSaveSlot?[] saveSlots = new SuperMetroidSaveSlot?[3];
     private int missileAnimationTimer = 1;
     private int missileAnimationFrame;
     private int helmetAnimationTimer;
-    private int helmetAnimationFrame;
+    internal int helmetAnimationFrame;
     /// <summary>$51 INIDISP byte: forced-blank bit plus brightness nibble.</summary>
     private int brightness;
     private readonly ScreenFade screenFade = new();

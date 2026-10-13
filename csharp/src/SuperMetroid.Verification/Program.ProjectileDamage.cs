@@ -34,7 +34,6 @@ internal static class ProjectileDamageVerification
         }
 
         var room = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
-        MethodInfo Method(Type owner, string name) => owner.GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance)!;
         SamusState Samus() => new() { Pose = SamusPoseId.FacingRightNormalPose, Position = new(new(128, 0), new(128, 0)), Missiles = 10, SuperMissiles = 10 };
         void Check(SamusProjectileSlot slot, int table, int index, int direction)
         {
@@ -50,7 +49,7 @@ internal static class ProjectileDamageVerification
         {
             var system = new SamusProjectileSystem();
             var samus = Samus(); samus.EquippedBeams = beam;
-            Method(typeof(BeamFiring), "TryFireBeam").Invoke(system.Firing, new object?[] { bus, room, samus, (ushort)SnesButton.X, new SamusBombProjectileSystem(), null, charged });
+            system.Firing.TryFireBeam(bus, room, samus, (ushort)SnesButton.X, new SamusBombProjectileSystem(), null, charged);
             var slot = system.Slots[0];
             int table = charged ? SamusProjectileRomData.Beams.ChargedDataPointers : SamusProjectileRomData.Beams.UnchargedDataPointers;
             Check(slot, table, beam, slot.Direction & 15);
@@ -67,13 +66,13 @@ internal static class ProjectileDamageVerification
             Check(system.Slots[0], SamusProjectileRomData.NonBeam.DataPointers, item, system.Slots[0].Direction & 15);
             if (item == 2)
             {
-                Method(typeof(ProjectileMotion), "SpawnSuperMissileLink").Invoke(system.Motion, new object[] { bus, samus, system.Slots[0] });
+                system.Motion.SpawnSuperMissileLink(bus, samus, system.Slots[0]);
                 AssertEqual((ushort)300, system.Slots[1].Damage, "Invisible link remains occupied/nonzero damage");
                 AssertEqual((ushort)300, system.Slots[0].Damage, "Link allocation does not replace its owner");
             }
         }
         var hyper = new SamusProjectileSystem();
-        Method(typeof(BeamFiring), "TryFireHyperBeam").Invoke(hyper.Firing, new object?[] { bus, room, Samus(), new SamusBombProjectileSystem(), null });
+        hyper.Firing.TryFireHyperBeam(bus, room, Samus(), new SamusBombProjectileSystem(), null);
         AssertEqual((ushort)1000, hyper.Slots[0].Damage, "Hyper retains its post-initialization damage override");
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
@@ -83,20 +82,18 @@ internal static class ProjectileDamageVerification
             foreach (var slot in system.Slots.Take(4))
                 AssertEqual((ushort)(beam == 2 ? 90 : 300), slot.Damage, "SBA/ordinary Ice/Spazer trail damage");
         }
-        var initializeBomb = typeof(SamusBombProjectileSystem).GetMethod("InitializeBombFromRom", BindingFlags.NonPublic | BindingFlags.Static)!;
         foreach (ushort type in new ushort[] { 0x0300, 0x0500, 0x8500 })
         {
             var slot = new SamusBombProjectileSlot(0) { Type = type };
-            initializeBomb.Invoke(null, new object[] { slot });
+            SamusBombProjectileSystem.InitializeBombFromRom(slot);
             AssertEqual((ushort)(type == 0x0300 ? 200 : 30), slot.Damage, "Power/ordinary/spread bomb damage");
         }
-        var combo = typeof(BeamCombos).GetMethod("InitializeComboData", BindingFlags.NonPublic | BindingFlags.Static)!;
         bool rejectedMarker = false;
         try
         {
-            combo.Invoke(null, new object[] { new SamusProjectileSlot(0) { Type = 0x8025 }, false, true });
+            BeamCombos.InitializeComboData(new SamusProjectileSlot(0) { Type = 0x8025 }, false, true);
         }
-        catch (TargetInvocationException error) when (error.InnerException is InvalidDataException invalid && invalid.Message == "Negative native combo projectile damage.")
+        catch (InvalidDataException invalid) when (invalid.Message == "Negative native combo projectile damage.")
         {
             rejectedMarker = true;
         }

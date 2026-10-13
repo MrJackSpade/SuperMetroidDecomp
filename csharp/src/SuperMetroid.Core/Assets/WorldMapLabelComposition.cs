@@ -16,11 +16,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class WorldMapLabelComposition
 {
-    private readonly MapSpriteId identity;
+    internal readonly MapSpriteId identity;
     private readonly int upperOrigin;
     private readonly int lowerOrigin;
-    private readonly Dictionary<int, int>? letterAdvances;
-    private readonly SpriteComposition? authored;
+    internal readonly Dictionary<int, int>? letterAdvances;
+    internal readonly SpriteComposition? authored;
 
     private WorldMapLabelComposition(MapSpriteId identity, int upperOrigin, int lowerOrigin,
         Dictionary<int, int>? letterAdvances, SpriteComposition? authored)

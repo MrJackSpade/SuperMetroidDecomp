@@ -27,8 +27,8 @@ internal static class PauseMapArrowsVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
         var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(10, 10) });
-        Set("mapScroll", new PauseMapScroll(new(0, 0), new(512, 256)));
-        Set("mapArrows", null!);
+        pause.mapScroll = new PauseMapScroll(new(0, 0), new(512, 256));
+        pause.mapArrows = null!;
         pause.BindMapPresentation(RetailPresentationFixture());
         var nativeColors = new SnesCgram();
         for (int color = 0; color < SnesCgram.ColorCount; color++) nativeColors.SetColor(color, Bgr555.FromWord(checked((ushort)(Read(0xb6f000 + color * 2)))));
@@ -37,7 +37,7 @@ internal static class PauseMapArrowsVerification
         var arrowAttributes = new HashSet<ushort>();
         foreach (var (x, y) in new (int, int)[] { (100, 70), (-24, 70), (-23, 70), (280, 70), (281, 70), (100, -56), (100, -55), (100, 79), (100, 80) })
         {
-            Set("mapScrollPosition", new Position16<MapPixels>(unchecked((ushort)x), unchecked((ushort)y)));
+            pause.mapScrollPosition = new Position16<MapPixels>(unchecked((ushort)x), unchecked((ushort)y));
             pause.Step(0, 0);
             // Literal $82:A92B increment-before-read palette timing and raw colors.
             if (nativePaletteTimer != 0 && --nativePaletteTimer == 0)
@@ -72,7 +72,7 @@ internal static class PauseMapArrowsVerification
                     arrowAttributes.Add((ushort)(SnesLittleEndian.Word(expected.LowTable[offset], expected.LowTable[offset + 1])));
             }
             var pixels = pause.Render();
-            var actual = Get<OamBuffer>("oam");
+            var actual = pause.oam;
             AssertTrue(actual.LowTable[..expectedBytes].SequenceEqual(expected.LowTable[..expectedBytes]),
                 $"pause arrows match raw cartridge OAM coordinates/shape/palette at scroll {x},{y}");
             int drawnArrowParts = 0;
@@ -101,7 +101,7 @@ internal static class PauseMapArrowsVerification
             pause.BindMapPresentation(RetailPresentationFixture());
         }
         AssertTrue(beforeRestore.AsSpan().SequenceEqual(pause.Render()), "debugger restore/rebind retains the current arrow display");
-        Set("mapScrollPosition", new Position16<MapPixels>(100, 70));
+        pause.mapScrollPosition = new Position16<MapPixels>(100, 70);
         pause.Step(0, 0); _ = pause.Render(); int stable = pause.LastRenderedSpriteCount;
         pause.Step((ushort)SnesButton.R, 0); _ = pause.Render();
         AssertEqual(stable, pause.LastRenderedSpriteCount, "R press retains arrows on its native stable-page dispatch");
@@ -109,8 +109,6 @@ internal static class PauseMapArrowsVerification
         AssertEqual(stable - allArrowParts, pause.LastRenderedSpriteCount, "page-fade dispatcher does not draw map arrows");
         Console.WriteLine("Pause arrows: native ROM OAM and opaque pixels match at all four scroll edges; R/fade visibility and pure repaint pass.");
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);
-        void Set(string name, object value) => typeof(PauseMenuState).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(pause, value);
-        T Get<T>(string name) => (T)typeof(PauseMenuState).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(pause)!;
     }
 
     [VerificationCommand("--pause-map-arrows")]

@@ -17,18 +17,18 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     private const uint WaveMapper = uint.MaxValue;
     private const uint HeaderDone = 0x0000_0001;
     private const uint MultimediaSuccess = 0;
-    private readonly BufferSlot[] slots = [];
+    internal readonly BufferSlot[] slots = [];
     private readonly short[] prerollSilence = [];
     private readonly int volumePercent;
     private readonly PendingFrameQueue pendingFrames = new(
         WaveOutAudioPolicy.ManagedQueueCapacityFrames);
-    private readonly Lock deviceGate = new();
+    internal readonly Lock deviceGate = new();
     private readonly Thread submissionWorker = null!;
     private nint device;
     private int nextSlot;
     private long queueGeneration;
-    private long enqueuedFrames;
-    private long completedFrames;
+    internal long enqueuedFrames;
+    internal long completedFrames;
     private ExceptionDispatchInfo? workerFailure;
     private bool prerollRequired = true;
     private bool disposed;
@@ -360,7 +360,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             ArrayPool<short>.Shared.Return(queued.Samples, clearArray: false);
     }
 
-    private void ThrowWorkerFailure() =>
+    internal void ThrowWorkerFailure() =>
         Volatile.Read(ref workerFailure)?.Throw();
 
     private static void ThrowOnError(uint result, string operation)
@@ -378,7 +378,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             failures.Add(CreateError(result, operation));
     }
 
-    private sealed class BufferSlot : IDisposable
+    internal sealed class BufferSlot : IDisposable
     {
         private readonly GCHandle samplesHandle;
 

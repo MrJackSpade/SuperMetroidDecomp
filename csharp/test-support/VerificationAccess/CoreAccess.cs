@@ -18,13 +18,13 @@ internal static class CoreAccess
 {
     extension(SuperMetroidGame game)
     {
-        internal SuperMetroidRuntime? RuntimeForVerification => PrivateState.Field<SuperMetroidRuntime?>(game, "runtime");
-        internal int AttractDemoHoldFramesRemaining => PrivateState.Field<int>(game, "demoHoldFramesRemaining");
+        internal SuperMetroidRuntime? RuntimeForVerification => game.runtime;
+        internal int AttractDemoHoldFramesRemaining => game.demoHoldFramesRemaining;
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.Player.GroundedSamusMovementEnabled ?? false;
-        internal CartridgeAudioState AudioForVerification => PrivateState.Field<CartridgeAudioState>(game, "audio");
-        internal ushort MenuNmiFrameCounterForVerification => PrivateState.Field<MenuNmiFrameCounters>(game, "menuNmi").FrameCounter;
+        internal CartridgeAudioState AudioForVerification => game.audio;
+        internal ushort MenuNmiFrameCounterForVerification => game.menuNmi.FrameCounter;
         internal CeresDestructionCinematicState? CeresDestructionForVerification =>
-            PrivateState.Field<CeresDestructionCinematicState?>(game, "ceresDestruction");
+            game.ceresDestruction;
 
         /// <summary>
         /// Applies the controller read of a native NMI accepted during the door music-wait APU
@@ -47,44 +47,44 @@ internal static class CoreAccess
     extension(IntroCinematicState intro)
     {
         internal ushort ActiveFlashbackProjectileCount =>
-            PrivateState.Field<SamusProjectileSystem>(intro, "flashbackProjectiles").SlotTable.ProjectileCounter;
-        internal ushort FlashbackSamusX => PrivateState.Field<SamusState?>(intro, "flashbackSamus")?.Position.X.Whole ?? 0;
-        internal ushort FlashbackSamusY => PrivateState.Field<SamusState?>(intro, "flashbackSamus")?.Position.Y.Whole ?? 0;
+            intro.flashbackProjectiles.SlotTable.ProjectileCounter;
+        internal ushort FlashbackSamusX => intro.flashbackSamus?.Position.X.Whole ?? 0;
+        internal ushort FlashbackSamusY => intro.flashbackSamus?.Position.Y.Whole ?? 0;
         internal ushort MotherBrainHitCount =>
-            PrivateState.Field<IntroMotherBrainSpriteState?>(intro, "flashbackMotherBrain")?.HitCount ?? 0;
+            intro.flashbackMotherBrain?.HitCount ?? 0;
     }
 
     extension(EndingCreditsState ending)
     {
-        internal byte Brightness => PrivateState.Field<byte>(ending, "brightness");
-        internal ushort CinematicFrame => PrivateState.Field<ushort>(ending, "cinematicFrame");
-        internal ushort CreditsVerticalScroll => PrivateState.Field<CreditsObjectState?>(ending, "credits")?.VerticalScroll ?? 0;
+        internal byte Brightness => ending.brightness;
+        internal ushort CinematicFrame => ending.cinematicFrame;
+        internal ushort CreditsVerticalScroll => ending.credits?.VerticalScroll ?? 0;
     }
 
     extension(PauseMenuState pause)
     {
-        internal Position16<OamPixels> LastIndicatorOrigin => PrivateState.Field<Position16<OamPixels>>(pause, "lastIndicatorOrigin");
+        internal Position16<OamPixels> LastIndicatorOrigin => pause.lastIndicatorOrigin;
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
-        internal bool PageTransitionActive => PrivateState.Field<PauseMenuTransition>(pause, "transition") != PauseMenuTransition.None;
-        internal Position16<MapPixels> MapScroll => PrivateState.Field<Position16<MapPixels>>(pause, "mapScrollPosition");
+        internal bool PageTransitionActive => pause.transition != PauseMenuTransition.None;
+        internal Position16<MapPixels> MapScroll => pause.mapScrollPosition;
 
         [PpuLayoutBoundary("rendering view: the pause map BG1 tilemap word displayed at a map cell")]
         internal MapTileWord ReadDisplayedMapTile(Position16<MapTiles> cell)
         {
-            var vram = PrivateState.Field<SnesVram>(pause, "vram");
+            var vram = pause.vram;
             return new MapTileWord(vram.ReadWord(PauseMenuLayout.Bg1TilemapWord + AreaMapLayout.GetTilemapWordIndex(cell)));
         }
     }
 
     extension(EndingShootingStars shootingStars)
     {
-        internal ReadOnlySpan<EndingShootingStar> Stars => PrivateState.Field<EndingShootingStar[]>(shootingStars, "stars");
+        internal ReadOnlySpan<EndingShootingStar> Stars => shootingStars.stars;
     }
 
     extension(ExtractedAudioAssetCatalog catalog)
     {
-        internal int CanonicalSampleCount => PrivateState.Field<int>(catalog, "canonicalSampleCount");
-        internal int SourceMappingCount => PrivateState.Field<IReadOnlyDictionary<int, ManagedPcmSampleBank>>(catalog, "sampleBanks")
+        internal int CanonicalSampleCount => catalog.canonicalSampleCount;
+        internal int SourceMappingCount => catalog.sampleBanks
             .Values.Sum(bank => bank.Samples.Count);
     }
 
@@ -100,12 +100,12 @@ internal static class CoreAccess
 
     extension(GameplayBasePaletteCatalog palettes)
     {
-        internal ReadOnlySpan<Bgr555> Initial => PrivateState.Field<Bgr555[]>(palettes, "initial");
+        internal ReadOnlySpan<Bgr555> Initial => palettes.initial;
     }
 
     extension(HudState hud)
     {
-        internal ReadOnlySpan<ushort> Tiles => PrivateState.Field<ushort[]>(hud, "_tiles");
+        internal ReadOnlySpan<ushort> Tiles => hud._tiles;
     }
 
     extension(MapTileWord tile)
@@ -119,8 +119,8 @@ internal static class CoreAccess
         internal byte[] CreateUploadPayload()
         {
             var payload = new byte[OamBuffer.UploadByteCount];
-            PrivateState.Field<byte[]>(oam, "_lowTable").CopyTo(payload, 0);
-            PrivateState.Field<byte[]>(oam, "_highTable").CopyTo(payload, OamBuffer.LowTableByteCount);
+            oam._lowTable.CopyTo(payload, 0);
+            oam._highTable.CopyTo(payload, OamBuffer.LowTableByteCount);
             return payload;
         }
     }
@@ -129,33 +129,32 @@ internal static class CoreAccess
     {
         internal void Reset()
         {
-            PrivateState.Invoke(profile, "VerifyOwner");
-            PrivateState.SetProperty(profile, "Ticks", 0L);
-            PrivateState.SetProperty(profile, "AllocatedBytes", 0L);
-            PrivateState.SetProperty(profile, "Publications", 0L);
+            profile.VerifyOwner();
+            profile.Ticks = 0L;
+            profile.AllocatedBytes = 0L;
+            profile.Publications = (int)0L;
         }
     }
 
     extension(RoomLevelData level)
     {
-        internal ReadOnlyMemory<ushort> BackgroundEntries => PrivateState.Field<ushort[]>(level, "_backgroundEntries");
+        internal ReadOnlyMemory<ushort> BackgroundEntries => level._backgroundEntries;
     }
 
     extension(RoomPaletteFxSystem fx)
     {
-        internal int ActiveCount => PrivateState.Field<Array>(fx, "slots").Cast<object>()
-            .Count(slot => PrivateState.Property<ushort>(slot, "Id") != 0);
+        internal int ActiveCount => fx.slots.Count(slot => slot.Id != 0);
     }
 
     extension(SuperMetroidAddressSpace bus)
     {
-        internal Span<byte> WorkRam => PrivateState.Field<byte[]>(bus, "_workRam");
-        internal Span<byte> SaveRam => PrivateState.Field<byte[]>(bus, "_saveRam");
+        internal Span<byte> WorkRam => bus._workRam;
+        internal Span<byte> SaveRam => bus._saveRam;
     }
 
     extension(VramWriteQueue queue)
     {
-        internal IReadOnlyList<VramWriteEntry> Entries => PrivateState.Field<List<VramWriteEntry>>(queue, "_entries");
+        internal IReadOnlyList<VramWriteEntry> Entries => queue._entries;
     }
 
     extension(SamusGrappleMovement)
@@ -164,14 +163,13 @@ internal static class CoreAccess
         internal static GrappleMovementResult ConnectAcceptedFiring(ISnesAddressSpace bus, SamusState samus,
             SamusGrappleState grapple, Position16<RoomPixels> previousPosition,
             bool validateAnchorBlock = true, bool validateAnchorEnemy = false) =>
-            (GrappleMovementResult)PrivateState.InvokeStatic(typeof(SamusGrappleMovement), "ConnectAcceptedFiringCore",
-                bus, samus, grapple, previousPosition, validateAnchorBlock, validateAnchorEnemy, false)!;
+            SamusGrappleMovement.ConnectAcceptedFiringCore(bus, samus, grapple, previousPosition, validateAnchorBlock, validateAnchorEnemy, false);
     }
 
     extension(EnemyDrawList drawing)
     {
         /// <summary>The per-layer native draw queues the last enemy pass built, in layer order.</summary>
-        internal IReadOnlyList<List<ushort>> QueuesForVerification => PrivateState.Field<List<ushort>[]>(drawing, "_drawQueues");
+        internal IReadOnlyList<List<ushort>> QueuesForVerification => drawing._drawQueues;
     }
 
     extension(RoomEnemySystem enemies)
@@ -185,10 +183,8 @@ internal static class CoreAccess
         /// <summary>Kraid's mouth hitbox test: the production collision-scratch load followed by its mouth overlap.</summary>
         internal bool KraidMouthHitboxOverlapsShot(RoomEnemySlot body, ushort hitboxPointer, SamusProjectileSlot shot)
         {
-            object scratch = enemies.KraidBehavior.LoadKraidCollisionScratch(body, hitboxPointer)!;
-            object collision = PrivateState.Construct(PrivateState.Nested(typeof(KraidBehavior), "KraidCollisionShot"),
-                shot.Position.Whole, shot.Radius, shot.Type, shot.Damage);
-            return (bool)PrivateState.Invoke(scratch, "OverlapsMouth", collision)!;
+            KraidBehavior.KraidCollisionScratch scratch = enemies.KraidBehavior.LoadKraidCollisionScratch(body, hitboxPointer);
+            return scratch.OverlapsMouth(new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage));
         }
 
         internal IReadOnlyList<ChozoStatuePlmRequest> ChozoStatuePlmRequests =>
@@ -202,12 +198,12 @@ internal static class CoreAccess
     extension(CeresElevatorArrivalState arrival)
     {
         /// <summary>Whole room position of the moving pad; its X is the X word both projectiles copy from Samus at $86:A313.</summary>
-        internal Position16<RoomPixels> PadPosition => PrivateState.Property<Position16<RoomPixels>>(PrivateState.Field<object>(arrival, "pad"), "Position");
-        internal Position16<RoomPixels> PlatformPosition => PrivateState.Property<Position16<RoomPixels>>(PrivateState.Field<object>(arrival, "platform"), "Position");
+        internal Position16<RoomPixels> PadPosition => arrival.pad.Position;
+        internal Position16<RoomPixels> PlatformPosition => arrival.platform.Position;
         /// <summary>True while the moving pad occupies native enemy-projectile slot $22.</summary>
-        internal bool PadActive => PrivateState.Property<bool>(PrivateState.Field<object>(arrival, "pad"), "Active");
+        internal bool PadActive => arrival.pad.Active;
         /// <summary>True while the level-data concealer occupies native enemy-projectile slot $20.</summary>
-        internal bool PlatformActive => PrivateState.Property<bool>(PrivateState.Field<object>(arrival, "platform"), "Active");
+        internal bool PlatformActive => arrival.platform.Active;
     }
 
     extension(SuperMetroidRuntime runtime)
@@ -240,33 +236,24 @@ internal static class CoreAccess
                 bool lockedOut = plms.Stations._saveStationLockedOut;
                 return PlmSlots(plms)
                     .Select((slot, index) => (slot, index))
-                    .Where(entry => PrivateState.Property<bool>(entry.slot, "Active")
-                        && PrivateState.Property<object?>(entry.slot, "Station") is not null)
+                    .Where(entry => entry.slot.Active)
                     .OrderByDescending(entry => entry.index)
-                    .Select(entry =>
-                    {
-                        object station = PrivateState.Property<object>(entry.slot, "Station");
-                        return new StationPlmSnapshot(entry.index,
-                            PrivateState.Property<int>(entry.slot, "BlockIndex"),
-                            PrivateState.Property<ushort>(entry.slot, "RoomArgument"),
-                            PrivateState.Property<StationKind>(station, "Kind"),
-                            PrivateState.Property<bool>(station, "Triggered"),
-                            PrivateState.Property<SaveStationPhase>(station, "SavePhase"),
-                            lockedOut);
-                    })
+                    .SelectMany(entry => entry.slot.Station is { } station
+                        ? [new StationPlmSnapshot(entry.index, entry.slot.BlockIndex, entry.slot.RoomArgument,
+                            station.Kind, station.Triggered, station.SavePhase, lockedOut)]
+                        : Array.Empty<StationPlmSnapshot>())
                     .ToArray();
             }
         }
     }
 
-    private static IEnumerable<object> PlmSlots(RoomPlmSystem plms) =>
-        plms.SlotTable._slots.Cast<object>();
+    private static PlmSlot[] PlmSlots(RoomPlmSystem plms) => plms.SlotTable._slots;
 
     /// <summary>Every room-FX record the compiled catalog defines, in pointer order.</summary>
     internal static IEnumerable<RoomFxRecordDefinition> AllRoomFxRecords()
     {
         for (int pointer = 0x8000; pointer <= ushort.MaxValue; pointer++)
-            if (PrivateState.InvokeStatic(typeof(RoomFxRecordDefinitions), "SelectRecord", (ushort)pointer) is RoomFxRecordDefinition record)
+            if (RoomFxRecordDefinitions.SelectRecord((ushort)pointer) is RoomFxRecordDefinition record)
                 yield return record;
     }
 
@@ -351,15 +338,14 @@ internal static class CoreAccess
         /// </summary>
         internal bool ScrollPlmTriggered(int blockIndex)
         {
-            object[] owners = plms.SlotTable._slots.Cast<object>()
-                .Where(slot => PrivateState.Property<bool>(slot, "Active") &&
-                    PrivateState.Property<int>(slot, "BlockIndex") == blockIndex &&
-                    PrivateState.Property<object?>(slot, "Scroll") is not null)
-                .ToArray();
+            ScrollPlms.ScrollPlmState[] owners = [.. plms.SlotTable._slots
+                .Where(slot => slot.Active && slot.BlockIndex == blockIndex)
+                .Select(slot => slot.Scroll)
+                .OfType<ScrollPlms.ScrollPlmState>()];
             if (owners.Length != 1)
                 throw new InvalidOperationException(
                     $"Expected one live scroll PLM at block {blockIndex}; found {owners.Length}.");
-            return PrivateState.Property<bool>(PrivateState.Property<object>(owners[0], "Scroll"), "Triggered");
+            return owners[0].Triggered;
         }
     }
 
@@ -371,8 +357,8 @@ internal static class CoreAccess
         /// </summary>
         internal IReadOnlyList<(ushort Pointer, byte Value)> TimerMechanicsBytes =>
         [
-            (unchecked((ushort)(PrivateState.Property<ushort>(self, "TimerTwoPointer") + 2)), 2),
-            (unchecked((ushort)(PrivateState.Property<ushort>(self, "TimerOnePointer") + 2)), 1),
+            (unchecked((ushort)(self.TimerTwoPointer + 2)), 2),
+            (unchecked((ushort)(self.TimerOnePointer + 2)), 1),
         ];
     }
 
@@ -380,15 +366,15 @@ internal static class CoreAccess
     {
         /// <summary>Angular-travel word of departing crash-echo projectile slot three.</summary>
         internal SnesAngle FirstReleasedCrashEchoAngle =>
-            PrivateState.Property<SnesAngle>(PrivateState.Field<object>(self, "_firstReleasedCrashEcho"), "Angle");
+            self._firstReleasedCrashEcho.Angle;
 
         /// <summary>Angular-travel word of departing crash-echo projectile slot four.</summary>
         internal SnesAngle SecondReleasedCrashEchoAngle =>
-            PrivateState.Property<SnesAngle>(PrivateState.Field<object>(self, "_secondReleasedCrashEcho"), "Angle");
+            self._secondReleasedCrashEcho.Angle;
 
         /// <summary>Departing radius (projectile X velocity) of crash-echo projectile slot three.</summary>
         internal ushort FirstReleasedCrashEchoRadius =>
-            PrivateState.Property<ushort>(PrivateState.Field<object>(self, "_firstReleasedCrashEcho"), "Radius");
+            self._firstReleasedCrashEcho.Radius;
     }
 
     extension(RoomPlmSystem self)
@@ -396,19 +382,19 @@ internal static class CoreAccess
         /// <summary>Block index of every active PLM, in native slot order.</summary>
         internal IReadOnlyList<int> ActivePlmBlockIndices =>
         [
-            .. Group4ActivePlmSlots(self).Select(slot => PrivateState.Property<int>(slot, "BlockIndex")),
+            .. Group4ActivePlmSlots(self).Select(slot => slot.BlockIndex),
         ];
 
         /// <summary>Phase of every permanent-item PLM, in the same order as <see cref="CollectiblePlms.Collectibles"/>.</summary>
         internal IReadOnlyList<CollectiblePhase> CollectiblePhases =>
         [
-            .. Group4CollectibleItems(self).Select(item => PrivateState.Property<CollectiblePhase>(item, "Phase")),
+            .. Group4CollectibleItems(self).Select(item => item.Phase),
         ];
 
         /// <summary>Presentation of every permanent-item PLM, in the same order as <see cref="CollectiblePlms.Collectibles"/>.</summary>
         internal IReadOnlyList<CollectiblePresentation> CollectiblePresentations =>
         [
-            .. Group4CollectibleItems(self).Select(item => PrivateState.Property<CollectiblePresentation>(item, "Presentation")),
+            .. Group4CollectibleItems(self).Select(item => item.Presentation),
         ];
     }
 
@@ -419,15 +405,15 @@ internal static class CoreAccess
         {
             get
             {
-                lock (PrivateState.Field<object>(self, "sync"))
+                lock (self.sync)
                 {
                     return new RenderMailboxCounterView(
-                        PrivateState.Field<long>(self, "generation"),
-                        PrivateState.Field<long>(self, "published"),
-                        PrivateState.Field<long>(self, "taken"),
-                        PrivateState.Field<long>(self, "replaced"),
-                        PrivateState.Field<long>(self, "invalidated"),
-                        PrivateState.Field<RenderFrameSnapshot?>(self, "pending") is not null);
+                        self.generation,
+                        self.published,
+                        self.taken,
+                        self.replaced,
+                        self.invalidated,
+                        self.pending is not null);
                 }
             }
         }
@@ -438,19 +424,16 @@ internal static class CoreAccess
         /// <summary>Cached gameplay TS byte the last accepted NMI uploaded with the window registers.</summary>
         [PpuLayoutBoundary("exact hardware test: reads the cached TS register byte")]
         internal byte CachedGameplaySubscreen =>
-            (PrivateState.Field<GameplayWindowRegisterCache?>(self.GameplayWindows, "<Cache>k__BackingField")
+            (self.GameplayWindows.Cache
                 ?? throw new InvalidOperationException("Runtime has no gameplay window register cache."))
             .ReadByte(GameplayWindowRegisterAddresses.Subscreen);
     }
 
-    private static IEnumerable<object> Group4ActivePlmSlots(RoomPlmSystem plms) =>
-        plms.SlotTable._slots.Where(slot => PrivateState.Property<bool>(slot, "Active"));
+    private static IEnumerable<PlmSlot> Group4ActivePlmSlots(RoomPlmSystem plms) =>
+        plms.SlotTable._slots.Where(slot => slot.Active);
 
-    private static IEnumerable<object> Group4CollectibleItems(RoomPlmSystem plms) =>
-        Group4ActivePlmSlots(plms)
-            .Select(slot => PrivateState.Property<object?>(slot, "Item"))
-            .Where(item => item is not null)
-            .Select(item => item!);
+    private static IEnumerable<CollectiblePlms.CollectiblePlmState> Group4CollectibleItems(RoomPlmSystem plms) =>
+        Group4ActivePlmSlots(plms).Select(slot => slot.Item).OfType<CollectiblePlms.CollectiblePlmState>();
 
     extension(LatestRenderFrameMailbox mailbox)
     {
@@ -458,7 +441,7 @@ internal static class CoreAccess
         /// The mailbox's current load/reset generation: publications must carry it, and a
         /// consumer-held packet is current only while its identity matches it.
         /// </summary>
-        internal long Generation => PrivateState.Field<long>(mailbox, "generation");
+        internal long Generation => mailbox.generation;
     }
 }
 
@@ -479,19 +462,18 @@ internal static class CartridgeAudioStateQueueAccess
     {
         /// <summary>Music queue read/write indices, current timer and slot delays ($063B/$0639/$063F/$0629).</summary>
         internal string MusicQueueForVerification() =>
-            $"{PrivateState.Field<byte>(self, "_musicReadPosition"):X}/{PrivateState.Field<byte>(self, "_musicWritePosition"):X} " +
-            $"t={PrivateState.Field<ushort>(self, "_musicTimer"):X} d=" +
-            string.Join(",", PrivateState.Field<Array>(self, "_musicDelays").Cast<object>()
-                .Select(delay => PrivateState.Property<object>(delay, "Frames")).Select(frames => $"{frames:X}"));
+            $"{self._musicReadPosition:X}/{self._musicWritePosition:X} " +
+            $"t={self._musicTimer:X} d=" +
+            string.Join(",", self._musicDelays.Select(delay => $"{delay.Frames:X}"));
 
         /// <summary>One entry of an SFX library's queue ($0643+).</summary>
         internal byte SoundQueueEntryForVerification(int queue, int index) =>
-            PrivateState.Field<byte[,]>(self, "_soundQueues")[queue, index];
+            self._soundQueues[queue, index];
 
         /// <summary>Queue start/next indices and dispatcher state of one SFX library ($0643+/$0646+/$0649+).</summary>
         internal (byte Start, byte Next, byte State) SoundQueueForVerification(int queue) =>
-            (PrivateState.Field<byte[]>(self, "_soundReadPositions")[queue], PrivateState.Field<byte[]>(self, "_soundWritePositions")[queue],
-             PrivateState.Field<byte[]>(self, "_soundStates")[queue]);
+            (self._soundReadPositions[queue], self._soundWritePositions[queue],
+             self._soundStates[queue]);
     }
 }
 internal static class SuperMetroidRuntimeFrameAccess

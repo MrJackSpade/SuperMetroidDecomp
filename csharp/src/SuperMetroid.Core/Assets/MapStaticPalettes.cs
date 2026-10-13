@@ -9,7 +9,7 @@ public sealed class MapStaticPalettes
 {
     private readonly Bgr555[] pause, fileSelect;
     private readonly Dictionary<AreaId, Bgr555[]> world;
-    private MapStaticPalettes(Bgr555[] pause, Bgr555[] fileSelect, Dictionary<AreaId, Bgr555[]> world)
+    internal MapStaticPalettes(Bgr555[] pause, Bgr555[] fileSelect, Dictionary<AreaId, Bgr555[]> world)
     { this.pause = pause; this.fileSelect = fileSelect; this.world = world; }
 
     /// <summary>Gets the complete 256-color pause-screen palette as packed SNES RGB555 words.</summary>

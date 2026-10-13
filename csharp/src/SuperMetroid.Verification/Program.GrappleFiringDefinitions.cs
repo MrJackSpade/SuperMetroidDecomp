@@ -26,8 +26,7 @@ internal static class GrappleFiringDefinitionsVerification
         Suite(nameof(VerifyGrappleLaunchYSelection), () => VerifyGrappleLaunchYSelection(rom));
         Suite(nameof(VerifyGrappleLaunchAngleAlgorithm), () => VerifyGrappleLaunchAngleAlgorithm(rom));
         short Word(int address) => unchecked((short)(SnesLittleEndian.Word(GrappleFiringDefinitionsRomByte(rom, address), GrappleFiringDefinitionsRomByte(rom, address + 1))));
-        var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
+        var refresh = new Action<ISnesAddressSpace, SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringDrawOrigins);
         Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         SamusPoseId sourcePose = SamusPoseId.FacingRightNormalPose;
         var bus = NewGrappleFiringReadGuard(rom, () => sourcePose);

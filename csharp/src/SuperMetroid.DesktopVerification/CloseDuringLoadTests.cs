@@ -17,16 +17,16 @@ internal static class CloseDuringLoadTests
         File.Copy(Path.GetFullPath("Super Metroid.smc"), rom);
         using var form = new GameForm(DesktopAccess.InstallationFor(rom), new SuperMetroidGameOptions { Renderer = RendererSelection.Direct3D11, AudioEnabled = false });
         _ = form.Handle;
-        var control = Field<PlayableGameControl>(form, "gameControl");
+        var control = form.gameControl;
         _ = control.Handle;
-        Call(control, "SetPlaying", false);
+        control.SetPlaying(false);
         await control.InitializeRendererAsync();
-        Call(control, "StepFrame", (ushort)0);
-        Call(control, "SaveDebuggerState", 0);
-        var oldGame = Field<SuperMetroidGame>(control, "game");
-        var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
-        var gate = Field<RenderPresentationGate>(worker, "gate");
-        var packet = Field<RenderFrameSnapshot>(control, "pendingDisplay");
+        control.StepFrame((ushort)0);
+        control.SaveDebuggerState(0);
+        var oldGame = control.game ?? throw new InvalidOperationException("Host has no game.");
+        var worker = control.gpuWorker ?? throw new InvalidOperationException("Host has no GPU worker.");
+        var gate = worker.gate;
+        var packet = control.pendingDisplay ?? throw new InvalidOperationException("Host has no pending display.");
         using var entered = new ManualResetEventSlim();
         using var release = new ManualResetEventSlim();
         Task held = Task.Run(() => gate.TryPresent(packet.Identity, () =>
@@ -38,10 +38,10 @@ internal static class CloseDuringLoadTests
         try
         {
             if (!entered.Wait(TimeSpan.FromSeconds(5))) throw new TimeoutException("Closing load boundary was not acquired.");
-            load = restart ? CallAsync(control, "RestartAsync") : CallAsync(control, "LoadDebuggerState", 0);
+            load = restart ? control.RestartAsync() : control.LoadDebuggerState(0);
             Check(!load.IsCompleted, "closing-load fixture did not hold the pending operation");
             form.Close();
-            Check(Field<bool>(control, "rendererStopping"), "close did not initiate renderer shutdown");
+            Check(control.rendererStopping, "close did not initiate renderer shutdown");
         }
         finally
         {
@@ -57,7 +57,7 @@ internal static class CloseDuringLoadTests
             await Task.Delay(10);
         }
         Check(worker.Completion.IsCompletedSuccessfully, "close during load faulted the GPU owner");
-        Check(ReferenceEquals(oldGame, Field<SuperMetroidGame>(control, "game")), "closing load replaced the game after shutdown began");
+        Check(ReferenceEquals(oldGame, control.game), "closing load replaced the game after shutdown began");
         Directory.Delete(directory, recursive: true);
         Console.WriteLine($"  Close during pending {(restart ? "restart" : "load")}: no late restore or shutdown fault.");
     }

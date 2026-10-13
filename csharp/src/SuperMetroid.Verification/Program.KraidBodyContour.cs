@@ -11,7 +11,6 @@ using SuperMetroid.Core.Runtime;
 using static KraidHeadInstructionsVerification;
 using static Program;
 using System.Reflection;
-using System.Linq.Expressions;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidContourCaseMappingsVerification;
@@ -19,33 +18,15 @@ using static SuiteTimingVerification;
 
 internal static class KraidBodyContourVerification
 {
-    internal static Func<RoomEnemySlot, SamusProjectileSlot, bool> CreateKraidBodyContourProbe()
+    internal static Func<RoomEnemySlot, SamusProjectileSlot, bool> CreateKraidBodyContourProbe() => (body, shot) =>
     {
-        Type scratchType = typeof(KraidBehavior).GetNestedType(
-            "KraidCollisionScratch", BindingFlags.NonPublic)!;
-        Type shotType = typeof(KraidBehavior).GetNestedType(
-            "KraidCollisionShot", BindingFlags.NonPublic)!;
-        var body = Expression.Parameter(typeof(RoomEnemySlot), "body");
-        var shot = Expression.Parameter(typeof(SamusProjectileSlot), "shot");
-        var scratch = Expression.Variable(scratchType, "scratch");
-        Expression Field(string path) => path.Split('.').Aggregate((Expression)shot, Expression.PropertyOrField);
-        var nativeShot = Expression.New(shotType.GetConstructor(
-            [typeof(Position16<RoomPixels>), typeof(Extent16<RoomPixels>), typeof(ushort), typeof(ushort)])!,
-            Field("Position.Whole"), Field("Radius"),
-            Field(nameof(SamusProjectileSlot.Type)), Field(nameof(SamusProjectileSlot.Damage)));
         // Enter the body-contour branch at its exact Y threshold. The surrounding
         // mouth/body dispatch is covered by the encounter collision fixtures.
-        var bottom = Expression.Convert(Expression.Subtract(Expression.Subtract(
-            Expression.Convert(Field("Position.Y.Whole"), typeof(int)),
-            Expression.Convert(Field("Radius.Y"), typeof(int))),
-            Expression.Constant(1)), typeof(ushort));
-        return Expression.Lambda<Func<RoomEnemySlot, SamusProjectileSlot, bool>>(
-            Expression.Block([scratch],
-                Expression.Assign(scratch, Expression.Default(scratchType)),
-                Expression.Assign(Expression.Field(scratch, "Bottom"), bottom),
-                Expression.Call(scratch, scratchType.GetMethod("OverlapsBody")!, body, nativeShot)),
-            body, shot).Compile();
-    }
+        var scratch = default(KraidBehavior.KraidCollisionScratch);
+        scratch.Bottom = unchecked((ushort)(shot.Position.Y.Whole - shot.Radius.Y - 1));
+        return scratch.OverlapsBody(body, new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage));
+    };
+
     internal static void VerifyKraidBodyContour(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidBodyContourCases), () => VerifyKraidBodyContourCases(rom));

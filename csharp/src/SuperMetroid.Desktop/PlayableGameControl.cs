@@ -31,22 +31,22 @@ public sealed class PlayableGameControl : UserControl
     private readonly ControllerInputRecording? replay;
     private readonly GitHubErrorReporter? errorReporter;
     private readonly AudioFrameRecovery audioFrameRecovery = new();
-    private readonly RuntimeCanvas canvas = new() { Dock = DockStyle.Fill, TabStop = true };
+    internal readonly RuntimeCanvas canvas = new() { Dock = DockStyle.Fill, TabStop = true };
     private readonly ToolStripLabel statusLabel = HostToolbarLayout.CreateStatusLabel();
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 8 };
     private readonly Stopwatch playbackClock = new();
-    private readonly FrameTimingCounter frameTimings = new();
+    internal readonly FrameTimingCounter frameTimings = new();
     private readonly HostKeyboardInputState keyboard = new();
     private readonly HostInputActivationGate inputActivation = new();
     private readonly WindowsGamepadInput gamepad = new();
     private double pendingPlaybackFrames;
-    private SuperMetroidAddressSpace addressSpace = null!;
-    private SuperMetroidGame game = null!;
+    internal SuperMetroidAddressSpace addressSpace = null!;
+    internal SuperMetroidGame game = null!;
     private SpcAudioEngine? audioEngine;
     private readonly string? installedAudioDirectory;
     private readonly string playerDataDirectory;
     private GameContentIdentity? installedContentIdentity;
-    private RecoveringAudioOutput? audioDevice;
+    internal RecoveringAudioOutput? audioDevice;
     private ControllerInputRecorder? inputRecorder;
     private DebuggerSaveStateStore stateStore = null!;
     private int replayFrameIndex;
@@ -274,7 +274,7 @@ public sealed class PlayableGameControl : UserControl
         canvas.Focus();
     }
 
-    private void SaveDebuggerState(int slot)
+    internal void SaveDebuggerState(int slot)
     {
         if (replay is not null)
             throw new InvalidOperationException("Debugger states are disabled during an input replay.");
@@ -286,7 +286,7 @@ public sealed class PlayableGameControl : UserControl
         Console.WriteLine($"Saved debugger state slot {slot}: {metadata.Path}");
     }
 
-    private async Task LoadDebuggerState(int slot)
+    internal async Task LoadDebuggerState(int slot)
     {
         if (replay is not null)
             throw new InvalidOperationException("Debugger states are disabled during an input replay.");
@@ -460,7 +460,7 @@ public sealed class PlayableGameControl : UserControl
 
     private bool CanAdvanceAudioFrame() => audioEngine is null || audioDevice is null || audioDevice.CanAcceptFrame;
 
-    private void StepFrame(ushort? forcedInput = null)
+    internal void StepFrame(ushort? forcedInput = null)
     {
         FrontendFrame? frame = AdvanceOneFrame(forcedInput);
         if (frame is not null)
@@ -629,7 +629,7 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>Starts or pauses wall-clock playback without changing translated state.</summary>
-    private void SetPlaying(bool playing)
+    internal void SetPlaying(bool playing)
     {
         pendingPlaybackFrames = 0;
         playbackClock.Restart();
@@ -852,10 +852,10 @@ public sealed class PlayableGameControl : UserControl
     // Host identities deliberately live outside the debugger-state graph.
     private long displaySequence;
     private long displayGeneration;
-    private RenderFrameSnapshot? pendingDisplay;
-    private D3D11RenderWorker? gpuWorker;
+    internal RenderFrameSnapshot? pendingDisplay;
+    internal D3D11RenderWorker? gpuWorker;
     private bool rendererStarted;
-    private bool rendererStopping;
+    internal bool rendererStopping;
     private Form? rendererHost;
     private long previousPresentCount;
     private long previousPresentTimestamp;
@@ -901,7 +901,7 @@ public sealed class PlayableGameControl : UserControl
         return true;
     }
 
-    private async Task RestartAsync()
+    internal async Task RestartAsync()
     {
         bool resume = playbackTimer.Enabled;
         SetPlaying(false);

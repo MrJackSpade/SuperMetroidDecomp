@@ -18,8 +18,6 @@ internal static class AttractCaptureTestsVerification
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
         // Scene setup is compiled now. Bound only the live verification instance after
         // its real first scene has loaded; ROM table patches no longer affect admission.
-        FieldInfo countdown = typeof(SuperMetroidGame).GetField("demoFramesRemaining", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        FieldInfo nextScene = typeof(SuperMetroidGame).GetField("demoScene", BindingFlags.Instance | BindingFlags.NonPublic)!;
         int samples = 0;
         foreach (bool cancel in new[] { false, true })
         {
@@ -42,8 +40,8 @@ internal static class AttractCaptureTestsVerification
                 {
                     foreach (var game in new[] { legacy, captured })
                     {
-                        countdown.SetValue(game, 16);
-                        nextScene.SetValue(game, 6);
+                        game.demoFramesRemaining = 16;
+                        game.demoScene = 6;
                     }
                     bounded = true;
                 }

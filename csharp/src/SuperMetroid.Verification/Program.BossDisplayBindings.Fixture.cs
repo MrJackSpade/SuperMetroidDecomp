@@ -9,7 +9,6 @@ internal static class BossDisplayBindingsFixtureVerification
     /// <summary>One compiled boss actor with RAM only, exercising the public queued draw path.</summary>
     internal sealed class BossDisplayFixture
     {
-        private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
         internal SnesVram Vram { get; } = new();
         internal RoomEnemySystem Enemies { get; }
@@ -58,6 +57,5 @@ internal static class BossDisplayBindingsFixtureVerification
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal void ClearBg2() => Vram.ExecuteWordTransfer(
             new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight], EnemyBg2FrameLayout.VramBase, 1);
-        private void Bind(string name, object value) => typeof(RoomEnemySystem).GetField(name, Private)!.SetValue(Enemies, value);
     }
 }

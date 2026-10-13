@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>$82:A881 arrow animations and $82:A92B palette animation, advanced by menu ticks only.</summary>
 public sealed class FileSelectMapAnimations
 {
-    private readonly Arrow[] arrows = new Arrow[MapArrowDefinitions.Count];
+    internal readonly Arrow[] arrows = new Arrow[MapArrowDefinitions.Count];
     private readonly MapPaletteAnimation palette;
     [NonSerialized] private MapArrowPresentation? presentation;
 
@@ -103,7 +103,7 @@ public sealed class FileSelectMapAnimations
         }
     }
 
-    private sealed class Arrow(Position16<OamPixels> position, MapSpriteId spriteBase)
+    internal sealed class Arrow(Position16<OamPixels> position, MapSpriteId spriteBase)
     {
         public readonly Position16<OamPixels> Position = position;
         public readonly MapSpriteId Base = spriteBase;

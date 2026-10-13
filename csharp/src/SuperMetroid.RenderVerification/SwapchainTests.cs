@@ -16,7 +16,7 @@ internal static partial class SwapchainTests
 {
     /// <summary>Reads the worker mailbox's private publication counters under its own lock.</summary>
     private static RenderMailboxCounterView MailboxCounters(D3D11RenderWorker worker) =>
-        PrivateState.Field<LatestRenderFrameMailbox>(worker, "mailbox").VerificationCounters;
+        worker.mailbox.VerificationCounters;
 
     internal static void RunWorker(D3D11RenderDevice selection)
     {
@@ -186,7 +186,7 @@ internal static partial class SwapchainTests
                     worker.Publish(latest);
                 });
             PumpUntil(() => clock.ElapsedMilliseconds >= 250);
-            LatestRenderFrameMailbox mailbox = PrivateState.Field<LatestRenderFrameMailbox>(worker, "mailbox");
+            LatestRenderFrameMailbox mailbox = worker.mailbox;
             if (latest is null || worker.LastConsumedSequence != 0 || !mailbox.VerificationCounters.HasPendingFrame ||
                 worker.MailboxMetrics.Replaced != sequence - 2)
                 throw new InvalidOperationException("Door transition failed to advance under the held consumer with a bounded mailbox.");

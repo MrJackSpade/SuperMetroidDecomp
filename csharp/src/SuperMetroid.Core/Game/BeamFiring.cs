@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -224,7 +224,7 @@ internal sealed class BeamFiring
             : (null, 0, 0);
     }
 
-    private (int? Slot, ushort Sound) TryFireBeam(
+    internal (int? Slot, ushort Sound) TryFireBeam(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
@@ -345,7 +345,7 @@ internal sealed class BeamFiring
         return (slotIndex, sound);
     }
 
-    private (int? Slot, ushort Sound) TryFireHyperBeam(
+    internal (int? Slot, ushort Sound) TryFireHyperBeam(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,

@@ -37,8 +37,7 @@ internal static class GoldenTorizoCodeVerification
             enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
             enemies.Presentation._cgram = new SnesCgram();
             enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => defeated);
-            var initialize = typeof(RoomEnemySystem).GetMethod("RunInitializationAi", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, RoomLevelData?, SamusState?, ushort, ushort>>(enemies);
+            var initialize = new Action<RoomEnemySlot, RoomLevelData?, SamusState?, ushort, ushort>(enemies.RunInitializationAi);
             var actor = enemies.SlotTable.Slots[0];
             actor.EnemyDefinitionPointer = header;
             actor.Definition = RoomEnemyDefinitionCatalog.Get(header);

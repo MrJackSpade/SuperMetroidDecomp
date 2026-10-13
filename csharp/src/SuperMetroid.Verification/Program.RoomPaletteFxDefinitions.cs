@@ -101,7 +101,7 @@ internal static class RoomPaletteFxDefinitionsVerification
                 equippedItems: 0, areaMiniBossDefeated: false);
             AssertEqual(
                 RoomPaletteFxDefinitions.GetAreaDefinition(area, bit),
-                PaletteFxSlotWord(ActivePaletteFxSlot(system), "Id"),
+                ActivePaletteFxSlot(system).Id,
                 $"area {area} bit {bit} production room load");
         }
 
@@ -141,21 +141,21 @@ internal static class RoomPaletteFxDefinitionsVerification
             RoomPaletteFxDefinition definition = RoomPaletteFxDefinitions.Get(pointer);
             var system = new RoomPaletteFxSystem();
             system.SpawnDefinition(guardedRom, pointer, equippedItems: 0);
-            object slot = ActivePaletteFxSlot(system);
-            AssertEqual(pointer, PaletteFxSlotWord(slot, "Id"), $"${pointer:X4} production ID");
-            AssertEqual((ushort)1, PaletteFxSlotWord(slot, "InstructionTimer"),
+            var slot = ActivePaletteFxSlot(system);
+            AssertEqual(pointer, slot.Id, $"${pointer:X4} production ID");
+            AssertEqual((ushort)1, slot.InstructionTimer,
                 $"${pointer:X4} production timer");
             AssertEqual(
                 definition.SetupCallback == PaletteFxSetup.Intro
                     ? (ushort)PaletteFxPreInstruction.Intro
                     : (ushort)PaletteFxPreInstruction.Null,
-                PaletteFxSlotWord(slot, "PreInstruction"),
+                slot.PreInstruction,
                 $"${pointer:X4} production pre-instruction");
             AssertEqual(
                 definition.SetupCallback == PaletteFxSetup.Norfair
                     ? PaletteFxInstructionListPointers.NorfairPowerSuit
                     : definition.InitialInstructionList,
-                PaletteFxSlotWord(slot, "InstructionPointer"),
+                slot.InstructionPointer,
                 $"${pointer:X4} production initial list");
         }
 
@@ -170,21 +170,17 @@ internal static class RoomPaletteFxDefinitionsVerification
         }
     }
 
-    private static object ActivePaletteFxSlot(RoomPaletteFxSystem system)
+    private static RoomPaletteFxSystem.PaletteFxSlot ActivePaletteFxSlot(RoomPaletteFxSystem system)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var slots = (Array)typeof(RoomPaletteFxSystem).GetField("slots", flags)!.GetValue(system)!;
+        var slots = system.slots;
         for (int index = slots.Length - 1; index >= 0; index--)
         {
-            object slot = slots.GetValue(index)!;
-            if (PaletteFxSlotWord(slot, "Id") != 0)
+            var slot = slots[index];
+            if (slot.Id != 0)
                 return slot;
         }
         throw new InvalidOperationException("Expected one active palette-FX slot.");
     }
-
-    private static ushort PaletteFxSlotWord(object slot, string name) =>
-        (ushort)slot.GetType().GetProperty(name)!.GetValue(slot)!;
 
     internal static CartridgeReadGuard NewRoomPaletteFxDefinitionGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
         new CartridgeReadGuard(source).Forbid(forbidden.Contains,

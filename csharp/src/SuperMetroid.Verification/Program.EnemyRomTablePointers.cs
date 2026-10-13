@@ -29,7 +29,7 @@ internal static class EnemyRomTablePointersVerification
         // test-support as flattened EnemyRomTablePointers* classes.
         Type[] families =
         [
-            .. typeof(EnemyRomTablePointers).GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic),
+            .. MetadataShape.NestedTypes(typeof(EnemyRomTablePointers), BindingFlags.Public | BindingFlags.NonPublic),
             .. typeof(Program).Assembly.GetTypes().Where(type => type != typeof(EnemyRomTablePointers) &&
                 type.Name.StartsWith(nameof(EnemyRomTablePointers), StringComparison.Ordinal)),
         ];

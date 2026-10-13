@@ -21,10 +21,10 @@ public sealed class SamusSpritemapArtworkCatalog
     /// <summary>Native <c>$92:945D</c> lower-half base-index table.</summary>
     public const int BottomBaseAddress = 0x92945D;
 
-    private readonly Dictionary<int, ushort> topBases;
-    private readonly Dictionary<int, ushort> bottomBases;
-    private readonly Dictionary<int, ushort> pointers;
-    private readonly Dictionary<ushort, SamusSpritemapDefinition> definitions;
+    internal readonly Dictionary<int, ushort> topBases;
+    internal readonly Dictionary<int, ushort> bottomBases;
+    internal readonly Dictionary<int, ushort> pointers;
+    internal readonly Dictionary<ushort, SamusSpritemapDefinition> definitions;
 
     /// <summary>Validates pose selectors, indexed pointers, and compositions, copying sprite parts and retaining independently edited selections without replacing animation or collision mechanics.</summary>
     /// <param name="topBases">253 upper-half pointer-table element indices in native pose order, each below <see cref="PointerCount"/>.</param>

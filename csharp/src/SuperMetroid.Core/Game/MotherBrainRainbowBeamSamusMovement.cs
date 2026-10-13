@@ -123,7 +123,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             nativeCarry: reachedVerticalBoundary);
     }
 
-    private static ushort CalculateYVelocity(
+    internal static ushort CalculateYVelocity(
         ushort speed,
         SnesAngle angle)
     {

@@ -67,8 +67,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();
-        DrawImportedCinematicActor(bus, nativeLiveOam, (IntroDiscoverySprite)typeof(IntroEggParticle)
-            .GetField("sprite", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fragment)!);
+        DrawImportedCinematicActor(bus, nativeLiveOam, fragment.sprite);
         nativeLiveOam.FinalizeFrame();
         AssertTrue(stockOam.ImageEquals(nativeLiveOam),
             "installed egg fragment preserves native live-actor OAM");
@@ -95,25 +94,19 @@ internal static class IntroEggEffectSpriteArtworkVerification
         var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
-            typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
-                .Invoke(state, null);
-            typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!
-                .Invoke(state, null);
-            typeof(IntroCinematicState).GetMethod("SetupBabyDiscoveryCrossfade", flags)!
-                .Invoke(state, null);
-            var discovery = (IntroBabyDiscoveryState)typeof(IntroCinematicState)
-                .GetField("babyDiscovery", flags)!.GetValue(state)!;
-            var particles = (List<IntroEggParticle>)typeof(IntroBabyDiscoveryState)
-                .GetField("eggParticles", flags)!.GetValue(discovery)!;
+            state.SetupFirstIllustratedPage();
+            state.SetupMotherBrainFlashback();
+            state.SetupBabyDiscoveryCrossfade();
+            var discovery = state.babyDiscovery;
+            var particles = discovery.eggParticles;
             particles.Add(fragment);
         }
-        var render = typeof(IntroCinematicState).GetMethod("RenderBabyDiscovery", flags)!;
-        Rgba32[] stockPixels = (Rgba32[])render.Invoke(stockState, null)!;
-        Rgba32[] editedPixels = (Rgba32[])render.Invoke(editedState, null)!;
+        Rgba32[] stockPixels = stockState.RenderBabyDiscovery();
+        Rgba32[] editedPixels = editedState.RenderBabyDiscovery();
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
             "egg-fragment override changes visible production discovery pixels");
         stockState.BindCharacterArtwork(edited);
-        AssertTrue(((Rgba32[])render.Invoke(stockState, null)!).SequenceEqual(editedPixels),
+        AssertTrue((stockState.RenderBabyDiscovery()).SequenceEqual(editedPixels),
             "restored egg-discovery scene rebinds the selected visual composition");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production egg effects never reread eleven native spritemaps");

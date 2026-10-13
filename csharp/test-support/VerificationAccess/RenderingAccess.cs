@@ -6,17 +6,17 @@ internal static class RenderingAccess
 {
     extension(D3D11RenderWorker worker)
     {
-        internal bool IsSurfaceSuspended => PrivateState.Field<bool>(worker, "surfaceSuspended");
-        internal long LastConsumedSequence => PrivateState.Field<long>(worker, "lastConsumedSequence");
-        internal D3D11DeviceLossDiagnostic? LastDeviceLoss => PrivateState.Field<D3D11DeviceLossDiagnostic?>(worker, "lastDeviceLoss");
-        internal long OccludedFrames => PrivateState.Field<long>(worker, "occluded");
-        internal long RetainedRedraws => PrivateState.Field<long>(worker, "retainedRedraws");
+        internal bool IsSurfaceSuspended => worker.surfaceSuspended;
+        internal long LastConsumedSequence => worker.lastConsumedSequence;
+        internal D3D11DeviceLossDiagnostic? LastDeviceLoss => worker.lastDeviceLoss;
+        internal long OccludedFrames => worker.occluded;
+        internal long RetainedRedraws => worker.retainedRedraws;
 
         internal Extent16<DisplayPixels> LastDrawnSize
         {
             get
             {
-                long size = PrivateState.Field<long>(worker, "lastDrawnSize");
+                long size = worker.lastDrawnSize;
                 return new((ushort)(size >> 32), (ushort)size);
             }
         }

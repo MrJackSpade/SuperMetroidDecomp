@@ -34,9 +34,7 @@ internal static class PhantoonWaveMathVerification
             AssertEqual(samples[phase & 511], PhantoonWaveRomData.ReadSineAtBytePhase((ushort)phase),
                 "Phantoon byte-phase read and wrapping");
         if (definitionsOnly) return;
-        var displacementReader = typeof(PhantoonWaveTable)
-            .GetMethod("CalculateDisplacement", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Func<ushort, ushort, int>>();
+        var displacementReader = new Func<ushort, ushort, int>(PhantoonWaveTable.CalculateDisplacement);
         // Every byte phase against every amplitude-word boundary class.
         for (int phase = 0; phase < 512; phase++)
         foreach (int amplitude in WordBoundarySamples())

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
@@ -10,6 +11,7 @@ using static DesktopVerificationSupport;
 internal static class RendererCaptureTests
 {
     /// <summary>Software/GPU stepping, resize, paused state restore, generation reset and asynchronous shutdown for one renderer.</summary>
+    [ReflectionAudit("hidden forms receive no native resize message, so WinForms OnResize is raised directly")]
     internal static async Task Verify(RendererSelection renderer)
     {
         // Private fixture data lives in a new directory, never in the player's live slots.
@@ -24,31 +26,31 @@ internal static class RendererCaptureTests
         // Construct handles without Show/ShowDialog; the UI loop remains alive for DXGI.
         _ = form.Handle;
         _ = control.Handle;
-        Call(control, "SetPlaying", false);
+        control.SetPlaying(false);
         try
         {
             await control.InitializeRendererAsync();
-            for (int i = 0; i < 30; i++) Call(control, "StepFrame", (ushort)0);
-            var before = Field<RenderFrameSnapshot>(control, "pendingDisplay");
-            var game = Field<SuperMetroidGame>(control, "game");
+            for (int i = 0; i < 30; i++) control.StepFrame((ushort)0);
+            var before = control.pendingDisplay ?? throw new InvalidOperationException("Host has no pending display.");
+            var game = control.game ?? throw new InvalidOperationException("Host has no game.");
             ushort frameNumber = game.FrameNumber;
             var expected = SoftwareFrameSnapshotRenderer.Render(before);
-            Call(control, "SaveDebuggerState", 0);
-            for (int i = 0; i < 10; i++) Call(control, "StepFrame", (ushort)0);
+            control.SaveDebuggerState(0);
+            for (int i = 0; i < 10; i++) control.StepFrame((ushort)0);
             if (renderer != RendererSelection.Software)
                 await VerifyAsyncLoadBoundary(control);
-            else await CallAsync(control, "LoadDebuggerState", 0);
-            var restored = Field<RenderFrameSnapshot>(control, "pendingDisplay");
+            else await control.LoadDebuggerState(0);
+            var restored = control.pendingDisplay ?? throw new InvalidOperationException("Host has no pending display.");
             Check(restored.Identity.Generation > before.Identity.Generation, "load must advance host generation");
             Check(restored.Identity.Sequence > before.Identity.Sequence, "load must not rewind host sequence");
-            Check(Field<SuperMetroidGame>(control, "game").FrameNumber == frameNumber, "load must not step game");
+            Check(control.game.FrameNumber == frameNumber, "load must not step game");
             Check(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(restored)), "loaded display must match saved pixels");
             form.ClientSize = new(700, 500);
             if (renderer != RendererSelection.Software)
             {
-                var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
+                var worker = control.gpuWorker ?? throw new InvalidOperationException("Host has no GPU worker.");
                 await Until(() => worker.LastConsumedSequence == restored.Identity.Sequence, worker);
-                Check(Field<LatestRenderFrameMailbox>(worker, "mailbox").Generation == restored.Identity.Generation,
+                Check(worker.mailbox.Generation == restored.Identity.Generation,
                     "worker must use loaded generation");
                 form.WindowState = FormWindowState.Minimized;
                 // Hidden forms do not receive native minimize messages. Raise the
@@ -58,18 +60,18 @@ internal static class RendererCaptureTests
                 form.WindowState = FormWindowState.Normal;
                 typeof(Form).GetMethod("OnResize", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(form, [EventArgs.Empty]);
                 await Until(() => !worker.IsSurfaceSuspended, worker);
-                var canvas = Field<RuntimeCanvas>(control, "canvas");
+                var canvas = control.canvas;
                 await Until(() => worker.LastDrawnSize
                     == DisplayViewport.ClientSize(canvas.ClientSize.Width, canvas.ClientSize.Height), worker);
             }
             if (renderer != RendererSelection.Software)
                 await VerifyAsyncLoadBoundary(control, restart: true);
-            else await CallAsync(control, "RestartAsync");
-            var reset = Field<RenderFrameSnapshot>(control, "pendingDisplay");
+            else await control.RestartAsync();
+            var reset = control.pendingDisplay ?? throw new InvalidOperationException("Host has no pending display.");
             Check(reset.Identity.Generation > restored.Identity.Generation, "restart must advance generation");
             if (renderer != RendererSelection.Software)
             {
-                var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
+                var worker = control.gpuWorker ?? throw new InvalidOperationException("Host has no GPU worker.");
                 await Until(() => worker.LastConsumedSequence == reset.Identity.Sequence, worker);
             }
         }

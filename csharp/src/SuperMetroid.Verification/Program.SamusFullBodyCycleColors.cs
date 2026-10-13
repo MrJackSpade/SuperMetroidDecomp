@@ -16,14 +16,17 @@ internal static class SamusFullBodyCycleColorsVerification
         var native = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(extracted));
         var originalPointers = new SortedSet<ushort>();
         var originalBases = new Dictionary<ushort, ushort>();
-        var stored = (Dictionary<int, Bgr555>)typeof(SamusFullBodyCycleColorCatalog)
-            .GetField("colors", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(native)!;
+        var stored = native.colors;
         AssertEqual(25, stored.Count, "Full-body shades leave25 whole-word base/transparent inputs");
-        int endpointComponents = 0;
-        foreach (var field in typeof(SamusFullBodyCycleColorCatalog).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
-            if (field.FieldType == typeof(LoadingPaletteInputView.Channels))
-                foreach (var channel in field.FieldType.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
-                    if (channel.GetValue(field.GetValue(native)) is not null) endpointComponents++;
+        LoadingPaletteInputView.Channels[] endpoints =
+        [
+            native.powerDim1, native.powerDim2, native.powerBright9, native.powerDim12,
+            native.variaBright10, native.variaDim12, native.gravityDim2,
+            native.activePowerMiddle2, native.activePowerBright2, native.activePowerDim8,
+            native.screwPowerBright10, native.screwPowerBright15, native.screwVariaBright2,
+        ];
+        int endpointComponents = endpoints.Sum(channels =>
+            (channels.red is null ? 0 : 1) + (channels.green is null ? 0 : 1) + (channels.blue is null ? 0 : 1));
         AssertEqual(15, endpointComponents, "Full-body shade endpoints store fifteen independent channels");
         foreach (var (header, phases) in new[] { (0x91daa9, 4), (0x91da4a, 6), (0x91db10, 6), (0x91db75, 4) })
         for (int suit = 0; suit < 3; suit++)

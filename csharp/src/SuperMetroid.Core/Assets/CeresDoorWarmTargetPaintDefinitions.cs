@@ -15,7 +15,7 @@ internal sealed class CeresDoorWarmTargetPaintDefinitions
     private const int GoldRedStep = 3;
     private const int GoldGreenStep = 6;
     private readonly int highlightBlue, amberRed, amberGreen, red, goldRed, goldGreen, goldBlue;
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal CeresDoorWarmTargetPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {

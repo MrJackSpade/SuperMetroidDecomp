@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class MapMarkerTileArtwork
 {
     internal const int TileCount = 4;
-    private readonly Dictionary<int, byte>? edits;
+    internal readonly Dictionary<int, byte>? edits;
     internal static bool Contains(int tile) => tile is >= 0x9d and <= 0x9f or 0xaf;
 
     internal MapMarkerTileArtwork(IndexedPngImage image)

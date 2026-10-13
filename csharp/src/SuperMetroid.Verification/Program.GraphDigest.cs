@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Security.Cryptography;
 using SuperMetroid.Desktop;
 
@@ -42,6 +43,7 @@ internal static class GraphDigestVerification
     /// unmanaged elements by content, everything else by <see cref="object.Equals(object?, object?)"/>.
     /// Reflection covers fields added later, so a restore that forgets one fails here.
     /// </summary>
+    [ReflectionAudit("structural equality: every instance field is compared, so a restore that forgets a field added later fails")]
     internal static bool InstanceStateEquals<T>(T actual, T expected) where T : class
     {
         for (Type? type = typeof(T); type is not null; type = type.BaseType)

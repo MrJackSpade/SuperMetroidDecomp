@@ -41,7 +41,7 @@ public sealed class SamusBombProjectileSystem
     public SamusPowerBombExplosionState PowerBombExplosion { get; } = new();
 
     /// <summary>WRAM $0CD2, maintained independently from slot scans by the original.</summary>
-    public ushort BombCounter { get; private set; }
+    public ushort BombCounter { get; internal set; }
 
     /// <summary>WRAM $0CCC. Its low byte gates another bomb while one is active.</summary>
     public ushort CooldownTimer { get; private set; }
@@ -473,7 +473,7 @@ public sealed class SamusBombProjectileSystem
         return BombSpreadAdmission.Spawned;
     }
 
-    private void SpawnBombSpread(SamusState samus)
+    internal void SpawnBombSpread(SamusState samus)
     {
         int verticalModifier =
             (samus.BombSpreadChargeTimeoutCounter >> 6) & 0x0003;
@@ -541,7 +541,7 @@ public sealed class SamusBombProjectileSystem
         return slotIndex;
     }
 
-    private static void InitializeBombFromRom(
+    internal static void InitializeBombFromRom(
         SamusBombProjectileSlot slot)
     {
         // $93:80A6 reads the HIGH byte of type, masks its low nibble, and indexes the
@@ -735,7 +735,7 @@ public sealed class SamusBombProjectileSystem
         return (whole, fraction);
     }
 
-    private static bool BombSpreadCollides(
+    internal static bool BombSpreadCollides(
         RoomLevelData level,
         SamusBombProjectileSlot slot)
     {
@@ -1059,7 +1059,7 @@ public sealed class SamusBombProjectileSystem
             $"BTS ${block.Behavior:X2} at ({x},{y}).");
     }
 
-    private bool RunProjectileInstructionHandler(
+    internal bool RunProjectileInstructionHandler(
         SamusBombProjectileSlot slot)
     {
         // $93:81F2 is a wrapping 16-bit DEC. A legitimate initialized timer is always at

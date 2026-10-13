@@ -37,8 +37,8 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         samus.Presentation.InitializeAnimation(bus);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
+        game.runtime = runtime;
+        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
         game.DoorLoaderProgress = new CameraReachedLoaderProgress(runtime, 0x038c);
 
         var level = runtime.Room.LevelData!;
@@ -55,7 +55,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
             selected = true;
         }
         AssertTrue(selected, "the shaft has a door into Mother Brain's room");
-        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.HitDoorBlock);
+        game.GameState = SuperMetroidGameState.HitDoorBlock;
         for (int guard = 0; game.GameState != SuperMetroidGameState.MainGameplay && guard < 600; guard++)
             game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the door transition completes");

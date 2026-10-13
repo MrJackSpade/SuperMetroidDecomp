@@ -47,12 +47,12 @@ internal static class GameOverRomDataVerification
             babyMenu.Step(0);
             if (babyMenu.ResumesAfterNmiWait)
             {
-                PrivateState.SetProperty(babyMenu, nameof(GameOverMenuState.ResumesAfterNmiWait), false);
-                PrivateState.SetProperty(babyMenu, nameof(GameOverMenuState.Phase), GameOverMenuPhase.FadeIn);
+                babyMenu.ResumesAfterNmiWait = false;
+                babyMenu.Phase = GameOverMenuPhase.FadeIn;
             }
         }
-        var queues = (byte[,])typeof(CartridgeAudioState).GetField("_soundQueues", flags)!.GetValue(babyAudio)!;
-        var writes = (byte[])typeof(CartridgeAudioState).GetField("_soundWritePositions", flags)!.GetValue(babyAudio)!;
+        var queues = babyAudio._soundQueues;
+        var writes = babyAudio._soundWritePositions;
         ushort pointer = GameOverRomData.BabyAnimation.FirstInstruction;
         int timer = rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)pointer), cries = 0, records = 0, ticks = 0;
         bool looped = false;

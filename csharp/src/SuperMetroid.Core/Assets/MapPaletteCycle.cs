@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable authored highlight colors and durations; contains no palette addresses or audio commands.</summary>
 public sealed class MapPaletteCycle
 {
-    private readonly Dictionary<int, byte> durationEdits = [];
-    private readonly Bgr555[][] colors;
-    private readonly Dictionary<int, Bgr555> reverseColorEdits = [];
+    internal readonly Dictionary<int, byte> durationEdits = [];
+    internal readonly Bgr555[][] colors;
+    internal readonly Dictionary<int, Bgr555> reverseColorEdits = [];
 
     /// <summary>
     /// Native $82:C10C pauses fifteen ticks at the loop origin and advances other

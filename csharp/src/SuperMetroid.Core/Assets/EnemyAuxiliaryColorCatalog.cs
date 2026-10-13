@@ -24,10 +24,10 @@ public sealed class EnemyAuxiliaryColorCatalog
             }
         });
 
-    private readonly PaletteRows faceBlock;
-    private readonly PaletteRows deadSidehopper;
-    private readonly PaletteRows torizoBody;
-    private readonly PaletteRows torizoBelly;
+    internal readonly PaletteRows faceBlock;
+    internal readonly PaletteRows deadSidehopper;
+    internal readonly PaletteRows torizoBody;
+    internal readonly PaletteRows torizoBelly;
     private EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, Bgr555[][]> frames)
     {
         faceBlock = new(frames[EnemyAuxiliaryPalette.FaceBlock], healthGradient: false, faceGlow: true);
@@ -66,15 +66,15 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// independently supplied rows remain data. $A9:EBCC-EC7C Sidehopper draining interpolates
     /// actual RGB5 endpoints to nearest over five intervals; EC8C is separate corpse paint.
     /// </summary>
-    private sealed class PaletteRows
+    internal sealed class PaletteRows
     {
-        private readonly Bgr555[] first;
-        private readonly Bgr555[] last;
-        private readonly Bgr555[][]? supplied;
+        internal readonly Bgr555[] first;
+        internal readonly Bgr555[] last;
+        internal readonly Bgr555[][]? supplied;
         private readonly bool faceGlow;
         private readonly bool stockTorizo, rearTorizo, stockSidehopperDrain, stockFaceGlow;
         private readonly Bgr555 glowAccentStart;
-        private readonly Bgr555[]? corpse;
+        internal readonly Bgr555[]? corpse;
 
         internal int FrameCount { get; }
         internal int ColorCount { get; }

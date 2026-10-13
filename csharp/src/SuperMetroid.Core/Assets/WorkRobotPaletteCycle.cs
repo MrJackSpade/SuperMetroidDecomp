@@ -24,7 +24,7 @@ public sealed class WorkRobotPaletteCycle
             }
         });
 
-    private readonly Bgr555[][]? frames;
+    internal readonly Bgr555[][]? frames;
 
     private WorkRobotPaletteCycle(Bgr555[][] frames)
     {

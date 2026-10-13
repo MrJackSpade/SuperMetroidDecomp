@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
@@ -26,6 +27,7 @@ internal static class PlmProgramAudit
     internal delegate bool WordReader(ushort address, out ushort value);
     internal delegate bool ByteReader(ushort address, out byte value);
 
+    [ReflectionAudit("coverage audit: every declared PLM instruction-list constant must be classified")]
     internal static int Run(string root, string? jsonPath)
     {
         var report = new PlmProgramAuditReport();

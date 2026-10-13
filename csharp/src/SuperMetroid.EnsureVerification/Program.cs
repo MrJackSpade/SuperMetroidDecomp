@@ -4,6 +4,7 @@ using static SuperMetroid.EnsureVerification.AnalyzerTests;
 using static SuperMetroid.EnsureVerification.CartridgeEncodingAnalyzerTests;
 using static SuperMetroid.EnsureVerification.CpuBusCodeFixTests;
 using static SuperMetroid.EnsureVerification.EnsureCodeFixTests;
+using static SuperMetroid.EnsureVerification.OwnedReflectionAnalyzerTests;
 using static SuperMetroid.EnsureVerification.PaletteFxContractTests;
 using static SuperMetroid.EnsureVerification.ParameterContractsTests;
 using static SuperMetroid.EnsureVerification.ParameterListAnalyzerTests;
@@ -38,6 +39,7 @@ internal static class Program
             VerifySpcMemoryAccessAnalyzer();
             VerifyParameterListAnalyzer();
             VerifyPartialTypeAnalyzer();
+            VerifyOwnedReflectionAnalyzer();
             VerifyParameterContracts();
             VerifyCartridgeEncodingAnalyzer();
             VerifyEnsureCallsAndCodeFix();

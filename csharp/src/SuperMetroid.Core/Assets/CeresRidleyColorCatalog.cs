@@ -8,15 +8,15 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Ceres Ridley, shared Norfair Ridley health, and private Baby draw colors.</summary>
 public sealed class CeresRidleyColorCatalog
 {
-    private readonly CeresRidleyStartColorDefinitions start;
-    private readonly CeresRidleyFadeColorDefinitions eyeFade;
-    private readonly CeresRidleyFadeColorDefinitions bodyFade;
-    private readonly CeresRidleyHealthPaintDefinitions health;
-    private readonly CeresRidleyAlarmColorDefinitions alarm;
-    private readonly Dictionary<int, Bgr555> retreatBg = [];
+    internal readonly CeresRidleyStartColorDefinitions start;
+    internal readonly CeresRidleyFadeColorDefinitions eyeFade;
+    internal readonly CeresRidleyFadeColorDefinitions bodyFade;
+    internal readonly CeresRidleyHealthPaintDefinitions health;
+    internal readonly CeresRidleyAlarmColorDefinitions alarm;
+    internal readonly Dictionary<int, Bgr555> retreatBg = [];
     /// <summary>Only supplied differences from the first eight door paints: native $A6:AA01-AA10 repeats $A6:E171-E180.</summary>
-    private readonly Dictionary<int, Bgr555> retreatShared = [];
-    private readonly CeresBabyPaintDefinitions baby;
+    internal readonly Dictionary<int, Bgr555> retreatShared = [];
+    internal readonly CeresBabyPaintDefinitions baby;
 
     private CeresRidleyColorCatalog(CeresRidleyColorParts parts)
     {

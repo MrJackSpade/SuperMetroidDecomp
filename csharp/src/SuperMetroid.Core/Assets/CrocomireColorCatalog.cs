@@ -21,9 +21,9 @@ public sealed class CrocomireColorCatalog
         Append(content, Band.WallSpikes, "wallSpikes");
     });
 
-    private enum Band { FightBody, InitialWall, InitialProjectile, SkeletonArm, WallSpikes }
+    internal enum Band { FightBody, InitialWall, InitialProjectile, SkeletonArm, WallSpikes }
     // Only independently supplied differences are stored; every stock ink calculates.
-    private readonly Dictionary<(Band Band, int Color), Bgr555> edits = [];
+    internal readonly Dictionary<(Band Band, int Color), Bgr555> edits = [];
 
     private CrocomireColorCatalog(Bgr555[] fightBody, Bgr555[] initialWall,
         Bgr555[] initialProjectile, Bgr555[] skeletonArm, Bgr555[] wallSpikes)
@@ -127,7 +127,7 @@ public sealed class CrocomireColorCatalog
         return bytes;
     }
 
-    private Bgr555 Get(Band band, int index)
+    internal Bgr555 Get(Band band, int index)
     {
         if ((uint)index >= Count(band)) throw new ArgumentOutOfRangeException(nameof(index));
         return edits.TryGetValue((band, index), out Bgr555 edited) ? edited : Stock(band, index);

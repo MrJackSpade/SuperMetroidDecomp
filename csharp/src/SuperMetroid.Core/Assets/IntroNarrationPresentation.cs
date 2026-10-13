@@ -130,10 +130,10 @@ public sealed class IntroNarrationPresentation
     }
 
     /// <summary>Calculated word wrapping and two-row spacing. Stock story wording and its one deliberate hard break are reviewed narrative content; independent edits remain exact.</summary>
-    private sealed class NarrationPage : IReadOnlyList<IntroNarrationLine>
+    internal sealed class NarrationPage : IReadOnlyList<IntroNarrationLine>
     {
-        private readonly string? text;
-        private readonly IntroNarrationLine[]? supplied;
+        internal readonly string? text;
+        internal readonly IntroNarrationLine[]? supplied;
 
         internal NarrationPage(IntroNarrationLine[] lines)
         {

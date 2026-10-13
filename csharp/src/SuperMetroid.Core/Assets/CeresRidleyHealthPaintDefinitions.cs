@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class CeresRidleyHealthPaintDefinitions
 {
     private readonly CeresRidleyFadeColorDefinitions body, eyes;
-    private readonly Dictionary<int, Bgr555> edits = [];
+    internal readonly Dictionary<int, Bgr555> edits = [];
 
     internal CeresRidleyHealthPaintDefinitions(Bgr555[][] rows,
         CeresRidleyFadeColorDefinitions body, CeresRidleyFadeColorDefinitions eyes)

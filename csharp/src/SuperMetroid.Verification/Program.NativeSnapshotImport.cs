@@ -39,15 +39,12 @@ internal static class NativeSnapshotImportVerification
         ScrollBoundaryCamera camera = runtime.Room.Camera!;
         // The room load wrote only the integer layer-one words; import the native fractions,
         // ideal position and speed words as whole camera values.
-        typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.Position))!.SetValue(camera,
-            camera.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromWords(
-                0, W(NativeSnapshotMemory.CameraXFraction), 0, W(NativeSnapshotMemory.CameraYFraction))));
-        typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.IdealPosition))!.SetValue(camera,
-            new Position16<RoomPixels>(W(NativeSnapshotMemory.IdealCameraX), W(NativeSnapshotMemory.IdealCameraY)));
-        typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.Speed))!.SetValue(camera,
-            FixedVector<RoomPixels>.FromWords(
+        camera.Position = camera.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromWords(
+                0, W(NativeSnapshotMemory.CameraXFraction), 0, W(NativeSnapshotMemory.CameraYFraction)));
+        camera.IdealPosition = new Position16<RoomPixels>(W(NativeSnapshotMemory.IdealCameraX), W(NativeSnapshotMemory.IdealCameraY));
+        camera.Speed = FixedVector<RoomPixels>.FromWords(
                 W(NativeSnapshotMemory.CameraSpeedX), W(NativeSnapshotMemory.CameraSpeedXFraction),
-                W(NativeSnapshotMemory.CameraSpeedY), W(NativeSnapshotMemory.CameraSpeedYFraction)));
+                W(NativeSnapshotMemory.CameraSpeedY), W(NativeSnapshotMemory.CameraSpeedYFraction));
         runtime.Room.Camera!.FinishSamusScrolling(FixedPosition<RoomPixels>.FromWords(
             W(NativeSnapshotMemory.PreviousSamusX), W(NativeSnapshotMemory.PreviousSamusXFraction),
             W(NativeSnapshotMemory.PreviousSamusY), W(NativeSnapshotMemory.PreviousSamusYFraction)));
@@ -62,39 +59,29 @@ internal static class NativeSnapshotImportVerification
         }
 
         runtime.Cgram.LoadBytes(memory.AsSpan(NativeSnapshotMemory.PaletteBuffer, CgramPalettes.ByteCount));
-        var initialPaletteSlots = (Array)typeof(RoomPaletteFxSystem)
-            .GetField("slots", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.RoomPaletteFx)!;
+        var initialPaletteSlots = runtime.RoomPaletteFx.slots;
         for (int slot = 0; slot < initialPaletteSlots.Length; slot++)
         {
-            object paletteSlot = initialPaletteSlots.GetValue(slot)!;
-            foreach (var (property, address) in new[]
-            {
-                ("Id", NativeSnapshotMemory.PaletteFxId), ("ColorByteIndex", NativeSnapshotMemory.PaletteFxColor),
-                ("PreInstruction", NativeSnapshotMemory.PaletteFxPreInstruction), ("InstructionPointer", NativeSnapshotMemory.PaletteFxInstruction),
-                ("InstructionTimer", NativeSnapshotMemory.PaletteFxInstructionTimer), ("Timer", NativeSnapshotMemory.PaletteFxTimer),
-            }) paletteSlot.GetType().GetProperty(property)!.SetValue(paletteSlot, W(address + slot * 2));
+            var paletteSlot = initialPaletteSlots[slot];
+            paletteSlot.Id = W(NativeSnapshotMemory.PaletteFxId + slot * 2);
+            paletteSlot.ColorByteIndex = W(NativeSnapshotMemory.PaletteFxColor + slot * 2);
+            paletteSlot.PreInstruction = W(NativeSnapshotMemory.PaletteFxPreInstruction + slot * 2);
+            paletteSlot.InstructionPointer = W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2);
+            paletteSlot.InstructionTimer = W(NativeSnapshotMemory.PaletteFxInstructionTimer + slot * 2);
+            paletteSlot.Timer = W(NativeSnapshotMemory.PaletteFxTimer + slot * 2);
         }
-        foreach (var (field, address) in new[]
-        {
-            ("samusInHeatPaletteIndex", NativeSnapshotMemory.HeatPalettePhase),
-            ("previousSamusInHeatPaletteIndex", NativeSnapshotMemory.PreviousHeatPalettePhase),
-        }) typeof(RoomPaletteFxSystem).GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(runtime.RoomPaletteFx, W(address));
-        ushort[] initialHud = (ushort[])typeof(HudState)
-            .GetField("_tiles", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.Hud)!;
+        runtime.RoomPaletteFx.samusInHeatPaletteIndex = W(NativeSnapshotMemory.HeatPalettePhase);
+        runtime.RoomPaletteFx.previousSamusInHeatPaletteIndex = W(NativeSnapshotMemory.PreviousHeatPalettePhase);
+        ushort[] initialHud = runtime.Hud._tiles;
         for (int index = 0; index < initialHud.Length; index++)
             initialHud[index] = W(NativeSnapshotMemory.HudTilemap + index * 2);
-        var previousHudSelection = typeof(HudState)
-            .GetField("_previousSelectedItem", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        previousHudSelection.SetValue(runtime.Hud, W(NativeSnapshotMemory.PreviousHudSelection));
-        byte[] initialScrolls = (byte[])typeof(RoomScrollGrid)
-            .GetField("_cells", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.Room.Camera.Scrolls)!;
+        runtime.Hud._previousSelectedItem = W(NativeSnapshotMemory.PreviousHudSelection);
+        byte[] initialScrolls = runtime.Room.Camera.Scrolls._cells;
         memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount).CopyTo(initialScrolls);
         WorkRamByteTable scrollZones = new RoomScrollMemory(bus).Zones;
         for (int index = 0; index < initialScrolls.Length; index++)
             scrollZones[index] = initialScrolls[index];
-        typeof(HudState).GetProperty(nameof(HudState.MinimapDisabled))!
-            .SetValue(runtime.Hud, W(NativeSnapshotMemory.MinimapDisabled) != 0);
+        runtime.Hud.MinimapDisabled = W(NativeSnapshotMemory.MinimapDisabled) != 0;
         byte[] initialMaps = memory.AsSpan(NativeSnapshotMemory.SavedExploredMaps,
             Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea).ToArray();
         memory.AsSpan(NativeSnapshotMemory.LiveExploredMap, Bank80SystemState.ExploredMapBytesPerArea)
@@ -106,56 +93,43 @@ internal static class NativeSnapshotImportVerification
         SamusState samus = runtime.Player.Samus ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load Samus.");
         samus.InputLocked = false;
-        foreach (var (property, address) in new[]
-        {
-            (nameof(SamusPresentation.TopSpritemapIndex), NativeSnapshotMemory.SamusTopSpritemap),
-            (nameof(SamusPresentation.BottomSpritemapIndex), NativeSnapshotMemory.SamusBottomSpritemap),
-        }) typeof(SamusPresentation).GetProperty(property)!.SetValue(samus.Presentation, W(address));
-        typeof(SamusPresentation).GetProperty(nameof(SamusPresentation.SpritemapPosition))!.SetValue(samus.Presentation,
-            new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY)));
-        foreach (var (property, address) in new[]
-        {
-            (nameof(SamusArmCannonState.Frame), NativeSnapshotMemory.CannonFrame),
-            (nameof(SamusArmCannonState.ToggleFlag), NativeSnapshotMemory.CannonToggle),
-            (nameof(SamusArmCannonState.DrawingMode), NativeSnapshotMemory.CannonDrawingMode),
-        }) typeof(SamusArmCannonState).GetProperty(property)!.SetValue(samus.ArmCannon, W(address));
-        typeof(SamusArmCannonState).GetProperty(nameof(SamusArmCannonState.OpenFlag))!
-            .SetValue(samus.ArmCannon, memory[NativeSnapshotMemory.CannonFlags]);
-        typeof(SamusArmCannonState).GetProperty(nameof(SamusArmCannonState.CloseFlag))!
-            .SetValue(samus.ArmCannon, memory[NativeSnapshotMemory.CannonFlags + 1]);
+        samus.Presentation.TopSpritemapIndex = W(NativeSnapshotMemory.SamusTopSpritemap);
+        samus.Presentation.BottomSpritemapIndex = W(NativeSnapshotMemory.SamusBottomSpritemap);
+        samus.Presentation.SpritemapPosition = new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY));
+        samus.ArmCannon.Frame = W(NativeSnapshotMemory.CannonFrame);
+        samus.ArmCannon.ToggleFlag = W(NativeSnapshotMemory.CannonToggle);
+        samus.ArmCannon.DrawingMode = W(NativeSnapshotMemory.CannonDrawingMode);
+        samus.ArmCannon.OpenFlag = memory[NativeSnapshotMemory.CannonFlags];
+        samus.ArmCannon.CloseFlag = memory[NativeSnapshotMemory.CannonFlags + 1];
         new ProjectileInheritanceRecordsAccess(bus).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,
             NativeSnapshotMemory.SamusSlopeAdjusted - NativeSnapshotMemory.ProjectileInheritancePrefix));
         samus.Kinematics.PositionAdjustedBySlope = W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0;
         for (int direction = 0; direction < 4; direction++)
             samus.Kinematics.RecordSolidEnemyCollision((SamusCollisionDirection)direction,
                 W(NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2));
-        typeof(SamusHorizontalSpeedState).GetProperty(nameof(samus.HorizontalSpeed.ActiveSpeedTableBaseAddress))!
-            .SetValue(samus.HorizontalSpeed, W(NativeSnapshotMemory.HorizontalSpeedTable));
+        samus.HorizontalSpeed.ActiveSpeedTableBaseAddress = W(NativeSnapshotMemory.HorizontalSpeedTable);
         samus.HorizontalSpeed.DecelerationMultiplier = memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier];
         samus.HorizontalSpeed.EchoSoundFlag = W(NativeSnapshotMemory.SpeedEchoSoundLatch);
-        typeof(SamusHorizontalSpeedState).GetProperty(nameof(samus.HorizontalSpeed.TotalSpeed))!
-            .SetValue(samus.HorizontalSpeed, W(NativeSnapshotMemory.TotalHorizontalSpeed));
-        typeof(SamusHorizontalSpeedState).GetProperty(nameof(samus.HorizontalSpeed.TotalSubspeed))!
-            .SetValue(samus.HorizontalSpeed, W(NativeSnapshotMemory.TotalHorizontalSubspeed));
-        typeof(ProjectileSlotTable).GetProperty("ProjectileCounter")!.SetValue(runtime.Projectiles.SlotTable, W(NativeSnapshotMemory.ProjectileCount));
-        typeof(BeamChargeState).GetProperty("PreviousBeamChargeCounter")!.SetValue(runtime.Projectiles.Charge, W(NativeSnapshotMemory.PreviousCharge));
-        typeof(BeamFiring).GetProperty("ProjectileInvincibilityTimer")!.SetValue(runtime.Projectiles.Firing, W(NativeSnapshotMemory.ProjectileInteractionImmunity));
-        typeof(BeamChargeState).GetProperty("ChargedShotGlowTimer")!.SetValue(runtime.Projectiles.Charge, W(NativeSnapshotMemory.ChargedShotGlow));
-        typeof(BeamChargeState).GetProperty("SamusChargePaletteIndex")!.SetValue(runtime.Projectiles.Charge, W(NativeSnapshotMemory.ChargePaletteIndex));
-        runtime.BombProjectiles.GetType().GetProperty("BombCounter")!.SetValue(runtime.BombProjectiles, W(NativeSnapshotMemory.BombCount));
-        samus.GetType().GetProperty("BombSpreadChargeTimeoutCounter")!.SetValue(samus, W(NativeSnapshotMemory.BombSpreadChargeTimeout));
-        samus.GetType().GetProperty("PoseTransitionShotDirection")!.SetValue(samus, W(NativeSnapshotMemory.PoseShotDirection));
-        samus.GetType().GetProperty("HyperBeam")!.SetValue(samus, W(NativeSnapshotMemory.HyperBeam));
-        samus.GetType().GetProperty("ResumeChargingBeamSoundFlag")!.SetValue(samus, W(NativeSnapshotMemory.ResumeChargeSound));
-        typeof(SamusInputSnapshot).GetProperty("PreviousDrawHeldInput")!.SetValue(samus.InputSnapshot, W(NativeSnapshotMemory.SamusFilteredHeld));
-        typeof(SamusInputSnapshot).GetProperty("PreviousDrawNewInput")!.SetValue(samus.InputSnapshot, W(NativeSnapshotMemory.SamusFilteredNew));
-        typeof(SamusInputSnapshot).GetProperty("AutoJumpTimer")!.SetValue(samus.InputSnapshot, W(NativeSnapshotMemory.SamusAutoJumpTimer));
-        typeof(SamusState).GetProperty("PreviousHealthForHurtCheck")!.SetValue(samus, W(NativeSnapshotMemory.SamusPreviousHealthForFlash));
+        samus.HorizontalSpeed.TotalSpeed = W(NativeSnapshotMemory.TotalHorizontalSpeed);
+        samus.HorizontalSpeed.TotalSubspeed = W(NativeSnapshotMemory.TotalHorizontalSubspeed);
+        runtime.Projectiles.SlotTable.ProjectileCounter = W(NativeSnapshotMemory.ProjectileCount);
+        runtime.Projectiles.Charge.PreviousBeamChargeCounter = W(NativeSnapshotMemory.PreviousCharge);
+        runtime.Projectiles.Firing.ProjectileInvincibilityTimer = W(NativeSnapshotMemory.ProjectileInteractionImmunity);
+        runtime.Projectiles.Charge.ChargedShotGlowTimer = W(NativeSnapshotMemory.ChargedShotGlow);
+        runtime.Projectiles.Charge.SamusChargePaletteIndex = W(NativeSnapshotMemory.ChargePaletteIndex);
+        runtime.BombProjectiles.BombCounter = W(NativeSnapshotMemory.BombCount);
+        samus.BombSpreadChargeTimeoutCounter = W(NativeSnapshotMemory.BombSpreadChargeTimeout);
+        samus.PoseTransitionShotDirection = W(NativeSnapshotMemory.PoseShotDirection);
+        samus.HyperBeam = W(NativeSnapshotMemory.HyperBeam);
+        samus.ResumeChargingBeamSoundFlag = W(NativeSnapshotMemory.ResumeChargeSound);
+        samus.InputSnapshot.PreviousDrawHeldInput = W(NativeSnapshotMemory.SamusFilteredHeld);
+        samus.InputSnapshot.PreviousDrawNewInput = W(NativeSnapshotMemory.SamusFilteredNew);
+        samus.InputSnapshot.AutoJumpTimer = W(NativeSnapshotMemory.SamusAutoJumpTimer);
+        samus.PreviousHealthForHurtCheck = W(NativeSnapshotMemory.SamusPreviousHealthForFlash);
         AssertTrue(W(NativeSnapshotMemory.SamusInputHandler) is
             NativeSnapshotMemory.SamusNormalInputHandler or NativeSnapshotMemory.SamusAutoJumpInputHandler,
             "initial movie input handler has a verified semantic mapping");
-        typeof(SamusInputSnapshot).GetProperty(nameof(SamusInputSnapshot.AutoJumpInputPending))!.SetValue(samus.InputSnapshot,
-            W(NativeSnapshotMemory.SamusInputHandler) == NativeSnapshotMemory.SamusAutoJumpInputHandler);
+        samus.InputSnapshot.AutoJumpInputPending = W(NativeSnapshotMemory.SamusInputHandler) == NativeSnapshotMemory.SamusAutoJumpInputHandler;
         samus.EquippedItems = W(NativeSnapshotMemory.Items);
         samus.EquippedBeams = W(NativeSnapshotMemory.Beams);
         samus.Health = W(NativeSnapshotMemory.Health);
@@ -167,8 +141,7 @@ internal static class NativeSnapshotImportVerification
         samus.HurtFlashCounter = W(NativeSnapshotMemory.HurtFlashCounter);
         samus.SubunitHealth = W(NativeSnapshotMemory.SubunitHealth);
         samus.SelectedHudItem = W(NativeSnapshotMemory.SelectedHudItem);
-        typeof(SamusArmCannonState).GetField("_previousSelectedHudItem", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(samus.ArmCannon, samus.SelectedHudItem);
+        samus.ArmCannon._previousSelectedHudItem = samus.SelectedHudItem;
         samus.AutoCancelHudItemIndex = W(NativeSnapshotMemory.AutoCancelHudItemIndex);
         samus.ReserveTankMode = W(NativeSnapshotMemory.ReserveMode);
         samus.MaxReserveEnergy = W(NativeSnapshotMemory.MaxReserve);
@@ -209,16 +182,16 @@ internal static class NativeSnapshotImportVerification
 
         foreach (var trail in runtime.Projectiles.TrailSlots)
         {
-            typeof(SamusProjectileTrailSide).GetProperty("InstructionTimer")!.SetValue(trail.Left, W(NativeSnapshotMemory.TrailLeftInstructionTimer + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty("InstructionTimer")!.SetValue(trail.Right, W(NativeSnapshotMemory.TrailRightInstructionTimer + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty("InstructionPointer")!.SetValue(trail.Left, W(NativeSnapshotMemory.TrailLeftInstructionPointer + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty("InstructionPointer")!.SetValue(trail.Right, W(NativeSnapshotMemory.TrailRightInstructionPointer + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty("TileNumberAttributes")!.SetValue(trail.Left, W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty("TileNumberAttributes")!.SetValue(trail.Right, W(NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty(nameof(SamusProjectileTrailSide.Position))!.SetValue(trail.Left, new Position16<RoomPixels>(
-                W(NativeSnapshotMemory.TrailLeftXPosition + trail.NativeByteIndex), W(NativeSnapshotMemory.TrailLeftYPosition + trail.NativeByteIndex)));
-            typeof(SamusProjectileTrailSide).GetProperty(nameof(SamusProjectileTrailSide.Position))!.SetValue(trail.Right, new Position16<RoomPixels>(
-                W(NativeSnapshotMemory.TrailRightXPosition + trail.NativeByteIndex), W(NativeSnapshotMemory.TrailRightYPosition + trail.NativeByteIndex)));
+            trail.Left.InstructionTimer = W(NativeSnapshotMemory.TrailLeftInstructionTimer + trail.NativeByteIndex);
+            trail.Right.InstructionTimer = W(NativeSnapshotMemory.TrailRightInstructionTimer + trail.NativeByteIndex);
+            trail.Left.InstructionPointer = W(NativeSnapshotMemory.TrailLeftInstructionPointer + trail.NativeByteIndex);
+            trail.Right.InstructionPointer = W(NativeSnapshotMemory.TrailRightInstructionPointer + trail.NativeByteIndex);
+            trail.Left.TileNumberAttributes = W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex);
+            trail.Right.TileNumberAttributes = W(NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.NativeByteIndex);
+            trail.Left.Position = new Position16<RoomPixels>(
+                W(NativeSnapshotMemory.TrailLeftXPosition + trail.NativeByteIndex), W(NativeSnapshotMemory.TrailLeftYPosition + trail.NativeByteIndex));
+            trail.Right.Position = new Position16<RoomPixels>(
+                W(NativeSnapshotMemory.TrailRightXPosition + trail.NativeByteIndex), W(NativeSnapshotMemory.TrailRightYPosition + trail.NativeByteIndex));
         }
 
         for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
@@ -228,20 +201,18 @@ internal static class NativeSnapshotImportVerification
                 W(NativeSnapshotMemory.AtmosphericTimer + index * 2),
                 new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2)));
         }
-        typeof(SamusState).GetProperty(nameof(samus.AnimationFrameBuffer))!.SetValue(samus, W(NativeSnapshotMemory.AnimationFrameBuffer));
-        typeof(SamusLiquidPhysicsState).GetProperty("LiquidPhysicsType")!.SetValue(samus.LiquidPhysics,
-            ClosedNativeWords.Decode<SamusLiquidMedium>(W(NativeSnapshotMemory.LiquidPhysicsType), "liquid physics type"));
-        typeof(SamusLiquidPhysicsState).GetProperty("PeriodicSubDamage")!.SetValue(samus.LiquidPhysics, W(NativeSnapshotMemory.PeriodicSubDamage));
-        typeof(SamusLiquidPhysicsState).GetProperty("PeriodicDamage")!.SetValue(samus.LiquidPhysics, W(NativeSnapshotMemory.PeriodicDamage));
+        samus.AnimationFrameBuffer = W(NativeSnapshotMemory.AnimationFrameBuffer);
+        samus.LiquidPhysics.LiquidPhysicsType = ClosedNativeWords.Decode<SamusLiquidMedium>(W(NativeSnapshotMemory.LiquidPhysicsType), "liquid physics type");
+        samus.LiquidPhysics.PeriodicSubDamage = W(NativeSnapshotMemory.PeriodicSubDamage);
+        samus.LiquidPhysics.PeriodicDamage = W(NativeSnapshotMemory.PeriodicDamage);
 
         // The snapshot was recorded after the entering door PLM deleted itself.
         // Restore the empty physical pool rather than executing fresh room-entry actors.
-        Array initialPlms = runtime.Plms.SlotTable._slots;
+        var initialPlms = runtime.Plms.SlotTable._slots;
         for (int index = 0; index < initialPlms.Length; index++)
         {
             AssertTrue(W(NativeSnapshotMemory.PlmHeaders + index * 2) == 0, "native initial PLM pool is empty");
-            object slot = initialPlms.GetValue(index)!;
-            slot.GetType().GetProperty("Active")!.SetValue(slot, false);
+            initialPlms[index].Active = false;
         }
         foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
             ImportNativeEnemyProjectile(projectile, W);
@@ -256,30 +227,46 @@ internal static class NativeSnapshotImportVerification
             W(NativeSnapshotMemory.HdmaObjectPreInstructions + slot * 2) == NativeSnapshotMemory.AcidHdmaCallback);
         AssertTrue(runtime.RoomLayer3Fx.Type is RoomFxType.Lava or RoomFxType.Acid,
             "snapshot import models the lava/acid HDMA objects of its room");
-        typeof(RoomLayer3FxState).GetField("lavaAcidBg3PreInstructionInstalled", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, true);
-        typeof(RoomLayer3FxState).GetField("liquidHdmaObjectsDeleted", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, !lavaAcidObjectLive);
-        typeof(RoomLayer3FxState).GetField("tidePhase", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, W(NativeSnapshotMemory.TidePhase));
-        typeof(RoomLayer3FxState).GetField("tideFixedOffset", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx,
-            unchecked((int)(SnesSixteenSixteen.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction)))));
-        typeof(RoomLayer3FxState).GetField("baseYSubposition", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, W(NativeSnapshotMemory.LiquidBaseFraction));
-        typeof(RoomLayer3FxState).GetProperty(nameof(RoomLayer3FxState.CurrentYPosition))!.SetValue(runtime.RoomLayer3Fx, W(NativeSnapshotMemory.AcidSurface));
+        runtime.RoomLayer3Fx.lavaAcidBg3PreInstructionInstalled = true;
+        runtime.RoomLayer3Fx.liquidHdmaObjectsDeleted = !lavaAcidObjectLive;
+        runtime.RoomLayer3Fx.tidePhase = W(NativeSnapshotMemory.TidePhase);
+        runtime.RoomLayer3Fx.tideFixedOffset = unchecked((int)(SnesSixteenSixteen.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction))));
+        runtime.RoomLayer3Fx.baseYSubposition = W(NativeSnapshotMemory.LiquidBaseFraction);
+        runtime.RoomLayer3Fx.CurrentYPosition = W(NativeSnapshotMemory.AcidSurface);
         runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         // EnemyData +$0E onward; +$00 is the identity, +$02..+$08 the 16.16 position and
         // +$0A/+$0C the radii, each imported as one typed value below.
-        string[] slotWords = ["Properties", "ExtraProperties", "AiHandlerBits", "Health", "SpritemapPointer", "Timer", "CurrentInstruction", "InstructionTimer", "PaletteIndex", "VramTilesIndex", "Layer", "FlashTimer", "FrozenTimer", "InvincibilityTimer", "ShakeTimer", "FrameCounter"];
         for (int index = 0; index < runtime.Enemies.SlotTable.Slots.Count; index++)
         {
             var slot = runtime.Enemies.SlotTable.Slots[index];
             int address = NativeSnapshotMemory.EnemyBase + index * 64;
             if (W(address) != 0)
                 AssertTrue((ushort)slot.EnemyDefinitionPointer == W(address), "initial enemy species agrees with room population");
-            typeof(RoomEnemySlot).GetProperty(nameof(RoomEnemySlot.EnemyDefinitionPointer))!.SetValue(slot, W(address));
+            slot.EnemyDefinitionPointer = (EnemyDefinitionId)W(address);
             slot.Position = FixedPosition<RoomPixels>.FromWords(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
             slot.Radius = new(W(address + 10), W(address + 12));
-            for (int word = 0; word < slotWords.Length; word++)
-                typeof(RoomEnemySlot).GetProperty(slotWords[word])!.SetValue(slot, W(address + 14 + word * 2));
-            for (int word = 0; word < 6; word++)
-                typeof(RoomEnemySlot).GetProperty("Variable" + (char)('A' + word))!.SetValue(slot, W(address + 48 + word * 2));
+            slot.Properties = W(address + 14);
+            slot.ExtraProperties = W(address + 16);
+            slot.AiHandlerBits = W(address + 18);
+            slot.Health = W(address + 20);
+            slot.SpritemapPointer = W(address + 22);
+            slot.Timer = W(address + 24);
+            slot.CurrentInstruction = W(address + 26);
+            slot.InstructionTimer = W(address + 28);
+            slot.PaletteIndex = W(address + 30);
+            slot.VramTilesIndex = W(address + 32);
+            slot.Layer = W(address + 34);
+            slot.FlashTimer = W(address + 36);
+            slot.FrozenTimer = W(address + 38);
+            slot.InvincibilityTimer = W(address + 40);
+            slot.ShakeTimer = W(address + 42);
+            slot.FrameCounter = W(address + 44);
+            slot.VariableA = W(address + 48);
+            slot.VariableB = W(address + 50);
+            slot.VariableC = W(address + 52);
+            slot.VariableD = W(address + 54);
+            slot.VariableE = W(address + 56);
+            slot.VariableF = W(address + 58);
             if (runtime.Enemies.PipeBugStates[index] is { IsBrinstar: true } pipe)
             {
                 pipe.SpawnPosition = new(slot.VariableB, slot.VariableC);
@@ -300,9 +287,9 @@ internal static class NativeSnapshotImportVerification
         samus.PreviousHealthForHurtCheck = samus.Health;
         runtime.Controller1.Latch(W(NativeSnapshotMemory.HeldInput));
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
-        typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, (SuperMetroidGameState)W(NativeSnapshotMemory.GameState));
+        game.runtime = runtime;
+        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.GameState = (SuperMetroidGameState)W(NativeSnapshotMemory.GameState);
         if (game.GameState == SuperMetroidGameState.PausedB)
             ImportNativePauseMenu(game, runtime, bus, W, memory);
         return (bus, runtime, samus, game);
@@ -342,16 +329,16 @@ internal static class NativeSnapshotImportVerification
                 $"initial native enemy projectile {projectile.SlotIndex} kind ${id:X4} has a verified slot-only import");
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 projectile, kind, W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
-            PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.PreInstruction), W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index));
-            PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.InstructionPointer), W(NativeSnapshotMemory.EnemyProjectileInstruction + index));
-            PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.InstructionTimer), W(NativeSnapshotMemory.EnemyProjectileInstructionTimer + index));
-            PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.GeneralTimer), W(NativeSnapshotMemory.EnemyProjectileTimer + index));
+            projectile.PreInstruction = W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
+            projectile.InstructionPointer = W(NativeSnapshotMemory.EnemyProjectileInstruction + index);
+            projectile.InstructionTimer = W(NativeSnapshotMemory.EnemyProjectileInstructionTimer + index);
+            projectile.GeneralTimer = W(NativeSnapshotMemory.EnemyProjectileTimer + index);
             projectile.Position = projectile.Position
                 .WithFractionX(W(NativeSnapshotMemory.EnemyProjectileXFraction + index))
                 .WithFractionY(W(NativeSnapshotMemory.EnemyProjectileYFraction + index));
-            PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.Variable0), W(NativeSnapshotMemory.EnemyProjectileVariableE + index));
-            PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.Variable1), W(NativeSnapshotMemory.EnemyProjectileVariableF + index));
-            PrivateState.SetProperty(projectile, nameof(RoomEnemyProjectileSlot.CollidedProjectileType), W(NativeSnapshotMemory.EnemyProjectileVariableG + index));
+            projectile.Variable0 = W(NativeSnapshotMemory.EnemyProjectileVariableE + index);
+            projectile.Variable1 = W(NativeSnapshotMemory.EnemyProjectileVariableF + index);
+            projectile.CollidedProjectileType = W(NativeSnapshotMemory.EnemyProjectileVariableG + index);
             // The current frame record is [timer][operand]; the list pointer already follows it.
             EnemyProjectileEngine.SetEnemyProjectileVisualOperand(
                 projectile, unchecked((ushort)(projectile.InstructionPointer - 2)));

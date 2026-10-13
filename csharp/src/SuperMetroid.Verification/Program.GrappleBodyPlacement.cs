@@ -21,8 +21,7 @@ internal static class GrappleBodyPlacementVerification
 {
     internal static void VerifyGrappleBodyPlacement(SuperMetroidAddressSpace rom)
     {
-        var position = typeof(SamusGrappleMovement).GetMethod("PositionSamusFromPendulum", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
+        var position = new Action<ISnesAddressSpace, SamusState, SamusGrappleState>(SamusGrappleMovement.PositionSamusFromPendulum);
         CartridgeReadGuard bus = new CartridgeReadGuard(rom)
             .Forbid(address => address is >= 0x9bc1c2 and < 0x9bc2c2,
                 _ => "Installed swing art still reads the ROM selector.")

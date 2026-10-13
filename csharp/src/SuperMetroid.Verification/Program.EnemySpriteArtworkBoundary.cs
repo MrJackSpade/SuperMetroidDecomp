@@ -120,6 +120,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         }
     }
 
+    /// <summary>Runs installed enemy, projectile, and room-object OAM comparisons against native spritemap drawing.</summary>
     [VerificationCommand("--enemy-sprite-artwork-boundary")]
     internal static int EnemySpriteArtworkBoundaryCommand()
     {

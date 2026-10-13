@@ -11,20 +11,34 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class RoomMainRoutines
 {
+    /// <summary>BG1 scroll registers adjusted during Crocomire's hidden-wall rumble.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Enemy owners used by the Crocomire callback and Ceres debris spawn.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Samus state consulted for X-ray animation suspension.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Active room callback and area identity used to dispatch room-main work.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Room spike tile animation advanced by the bank-$87 handler.</summary>
     private readonly RoomSpikeAnimatedTilesState _roomSpikes;
+    /// <summary>Room treadmill tile animation advanced when a room is active.</summary>
     private readonly RoomTreadmillAnimatedTilesState _roomTreadmills;
+    /// <summary>Sand tile animation advanced before other room tile objects.</summary>
     private readonly RoomSandAnimatedTilesState _sandAnimatedTiles;
+    /// <summary>Boss bits and RNG word sampled by room-main callbacks.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Tourian statue tile changes advanced alongside room animations.</summary>
     private readonly TourianStatueSequence _tourianStatues;
+    /// <summary>VRAM target for animated sand and spike tiles.</summary>
     private readonly SnesVram _vram;
+    /// <summary>Queued tile transfers consumed at the next accepted NMI.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>Wrecked Ship treadmill animation gated by Phantoon's boss bit.</summary>
     private readonly WreckedShipTreadmillAnimatedTilesState _wreckedShipTreadmill;
+    /// <summary>Memory context supplied to the room animated-tile handlers.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Binds the room, enemy, tile, and memory owners used by room-main callbacks.</summary>
     internal RoomMainRoutines(RoomMainRoutinesDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
@@ -70,11 +84,6 @@ internal sealed class RoomMainRoutines
     /// <summary>Most recent <c>$89:ACC3</c> room-main call.</summary>
     public CeresElevatorShaftRoomMainResult LastCeresElevatorShaftRoomMain { get; internal set; }
 
-    /// <summary>
-    /// Accepts one NMI and publishes an empty OAM build for outer states that run no draw
-    /// handlers. The just-accepted NMI still displays the preceding build for this frame,
-    /// matching the cartridge's main-thread/NMI double-buffer boundary.
-    /// </summary>
     /// <summary>
     /// <c>AnimatedTilesObject_Handler</c> ($87:8064): gameplay ($82:8B75) and the door
     /// transition's $82:E659 and every $82:E737 fade step call it. XraySetup's

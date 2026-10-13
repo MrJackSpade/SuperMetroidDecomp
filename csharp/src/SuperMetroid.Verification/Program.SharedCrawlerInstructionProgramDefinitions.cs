@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks shared crawler animation loops for Zeela, Sova, Zoomer, and MZoomer across four surfaces.</summary>
 internal static class SharedCrawlerInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the shared crawler instruction comparison.</summary>
     internal static void VerifySharedCrawlerInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySharedCrawlerInstructionProgramDefinitions), () => VerifySharedCrawlerInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled control words and production loop callbacks while blocking migrated source reads.</summary>
     internal static void VerifySharedCrawlerInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
@@ -104,6 +107,7 @@ internal static class SharedCrawlerInstructionProgramDefinitionsVerification
               "execute without cartridge visual-selector reads.");
     }
 
+    /// <summary>Forces successive animation ticks through the production enemy instruction runner.</summary>
     private static void ExecuteSharedCrawlerProgram(
         RoomEnemySystem enemies,
         RoomEnemySlot slot,
@@ -118,6 +122,7 @@ internal static class SharedCrawlerInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates opposite surface entries to detect allocations in warmed control-word lookup.</summary>
     private static int ProbeSharedCrawlerInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -131,12 +136,14 @@ internal static class SharedCrawlerInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads a bank-$A3 word for the independent shared-crawler program oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for shared crawler instruction words")]
     internal static ushort ReadSharedCrawlerInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa30000 | address);
 
+    /// <summary>Blocks compiled mechanics and optionally visual operands during production crawler execution.</summary>
     private static CartridgeReadGuard NewSharedCrawlerInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
     {
         var guard = new CartridgeReadGuard(source).Forbid(SharedCrawlerInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -147,6 +154,7 @@ internal static class SharedCrawlerInstructionProgramDefinitionsVerification
             : guard.ObserveWords(0xa30000, SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordCount, SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 
+    /// <summary>Runs the shared-crawler program check against the retail ROM.</summary>
     [VerificationCommand("--shared-crawler-instruction-program-definitions")]
     internal static int SharedCrawlerInstructionProgramDefinitionsCommand()
     {

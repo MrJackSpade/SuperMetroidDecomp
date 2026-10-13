@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresFlightActorLayout
 {
+    /// <summary>Edited actor positions, or null when all five match their native placements.</summary>
     private readonly CeresFlightActorPlacement[]? placements;
 
+    /// <summary>Retains supplied placements only when at least one differs from the native layout.</summary>
     private CeresFlightActorLayout(CeresFlightActorPlacement[] placements)
     {
         bool stock = true;

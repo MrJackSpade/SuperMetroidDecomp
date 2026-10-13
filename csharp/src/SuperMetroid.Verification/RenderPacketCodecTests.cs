@@ -7,6 +7,7 @@ using Hardware = SuperMetroid.Core.Hardware;
 
 internal static class RenderPacketCodecTestsVerification
 {
+    /// <summary>Checks packet round trips, legacy versions, malformed data rejection, and layered render compatibility.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void VerifyRenderPacketCodec()
     {
@@ -92,6 +93,7 @@ internal static class RenderPacketCodecTestsVerification
         Console.WriteLine("  Display fixture codec: stable round trip, identity, fades, truncation, signature/version and trailing-data rejection agree.");
     }
 
+    /// <summary>Confirms serialized identity and canonical encoded fields survive a packet round trip.</summary>
     internal static RenderFrameSnapshot RoundTripRenderPacket(RenderFrameSnapshot frame)
     {
         byte[] bytes = RenderFrameSnapshotWriter.Serialize(frame);
@@ -102,6 +104,7 @@ internal static class RenderPacketCodecTestsVerification
         return restored;
     }
 
+    /// <summary>Compares decoded 2bpp viewport layers against scrolled tilemap pixels across transparency and priority choices.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyBg2ViewportPackets()
     {

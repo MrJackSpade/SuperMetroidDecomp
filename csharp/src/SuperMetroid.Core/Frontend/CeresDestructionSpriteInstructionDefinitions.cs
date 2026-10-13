@@ -39,6 +39,7 @@ internal static class CeresDestructionSpriteInstructionDefinitions
     /// <summary>$8B:CE35, exclusive end before the spawner's separate program.</summary>
     internal const ushort StationBlastEnd = 0xce35;
 
+    /// <summary>Projects one byte from a ten-frame static image followed by a goto back to its list start.</summary>
     private static byte LoopByte(int offset, ushort start, ushort frame)
     {
         ushort word = (offset / 2) switch
@@ -52,6 +53,7 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Projects title waits, backdrop selections, Japanese subtitle callback, fades, and flight handoff.</summary>
     private static byte TitleByte(int offset)
     {
         ushort word = (offset / 2) switch
@@ -72,6 +74,7 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Selects one of four quadrant star sheets and its independent looping list.</summary>
     private static byte StarSheetByte(int offset)
     {
         int quadrant = offset / 8;
@@ -85,6 +88,7 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         };
         return LoopByte(offset % 8, (ushort)(StarSheetsStart + quadrant * 8), frame);
     }
+    /// <summary>Reads a bounded destruction or Zebes-reveal instruction byte, delegating shared lists to their owners.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is >= LargeAsteroidStart and < LargeAsteroidEnd)
@@ -109,17 +113,27 @@ internal static class CeresDestructionSpriteInstructionDefinitions
     /// <summary>Exclusive ends of the compiled lists a word read must not straddle.</summary>
     private enum ListEnd
     {
+        /// <summary>Boundary before the approach program following the large asteroid loop.</summary>
         LargeAsteroid,
+        /// <summary>Boundary after the shared rear-cluster program.</summary>
         RearCluster,
+        /// <summary>Boundary after the planet image loop.</summary>
         Planet,
+        /// <summary>Boundary after the title callbacks and flight handoff.</summary>
         Title,
+        /// <summary>Boundary between initial and repeating explosion programs.</summary>
         InitialExplosion,
+        /// <summary>Boundary after the repeating explosion program.</summary>
         RepeatingExplosion,
+        /// <summary>Boundary after the final explosion wave.</summary>
         Explosions,
+        /// <summary>Boundary after four adjacent quadrant star-sheet loops.</summary>
         StarSheets,
+        /// <summary>Boundary after the station blast and before its spawner program.</summary>
         StationBlast,
     }
 
+    /// <summary>Resolves a named instruction-list boundary to its native bank-$8B address.</summary>
     private static ushort AddressOf(ListEnd end) => end switch
     {
         ListEnd.LargeAsteroid => LargeAsteroidEnd,
@@ -134,8 +148,10 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(ListEnd)} {(int)end}."),
     };
 
+    /// <summary>All boundaries a word read must avoid crossing.</summary>
     private static readonly ListEnd[] ListEnds = Enum.GetValues<ListEnd>();
 
+    /// <summary>Checks whether an address is immediately past a compiled list.</summary>
     private static bool IsListEnd(ushort address)
     {
         foreach (ListEnd end in ListEnds)
@@ -143,6 +159,7 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         return false;
     }
 
+    /// <summary>Reads two instruction bytes without crossing a list or star-sheet quadrant boundary.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         ushort next = unchecked((ushort)(pointer + 1));

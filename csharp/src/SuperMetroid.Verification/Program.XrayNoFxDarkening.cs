@@ -12,8 +12,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+/// <summary>Checks X-ray color math in a room without visible layer-three FX.</summary>
 internal static class XrayNoFxDarkeningVerification
 {
+    /// <summary>Confirms opaque BG3 halving, transparent fixed-color fallback, and Fireflea subtraction.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyXrayNoFxDarkening()
     {
@@ -72,6 +74,7 @@ internal static class XrayNoFxDarkeningVerification
         Console.WriteLine("X-ray no-FX capture: opaque BG3 darkening, transparent fallback and Fireflea exception verified.");
     }
 
+    /// <summary>Runs the focused no-FX X-ray display check.</summary>
     [VerificationCommand("--xray-no-fx-darkening")]
     internal static int XrayNoFxDarkeningCommand()
     {

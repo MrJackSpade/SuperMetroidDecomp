@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static CompiledDynamicCollectibleGraphicsVerification;
 
+/// <summary>Checks dynamic collectible artwork catalogs against native tiles and palette offsets.</summary>
 internal static class LookupDynamicCollectibleStockVerification
 {
+    /// <summary>Compares kinds four through twenty, mixed edits, ownership, and invalid imports.</summary>
     internal static void VerifyDynamicCollectibleStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmDynamicCollectibleArtCatalog installed)
     {
@@ -77,6 +79,7 @@ internal static class LookupDynamicCollectibleStockVerification
         }
     }
 
+    /// <summary>Reads native graphics and palette bytes for the independent stock reference.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for dynamic collectible stock mapping")]
     private static byte DynamicCollectibleStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -15,8 +15,10 @@ using SuperMetroid.Core.Rom;
 using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks rendered pause reserve labels against native tilemap copy rules.</summary>
 internal static class PauseReserveLabelsVerification
 {
+    /// <summary>Compares six capacity and mode combinations using native source and destination words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve label tilemaps")]
     internal static void VerifyPauseReserveLabels()
     {
@@ -70,6 +72,7 @@ internal static class PauseReserveLabelsVerification
         Console.WriteLine("Pause reserve labels: six ownership/mode cases match native rendered labels.");
     }
 
+    /// <summary>Runs the focused reserve-label pixel comparison.</summary>
     [VerificationCommand("--pause-reserve-labels")]
     internal static int PauseReserveLabelsCommand()
     {

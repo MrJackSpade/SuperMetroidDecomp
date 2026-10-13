@@ -13,8 +13,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Reproduces Speed Booster palette table overrun after Screw Attack phase handoff.</summary>
 internal static class SpeedPaletteOverrunVerification
 {
+    /// <summary>Checks phases eight and ten against a 65816 trace, including four-frame hold and recovery.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySpeedPaletteOverrun()
     {
@@ -65,10 +67,12 @@ internal static class SpeedPaletteOverrunVerification
         ushort Read(int address) => ReadNativeSpeedOverrunPaletteWord(cart, address);
     }
 
+    /// <summary>Reads a fixed-bank retail palette word for the trace comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Speed Booster overrun palette words")]
     private static ushort ReadNativeSpeedOverrunPaletteWord(IImportCartridgeSource cart, int address) =>
         RomDataReader.ReadWordFixedBank(cart, address);
 
+    /// <summary>Runs the focused Speed Booster palette overrun check.</summary>
     [VerificationCommand("--speed-palette-overrun")]
     internal static int SpeedPaletteOverrunCommand()
     {

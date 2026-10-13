@@ -43,7 +43,9 @@ internal abstract class PhantoonProjectileInstructionProgramDefinitions
     /// <summary>Falling-phase repetition at86:97B6/97C6/97D6. Reviewed under #1165 as an authored repetition count: it only repeats the chosen frames, and no simulation quantity derives it.</summary>
     private const ushort FallingRepeatCount = 4;
 
+    /// <summary>Compiled control words across flame idle, bounce, falling, impact, and deletion paths.</summary>
     public static int MechanicsWordCount => 58;
+    /// <summary>Interleaved flame spritemap operands resolved by installed projectile art.</summary>
     public static int PresentationWordCount => 31;
 
     /// <summary>Shared three-pose loops, counted falling cycles and impact/deletion tails.</summary>
@@ -89,14 +91,17 @@ internal abstract class PhantoonProjectileInstructionProgramDefinitions
                 : (ushort)EnemyProjectileInstruction.Delete);
     }
 
+    /// <summary>Places one timed pose in a flame instruction list.</summary>
     private static InstructionMechanicsWord Frame(ushort start, int frame, ushort duration) =>
         new((ushort)(start + frame * 4), duration);
 
+    /// <summary>Builds a three-pose flame loop followed by a goto back to its start.</summary>
     private static InstructionMechanicsWord LoopWord(ushort start, int word) =>
         word < 3 ? Frame(start, word, FlamePoseFrames)
             : new((ushort)(start + 12 + (word - 3) * 2),
                 word == 3 ? (ushort)EnemyProjectileInstruction.GotoY : start);
 
+    /// <summary>Maps a flame presentation operand index to its bank-$86 address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -112,10 +117,12 @@ internal abstract class PhantoonProjectileInstructionProgramDefinitions
         return (ushort)(DestroyableShot + (index - 27) * 4 + 2);
     }
 
+    /// <summary>Identifies the destroyable and starting flame kinds handled by these programs.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.PhantoonDestroyableFlame or
         RoomEnemyProjectileKind.PhantoonStartingFlame;
 
+    /// <summary>Looks up a compiled flame control word and rejects other bank-$86 addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

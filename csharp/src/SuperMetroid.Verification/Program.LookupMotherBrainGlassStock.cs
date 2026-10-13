@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks Mother Brain glass PLM visuals through damage and shatter frames.</summary>
 internal static class LookupMotherBrainGlassStockVerification
 {
+    /// <summary>Compares eleven stock frames, flattened identity, edited ownership, and strict import validation.</summary>
     internal static void VerifyMotherBrainGlassStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMotherBrainGlassVisualCatalog installed)
     {
@@ -77,6 +79,7 @@ internal static class LookupMotherBrainGlassStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainGlassVisualCatalog(entries), "Glass visual bits only");
     }
 
+    /// <summary>Reads native bank $84 glass draw-stream bytes as the stock reference.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass stock mapping")]
     private static byte MotherBrainGlassStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

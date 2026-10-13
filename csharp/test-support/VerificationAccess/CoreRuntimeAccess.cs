@@ -107,6 +107,7 @@ internal static class SuperMetroidRuntimeAccess
                 $"Landing Site X=${xPosition:X4} from block row ${minimumFloorBlockY:X2}.");
         }
 
+        /// <summary>Installs the Grapple palette through the same Samus phase owner used by gameplay.</summary>
         internal void LoadDebugGrapplePalette() => self.SamusPhases.LoadGrapplePalette();
 
         /// <summary>Initializes the ROM-authored standing pose at an explicitly supplied point.</summary>

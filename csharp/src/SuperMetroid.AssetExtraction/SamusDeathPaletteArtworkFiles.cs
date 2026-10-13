@@ -17,7 +17,9 @@ public static class SamusDeathPaletteArtworkFiles
     public const string ArtworkFileName = "samus-death-palettes.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the death-palette JSON's SHA-256.</summary>
     public const string ManifestFileName = "samus-death-palettes-manifest.json";
+    /// <summary>Schema revision shared by death-palette art and its stock manifest.</summary>
     private const int FormatVersion = 1;
+    /// <summary>Strict camel-case JSON settings for both color artwork and provenance.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -101,6 +103,7 @@ public static class SamusDeathPaletteArtworkFiles
         }
     }
 
+    /// <summary>Validates death-palette document structure and converts packed RGB5 words into the installed catalog.</summary>
     private static SamusDeathPaletteArtworkCatalog Build(ArtworkDocument document)
     {
         if (document.Version != FormatVersion || document.Suited is null ||
@@ -117,6 +120,7 @@ public static class SamusDeathPaletteArtworkFiles
         (word & 0x8000) == 0 ? Bgr555.FromWord(word)
             : throw new InvalidDataException($"Samus death-palette color ${word:X4} sets bit 15."));
 
+    /// <summary>Imports all colors in one native sixteen-entry death palette row.</summary>
     private static ushort[] ReadPalette(ISnesAddressSpace bus, ushort pointer)
     {
         var colors = new ushort[SamusDeathPaletteArtworkCatalog.ColorCount];
@@ -126,7 +130,9 @@ public static class SamusDeathPaletteArtworkFiles
         return colors;
     }
 
+    /// <summary>Complete editable suited, suitless, whiteout, and explosion-selector payload.</summary>
     private sealed record ArtworkDocument(int Version, ushort[][][] Suited,
         ushort[][] Suitless, ushort[] Whiteout, ushort[] ExplosionPaletteIndices);
+    /// <summary>Stock death-palette provenance and payload hash.</summary>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);
 }

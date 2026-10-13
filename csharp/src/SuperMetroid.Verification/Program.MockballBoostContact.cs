@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using static EnemyDropsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Speed Booster contact damage while a mockball remains in motion.</summary>
 internal static class MockballBoostContactVerification
 {
+    /// <summary>Confirms 500 damage across moving Morph and Spring Ball frames, then threshold and stop behavior.</summary>
     internal static void VerifyMockballBoostContact()
     {
         // The report concerns the retained boost after a mockball has landed. Exercise
@@ -74,6 +76,7 @@ internal static class MockballBoostContactVerification
         Console.WriteLine("Mockball boost: moving Morph/Spring Ball republishes contact damage for consecutive frames, deals 500 damage, and respects boost threshold and stopping.");
     }
 
+    /// <summary>Runs the focused mockball contact-damage regression.</summary>
     [VerificationCommand("--mockball-boost-contact")]
     internal static int MockballBoostContactCommand()
     {

@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Dragon's idle, wing, and attack instruction programs against cartridge words and live callbacks.</summary>
 internal static class DragonInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the Dragon program comparison.</summary>
     internal static void VerifyDragonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDragonInstructionProgramDefinitions), () => VerifyDragonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks six production loops, attack completion, separated visual selectors, and ROM-free control reads.</summary>
     internal static void VerifyDragonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -132,6 +135,7 @@ internal static class DragonInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeats compiled idle-word lookup to detect per-frame allocation.</summary>
     private static int ProbeDragonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -143,6 +147,7 @@ internal static class DragonInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Blocks migrated Dragon mechanics and records visual-selector operand reads.</summary>
     private static CartridgeReadGuard NewDragonInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(DragonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -150,6 +155,7 @@ internal static class DragonInstructionProgramDefinitionsVerification
             .ObserveWords(0xa20000, DragonInstructionProgramDefinitions.PresentationWordCount,
                 DragonInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the focused Dragon instruction check against the retail ROM.</summary>
     [VerificationCommand("--dragon-instruction-mechanics")]
     internal static int DragonInstructionMechanicsCommand()
     {

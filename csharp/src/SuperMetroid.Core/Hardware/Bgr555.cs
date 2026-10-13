@@ -20,10 +20,13 @@ public readonly record struct Bgr555
     /// <summary>The largest value of one five-bit channel.</summary>
     public const int MaxChannel = 31;
 
+    /// <summary>Mask for the fifteen CGRAM color bits, excluding the unused high bit.</summary>
     private const ushort ColorBits = 0x7fff;
 
+    /// <summary>Validated packed SNES color word.</summary>
     private readonly ushort word;
 
+    /// <summary>Accepts a previously validated or CGRAM-masked packed word.</summary>
     private Bgr555(ushort word) => this.word = word;
 
     /// <summary>Packs three channels, each 0-<see cref="MaxChannel"/>.</summary>
@@ -122,6 +125,7 @@ public readonly record struct Bgr555
     /// <inheritdoc />
     public override string ToString() => $"BGR555(r{Red}, g{Green}, b{Blue}; ${word:X4})";
 
+    /// <summary>Validates and packs three five-bit channels into a SNES color word.</summary>
     private static ushort Pack(int red, int green, int blue)
     {
         Channel(red, nameof(red));
@@ -130,14 +134,17 @@ public readonly record struct Bgr555
         return (ushort)(red | (green << 5) | (blue << 10));
     }
 
+    /// <summary>Rejects a component outside the five-bit channel range before packing.</summary>
     private static void Channel(int value, string name)
     {
         if ((uint)value > MaxChannel)
             throw new ArgumentOutOfRangeException(name, value, $"A BGR555 channel is 0-{MaxChannel}.");
     }
 
-    // Replicate the high three bits into the low end rather than merely shifting. This maps
-    // SNES 0..31 exactly onto the full 0..255 display range, including both endpoints.
+    /// <summary>
+    /// Replicates the high three bits into the low end, mapping SNES 0..31 across the full
+    /// 0..255 display range including both endpoints.
+    /// </summary>
     private static byte Expand(int channel) => (byte)((channel << 3) | (channel >> 2));
 }
 

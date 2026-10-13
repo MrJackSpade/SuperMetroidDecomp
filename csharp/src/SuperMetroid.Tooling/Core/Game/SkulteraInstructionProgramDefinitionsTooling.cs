@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(SkulteraInstructionProgramDefinitions))]
 internal abstract class SkulteraInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Counts Skultera instruction words whose behavior is compiled.</summary>
     public static int MechanicsWordCount => SkulteraInstructionProgramDefinitions.MechanicsWordCount;
+    /// <summary>Returns a compiled Skultera mechanics word with its cartridge address.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => SkulteraInstructionProgramDefinitions.MechanicsWord(index);
+    /// <summary>Counts Skultera presentation operands retained as visual data.</summary>
     public static int PresentationWordCount => SkulteraInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates an indexed Skultera presentation word.</summary>
     public static ushort PresentationWordAddress(int index) => SkulteraInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Checks both bytes of each compiled Skultera word in bank $A3.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa30000)

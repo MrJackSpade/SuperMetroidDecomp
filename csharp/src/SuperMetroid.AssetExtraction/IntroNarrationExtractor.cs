@@ -32,6 +32,7 @@ public static class IntroNarrationExtractor
         return output.ToArray();
     }
 
+    /// <summary>Walks one bounded bank-$8C page script and groups consecutive single-tile glyphs by row.</summary>
     private static IntroNarrationPage ExtractPage(
         ISnesAddressSpace bus,
         IntroNarrationNativePage page)
@@ -117,6 +118,7 @@ public static class IntroNarrationExtractor
             $"{IntroNarrationDefinitions.Native.MaximumRecords} records.");
     }
 
+    /// <summary>Checks a marker record's duration, packed position, data pointer, and draw callback.</summary>
     private static void RequireRecord(
         ISnesAddressSpace bus,
         ushort pointer,
@@ -135,6 +137,7 @@ public static class IntroNarrationExtractor
         }
     }
 
+    /// <summary>Requires an exact native opcode at a page-script address.</summary>
     private static void RequireWord(
         ISnesAddressSpace bus,
         ushort pointer,
@@ -147,13 +150,16 @@ public static class IntroNarrationExtractor
                 $"Opening-narration {identity} is ${actual:X4}, expected ${expected:X4}.");
     }
 
+    /// <summary>Reads one script byte from the fixed narration bank.</summary>
     private static byte ReadByte(ISnesAddressSpace bus, ushort pointer) =>
         bus.ReadCartridgeByte((int)new SnesAddress(
             IntroNarrationDefinitions.Native.ScriptBank, pointer));
 
+    /// <summary>Reads a little-endian narration word with bank-local address wrapping.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)new SnesAddress(IntroNarrationDefinitions.Native.ScriptBank, pointer));
 
+    /// <summary>Advances a script pointer with native 16-bit bank-local wrapping.</summary>
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));
 }

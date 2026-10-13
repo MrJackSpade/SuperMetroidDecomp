@@ -8,6 +8,7 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
 {
     private readonly byte[] transfer;
 
+    /// <summary>Accepts the compiled transfer strip only when its length matches the ordered frame and statue segments.</summary>
     private RoomFxAnimatedTileAtlas(byte[] transfer)
     {
         this.transfer = transfer;
@@ -159,6 +160,7 @@ public static class RoomFxAnimatedTileAtlasFormat
     /// </summary>
     public static IEnumerable<RoomFxAtlasSegment> Segments => EnumerateSegments();
 
+    /// <summary>Yields atlas segments in stable PNG order and checks that their combined byte count matches the installed geometry.</summary>
     private static IEnumerable<RoomFxAtlasSegment> EnumerateSegments()
     {
         int total = 0;

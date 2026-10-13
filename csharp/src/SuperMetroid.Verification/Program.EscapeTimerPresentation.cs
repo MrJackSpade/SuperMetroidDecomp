@@ -18,8 +18,10 @@ using static MapPresentationVerification;
 using static MapSpritesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Compares installed escape-timer artwork, tile transfers, and digit layout with the cartridge.</summary>
 internal static class EscapeTimerPresentationVerification
 {
+    /// <summary>Checks extraction, installed overrides, VRAM transfers, and rendered OAM against native timer assets.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed escape-timer characters")]
     internal static void VerifyEscapeTimerPresentationAssets(ISnesAddressSpace bus, string stock,
@@ -186,6 +188,7 @@ internal static class EscapeTimerPresentationVerification
         }
     }
 
+    /// <summary>Checks the compiled digit pointer table and confirms timer extraction and drawing no longer read it at runtime.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled escape-timer digit pointers")]
     internal static void VerifyEscapeTimerPointerDefinitions(ISnesAddressSpace bus)
@@ -258,6 +261,7 @@ internal static class EscapeTimerPresentationVerification
         }
     }
 
+    /// <summary>Runs the retail cartridge comparison for compiled escape-timer digit pointers.</summary>
     [VerificationCommand("--escape-timer-pointer-definitions")]
     internal static int EscapeTimerPointerDefinitionsCommand()
     {

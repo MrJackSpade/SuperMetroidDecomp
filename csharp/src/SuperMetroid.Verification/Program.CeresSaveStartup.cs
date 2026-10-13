@@ -18,6 +18,7 @@ using SuperMetroid.Core.Hardware;
 using static FrontendRomFreeVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks Ceres departure saves, menu reload routing, and the transition to Zebes landing.</summary>
 internal static class CeresSaveStartupVerification
 {
     /// <summary>
@@ -233,13 +234,16 @@ internal static class CeresSaveStartupVerification
         Console.WriteLine("#1153: native $1F/$22/$05 checkpoint writes; normal $1F/$22 reload routing, first Landing Site fade with initialized HUD, inactive initial station and preserved progress/SRAM; no inferred legacy recovery pass.");
     }
 
+    /// <summary>Places the frontend at a precise state transition for the checkpoint scenarios.</summary>
     internal static void SetState(SuperMetroidGame owner, SuperMetroidGameState state) =>
         typeof(SuperMetroidGame).GetProperty(nameof(owner.GameState))!.SetValue(owner, state);
 
+    /// <summary>Sets a private frontend owner or flag needed to enter a saved-game path.</summary>
     private static void SetField(SuperMetroidGame owner, string name, object value) =>
         typeof(SuperMetroidGame).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(owner, value);
 
+    /// <summary>Runs the Ceres checkpoint and reload scenarios against an installed game.</summary>
     [VerificationCommand("--ceres-save-startup")]
     internal static int CeresSaveStartupCommand()
     {

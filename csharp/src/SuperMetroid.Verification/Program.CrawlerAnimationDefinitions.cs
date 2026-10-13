@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static class CrawlerAnimationDefinitionsVerification
 {
+    /// <summary>Compares crawler orientation tables with cartridge words and production initial/surface instruction selection.</summary>
     internal static void VerifyCrawlerAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
@@ -121,6 +122,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             "Crawler animation definitions: forty-four native selectors and all family/orientation initializers plus 24 real surface handoffs pass with source tables forbidden.");
     }
 
+    /// <summary>Forbids crawler animation-selector table reads while exercising production behavior.</summary>
     private static CartridgeReadGuard NewCrawlerAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa396db and < 0xa396e3 or

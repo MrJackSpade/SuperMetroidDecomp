@@ -16,8 +16,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks compiled beam speed rows and missile acceleration through production projectile launch and motion.</summary>
 internal static class BeamSpeedRowsVerification
 {
+    /// <summary>Compares native motion words, combination-dependent overreads, and six-frame missile trajectories.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for beam speed rows, pose aim directions and missile acceleration words")]
     internal static void VerifyBeamSpeedRows()
     {
@@ -121,11 +123,16 @@ internal static class BeamSpeedRowsVerification
     [CpuBusBoundary("exact bus test: write-overlay fixture over the retail bus that rejects compiled projectile-mechanics reads")]
     internal sealed class BeamSpeedRowAddressSpace(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
+        /// <summary>Routes WRAM reads through the guarded address-space fixture.</summary>
         public byte ReadWorkRamByte(int address) => ReadByte(address);
+        /// <summary>Routes save-RAM reads through the guarded address-space fixture.</summary>
         public byte ReadSaveRamByte(int address) => ReadByte(address);
+        /// <summary>Routes cartridge reads through the guard that rejects migrated motion tables.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Fixture writes overlaid on the retail source without modifying its bytes.</summary>
         private readonly Dictionary<int, byte> _overrides = new();
+        /// <summary>Rejects compiled mechanics ranges before selecting an overlay byte or source byte.</summary>
         public byte ReadByte(int address)
         {
             if (address is >= 0x90c2d1 and < 0x90c37b or
@@ -134,7 +141,9 @@ internal static class BeamSpeedRowsVerification
                 throw new InvalidOperationException($"Compiled projectile mechanics unexpectedly read ROM ${address:X6}.");
             return _overrides.TryGetValue(address, out byte value) ? value : CpuBusRegionRead.Read(source, address);
         }
+        /// <summary>Records a fixture-owned bus byte in the overlay.</summary>
         public void WriteByte(int address, byte value) => _overrides[address] = value;
+        /// <summary>Writes a little-endian fixture word into consecutive overlay bytes.</summary>
         public void SetWord(int address, ushort value)
         {
             WriteByte(address, (byte)value);
@@ -142,6 +151,7 @@ internal static class BeamSpeedRowsVerification
         }
     }
 
+    /// <summary>Runs the compiled projectile-motion comparison against the retail ROM.</summary>
     [VerificationCommand("--projectile-motion")]
     internal static int ProjectileMotionCommand()
     {
@@ -149,6 +159,7 @@ internal static class BeamSpeedRowsVerification
         return 0;
     }
 
+    /// <summary>Runs beam speed, production projectile, and magic-number checks together.</summary>
     [VerificationCommand("--beam-speed-rows")]
     internal static int BeamSpeedRowsCommand()
     {

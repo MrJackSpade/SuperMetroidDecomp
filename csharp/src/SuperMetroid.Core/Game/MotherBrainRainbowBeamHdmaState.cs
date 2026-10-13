@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class MotherBrainRainbowBeamHdmaState
 {
+    /// <summary>Visible scanline window table retained between updates when the native dispatcher requests it.</summary>
     private readonly ushort[] windows = new ushort[SnesPpuLayout.ScreenHeightPixels];
 
     /// <summary>Host-owned visual colors; the beam window and update cadence stay cartridge logic.</summary>
@@ -62,6 +63,7 @@ public sealed class MotherBrainRainbowBeamHdmaState
         BuildWindows(head, angle, angularWidth);
     }
 
+    /// <summary>Projects the beam's two angular edges into scanline window words using native quadrant dispatch and mouth offsets.</summary>
     private void BuildWindows(Position16<RoomPixels> head,
         SnesAngle angle, ushort angularWidth)
     {
@@ -139,8 +141,10 @@ public sealed class MotherBrainRainbowBeamHdmaState
         }
     }
 
+    /// <summary>Reads a compiled absolute tangent sample at the wrapping eight-bit beam angle.</summary>
     private static int Tangent(int angle) =>
         AbsoluteTangentDefinitions.Sample(unchecked((byte)angle));
+    /// <summary>Reads the installed color cycle and fails if rainbow presentation colors were never bound.</summary>
     private bool TryReadColor(int cursor, out Bgr555 color) =>
         (PresentationColors ?? throw new InvalidOperationException(
             "Mother Brain rainbow beam requires installed colors."))

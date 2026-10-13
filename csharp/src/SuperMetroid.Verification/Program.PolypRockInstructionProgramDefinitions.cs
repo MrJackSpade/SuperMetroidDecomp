@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Polyp-rock projectile instruction mechanics and installed frame selection against native data.</summary>
 internal static class PolypRockInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the production Polyp-rock program check.</summary>
     internal static void VerifyPolypRockInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPolypRockInstructionProgramDefinitions), () => VerifyPolypRockInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks the real producer, authored frame and sleep, shared deletion, and forbidden runtime source reads.</summary>
     internal static void VerifyPolypRockInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -114,6 +117,7 @@ internal static class PolypRockInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeatedly reads both compiled control words to expose per-frame lookup allocations.</summary>
     private static int ProbePolypRockInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -127,12 +131,14 @@ internal static class PolypRockInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads one bank-$86 instruction word for comparison with the compiled program.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Polyp rock instruction words")]
     internal static ushort ReadPolypRockInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
 
+    /// <summary>Blocks migrated Polyp-rock, shared-delete, and visual-selector operands during production execution.</summary>
     private static CartridgeReadGuard NewPolypRockInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => PolypRockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -142,6 +148,7 @@ internal static class PolypRockInstructionProgramDefinitionsVerification
                     PolypRockInstructionProgramDefinitions.PresentationWord) is 0 or 1,
                 _ => "Production read the compiled Polyp-rock visual operand.");
 
+    /// <summary>Runs the focused Polyp-rock instruction comparison against the retail ROM.</summary>
     [VerificationCommand("--polyp-rock-instruction-mechanics")]
     internal static int PolypRockInstructionMechanicsCommand()
     {

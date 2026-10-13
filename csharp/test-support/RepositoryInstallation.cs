@@ -20,11 +20,30 @@ internal static class RepositoryInstallation
     /// </summary>
     internal const string CacheRoot = "csharp/.cache";
 
+    /// <summary>
+    /// How long a verifier waits for another process that holds the setup lock. The parallel
+    /// suite starts every verifier at once, so on a fresh cache one process extracts the
+    /// installation while the others wait and then reuse it.
+    /// </summary>
+    private static readonly TimeSpan SetupLockWait = TimeSpan.FromMinutes(30);
+
     private static readonly Lazy<GameInstallation> installation = new(() =>
     {
         string root = Path.GetFullPath(Path.Combine(CacheRoot, "verification-installed-content"));
-        return GameAssetInstaller.EnsureInstalled(root) ??
-            GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);
+        DateTime deadline = DateTime.UtcNow + SetupLockWait;
+        while (true)
+        {
+            try
+            {
+                return GameAssetInstaller.EnsureInstalled(root) ??
+                    GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);
+            }
+            catch (IOException error) when (error.InnerException is IOException && DateTime.UtcNow < deadline)
+            {
+                // Another verifier holds the setup lock while it extracts; retry until it publishes.
+                Thread.Sleep(TimeSpan.FromSeconds(2));
+            }
+        }
     });
 
     private static readonly Lazy<Action<SuperMetroidRuntime>> runtimeBindings =

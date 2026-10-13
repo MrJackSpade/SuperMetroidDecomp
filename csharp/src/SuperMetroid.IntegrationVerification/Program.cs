@@ -53,7 +53,7 @@ internal static class Program
             try
             {
                 string rom = Path.GetFullPath("Super Metroid.smc");
-                string audio = Path.GetFullPath("standalone-assets/audio");
+                string audio = RepositoryInstallation.Installation.AudioDirectory;
                 using var data = new AndroidSessionData(root, rom, audio);
                 if (!data.LoadSlot(9).Contains("empty", StringComparison.Ordinal))
                     throw new InvalidDataException("Missing slot did not return a nonfatal message.");

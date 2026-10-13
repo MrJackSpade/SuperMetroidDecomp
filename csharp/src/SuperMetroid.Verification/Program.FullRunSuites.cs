@@ -338,6 +338,7 @@ using static SpringBallFallingFallbackVerification;
 using static SquareSlopeBeamCollisionVerification;
 using static StationAnimationProgramDefinitionsVerification;
 using static StrictFailuresVerification;
+using static SuitPickupPeriodicDamageVerification;
 using static SuperMissileDeathAnimationVerification;
 using static SuperMissileEnemyHitQuakeVerification;
 using static TitleSequenceRomDataVerification;
@@ -780,6 +781,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBeamImpactSound), () => VerifyBeamImpactSound()),
         new(nameof(VerifySquareSlopeBeamCollision), () => VerifySquareSlopeBeamCollision()),
         new(nameof(VerifyAirSpikeAlphaRadius), () => VerifyAirSpikeAlphaRadius()),
+        new(nameof(VerifySuitPickupPeriodicDamage), () => VerifySuitPickupPeriodicDamage()),
         new(nameof(VerifyKraidArmSamusContact), () => VerifyKraidArmSamusContact()),
         new(nameof(VerifyShaktoolSamusContact), () => VerifyShaktoolSamusContact()),
         new(nameof(VerifyEmptyExtendedFrameShots), () => VerifyEmptyExtendedFrameShots()),

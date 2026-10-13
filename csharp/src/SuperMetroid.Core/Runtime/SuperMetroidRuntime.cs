@@ -582,6 +582,7 @@ public sealed class SuperMetroidRuntime
             // Suit command $15 installs an empty beta, not just locked pose input.
             // Preserve the suspended movement pointer and all of its timers so command
             // $0B can resume it after the HDMA transformation (including Blue Suit).
+            // The empty beta also skips periodic damage and the energy checks.
             frame.SuitOwnsSamus = SuitPickup.IsActive;
             frame.MovementTypeAtFrameStart = Player.Samus.PoseMetadata.ReadMovementType(_addressSpace);
 
@@ -736,12 +737,15 @@ public sealed class SuperMetroidRuntime
 
             SamusPhases.ApplySamusAnimationTransitions(frame, Player.Samus);
 
-            if (!frame.DeathOwnsSamus && !AttractDemo.IsAttractDemo)
+            if (!frame.DeathOwnsSamus && !AttractDemo.IsAttractDemo && !frame.SuitOwnsSamus)
             {
                 // Normal beta ends with HandlePeriodicDamageToSamus ($90:E9CE), PauseCheck and
                 // LowEnergyCheck, before the enemy-projectile and PLM handlers. Damage those
                 // handlers accumulate this frame (e.g. $84:AC9D) therefore lands next frame.
-                // Demo beta omits these calls. X-ray freezes time and therefore clears
+                // Demo beta omits these calls, and so does suit command $15's empty beta
+                // (RTL_90E8CD): damage pending during the transformation stays accumulated
+                // until the first ordinary beta after it, which divides it by the new suit.
+                // X-ray freezes time and therefore clears
                 // rather than applies accumulated damage; fatal zero-energy game-state
                 // acquisition remains the outer seam.
                 Player.Samus.LiquidPhysics.ApplyPeriodicDamage(

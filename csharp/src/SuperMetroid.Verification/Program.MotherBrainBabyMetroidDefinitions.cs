@@ -15,8 +15,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Mother Brain's Baby Metroid spawn record and the runtime's physical-slot allocation.</summary>
 internal static class MotherBrainBabyMetroidDefinitionsVerification
 {
+    /// <summary>Compares all eight population words and checks initialization and duplicate-spawn rejection without record reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain Baby Metroid definitions")]
     internal static void VerifyMotherBrainBabyMetroidDefinitions(
         SuperMetroidAddressSpace rom)
@@ -91,11 +93,13 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             "Mother Brain Baby definition: all eight population words and the real allocation, initialization AI, palette load, spawn snapshot and duplicate guard pass with the embedded record forbidden.");
     }
 
+    /// <summary>Forbids runtime reads of the migrated bank $A9 Baby Metroid population record.</summary>
     private static CartridgeReadGuard NewMotherBrainBabyPopulationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa9be28 and < 0xa9be38,
                 address => $"Mother Brain Baby attempted migrated population read ${address:X6}.");
 
+    /// <summary>Loads the retail cartridge and runs the Baby Metroid spawn-definition check.</summary>
     [VerificationCommand("--mother-brain-baby-metroid-definitions")]
     internal static int MotherBrainBabyMetroidDefinitionsCommand()
     {

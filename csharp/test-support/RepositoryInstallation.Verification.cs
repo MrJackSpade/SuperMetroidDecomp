@@ -11,20 +11,27 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Installation fixtures only the verifiers use; the developer tools link only the shared part.</summary>
 internal static class InstalledFixtures
 {
+    /// <summary>Lazy stock character, palette, metatile, and visual-layout catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = new(() => new RoomAssetCatalogs(
         RepositoryInstallation.Installation.LoadRoomCharacters(), RepositoryInstallation.Installation.LoadRoomPalettes(),
         RepositoryInstallation.Installation.LoadRoomMetatiles(), RepositoryInstallation.Installation.LoadRoomVisualLayouts()));
 
+    /// <summary>Lazy map and shared presentation resources.</summary>
     private static readonly Lazy<AreaMapPresentationCatalog> maps = new(() => RepositoryInstallation.Installation.LoadMaps());
 
+    /// <summary>Lazy installed enemy tile and sprite artwork.</summary>
     private static readonly Lazy<EnemyTileArtworkCatalog> enemyTiles = new(() => RepositoryInstallation.Installation.LoadEnemyTiles());
 
+    /// <summary>Lazy projectile art, bindings, and tiles.</summary>
     private static readonly Lazy<InstalledProjectilePresentation> projectiles = new(() => RepositoryInstallation.Installation.LoadProjectiles());
 
+    /// <summary>Lazy Samus body and arm-cannon artwork.</summary>
     private static readonly Lazy<SamusBodyArtworkCatalog> samusBody = new(() => RepositoryInstallation.Installation.LoadSamusBodyArt());
 
+    /// <summary>Lazy intro and Ceres-flight cinematic artwork.</summary>
     private static readonly Lazy<IntroCinematicArtworkCatalog> introArtwork = new(() => RepositoryInstallation.Installation.LoadIntroCinematicArt());
 
+    /// <summary>Lazy action that binds all installed host catalogs to a game.</summary>
     private static readonly Lazy<Action<SuperMetroidGame>> gameBindings =
         new(() => InstalledGameBindings.Create(RepositoryInstallation.Installation));
 
@@ -48,13 +55,17 @@ internal static class InstalledFixtures
     /// <summary>The installation's projectile artwork and frame bindings, loaded once per process.</summary>
     internal static InstalledProjectilePresentation Projectiles => projectiles.Value;
 
+    /// <summary>The installation's Samus body and arm-cannon artwork, loaded once per process.</summary>
     internal static SamusBodyArtworkCatalog SamusBody => samusBody.Value;
 
+    /// <summary>The installation's intro cinematic artwork, loaded once per process.</summary>
     internal static IntroCinematicArtworkCatalog IntroArtwork => introArtwork.Value;
 
+    /// <summary>Creates a Samus projectile system with installed frame bindings.</summary>
     internal static SamusProjectileSystem CreateProjectileSystem() =>
         new() { Animation = { FrameBindings = Projectiles.FrameBindings } };
 
+    /// <summary>Creates a bomb system with installed frame bindings and explosion colors.</summary>
     internal static SamusBombProjectileSystem CreateBombSystem() =>
         new() { FrameBindings = Projectiles.FrameBindings, PowerBombExplosion = { PresentationColors = Maps.PowerBombFixedColors } };
 
@@ -74,12 +85,15 @@ internal static class InstalledFixtures
         return samus;
     }
 
+    /// <summary>Creates Samus with installation suit, body, beam, visor, and grapple presentation.</summary>
     internal static SamusState CreateSamus() => BindSamus(new SamusState());
 
+    /// <summary>Creates Ceres destruction with installed cinematic art, fixed colors, and palette FX.</summary>
     internal static CeresDestructionCinematicState CreateDestruction(ISnesAddressSpace bus,
         CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
         new(bus, audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork, Maps.RoomPaletteFx);
 
+    /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
     internal static IntroCinematicState CreateIntro(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
         BeamTileCatalog? beamArtwork = null, SamusBodyArtworkCatalog? samusBodyArtwork = null)
@@ -96,6 +110,7 @@ internal static class InstalledFixtures
         return intro;
     }
 
+    /// <summary>Creates ending credits with installed flight, Mode 7, object, palette, and staff art.</summary>
     internal static EndingCreditsState CreateEnding(ISnesAddressSpace bus, CartridgeAudioState audio,
         ushort gameTimeHours, ushort gameTimeMinutes, EndingInventorySnapshot inventory = default, bool japaneseText = false)
     {
@@ -110,9 +125,11 @@ internal static class InstalledFixtures
         return ending;
     }
 
+    /// <summary>Creates a file-select area map from installed presentation resources.</summary>
     internal static FileSelectAreaMapGraphics CreateFileSelectAreaMap(ISnesAddressSpace bus, int selectedArea) =>
         FileSelectAreaMapGraphics.FromPresentation(bus, selectedArea, Maps);
 
+    /// <summary>Creates the title sequence with installed gradient, palette, and graphics defaults.</summary>
     internal static TitleSequenceState CreateTitle(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
@@ -120,6 +137,7 @@ internal static class InstalledFixtures
         new(bus, audio, titleGradientPresentation ?? Maps.TitleGradient,
             titlePalettePresentation ?? Maps.TitlePalette, titleGraphicsPresentation ?? Maps.TitleGraphics);
 
+    /// <summary>Creates a pause menu while retaining the supplied state and installed map presentation.</summary>
     internal static PauseMenuState CreatePause(ISnesAddressSpace bus, PauseMenuEntry entry) =>
         new(bus, new PauseMenuEntry { Samus = entry.Samus, System = entry.System, AreaIndex = entry.AreaIndex, RoomMapPosition = entry.RoomMapPosition, Audio = entry.Audio, GameplayVram = entry.GameplayVram, MapRevealMode = entry.MapRevealMode, MapPresentation = Maps });
 
@@ -145,8 +163,10 @@ internal static class InstalledFixtures
 /// <summary>A disposable copy of an installation root in a test scratch directory.</summary>
 internal sealed class PrivateInstallationCopy : IDisposable
 {
+    /// <summary>Scratch root deleted when the private installation copy is disposed.</summary>
     private readonly TestScratchDirectory scratch = new("installation-copy");
 
+    /// <summary>Copies every installed directory and file into isolated scratch storage.</summary>
     internal PrivateInstallationCopy(string sourceRoot)
     {
         Root = scratch.Root;
@@ -157,9 +177,12 @@ internal sealed class PrivateInstallationCopy : IDisposable
             File.Copy(file, Path.Combine(Root, Path.GetRelativePath(sourceRoot, file)));
     }
 
+    /// <summary>Root directory containing the isolated copy.</summary>
     internal string Root { get; }
 
+    /// <summary>Game installation view over the isolated copy.</summary>
     internal GameInstallation Installation => new(Root);
 
+    /// <summary>Deletes the scratch installation copy.</summary>
     public void Dispose() => scratch.Dispose();
 }

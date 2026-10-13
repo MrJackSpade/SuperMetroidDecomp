@@ -122,16 +122,25 @@ internal static class KraidInstalledPresentationHeadClockVerification
 
     internal sealed class KraidHeadClockFixture
     {
+        /// <summary>Production enemy system executing head instructions.</summary>
         internal RoomEnemySystem Enemies { get; }
+        /// <summary>Physical Kraid body slot whose variable words hold the head cursor and timer.</summary>
         internal RoomEnemySlot Body => Enemies.SlotTable.Slots[0];
+        /// <summary>Kraid state holding selected head art and mouth hitbox identities.</summary>
         internal KraidEnemyState State { get; }
+        /// <summary>Sentinel-filled VRAM receiving head tilemap uploads.</summary>
         internal SnesVram Vram { get; } = new();
+        /// <summary>Cartridge-free address space used for the production head clock.</summary>
         internal SuperMetroid.Core.Hardware.SuperMetroidAddressSpace Memory { get; } =
             SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge();
+        /// <summary>Bound production head-instruction dispatcher.</summary>
         private readonly Func<RoomEnemySlot, KraidEnemyState, ushort> step;
+        /// <summary>Bound production mouth-versus-projectile overlap check.</summary>
         private readonly Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool> hit;
+        /// <summary>Bound production head tilemap transfer.</summary>
         private readonly Action<KraidEnemyState, ushort> transfer;
 
+        /// <summary>Initializes Kraid with selected art and a sentinel VRAM image.</summary>
         [PpuLayoutBoundary("exact hardware test: fills VRAM with a sentinel image before the head transfer")]
         internal KraidHeadClockFixture(EnemyTileArtworkCatalog art)
         {
@@ -147,9 +156,13 @@ internal static class KraidInstalledPresentationHeadClockVerification
             byte[] sentinel = new byte[SnesVram.ByteCount]; Array.Fill(sentinel, (byte)0xcd); Vram.LoadBytes(0, sentinel);
         }
 
+        /// <summary>Advances one head instruction tick using the production interpreter.</summary>
         internal ushort Step() => step(Body, State);
+        /// <summary>Uploads a selected head tilemap through production behavior.</summary>
         internal void Transfer(ushort pointer) => transfer(State, pointer);
+        /// <summary>Tests a projectile against the selected physical mouth hitbox.</summary>
         internal bool Hit(ushort pointer, SamusProjectileSlot shot) => hit(Body, pointer, shot);
+        /// <summary>Updates an expected VRAM image with one head tilemap DMA payload.</summary>
         internal static void ExpectedUpload(byte[] destination, ReadOnlySpan<ushort> words)
         {
             for (int word = 0; word < words.Length; word++)

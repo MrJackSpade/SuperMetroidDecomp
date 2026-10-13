@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using static PowerBombCallbackDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks bank-qualified enemy touch and shot no-op callback identities against pinned cartridge data.</summary>
 internal static class ShotCallbackDefinitionsVerification
 {
+    /// <summary>Inventories callback pointers in enemy headers and hitboxes, then checks classification and combat admission.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for shot callback definitions")]
     internal static void VerifyShotCallbackDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -87,6 +89,7 @@ internal static class ShotCallbackDefinitionsVerification
             "paths preserve fifteen touch/twelve shot RTL identities without executable reads.");
     }
 
+    /// <summary>Checks that real touch and projectile collision paths accept literal RTL callbacks without opcode reads.</summary>
     private static void VerifyLiteralNoOpCombatAdmission(
         SuperMetroidAddressSpace rom,
         HashSet<int> touchNoOps,
@@ -166,6 +169,7 @@ internal static class ShotCallbackDefinitionsVerification
         }
     }
 
+    /// <summary>Forbids cartridge reads at callback addresses identified as literal RTL routines.</summary>
     private static CartridgeReadGuard NewEnemyCallbackOpcodeReadGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
         new CartridgeReadGuard(source).Forbid(forbidden.Contains,
             address => $"Combat admission probed executable callback ${address:X6}.");

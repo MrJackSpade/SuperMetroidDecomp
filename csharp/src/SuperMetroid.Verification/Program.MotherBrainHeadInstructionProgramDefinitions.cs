@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Checks Mother Brain's compiled brain-list data and draw-time instruction behavior.</summary>
 internal static class MotherBrainHeadInstructionProgramDefinitionsVerification
 {
+    /// <summary>The six bank A9 data windows copied into the compiled head instruction catalog.</summary>
     private static readonly (ushort Start, ushort End)[] MotherBrainHeadRegions =
     [
         (MotherBrainHeadInstructionProgramDefinitionsTooling.EarlyStart,
@@ -21,6 +23,7 @@ internal static class MotherBrainHeadInstructionProgramDefinitionsVerification
             MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeEnd),
     ];
 
+    /// <summary>Compares all bounded head-list words with the cartridge and checks frame timing and branch execution.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain head instruction words")]
     internal static void VerifyMotherBrainHeadInstructionProgramDefinitions()
     {
@@ -139,6 +142,7 @@ internal static class MotherBrainHeadInstructionProgramDefinitionsVerification
             "nine ordinary-enemy entry frames and a branch loop pass.");
     }
 
+    /// <summary>Rejects runtime reads from the bank A9 ranges already represented by compiled head-list data.</summary>
     private static CartridgeReadGuard NewMotherBrainHeadInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => (SnesAddressMath.BankNumber(address)) == 0xa9 && MotherBrainHeadRegions.Any(region =>

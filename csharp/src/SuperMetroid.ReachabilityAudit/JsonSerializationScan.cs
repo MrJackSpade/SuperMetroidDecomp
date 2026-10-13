@@ -9,10 +9,14 @@ namespace SuperMetroid.ReachabilityAudit;
 /// </summary>
 internal sealed class JsonSerializationScan(SymbolIdentity identity)
 {
+    /// <summary>Repository payload types discovered from serializer calls and nested public properties.</summary>
     private readonly Dictionary<string, INamedTypeSymbol> payloadTypes = [];
+    /// <summary>Repository helper type parameters whose concrete payloads depend on call sites.</summary>
     private readonly HashSet<(IMethodSymbol Helper, int Ordinal)> genericHelpers = new(HelperComparer.Instance);
+    /// <summary>Observed generic calls used to resolve serializer payloads passed through helpers.</summary>
     private readonly List<IMethodSymbol> genericInvocations = [];
 
+    /// <summary>Records JSON payload types from serializer arguments and generic repository helper calls.</summary>
     public void ObserveInvocation(SemanticModel model, InvocationExpressionSyntax invocation, IMethodSymbol method)
     {
         if (method.IsGenericMethod && IsRepositorySymbol(method.OriginalDefinition))
@@ -59,6 +63,7 @@ internal sealed class JsonSerializationScan(SymbolIdentity identity)
         return accessed;
     }
 
+    /// <summary>Unwraps arrays and generic arguments, tracking repository types and unresolved helper parameters.</summary>
     private void AddPayload(ITypeSymbol? type)
     {
         switch (type)
@@ -82,6 +87,7 @@ internal sealed class JsonSerializationScan(SymbolIdentity identity)
         }
     }
 
+    /// <summary>Substitutes observed call-site type arguments into serializer helper parameters until stable.</summary>
     private void ResolveGenericHelpers()
     {
         var resolved = new HashSet<(IMethodSymbol, int)>(HelperComparer.Instance);
@@ -94,15 +100,20 @@ internal sealed class JsonSerializationScan(SymbolIdentity identity)
             }
     }
 
+    /// <summary>Limits generic-helper tracing to symbols declared in repository source.</summary>
     private static bool IsRepositorySymbol(ISymbol symbol) => symbol.Locations.Any(l => l.IsInSource);
 
+    /// <summary>Compares helper type-parameter slots by Roslyn symbol identity and ordinal.</summary>
     private sealed class HelperComparer : IEqualityComparer<(IMethodSymbol Helper, int Ordinal)>
     {
+        /// <summary>Shared comparer for helper slots collected during payload inference.</summary>
         public static readonly HelperComparer Instance = new();
 
+        /// <summary>Matches the same generic helper's parameter at the same ordinal.</summary>
         public bool Equals((IMethodSymbol Helper, int Ordinal) x, (IMethodSymbol Helper, int Ordinal) y) =>
             SymbolEqualityComparer.Default.Equals(x.Helper, y.Helper) && x.Ordinal == y.Ordinal;
 
+        /// <summary>Hashes a helper slot consistently with Roslyn symbol equality.</summary>
         public int GetHashCode((IMethodSymbol Helper, int Ordinal) value) =>
             HashCode.Combine(SymbolEqualityComparer.Default.GetHashCode(value.Helper), value.Ordinal);
     }

@@ -7,11 +7,16 @@ using SuperMetroid.Rendering.Direct3D11;
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
 internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRenderer renderer)
 {
+    /// <summary>Gives each stock or edited render packet a fresh frame identity.</summary>
     private long sequence;
+    /// <summary>Counts backend readbacks compared with the software pixel oracle.</summary>
     internal int Comparisons { get; private set; }
+    /// <summary>Counts visible pixels changed by the indexed artwork substitution.</summary>
     internal long ChangedPixels { get; private set; }
+    /// <summary>Distinct test colors let the oracle infer palette indices from rendered pixels.</summary>
     private readonly SnesCgram colors = MakeColors();
 
+    /// <summary>Checks edited VRAM against exact index substitution and verifies stock and edited backend output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal void Pair(SnesVram stock, SnesVram edited, OamBuffer oam, string context)
     {
@@ -41,12 +46,14 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
                 [new ObjRenderLayer()], 3, 15));
     }
 
+    /// <summary>Reads a GPU frame and compares its pixels with the software renderer's expected output.</summary>
     private void Compare(RenderFrameSnapshot frame, Rgba32[] expected, string context)
     {
         PixelComparison.Verify(frame, expected, renderer.RenderForReadback(frame), $"{device.Kind}: {context}");
         Comparisons++;
     }
 
+    /// <summary>Builds distinct index colors across all CGRAM rows for exact artwork comparison.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
     private static SnesCgram MakeColors()
     {

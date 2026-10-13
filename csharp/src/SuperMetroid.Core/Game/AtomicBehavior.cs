@@ -4,11 +4,16 @@
 internal sealed class AtomicBehavior : IEnemySpecies
 {
 
+    /// <summary>Per-slot typed views of Atomic's common and extended motion words.</summary>
     internal readonly AtomicEnemyState?[] _atomicStates =
         new AtomicEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Positive 16.16 speed fractions indexed by physical enemy slot.</summary>
     internal readonly ushort[] _atomicSpeedFractions = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Positive 16.16 speed whole words indexed by physical enemy slot.</summary>
     internal readonly ushort[] _atomicSpeedWholes = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Native negative-speed fractions retained separately to preserve subpixel arithmetic.</summary>
     internal readonly ushort[] _atomicNegativeSpeedFractions = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Native negative-speed whole words retained separately from positive speed.</summary>
     internal readonly ushort[] _atomicNegativeSpeedWholes = new ushort[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Atomic</c> at <c>$A8:E388</c>.</summary>
@@ -123,10 +128,12 @@ internal sealed class AtomicBehavior : IEnemySpecies
         return new(whole, unchecked((ushort)fractionalSum));
     }
 
+    /// <summary>Requires initialized Atomic state for a physical enemy slot before main AI runs.</summary>
     private AtomicEnemyState RequireAtomicState(RoomEnemySlot slot) =>
         _atomicStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Atomic state.");
 
+    /// <summary>Registers the bank-$A8 Atomic initializer for its enemy definition.</summary>
     internal void RegisterAtomicInitializationAi(EnemyAiTable table)
     {
 
@@ -136,6 +143,7 @@ internal sealed class AtomicBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the bank-$A8 Atomic pursuit dispatcher for each enemy update.</summary>
     internal void RegisterAtomicMainAi(EnemyAiTable table)
     {
 

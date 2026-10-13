@@ -15,8 +15,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Mother Brain turret placement, rotation, direction, and bullet tables against bank 86.</summary>
 internal static class MotherBrainTurretDefinitionsVerification
 {
+    /// <summary>Exercises all twelve turret placements and eight bullet directions with source table reads forbidden.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain turret definitions")]
     internal static void VerifyMotherBrainTurretDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -160,6 +162,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             "Mother Brain turret definitions: 12 placements, 96 rotation bytes, 16 instruction selectors, 32 bullet words, 384 rotations and all 20 real spawns pass with source tables forbidden.");
     }
 
+    /// <summary>Rejects production reads of compiled turret setup, bullet, and direction-selector ranges.</summary>
     private static CartridgeReadGuard NewMotherBrainTurretReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x86be89 and < 0x86bf59 or
@@ -167,6 +170,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             >= 0x86c040 and < 0x86c050,
                 address => $"Mother Brain turret attempted migrated table read ${address:X6}.");
 
+    /// <summary>Runs the Mother Brain turret comparison with a retail cartridge oracle.</summary>
     [VerificationCommand("--mother-brain-turret-definitions")]
     internal static int MotherBrainTurretDefinitionsCommand()
     {

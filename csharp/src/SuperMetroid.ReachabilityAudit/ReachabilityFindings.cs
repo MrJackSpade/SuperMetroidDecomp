@@ -9,11 +9,17 @@ internal sealed record Finding(string Category, Declaration Declaration);
 /// </summary>
 internal static class ReachabilityFindings
 {
+    /// <summary>Category for a type no host or tool can reach.</summary>
     public const string UnreachableType = "unreachable-type";
+    /// <summary>Category for a non-field member no host or tool can reach.</summary>
     public const string UnreachableMember = "unreachable-member";
+    /// <summary>Category for a field with no source reference.</summary>
     public const string UnreferencedField = "unreferenced-field";
+    /// <summary>Category for an enum value with no source reference.</summary>
     public const string UnreferencedEnumMember = "unreferenced-enum-member";
+    /// <summary>Category for a member reached by serialization rather than ordinary calls.</summary>
     public const string SerializationOnly = "serialization-only";
+    /// <summary>Category for shipped code reached by development tools but not player hosts.</summary>
     public const string ReachedOnlyByTools = "production-reached-only-by-tools";
     /// <summary>Unused by tools in a source file verification projects also compile: unlink it from the tool.</summary>
     public const string TestSupportUnusedByTools = "test-support-unused-by-tools";
@@ -23,6 +29,7 @@ internal static class ReachabilityFindings
         ["SuperMetroid.Core", "SuperMetroid.AssetExtraction", "SuperMetroid.Diagnostics", "SuperMetroid.Desktop",
          "SuperMetroid.Rendering.Direct3D11", "SuperMetroid.Game", "SuperMetroid.Android"];
 
+    /// <summary>Groups unreachable declarations once at their outer type and separates tool-only production code.</summary>
     public static IReadOnlyList<Finding> Classify(ReachabilityResult result)
     {
         var declarations = result.Declarations;
@@ -59,6 +66,7 @@ internal static class ReachabilityFindings
         return findings;
     }
 
+    /// <summary>Walks enclosing type keys so nested findings can be suppressed under an already reported type.</summary>
     private static IEnumerable<string> Containers(IReadOnlyDictionary<string, Declaration> declarations, Declaration declaration)
     {
         for (string key = declaration.ContainingTypeKey; key.Length > 0;

@@ -16,12 +16,18 @@ using static RetailRuntimeFixtureVerification;
 
 internal static class FrozenGateGlitchVerification
 {
+    /// <summary>Starting Samus X used by the Caterpillar frozen-enemy gate fixture.</summary>
     private const int FrozenGateStartX = 602;
+    /// <summary>Shared Y coordinate of Samus and the Zero enemy in the native cases.</summary>
     private const int FrozenGateY = 860;
+    /// <summary>Retail downward-gate block index checked before collision playback.</summary>
     private const int FrozenGateBlockIndex = 0x0a16;
+    /// <summary>Camera X of the supplied Caterpillar room setup.</summary>
     private const ushort FrozenGateCameraX = 512;
+    /// <summary>Camera Y of the supplied Caterpillar room setup.</summary>
     private const ushort FrozenGateCameraY = 768;
 
+    /// <summary>One native CPU collision case and its resulting gate state.</summary>
     internal readonly record struct FrozenGateNativeRecord(
         int Distance,
         ushort EnemyX,
@@ -32,6 +38,7 @@ internal static class FrozenGateGlitchVerification
         ushort GatePreInstruction,
         ushort GateInstructionList);
 
+    /// <summary>Compares one successful frozen-gate clip and three adjacent controls with native CPU results.</summary>
     internal static void VerifyFrozenEnemyGateGlitch()
     {
         FrozenGateNativeRecord[] expected = File.ReadLines(
@@ -52,6 +59,7 @@ internal static class FrozenGateGlitchVerification
             "one-pixel boundary, unfrozen control, and gate wake match the original CPU.");
     }
 
+    /// <summary>Replays one native case in the retail Caterpillar room through collision and gate PLM updates.</summary>
     private static void VerifyFrozenEnemyGateRecord(FrozenGateNativeRecord expected)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -135,6 +143,7 @@ internal static class FrozenGateGlitchVerification
             $"{expected.Distance}-pixel case selects the translated moving-gate phase");
     }
 
+    /// <summary>Parses the eight expected native collision and gate fields from a fixture row.</summary>
     private static FrozenGateNativeRecord ParseFrozenGateNativeRecord(string row)
     {
         string[] columns = row.Split(',');
@@ -150,6 +159,7 @@ internal static class FrozenGateGlitchVerification
             ushort.Parse(columns[7], NumberStyles.HexNumber, CultureInfo.InvariantCulture));
     }
 
+    /// <summary>Runs the frozen-enemy gate clip verification suite.</summary>
     [VerificationCommand("--frozen-gate-glitch")]
     internal static int FrozenGateGlitchCommand()
     {

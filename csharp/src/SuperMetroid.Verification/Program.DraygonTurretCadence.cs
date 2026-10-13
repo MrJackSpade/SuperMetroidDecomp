@@ -13,11 +13,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Draygon turret timing, goop speed and bomb behavior, and dead-body reactions.</summary>
 internal static class DraygonTurretCadenceVerification
 {
-    // #1269: $A5:87AA times Draygon's wall turrets from NMI_FrameCounter ($05B6), never the
-    // separate 8-bit counter at $05B5. The two drift apart, and the 100% movie fired a
-    // turret on a frame where only $05B6's low six bits were zero.
+    /// <summary>
+    /// Checks that wall turrets use the 16-bit NMI frame counter at $05B6, whose low six bits
+    /// triggered the recorded shot even though the separate $05B5 counter disagreed (#1269).
+    /// Also checks goop velocity, power-bomb deletion, and repeated dead-body hits.
+    /// </summary>
     internal static void VerifyDraygonTurretCadence()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -90,6 +93,7 @@ internal static class DraygonTurretCadenceVerification
         Console.WriteLine("Draygon turret cadence: $A5:87AA follows NMI_FrameCounter ($05B6), not $05B5; goop speed is two; power bombs delete goop; dead-body hits restart the death drift.");
     }
 
+    /// <summary>Runs the focused Draygon timing and reaction fixture.</summary>
     [VerificationCommand("--draygon-turret-cadence")]
     internal static int DraygonTurretCadenceCommand()
     {

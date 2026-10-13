@@ -6,6 +6,7 @@ using static AssertionsVerification;
 using static SyntheticSamusAnimationDelaysVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Samus's crouch fallback when a spin landing cannot fit between retail barrier cells.</summary>
 internal static class CrampedAerialLandingVerification
 {
     /// <summary>

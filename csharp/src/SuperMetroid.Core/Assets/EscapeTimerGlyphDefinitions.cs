@@ -42,8 +42,10 @@ internal static class EscapeTimerGlyphDefinitions
     internal const int ChosenLabelEOrigin = 18;
     /// <summary>$B0:C300: E spans five columns; chosen width remains reviewed original-font design.</summary>
     internal const int ChosenLabelEWidth = 5;
-    /// <summary>$B0:C2C0..C31F: label fill occupies rows1..5; chosen vertical placement remains reviewed original-font design.</summary>
-    internal const int ChosenLabelTop = 1, ChosenLabelHeight = 5;
+    /// <summary>$B0:C2C0..C31F: label fill begins at row1; chosen placement remains reviewed original-font design.</summary>
+    internal const int ChosenLabelTop = 1;
+    /// <summary>$B0:C2C0..C31F: label fill spans five rows; chosen height remains reviewed original-font design.</summary>
+    internal const int ChosenLabelHeight = 5;
     /// <summary>$B0:C300: E middle arm ends one column before its outer arms; chosen shape policy remains reviewed original-font design.</summary>
     internal const int ChosenLabelMiddleInset = 1;
 
@@ -142,6 +144,7 @@ internal static class EscapeTimerGlyphDefinitions
         if (tile == 21) { tile = 20; if (x >= 8 / 2) x -= ChosenSeparatorAdvance; }
         return y * EscapeTimerTileAtlasFormat.Width + tile * 8 + x;
     }
+    /// <summary>Locates an atlas pixel's eight-column tile, rejecting coordinates outside the timer sheet.</summary>
     private static int Tile(int pixel)
     {
         if ((uint)pixel >= EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height) throw new ArgumentOutOfRangeException(nameof(pixel));

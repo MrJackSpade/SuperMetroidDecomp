@@ -16,15 +16,21 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 internal sealed class RoomFxAnimatedTilesState
 {
+    /// <summary>Bank 87 object header chosen by the current room FX type.</summary>
     private AnimatedTileObject objectPointer;
+    /// <summary>Next compiled instruction-list word to execute when the frame timer expires.</summary>
     private ushort instructionPointer;
+    /// <summary>Remaining handler passes before the current animated frame advances.</summary>
     private ushort instructionTimer;
+    /// <summary>Character bytes transferred for each frame of the active object.</summary>
     private ushort transferByteCount;
+    /// <summary>Native VRAM destination word stored by the object's compiled header.</summary>
     private ushort encodedVramDestination;
 
     /// <summary>The queued-DMA destination the loaded animated-tile object's native word decodes to.</summary>
     [PpuLayoutBoundary("codec: room-FX animated-tile object's native VRAM destination")]
     private VramDmaDestination Destination => VramDmaDestination.FromNative(encodedVramDestination);
+    /// <summary>Compiled header and instruction words for the currently loaded object.</summary>
     private RoomFxAnimatedTileObjectDefinition? compiledMechanics;
 
     /// <summary>Whether a room-FX animated-tile object currently owns this slot.</summary>
@@ -160,6 +166,7 @@ internal sealed class RoomFxAnimatedTilesState
         compiledMechanics = null;
     }
 
+    /// <summary>Rejects an instruction pointer outside the active object's compiled mechanics catalog.</summary>
     private ushort ReadMechanicsWord(ushort pointer)
     {
         if (compiledMechanics is null)

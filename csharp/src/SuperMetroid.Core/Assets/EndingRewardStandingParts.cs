@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// thirty-part atlas grid. The full body prepends the four-tile arm strip.</summary>
 internal sealed class EndingRewardStandingParts(bool includeArm) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Replaces matching stock standing poses with calculated parts while preserving edited compositions.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.LargeSamusFromEndingStanding))
@@ -17,7 +18,9 @@ internal sealed class EndingRewardStandingParts(bool includeArm) : IReadOnlyList
         return supplied;
     }
 
+    /// <summary>Counts thirty shared body parts and four optional arm-strip parts.</summary>
     public int Count => includeArm ? 34 : 30;
+    /// <summary>Calculates an indexed body or arm part from its native atlas tile and screen offset.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -58,10 +61,12 @@ internal sealed class EndingRewardStandingParts(bool includeArm) : IReadOnlyList
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Enumerates standing parts in the OAM composition order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same standing-part order through the non-generic collection interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

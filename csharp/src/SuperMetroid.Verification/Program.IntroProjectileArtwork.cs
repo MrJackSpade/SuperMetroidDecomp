@@ -9,8 +9,10 @@ using SuperMetroid.Core.Hardware;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks projectile and trail artwork binding in the Mother Brain flashback cinematic.</summary>
 internal static class IntroProjectileArtworkVerification
 {
+    /// <summary>Checks stock OAM parity, edited compositions, trail timing, and artwork rebinding after snapshot restore.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyIntroProjectileArtwork(ISnesAddressSpace bus, ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite)
     {
@@ -100,6 +102,7 @@ internal static class IntroProjectileArtworkVerification
         Console.WriteLine("Intro projectile artwork: live/explosion/trail stock parity, visible edits, native timing and nonserialized state rebind pass.");
     }
 
+    /// <summary>Supplies nonprojectile draw dependencies to a restored intro without reuploading its cinematic sheet.</summary>
     private static void BindRestoredIntroDrawFixture(IntroCinematicState intro)
     {
         // This fixture isolates projectile/trail rebinding. Supply the other draw
@@ -111,6 +114,7 @@ internal static class IntroProjectileArtworkVerification
         intro.ProjectileCompositions = InstalledFixtures.Projectiles.Catalog;
         intro.ProjectileFrameBindings = InstalledFixtures.Projectiles.FrameBindings;
     }
+    /// <summary>Checks stock trail atlas VRAM and the exact two byte changes caused by edited PNG pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyIntroTrailPng(ISnesAddressSpace bus, IntroCinematicState intro,
         SuperMetroidGame game, byte[] json, Func<IntroCinematicState, byte[]> draw)

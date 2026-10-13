@@ -8,8 +8,10 @@ using SuperMetroid.Core.Rendering;
 using static IntroCinematicArtworkVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Checks the ending's Ceres flight art uploads and debugger artwork rebinding.</summary>
 internal static class EndingFlyawayArtworkVerification
 {
+    /// <summary>Compares all 16 scheduled Mode 7 uploads and checks an edited map byte without cartridge art rereads.</summary>
     internal static void VerifyEndingFlyawayArtwork(GameInstallation installation)
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

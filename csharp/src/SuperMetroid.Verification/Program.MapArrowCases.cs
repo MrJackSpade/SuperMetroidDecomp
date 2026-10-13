@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks map arrow direction selection, editable presentation, and native shape mapping.</summary>
 internal static class MapArrowCasesVerification
 {
+    /// <summary>Checks extracted directions and independent JSON edits for position, phase timing, and identity.</summary>
     internal static void VerifyMapArrowCases(ISnesAddressSpace rom)
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);
@@ -47,6 +49,7 @@ internal static class MapArrowCasesVerification
         }
     }
 
+    /// <summary>Compares four installed arrow X positions with native direction records.</summary>
     private static void VerifyMapArrowXSelection(ISnesAddressSpace rom, MapArrowPresentation presentation)
     {
         for (int index = 0; index < 4; index++)
@@ -54,6 +57,7 @@ internal static class MapArrowCasesVerification
                 presentation.Get((MapScrollDirection)(index + 1)).Position.X, "original arrow X selected by direction");
     }
 
+    /// <summary>Compares arrow Y positions after the native one-pixel OAM bias.</summary>
     private static void VerifyMapArrowYSelection(ISnesAddressSpace rom, MapArrowPresentation presentation)
     {
         for (int index = 0; index < 4; index++)
@@ -61,6 +65,7 @@ internal static class MapArrowCasesVerification
                 presentation.Get((MapScrollDirection)(index + 1)).Position.Y, "original arrow Y selected by direction with native OAM bias");
     }
 
+    /// <summary>Checks each direction's sprite base through the native animation and variant tables.</summary>
     private static void VerifyMapArrowShapeCases(ISnesAddressSpace rom)
     {
         for (int index = 0; index < 4; index++)

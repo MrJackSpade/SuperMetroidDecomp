@@ -14,8 +14,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static FrontendRomFreeVerification;
 
+/// <summary>Checks Spring Ball equipment changes and airborne jumps through the real pause teardown.</summary>
 internal static class SpringBallEquipmentJumpVerification
 {
+    /// <summary>Uses an underwater West Ocean fixture to check both facings, preserved ascent, and native launch speeds.</summary>
     internal static void VerifySpringBallEquipmentJump()
     {
         var installation = RepositoryInstallation.Installation;
@@ -88,6 +90,7 @@ internal static class SpringBallEquipmentJumpVerification
         Console.WriteLine("Spring Ball equipment jump: real unpause preserves ascent, enables two airborne launches with native water speeds, and handles both facings.");
     }
 
+    /// <summary>Runs the focused underwater equipment-jump verification command.</summary>
     [VerificationCommand("--spring-ball-equipment-jump")]
     internal static int SpringBallEquipmentJumpCommand()
     {

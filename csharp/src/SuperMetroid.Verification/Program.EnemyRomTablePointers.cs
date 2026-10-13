@@ -15,6 +15,7 @@ using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 using static WorkRobotInitialSelectionVerification;
 
+/// <summary>Checks named enemy ROM ranges and compiled instruction selectors against their cartridge sources.</summary>
 internal static class EnemyRomTablePointersVerification
 {
     /// <summary>
@@ -90,6 +91,7 @@ internal static class EnemyRomTablePointersVerification
         (EnemyRomTablePointers.WorkRobot.InitialInstructionListWords, 4),
     ];
 
+    /// <summary>Compares Golden Torizo, Work Robot, and Tourian statue selectors with cartridge words and production initializers.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy instruction selectors")]
     private static void VerifyCompiledEnemyInstructionSelectors(
         SuperMetroidAddressSpace rom)
@@ -148,6 +150,7 @@ internal static class EnemyRomTablePointersVerification
             "  Enemy instruction selectors: nine native words and all three production initializers avoid their source tables.");
     }
 
+    /// <summary>Rejects runtime reads of the three instruction-selection tables replaced by compiled definitions.</summary>
     private static CartridgeReadGuard NewEnemyInstructionSelectionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= EnemyRomTablePointersTorizo.SuperMissileInstructionPointers and
@@ -158,12 +161,14 @@ internal static class EnemyRomTablePointersVerification
                     < EnemyRomTablePointersTourianStatueConstants.InstructionListWords + 6,
                 address => $"Enemy instruction selector still reads compiled ROM byte ${address:X6}.");
 
+    /// <summary>Runs the enemy ROM pointer catalog check from the command dispatcher.</summary>
     [VerificationCommand("--enemy-pointer-fixture")]
     internal static int EnemyPointerFixtureCommand()
     {
      VerifyEnemyRomTablePointerCatalog(); return 0; 
     }
 
+    /// <summary>Runs selector checks as part of the enemy ROM pointer catalog suite.</summary>
     [VerificationCommand("--enemy-instruction-selectors")]
     internal static int EnemyInstructionSelectorsCommand()
     {

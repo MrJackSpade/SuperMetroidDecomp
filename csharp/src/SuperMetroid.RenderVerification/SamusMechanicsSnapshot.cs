@@ -10,9 +10,12 @@ using SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class SamusMechanicsSnapshot
 {
+    /// <summary>Caches ordered instance fields per type for repeatable graph traversal.</summary>
     private static readonly ConcurrentDictionary<Type, FieldInfo[]> Fields = new();
+    /// <summary>Stores each mutable graph path and its invariant-culture value.</summary>
     private readonly SortedDictionary<string, string> values = new(StringComparer.Ordinal);
 
+    /// <summary>Captures the Samus object graph, retaining reference cycles as path identities.</summary>
     internal SamusMechanicsSnapshot(object root)
     {
         var references = new Dictionary<object, string>(ReferenceEqualityComparer.Instance);
@@ -48,6 +51,7 @@ internal sealed class SamusMechanicsSnapshot
         }
     }
 
+    /// <summary>Includes private gameplay fields while excluding nonserialized host catalogs and draw outputs.</summary>
     private static FieldInfo[] SerializableFields(Type type)
     {
         var result = new List<FieldInfo>();
@@ -71,6 +75,7 @@ internal sealed class SamusMechanicsSnapshot
         return result.ToArray();
     }
 
+    /// <summary>Reports the first differing mechanics path between stock and edited Samus graphs.</summary>
     internal void RequireSame(SamusMechanicsSnapshot other, string context)
     {
         foreach (string key in values.Keys.Union(other.values.Keys).Order(StringComparer.Ordinal))

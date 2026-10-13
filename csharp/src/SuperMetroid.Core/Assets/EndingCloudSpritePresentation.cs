@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable OAM compositions for the six atmospheric ending clouds.</summary>
 public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Compiled cloud compositions keyed by their bank-$8C spritemap pointers.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
+    /// <summary>Accepts the complete validated six-frame cloud set.</summary>
     private EndingCloudSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -103,14 +105,17 @@ public static class EndingCloudSpriteDefinitions
     /// <summary>$8C:B6F3, EndingCutsceneBottomCloudsPattern; four16-part records
     /// precede the right and left32-part records.</summary>
     private const ushort FirstRecord = 0xb6f3;
+    /// <summary>Four horizontal cloud records plus two side-cloud records.</summary>
     private const int FrameCount = 6;
-    // Native storage order is distinct from the actor/list order.
+    /// <summary>Native storage order, which differs from cinematic actor/list order.</summary>
     private enum Record { BottomPattern, TopPattern, BottomEdge, TopEdge, Right, Left }
+    /// <summary>Cloud roles in the order used by the ending actors.</summary>
     internal enum Role { UpperPattern, UpperEdge, LowerEdge, LowerPattern, Right, Left }
 
     /// <summary>Gets the ordered upper, lower, right, and left cloud roles used by the ending actors.</summary>
     public static IReadOnlyList<EndingCloudSpriteFrameDefinition> Frames { get; } = new FrameView();
 
+    /// <summary>Maps an actor-list role to the corresponding native cloud record.</summary>
     private static EndingCloudSpriteFrameDefinition Get(int index) => (Role)index switch
     {
         Role.UpperPattern => Define("scene-b-upper-a", Record.TopPattern),
@@ -122,6 +127,7 @@ public static class EndingCloudSpriteDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
+    /// <summary>Computes a cloud record pointer from preceding 16- and 32-part native records.</summary>
     private static EndingCloudSpriteFrameDefinition Define(string name, Record record)
     {
         int index = (int)record;
@@ -131,14 +137,19 @@ public static class EndingCloudSpriteDefinitions
         return new(name, (ushort)(FirstRecord + offset), index < 4 ? 16 : 32);
     }
 
+    /// <summary>Calculated view of the six cloud records in actor order.</summary>
     private sealed class FrameView : IReadOnlyList<EndingCloudSpriteFrameDefinition>
     {
+        /// <summary>Four horizontal and two side-cloud actor roles.</summary>
         public int Count => FrameCount;
+        /// <summary>Selects one cloud identity in cinematic actor order.</summary>
         public EndingCloudSpriteFrameDefinition this[int index] => Get(index);
+        /// <summary>Enumerates all calculated cloud identities without caching an array.</summary>
         public IEnumerator<EndingCloudSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);
         }
+        /// <summary>Uses the typed cloud enumeration for nongeneric callers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

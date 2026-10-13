@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Skultera's compiled swimming and turning lists against bank A3.</summary>
 internal static class SkulteraInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge as the oracle for Skultera instruction words.</summary>
     internal static void VerifySkulteraInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySkulteraInstructionProgramDefinitions), () => VerifySkulteraInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks both swim directions, both turns, layer callbacks, presentation frames, and read isolation.</summary>
     internal static void VerifySkulteraInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -148,6 +151,7 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeatedly resolves a compiled swimming word to expose allocations in the lookup path.</summary>
     private static int ProbeSkulteraInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -159,6 +163,7 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects runtime reads of compiled Skultera mechanics and visual selector bytes.</summary>
     private static CartridgeReadGuard NewSkulteraInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(SkulteraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -166,6 +171,7 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
             .ForbidWords(0xa30000, SkulteraInstructionProgramDefinitions.PresentationWordCount, SkulteraInstructionProgramDefinitions.PresentationWordAddress,
                 address => $"Production read compiled Skultera visual selector ${address:X6}.");
 
+    /// <summary>Runs Skultera instruction checks from the verification command dispatcher.</summary>
     [VerificationCommand("--skultera-instruction-mechanics")]
     internal static int SkulteraInstructionMechanicsCommand()
     {

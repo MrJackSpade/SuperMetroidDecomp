@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static CollectibleVisualsVerification;
 
+/// <summary>Checks collectible PLM visual selectors and phase bounds against native draw operands.</summary>
 internal static class LookupCollectibleSelectorsVerification
 {
+    /// <summary>Checks the four orb animation phases and rejects invalid phase indices.</summary>
     internal static void VerifyCollectibleOrbSelector(SuperMetroidAddressSpace rom)
     {
         for (int phase = 0; phase < 4; phase++)
@@ -13,6 +15,7 @@ internal static class LookupCollectibleSelectorsVerification
             AssertThrows<InvalidDataException>(() => RoomPlmCollectibleDrawDefinitions.OrbFrame(bad), "Collectible orb phase bounds");
     }
 
+    /// <summary>Checks reveal and reverse conceal frames for shot collectibles.</summary>
     internal static void VerifyCollectibleRevealSelector(SuperMetroidAddressSpace rom)
     {
         for (int phase = 0; phase < 3; phase++)
@@ -26,6 +29,7 @@ internal static class LookupCollectibleSelectorsVerification
             AssertThrows<InvalidDataException>(() => RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(bad), "Collectible reveal phase bounds");
     }
 
+    /// <summary>Checks four tank kinds against native frames regardless of unused dynamic graphics slots.</summary>
     internal static void VerifyCollectibleTankSelector(SuperMetroidAddressSpace rom)
     {
         // Native exposed tank instruction-list draw operands, independently addressed.
@@ -43,6 +47,7 @@ internal static class LookupCollectibleSelectorsVerification
         }
     }
 
+    /// <summary>Checks byte-backed dynamic collectible kinds, both phases, four graphics slots, and invalid bounds.</summary>
     internal static void VerifyCollectibleDynamicSelector(SuperMetroidAddressSpace rom)
     {
         // The byte-backed kind domain historically selects dynamic graphics for every value above the four tanks.

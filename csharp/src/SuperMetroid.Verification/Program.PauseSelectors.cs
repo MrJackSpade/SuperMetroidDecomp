@@ -15,8 +15,10 @@ using static PauseSelectorCompositionsVerification;
 using static PauseSelectorDurationsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks pause equipment selector placement, animation, editable art, and restored-state rebinding.</summary>
 internal static class PauseSelectorsVerification
 {
+    /// <summary>Compares all sixteen selectors with guarded native rendering and exercises edited animation and OAM parts.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause selector anchor tables")]
     internal static void VerifyPauseSelectors(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog catalog)
@@ -153,6 +155,7 @@ internal static class PauseSelectorsVerification
             return pause;
         }
     }
+    /// <summary>Blocks runtime reads of native selector anchors, animation lists, and spritemaps after installation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause selector anchor and spritemap ranges")]
     private static CartridgeReadGuard NewPauseSelectorReadGuard(ISnesAddressSpace source)
     {

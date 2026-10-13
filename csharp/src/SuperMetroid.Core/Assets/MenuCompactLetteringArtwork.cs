@@ -24,10 +24,14 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class MenuCompactLetteringArtwork
 {
+    /// <summary>The compact lettering artwork spans 34 selected eight-pixel tile cells across the menu atlas.</summary>
     internal const int TileCount = 34;
+    /// <summary>Six-row ink masks captured once per distinct letter from the supplied source atlas.</summary>
     private readonly Dictionary<char, uint> glyphs = [];
+    /// <summary>Source pixels that differ from the shared glyph, shadow, and outline drawing rules.</summary>
     private readonly Dictionary<int, byte>? edits;
 
+    /// <summary>Identifies atlas cells occupied by the elevator labels, EXIT, SELECT, START, or ship lettering.</summary>
     internal static bool Contains(int tile) => tile is >= 0 and <= 9 or 0x10 or >= 0x12 and <= 0x16 or
         0x18 or 0x19 or 0x20 or 0x32 or 0x44 or 0x45 or >= 0x53 and <= 0x56 or 0x5f or >= 0xa5 and <= 0xaa or 0xb7;
 
@@ -62,6 +66,7 @@ internal sealed class MenuCompactLetteringArtwork
         _ => tile - start - (gap >= 0 && tile > gap ? 1 : 0),
     };
 
+    /// <summary>Maps a strip column to its physical atlas cell, including Tourian's and EXIT's nonconsecutive cells.</summary>
     private static int SourceTile(int column, int start, int gap)
     {
         if (start == 8) return column switch { 0 => 8, 1 => 9, 2 => 0x20, 3 => 0x32, _ => throw new ArgumentOutOfRangeException(nameof(column)) };
@@ -70,6 +75,7 @@ internal sealed class MenuCompactLetteringArtwork
         return gap >= 0 && tile >= gap ? tile + 1 : tile;
     }
 
+    /// <summary>Extracts each distinct glyph from the image, then records only pixels that the shared lettering rules cannot reconstruct.</summary>
     internal MenuCompactLetteringArtwork(IndexedPngImage image)
     {
         for (int tile = 0; tile <= 0xb7; tile++)
@@ -109,12 +115,14 @@ internal sealed class MenuCompactLetteringArtwork
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
     }
 
+    /// <summary>Reconstructs a lettering pixel from glyph ink and styling, applying a captured source edit where one exists.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
+    /// <summary>Draws ink, SELECT/START shadow and enclosed gaps, or a beveled eight-neighbor outline for an unedited atlas pixel.</summary>
     private byte Basis(int tile, Position16<CharacterPixels> point)
     {
         var row = Layout(tile);

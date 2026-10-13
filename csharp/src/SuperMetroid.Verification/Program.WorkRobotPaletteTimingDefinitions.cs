@@ -16,8 +16,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the Work Robot's palette record timing and installed colors against bank A3.</summary>
 internal static class WorkRobotPaletteTimingDefinitionsVerification
 {
+    /// <summary>Compares six native timing records and colors, then follows a full edited-color cycle through CGRAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot palette timing definitions")]
     internal static void VerifyWorkRobotPaletteTimingDefinitions(
@@ -138,6 +140,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             "the complete 193-call edited-color production cycle pass with ROM reads forbidden.");
     }
 
+    /// <summary>Rejects live reads of Work Robot palette timer, terminator, and color bytes.</summary>
     private static CartridgeReadGuard NewWorkRobotPaletteTimingReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {
@@ -161,6 +164,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             },
             address => $"Work Robot palette handler attempted control read ${address:X6}.");
 
+    /// <summary>Runs the Work Robot palette timing check with the retail cartridge as its oracle.</summary>
     [VerificationCommand("--work-robot-palette-timing-definitions")]
     internal static int WorkRobotPaletteTimingDefinitionsCommand()
     {

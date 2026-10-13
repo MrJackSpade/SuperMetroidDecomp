@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Checks extracted compressed room backgrounds and installed Ceres tilemap edits.</summary>
 internal static class RoomBackgroundTilemapsVerification
 {
+    /// <summary>Compares all retail sources, Ceres VRAM parity, and the effect of a single JSON tile edit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room background tilemaps")]
     internal static void VerifyRoomBackgroundTilemapExtraction()
@@ -85,6 +87,7 @@ internal static class RoomBackgroundTilemapsVerification
             "roundtrip byte-exactly; a tile-reference edit changes only its BG word.");
     }
 
+    /// <summary>Blocks the selected compressed source while the installed background executes.</summary>
     private static MutableCartridgeReadGuard NewBackgroundTilemapReadGuard(ISnesAddressSpace source, int blockedSource)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -93,6 +96,7 @@ internal static class RoomBackgroundTilemapsVerification
         return guard;
     }
 
+    /// <summary>Runs the room background extraction and edited-tile check.</summary>
     [VerificationCommand("--room-background-tilemaps")]
     internal static int RoomBackgroundTilemapsCommand()
     {

@@ -2,17 +2,27 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks compiled Mother Brain glass PLM operands against independent native field boundaries.</summary>
 internal static class LookupGlassProgramVerification
 {
+    /// <summary>Checks glass control bytes outside separately classified visual and event operands.</summary>
     internal static void VerifyGlassControls(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 0);
+    /// <summary>Checks glass PLM draw pointers against native program bytes.</summary>
     internal static void VerifyGlassDraws(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 1);
+    /// <summary>Checks glass instruction branch targets against native bytes.</summary>
     internal static void VerifyGlassTargets(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 2);
+    /// <summary>Checks the glass callback pointer against its native words.</summary>
     internal static void VerifyGlassCallback(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 3);
+    /// <summary>Checks glass event operands against native program bytes.</summary>
     internal static void VerifyGlassEvents(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 4);
+    /// <summary>Checks the glass boss-bit mask against the cartridge.</summary>
     internal static void VerifyGlassBossMask(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 5);
+    /// <summary>Checks glass break thresholds against native program bytes.</summary>
     internal static void VerifyGlassThresholds(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 6);
+    /// <summary>Checks shard spawn arguments across the glass break sequence.</summary>
     internal static void VerifyGlassShardArguments(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 7);
 
+    /// <summary>Compares one classified operand family over the complete sixteen-bit lookup domain.</summary>
     private static void VerifyGlassField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent native operand boundaries. Values come only from original ROM.
@@ -56,6 +66,7 @@ internal static class LookupGlassProgramVerification
             "Glass independent field byte count");
     }
 
+    /// <summary>Reads one native glass-program byte for field comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for glass field")]
     private static byte GlassFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

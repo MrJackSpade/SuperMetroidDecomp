@@ -7,8 +7,10 @@ using SuperMetroid.Core.Rom;
 using static LookupChozoStockVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks extracted Chozo statue draw data, editable visual overrides, and compiled PLM execution.</summary>
 internal static class ChozoStatueVisualsVerification
 {
+    /// <summary>Verifies stock words against the cartridge, then exercises edited slope art through the room tilemap.</summary>
     internal static void VerifyChozoStatueVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
@@ -146,6 +148,7 @@ internal static class ChozoStatueVisualsVerification
         }
     }
 
+    /// <summary>Rejects cartridge reads from the compiled Chozo instruction, delete, and draw ranges.</summary>
     internal static CartridgeReadGuard NewChozoProgramAndDrawReadGuard(ISnesAddressSpace source) =>
         new MutableCartridgeReadGuard(source)
             .Forbid(address =>

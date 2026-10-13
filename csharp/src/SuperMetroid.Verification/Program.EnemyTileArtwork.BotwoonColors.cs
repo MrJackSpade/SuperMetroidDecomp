@@ -47,8 +47,8 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
                 $"Botwoon health band {band} adjacent color remains native");
         }
         AssertEqual(colors.HealthColor(7, 5),
-            EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .BotwoonColors!.HealthColor(7, 5),
+            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
+                .BotwoonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .BotwoonColors.")).HealthColor(7, 5),
             "Botwoon color override survives catalog reload");
 
         var guard = NewBotwoonColorReadGuard(rom);

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -41,9 +42,9 @@ internal static class BeamPaletteArtworkVerification
             SamusProjectileSystem.QueueBeamTilesAndLoadPalette(NewProjectileCompositionForbiddenBus(), queue, actual, selection, tiles, catalog);
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "Extracted beam palette matches native full CGRAM including untouched neighbors");
             AssertEqual(nativeQueue.TailInBytes, queue.TailInBytes, "Palette selection retains tile queue timing");
-            var document = JsonNode.Parse(bytes)!;
-            var red = document["palettes"]![BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection))]![3]!;
-            red["red"] = red["red"]!.GetValue<int>() ^ 1;
+            var document = RequiredJson.Parse(bytes);
+            var red = document.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection))).Required(3);
+            red["red"] = red.Required("red").GetValue<int>() ^ 1;
             var edited = BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
             SamusProjectileSystem.QueueBeamTilesAndLoadPalette(NewProjectileCompositionForbiddenBus(), new VramWriteQueue(), actual, selection, tiles, edited);
             for (int i = 0; i < SnesCgram.ColorCount; i++)
@@ -54,17 +55,17 @@ internal static class BeamPaletteArtworkVerification
         }
         string json = Encoding.UTF8.GetString(bytes);
         AssertThrows<InvalidDataException>(() => BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(json.Insert(1, "\"version\":1,")))), "Duplicate palette metadata rejected");
-        var invalid = JsonNode.Parse(bytes)!;
-        invalid["palettes"]![BeamPaletteDefinitions.Key(0)]![0]!["red"] = 32;
+        var invalid = RequiredJson.Parse(bytes);
+        invalid.Required("palettes").Required(BeamPaletteDefinitions.Key(0)).Required(0)["red"] = 32;
         Reject(invalid, "Out-of-range RGB rejected");
-        invalid = JsonNode.Parse(bytes)!;
-        invalid["palettes"]!.AsObject().Remove(BeamPaletteDefinitions.Key(0));
+        invalid = JsonNode.Parse(bytes);
+        (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("palettes").AsObject().Remove(BeamPaletteDefinitions.Key(0));
         Reject(invalid, "Missing beam selection rejected");
-        invalid = JsonNode.Parse(bytes)!;
-        invalid["palettes"]![BeamPaletteDefinitions.Key(0)]!.AsArray().RemoveAt(0);
+        invalid = JsonNode.Parse(bytes);
+        (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("palettes").Required(BeamPaletteDefinitions.Key(0)).AsArray().RemoveAt(0);
         Reject(invalid, "Incomplete palette rejected");
-        invalid = JsonNode.Parse(bytes)!;
-        invalid["palettes"]![BeamPaletteDefinitions.Key(0)]![0]!["damage"] = 100;
+        invalid = JsonNode.Parse(bytes);
+        (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("palettes").Required(BeamPaletteDefinitions.Key(0)).Required(0)["damage"] = 100;
         Reject(invalid, "Presentation cannot introduce gameplay properties");
         Console.WriteLine("Beam palettes: twelve native full-CGRAM matches, exact isolated RGB edits, ROM-free queue path and strict JSON validation pass.");
 
@@ -91,17 +92,17 @@ internal static class BeamPaletteArtworkVerification
         runtime.NmiHandler.RunNmi(0, true);
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Accepted NMI refreshes normal beam palette");
 
-        var flash = runtime.Player.Samus!.CrystalFlash;
+        var flash = runtime.Player.IntroducedSamus.CrystalFlash;
         flash.SpecialPaletteType = (ushort)SamusSpecialPaletteType.CrystalFlash;
         runtime.Cgram.SetColor(224, new Bgr555(27, 3, 0));
         runtime.Artwork.BeamArtwork = artwork;
         runtime.NmiHandler.RunNmi(0, true);
         AssertEqual(123, runtime.Cgram.Colors[224], "Rebind cannot erase active Crystal Flash palette");
         flash.SpecialPaletteTimer = NativeCountdown.Start(ushort.MaxValue);
-        AssertTrue(flash.UpdatePalette(NewProjectileCompositionForbiddenBus(), runtime.Cgram, runtime.Player.Samus, palettes), "Crystal Flash restores catalog without ROM reads");
+        AssertTrue(flash.UpdatePalette(NewProjectileCompositionForbiddenBus(), runtime.Cgram, runtime.Player.IntroducedSamus, palettes), "Crystal Flash restores catalog without ROM reads");
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Crystal Flash completion restores selected palette");
         AssertEqual(SamusSpecialPaletteType.None, flash.SpecialPaletteKind, "Crystal Flash still clears its owner on completion");
-        runtime.Player.Samus.Drained.HyperBeamPaletteFx.Spawn();
+        runtime.Player.IntroducedSamus.Drained.HyperBeamPaletteFx.Spawn();
         runtime.Cgram.SetColor(224, new Bgr555(8, 14, 0));
         runtime.Artwork.BeamArtwork = artwork;
         runtime.NmiHandler.RunNmi(0, true);
@@ -116,9 +117,9 @@ internal static class BeamPaletteArtworkVerification
         AssertTrue(nativeRuntime.Cgram.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),
             "Stock debug grapple selection matches native beam palette index two");
 
-        var editedDocument = JsonNode.Parse(BeamPaletteExtractor.Extract(bus))!;
-        var editedColor = editedDocument["palettes"]![BeamPaletteDefinitions.Key(SamusBeamCombination.Ice)]![3]!;
-        editedColor["red"] = editedColor["red"]!.GetValue<int>() ^ 1;
+        var editedDocument = RequiredJson.Parse(BeamPaletteExtractor.Extract(bus));
+        var editedColor = editedDocument.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombination.Ice)).Required(3);
+        editedColor["red"] = editedColor.Required("red").GetValue<int>() ^ 1;
         var editedPalettes = BeamPaletteCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes(editedDocument.ToJsonString())));
         var editedArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), editedPalettes);

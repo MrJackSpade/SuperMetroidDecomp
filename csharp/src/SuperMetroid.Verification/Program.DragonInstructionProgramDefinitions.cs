@@ -58,7 +58,7 @@ internal static class DragonInstructionProgramDefinitionsVerification
         {
             RoomEnemySystem enemies =
                 CreateDragonProgramSystem(guard, selector, out RoomEnemySlot slot);
-            DragonEnemyState state = enemies.DragonStates[0]!;
+            DragonEnemyState state = (enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0]."));
             AssertEqual(DragonAnimationDefinitions.InstructionList(selector),
                 slot.CurrentInstruction, $"Dragon installs {selector} program");
             RunDragonProgram(enemies, slot, frames);
@@ -66,7 +66,7 @@ internal static class DragonInstructionProgramDefinitionsVerification
                 $"Dragon {selector} program reaches its native loop/sleep cursor");
             bool attacks = selector is DragonAnimationSelector.AttackingFacingLeft or
                 DragonAnimationSelector.AttackingFacingRight;
-            AssertEqual(attacks, state.AnimationFinished,
+            AssertEqual(attacks, (state ?? throw new InvalidOperationException("Verification requires state.")).AnimationFinished,
                 $"Dragon {selector} attack-completion callback state");
         }
 
@@ -118,8 +118,8 @@ internal static class DragonInstructionProgramDefinitionsVerification
             slot.Parameter1 = selector is DragonAnimationSelector.WingsFacingLeft or
                 DragonAnimationSelector.WingsFacingRight ? (ushort)1 : (ushort)0;
             initialize(slot);
-            DragonEnemyState state = enemies.DragonStates[0]!;
-            state.InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
+            DragonEnemyState state = (enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0]."));
+            (state ?? throw new InvalidOperationException("Verification requires state.")).InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
             state.RequestedInstructionListIndex = selector;
             state.AnimationFinished = false;
             DragonBehavior.InstallDragonInstructionList(slot, state);

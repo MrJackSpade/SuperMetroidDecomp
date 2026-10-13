@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -26,8 +27,8 @@ internal static class FileSelectGeometryLookupsVerification
             "file select geometry oracle revision");
         byte[] bytes = FileSelectPresentationExtractor.Extract(rom);
         FileSelectPresentation presentation = FileSelectPresentation.Load(new MemoryStream(bytes));
-        FileSelectPresentationDocument document = JsonSerializer.Deserialize<FileSelectPresentationDocument>(
-            bytes, MapPresentationFormat.JsonOptions)!;
+        FileSelectPresentationDocument document = RequiredJson.Deserialize<FileSelectPresentationDocument>(
+            bytes, MapPresentationFormat.JsonOptions);
         Suite(nameof(VerifyFileSelectMainCursorY), () => VerifyFileSelectMainCursorY(rom, presentation));
         Suite(nameof(VerifyFileSelectDataCursorY), () => VerifyFileSelectDataCursorY(rom, presentation));
         Suite(nameof(VerifyFileSelectHelmetY), () => VerifyFileSelectHelmetY(rom, document));

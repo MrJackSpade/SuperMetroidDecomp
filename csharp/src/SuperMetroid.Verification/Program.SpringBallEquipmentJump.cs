@@ -27,15 +27,15 @@ internal static class SpringBallEquipmentJumpVerification
             var game = new SuperMetroidGame(memory, new SuperMetroidGameOptions { Invincibility = true }, renderGameplayFrames: false);
             PrepareRomFreeBindings(installation)(game, false);
             game.InitializeDirectRoomVerification();
-            var runtime = game.RuntimeForVerification!;
+            var runtime = game.GameplayRuntimeForVerification;
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.WestOcean);
             // A bounded underwater fixture retains the retail FX but removes terrain/enemies,
             // isolating the reported pause/equipment/launch contract from room obstacles.
             foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
-            var level = runtime.Room.LevelData!;
+            var level = runtime.Room.LoadedLevelData;
             for (int block = 0; block < level.Size.X * level.Size.Y; block++)
             { level.SetForegroundEntry(block, 0); level.SetBehavior(block, 0); }
-            var samus = runtime.Player.Samus!;
+            var samus = runtime.Player.IntroducedSamus;
             samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots);
             samus.CollectedItems = (ushort)(samus.EquippedItems | (ushort)SamusEquipmentFlags.SpringBall);
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(runtime.RoomLayer3Fx.CurrentYPosition + 96)));

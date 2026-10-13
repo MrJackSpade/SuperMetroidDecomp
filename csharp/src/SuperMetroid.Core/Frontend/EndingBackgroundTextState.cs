@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -28,10 +29,15 @@ internal sealed class EndingBackgroundTextState
     internal NativeCountdown instructionTimer = NativeCountdown.Start(1);
     /// <summary>Scene-selected VRAM word destination for the staging tilemap transfer.</summary>
     private readonly ushort tilemapDestination;
-    /// <summary>Installed glyph and subtitle artwork, rebound after state restoration.</summary>
-    [NonSerialized] private EndingTextPresentation? presentation;
+    /// <summary>The installed ending text presentation; it is rebound after state restoration.</summary>
+    [field: NonSerialized]
+    [AllowNull]
+    private EndingTextPresentation Presentation { get => field ?? throw new InvalidOperationException("No ending text presentation is installed."); set; }
     /// <summary>Compiled installed typewriter characters, omitted from serialized debugger state.</summary>
     [NonSerialized] private EndingTextCharacter[]? installedProgram;
+    /// <summary>The installed text sequence's characters.</summary>
+    private EndingTextCharacter[] InstalledProgram => installedProgram ??
+        throw new InvalidOperationException("No ending text sequence is installed.");
     /// <summary>Selected completion or item-percentage program that controls terminal behavior.</summary>
     private readonly EndingTextSequence? installedSequence;
     /// <summary>Next installed character to reveal in the staging tilemap.</summary>
@@ -51,12 +57,12 @@ internal sealed class EndingBackgroundTextState
         this.inventory = setup.Inventory;
         this.japaneseText = setup.JapaneseText;
         this.tilemapDestination = setup.TilemapDestination;
-        this.presentation = setup.Presentation;
+        Presentation = setup.Presentation;
         this.installedSequence = setup.InstalledSequence;
         if (setup.Presentation is null || setup.InstalledSequence is null)
             throw new InvalidOperationException("Ending text requires installed presentation and sequence definitions.");
         installedProgram = setup.InstalledSequence is { } sequence
-            ? setup.Presentation!.Compile(sequence).ToArray()
+            ? setup.Presentation.Compile(sequence).ToArray()
             : null;
     }
 
@@ -78,7 +84,7 @@ internal sealed class EndingBackgroundTextState
     /// <summary>Rebinds current host content after debugger-state restoration.</summary>
     public void BindPresentation(EndingTextPresentation? value)
     {
-        presentation = value;
+        Presentation = value;
         installedProgram = installedSequence is { } sequence && value is not null
             ? value.Compile(sequence).ToArray()
             : null;
@@ -97,9 +103,9 @@ internal sealed class EndingBackgroundTextState
             instructionTimer = NativeCountdown.Start(EndingTextDefinitions.InitialDelayFrames);
             return;
         }
-        if (installedCharacterIndex < installedProgram!.Length)
+        if (installedCharacterIndex < InstalledProgram.Length)
         {
-            EndingTextCharacter character = installedProgram[installedCharacterIndex++];
+            EndingTextCharacter character = InstalledProgram[installedCharacterIndex++];
             int target = character.Row * EndingTextDefinitions.TilemapWidth + character.Column;
             tilemap[target] = character.TopWord;
             if (character.BottomWord is { } bottom)
@@ -112,7 +118,7 @@ internal sealed class EndingBackgroundTextState
         {
             DrawItemPercentage();
             if (japaneseText)
-                presentation!.JapaneseSubtitle.CopyTo(tilemap.AsSpan(
+                Presentation.JapaneseSubtitle.CopyTo(tilemap.AsSpan(
                     EndingCreditsRomData.Text.JapaneseSubtitleDestination,
                     EndingCreditsRomData.Text.JapaneseSubtitleWords));
             installedHoldStarted = true;

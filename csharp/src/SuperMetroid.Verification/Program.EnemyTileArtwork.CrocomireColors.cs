@@ -61,8 +61,8 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         CheckEditedBand(CrocomirePaletteRomData.WallSpikesCount,
             native.ResolveWallSpikes, colors.ResolveWallSpikes, "wall spikes");
         AssertEqual(colors.ResolveFightBody(1),
-            EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .CrocomireColors!.ResolveFightBody(1),
+            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
+                .CrocomireColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .CrocomireColors.")).ResolveFightBody(1),
             "Crocomire color override survives catalog reload");
 
         // Execute the real boss initializer and hurt-flash hook with palette ROM reads
@@ -83,8 +83,8 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         enemies.VerificationServices().SetRoomScrollState = (Action<int, RoomScrollState>)((_, _) => { });
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         enemies.CrocomireBehavior.InitializeCrocomire(body);
-        CrocomireEnemyState state = (CrocomireEnemyState)enemies.CrocomireBehavior.Crocomire;
-        AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex,
+        CrocomireEnemyState state = (CrocomireEnemyState)(enemies.CrocomireBehavior.Crocomire ?? throw new InvalidOperationException("Verification requires enemies.CrocomireBehavior.Crocomire."));
+        AssertEqual(CrocomireDeathPhase.Fighting, (state ?? throw new InvalidOperationException("Verification requires state.")).DeathSequenceIndex,
             "installed Crocomire colors leave living fight phase unchanged");
         AssertEqual(AnimationProgramCursor<CrocomireBodyProgram>.Start(CrocomireBodyProgram.Initial),
             state.BodyCursor,

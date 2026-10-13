@@ -19,8 +19,8 @@ internal static class InstalledFileSelectMapVerification
         snapshot.MapStationBytes[(int)AreaId.Maridia] = 1;
         snapshot.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, snapshot);
-        var slot = saves.ReadSlot(0)!;
-        var control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0, original);
+        var slot = saves.ReadSlot(0);
+        var control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
         var installed = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, original);
 
         // One raster per side: the two captured renders are compared with each other.

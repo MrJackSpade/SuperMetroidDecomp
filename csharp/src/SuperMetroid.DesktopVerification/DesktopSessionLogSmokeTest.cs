@@ -120,8 +120,8 @@ internal static class DesktopSessionLogSmokeTest
     /// <summary>Launches the packaged game at its invalid-option boundary and verifies executable-relative archive placement.</summary>
     private static void VerifyGameEntry(string root, string gameAssemblyPath)
     {
-        string executable = Path.GetDirectoryName(Path.GetFullPath(gameAssemblyPath))!;
-        string logs = Path.Combine(executable, "logs");
+        string executable = (Path.GetDirectoryName(Path.GetFullPath(gameAssemblyPath)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(Path.GetFullPath(gameAssemblyPath))."));
+        string logs = Path.Combine((executable ?? throw new InvalidOperationException("Verification requires executable.")), "logs");
         bool logsExisted = Directory.Exists(logs);
         HashSet<string> before = logsExisted
             ? Directory.GetFiles(logs, "*.zip").ToHashSet(StringComparer.OrdinalIgnoreCase) : [];

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -48,8 +49,8 @@ internal static class MotherBrainFakeDeathVisualsVerification
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException(
                     "Extracted Mother Brain fake-death JSON is empty.");
-            Entry("background-row-d")["blocks"]![12] = 0x0058;
-            Entry("clear-bottom-right-tube")["blocks"]![5] = 0x0059;
+            Entry("background-row-d").Required("blocks")[12] = 0x0058;
+            Entry("clear-bottom-right-tube").Required("blocks")[5] = 0x0059;
             Directory.CreateDirectory(
                 installation.RoomPlmMotherBrainFakeDeathVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -86,7 +87,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
                         1, 0),
                 "Mother Brain override survives stock replacement");
 
-            Entry("background-row-d")["blocks"]![12] = 0xf058;
+            Entry("background-row-d").Required("blocks")[12] = 0xf058;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmMotherBrainFakeDeathVisuals(),
@@ -97,8 +98,8 @@ internal static class MotherBrainFakeDeathVisualsVerification
                     installation.RoomPlmMotherBrainFakeDeathVisualDirectory),
                 "tampered Mother Brain fake-death stock fails manifest validation");
 
-            JsonNode Entry(string id) => document["entries"]!.AsArray()
-                .Single(entry => entry!["id"]!.GetValue<string>() == id)!;
+            JsonNode Entry(string id) => document.Required("entries").AsArray().RequiredElements()
+                .Single(entry => entry.Required("id").GetValue<string>() == id);
         }
         finally
         {

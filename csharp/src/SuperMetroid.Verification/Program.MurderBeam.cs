@@ -244,7 +244,7 @@ internal static class MurderBeamVerification
         int? murderSlot = slotsBeforeMurder.FiredSlot(projectiles);
         AssertTrue(murderSlot is not null,
             "missile cooldown suppresses the unsafe uncharged shot and permits charged release");
-        AssertEqual((ushort)0x901f, projectiles.Slots[murderSlot!.Value].Type,
+        AssertEqual((ushort)0x901f, projectiles.Slots[(murderSlot ?? throw new InvalidOperationException("Verification requires murderSlot."))].Type,
             "missile auto-cancel alternative produces Murder Beam");
     }
 

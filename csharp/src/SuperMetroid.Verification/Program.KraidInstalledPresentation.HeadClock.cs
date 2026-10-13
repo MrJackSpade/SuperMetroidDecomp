@@ -21,7 +21,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
             .Select(command => command.Tilemap).Distinct().ToArray();
         for (int index = 0; index < pointers.Length; index++)
         {
-            ReadOnlySpan<ushort> replacement = stock.KraidBackground!.HeadWords(pointers[(index + 1) % pointers.Length]);
+            ReadOnlySpan<ushort> replacement = (stock.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(pointers[(index + 1) % pointers.Length]);
             var words = new byte[replacement.Length * sizeof(ushort)];
             for (int word = 0; word < replacement.Length; word++)
                 BinaryPrimitives.WriteUInt16LittleEndian(words.AsSpan(word * 2),
@@ -67,7 +67,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
                     while (commands[cursor].Kind is KraidHeadInstructionKind.RoarSound or KraidHeadInstructionKind.DyingSound)
                     {
                         KraidHeadInstructionDefinition sound = commands[cursor++];
-                        AssertEqual((byte)sound.SoundId, baseline.Enemies.KraidBehavior.LastKraidSoundEffect!.Value.SoundEffect.Value,
+                        AssertEqual((byte)sound.SoundId, (baseline.Enemies.KraidBehavior.LastKraidSoundEffect ?? throw new InvalidOperationException("Verification requires baseline.Enemies.KraidBehavior.LastKraidSoundEffect.")).SoundEffect.Value,
                             "sound callback fires at the exact head admission tick");
                         if (sound.Kind == KraidHeadInstructionKind.RoarSound) soundCount++;
                         callbacks++;
@@ -86,8 +86,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
                     nextEvent += admission.Duration;
                     physical = admission.Tilemap; outer = admission.VulnerableHitbox; inner = admission.InvulnerableHitbox;
                     uploadCount++; frames++;
-                    KraidHeadClockFixture.ExpectedUpload(expectedStock, stock.KraidBackground!.HeadWords(physical));
-                    KraidHeadClockFixture.ExpectedUpload(expectedEdited, edited.KraidBackground!.HeadWords(physical));
+                    KraidHeadClockFixture.ExpectedUpload(expectedStock, (stock.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(physical));
+                    KraidHeadClockFixture.ExpectedUpload(expectedEdited, (edited.KraidBackground ?? throw new InvalidOperationException("Verification requires edited.KraidBackground.")).HeadWords(physical));
                     AssertTrue(!baseline.Vram.ImageEquals(changed.Vram), "replacement head is actually visible");
                 }
                 AssertEqual((ushort)(nextEvent - tick), baseline.Body.VariableC, "native countdown on every hold tick");

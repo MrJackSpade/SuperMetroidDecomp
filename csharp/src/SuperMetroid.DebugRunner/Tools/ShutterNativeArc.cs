@@ -44,13 +44,13 @@ internal static class ShutterNativeArc
     {
         var bus = RepositoryRom.Load();
         var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true), bus);
-        var shutter = scenario.Runtime.Enemies.VerticalShutterStates[0]!;
+        var shutter = scenario.Runtime.Enemies.VerticalShutterStates[0];
         for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
         {
             scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
             if (frame >= ShutterBombArcScenario.FirstArcFrame)
                 Console.WriteLine($"frame {frame}: {scenario.ArcRow(frame)} pose={(int)scenario.Samus.Pose:X2} " +
-                    $"shutter={(ushort)shutter.Function:X4} up={shutter.MovedUpRestTime:X4} down={shutter.MovedDownRestTime:X4} " +
+                    $"shutter={(ushort)(shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function:X4} up={shutter.MovedUpRestTime:X4} down={shutter.MovedDownRestTime:X4} " +
                     $"rev={shutter.ReactionDirection:X4} act={(shutter.ShotActivated ? 1 : 0):X4}");
         }
         return 0;
@@ -97,10 +97,10 @@ internal static class ShutterNativeArc
     private static void ExportShutterBombArcSeed(SuperMetroidRuntime runtime, string path)
     {
         var ram = new byte[0x20000];
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         var k = samus.Kinematics;
         var speed = samus.HorizontalSpeed;
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         Word(0x7A5, level.Size.X);
         Word(0x7A7, level.Size.Y);
         for (int i = 0; i < level.Size.X * level.Size.Y; i++)
@@ -136,8 +136,8 @@ internal static class ShutterNativeArc
             Word(0xF80 + offset, slot.Position.Y.Fraction); Word(0xF82 + offset, slot.Radius.X);
             Word(0xF84 + offset, slot.Radius.Y); Word(0xF86 + offset, 0x8000);
         }
-        var shutter = runtime.Enemies.VerticalShutterStates[0]!;
-        Word(0xFA8, (ushort)shutter.Function);
+        var shutter = runtime.Enemies.VerticalShutterStates[0];
+        Word(0xFA8, (ushort)(shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function);
         Word(0xFB0, shutter.UpSubvelocity); Word(0xFB2, unchecked((ushort)shutter.UpVelocity));
         Word(0xFAC, shutter.DownSubvelocity); Word(0xFAE, unchecked((ushort)shutter.DownVelocity));
         Word(0x780E, shutter.InitialFunctionTableOffset); Word(0x7818, shutter.ShotActivated ? 1 : 0);

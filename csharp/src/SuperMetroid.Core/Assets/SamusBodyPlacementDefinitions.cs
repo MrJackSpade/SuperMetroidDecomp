@@ -209,7 +209,7 @@ internal static class SamusBodyPlacementDefinitions
             int index = baseIndex + frame;
             if ((uint)index >= SamusSpritemapArtworkCatalog.PointerCount ||
                 !art.Spritemaps.TryGet((ushort)index, out SamusSpritemapDefinition? map)) return false;
-            foreach (SamusSpritePart part in map!.Parts)
+            foreach (SamusSpritePart part in map.Parts)
             {
                 int size = (part.X & 0x8000) != 0 ? 16 : 8;
                 var attributes = new Hardware.SnesObjAttributeWord(part.Attributes);

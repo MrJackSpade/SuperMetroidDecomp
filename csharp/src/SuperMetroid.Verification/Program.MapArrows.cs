@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -28,7 +29,7 @@ internal static class MapArrowsVerification
         }
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = JsonSerializer.Deserialize<MapArrowDocument>(File.ReadAllBytes(Path.Combine(stock, MapArrowFormat.FileName)), options)!;
+        var document = RequiredJson.Deserialize<MapArrowDocument>(File.ReadAllBytes(Path.Combine(stock, MapArrowFormat.FileName)), options);
         var entries = new Dictionary<string, MapArrowEntry>(document.Arrows);
         entries["Left"] = entries["Left"] with { X = entries["Left"].X + 8, DurationTicks = [9, 11] };
         Directory.CreateDirectory(overrides);

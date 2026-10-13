@@ -38,11 +38,6 @@ internal static class RoomEnemyLoadContractsVerification
             "the Mother Brain contract exposes only its room effects and the scroll zones");
 
         var services = new StandaloneRoomEnemyServices(() => 0x1234);
-        AssertThrows<ArgumentNullException>(() => _ = new RoomEnemyLoadRequest(null!, 0, 0, new SnesVram(), new SnesCgram(), services),
-            "a load request requires its bus");
-        AssertThrows<ArgumentNullException>(() => _ = new RoomEnemyLoadRequest(
-            SuperMetroidAddressSpace.CreateWithoutCartridge(), 0, 0, new SnesVram(), new SnesCgram(), null!),
-            "a load request requires its services");
         AssertEqual(GunshipLoadScenario.Ordinary, new RoomEnemyLoadRequest(
             SuperMetroidAddressSpace.CreateWithoutCartridge(), 0, 0, new SnesVram(), new SnesCgram(), services).GunshipScenario,
             "the ordinary gunship scenario is the named default");

@@ -152,14 +152,14 @@ internal static class DraygonAnimationsVerification
         state.SetCursor(state.Body, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.BodyFacingRightReset));
         state.Body.InstructionTimer = NativeCountdown.Start(1);
         Pass(enemies, state.Body);
-        AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.EyeFacingRightIdle), state.Cursor(state.Eye!), "the reset starts the eye");
-        AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingRightIdle), state.Cursor(state.Tail!), "the reset starts the tail");
-        AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingRightIdle), state.Cursor(state.Arms!), "the reset starts the arms");
-        foreach (RoomEnemySlot part in new[] { state.Eye!, state.Tail!, state.Arms! })
+        AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.EyeFacingRightIdle), state.Cursor(state.Eye), "the reset starts the eye");
+        AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingRightIdle), state.Cursor(state.Tail), "the reset starts the tail");
+        AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingRightIdle), state.Cursor(state.Arms), "the reset starts the arms");
+        foreach (RoomEnemySlot part in new[] { state.Eye, state.Tail, state.Arms })
             AssertEqual((ushort)1, part.InstructionTimer.RawValue, "the reset's started parts run on their next update");
         AssertEqual(DraygonProgram.BodyFacingRightReset, state.Cursor(state.Body).Program, "the body's own frame keeps it in the reset");
         AssertEqual(new DraygonFrame(63).Spritemap, state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
-        AssertEqual((ushort)DraygonEyeFunction.FacingRight, state.Eye!.VariableA, "the reset gives the eye its tracking function");
+        AssertEqual((ushort)DraygonEyeFunction.FacingRight, state.Eye.VariableA, "the reset gives the eye its tracking function");
         AssertEqual(RoomLoadingInterruptCommand.BeginHudDraw, state.RoomLoadingIrqCommand, "the reset selects the HUD-draw interrupt");
     }
 
@@ -171,7 +171,7 @@ internal static class DraygonAnimationsVerification
     private static void VerifyDying(IImportCartridgeSource cartridge)
     {
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
-        RoomEnemySlot arms = state.Arms!;
+        RoomEnemySlot arms = state.Arms;
         state.SetCursor(arms, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingLeftDying));
         arms.InstructionTimer = NativeCountdown.Start(1);
         var native = new NativeEnemyListDefinitions.Reader(BodyBankNumber, Entry(DraygonProgram.ArmsFacingLeftDying), 1, OperandWords);
@@ -195,7 +195,7 @@ internal static class DraygonAnimationsVerification
             if (cues.Any(cue => cue is DraygonCue.ParalyseTailAndArms))
             {
                 paralysed = true;
-                AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.Sleep), state.Cursor(state.Tail!), $"{at}: the tail sleeps");
+                AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.Sleep), state.Cursor(state.Tail), $"{at}: the tail sleeps");
                 AssertEqual(DraygonProgram.BodyDyingExplosionsLoop, state.Cursor(arms).Program,
                     $"{at}: the running arms keep their own program, as the native final store replaces the paralysis");
             }

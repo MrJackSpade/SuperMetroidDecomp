@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -39,7 +40,7 @@ internal static class WorldMapLabelsVerification
             }
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = JsonSerializer.Deserialize<WorldMapLabelDocument>(File.ReadAllBytes(Path.Combine(stock, WorldMapLabelFormat.FileName)), options)!;
+        var document = RequiredJson.Deserialize<WorldMapLabelDocument>(File.ReadAllBytes(Path.Combine(stock, WorldMapLabelFormat.FileName)), options);
         var areas = new Dictionary<string, Position16<OamPixels>>(document.Areas);
         areas["Crateria"] = areas["Crateria"] with { X = (ushort)(areas["Crateria"].X + 8) };
         Directory.CreateDirectory(overrides);
@@ -55,7 +56,7 @@ internal static class WorldMapLabelsVerification
         var navigation = new FileSelectMapNavigation(guard, 0);
         navigation.BindLabels(edited.Labels);
         navigation.Step((ushort)SnesButton.A); navigation.Step(0);
-        AssertEqual(areas["Crateria"].X, navigation.Window!.Left, "normal navigation uses edited label/window anchor");
+        AssertEqual(areas["Crateria"].X, (navigation.Window ?? throw new InvalidOperationException("Verification requires navigation.Window.")).Left, "normal navigation uses edited label/window anchor");
         AssertEqual(areas["Crateria"].Y, navigation.Window.Top, "normal navigation uses edited vertical anchor");
         installed.BindLabels(original.Labels);
         AssertTrue(native.Render(used).AsSpan().SequenceEqual(installed.Render(used)), "rebind restores stock label pixels");

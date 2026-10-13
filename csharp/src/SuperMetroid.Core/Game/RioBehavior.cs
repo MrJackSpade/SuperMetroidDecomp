@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Audio;
+using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -114,7 +115,7 @@ internal sealed class RioBehavior : IEnemySpecies
             case RioEnemyFunction.Diving:
                 RequireRioLevel(level);
                 if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-                        level!,
+                        level,
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X.RawValue)))
                 {
@@ -123,7 +124,7 @@ internal sealed class RioBehavior : IEnemySpecies
                     return;
                 }
                 if (_terrain.MoveEnemyVertically(
-                        level!,
+                        level,
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
                 {
@@ -151,14 +152,14 @@ internal sealed class RioBehavior : IEnemySpecies
             case RioEnemyFunction.BouncingBackToPerch:
                 RequireRioLevel(level);
                 if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-                        level!,
+                        level,
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X.RawValue)))
                 {
                     state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
                 }
                 if (_terrain.MoveEnemyVertically(
-                        level!,
+                        level,
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
                 {
@@ -196,11 +197,11 @@ internal sealed class RioBehavior : IEnemySpecies
                     unchecked((byte)(angle + 0x40)))));
                 state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(ReadRioSignedSineCosineSample(angle)));
                 _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-                    level!,
+                    level,
                     slot,
                     EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X.RawValue));
                 _terrain.MoveEnemyVertically(
-                    level!,
+                    level,
                     slot,
                     EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue));
                 return;
@@ -255,7 +256,7 @@ internal sealed class RioBehavior : IEnemySpecies
         unchecked((ushort)EnemyTrigonometryTables.SignedSine(angle));
 
     /// <summary>Rejects movement dispatch without active room collision data.</summary>
-    private static void RequireRioLevel(RoomLevelData? level)
+    private static void RequireRioLevel([NotNull] RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Rio movement requires the current room level data.");

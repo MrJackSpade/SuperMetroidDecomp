@@ -35,7 +35,9 @@ public sealed class CreditsPresentation
         if (fixtureRows is not null)
             return fixtureRows[index];
         int row = 0;
-        for (int line = 0; line < lines!.Length; line++)
+        CreditsLineDocument[] authored = lines ??
+            throw new InvalidOperationException("Credits presentation has neither fixture rows nor authored lines.");
+        for (int line = 0; line < authored.Length; line++)
         {
             var definition = CreditsPresentationDefinitions.Lines[line];
             row += definition.BlankRowsBefore;

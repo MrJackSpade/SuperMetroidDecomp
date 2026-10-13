@@ -28,7 +28,7 @@ internal static class FuneNamiheDefinitionsVerification
             slot.Parameter2 = 0x1000;
             slot.Position = slot.Position.WithWholeY(0x0200);
             initialize(slot);
-            FuneNamiheEnemyState state = enemies.FuneNamiheStates[0]!;
+            FuneNamiheEnemyState state = (enemies.FuneNamiheStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FuneNamiheStates[0]."));
             ushort idleCursor = (ushort)((namihe
                 ? FuneNamiheDefinitions.NamiheIdleLeftCursor
                 : FuneNamiheDefinitions.FuneIdleLeftCursor) +
@@ -36,7 +36,7 @@ internal static class FuneNamiheDefinitionsVerification
             AssertEqual(FuneNamiheDefinitions.InstructionList(idleCursor), slot.CurrentInstruction,
                 $"Fune/Namihe production idle list {variant}");
 
-            runMain(slot, state, namihe ? new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.Position.Y.Whole)) } : null);
+            runMain(slot, (state ?? throw new InvalidOperationException("Verification requires state.")), namihe ? new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.Position.Y.Whole)) } : null);
             ushort activeCursor = (ushort)(idleCursor - FuneNamiheDefinitions.ActiveCursorDelta);
             AssertEqual(FuneNamiheDefinitions.InstructionList(activeCursor), slot.CurrentInstruction,
                 $"Fune/Namihe production active list {variant}");

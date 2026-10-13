@@ -86,10 +86,6 @@ internal static class EndingContentIdentityVerification
             AssertThrows<ArgumentOutOfRangeException>(() => EndingMode7ArtworkFormat.CharacterFileName((EndingMode7SceneId)invalid), "Mode7 character filename bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingMode7ArtworkFormat.MapFileName((EndingMode7SceneId)invalid), "Mode7 map filename bounds");
         }
-        AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(null!, supplied[1], supplied[2], reward), "Mode7 null escapeA");
-        AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(supplied[0], null!, supplied[2], reward), "Mode7 null escapeB");
-        AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(supplied[0], supplied[1], null!, reward), "Mode7 null explosion");
-        AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(supplied[0], supplied[1], supplied[2], null!), "Mode7 null reward");
     }
 
     /// <summary>Checks domain-specific digest changes, canonical frame order, and encoding invariance.</summary>

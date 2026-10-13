@@ -50,7 +50,7 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
         mochtroid.EnemyDefinitionPointer = EnemyDefinitionId.Mochtroid;
         mochtroid.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
         initialize(mochtroid);
-        MochtroidEnemyState state = enemies.MochtroidStates[0]!;
+        MochtroidEnemyState state = (enemies.MochtroidStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MochtroidStates[0]."));
         AssertEqual(MochtroidInstructionProgramDefinitions.FreeFlight,
             mochtroid.CurrentInstruction,
             "real Mochtroid initializer installs compiled free-flight loop");
@@ -60,7 +60,7 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
             mochtroid.CurrentInstruction,
             "Mochtroid free-flight program loops to its second frame");
 
-        MochtroidBehavior.SetMochtroidInstructionList(mochtroid, state, MochtroidInstructionProgramDefinitions.Attached);
+        MochtroidBehavior.SetMochtroidInstructionList(mochtroid, (state ?? throw new InvalidOperationException("Verification requires state.")), MochtroidInstructionProgramDefinitions.Attached);
         AssertEqual(MochtroidInstructionProgramDefinitions.Attached,
             state.InstalledInstructionList,
             "production Mochtroid list switch installs attached loop");

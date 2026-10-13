@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Hardware;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -12,37 +13,37 @@ internal static class SamusIsolationArtworkEdits
     {
         Edit(SamusBodyArtworkFiles.ManifestFileName, document =>
         {
-            Shift(document["graphicsYOffsets"]!, 3, signed: true);
-            Shift(document["landingYOffsets"]!, 3, signed: false);
-            Shift(document["postureYOffsets"]!, 3, signed: true);
-            Shift(document["drainedYOffsets"]!, 3, signed: true);
-            foreach (JsonNode? map in document["spritemaps"]!.AsArray())
-            foreach (JsonNode? part in map!["parts"]!.AsArray())
-                part!["x"] = unchecked((ushort)(part["x"]!.GetValue<int>() + 2));
+            Shift(document.Required("graphicsYOffsets"), 3, signed: true);
+            Shift(document.Required("landingYOffsets"), 3, signed: false);
+            Shift(document.Required("postureYOffsets"), 3, signed: true);
+            Shift(document.Required("drainedYOffsets"), 3, signed: true);
+            foreach (JsonNode? map in document.Required("spritemaps").AsArray().RequiredElements())
+            foreach (JsonNode? part in map.Required("parts").AsArray().RequiredElements())
+                part["x"] = unchecked((ushort)(part.Required("x").GetValue<int>() + 2));
             // Keep the native frame-list identities and animation-frame count. Replace
             // only each valid DMA character selection, not the compiled delay program.
-            foreach (JsonNode? frame in document["frames"]!.AsArray())
+            foreach (JsonNode? frame in document.Required("frames").AsArray().RequiredElements())
             {
-                if (frame!["topSet"]!.GetValue<int>() < SamusBodyArtworkCatalog.TopSetCount)
+                if (frame.Required("topSet").GetValue<int>() < SamusBodyArtworkCatalog.TopSetCount)
                     frame["topPosition"] = 0;
-                if (frame["bottomSet"]!.GetValue<int>() < SamusBodyArtworkCatalog.BottomSetCount)
+                if (frame.Required("bottomSet").GetValue<int>() < SamusBodyArtworkCatalog.BottomSetCount)
                     frame["bottomPosition"] = 0;
             }
         });
         Edit(SamusDeathPaletteArtworkFiles.ArtworkFileName, document =>
         {
-            RecolorWords(document["suited"]!);
-            RecolorWords(document["suitless"]!);
-            RecolorWords(document["whiteout"]!);
-            JsonArray selectors = document["explosionPaletteIndices"]!.AsArray();
+            RecolorWords(document.Required("suited"));
+            RecolorWords(document.Required("suitless"));
+            RecolorWords(document.Required("whiteout"));
+            JsonArray selectors = document.Required("explosionPaletteIndices").AsArray();
             for (int index = 0; index < selectors.Count; index++)
-                selectors[index] = (selectors[index]!.GetValue<int>() + 1) % SamusPaletteRomData.Death.PaletteCount;
+                selectors[index] = (selectors.Required(index).GetValue<int>() + 1) % SamusPaletteRomData.Death.PaletteCount;
         });
 
         void Edit(string name, Action<JsonNode> change)
         {
-            JsonNode document = JsonNode.Parse(File.ReadAllBytes(
-                Path.Combine(installation.SamusBodyDirectory, name)))!;
+            JsonNode document = RequiredJson.Parse(File.ReadAllBytes(
+                Path.Combine(installation.SamusBodyDirectory, name)));
             change(document);
             File.WriteAllText(Path.Combine(installation.SamusBodyOverrideDirectory, name),
                 document.ToJsonString());
@@ -56,7 +57,7 @@ internal static class SamusIsolationArtworkEdits
         string stockPath = Path.Combine(source.MapDirectory, name);
         using var stockStream = File.OpenRead(stockPath);
         T stock = compile(stockStream);
-        JsonNode document = JsonNode.Parse(File.ReadAllBytes(stockPath))!;
+        JsonNode document = RequiredJson.Parse(File.ReadAllBytes(stockPath));
         RecolorRgb(document);
         Directory.CreateDirectory(fixture.MapOverrideDirectory);
         string editedPath = Path.Combine(fixture.MapOverrideDirectory, name);
@@ -71,7 +72,7 @@ internal static class SamusIsolationArtworkEdits
         JsonArray values = node.AsArray();
         for (int index = 0; index < values.Count; index++)
         {
-            int value = values[index]!.GetValue<int>() + amount;
+            int value = values.Required(index).GetValue<int>() + amount;
             values[index] = signed ? unchecked((sbyte)value) : unchecked((byte)value);
         }
     }
@@ -82,7 +83,7 @@ internal static class SamusIsolationArtworkEdits
         JsonArray values = node.AsArray();
         for (int index = 0; index < values.Count; index++)
             if (values[index] is JsonArray array) RecolorWords(array);
-            else values[index] = values[index]!.GetValue<int>() ^ 0x7fff;
+            else values[index] = values.Required(index).GetValue<int>() ^ 0x7fff;
     }
 
     /// <summary>Inverts RGB5 channels in nested color objects without changing other JSON fields.</summary>
@@ -93,7 +94,7 @@ internal static class SamusIsolationArtworkEdits
             if (record.ContainsKey("red") && record.ContainsKey("green") && record.ContainsKey("blue"))
             {
                 foreach (string channel in new[] { "red", "green", "blue" })
-                    record[channel] = 31 - record[channel]!.GetValue<int>();
+                    record[channel] = 31 - record.Required(channel).GetValue<int>();
             }
             else foreach (JsonNode? child in record.Select(entry => entry.Value).ToArray())
                 if (child is not null) RecolorRgb(child);

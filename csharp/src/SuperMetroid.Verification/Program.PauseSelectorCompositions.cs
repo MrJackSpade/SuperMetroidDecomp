@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -13,7 +14,7 @@ internal static class PauseSelectorCompositionsVerification
     internal static void VerifyPauseSelectorCompositions(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions);
         var stock = PauseSelectorPresentation.Load(new MemoryStream(bytes));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(rom, stock, group);
         AssertEqual(0, stock.StoredCompositionOverrideCount, "stock selector has no phase composition table");

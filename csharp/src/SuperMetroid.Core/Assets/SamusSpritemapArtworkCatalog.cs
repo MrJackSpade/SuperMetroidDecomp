@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Game;
 using System.Text.Json.Serialization;
 
@@ -127,7 +128,7 @@ public sealed class SamusSpritemapArtworkCatalog
     }
 
     /// <summary>Returns false only for a native zero pointer, which requires a bus read.</summary>
-    public bool TryGet(ushort index, out SamusSpritemapDefinition? definition)
+    public bool TryGet(ushort index, [NotNullWhen(true)] out SamusSpritemapDefinition? definition)
     {
         if (index >= PointerCount)
             throw new InvalidDataException($"Samus spritemap index {index} is outside extracted art.");

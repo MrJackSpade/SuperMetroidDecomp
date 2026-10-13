@@ -47,7 +47,8 @@ internal static class EnemyAnimationIsolationVerification
             edited.Samus.Position = edited.Samus.Position.WithWholeX(samusX);
             stock.Step(frame); edited.Step(frame);
             AssertEnemyAnimationMechanics(stock, edited, frame);
-            AssertAnimationValues(stock.Enemies.BoyonStates[0]!, edited.Enemies.BoyonStates[0]!, $"Boyon frame {frame}");
+            AssertAnimationValues(stock.Enemies.BoyonStates[0] ?? throw new InvalidOperationException("Verification requires the stock Boyon state."),
+                edited.Enemies.BoyonStates[0] ?? throw new InvalidOperationException("Verification requires the edited Boyon state."), $"Boyon frame {frame}");
             heights.Add(stock.Actor.Position.Y.Whole);
             nativeFrames.Add(stock.Actor.SpritemapPointer);
             if (stock.Enemies.BoyonBehavior.LastBoyonSoundEffect is not null) bounceSounds++;
@@ -79,7 +80,8 @@ internal static class EnemyAnimationIsolationVerification
         {
             stock.Step(frame); edited.Step(frame);
             AssertEnemyAnimationMechanics(stock, edited, frame);
-            AssertAnimationValues(stock.Torizo!, edited.Torizo!, $"Golden Torizo attack frame {frame}");
+            AssertAnimationValues(stock.Torizo ?? throw new InvalidOperationException("Verification requires the stock Torizo state."),
+                edited.Torizo ?? throw new InvalidOperationException("Verification requires the edited Torizo state."), $"Golden Torizo attack frame {frame}");
             nativeFrames.Add(stock.Actor.SpritemapPointer);
             heights.Add(stock.Actor.Position.Y.Whole);
             if (stock.Enemies.BombTorizoBehavior.LastBombTorizoSoundEffect is not null) shotFrames.Add(frame);
@@ -105,12 +107,13 @@ internal static class EnemyAnimationIsolationVerification
         {
             stock.Step(attackFrames + frame); edited.Step(attackFrames + frame);
             AssertEnemyAnimationMechanics(stock, edited, frame);
-            AssertAnimationValues(stock.Torizo!, edited.Torizo!, $"Golden Torizo death frame {frame}");
+            AssertAnimationValues(stock.Torizo ?? throw new InvalidOperationException("Verification requires the stock Torizo state."),
+                edited.Torizo ?? throw new InvalidOperationException("Verification requires the edited Torizo state."), $"Golden Torizo death frame {frame}");
             if (firstBossBitFrame < 0 && stock.BossBitCalls != 0) firstBossBitFrame = frame;
             if (frame == deathPublicationFrame)
             {
                 AssertEqual(new BombTorizoMusicRequest(MusicCommand.SelectTrack(3), MusicCommandDelay.EightFrames),
-                    stock.Enemies.BombTorizoBehavior.LastBombTorizoMusicRequest!.Value, "death publishes the actual return-music command at its compiled frame");
+                    (stock.Enemies.BombTorizoBehavior.LastBombTorizoMusicRequest ?? throw new InvalidOperationException("Verification requires stock.Enemies.BombTorizoBehavior.LastBombTorizoMusicRequest.")), "death publishes the actual return-music command at its compiled frame");
                 AssertTrue(stock.Enemies.Projectiles.EnemyProjectiles.Any(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),
                     "death actually allocates pickups, rather than merely setting a debugger flag");
             }
@@ -120,7 +123,7 @@ internal static class EnemyAnimationIsolationVerification
         }
         AssertEqual(deathPublicationFrame, firstBossBitFrame, "boss bit/drop/music publication retains exact compiled death frame");
         AssertEqual(1, stock.BossBitCalls, "death publishes the progression event exactly once");
-        AssertTrue(stock.Torizo!.BossBitSet && stock.Torizo.ItemDropRequested, "death actually reaches both progression and item-drop callbacks");
+        AssertTrue((stock.Torizo ?? throw new InvalidOperationException("Verification requires stock.Torizo.")).BossBitSet && stock.Torizo.ItemDropRequested, "death actually reaches both progression and item-drop callbacks");
         AssertTrue(deathDrawChanges > 0, "death and pickup replacement is visibly rendered, not ignored");
         Console.WriteLine($"Golden Torizo animation isolation: {attackFrames} attack frames, six timed orb callbacks, " +
             $"{hitSamples + missSamples} shot/touch samples, {deathPublicationFrame + 2} death frames; " +

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
@@ -202,9 +203,9 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 RoomPlmColoredDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted colored-door JSON is empty.");
-            JsonNode frame = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "green-left-frame-0")!;
-            frame["blocks"]![0] = 0x0053;
+            JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "green-left-frame-0");
+            frame.Required("blocks")[0] = 0x0053;
             Directory.CreateDirectory(
                 installation.RoomPlmColoredDoorVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -224,12 +225,12 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                     .GetWord(0xa827, 0),
                 "colored-door override survives stock replacement");
 
-            frame["blocks"]![0] = 0xf053;
+            frame.Required("blocks")[0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmColoredDoorVisuals(),
                 "invalid colored-door override fails loudly");
-            frame["blocks"]![0] = stock;
+            frame.Required("blocks")[0] = stock;
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmColoredDoorVisuals(),

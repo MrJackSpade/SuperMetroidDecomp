@@ -33,21 +33,21 @@ internal static class DoorSoundsDuringPowerBombVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        runtime.Player.Samus!.InputLocked = true;
+        runtime.Player.IntroducedSamus.InputLocked = true;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;
         game.Step(0);
 
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)
         for (int x = 0; x < level.Size.X && !selected; x++)
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(bus, block.Behavior, runtime.Player.Samus.Pose, true);
+            level.ResolveDoorCollision(bus, block.Behavior, runtime.Player.IntroducedSamus.Pose, true);
             selected = true;
         }
         AssertTrue(selected, "Landing Site has an exit");

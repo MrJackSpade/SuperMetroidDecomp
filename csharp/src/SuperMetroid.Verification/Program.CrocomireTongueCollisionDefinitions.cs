@@ -33,7 +33,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         foreach (CrocomireTongueFrame frame in Enum.GetValues<CrocomireTongueFrame>())
         {
             ushort selected = (ushort)frame;
-            AssertTrue(stock.ExtendedFrames!.TryGetDisplay(
+            AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
                     CrocomireTongueCollisionDefinitions.Bank, selected, out _),
                 $"Crocomire tongue frame {frame} has installed art");
             seen.Add(selected);
@@ -133,8 +133,8 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
                 bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                 AssertEqual(nativeHit, compiledHit,
                     $"Crocomire tongue $A4:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
-                AssertEqual((ushort)nativeArguments[^1]!,
-                    (ushort)compiledArguments[^1]!,
+                AssertEqual((ushort)(nativeArguments[^1] ?? throw new InvalidOperationException("Verification requires nativeArguments[^1].")),
+                    (ushort)(compiledArguments[^1] ?? throw new InvalidOperationException("Verification requires compiledArguments[^1].")),
                     "Crocomire tongue native/compiled callback parity");
                 AssertTrue(!compiledHit,
                     "empty native Crocomire tongue hitbox list cannot hit Samus or shots");

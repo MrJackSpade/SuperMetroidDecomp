@@ -41,7 +41,7 @@ internal static class BombChargeRejectionVerification
             bool cancelled = helperRuns && !freshShoot && charge != 0;
             string context = $"charge={charge}, Bombs={bombsEquipped}, PB={powerBombSelected}, edge={freshShoot}";
             AssertEqual(cancelled, result.BeamChargeConsumed, $"native bomb rejection charge bridge: {context}");
-            var cancellations = result.SoundRequests!.Where(sound => sound ==
+            var cancellations = (result.SoundRequests ?? throw new InvalidOperationException("Verification requires result.SoundRequests.")).Where(sound => sound ==
                 new SamusSoundRequest(SoundEffectLibrary1Sounds.CancelAll, 9)).ToArray();
             AssertEqual(cancelled ? 1 : 0, cancellations.Length, $"single native charge cancellation sound: {context}");
             AssertEqual(helperRuns && freshShoot ? 1 : 0, bombs.BombCounter,
@@ -65,7 +65,7 @@ internal static class BombChargeRejectionVerification
             var result = bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, (ushort)SnesButton.Down, 0);
             string context = $"Shoot released, charge {charge}, HUD selection {selection}";
             AssertEqual(charge != 0, result.BeamChargeConsumed, $"outer native cancellation command: {context}");
-            AssertEqual(charge != 0 ? 1 : 0, result.SoundRequests!.Count(sound => sound ==
+            AssertEqual(charge != 0 ? 1 : 0, (result.SoundRequests ?? throw new InvalidOperationException("Verification requires result.SoundRequests.")).Count(sound => sound ==
                 new SamusSoundRequest(SoundEffectLibrary1Sounds.CancelAll, 9)), $"charge cancellation sound: {context}");
             AssertEqual((ushort)0, bombs.BombCounter, $"release never places a bomb: {context}");
             AssertEqual((ushort)2, samus.PowerBombs, $"release never spends ammunition: {context}");

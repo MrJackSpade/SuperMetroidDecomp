@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -23,7 +24,7 @@ public static class WreckedShipTreadmillMechanicsDefinitions
     };
 
     /// <summary>Resolves either named header; all other bank87 identities return false/null.</summary>
-    public static bool TryResolve(AnimatedTileObject objectPointer, out WreckedShipTreadmillObjectDefinition definition)
+    public static bool TryResolve(AnimatedTileObject objectPointer, [NotNullWhen(true)] out WreckedShipTreadmillObjectDefinition? definition)
     {
         definition = objectPointer switch
         {
@@ -37,7 +38,7 @@ public static class WreckedShipTreadmillMechanicsDefinitions
                 AnimatedTileObject.BrinstarPlant or AnimatedTileObject.WreckedShipScreen or
                 AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling or
                 AnimatedTileObject.Lava or AnimatedTileObject.Acid or AnimatedTileObject.Rain or
-                AnimatedTileObject.Spores => null!,
+                AnimatedTileObject.Spores => null,
             _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {objectPointer}."),
         };
         return definition is not null;

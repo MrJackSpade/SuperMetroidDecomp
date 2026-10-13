@@ -56,7 +56,7 @@ internal static class EndingSnapshotTestsVerification
                     for (int i = 0; i < 16; i++)
                     {
                         int remaining = 32 - elapsed / 2;
-                        Bgr555 expectedColor = explosionBackgroundSource![i].Map((_, channel) => channel * remaining / 32);
+                        Bgr555 expectedColor = (explosionBackgroundSource ?? throw new InvalidOperationException("Verification requires explosionBackgroundSource."))[i].Map((_, channel) => channel * remaining / 32);
                         AssertEqual(expectedColor, explosion.Memory.Cgram[112 + i], "native explosion BG palette fades out on the same cadence");
                     }
 
@@ -99,7 +99,7 @@ internal static class EndingSnapshotTestsVerification
                     var burst = legacy.Presentation.CaptureRenderSnapshot();
                     var sub = burst.Layers.ToArray().OfType<BgSubscreenAddRenderLayer>().Single();
                     AssertEqual((ushort)0x7c00, sub.TilemapWord, "F2B7 selects burst BG2 map");
-                    AssertEqual((ushort)0x7000, sub.MainCoverage!.TilemapWord, "F2B7 keeps BG1 map and excludes backdrop color math");
+                    AssertEqual((ushort)0x7000, (sub.MainCoverage ?? throw new InvalidOperationException("Verification requires sub.MainCoverage.")).TilemapWord, "F2B7 keeps BG1 map and excludes backdrop color math");
 
                     burstDisplayFrames++;
                 }
@@ -137,9 +137,9 @@ internal static class EndingSnapshotTestsVerification
                     if (firstPhaseFrame)
                         referenceJump = new EndingRewardJump(bus, legacy.EndingReward, _ => { });
                     else
-                        referenceJump!.Step(pointer => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8b0000 | pointer));
+                        (referenceJump ?? throw new InvalidOperationException("Verification requires referenceJump.")).Step(pointer => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8b0000 | pointer));
                     var jumpFrame = legacy.Presentation.CaptureRenderSnapshot();
-                    var expectedOam = referenceJump!.Draw(rewardArt);
+                    var expectedOam = referenceJump.Draw(rewardArt);
                     AssertEqual(referenceJump.ObjectSelection, jumpFrame.ObjectSelection,
                         "live reward switches OBJ sheet on the same native flight frame");
                     // The live ending also appends the restored shooting stars.

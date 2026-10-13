@@ -42,7 +42,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.BrainFrameTimer = W(MotherBrainMemory.BrainInstructionTimer);
         Dictionary<ushort, AnimationProgramCursor<MotherBrainBodyProgram>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
         state.BodyCursor = body[state.Body.CurrentInstruction];
-        state.HeadSlotCursor = body[state.Head!.CurrentInstruction];
+        state.HeadSlotCursor = body[state.Head.CurrentInstruction];
         Dictionary<ushort, AnimationProgramCursor<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
         foreach (RoomEnemySlot tube in runtime.Enemies.SlotTable.Slots.Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes))
             runtime.Enemies.MotherBrainBehavior.FallingTubeCursors[tube.SlotIndex] = tubes[tube.CurrentInstruction];

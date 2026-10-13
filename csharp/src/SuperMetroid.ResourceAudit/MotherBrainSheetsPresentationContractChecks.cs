@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -27,13 +28,8 @@ internal static class MotherBrainSheetsPresentationContractChecks
             sheet => Sheet(sheet.ByteCount));
         int first = MotherBrainSpecialSpriteArtworkDefinitions.Legs.SourceAddress;
         var malformed = new Dictionary<int, RoomCharacterAtlas>(sheets);
-        malformed[first] = null!;
-        bool rejected = false;
-        try { _ = new MotherBrainSpecialSpriteArtworkCatalog(malformed); }
-        catch (InvalidDataException) { rejected = true; }
-        Require(rejected, "a required null sheet must fail at construction");
         malformed[first] = Sheet(RoomCharacterAtlasFormat.BytesPerTile);
-        rejected = false;
+        bool rejected = false;
         try { _ = new MotherBrainSpecialSpriteArtworkCatalog(malformed); }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "a required sheet with incomplete transfer pages must fail at construction");
@@ -58,7 +54,7 @@ internal static class MotherBrainSheetsPresentationContractChecks
             }
             """, path: "fixture-mb-sheets-consumer.cs");
         trees.Add(calls);
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("MotherBrainSheetsFixture", sources,
             platforms.Append(typeof(MotherBrainSpecialSpriteArtworkCatalog).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),

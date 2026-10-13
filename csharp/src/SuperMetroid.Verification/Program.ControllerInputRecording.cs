@@ -111,7 +111,7 @@ internal static class ControllerInputRecordingVerification
         v3Bytes.Position = 0;
         ControllerInputRecording actualV3 = ControllerInputRecording.Read(v3Bytes);
         foreach ((string domain, byte[] componentDigest) in components)
-            AssertTrue(componentDigest.SequenceEqual(actualV3.ContentIdentity!.AdditionalContentSha256[domain]),
+            AssertTrue(componentDigest.SequenceEqual((actualV3.ContentIdentity ?? throw new InvalidOperationException("Verification requires actualV3.ContentIdentity.")).AdditionalContentSha256[domain]),
                 $"recording preserves named {domain} identity");
         AssertTrue(saveRam.SequenceEqual(actualV3.InitialSaveRam), "named-component table preserves SRAM alignment");
         AssertTrue(inputs.SequenceEqual(actualV3.ControllerInputs), "named-component table preserves input alignment");
@@ -119,7 +119,7 @@ internal static class ControllerInputRecordingVerification
         using var reorderedBytes = new MemoryStream();
         (expectedV3 with
         {
-            ContentIdentity = expectedV3.ContentIdentity! with
+            ContentIdentity = expectedV3.ContentIdentity with
             {
                 AdditionalContentSha256 = components.Reverse().ToDictionary(pair => pair.Key, pair => pair.Value),
             },

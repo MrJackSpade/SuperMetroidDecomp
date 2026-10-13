@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -28,7 +29,7 @@ internal static class ExtractedInstallationValidationVerification
             {
                 if (Path.GetFullPath(file) == Path.GetFullPath(source.RomPath)) continue;
                 string destination = Path.Combine(fixture.ContentDirectory, Path.GetRelativePath(source.ContentDirectory, file));
-                Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+                Directory.CreateDirectory((Path.GetDirectoryName(destination) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(destination).")));
                 File.Copy(file, destination);
             }
             Dictionary<string, string> baseline = Snapshot(fixture.ContentDirectory);
@@ -59,7 +60,7 @@ internal static class ExtractedInstallationValidationVerification
             WithEditedFile(enemyManifest, () =>
             {
                 JsonObject json = ReadObject(enemyManifest);
-                json["version"] = json["version"]!.GetValue<int>() - 1;
+                json["version"] = json.Required("version").GetValue<int>() - 1;
                 File.WriteAllText(enemyManifest, json.ToJsonString());
             }, () => VerifyRejection<InvalidDataException>(fixture, enemyManifest, "outdated nested enemy manifest"));
 

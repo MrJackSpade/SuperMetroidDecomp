@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
@@ -139,9 +140,9 @@ internal static class NoobTubePlmDrawDefinitionsVerification
                 RoomPlmNoobTubeVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted tube JSON is empty.");
-            JsonNode frame = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "cleared")!;
-            frame["blocks"]![24] = 0x0059;
+            JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "cleared");
+            frame.Required("blocks")[24] = 0x0059;
             Directory.CreateDirectory(
                 installation.RoomPlmNoobTubeVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -161,7 +162,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
                     .GetWord(0x98e3, 2, 0),
                 "tube override survives stock replacement");
 
-            frame["blocks"]![24] = 0xf059;
+            frame.Required("blocks")[24] = 0xf059;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmNoobTubeVisuals(),

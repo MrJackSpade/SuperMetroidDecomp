@@ -55,7 +55,7 @@ internal static void VerifySamusAerialMovement()
         bus, level, samus, (ushort)SnesButton.A, nmiFrameCounter: 0);
     AssertEqual(77, samus.Position.Y.Whole, "neutral-jump transition preserves Y");
     samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xfd, samus.LastAnimationDelayCommand!.Value, "neutral-jump transition reaches FD");
+    AssertEqual(0xfd, (samus.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires samus.LastAnimationDelayCommand.")), "neutral-jump transition reaches FD");
     AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "FD installs neutral jump pose");
     AssertEqual(SamusPoseId.NeutralJumpRightPose, samus.Pose, "FD target pose");
 
@@ -97,7 +97,7 @@ internal static void VerifySamusAerialMovement()
     // reach $F8 at byte index two; its operand returns to $01.
     for (int tick = 0; tick < 7; tick++)
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xf8, samus.LastAnimationDelayCommand!.Value, "landing reaches F8");
+    AssertEqual(0xf8, samus.LastAnimationDelayCommand.Value, "landing reaches F8");
     AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "landing F8 transition applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "landing animation returns to standing");
 

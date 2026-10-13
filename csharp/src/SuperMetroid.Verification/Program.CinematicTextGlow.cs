@@ -16,7 +16,7 @@ internal static class CinematicTextGlowVerification
         for (int age = 0; age <= 20; age++)
         {
             glow.Step(map);
-            restored?.Step(restoredMap!);
+            restored?.Step(restoredMap);
             for (int index = 0; index < map.Length; index++)
             {
                 bool rectangle = index / 32 is 4 or 5 && index % 32 is 1 or 2;

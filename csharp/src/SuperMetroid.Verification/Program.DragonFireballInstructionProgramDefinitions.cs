@@ -56,9 +56,9 @@ internal static class DragonFireballInstructionProgramDefinitionsVerification
         body.VramTilesIndex = 0x0200;
         body.PaletteIndex = 0x0a00;
         initialize(body);
-        DragonEnemyState state = enemies.DragonStates[0]!;
+        DragonEnemyState state = (enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0]."));
 
-        state.DirectionWord = 0x8000;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).DirectionWord = 0x8000;
         spawn(body, state);
         state.DirectionWord = 0;
         spawn(body, state);

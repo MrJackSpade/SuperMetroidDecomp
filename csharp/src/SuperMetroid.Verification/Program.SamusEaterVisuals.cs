@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -48,13 +49,13 @@ internal static class SamusEaterVisualsVerification
                 RoomPlmSamusEaterVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted Samus Eater JSON is empty.");
-            JsonArray entries = document["entries"]!.AsArray();
-            JsonNode floor = entries.Single(entry =>
-                entry!["id"]!.GetValue<string>() == "floor-chew-2")!;
-            JsonNode ceiling = entries.Single(entry =>
-                entry!["id"]!.GetValue<string>() == "ceiling-chew-2")!;
-            floor["blocks"]![0] = 0x0058;
-            ceiling["blocks"]![0] = 0x0059;
+            JsonArray entries = document.Required("entries").AsArray();
+            JsonNode floor = entries.RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "floor-chew-2");
+            JsonNode ceiling = entries.RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "ceiling-chew-2");
+            floor.Required("blocks")[0] = 0x0058;
+            ceiling.Required("blocks")[0] = 0x0059;
             Directory.CreateDirectory(
                 installation.RoomPlmSamusEaterVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -76,7 +77,7 @@ internal static class SamusEaterVisualsVerification
                     installation.RoomPlmSamusEaterVisualOverrideDirectory)
                     .GetWord((ushort)SamusEaterDraw.FloorChew2, 0, 0),
                 "Samus Eater override survives stock refresh");
-            floor["blocks"]![0] = 0xf058;
+            floor.Required("blocks")[0] = 0xf058;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmSamusEaterVisuals(),

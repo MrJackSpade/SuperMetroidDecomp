@@ -540,7 +540,7 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitionsAccess
         {
             if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(pointer, out RoomPlmBombBlockRestoreDrawDefinitions.Draw draw))
             {
-                list = ((RoomPlmShotBlockDrawDefinitions.DrawList)(RoomPlmBombBlockRestoreDrawDefinitions.Export((RoomPlmBombBlockRestoreDrawDefinitions.Draw)(draw)))!);
+                list = ((RoomPlmShotBlockDrawDefinitions.DrawList)(RoomPlmBombBlockRestoreDrawDefinitions.Export((RoomPlmBombBlockRestoreDrawDefinitions.Draw)(draw))));
                 return true;
             }
             list = default;
@@ -646,7 +646,7 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitionsAccess
         {
             if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(pointer, out RoomPlmContactCrumbleRestoreDrawDefinitions.Draw draw))
             {
-                list = ((RoomPlmShotBlockDrawDefinitions.DrawList)(RoomPlmContactCrumbleRestoreDrawDefinitions.Export((RoomPlmContactCrumbleRestoreDrawDefinitions.Draw)(draw)))!);
+                list = ((RoomPlmShotBlockDrawDefinitions.DrawList)(RoomPlmContactCrumbleRestoreDrawDefinitions.Export((RoomPlmContactCrumbleRestoreDrawDefinitions.Draw)(draw))));
                 return true;
             }
             list = default;
@@ -1057,7 +1057,7 @@ internal static class RoomPlmSystemAccess
                     entry.slot.HeaderPointer,
                     entry.slot.BlockIndex,
                     entry.slot.RoomArgument,
-                    entry.door!.Color, entry.door.Orientation, entry.door.Phase, entry.door.HitCounter)),
+                    (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color, entry.door.Orientation, entry.door.Phase, entry.door.HitCounter)),
         ];
 
         /// <summary>Debugger-stable views of every resident grey-door PLM.</summary>
@@ -1069,7 +1069,7 @@ internal static class RoomPlmSystemAccess
                     entry.slot.HeaderPointer,
                     entry.slot.BlockIndex,
                     entry.slot.RoomArgument,
-                    entry.door!.Orientation, entry.door.Condition, entry.door.Phase,
+                    (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation, entry.door.Condition, entry.door.Phase,
                     entry.door.InitialList, entry.door.FlashList, entry.door.OpeningList)),
         ];
 
@@ -1082,8 +1082,8 @@ internal static class RoomPlmSystemAccess
                     entry.slot.HeaderPointer,
                     entry.slot.BlockIndex,
                     entry.slot.RoomArgument,
-                    (entry.door!).Component,
-                    (entry.door!).HitCounter,
+                    ((entry.door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
+                    (entry.door).HitCounter,
                     entry.slot.InstructionPointer,
                     entry.slot.PreInstruction)),
         ];

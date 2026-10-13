@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
@@ -86,7 +87,7 @@ internal static class CrocomireBodyVisualsVerification
 
         foreach (ushort pointer in CrocomireBodyVisualDefinitions.Frames)
         {
-            AssertTrue(stock.ExtendedFrames!.TryGetDisplay(
+            AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
                     CrocomireBodyVisualDefinitions.Bank, pointer, out _),
                 $"Crocomire body OAM frame $A4:{pointer:X4} is installed");
             var guard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> guardBlockFrame);
@@ -107,7 +108,7 @@ internal static class CrocomireBodyVisualsVerification
 
         foreach (EnemyBg2FrameDefinition frame in CrocomireBg2FrameDefinitions.Frames)
         {
-            AssertTrue(stock.CrocomireBg2Frames!.TryGet(frame.Pointer,
+            AssertTrue((stock.CrocomireBg2Frames ?? throw new InvalidOperationException("Verification requires stock.CrocomireBg2Frames.")).TryGet(frame.Pointer,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"Crocomire BG2 half $A4:{frame.Pointer:X4} is installed");
             var native = new List<(ushort DestinationWord, ushort[] Tiles)>();
@@ -160,9 +161,9 @@ internal static class CrocomireBodyVisualsVerification
         string overrideDirectory = Path.Combine(stockDirectory, "crocomire-body-override");
         Directory.CreateDirectory(overrideDirectory);
         string source = Path.Combine(stockDirectory, CrocomireBg2FrameDefinitions.FileName);
-        var authored = JsonSerializer.Deserialize<EnemyBg2FrameDocument>(
+        var authored = RequiredJson.Deserialize<EnemyBg2FrameDocument>(
             File.ReadAllBytes(source),
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         EnemyBg2FrameDefinition editedFrame = CrocomireBg2FrameDefinitions.Frames[0];
         EnemyBg2WriteDocument lastWrite = authored.Frames[editedFrame.Name][^1];
         lastWrite.Tiles[0] ^= 1;

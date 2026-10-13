@@ -95,7 +95,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
             {
                 robot.InstructionTimer = NativeCountdown.Start(1);
                 robot.Position = robot.Position.WithWhole(new(512, unchecked((ushort)(320 - robot.Radius.Y))));
-                enemies.WorkRobotStates[0]!.LaserCooldown = NativeCountdown.Start(ushort.MaxValue);
+                (enemies.WorkRobotStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WorkRobotStates[0].")).LaserCooldown = NativeCountdown.Start(ushort.MaxValue);
                 enemies.Instructions.ProcessInstructions(robot, null, level, new Position16<RoomPixels>((ushort)384, (ushort)192), (ushort)0);
             }
         }

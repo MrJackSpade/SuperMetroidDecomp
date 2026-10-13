@@ -104,8 +104,8 @@ internal static class YardDirectionDefinitionsVerification
             slot.CurrentInstruction = direction;
             slot.Parameter1 = 0;
             enemies.YardBehavior.InitializeYard(slot);
-            YardEnemyState state = enemies.YardStates[0]!;
-            ushort facing = state.AirborneFacingDirection;
+            YardEnemyState state = (enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0]."));
+            ushort facing = (state ?? throw new InvalidOperationException("Verification requires state.")).AirborneFacingDirection;
             YardAirborneInstructionDefinition expected =
                 YardDirectionDefinitions.ForAirborneFacing(facing);
 

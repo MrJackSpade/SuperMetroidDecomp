@@ -60,7 +60,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     [field: NonSerialized]
     public GameplayBasePaletteCatalog? InitialPaletteArt { get; set; }
     /// <summary>Whether the next accepted NMI must refresh already initialized HUD characters.</summary>
-    [NonSerialized] private bool hudArtworkRefreshPending;
+    [NonSerialized] private HudTileAtlas? pendingHudTiles;
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named VRAM assets.</summary>
     /// <remarks>Binding nonnull artwork schedules an initialized HUD refresh and rebinds compiled bus-source identities; assigning null removes presentation owners without rewriting already published VRAM.</remarks>
     [field: NonSerialized]     public AreaMapPresentationCatalog? MapPresentation
@@ -78,7 +78,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             _bombProjectiles.PowerBombExplosion.PresentationColors = value?.PowerBombFixedColors;
             BindSamusPalettePresentation();
             _enemies.BindMapPresentation(value);
-            hudArtworkRefreshPending = value is not null && _hud.IsInitialized;
+            pendingHudTiles = value is not null && _hud.IsInitialized ? value.HudTiles : null;
             if (value is not null)
                 RebindLegacyArtworkTransfers();
         }
@@ -127,7 +127,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     /// <summary>Publishes rebound HUD characters at the active PPU character base on accepted NMI.</summary>
     internal void PublishReboundHudArtwork()
     {
-        if (!hudArtworkRefreshPending) return;
+        if (pendingHudTiles is not { } hudTiles) return;
         // Binding a restored session changes content ownership, not the already
         // published frame. Refresh at accepted NMI, before native queued writes.
         // The original upload's padding may now contain live BG2 tilemaps.
@@ -135,8 +135,8 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         // his private BG2 tilemap occupies the ordinary $4000 HUD character
         // address. A restored-state art rebind must honor the *current* PPU
         // character base, or the next NMI paints HUD pixels across Kraid.
-        MapPresentation!.HudTiles.LoadCharactersTo(_display.HudCharactersAtCurrentBase(_vram));
-        hudArtworkRefreshPending = false;
+        hudTiles.LoadCharactersTo(_display.HudCharactersAtCurrentBase(_vram));
+        pendingHudTiles = null;
     }
     /// <summary>Matches a native DMA source and exact length to the currently installed immutable visual data.</summary>
     internal bool TryResolveInstalledArtwork(int sourceAddress, int byteCount,
@@ -224,22 +224,22 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     }
 
     /// <summary>Whether accepted NMI must publish rebound projectile trail characters.</summary>
-    [NonSerialized] private bool trailArtworkRefreshPending;
+    [NonSerialized] private ProjectileTrailAtlas? pendingTrailTiles;
     /// <summary>Current projectile-trail tiles and visual compositions; rebinding refreshes installed tiles at the next display boundary.</summary>
     [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork
     {
         get;
-        set { field = value; trailArtworkRefreshPending = value?.Tiles is not null; }
+        set { field = value; pendingTrailTiles = value?.Tiles; }
     }
 
     /// <summary>Whether accepted NMI must publish the current beam tiles and normal palette.</summary>
-    [NonSerialized] private bool beamArtworkRefreshPending;
+    [NonSerialized] private BeamTileCatalog? pendingBeamArtwork;
 
     /// <summary>Current beam tiles. Rebinding changes the next accepted display, not the retained frame.</summary>
     [field: NonSerialized]     public BeamTileCatalog? BeamArtwork
     {
         get;
-        set { field = value; beamArtworkRefreshPending = value is not null; }
+        set { field = value; pendingBeamArtwork = value; }
     }
 
     /// <summary>Dispatches a typed VRAM asset to its bound gunship, Grapple, trail, HUD, or beam catalog.</summary>
@@ -267,29 +267,29 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     /// <summary>Publishes rebound projectile trails after any restored legacy queue drains.</summary>
     internal void PublishReboundTrailArtwork()
     {
-        if (!trailArtworkRefreshPending) return;
+        if (pendingTrailTiles is not { } trailTiles) return;
         // A restored legacy queue can still contain the standard OBJ upload. Publish
         // current host art only after that queue drains, and only on accepted NMIs.
-        TrailArtwork!.Tiles!.LoadTo(_vram);
-        trailArtworkRefreshPending = false;
+        trailTiles.LoadTo(_vram);
+        pendingTrailTiles = null;
     }
 
     /// <summary>Publishes the retail-selected beam art while preserving active special palette effects.</summary>
     internal void PublishReboundBeamArtwork()
     {
-        if (!beamArtworkRefreshPending || _player.Samus is null) return;
+        if (pendingBeamArtwork is not { } beamArtwork || _player.Samus is not { } samus) return;
         // Do not reinterpret invalid combination overreads as a legal replacement.
-        if (new Game.SamusBeamLoadoutWord(_player.Samus.EquippedBeams).Combination is Game.SamusBeamCombination selection &&
+        if (new Game.SamusBeamLoadoutWord(samus.EquippedBeams).Combination is Game.SamusBeamCombination selection &&
             selection.IsRetail)
         {
-            new Game.SamusVram(_vram).BeamTiles.Load(BeamArtwork!.Resolve(BeamTileCatalog.AssetFor(selection)).Span);
+            new Game.SamusVram(_vram).BeamTiles.Load(beamArtwork.Resolve(BeamTileCatalog.AssetFor(selection)).Span);
             // An in-flight effect owns these colors across frames. Its own completion
             // restores the selected normal palette; host rebind must not erase its phase.
-            if (_player.Samus.CrystalFlash.SpecialPaletteKind != Game.SamusSpecialPaletteType.CrystalFlash &&
-                !_player.Samus.Drained.HyperBeamPaletteFx.IsActive)
-                BeamArtwork.Palettes?.LoadTo(_cgram, selection);
+            if (samus.CrystalFlash.SpecialPaletteKind != Game.SamusSpecialPaletteType.CrystalFlash &&
+                !samus.Drained.HyperBeamPaletteFx.IsActive)
+                beamArtwork.Palettes?.LoadTo(_cgram, selection);
         }
-        beamArtworkRefreshPending = false;
+        pendingBeamArtwork = null;
     }
 
     /// <summary>Current external timed-projectile composition catalog, independent of mechanics.</summary>

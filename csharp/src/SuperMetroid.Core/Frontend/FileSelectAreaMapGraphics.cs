@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
@@ -16,8 +17,10 @@ public sealed class FileSelectAreaMapGraphics
     private readonly ISnesAddressSpace bus;
     /// <summary>Owns the map's VRAM, CGRAM, and installed tile and sprite resources.</summary>
     private readonly MenuPpuState ppu;
-    /// <summary>Installed area palette set, rebound when presentation content changes.</summary>
-    [NonSerialized] private MapStaticPalettes? palettes;
+    /// <summary>The installed area-map world colors, rebound when presentation content changes.</summary>
+    [field: NonSerialized]
+    [AllowNull]
+    private MapStaticPalettes Palettes { get => field ?? throw new InvalidOperationException("No area-map world colors are installed."); set; }
     /// <summary>Installed world-label positions used when building OAM.</summary>
     [NonSerialized] private WorldMapLabelLayout? labels;
     /// <summary>Installed foreground and per-area background tilemaps.</summary>
@@ -55,7 +58,7 @@ public sealed class FileSelectAreaMapGraphics
         if (mapTiles is null || mapPalettes is null || mapScreens is null ||
             worldArtwork is null || mapSprites is null)
             throw new InvalidOperationException("Area-map graphics require installed presentation assets.");
-        palettes = mapPalettes;
+        Palettes = mapPalettes;
         screens = mapScreens;
         sprites = mapSprites;
         ppu = new MenuPpuState(bus, mapTiles, mapPalettes, worldArtwork, mapSprites,
@@ -113,7 +116,7 @@ public sealed class FileSelectAreaMapGraphics
     /// <summary>Replaces installed area palettes and refreshes CGRAM for the current selection.</summary>
     internal void BindPalettes(MapStaticPalettes? content)
     {
-        palettes = content;
+        Palettes = content;
         if (content is not null) LoadInstalledPalette((AreaId)SelectedArea);
     }
     /// <summary>Rebinds label OBJ art in both this owner and its menu PPU state.</summary>
@@ -122,7 +125,7 @@ public sealed class FileSelectAreaMapGraphics
     /// <summary>Loads the selected area's installed world colors into menu CGRAM.</summary>
     private void LoadInstalledPalette(AreaId selectedArea)
     {
-        var colors = palettes!.World(selectedArea);
+        var colors = Palettes.World(selectedArea);
         new CgramPalettes(Cgram).LoadImage(colors);
     }
 

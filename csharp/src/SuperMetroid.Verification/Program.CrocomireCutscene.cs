@@ -64,7 +64,7 @@ internal static class CrocomireCutsceneVerification
                     {
                         object?[] hit = [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot, (ushort)0];
                         AssertTrue(ExtendedHitboxWalker.Find(enemies, hit), "corpse physical component is visited");
-                        AssertEqual(shot ? box.ShotAi : box.TouchAi, (ushort)hit[^1]!, "corpse selects native callback");
+                        AssertEqual(shot ? box.ShotAi : box.TouchAi, (ushort)(hit[^1] ?? throw new InvalidOperationException("Verification requires hit[^1].")), "corpse selects native callback");
                     }
                 }
                 anyHitbox |= boxes.Length != 0;

@@ -119,7 +119,7 @@ internal static class AudioMusicProgramsVerification
             AudioAssetManifest editedManifest = manifest with
             {
                 Banks = manifest.Banks.Select(bank => bank.SnesAddress == title.SnesAddress
-                    ? editedTitle!
+                    ? editedTitle ?? throw new InvalidOperationException("Verification requires an editable title bank.")
                     : bank).ToArray(),
             };
             WriteAudioManifest(manifestPath, editedManifest);
@@ -139,7 +139,7 @@ internal static class AudioMusicProgramsVerification
             stockRenderer.RenderFrame([titleCommand]);
             editedRenderer.RenderFrame([titleCommand]);
 
-            foreach ((int address, byte value) in SpcMusicDefinitionCodec.CompileBank(editedTitle!))
+            foreach ((int address, byte value) in SpcMusicDefinitionCodec.CompileBank((editedTitle ?? throw new InvalidOperationException("Verification requires editedTitle."))))
             {
                 AssertEqual(
                     value,
@@ -161,9 +161,9 @@ internal static class AudioMusicProgramsVerification
             AssertTrue(editedAudible, "edited decoded title music is audible");
             AssertTrue(pcmDiffers, "decoded title note edit changes rendered PCM");
 
-            AudioMusicProgramMetadata invalidProgram = editedProgram! with
+            AudioMusicProgramMetadata invalidProgram = (editedProgram ?? throw new InvalidOperationException("Verification requires editedProgram.")) with
             {
-                ByteCapacity = editedProgram!.ByteCapacity + 1,
+                ByteCapacity = editedProgram.ByteCapacity + 1,
             };
             WriteAudioManifest(manifestPath, manifest with
             {

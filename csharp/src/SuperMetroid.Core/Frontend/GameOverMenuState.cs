@@ -40,6 +40,9 @@ public sealed class GameOverMenuState
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound after debugger restoration without changing menu timing.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    /// <summary>The installed map presentation the game-over screen draws from.</summary>
+    private AreaMapPresentationCatalog MapPresentation => mapPresentation ??
+        throw new InvalidOperationException("No map presentation is installed for the game-over screen.");
 
     /// <summary>Creates the game-over scene with installed artwork and its BG1 tilemap, leaving music, animation, and fade initialization for the first update.</summary>
     /// <param name="bus">Address-space context passed to the menu PPU and later presentation rebinding.</param>
@@ -305,7 +308,7 @@ public sealed class GameOverMenuState
         GameOverBabyInstruction current =
             GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
         babySpritemap = GameOverBabyAnimationDefinitions.NativeSpritemap(current.Frame);
-        mapPresentation!.GameOver.ApplyBabyPalette(ppu.Cgram, current.Palette);
+        MapPresentation.GameOver.ApplyBabyPalette(ppu.Cgram, current.Palette);
     }
 
     /// <summary>Maps a Baby animation sound marker onto the retail sound queue.</summary>

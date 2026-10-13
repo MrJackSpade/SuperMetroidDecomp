@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using SuperMetroid.Core.Hardware;
@@ -27,7 +28,7 @@ internal static class VramDmaContractChecks
                 }
             }
             """, path: "dma-contract-fixture.cs");
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("DmaContractFixture", [tree],
             platforms.Append(typeof(VramWriteQueue).Assembly.Location).Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));

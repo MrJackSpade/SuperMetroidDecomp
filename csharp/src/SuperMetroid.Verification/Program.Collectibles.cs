@@ -719,7 +719,7 @@ internal static class CollectiblesVerification
         int transformationFrames = 1;
         bool observedReveal = false;
         var beams = new List<SamusSuitPickupBeam> { pickup.Beam };
-        var flashes = new List<SamusSuitPickupFlash> { pickup.Flash!.Value };
+        var flashes = new List<SamusSuitPickupFlash> { (pickup.Flash ?? throw new InvalidOperationException("Verification requires pickup.Flash.")) };
         while (pickup.IsActive && transformationFrames < 2000)
         {
             pickup.Step(curveGuard, samus, cgram);

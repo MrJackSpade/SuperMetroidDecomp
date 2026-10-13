@@ -44,7 +44,7 @@ internal static class VramDmaAudit
         if (jsonPath is not null)
         {
             string absolute = Path.GetFullPath(jsonPath);
-            Directory.CreateDirectory(Path.GetDirectoryName(absolute)!);
+            Directory.CreateDirectory((Path.GetDirectoryName(absolute) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(absolute).")));
             File.WriteAllText(absolute, JsonSerializer.Serialize(report, AuditReport.JsonOptions) + Environment.NewLine);
             Console.WriteLine("Report: " + absolute);
         }
@@ -120,7 +120,7 @@ internal static class VramDmaAudit
                     continue;
                 }
                 if (!adapted.Add(owner)) continue;
-                foreach (VramDmaTransfer transfer in VramDmaDomains.ForFamily(family!, owner).Distinct())
+                foreach (VramDmaTransfer transfer in VramDmaDomains.ForFamily((family ?? throw new InvalidOperationException("Verification requires family.")), owner).Distinct())
                     Check(transfer, Location(syntax));
                 if (family == "plm" && root is not null && PlmProgramAudit.Run(root, null) != 0)
                     report.Findings.Add(new("unresolved-plm-program", owner, Location(syntax), "The PLM descriptor/ownership audit failed."));

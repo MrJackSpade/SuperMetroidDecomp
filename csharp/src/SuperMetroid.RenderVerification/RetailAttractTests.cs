@@ -35,7 +35,7 @@ internal static class RetailAttractTests
                     or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB;
                 if (demo || tick % 31 == 0)
                 {
-                    var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(actual.Snapshot!));
+                    var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))));
                     PixelComparison.Verify(packet, expected.Pixels, renderer.RenderForReadback(packet), $"{device.Kind}: attract tick={tick}, cancel={cancel}");
                     samples++;
                 }
@@ -50,7 +50,7 @@ internal static class RetailAttractTests
                 }
                 if (states.Contains(SuperMetroidGameState.TransitionFromDemoB) && expected.GameState == SuperMetroidGameState.OpeningCinematic)
                 {
-                    PixelComparison.Verify(actual.Snapshot!, expected.Pixels, renderer.RenderForReadback(actual.Snapshot!), "attract return to title");
+                    PixelComparison.Verify((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")), expected.Pixels, renderer.RenderForReadback((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))), "attract return to title");
                     returned = true; break;
                 }
             }

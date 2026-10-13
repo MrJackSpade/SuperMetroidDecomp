@@ -160,7 +160,7 @@ internal static class BeamTileArtworkVerification
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
         AssertTrue(restored.Artwork.BeamArtwork is null, "Beam artwork is not embedded in runtime state");
         BindRetailRuntimeFixture(restored);
-        restored.Player.Samus!.EquippedBeams = 1;
+        restored.Player.IntroducedSamus.EquippedBeams = 1;
         restored.Artwork.BeamArtwork = stock;
         restored.NmiHandler.RunNmi(0, true);
         AssertTrue(restored.Vram.Bytes.Slice(start, 256).SequenceEqual(stock.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombination.Wave)).Span),

@@ -59,9 +59,9 @@ internal sealed class AttractDemoDriver
     internal void BeginAttractSamusInput()
     {
         if (_attractSession.Input is null) return;
-        _player.Samus!.InputSnapshot.PreviousDrawNewInput = _attractSession.Input.Script.NewlyPressed;
+        _player.IntroducedSamus.InputSnapshot.PreviousDrawNewInput = _attractSession.Input.Script.NewlyPressed;
         _attractSession.Input.StepStock(SuperMetroidGameState.PlayingDemo,
-            _player.Samus!.PoseMetadata.ReadMovementType(_addressSpace));
+            _player.IntroducedSamus.PoseMetadata.ReadMovementType(_addressSpace));
         _attractSession.InputRestore = _controller1.UseDemoInput(
             _attractSession.Input.Script.Held, _attractSession.Input.Script.NewlyPressed);
     }
@@ -173,7 +173,7 @@ internal sealed class AttractDemoDriver
             case AttractDemoRoomSetup.NoOp:
                 break;
             case AttractDemoRoomSetup.ChargeBeamScroll:
-                _room.Camera!.Scrolls.SetStorage(AttractDemoRomData.SetupValues.ChargeBeamScrollIndex, RoomScrollState.RedBoundary);
+                _room.LoadedCamera.Scrolls.SetStorage(AttractDemoRomData.SetupValues.ChargeBeamScrollIndex, RoomScrollState.RedBoundary);
                 break;
             case AttractDemoRoomSetup.LandingSiteSky:
                 // The shared land-sky loader has already selected the same vertical

@@ -74,9 +74,9 @@ internal static class ChargeFlareProductionVerification
         runtime.Artwork.ChargeFlareCompositions = stock;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.Player.Samus!.Pose = SamusPoseId.FacingRightNormalPose;
-        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
-        runtime.Player.Samus.Presentation.InitializeAnimation(bus); runtime.Player.Samus.Presentation.PrimeGraphics(bus);
+        runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
+        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
+        runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(bus); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics(bus);
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
         var game = new SuperMetroidGame(bus);
@@ -105,13 +105,13 @@ internal static class ChargeFlareProductionVerification
         AssertTrue(unbound.SequenceEqual(System.Security.Cryptography.SHA256.HashData(bound)), "Charge-flare compositions are excluded from saved frontend/runtime graphs");
         using var stream = new MemoryStream(bound);
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
-        var restoredRuntime = restored.runtime;
+        var restoredRuntime = restored.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.ChargeFlareCompositions is null, "Saved state does not retain old composition content");
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;
         restoredRuntime.Artwork.ChargeFlarePlacement = placement;
-        restoredRuntime.Player.Samus!.Presentation.TileTransfers.BindArtwork(body);
-        restoredRuntime.Player.Samus.ArmCannon.Artwork = body.ArmCannon;
+        restoredRuntime.Player.IntroducedSamus.Presentation.TileTransfers.BindArtwork(body);
+        restoredRuntime.Player.IntroducedSamus.ArmCannon.Artwork = body.ArmCannon;
         game.BindArtwork(game.Artwork with
         {
             ChargeFlareCompositions = edited,

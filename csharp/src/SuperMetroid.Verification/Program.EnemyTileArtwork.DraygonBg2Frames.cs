@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
@@ -26,7 +27,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         int writeCount = 0;
         foreach (EnemyBg2FrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
-            AssertTrue(stock.DraygonBg2Frames!.TryGet(frame.Pointer,
+            AssertTrue((stock.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.DraygonBg2Frames.")).TryGet(frame.Pointer,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"installed Draygon BG2 frame {frame.Name} exists");
             int root = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, frame.Pointer));
@@ -89,8 +90,8 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         File.WriteAllBytes(stockPath, original);
 
         EnemyBg2FrameDocument document =
-            JsonSerializer.Deserialize<EnemyBg2FrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyBg2FrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         EnemyBg2FrameDefinition editedIdentity = DraygonBg2FrameDefinitions.Frames[0];
         EnemyBg2WriteDocument first = document.Frames[editedIdentity.Name][0];
         int changedTile = first.Tiles[0] ^ 1;
@@ -105,7 +106,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue(edited.DraygonBg2Frames!.TryGet(editedIdentity.Pointer,
+        AssertTrue((edited.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.DraygonBg2Frames.")).TryGet(editedIdentity.Pointer,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
             "edited Draygon BG2 frame is installed");
         int vramByte = (EnemyBg2FrameLayout.VramBase +
@@ -119,7 +120,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             "Draygon override preserves the native new-frame producer gate");
         EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue(reloaded.DraygonBg2Frames!.TryGet(editedIdentity.Pointer,
+        AssertTrue((reloaded.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.DraygonBg2Frames.")).TryGet(editedIdentity.Pointer,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
             reloadedFrame.Span[0].Tiles.Span[0] == (ushort)changedTile,
             "Draygon BG2 override survives reload");
@@ -209,7 +210,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                 $"Draygon frame {pointer:X4} shot overlap without ROM reads");
             if (found)
                 AssertEqual(EnemyAiCodePointers.BankA5.DraygonShot,
-                    (ushort)arguments[^1]!,
+                    (ushort)(arguments[^1] ?? throw new InvalidOperationException("Verification requires arguments[^1].")),
                     $"Draygon frame {pointer:X4} selected shot callback");
         }
 

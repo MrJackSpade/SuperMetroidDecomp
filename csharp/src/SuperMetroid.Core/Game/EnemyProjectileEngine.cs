@@ -253,10 +253,8 @@ internal sealed class EnemyProjectileEngine
         // contact-damage state once at entry; damage from one overlapping projectile does
         // not abort the remaining descending-slot scan. This distinction is observable for
         // Puromi/Nuclear Waffle, whose four persistent body links begin co-located.
-        bool collisionPassEnabled = samus is not null &&
-            samus.InvincibilityTimer.IsZero &&
-            samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None;
-        if (!collisionPassEnabled)
+        if (samus is null || !samus.InvincibilityTimer.IsZero ||
+            samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
             return;
 
         ushort? finalKnockbackXDirection = null;
@@ -266,7 +264,7 @@ internal sealed class EnemyProjectileEngine
             if (projectile.IsActive)
             {
                 finalKnockbackXDirection =
-                    ResolveEnemyProjectileSamusCollision(projectile, samus!) ??
+                    ResolveEnemyProjectileSamusCollision(projectile, samus) ??
                     finalKnockbackXDirection;
             }
         }
@@ -276,7 +274,7 @@ internal sealed class EnemyProjectileEngine
         // a hurt pose or move Samus here. The next frame consumes the final request.
         if (finalKnockbackXDirection.HasValue)
         {
-            samus!.KnockbackXDirection = finalKnockbackXDirection.Value;
+            samus.KnockbackXDirection = finalKnockbackXDirection.Value;
             samus.KnockbackTimer = NativeCountdown.Start(5);
         }
     }

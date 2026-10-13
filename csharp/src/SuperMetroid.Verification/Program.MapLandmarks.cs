@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -39,7 +40,7 @@ internal static class MapLandmarksVerification
             cases++;
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = JsonSerializer.Deserialize<MapLandmarkDocument>(File.ReadAllBytes(Path.Combine(stock, MapLandmarkFormat.FileName)), options)!;
+        var document = RequiredJson.Deserialize<MapLandmarkDocument>(File.ReadAllBytes(Path.Combine(stock, MapLandmarkFormat.FileName)), options);
         var points = document.Markers.ToDictionary(pair => pair.Key, pair => pair.Value with { X = (ushort)(pair.Value.X + 8) });
         Directory.CreateDirectory(overrides);
         string path = Path.Combine(overrides, MapLandmarkFormat.FileName);

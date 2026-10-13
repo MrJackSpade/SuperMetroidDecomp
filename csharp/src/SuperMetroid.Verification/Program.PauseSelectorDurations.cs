@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -12,7 +13,7 @@ internal static class PauseSelectorDurationsVerification
     internal static void VerifyPauseSelectorDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions);
         var stock = PauseSelectorPresentation.Load(new MemoryStream(bytes));
         Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(rom, stock));
         AssertEqual(0, stock.StoredDurationCount, "selector stock timing stores no phase values");

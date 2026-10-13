@@ -31,7 +31,7 @@ public sealed class PhantoonBlendingState
         if (_setupCalls < PhantoonBlendingRomData.SetupCalls) { _setupCalls++; return; }
         if ((boss.SemiTransparencyLayerFlags & PhantoonBlendingRomData.SemiTransparentBit) != 0)
             Configuration = LayerBlendingConfiguration.PhantoonSemiTransparent;
-        else if ((byte)boss.Mouth!.Parameter1 is 0 or PhantoonBlendingRomData.DeleteControl)
+        else if ((byte)boss.Mouth.Parameter1 is 0 or PhantoonBlendingRomData.DeleteControl)
         {
             Configuration = LayerBlendingConfiguration.PhantoonHidden;
             // The pre-instruction advances sleep to delete with timer one, so the

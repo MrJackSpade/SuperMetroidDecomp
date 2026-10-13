@@ -37,7 +37,7 @@ internal static class LookupEyeDoorVisualIdsVerification
             }
         }
         foreach (string? bad in new string?[] {null,"","left-eye-frame-5","right-middle-frame-3","left-bottom-frame-01","right-eye-clear"})
-            AssertTrue(!EyeDoorPlmDrawDefinitions.TryGetByVisualId(bad!,out _),"Eye door unsupported identity");
+            AssertTrue(!EyeDoorPlmDrawDefinitions.TryGetByVisualId((bad ?? throw new InvalidOperationException("Verification requires bad.")),out _),"Eye door unsupported identity");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             if (!expected.Any(entry => entry.Pointer == raw))

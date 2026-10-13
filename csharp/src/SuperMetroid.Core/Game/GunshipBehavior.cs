@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -382,7 +382,7 @@ internal sealed class GunshipBehavior
             (short)unchecked((ushort)(top.Position.X.Whole + 8 - samus.Position.X.Whole)) >= 0 &&
             (short)unchecked((ushort)(top.Position.Y.Whole - 64 - samus.Position.Y.Whole)) < 0 &&
             (short)unchecked((ushort)(top.Position.Y.Whole - samus.Position.Y.Whole)) >= 0;
-        if (insideEntrance && samus.PoseMetadata.ReadMovementKind(_room.Bus!) == SamusMovementType.Standing)
+        if (insideEntrance && samus.PoseMetadata.ReadMovementKind(_room.LoadedBus) == SamusMovementType.Standing)
         {
             RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
             top.VariableF = (ushort)GunshipFunction.WaitForEntranceToOpen;
@@ -393,9 +393,9 @@ internal sealed class GunshipBehavior
                 samus.Position = samus.Position.WithWholeX(top.Position.X.Whole);
                 samus.WritePreviousXPosition(samus.Position.X.Whole);
             }
-            samus.PoseMetadata.ApplyForwardFacingPoseSetup(_room.Bus!);
+            samus.PoseMetadata.ApplyForwardFacingPoseSetup(_room.LoadedBus);
             samus.InputLocked = true;
-            samus.Presentation.PrimeGraphics(_room.Bus!);
+            samus.Presentation.PrimeGraphics(_room.LoadedBus);
             pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
             pad.InstructionTimer = NativeCountdown.Start(1);
             pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;

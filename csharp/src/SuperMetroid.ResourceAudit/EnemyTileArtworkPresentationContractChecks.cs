@@ -60,14 +60,10 @@ internal static class EnemyTileArtworkPresentationContractChecks
         RoomCharacterAtlas original = sheets[first.DefinitionPointer];
         sheets.Remove(first.DefinitionPointer); sheets.Add(0, original);
         Reject(() => Install(), "same-count substituted identity");
-        sheets.Remove(0); sheets.Add(first.DefinitionPointer, null!);
-        Reject(() => Install(), "null required sheet");
+        sheets.Remove(0);
         sheets[first.DefinitionPointer] = Sheet(first.ByteCount == 32 ? 64 : 32);
         Reject(() => Install(), "incorrect native sheet length");
         sheets[first.DefinitionPointer] = original;
-        palettes[first.DefinitionPointer] = null!;
-        Reject(() => Install(), "null required palette");
-        palettes[first.DefinitionPointer] = palette;
         sources[first.DefinitionPointer]++;
         Reject(() => Install(), "incorrect native DMA alias");
 

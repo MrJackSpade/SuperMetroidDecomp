@@ -60,7 +60,9 @@ internal sealed class EndingLogoPaletteFade
         int palette = index / 16 % 2;
         int color = index % 16;
         Bgr555 endpoint = palette == 1 ? spriteEndpoint[color] :
-            backgroundGradient is not null ? backgroundGradient.Color(color) : backgroundEndpoint![color];
+            backgroundGradient is not null ? backgroundGradient.Color(color)
+            : backgroundEndpoint is not null ? backgroundEndpoint[color]
+            : throw new InvalidOperationException("The ending logo fade has neither a background gradient nor endpoint colors.");
         int remaining = palette == 0 ? step : 15 - step;
         int red = ((endpoint.Red) * remaining + 1) / 15;
         int green = ((endpoint.Green) * remaining + 1) / 15;

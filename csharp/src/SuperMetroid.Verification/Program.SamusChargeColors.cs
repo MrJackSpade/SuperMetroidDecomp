@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -505,7 +506,7 @@ internal static class SamusChargeColorsVerification
         // Distinct edits, source-only edits and repeated-phase-only edits must remain independent.
         for (int editScope = 0; editScope < 5; editScope++)
         {
-            var document = JsonSerializer.Deserialize<SamusChargeColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<SamusChargeColorDocument>(extracted, MapPresentationFormat.JsonOptions);
             for (int family = 0; family < 2; family++)
             for (int suit = 0; suit < 3; suit++)
             for (int phase = 0; phase < 6; phase++)

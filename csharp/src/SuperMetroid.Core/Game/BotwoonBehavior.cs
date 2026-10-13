@@ -426,9 +426,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         for (int argument = 24; argument >= 0; argument -= 2)
         {
             int segmentIndex = argument >> 1;
-            RoomEnemyProjectileSlot segment = state.BodySegments[segmentIndex]
-                ?? throw new InvalidOperationException(
-                    $"Botwoon body argument {argument} lost its projectile slot.");
+            RoomEnemyProjectileSlot segment = state.Segment(segmentIndex);
 
             ToggleBotwoonSegmentAtHole(state, segmentIndex, historyOffset);
             int historyIndex = historyOffset >> 2;
@@ -447,7 +445,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
             state.SavedHoleRingByteOffset != historyOffset)
             return;
 
-        RoomEnemyProjectileSlot segment = state.BodySegments[segmentIndex]!;
+        RoomEnemyProjectileSlot segment = state.Segment(segmentIndex);
         bool wasInside = state.SegmentInsideHole[segmentIndex];
         state.SegmentInsideHole[segmentIndex] = !wasInside;
         segment.CanDamageSamus = wasInside;
@@ -466,7 +464,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         for (int argument = 24; argument >= 0; argument -= 2)
         {
             int segmentIndex = argument >> 1;
-            RoomEnemyProjectileSlot segment = state.BodySegments[segmentIndex]!;
+            RoomEnemyProjectileSlot segment = state.Segment(segmentIndex);
             ushort extraAngle = state.SegmentInsideHole[segmentIndex] ? (ushort)256 : (ushort)0;
             short dx;
             short dy;
@@ -477,7 +475,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
             }
             else
             {
-                RoomEnemyProjectileSlot previous = state.BodySegments[segmentIndex + 1]!;
+                RoomEnemyProjectileSlot previous = state.Segment(segmentIndex + 1);
                 dx = unchecked((short)(previous.Position.X.Whole - segment.Position.X.Whole));
                 dy = unchecked((short)(previous.Position.Y.Whole - segment.Position.Y.Whole));
                 if (argument == 0)

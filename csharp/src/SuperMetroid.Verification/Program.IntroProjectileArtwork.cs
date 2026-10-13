@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -51,9 +52,9 @@ internal static class IntroProjectileArtworkVerification
         byte[] json = ProjectileTrailExtractor.Extract(bus);
         Suite(nameof(VerifyIntroTrailPng), () => VerifyIntroTrailPng(bus, intro, game, json, Draw));
         var trails = ProjectileTrailCatalog.Load(new MemoryStream(json));
-        var document = JsonNode.Parse(json)!;
+        var document = RequiredJson.Parse(json);
         ushort frame = ProjectileTrailVisualDefinitions.Frames[0];
-        document["frames"]![ProjectileTrailVisualDefinitions.Name(frame)]!["flipX"] = true;
+        document.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(frame))["flipX"] = true;
         var editedTrails = ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
         var side = projectiles.TrailSlots[0].Left;
         side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = NativeCountdown.Start(100);
@@ -86,7 +87,7 @@ internal static class IntroProjectileArtworkVerification
         with.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(with);
         var restoredIntro = restored.intro;
-        AssertTrue(restoredIntro.TrailArtwork is null && restoredIntro.ProjectileCompositions is null, "Restored intro requires host content rebind");
+        AssertTrue((restoredIntro ?? throw new InvalidOperationException("Verification requires restoredIntro.")).TrailArtwork is null && restoredIntro.ProjectileCompositions is null, "Restored intro requires host content rebind");
         BindRestoredIntroDrawFixture(restoredIntro);
         restored.BindArtwork(restored.Artwork with
         {
@@ -139,7 +140,7 @@ internal static class IntroProjectileArtworkVerification
         saved.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(saved);
         var restoredIntro = restored.intro;
-        BindRestoredIntroDrawFixture(restoredIntro);
+        BindRestoredIntroDrawFixture((restoredIntro ?? throw new InvalidOperationException("Verification requires restoredIntro.")));
         foreach (var pair in new[] { (game, intro), (restored, restoredIntro) })
         {
             pair.Item1.BindArtwork(pair.Item1.Artwork with

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -128,14 +129,14 @@ internal static class RoomAssetJsonContractsVerification
                 yield return json.Replace('"' + field + "\":", '"' + field + "\":null,\"" + field + "\":", StringComparison.Ordinal);
                 yield return json.Replace('"' + field + "\":", '"' + field.ToUpperInvariant() + "\":null,\"" + field + "\":", StringComparison.Ordinal);
             }
-        JsonObject root = (JsonObject)JsonNode.Parse(json)!;
+        JsonObject root = (JsonObject)RequiredJson.Parse(json);
         if (root["entries"] is JsonObject entries)
         {
             string first = entries.First().Key;
-            yield return TilemapContractMutate(json, copy => copy["entries"]![first]!["damage"] = 7);
+            yield return TilemapContractMutate(json, copy => copy.Required("entries").Required(first)["damage"] = 7);
         }
         else if (root["entries"] is JsonArray)
-            yield return TilemapContractMutate(json, copy => copy["entries"]![0]!["damage"] = 7);
+            yield return TilemapContractMutate(json, copy => copy.Required("entries").Required(0)["damage"] = 7);
     }
 
     /// <summary>Removes or invalidates fields required by layout and X-ray visual override documents.</summary>
@@ -148,11 +149,11 @@ internal static class RoomAssetJsonContractsVerification
         }
         else
         {
-            yield return TilemapContractMutate(json, root => root["entries"]![0]!.AsObject().Remove("topLeft"));
-            yield return TilemapContractMutate(json, root => root["entries"]![0]!.AsObject().Remove("btsValues"));
-            yield return TilemapContractMutate(json, root => root["rooms"]![0]!["tiles"]![0]!.AsObject().Remove("x"));
-            yield return TilemapContractMutate(json, root => root["rooms"]![0]!["tiles"]![0]!.AsObject().Remove("y"));
-            yield return TilemapContractMutate(json, root => root["rooms"]![0]!["tiles"]![0]!["collision"] = 7);
+            yield return TilemapContractMutate(json, root => root.Required("entries").Required(0).AsObject().Remove("topLeft"));
+            yield return TilemapContractMutate(json, root => root.Required("entries").Required(0).AsObject().Remove("btsValues"));
+            yield return TilemapContractMutate(json, root => root.Required("rooms").Required(0).Required("tiles").Required(0).AsObject().Remove("x"));
+            yield return TilemapContractMutate(json, root => root.Required("rooms").Required(0).Required("tiles").Required(0).AsObject().Remove("y"));
+            yield return TilemapContractMutate(json, root => root.Required("rooms").Required(0).Required("tiles").Required(0)["collision"] = 7);
         }
     }
 

@@ -65,11 +65,11 @@ internal static class ReplayTraceCompactor
         // Opening the full capture checks its stream against the converted manifest's checkpoint hash.
         using (ReplayTrace source = ReplayTrace.OpenFullCapture(sourceDirectory))
         {
-            movieSha256 = source.Updates.GetProperty("movieSha256").GetString()!;
+            movieSha256 = (source.Updates.GetProperty("movieSha256").GetString() ?? throw new InvalidOperationException("Verification requires source.Updates.GetProperty(\"movieSha256\").GetString()."));
             initialRecord = source.Updates.GetProperty("initialRecord").GetInt32();
             sourceCheckpointsSha256 = source.SourceCheckpointsSha256;
         }
-        ReplayTraceLayout layout = layoutForMovie(movieSha256);
+        ReplayTraceLayout layout = layoutForMovie((movieSha256 ?? throw new InvalidOperationException("Verification requires movieSha256.")));
         Directory.CreateDirectory(destinationDirectory);
 
         using (FileStream input = File.OpenRead(Path.Combine(sourceDirectory, ReplayTrace.UpdatesJsonFile)))

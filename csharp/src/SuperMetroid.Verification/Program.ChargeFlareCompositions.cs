@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -32,10 +33,10 @@ internal static class ChargeFlareCompositionsVerification
     {
         byte[] json = ChargeFlareSpriteExtractor.Extract(bus);
         var stock = ChargeFlareSpriteCatalog.Load(new MemoryStream(json));
-        var allEdited = JsonNode.Parse(json)!;
-        foreach (var frame in allEdited["frames"]!.AsObject())
-        foreach (var part in frame.Value!.AsArray())
-            part!["offsetX"] = part["offsetX"]!.GetValue<int>() + 7;
+        var allEdited = RequiredJson.Parse(json);
+        foreach (var frame in allEdited.Required("frames").AsObject())
+        foreach (var part in (frame.Value ?? throw new InvalidOperationException("Verification requires frame.Value.")).AsArray().RequiredElements())
+            part["offsetX"] = part.Required("offsetX").GetValue<int>() + 7;
         // The retail ROM's installation is shared and only read here; another ROM installs its own.
         using var temporaryDirectory = new TestScratchDirectory("map-catalog");
         GameInstallation installation = Path.GetFullPath(sourceRom) == Path.GetFullPath("Super Metroid.smc")
@@ -76,20 +77,20 @@ internal static class ChargeFlareCompositionsVerification
                 cases++;
             }
         }
-        var document = JsonNode.Parse(json)!;
+        var document = RequiredJson.Parse(json);
         string first = ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0]);
-        int oldX = document["frames"]![first]![0]!["offsetX"]!.GetValue<int>();
-        document["frames"]![first]![0]!["offsetX"] = oldX + 7;
+        int oldX = document.Required("frames").Required(first).Required(0).Required("offsetX").GetValue<int>();
+        document.Required("frames").Required(first).Required(0)["offsetX"] = oldX + 7;
         var edited = Load(document);
         var before = new OamBuffer(); var after = new OamBuffer();
         stock.Draw(0, before, new(100, 100)); edited.Draw(0, after, new(100, 100));
         AssertEqual((before.GetEntry(0).X + 7) & 511, after.GetEntry(0).X, "Composition edit changes emitted flare position");
         AssertEqual(before.GetEntry(0).Y, after.GetEntry(0).Y, "X-only composition edit preserves Y");
-        document["frames"]!.AsObject().Remove(first);
+        document.Required("frames").AsObject().Remove(first);
         AssertThrows<InvalidDataException>(() => Load(document), "Missing charge-flare composition rejected");
-        document = JsonNode.Parse(json)!; document["damage"] = 1;
+        document = JsonNode.Parse(json); (document ?? throw new InvalidOperationException("Verification requires document."))["damage"] = 1;
         AssertThrows<InvalidDataException>(() => Load(document), "Charge-flare composition rejects mechanics fields");
-        document = JsonNode.Parse(json)!; document["frames"]![first]![0]!["palette"] = 8;
+        document = JsonNode.Parse(json); (document ?? throw new InvalidOperationException("Verification requires document.")).Required("frames").Required(first).Required(0)["palette"] = 8;
         AssertThrows<InvalidDataException>(() => Load(document), "Invalid flare palette rejected");
         AssertThrows<InvalidDataException>(() => ChargeFlareSpriteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))), "Duplicate flare JSON rejected");
         AssertThrows<InvalidDataException>(() => stock.Draw(54, new OamBuffer(), new(0, 0)), "Non-charge selector is not silently substituted");

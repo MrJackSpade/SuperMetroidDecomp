@@ -56,7 +56,7 @@ internal static class RoomSpriteObjectDefinitionsVerification
                 0x0600);
             AssertTrue(slot is not null,
                 $"production room sprite object ${objectNumber:X2} allocated");
-            AssertEqual(expected, slot!.InstructionPointer,
+            AssertEqual(expected, (slot ?? throw new InvalidOperationException("Verification requires slot.")).InstructionPointer,
                 $"production room sprite object ${objectNumber:X2} instruction");
             AssertTrue(slot.InstructionTimer != 0,
                 $"production room sprite object ${objectNumber:X2} loaded first frame");

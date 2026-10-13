@@ -70,7 +70,7 @@ internal static class MessageSnapshotTestsVerification
             AssertTrue(!state.IsActive, $"message {id} completes reveal/close fixture");
             // Reuse the same live owner after closing, replacing its tilemap and radius.
             state.Begin(bus, GameplayMessageIds.SaveCompleted, 0);
-            AssertTrue(held is not null && heldPixels!.AsSpan().SequenceEqual(RenderForComparison(held)),
+            AssertTrue(held is not null && heldPixels.AsSpan().SequenceEqual(RenderForComparison(held)),
                 "retained message survives closing and reuse of the source owner");
         }
 

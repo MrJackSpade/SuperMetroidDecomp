@@ -48,10 +48,16 @@ internal sealed class EndingCreditsState
 
     /// <summary>Scrolling staff-list owner active during the credits phase.</summary>
     internal CreditsObjectState? credits;
+    /// <summary>The state of the credits scroll, which exists while that phase runs.</summary>
+    internal CreditsObjectState Credits => credits ??
+        throw new InvalidOperationException("The credits scroll is not running.");
     /// <summary>Background star animation retained into the post-credits scene.</summary>
     internal EndingShootingStars? shootingStars;
     /// <summary>Current result-panel text writer over the staging tilemap.</summary>
     private EndingBackgroundTextState? postCreditsText;
+    /// <summary>The state of the post-credits text, which exists while that phase runs.</summary>
+    private EndingBackgroundTextState PostCreditsText => postCreditsText ??
+        throw new InvalidOperationException("The post-credits text is not running.");
     /// <summary>Wrapping frame counter used by alternating atmospheric rotation.</summary>
     internal ushort cinematicFrame;
     /// <summary>NMI waits <c>CinematicFunction_Ending_Setup</c> has made so far.</summary>
@@ -82,12 +88,21 @@ internal sealed class EndingCreditsState
     private bool rewardCopyrightShown;
     /// <summary>Post-credits suitless or helmet-removal gesture actor.</summary>
     internal EndingRewardGesture? rewardGesture;
+    /// <summary>The state of the reward gesture, which exists while that phase runs.</summary>
+    internal EndingRewardGesture RewardGesture => rewardGesture ??
+        throw new InvalidOperationException("The reward gesture is not running.");
     /// <summary>Post-credits reward jump and landing actor.</summary>
     internal EndingRewardJump? rewardJump;
+    /// <summary>The state of the reward jump, which exists while that phase runs.</summary>
+    internal EndingRewardJump RewardJump => rewardJump ??
+        throw new InvalidOperationException("The reward jump is not running.");
     /// <summary>Uploads reward graphics on the actor's native instruction boundary.</summary>
     private EndingRewardGraphicsUpload? rewardGraphics;
     /// <summary>Final shot-into-camera actor and its drawing state.</summary>
     internal EndingPostShot? postShot;
+    /// <summary>The state of the reward shot, which exists while that phase runs.</summary>
+    internal EndingPostShot PostShot => postShot ??
+        throw new InvalidOperationException("The reward shot is not running.");
     /// <summary>Palette-object interpreter used by clouds and planet afterglow.</summary>
     private RoomPaletteFxSystem paletteFx = new();
     /// <summary>Reloadable localized ending text presentation.</summary>
@@ -281,9 +296,9 @@ internal sealed class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.Credits:
-                CreditsObjectStepResult creditsStep = credits!.Step();
+                CreditsObjectStepResult creditsStep = Credits.Step();
                 if (creditsStep.CopiedRow)
-                    credits.UploadTilemap(vram);
+                    Credits.UploadTilemap(vram);
                 if (creditsStep.Finished)
                     SetupPostCreditsBlank();
                 break;
@@ -366,9 +381,9 @@ internal sealed class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.PostCreditsGesture:
-                rewardGesture!.Step(objectArtwork is null
+                RewardGesture.Step(objectArtwork is null
                     ? null : EndingRewardInstructionDefinitions.ReadWord);
-                if (rewardGesture.JumpRequested)
+                if (RewardGesture.JumpRequested)
                 {
                     rewardGesture = null;
                     rewardGraphics = new EndingRewardGraphicsUpload(bus, mode7Artwork?.RewardIcon);
@@ -378,9 +393,9 @@ internal sealed class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.PostCreditsJump:
-                rewardJump!.Step(objectArtwork is null
+                RewardJump.Step(objectArtwork is null
                     ? null : EndingRewardInstructionDefinitions.ReadWord);
-                if (rewardJump.ShotRequested)
+                if (RewardJump.ShotRequested)
                 {
                     postShot = new EndingPostShot(bus, cgram, ResolveEndingFont(), objectArtwork);
                     audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.SoundQueueLimit);
@@ -391,16 +406,16 @@ internal sealed class EndingCreditsState
             case EndingCreditsPhase.PostCreditsShot:
                 // Cinematic function runs before actors; palette fades and queued
                 // tile replacements therefore precede the next sprite instruction.
-                postShot!.Step(vram, cgram);
-                rewardJump!.Step(objectArtwork is null
+                PostShot.Step(vram, cgram);
+                RewardJump.Step(objectArtwork is null
                     ? null : EndingRewardInstructionDefinitions.ReadWord);
-                if (postShot.ReadyForWhiteFlash)
+                if (PostShot.ReadyForWhiteFlash)
                     BeginPostCreditsWhiteFlash();
                 break;
 
             case EndingCreditsPhase.PostCreditsWhiteFlash:
                 if (whiteFlashColor > 0) whiteFlashColor = NativeWordCounter.DecrementByte(whiteFlashColor);
-                rewardJump!.Step(objectArtwork is null
+                RewardJump.Step(objectArtwork is null
                     ? null : EndingRewardInstructionDefinitions.ReadWord);
                 if (--phaseTimer <= 0) FinishPostCreditsWhiteFlash();
                 break;
@@ -421,8 +436,8 @@ internal sealed class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.ItemPercentage:
-                postCreditsText!.Step(vram);
-                if (postCreditsText.RequestedItemPercentageScroll && postCreditsText.Completed)
+                PostCreditsText.Step(vram);
+                if (PostCreditsText.RequestedItemPercentageScroll && PostCreditsText.Completed)
                 {
                     phaseTimer = 40;
                     Phase = EndingCreditsPhase.ItemPercentageScrollDown;
@@ -1488,6 +1503,9 @@ internal sealed class EndingCreditsState
     internal byte whiteFlashColor;
     /// <summary>Final logo actor created after the white flash.</summary>
     internal EndingLogo? endingLogo;
+    /// <summary>The state of the ending logo, which exists while that phase runs.</summary>
+    internal EndingLogo EndingLogo => endingLogo ??
+        throw new InvalidOperationException("The ending logo is not running.");
 
     /// <summary>Restores the shooting palette, switches to the tall text map and begins the white transition.</summary>
     private void BeginPostCreditsWhiteFlash()
@@ -1527,9 +1545,9 @@ internal sealed class EndingCreditsState
     /// <summary>Advances logo instructions and starts the item-percentage text once the logo completes.</summary>
     private void StepPostCreditsLogo()
     {
-        endingLogo!.Step(cgram, objectArtwork is null
+        EndingLogo.Step(cgram, objectArtwork is null
             ? null : EndingLogoInstructionDefinitions.ReadWord);
-        if (!endingLogo.Completed) return;
+        if (!EndingLogo.Completed) return;
         postCreditsText = new EndingBackgroundTextState(bus, new EndingBackgroundTextSetup { Tilemap = postCreditsTilemap, InstructionPointer = EndingCreditsRomData.Instructions.ItemPercentageText, Inventory = inventory, JapaneseText = japaneseText, TilemapDestination = EndingPostShotDefinitions.FinalTextTilemapWord, Presentation = endingText, InstalledSequence = endingText is null ? null : SuperMetroid.Core.Assets.EndingTextSequence.ItemPercentage });
         Phase = EndingCreditsPhase.ItemPercentage;
     }

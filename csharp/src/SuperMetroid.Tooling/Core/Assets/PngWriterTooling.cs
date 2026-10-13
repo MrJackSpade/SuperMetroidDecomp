@@ -1,4 +1,4 @@
-﻿using System.Buffers.Binary;
+using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Text;
 using SuperMetroid.Core.Spatial;
@@ -67,7 +67,8 @@ internal static class PngWriterTooling
                 }
             }
 
-            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path)) ??
+                throw new ArgumentException($"{path} has no containing directory.", nameof(path)));
             using var file = File.Create(path);
             file.Write(Signature);
             Span<byte> header = stackalloc byte[13];

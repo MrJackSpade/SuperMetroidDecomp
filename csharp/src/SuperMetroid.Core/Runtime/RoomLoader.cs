@@ -216,8 +216,8 @@ internal sealed class RoomLoader
         // depend on those same words. In particular, loading a post-Morph-Ball save must not
         // accidentally construct the untouched new-game version of Blue Brinstar.
         RestoreSavedPlayerState(slot, resetBossesOnLoad);
-        _player.Samus!.Position = _player.Samus!.Position.WithWholeX(station.SamusPosition.X);
-        _player.Samus.Position = _player.Samus.Position.WithWholeY(station.SamusPosition.Y);
+        _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeX(station.SamusPosition.X);
+        _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeY(station.SamusPosition.Y);
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
         if (room.AreaIndex != requestedArea)
         {
@@ -240,25 +240,25 @@ internal sealed class RoomLoader
         // Command nine does not begin at its endpoint. It selects a front-facing pose,
         // frame two/timer three, a suit-specific bank-$8D palette object, and the 360-call
         // appearance handler before restoring ordinary input.
-        _player.Samus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
-        _player.Samus.PoseMetadata.ApplyZebesStartPoseSetup(_addressSpace);
-        _player.Samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 3);
-        _player.Samus.LiquidPhysics.RoomIdentity = room.Identity;
-        _player.Samus.Presentation.PrimeGraphics(_addressSpace);
+        _player.IntroducedSamus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
+        _player.IntroducedSamus.PoseMetadata.ApplyZebesStartPoseSetup(_addressSpace);
+        _player.IntroducedSamus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 3);
+        _player.IntroducedSamus.LiquidPhysics.RoomIdentity = room.Identity;
+        _player.IntroducedSamus.Presentation.PrimeGraphics(_addressSpace);
         _player._samusLoadAppearancePaletteFxDefinition =
-            _player.Samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+            _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? RoomLoadingRomData.GravitySuitLoadPaletteFx
-                : _player.Samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
+                : _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                     ? RoomLoadingRomData.VariaSuitLoadPaletteFx
                     : RoomLoadingRomData.PowerSuitLoadPaletteFx;
         _roomPaletteFx.SpawnDefinition(
             _addressSpace,
             _player._samusLoadAppearancePaletteFxDefinition,
-            _player.Samus.EquippedItems,
+            _player.IntroducedSamus.EquippedItems,
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
         _player._samusLoadAppearanceFramesRemaining = NativeCountdown.Start(RoomLoadingRomData.SavedGameAppearanceFrameCount);
-        _player.Samus.InputLocked = true;
-        _player.PreviousMovementTypeForXray = _player.Samus.PoseMetadata.ReadMovementType(_addressSpace);
+        _player.IntroducedSamus.InputLocked = true;
+        _player.PreviousMovementTypeForXray = _player.IntroducedSamus.PoseMetadata.ReadMovementType(_addressSpace);
         _player.GroundedSamusMovementEnabled = false;
         return viewport;
     }
@@ -480,7 +480,7 @@ internal sealed class RoomLoader
             ?? throw new InvalidOperationException("No pending door destination exists.");
         if (_player.Samus is null)
             throw new InvalidOperationException("Door scrolling requires Samus.");
-        _player.Samus!.Position = DoorOpeningScrollState.ApplySetupMovement(door, _player.Samus.Position);
+        _player.Samus.Position = DoorOpeningScrollState.ApplySetupMovement(door, _player.Samus.Position);
         PublishDoorCameraPosition(DoorOpeningScrollState.GetSetupCamera(door));
     }
 
@@ -493,7 +493,7 @@ internal sealed class RoomLoader
             throw new InvalidOperationException("Door tile loading requires Samus and camera.");
         FixedPosition<RoomPixels> position = DoorOpeningScrollState.RebaseSamus(door, _player.Samus.Position);
         _room.Camera.PublishDoorSamusPosition(position.Whole);
-        _player.Samus!.Position = DoorOpeningScrollState.AdvanceSamus(door, position);
+        _player.Samus.Position = DoorOpeningScrollState.AdvanceSamus(door, position);
         DoorDirection direction = door.Orientation.Direction;
         short delta = direction is DoorDirection.Right or DoorDirection.Down ? (short)4 : (short)-4;
         bool vertical = direction.IsVertical();
@@ -583,7 +583,7 @@ internal sealed class RoomLoader
                     stagedLayer2Y);
             _backgroundPhase.ExecuteBackgroundStreamRequests(initialRequests, "vertical door-opening setup");
         }
-        _player.Samus!.Position = _doorOpeningScroll.SamusPosition;
+        _player.Samus.Position = _doorOpeningScroll.SamusPosition;
         _room.Camera.PublishDoorSamusPosition(_player.Samus.Position.Whole);
         // Recreate the VRAM producer requests for IRQ progress already published
         // before the atomic destination load. Those steps do not consume more input.
@@ -641,7 +641,7 @@ internal sealed class RoomLoader
         _enemies.RinkaBehavior.CompleteLoaderTimeCameraReads(loaderProgress.HasInitializedEnemySlot, _room.Camera.PixelPosition);
         if (completed && _enemies.RinkaBehavior.HasDeferredLoaderTimeCameraReads)
             throw new InvalidDataException("The door scroll finished before the loader initialized every special Rinka.");
-        _player.Samus!.Position = state.SamusPosition;
+        _player.Samus.Position = state.SamusPosition;
         _room.Camera.PublishDoorSamusTravelAxis(state.Direction.IsVertical(), _player.Samus.Position.Whole);
         return completed;
     }
@@ -659,7 +659,7 @@ internal sealed class RoomLoader
     /// <summary>Publishes a door-owned layer-one position to both the camera and the scroll owner.</summary>
     private void PublishDoorCameraPosition(Position16<RoomPixels> camera)
     {
-        _room.Camera!.SetDoorTransitionPosition(camera);
+        _room.LoadedCamera.SetDoorTransitionPosition(camera);
         _backgroundScroll.Layer1Position = camera;
     }
 
@@ -796,7 +796,7 @@ internal sealed class RoomLoader
         // Elevator_Init sees status two, moves the platform to parameter 2, and then pins
         // Samus to it. Applying the generic placement after Enemies.Load used to overwrite
         // that native attachment and exposed the upward arrival one row too low.
-        _player.Samus!.Position = placement.SamusPosition;
+        _player.Samus.Position = placement.SamusPosition;
         // Door IRQ travel has its own speed words. Ordinary jump velocity survives
         // native room loading and the final nudge; clearing it here restarts a fall
         // at its apex and lets horizontal momentum carry Samus too far after exit.

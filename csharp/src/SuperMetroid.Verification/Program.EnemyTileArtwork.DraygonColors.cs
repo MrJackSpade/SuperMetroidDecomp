@@ -70,8 +70,8 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                     colors.ResolveHealthBand(band, color),
                     $"Draygon health band {band} color {color} remains unchanged");
         AssertEqual(colors.ResolveHealthBand(1, 1),
-            EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .DraygonColors!.ResolveHealthBand(1, 1),
+            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
+                .DraygonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .DraygonColors.")).ResolveHealthBand(1, 1),
             "Draygon color override survives catalog reload");
 
         // Invoke the actual body initializer and hurt program with the visual source

@@ -25,7 +25,7 @@ internal static class RainbowReleaseKnockbackVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(0x00eb, 0x007d));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;

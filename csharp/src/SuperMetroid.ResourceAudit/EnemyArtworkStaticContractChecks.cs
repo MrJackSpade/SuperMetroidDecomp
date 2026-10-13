@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -42,7 +43,7 @@ internal static class EnemyArtworkStaticContractChecks
             }
             """, path: "fixture-enemy-artwork-consumer.cs");
         trees.Add(calls);
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("EnemyArtworkFixture", sources,
             platforms.Append(typeof(EnemyTileArtworkCatalog).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -46,10 +47,9 @@ internal static class GameplayMessageNoticesVerification
             comparedWords += installed.Tilemap.Length;
         }
 
-        JsonObject document = JsonNode.Parse(extracted)!.AsObject();
-        JsonObject mapNotice = document["notices"]![
-            GameplayMessageId.MapDataAccessCompleted.ToString()]!.AsObject();
-        mapNotice["text"]![0]!["text"] = "MAP TEST";
+        JsonObject document = RequiredJson.Parse(extracted).AsObject();
+        JsonObject mapNotice = document.Required("notices").Required(            GameplayMessageId.MapDataAccessCompleted.ToString()).AsObject();
+        mapNotice.Required("text").Required(0)["text"] = "MAP TEST";
         byte[] editedBytes = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
             MapPresentationFormat.JsonOptions));
         GameplayMessageNoticePresentation edited = GameplayMessageNoticePresentation.Load(
@@ -97,8 +97,8 @@ internal static class GameplayMessageNoticesVerification
             "installed gameplay-message notices are the deterministic cartridge extraction");
 
         Directory.CreateDirectory(overrideDirectory);
-        JsonObject document = JsonNode.Parse(deterministic)!.AsObject();
-        document["notices"]![GameplayMessageId.SaveConfirmation.ToString()]!["text"]![0]!["text"] =
+        JsonObject document = RequiredJson.Parse(deterministic).AsObject();
+        document.Required("notices").Required(GameplayMessageId.SaveConfirmation.ToString()).Required("text").Required(0)["text"] =
             "SAVE TEST?";
         string replacement = Path.Combine(
             overrideDirectory, GameplayMessageNoticeDefinitions.FileName);

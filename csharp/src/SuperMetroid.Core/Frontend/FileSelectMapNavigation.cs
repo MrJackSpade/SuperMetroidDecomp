@@ -39,6 +39,9 @@ public sealed class FileSelectMapNavigation
 
     /// <summary>Gets the room-map window after preparation begins, or <see langword="null"/> on the area map.</summary>
     public FileSelectMapWindow? Window { get; private set; }
+    /// <summary>The map window, which exists once the window phase starts.</summary>
+    public FileSelectMapWindow ActiveWindow => Window ??
+        throw new InvalidOperationException("The file-select map window has not been prepared.");
     /// <summary>Entry/fade owners consume controller samples without executing menu actions.</summary>
     public void LatchInputWithoutNavigation(ushort heldInput) => previousInput = heldInput;
 
@@ -70,7 +73,7 @@ public sealed class FileSelectMapNavigation
                 Phase = FileSelectMapNavigationPhase.ExpandingWindow;
                 break;
             case FileSelectMapNavigationPhase.ExpandingWindow:
-                if (Window!.Step()) Phase = FileSelectMapNavigationPhase.InitializingRoom;
+                if (ActiveWindow.Step()) Phase = FileSelectMapNavigationPhase.InitializingRoom;
                 break;
             case FileSelectMapNavigationPhase.InitializingRoom:
                 // $81:AD17 installs the room map after the expanding-window endpoint;

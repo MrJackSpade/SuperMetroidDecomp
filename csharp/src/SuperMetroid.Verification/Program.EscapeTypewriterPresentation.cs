@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -48,9 +49,9 @@ internal static class EscapeTypewriterPresentationVerification
             AssertTrue(installed.GlyphsWritten > 0, $"{id} installed typewriter writes its glyphs");
         }
 
-        JsonObject editedDocument = JsonNode.Parse(extracted)!.AsObject();
-        JsonObject zebes = editedDocument["programs"]![EscapeTypewriterProgramId.Zebes.ToString()]!.AsObject();
-        zebes["lines"]![0]!["text"] = "TEST!";
+        JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();
+        JsonObject zebes = editedDocument.Required("programs").Required(EscapeTypewriterProgramId.Zebes.ToString()).AsObject();
+        zebes.Required("lines").Required(0)["text"] = "TEST!";
         byte[] editedBytes = Encoding.UTF8.GetBytes(editedDocument.ToJsonString(MapPresentationFormat.JsonOptions));
         EscapeTypewriterPresentation edited = EscapeTypewriterPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
@@ -114,8 +115,8 @@ internal static class EscapeTypewriterPresentationVerification
             "installed escape typewriter is the deterministic cartridge extraction");
 
         Directory.CreateDirectory(overrideDirectory);
-        JsonObject document = JsonNode.Parse(deterministic)!.AsObject();
-        document["programs"]![EscapeTypewriterProgramId.Zebes.ToString()]!["lines"]![0]!["text"] =
+        JsonObject document = RequiredJson.Parse(deterministic).AsObject();
+        document.Required("programs").Required(EscapeTypewriterProgramId.Zebes.ToString()).Required("lines").Required(0)["text"] =
             "TEST!";
         string replacement = Path.Combine(overrideDirectory, EscapeTypewriterDefinitions.FileName);
         File.WriteAllText(replacement, document.ToJsonString(MapPresentationFormat.JsonOptions));

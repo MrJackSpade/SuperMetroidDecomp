@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -27,8 +28,8 @@ internal static class FileSelectSlotDestinationsVerification
         Suite(nameof(VerifyFileSelectSlotLabelSources), () => VerifyFileSelectSlotLabelSources(rom));
         byte[] json = FileSelectPresentationExtractor.Extract(rom);
         _ = FileSelectPresentation.Load(new MemoryStream(json));
-        FileSelectPresentationDocument document = JsonSerializer.Deserialize<FileSelectPresentationDocument>(
-            json, MapPresentationFormat.JsonOptions)!;
+        FileSelectPresentationDocument document = RequiredJson.Deserialize<FileSelectPresentationDocument>(
+            json, MapPresentationFormat.JsonOptions);
         // Each independently indexed field uses its own original LDX operands.
         Suite(nameof(VerifyField), () => VerifyField(false, FileSelectSlotField.Label, [0x819f16, 0x819f49, 0x819f7f]));
         Suite(nameof(VerifyField), () => VerifyField(false, FileSelectSlotField.Energy, [0x819f25, 0x819f5b, 0x819f91]));

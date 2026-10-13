@@ -75,7 +75,7 @@ internal static class EndingWavySamusTests
                     // Version 28 ends this uniform subscreen descriptor after its two
                     // object flags; it has no line-scroll-presence byte.
                     var uniform = new LayeredRenderSnapshot(snapshot.Memory,
-                        [wave.MainCoverage!, new BgSubscreenAddRenderLayer(0x2400, 0x2000, wave.MainCoverage)], 0, 15);
+                        [(wave.MainCoverage ?? throw new InvalidOperationException("Verification requires wave.MainCoverage.")), new BgSubscreenAddRenderLayer(0x2400, 0x2000, wave.MainCoverage)], 0, 15);
                     byte[] oldBytes = RenderFrameSnapshotWriter.Serialize(new RenderFrameSnapshot(new(1, 1, 0), uniform));
                     Array.Resize(ref oldBytes, oldBytes.Length - 1);
                     oldBytes[8] = 28; oldBytes[9] = 0;

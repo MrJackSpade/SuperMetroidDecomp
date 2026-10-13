@@ -32,7 +32,7 @@ internal static class CrateriaMainstreetEscapePassageVerification
             runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.CrateriaMainstreet);
             runtime.StepFrame(0);
             runtime.StepFrame(0);
-            return runtime.Room.LevelData!;
+            return runtime.Room.LoadedLevelData;
         }
 
         ushort Word(RoomLevelData level, int x) =>

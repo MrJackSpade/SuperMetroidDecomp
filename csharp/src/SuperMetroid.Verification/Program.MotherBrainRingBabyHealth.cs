@@ -34,8 +34,8 @@ internal static class MotherBrainRingBabyHealthVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
-        RoomEnemySlot babySlot = state.BabyMetroidSlot!;
-        AssertEqual((ushort)0x0c80, babySlot.Health, "the Baby spawns with 3200 health");
+        RoomEnemySlot babySlot = (state.BabyMetroidSlot ?? throw new InvalidOperationException("Verification requires state.BabyMetroidSlot."));
+        AssertEqual((ushort)0x0c80, (babySlot ?? throw new InvalidOperationException("Verification requires babySlot.")).Health, "the Baby spawns with 3200 health");
 
         // The movie's hit: the ring reaches ($AE,$8C), exactly $24 above the Baby at ($CE,$B0).
         RoomEnemyProjectileSlot ring = runtime.Enemies.Projectiles.EnemyProjectiles[16];
@@ -44,10 +44,10 @@ internal static class MotherBrainRingBabyHealthVerification
         ring.Radius = new(1, 1);
         ring.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         ring.Variable0 = 0;
-        state.BabyMetroid.Position = state.BabyMetroid!.Position.WithWhole(new(0x00ce, 0x00b0));
+        (state.BabyMetroid ?? throw new InvalidOperationException("Verification requires state.BabyMetroid.")).Position = state.BabyMetroid.Position.WithWhole(new(0x00ce, 0x00b0));
 
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainOnionRingPreInstruction(ring, runtime.Player.Samus, (ushort)0);
-        AssertEqual((ushort)0x0c30, state.BabyMetroid!.Health, "the ring charges the Baby $50");
+        AssertEqual((ushort)0x0c30, state.BabyMetroid.Health, "the ring charges the Baby $50");
         AssertEqual((ushort)0x0c30, babySlot.Health, "the Baby slot's health drops within the projectile pass");
         Console.WriteLine("Mother Brain ring Baby health: the hit writes the Baby slot's health immediately.");
     }

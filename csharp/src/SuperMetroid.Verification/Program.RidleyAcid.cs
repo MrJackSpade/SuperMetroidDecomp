@@ -28,7 +28,7 @@ internal static class RidleyAcidVerification
         var fx = runtime.RoomLayer3Fx;
         AssertEqual(RoomFxType.Acid, fx.Type, "final Ridley room authors acid, not lava");
         AssertEqual((ushort)528, fx.BaseYPosition, "acid starts below the arena");
-        var state = runtime.Enemies.RidleyEncounter.Ridley!;
+        var state = runtime.Enemies.RidleyEncounter.Ridley;
         // The shared Ridley state has no Ceres Baby program in Norfair. The
         // global actor-draw seam must not invoke Ceres's private graphics hook.
         var expectedEmptyOam = new OamBuffer();
@@ -41,7 +41,7 @@ internal static class RidleyAcidVerification
         ridleyOam.FinalizeFrame();
         AssertTrue(ridleyOam.ImageEquals(expectedEmptyOam),
             "Norfair Ridley does not draw the Ceres Baby or arena-door overlay");
-        AssertEqual((ushort)0, state.BabyInstruction,
+        AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).BabyInstruction,
             "Norfair Ridley never advances an uninitialized Ceres Baby program");
         // Enter the native palette-reveal phase, then let its real ROM table reach
         // the terminator. This does not inject a liquid command into the fixture.
@@ -70,7 +70,7 @@ internal static class RidleyAcidVerification
         void AssertAcidVisible(bool expectedVisible)
         {
             var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedOam);
-            var effect = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx.CaptureForDisplay()!.Value);
+            var effect = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")));
             var baseline = SoftwareLayeredSnapshotRenderer.Render(new(memory, [], 3, 15));
             var actual = SoftwareLayeredSnapshotRenderer.Render(new(memory,
                 effect is null ? [] : new RenderLayer[] { effect }, 3, 15));

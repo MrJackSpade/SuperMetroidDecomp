@@ -161,13 +161,13 @@ internal static class AtomicMovementDefinitionsVerification
             AssertEqual(native, slot.CurrentInstruction,
                 $"Atomic initializer instruction selector {selector}");
 
-            AtomicEnemyState state = enemies.AtomicStates[0]!;
+            AtomicEnemyState state = (enemies.AtomicStates[0] ?? throw new InvalidOperationException("Verification requires enemies.AtomicStates[0]."));
             ushort speedOffset = (ushort)(slot.Parameter2 * 8);
             (short positiveWhole, ushort positiveFraction) =
                 EnemyLinearSpeedDefinitions.Read(speedOffset);
             (short negativeWhole, ushort negativeFraction) =
                 EnemyLinearSpeedDefinitions.Read((ushort)(speedOffset + 4));
-            AssertEqual(unchecked((ushort)positiveWhole), state.SpeedWhole,
+            AssertEqual(unchecked((ushort)positiveWhole), (state ?? throw new InvalidOperationException("Verification requires state.")).SpeedWhole,
                 $"Atomic positive whole speed {selector}");
             AssertEqual(positiveFraction, state.SpeedFraction,
                 $"Atomic positive fractional speed {selector}");

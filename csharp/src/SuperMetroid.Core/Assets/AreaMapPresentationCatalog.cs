@@ -58,6 +58,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         RoomPaletteFx = parts.RoomPaletteFx;
         MotherBrainHealthPalette = parts.MotherBrainHealthPalette;
         MotherBrainRainbowPalette = parts.MotherBrainRainbowPalette;
+        MotherBrainRoomColors = parts.MotherBrainRoomColors;
         RoomFxAnimatedTiles = parts.RoomFxAnimatedTiles;
         RoomFxLayer3Tilemaps = parts.RoomFxLayer3Tilemaps;
         RoomFxPaletteBlends = parts.RoomFxPaletteBlends;
@@ -158,7 +159,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
     /// <summary>Mother Brain rainbow, drain, revival, normal-restoration, and fake-death colors; older overrides inherit newly introduced rows from stock.</summary>
     public MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; }
     /// <summary>Mother Brain arena color presentation, separate from boss health and rainbow palettes; older overrides inherit new color families from verified stock.</summary>
-    public MotherBrainRoomColorPresentation MotherBrainRoomColors { get; private set; } = null!;
+    public MotherBrainRoomColorPresentation MotherBrainRoomColors { get; }
     /// <summary>Selected animated room-FX character artwork, separate from layer-3 tilemaps and palette blending.</summary>
     public RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; }
     /// <summary>Selected layer-3 room-FX tilemaps, separate from animated characters and palette-blend colors.</summary>
@@ -316,8 +317,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         CeresRidleyMode7ColorCatalog ceresRidleyMode7Colors = Resource(CeresRidleyMode7ColorFormat.FileName, "Ceres Ridley Mode-7 colors", s => CeresRidleyMode7ColorCatalog.Load(s));
         SamusHyperBeamColorCatalog samusHyperBeamColors = Resource(SamusHyperBeamColorFormat.FileName, "Samus Hyper Beam colors", s => SamusHyperBeamColorCatalog.Load(s));
         stock.RequireAllManifestFilesRead();
-        var catalog = new AreaMapPresentationCatalog(new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), Tiles = tiles, HudTiles = hudTiles, HighlightCycle = cycle, Palettes = palettes, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, Screens = screens, WorldArtwork = artwork, Sprites = sprites, PauseTiles = pauseTiles, PauseBackdrops = pauseBackdrops, PauseWireframes = pauseWireframes, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, PauseReserveUi = pauseReserveUi, PauseEquipmentBase = pauseEquipmentBase, PauseEquipmentLabels = pauseEquipmentLabels, EscapeTimer = escapeTimer, EscapeTimerTiles = escapeTimerTiles, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, GameplayMessageTitles = gameplayMessageTitles, GameplayMessagePanels = gameplayMessagePanels, GameplayMessageNotices = gameplayMessageNotices, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, IntroFont = introFont, EndingText = endingText, EndingFont = endingFont, StaffCredits = staffCredits, TitleGraphics = titleGraphics, TitlePalette = titlePalette, TitleGradient = titleGradient, RoomPaletteFx = roomPaletteFx, MotherBrainHealthPalette = motherBrainHealthPalette, MotherBrainRainbowPalette = motherBrainRainbowPalette, RoomFxAnimatedTiles = roomFxAnimatedTiles, RoomFxLayer3Tilemaps = roomFxLayer3Tilemaps, RoomFxPaletteBlends = roomFxPaletteBlends, PowerBombFixedColors = powerBombFixedColors, SamusVisorColors = samusVisorColors, SamusHurtColors = samusHurtColors, SamusSuitColors = samusSuitColors, SamusFullBodyCycleColors = samusFullBodyCycleColors, CrystalFlashColors = crystalFlashColors, SamusChargeColors = samusChargeColors, CeresRidleyColors = ceresRidleyColors, CeresRidleyMode7Colors = ceresRidleyMode7Colors, SamusHyperBeamColors = samusHyperBeamColors });
-        catalog.MotherBrainRoomColors = motherBrainRoomColors;
+        var catalog = new AreaMapPresentationCatalog(new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), Tiles = tiles, HudTiles = hudTiles, HighlightCycle = cycle, Palettes = palettes, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, Screens = screens, WorldArtwork = artwork, Sprites = sprites, PauseTiles = pauseTiles, PauseBackdrops = pauseBackdrops, PauseWireframes = pauseWireframes, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, PauseReserveUi = pauseReserveUi, PauseEquipmentBase = pauseEquipmentBase, PauseEquipmentLabels = pauseEquipmentLabels, EscapeTimer = escapeTimer, EscapeTimerTiles = escapeTimerTiles, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, GameplayMessageTitles = gameplayMessageTitles, GameplayMessagePanels = gameplayMessagePanels, GameplayMessageNotices = gameplayMessageNotices, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, IntroFont = introFont, EndingText = endingText, EndingFont = endingFont, StaffCredits = staffCredits, TitleGraphics = titleGraphics, TitlePalette = titlePalette, TitleGradient = titleGradient, RoomPaletteFx = roomPaletteFx, MotherBrainHealthPalette = motherBrainHealthPalette, MotherBrainRainbowPalette = motherBrainRainbowPalette, MotherBrainRoomColors = motherBrainRoomColors, RoomFxAnimatedTiles = roomFxAnimatedTiles, RoomFxLayer3Tilemaps = roomFxLayer3Tilemaps, RoomFxPaletteBlends = roomFxPaletteBlends, PowerBombFixedColors = powerBombFixedColors, SamusVisorColors = samusVisorColors, SamusHurtColors = samusHurtColors, SamusSuitColors = samusSuitColors, SamusFullBodyCycleColors = samusFullBodyCycleColors, CrystalFlashColors = crystalFlashColors, SamusChargeColors = samusChargeColors, CeresRidleyColors = ceresRidleyColors, CeresRidleyMode7Colors = ceresRidleyMode7Colors, SamusHyperBeamColors = samusHyperBeamColors });
         return catalog;
 
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>
@@ -379,7 +379,8 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
     /// they keep, so pooled stock bytes are never referenced after <see cref="Load"/> returns.
     /// </summary>
     private static MemoryStream ReadOnlyStream(ArraySegment<byte> bytes) =>
-        new(bytes.Array!, bytes.Offset, bytes.Count, writable: false, publiclyVisible: true);
+        new(bytes.Array ?? throw new ArgumentException("A stock resource view must wrap an array.", nameof(bytes)),
+            bytes.Offset, bytes.Count, writable: false, publiclyVisible: true);
 
     /// <summary>Installer integrity check; never repairs files or touches the override directory.</summary>
     public static void ValidateStock(string directory) => _ = Load(directory, null);

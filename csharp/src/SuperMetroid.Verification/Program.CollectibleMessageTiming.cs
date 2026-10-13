@@ -25,7 +25,7 @@ internal static class CollectibleMessageTimingVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0x965b, camera: new Position16<RoomPixels>(1280, 0));
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(1296, 110));
@@ -36,8 +36,8 @@ internal static class CollectibleMessageTimingVerification
         runtime.StepFrame(0);
         runtime.StepFrame(0);
         var item = runtime.Plms.CollectiblePlms.Collectibles.Single(i => i.Kind == InWorldCollectibleKind.EnergyTank);
-        ushort visible = runtime.Room.LevelData!.ForegroundEntries.Span[item.BlockIndex];
-        var update = runtime.Room.BackgroundStreamer!.BuildPlmLevelBlockUpdate(item.BlockIndex,
+        ushort visible = runtime.Room.LoadedLevelData.ForegroundEntries.Span[item.BlockIndex];
+        var update = (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")).BuildPlmLevelBlockUpdate(item.BlockIndex,
             bg1XOffset: unchecked((ushort)runtime.BackgroundScroll.Bg1Offset.X));
         ushort[] TileWords() => new[] { runtime.Vram.ReadWord(update.TopRowDestination),
             runtime.Vram.ReadWord((ushort)(update.TopRowDestination + 1)),
@@ -58,7 +58,7 @@ internal static class CollectibleMessageTimingVerification
         Console.WriteLine($"Pickup frame: tile retained={beforeTile.SequenceEqual(TileWords())}, HUD retained={beforeHud.SequenceEqual(HudWords())}");
         void AssertHeld()
         {
-            AssertEqual(visible, runtime.Room.LevelData.ForegroundEntries.Span[item.BlockIndex], "pickup level tile remains during message");
+            AssertEqual(visible, runtime.Room.LoadedLevelData.ForegroundEntries.Span[item.BlockIndex], "pickup level tile remains during message");
             AssertTrue(beforeTile.SequenceEqual(TileWords()), "visible pickup VRAM remains during message");
             AssertTrue(beforeHud.SequenceEqual(HudWords()), "HUD counters remain during message");
             AssertTrue(beforeVisibleHud.SequenceEqual(VisibleHudWords()), "displayed HUD VRAM remains during message");
@@ -79,7 +79,7 @@ internal static class CollectibleMessageTimingVerification
             runtime.StepFrame(0);
         }
         AssertTrue(!runtime.MessageBox.IsActive, "message returns");
-        AssertTrue(runtime.Room.LevelData.ForegroundEntries.Span[item.BlockIndex] != visible, "return executes pickup empty draw");
+        AssertTrue(runtime.Room.LoadedLevelData.ForegroundEntries.Span[item.BlockIndex] != visible, "return executes pickup empty draw");
         AssertTrue(!beforeHud.SequenceEqual(HudWords()), "return rebuilds HUD for acquired energy");
         AssertEqual((ushort)199, samus.MaxHealth, "return grants no duplicate energy");
         runtime.NmiHandler.RunNmi(0, true);

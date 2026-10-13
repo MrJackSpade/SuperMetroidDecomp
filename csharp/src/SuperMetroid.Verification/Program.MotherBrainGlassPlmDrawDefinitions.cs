@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
@@ -145,9 +146,9 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
                 RoomPlmMotherBrainGlassVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted glass JSON is empty.");
-            JsonNode frame = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "shatter-1")!;
-            frame["blocks"]![6] = 0x0057;
+            JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "shatter-1");
+            frame.Required("blocks")[6] = 0x0057;
             Directory.CreateDirectory(
                 installation.RoomPlmMotherBrainGlassVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -168,7 +169,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
                     .GetWord(0x978f, 1, 2),
                 "glass override survives stock replacement");
 
-            frame["blocks"]![6] = 0xf057;
+            frame.Required("blocks")[6] = 0xf057;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmMotherBrainGlassVisuals(),

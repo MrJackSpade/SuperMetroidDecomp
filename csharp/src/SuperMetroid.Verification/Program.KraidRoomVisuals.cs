@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -61,9 +62,9 @@ internal static class KraidRoomVisualsVerification
             JsonNode first = Entry("crumble-first");
             JsonNode ceiling = Entry("clear-ceiling");
             JsonNode spikes = Entry("clear-spikes");
-            first["blocks"]![0] = 0x0058;
-            ceiling["blocks"]![14] = 0x0059;
-            spikes["blocks"]![21] = 0x005a;
+            first.Required("blocks")[0] = 0x0058;
+            ceiling.Required("blocks")[14] = 0x0059;
+            spikes.Required("blocks")[21] = 0x005a;
             Directory.CreateDirectory(
                 installation.RoomPlmKraidVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -92,7 +93,7 @@ internal static class KraidRoomVisualsVerification
                     .GetWord((ushort)KraidRoomDraw.ClearSpikes, 0, 21),
                 "Kraid override survives stock replacement");
 
-            first["blocks"]![0] = 0xf058;
+            first.Required("blocks")[0] = 0xf058;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmKraidVisuals(),
@@ -103,8 +104,8 @@ internal static class KraidRoomVisualsVerification
                     installation.RoomPlmKraidVisualDirectory),
                 "tampered Kraid stock fails manifest validation");
 
-            JsonNode Entry(string id) => document["entries"]!.AsArray()
-                .Single(entry => entry!["id"]!.GetValue<string>() == id)!;
+            JsonNode Entry(string id) => document.Required("entries").AsArray().RequiredElements()
+                .Single(entry => entry.Required("id").GetValue<string>() == id);
         }
         finally
         {

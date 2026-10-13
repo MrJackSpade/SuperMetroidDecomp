@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
@@ -975,7 +976,7 @@ public sealed class FileSelectMenuState
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
 
     /// <summary>Rebinds host-owned file-select visuals after debugger-state restoration.</summary>
-    internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    internal void BindMapPresentation([NotNull] AreaMapPresentationCatalog? catalog)
     {
         if (catalog is null)
             throw new InvalidOperationException("File-select requires installed map presentation assets.");

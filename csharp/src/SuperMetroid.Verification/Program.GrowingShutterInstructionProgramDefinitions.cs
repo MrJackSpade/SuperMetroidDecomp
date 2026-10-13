@@ -49,7 +49,7 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
         slot.Parameter2 = 0;
         slot.Position = slot.Position.WithWholeY(0x0100);
         initialize(slot);
-        GrowingShutterEnemyState state = enemies.GrowingShutterStates[0]!;
+        GrowingShutterEnemyState state = (enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("Verification requires enemies.GrowingShutterStates[0]."));
 
         object?[] processArguments =
             [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
@@ -72,12 +72,12 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
 
             finishSection(
                 slot,
-                state,
+                (state ?? throw new InvalidOperationException("Verification requires state.")),
                 unchecked((ushort)(0x0110 + programIndex * 0x10)),
                 false);
         }
 
-        AssertEqual((ushort)4, state.GrowthLevel,
+        AssertEqual((ushort)4, (state ?? throw new InvalidOperationException("Verification requires state.")).GrowthLevel,
             "growing-shutter real section transitions complete all four stages");
         AssertEqual(0, guard.ObservedWords.Count,
             "growing-shutter spritemap words use compiled visual selectors");

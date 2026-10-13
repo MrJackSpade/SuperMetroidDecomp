@@ -104,7 +104,7 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
                 unchecked((ushort)(EnemyDeathInstructionProgramDefinitions.RespawnTail + 4)),
                 death.InstructionPointer,
                 $"death variant {program.Variant} converts to the shared blank tail exactly");
-            AssertEqual(program.Sound, enemies.DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2!.Value,
+            AssertEqual(program.Sound, (enemies.DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2 ?? throw new InvalidOperationException("Verification requires enemies.DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2.")),
                 $"death variant {program.Variant} queues its authored sound");
 
             if (program.Variant is 3 or 4)

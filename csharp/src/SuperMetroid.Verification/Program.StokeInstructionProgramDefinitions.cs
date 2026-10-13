@@ -167,7 +167,7 @@ internal static class StokeInstructionProgramDefinitionsVerification
             slot.Parameter1 = (ushort)direction;
             slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             initialize(slot);
-            return (enemies, slot, enemies.StokeStates[0]!);
+            return (enemies, slot, (enemies.StokeStates[0] ?? throw new InvalidOperationException("Verification requires the initialized Stoke state.")));
         }
 
         static void Install(RoomEnemySlot slot, ushort program)

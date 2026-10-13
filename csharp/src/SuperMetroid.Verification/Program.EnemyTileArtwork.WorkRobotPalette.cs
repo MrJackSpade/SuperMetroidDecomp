@@ -47,8 +47,8 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
         AssertTrue(cycle.Resolve(2, 1) != native.Resolve(2, 1),
             "Work Robot color override changes the selected RGB5 word");
         AssertEqual(cycle.Resolve(2, 1),
-            EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .WorkRobotPaletteCycle!.Resolve(2, 1),
+            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
+                .WorkRobotPaletteCycle ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .WorkRobotPaletteCycle.")).Resolve(2, 1),
             "Work Robot color override persists across reload");
         for (int record = 0; record < WorkRobotPaletteTimingDefinitions.RecordCount; record++)
         for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)

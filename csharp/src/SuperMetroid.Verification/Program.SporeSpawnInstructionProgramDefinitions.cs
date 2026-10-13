@@ -53,7 +53,7 @@ internal static class SporeSpawnInstructionProgramDefinitionsVerification
             4);
         AssertEqual(0xe6c5, dead.CurrentInstruction,
             "defeated Spore Spawn program sleeps at its native pointer");
-        AssertEqual(SporeSpawnFunction.Idle, deadSystem.SporeSpawn!.Function,
+        AssertEqual(SporeSpawnFunction.Idle, (deadSystem.SporeSpawn ?? throw new InvalidOperationException("Verification requires deadSystem.SporeSpawn.")).Function,
             "defeated Spore Spawn program selects idle function");
 
         (RoomEnemySystem aliveSystem, RoomEnemySlot alive) = RunSporeSpawnProgram(
@@ -62,21 +62,21 @@ internal static class SporeSpawnInstructionProgramDefinitionsVerification
             260);
         AssertEqual(0xe6d3, alive.CurrentInstruction,
             "living Spore Spawn initialization sleeps after descent selection");
-        AssertEqual(SporeSpawnFunction.Descending, aliveSystem.SporeSpawn!.Function,
+        AssertEqual(SporeSpawnFunction.Descending, (aliveSystem.SporeSpawn ?? throw new InvalidOperationException("Verification requires aliveSystem.SporeSpawn.")).Function,
             "living Spore Spawn initialization selects descent function");
 
         (RoomEnemySystem fightSystem, _) = RunSporeSpawnProgram(
             guarded,
             SporeSpawnInstructionProgramDefinitions.FightStarted,
             2200);
-        AssertTrue(fightSystem.SporeSpawn!.MaximumXRadius >= 0x0040,
+        AssertTrue((fightSystem.SporeSpawn ?? throw new InvalidOperationException("Verification requires fightSystem.SporeSpawn.")).MaximumXRadius >= 0x0040,
             "fight program executes compiled radius setup and growth");
 
         (RoomEnemySystem closeSystem, _) = RunSporeSpawnProgram(
             guarded,
             SporeSpawnInstructionProgramDefinitions.CloseAndMove,
             1600);
-        AssertEqual(SporeSpawnFunction.Moving, closeSystem.SporeSpawn!.Function,
+        AssertEqual(SporeSpawnFunction.Moving, (closeSystem.SporeSpawn ?? throw new InvalidOperationException("Verification requires closeSystem.SporeSpawn.")).Function,
             "close-and-move program executes compiled function callback");
 
         (RoomEnemySystem deathSystem, RoomEnemySlot death) = RunSporeSpawnProgram(
@@ -85,7 +85,7 @@ internal static class SporeSpawnInstructionProgramDefinitionsVerification
             500);
         AssertEqual(0xe80f, death.CurrentInstruction,
             "Spore Spawn death program reaches its native sleep pointer");
-        AssertTrue(deathSystem.SporeSpawn!.DeathDropRequested,
+        AssertTrue((deathSystem.SporeSpawn ?? throw new InvalidOperationException("Verification requires deathSystem.SporeSpawn.")).DeathDropRequested,
             "Spore Spawn death program executes compiled drop callback");
 
         var selected = new HashSet<ushort>();

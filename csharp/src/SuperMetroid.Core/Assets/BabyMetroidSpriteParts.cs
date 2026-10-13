@@ -93,7 +93,9 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         int selection = halfSelections[index];
         if (selection > 0) return halfParts[selection - 1];
         int shared = -selection - 1;
-        EnemySpritemapPart part = sharedBody!.halfParts[shared / 2];
+        BabyMetroidSpriteParts sharedParts = sharedBody ?? throw new InvalidDataException(
+            "A shared Baby Metroid half selection requires the shared body parts.");
+        EnemySpritemapPart part = sharedParts.halfParts[shared / 2];
         return (shared & 1) == 0 ? part : Reflect(part);
     }
 

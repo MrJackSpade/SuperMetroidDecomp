@@ -48,7 +48,7 @@ internal static class RoomBackgroundLibraryParityVerification
             // Zero tests the ordinary path. Each authored door pointer additionally
             // selects its conditional DMA; a list can contain more than one.
             foreach (ushort door in list.Where(source => source.DoorPointer.HasValue)
-                .Select(source => source.DoorPointer!.Value).Append((ushort)0).Distinct())
+                .Select(source => (source.DoorPointer ?? throw new InvalidOperationException("Verification requires source.DoorPointer."))).Append((ushort)0).Distinct())
             {
                 SuperMetroidAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
                 var nativeVram = new SnesVram();
@@ -75,7 +75,7 @@ internal static class RoomBackgroundLibraryParityVerification
                 foreach (LibraryBackgroundSource source in list.Where(source =>
                     source.Command == LibraryBackgroundCommand.DecompressToWorkRam))
                 {
-                    AssertSameLibraryBackgroundWorkRam(nativeBus, selectedBus, source.WorkRamDestination!.Value,
+                    AssertSameLibraryBackgroundWorkRam(nativeBus, selectedBus, (source.WorkRamDestination ?? throw new InvalidOperationException("Verification requires source.WorkRamDestination.")),
                         backgrounds.Get(source.SourceAddress).Transfer.Length, program.Pointer);
                 }
                 cases++;
@@ -202,12 +202,12 @@ internal static class RoomBackgroundLibraryParityVerification
                 ? address == entry.SourceAddress
                 : entry.SourceAddress >= RoomAssetRomData.LibraryBackground.RomSourceAddressFloor &&
                   address >= entry.SourceAddress &&
-                  address - entry.SourceAddress < entry.TransferByteCount!.Value);
+                  address - entry.SourceAddress < (entry.TransferByteCount ?? throw new InvalidOperationException("Verification requires entry.TransferByteCount.")));
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address => CommandList(address) is not null,
-            address => $"Installed background reread compiled command list $8F:{CommandList(address)!.Pointer:X4}.");
+            address => $"Installed background reread compiled command list $8F:{(CommandList(address) ?? throw new InvalidOperationException("Verification requires CommandList(address).")).Pointer:X4}.");
         guard.Forbid(address => Visual(address) is not null,
-            address => Visual(address)!.Command == LibraryBackgroundCommand.DecompressToWorkRam
+            address => (Visual(address) ?? throw new InvalidOperationException("Verification requires Visual(address).")).Command == LibraryBackgroundCommand.DecompressToWorkRam
                 ? $"Installed background reread compressed source ${address:X6}."
                 : $"Installed background reread direct visual source ${address:X6}.");
         return guard;

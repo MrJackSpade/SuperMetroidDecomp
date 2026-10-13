@@ -38,7 +38,7 @@ internal static class AreaAnimatedTileObjectDefinitionsAccess
                     "bit", bit, $"Animated-tile bit must be 0..{AreaAnimatedTileObjectDefinitions.ObjectsPerArea - 1}.");
             }
 
-            return ((ushort)(AreaAnimatedTileObjectDefinitions.SelectObject((int)(nativeAreaIndex), (int)(bit)))!);
+            return ((ushort)(AreaAnimatedTileObjectDefinitions.SelectObject((int)(nativeAreaIndex), (int)(bit))));
         }
 
         /// <summary>Restricts native animation-list lookup to its eight physical table rows.</summary>
@@ -162,7 +162,7 @@ internal static class CeresDoorInstructionProgramDefinitionsAccess
     extension(CeresDoorInstructionProgramDefinitions)
     {
         /// <summary>Reads the frame half of a Ceres door presentation pair.</summary>
-        internal static ushort PresentationWordFrame(int index) => (((ushort Address, ushort Frame))(CeresDoorInstructionProgramDefinitions.PresentationWord((int)(index)))!).Frame;
+        internal static ushort PresentationWordFrame(int index) => (((ushort Address, ushort Frame))(CeresDoorInstructionProgramDefinitions.PresentationWord((int)(index)))).Frame;
     }
 }
 
@@ -296,7 +296,7 @@ internal static class CrocomireBg2ScrollDefinitionsAccess
             if ((uint)index >= CrocomireBg2ScrollDefinitions.EntryCount) throw new IndexOutOfRangeException();
             ushort frame = (ushort)(index < 12 ? CrocomireBg2ScrollDefinitions.ChargeStepFrameStart + 0x32 * index
                 : CrocomireBg2ScrollDefinitions.MovingClawsFrameStart + 0x32 * (index - 12));
-            return new(frame, unchecked((ushort)((int)(CrocomireBg2ScrollDefinitions.Correction((ushort)(frame)))!)));
+            return new(frame, unchecked((ushort)((int)(CrocomireBg2ScrollDefinitions.Correction((ushort)(frame))))));
         }
     }
 }
@@ -469,7 +469,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsAccess
             if (offset is >= 2 and < 20 && offset % 4 == 2 || offset == 28) return true;
             for (int index = 0; index < EnemyProjectileInstructionMechanicsDefinitions.TimedProgramCount; index++)
             {
-                var program = ((EnemyProjectileTimedProgramDefinition)(EnemyProjectileInstructionMechanicsDefinitions.TimedProgram((int)(index)))!);
+                var program = ((EnemyProjectileTimedProgramDefinition)(EnemyProjectileInstructionMechanicsDefinitions.TimedProgram((int)(index))));
                 offset = address - program.InitialPointer - (program.PrefixInstruction.HasValue ? 2 : 0);
                 if (offset is >= 2 && offset < program.FrameCount * 4 && offset % 4 == 2) return true;
             }
@@ -1588,8 +1588,8 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>
         internal bool ResolveRidleySamusContact(SamusState samus) =>
-            (bool)self.CeresRidleyBehavior.ResolveRidleyBodySamusContact(samus)! ||
-            (bool)self.RidleyTail.ResolveRidleyTailSamusContact(samus)!;
+            (bool)self.CeresRidleyBehavior.ResolveRidleyBodySamusContact(samus) ||
+            (bool)self.RidleyTail.ResolveRidleyTailSamusContact(samus);
     }
 }
 
@@ -1654,7 +1654,7 @@ internal static class RoomFxRecordDefinitionsAccess
             get
             {
                 for (int pointer = 0x8000; pointer <= ushort.MaxValue; pointer++)
-                    if (((RoomFxRecordDefinition?)(RoomFxRecordDefinitions.SelectRecord((ushort)((ushort)pointer)))!) is { } record)
+                    if (((RoomFxRecordDefinition?)(RoomFxRecordDefinitions.SelectRecord((ushort)((ushort)pointer)))) is { } record)
                         yield return record;
             }
         }
@@ -2022,8 +2022,8 @@ internal static class SamusLiquidPhysicsStateAccess
             self.LiquidPhysicsType = self.FxType switch
             {
                 RoomFxType.Lava or RoomFxType.Acid
-                    when ((bool)(SamusLiquidPhysicsState.IsBelowSurface((ushort)(self.LavaAcidYPosition), (ushort)(bottom)))!) => SamusLiquidMedium.LavaOrAcid,
-                RoomFxType.Water or RoomFxType.TourianEntranceStatue when ((bool)(self.WaterAffectsBoundary((ushort)(bottom)))!) => SamusLiquidMedium.Water,
+                    when ((bool)(SamusLiquidPhysicsState.IsBelowSurface((ushort)(self.LavaAcidYPosition), (ushort)(bottom)))) => SamusLiquidMedium.LavaOrAcid,
+                RoomFxType.Water or RoomFxType.TourianEntranceStatue when ((bool)(self.WaterAffectsBoundary((ushort)(bottom)))) => SamusLiquidMedium.Water,
                 _ => SamusLiquidMedium.Air,
             };
         }
@@ -2512,24 +2512,24 @@ internal static class TorizoCollisionDefinitionsAccess
                 foreach (GoldenTorizoCollisionComponent[] frame in TorizoCollisionDefinitions.LeftFrames)
                 {
                     yield return cursor;
-                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(frame.Length)))!);
+                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(frame.Length))));
                 }
                 cursor = TorizoCollisionDefinitions.AwakeningStart;
                 foreach (GoldenTorizoCollisionComponent[] frame in TorizoCollisionDefinitions.AwakeningFrames)
                 {
                     yield return cursor;
-                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(frame.Length)))!);
+                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(frame.Length))));
                 }
                 cursor = TorizoCollisionDefinitions.RightStart;
                 for (int index = 0; index < TorizoCollisionDefinitions.MirroredCount; index++)
                 {
                     yield return cursor;
-                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(((GoldenTorizoCollisionComponent[])(TorizoCollisionDefinitions.LeftFacing((int)(index)))!).Length)))!);
+                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(((GoldenTorizoCollisionComponent[])(TorizoCollisionDefinitions.LeftFacing((int)(index)))).Length))));
                 }
                 foreach (GoldenTorizoCollisionComponent[] frame in TorizoCollisionDefinitions.JumpBackFrames)
                 {
                     yield return cursor;
-                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(frame.Length)))!);
+                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(frame.Length))));
                 }
             }
         }

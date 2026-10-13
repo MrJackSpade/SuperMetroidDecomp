@@ -9,6 +9,7 @@ using static SuperMetroid.EnsureVerification.OwnedReflectionAnalyzerTests;
 using static SuperMetroid.EnsureVerification.PaletteFxContractTests;
 using static SuperMetroid.EnsureVerification.ParameterContractsTests;
 using static SuperMetroid.EnsureVerification.ParameterListAnalyzerTests;
+using static SuperMetroid.EnsureVerification.NullForgivingAnalyzerTests;
 using static SuperMetroid.EnsureVerification.PartialTypeAnalyzerTests;
 using static SuperMetroid.EnsureVerification.WordReadAnalyzerTests;
 
@@ -48,6 +49,7 @@ internal static class Program
             VerifySpcMemoryAccessAnalyzer();
             VerifyParameterListAnalyzer();
             VerifyPartialTypeAnalyzer();
+            VerifyNullForgivingAnalyzer();
             VerifyOwnedReflectionAnalyzer();
             VerifyParameterContracts();
             VerifyCartridgeEncodingAnalyzer();

@@ -138,7 +138,7 @@ internal static class RidleyInstructionProgramDefinitionsVerification
         slot.EnemyDefinitionPointer = enemyDefinition;
         slot.CurrentInstruction = program;
         slot.InstructionTimer = NativeCountdown.Start(1);
-        enemies.RidleyEncounter.Ridley!.FacingDirection = facingDirection;
+        (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley.")).FacingDirection = facingDirection;
         var samus = new SamusState { Health = 99 };
         object?[] arguments =
             [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0];

@@ -95,19 +95,19 @@ internal static class PoseInputDefinitionsVerification
         const ushort leftRight = (ushort)(SnesButton.Left | SnesButton.Right);
         AssertEqual(
             SamusPoseId.TurningRightToLeftPose,
-            SamusPoseTransitionTable.Lookup(
+            (SamusPoseTransitionTable.Lookup(
                 forbidden,
                 SamusPoseId.FacingRightNormalPose,
                 leftRight,
-                leftRight).Transition!.Value.ProspectivePose,
+                leftRight).Transition ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Lookup( forbidden, SamusPoseId.FacingRightNormalPose, leftRigh....")).ProspectivePose,
             "right-facing Left+Right uses the first native Left condition");
         AssertEqual(
             SamusPoseId.TurningLeftToRightPose,
-            SamusPoseTransitionTable.Lookup(
+            (SamusPoseTransitionTable.Lookup(
                 forbidden,
                 SamusPoseId.FacingLeftNormalPose,
                 leftRight,
-                leftRight).Transition!.Value.ProspectivePose,
+                leftRight).Transition ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Lookup( forbidden, SamusPoseId.FacingLeftNormalPose, leftRight....")).ProspectivePose,
             "left-facing Left+Right uses the first native Right condition");
 
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();

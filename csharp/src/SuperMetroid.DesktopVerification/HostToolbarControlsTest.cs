@@ -21,7 +21,7 @@ internal static class HostToolbarControlsTest
         host.PerformLayout();
         layout.PerformLayout();
         toolbar.PerformLayout();
-        string[] buttons = toolbar.Items.OfType<ToolStripButton>().Select(b => b.Text!).ToArray();
+        string[] buttons = toolbar.Items.OfType<ToolStripButton>().Select(b => b.Text ?? throw new InvalidOperationException("A toolbar button has no text.")).ToArray();
         if (!buttons.SequenceEqual(new[] { "Restart", "Pause", "Step", "Save State", "Load State" }))
             throw new InvalidDataException("Unexpected production toolbar buttons: " + string.Join(", ", buttons));
         var controls = toolbar.Items.Cast<ToolStripItem>().Where(item => item.Available).ToArray();

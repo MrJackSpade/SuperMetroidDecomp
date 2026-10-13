@@ -97,10 +97,10 @@ internal static class ChozoAndTubeColorCatalogAccess
     extension(ChozoAndTubeColorCatalog self)
     {
         /// <summary>Selects Wrecked Ship statue colors through the production palette branch.</summary>
-        internal Bgr555 ResolveWreckedShip(int color) => ((Bgr555)(self.ResolveStatue((ChozoStatuePalette)(ChozoStatuePalette.WreckedShip), (int)(color)))!);
+        internal Bgr555 ResolveWreckedShip(int color) => ((Bgr555)(self.ResolveStatue((ChozoStatuePalette)(ChozoStatuePalette.WreckedShip), (int)(color))));
 
         /// <summary>Selects Lower Norfair statue colors through the production palette branch.</summary>
-        internal Bgr555 ResolveLowerNorfair(int color) => ((Bgr555)(self.ResolveStatue((ChozoStatuePalette)(ChozoStatuePalette.LowerNorfair), (int)(color)))!);
+        internal Bgr555 ResolveLowerNorfair(int color) => ((Bgr555)(self.ResolveStatue((ChozoStatuePalette)(ChozoStatuePalette.LowerNorfair), (int)(color))));
     }
 }
 
@@ -148,19 +148,19 @@ internal static class CrocomireColorCatalogAccess
     extension(CrocomireColorCatalog self)
     {
         /// <summary>Reads body colors used during the active fight.</summary>
-        internal Bgr555 ResolveFightBody(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.FightBody, (int)(color)))!);
+        internal Bgr555 ResolveFightBody(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.FightBody, (int)(color))));
 
         /// <summary>Reads the initial wall's Crocomire color band.</summary>
-        internal Bgr555 ResolveInitialWall(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.InitialWall, (int)(color)))!);
+        internal Bgr555 ResolveInitialWall(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.InitialWall, (int)(color))));
 
         /// <summary>Reads the initial projectile's Crocomire color band.</summary>
-        internal Bgr555 ResolveInitialProjectile(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.InitialProjectile, (int)(color)))!);
+        internal Bgr555 ResolveInitialProjectile(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.InitialProjectile, (int)(color))));
 
         /// <summary>Reads the exposed skeleton-arm color band.</summary>
-        internal Bgr555 ResolveSkeletonArm(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.SkeletonArm, (int)(color)))!);
+        internal Bgr555 ResolveSkeletonArm(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.SkeletonArm, (int)(color))));
 
         /// <summary>Reads the wall-spike color band for the Crocomire room.</summary>
-        internal Bgr555 ResolveWallSpikes(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.WallSpikes, (int)(color)))!);
+        internal Bgr555 ResolveWallSpikes(int color) => ((Bgr555)(self.Get(CrocomireColorCatalog.Band.WallSpikes, (int)(color))));
     }
 }
 
@@ -242,7 +242,7 @@ internal static class EscapeTimerTileAtlasAccess
         internal void QueueTo(VramWriteQueue queue)
         {
             Ensure.NotNull(queue);
-            if (((byte[])(self.Transfer())!).Length != EscapeTimerTileAtlasFormat.TotalByteCount)
+            if (((byte[])(self.Transfer())).Length != EscapeTimerTileAtlasFormat.TotalByteCount)
                 throw new InvalidDataException("Escape timer artwork no longer matches its native transfer pages.");
             queue.EnqueueAsset(VramAssetId.EscapeTimerFirstTiles,
                 EscapeTimerTileAtlasFormat.FirstByteCount, VramDmaDestination.FromNative(EscapeTimerTileAtlasFormat.FirstDestinationWord));
@@ -569,7 +569,7 @@ internal static class RoomFxPaletteBlendCatalogAccess
     extension(RoomFxPaletteBlendCatalog self)
     {
         /// <summary>Resolves the selected blend and materializes its three RGB5 colors.</summary>
-        internal ReadOnlySpan<Bgr555> Resolve(RoomFxPaletteBlend selection) => ((RoomFxBlendColors)(self.SelectColors(selection))!).CreateColors();
+        internal ReadOnlySpan<Bgr555> Resolve(RoomFxPaletteBlend selection) => ((RoomFxBlendColors)(self.SelectColors(selection))).CreateColors();
     }
 }
 
@@ -615,7 +615,7 @@ internal static class SamusChargeColorCatalogAccess
     {
         /// <summary>Selects the appropriate charge branch, suit, phase, and color.</summary>
         internal Bgr555 ResolveCharge(bool pseudo, int suit, int phase, int color) =>
-            ((Bgr555)((pseudo ? self.pseudoScrew : self.chargedBeam).Resolve((int)(suit), (int)(phase), (int)(color)))!);
+            ((Bgr555)((pseudo ? self.pseudoScrew : self.chargedBeam).Resolve((int)(suit), (int)(phase), (int)(color))));
     }
 }
 
@@ -689,7 +689,7 @@ internal static class TourianStatueColorCatalogAccess
     extension(TourianStatueColorCatalog self)
     {
         /// <summary>Reads one statue color through its private paint definition.</summary>
-        internal Bgr555 ResolveStatue(int color) => ((Bgr555)(self.statueColors.Read((int)(color)))!);
+        internal Bgr555 ResolveStatue(int color) => ((Bgr555)(self.statueColors.Read((int)(color))));
     }
 }
 

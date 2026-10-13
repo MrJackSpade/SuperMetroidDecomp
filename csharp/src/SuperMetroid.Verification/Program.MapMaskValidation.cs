@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -20,13 +21,13 @@ internal static class MapMaskValidationVerification
             File.WriteAllText(maskPath, "corrupt");
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(directory, null), "corrupt mask fails hash check");
 
-            void CheckInvalid(Action<Dictionary<string, int[]>> change, string context)
+            void CheckInvalid(Action<Dictionary<string, int[]?>> change, string context)
             {
-                var masks = JsonSerializer.Deserialize<Dictionary<string, int[]>>(originalMask)!;
+                var masks = RequiredJson.Deserialize<Dictionary<string, int[]?>>(originalMask);
                 change(masks);
                 byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(masks);
                 File.WriteAllBytes(maskPath, bytes);
-                var manifest = JsonSerializer.Deserialize<AreaMapCatalogManifest>(originalManifest, options)!;
+                var manifest = RequiredJson.Deserialize<AreaMapCatalogManifest>(originalManifest, options);
                 manifest.Sha256[AreaMapCatalogFormat.StationRevealFile] = Convert.ToHexString(SHA256.HashData(bytes));
                 File.WriteAllBytes(manifestPath, JsonSerializer.SerializeToUtf8Bytes(manifest, options));
                 AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(directory, null), context);
@@ -35,7 +36,7 @@ internal static class MapMaskValidationVerification
             CheckInvalid(masks => masks["Crateria"] = [0, 0], "duplicate authored reveal cells rejected even with valid hash");
             CheckInvalid(masks => masks["Crateria"] = [2048], "out-of-range authored reveal cells rejected");
             CheckInvalid(masks => masks.Remove("Crateria"), "missing area mask rejected");
-            CheckInvalid(masks => masks["Crateria"] = null!, "null area mask rejected");
+            CheckInvalid(masks => masks["Crateria"] = null, "null area mask rejected");
         }
         finally
         {

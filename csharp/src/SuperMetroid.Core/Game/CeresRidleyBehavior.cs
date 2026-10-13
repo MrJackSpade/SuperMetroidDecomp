@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
@@ -195,7 +196,7 @@ internal sealed class CeresRidleyBehavior
         // Metroid container palettes. This runtime exposes the final target directly in
         // CGRAM, matching the established Ceres-door palette seam.
         (_presentation.CeresRidleyColors ?? throw new InvalidOperationException(
-            "Ceres Ridley requires installed start colors.")).ApplyStart(_presentation._cgram!);
+            "Ceres Ridley requires installed start colors.")).ApplyStart(_presentation.Cgram);
 
         // The native loop clears target-palette byte offsets $1E2..$1FE: OBJ palette seven,
         // colors one through fifteen. Color zero belongs to the shared transparent backdrop
@@ -488,7 +489,7 @@ internal sealed class CeresRidleyBehavior
             : CeresRidleyPaletteRomData.HealthLateRow;
         (_presentation.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley damage requires installed health colors."))
-            .ApplyHealth(_presentation._cgram!, paletteIndex);
+            .ApplyHealth(_presentation.Cgram, paletteIndex);
     }
 
     /// <summary>Applies the crossing-frame -16 then +20 velocity changes before shared Ridley motion.</summary>
@@ -823,7 +824,7 @@ internal sealed class CeresRidleyBehavior
         // $A6:A9E3 replaces colors 1..15 of BG palette five. $A6:AA01 is
         // copied to colors 1..8 of BG palette two and OBJ palette seven.
         (_presentation.CeresRidleyColors ?? throw new InvalidOperationException(
-            "Ceres Ridley retreat requires installed colors.")).ApplyRetreat(_presentation._cgram!);
+            "Ceres Ridley retreat requires installed colors.")).ApplyRetreat(_presentation.Cgram);
     }
 
     /// <summary>The Ceres Baby's anchor in Ridley's arms before the fake retreat.</summary>
@@ -1019,7 +1020,7 @@ internal sealed class CeresRidleyBehavior
 
         (_presentation.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley eye fade requires installed colors."))
-            .ApplyEyeFade(_presentation._cgram!, fadeStep.PaletteRow);
+            .ApplyEyeFade(_presentation.Cgram, fadeStep.PaletteRow);
         state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset + 1));
     }
 
@@ -1037,7 +1038,7 @@ internal sealed class CeresRidleyBehavior
             state.FadePaletteOffset %
                 (CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort)) == 0 &&
             row < CeresRidleyPaletteRomData.BodyFadeRowCount)
-            bodyColors.ApplyBodyFade(_presentation._cgram!, row);
+            bodyColors.ApplyBodyFade(_presentation.Cgram, row);
         else throw new InvalidOperationException(
             $"Ceres Ridley body-fade offset {state.FadePaletteOffset} is outside the installed color rows.");
         state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset +
@@ -1308,7 +1309,7 @@ internal sealed class CeresRidleyBehavior
                 case CeresBabyInstruction.UpdateColors:
                     int babyPaletteRow = CeresBabyInstructionProgramDefinitions.ReadPaletteRow(argument);
                     if (_presentation.CeresRidleyColors is { } babyColors)
-                        babyColors.ApplyBaby(_presentation._cgram!, babyPaletteRow);
+                        babyColors.ApplyBaby(_presentation.Cgram, babyPaletteRow);
                     else throw new InvalidOperationException(
                         "Ceres Ridley requires installed Baby Metroid colors.");
                     cursor = unchecked((ushort)(argument + 2));
@@ -1354,7 +1355,7 @@ internal sealed class CeresRidleyBehavior
         if (slotIndex < 0)
             throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a Mode-7 wall.");
 
-        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.Bus!,
+        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus,
             EnemyDefinitionId.CeresDoor);
         RoomEnemyPopulationRecord population = new(
             EnemyDefinitionId.CeresDoor,
@@ -1628,7 +1629,7 @@ internal sealed class CeresRidleyBehavior
         if (_presentation.CeresRidleyMode7Colors is { } installed &&
             zoomHighByte < CeresRidleyPaletteRomData.Mode7ZoomRowCount)
         {
-            installed.Apply(_presentation._cgram!, zoomHighByte);
+            installed.Apply(_presentation.Cgram, zoomHighByte);
             return;
         }
         throw new InvalidOperationException(
@@ -1642,7 +1643,7 @@ internal sealed class CeresRidleyBehavior
     /// </summary>
     private void ApplyMode7TransferList(CeresMode7TransferList pointer, ref Mode7TransferQueue queue)
     {
-        CeresMode7TransferDefinitions.ApplyTo(_presentation._vram!, pointer);
+        CeresMode7TransferDefinitions.ApplyTo(_presentation.Vram, pointer);
         foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(pointer))
         {
             queue.QueueVramTilemapTransfer(
@@ -1774,7 +1775,7 @@ internal sealed class CeresRidleyBehavior
     }
 
     /// <summary>Ports DrawEmergencyText at $A6:C136 exactly.</summary>
-    internal void QueueCeresEmergencyText(VramWriteQueue? vramWriteQueue)
+    internal void QueueCeresEmergencyText([NotNull] VramWriteQueue? vramWriteQueue)
     {
         if (vramWriteQueue is null)
             throw new InvalidOperationException("Ceres emergency text requires a VRAM write queue.");
@@ -1864,7 +1865,7 @@ internal sealed class CeresRidleyBehavior
     {
         var installed = state.CeresEscapeTypewriter ?? throw new InvalidDataException(
             "Ceres warning text requires installed typewriter artwork.");
-        bool completed = installed.Step(_presentation._vram!);
+        bool completed = installed.Step(_presentation.Vram);
         state.CeresEscapeTextPointer = unchecked((ushort)installed.Pointer);
         state.CeresEscapeTextDestination = installed.Destination;
         state.CeresEscapeTextDelayTimer = installed.DelayTimer.RawValue;
@@ -1884,7 +1885,7 @@ internal sealed class CeresRidleyBehavior
         state.CeresEscapePaletteFrame = unchecked((ushort)(
             (state.CeresEscapePaletteFrame + 1) & 0x000f));
         if (_presentation.CeresRidleyColors is { } colors)
-            colors.ApplyAlarm(_presentation._cgram!, state.CeresEscapePaletteFrame);
+            colors.ApplyAlarm(_presentation.Cgram, state.CeresEscapePaletteFrame);
         else throw new InvalidOperationException(
             "Ceres alarm requires installed Ridley color rows.");
     }

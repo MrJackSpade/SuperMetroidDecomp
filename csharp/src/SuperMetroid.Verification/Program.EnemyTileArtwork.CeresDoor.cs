@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -91,9 +92,9 @@ internal static class EnemyTileArtworkCeresDoorVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels,
                 image.Palette);
         string colorsPath = Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName);
-        CeresDoorVisualDocument document = JsonSerializer.Deserialize<CeresDoorVisualDocument>(
+        CeresDoorVisualDocument document = RequiredJson.Deserialize<CeresDoorVisualDocument>(
             File.ReadAllBytes(colorsPath),
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         document.Normal[0] = document.Normal[0] with
         {
             Red = (document.Normal[0].Red + 1) & 31,
@@ -106,10 +107,10 @@ internal static class EnemyTileArtworkCeresDoorVerification
         File.WriteAllBytes(Path.Combine(overrides,
             CeresDoorVisualFormat.ColorsFileName),
             CeresDoorVisualCatalog.Write(document));
-        CeresDoorVisualCatalog edited = EnemyTileArtworkFiles.Load(directory,
-            overrides).CeresDoorVisual!;
+        CeresDoorVisualCatalog edited = (EnemyTileArtworkFiles.Load(directory,
+            overrides).CeresDoorVisual ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrides).CeresDoorVisual."));
         var editedVram = new SnesVram();
-        edited.LoadTiles(editedVram);
+        (edited ?? throw new InvalidOperationException("Verification requires edited.")).LoadTiles(editedVram);
         AssertEqual((byte)(nativeTiles[0] ^ 0x80),
             editedVram.Bytes[CeresDoorVisualRomData.TileVramDestination],
             "Ceres-door PNG override changes the live first tile pixel");

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using static Program;
 using static SamusAtmosphereArtworkBoundaryVerification;
 using static SamusVisorColorsVerification;
@@ -1237,7 +1238,7 @@ internal static class LookupStream1Verification
             AssertEqual(pointers[selected] != 0, found, "Native zero pointer retains mutable-memory routing");
             if (found)
             {
-                AssertEqual(pointers[selected], definition!.Pointer, "Actual selector resolves supplied pointer");
+                AssertEqual(pointers[selected], (definition ?? throw new InvalidOperationException("Verification requires definition.")).Pointer, "Actual selector resolves supplied pointer");
                 AssertEqual(new SamusSpritePart(pointers[selected], (byte)pointers[selected], (ushort)(pointers[selected] ^ 0x5555)),
                     definition.Parts.Single(), "Actual selector resolves independent marker payload");
             }
@@ -1597,8 +1598,8 @@ internal static class LookupStream1Verification
         SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
-        var document = System.Text.Json.JsonSerializer.Deserialize<SamusArmCannonArtworkDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Length * 32);
         SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
@@ -1792,7 +1793,7 @@ internal static class LookupStream1Verification
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1TimerLayoutRomByte(rom, address), LookupStream1TimerLayoutRomByte(rom, address + 1)));
         byte[] json = EscapeTimerPresentationExtractor.Extract(rom);
         var stock = EscapeTimerPresentation.Load(new MemoryStream(json));
-        var document = System.Text.Json.JsonSerializer.Deserialize<EscapeTimerPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<EscapeTimerPresentationDocument>(json, MapPresentationFormat.JsonOptions);
         AssertEqual(0, stock.frames.Count, "Timer stock stores no calculated frame fallbacks");
         AssertEqual(0, stock.anchors.Count, "Timer stock stores no calculated anchor fallbacks");
         int parts = 0;
@@ -1853,7 +1854,7 @@ internal static class LookupStream1Verification
         }
         Console.WriteLine("Escape timer layout:25 native parts,4 native anchors, zero stock dictionaries,10 decimal OAM fixtures and independent frame/anchor/spacing/palette edits pass.");
 
-        EscapeTimerPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<EscapeTimerPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
+        EscapeTimerPresentationDocument Read() => RequiredJson.Deserialize<EscapeTimerPresentationDocument>(json, MapPresentationFormat.JsonOptions);
         static EscapeTimerPresentation Load(EscapeTimerPresentationDocument value)
         {
             using var stream = new MemoryStream(); EscapeTimerPresentation.Write(stream, value); stream.Position = 0;
@@ -1907,7 +1908,7 @@ internal static class LookupStream1Verification
             AssertEqual(expected.Offset, stock.Resolve(mode != 0, direction), "Installed flare default matches native");
             for (int axis = 0; axis < 2; axis++)
             {
-                var document = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(json, options)!;
+                var document = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(json, options);
                 string key = ChargeFlarePlacementDefinitions.Key(mode != 0, direction);
                 var before = document.Offsets[key];
                 document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
@@ -1919,7 +1920,7 @@ internal static class LookupStream1Verification
                         edited.Resolve(selectedMode != 0, selectedDirection), "Editing a source origin does not edit an independently supplied adjacent alias");
             }
         }
-        var grappleDocument = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options)!;
+        var grappleDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options);
         var grapple = ChargeFlarePlacementCatalog.LoadGrapple(new MemoryStream(ChargeFlarePlacementCatalog.Write(grappleDocument)));
         AssertEqual(0, grapple.offsets.Count, "Grapple stock has zero stored fallback origins");
         for (int mode = 0; mode < 2; mode++)
@@ -1931,7 +1932,7 @@ internal static class LookupStream1Verification
             AssertEqual(expected.Offset, grapple.Resolve(mode != 0, direction), "Installed Grapple defaults match native");
             for (int axis = 0; axis < 2; axis++)
             {
-                var document = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options)!;
+                var document = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options);
                 string key = ChargeFlarePlacementDefinitions.Key(mode != 0, direction);
                 var before = document.Offsets[key];
                 document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
@@ -1954,7 +1955,7 @@ internal static class LookupStream1Verification
         var body = CreateSamusIdentityFixture();
         var system = new SamusProjectileSystem();
         var draw = new Action<ISnesAddressSpace, OamBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
-        var shiftedDocument = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(json, options)!;
+        var shiftedDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(json, options);
         foreach (string key in shiftedDocument.Offsets.Keys.ToArray())
             shiftedDocument.Offsets[key] = shiftedDocument.Offsets[key] with { X = (short)(shiftedDocument.Offsets[key].X + 7) };
         var shifted = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementCatalog.Write(shiftedDocument)));
@@ -2605,7 +2606,7 @@ internal static class LookupStream1Verification
                 AssertTrue(eventNumber is null, "nine no-op quota identities have no event");
                 AssertEqual((byte)0x60, LookupStream1PuyoAndQuotaRomByte(rom, 0x840000 | pointer), "native distinct no-op RTS");
             }
-            else AssertEqual(Word(0x840000 | (pointer + 9)), (ushort)eventNumber!.Value, "native quota observer event operand");
+            else AssertEqual(Word(0x840000 | (pointer + 9)), (ushort)(eventNumber ?? throw new InvalidOperationException("Verification requires eventNumber.")), "native quota observer event operand");
         }
         foreach (ushort invalid in new ushort[] { 1, 17, 25, 26, ushort.MaxValue })
         {
@@ -2772,10 +2773,10 @@ internal static class LookupStream1Verification
         Suite(nameof(VerifySelectors), () => VerifySelectors(stock, -1, 0));
         for (int direction = 0; direction < 10; direction++)
         {
-            var document = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+            var document = RequiredJson.Parse(json);
             ushort replacement = expected[(sources.IndexOf(stock.TileSource(direction, 2)) + 1) % expected.Length];
-            document["tileSources"]![direction]![2] = replacement;
-            document["spriteAttributes"]![direction] = stock.SpriteAttributes(direction) ^ 0x4000;
+            document.Required("tileSources").Required(direction)[2] = replacement;
+            document.Required("spriteAttributes")[direction] = stock.SpriteAttributes(direction) ^ 0x4000;
             byte[] changedJson = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
             var changed = SamusArmCannonArtworkCatalogTooling.Load(new MemoryStream(changedJson), new MemoryStream(png));
             VerifySelectors(changed, direction, replacement);
@@ -2859,8 +2860,8 @@ internal static class LookupStream1Verification
         SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
-        var document = System.Text.Json.JsonSerializer.Deserialize<SamusArmCannonArtworkDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Length * 32);
         SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
@@ -3073,7 +3074,7 @@ internal static class LookupStream1Verification
     {
         byte[] json = EscapeTypewriterExtractor.Extract(rom);
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var document = System.Text.Json.JsonSerializer.Deserialize<EscapeTypewriterDocument>(json, options)!;
+        var document = RequiredJson.Deserialize<EscapeTypewriterDocument>(json, options);
         EscapeTypewriterPresentation Load(EscapeTypewriterDocument value)
         {
             using var output = new MemoryStream();
@@ -3171,8 +3172,8 @@ internal static class LookupStream1Verification
     /// <summary>Checks Samus visor color extraction, channel relationships, and independent edits.</summary>
     internal static void VerifyLookupStream1VisorColors(ISnesAddressSpace rom)
     {
-        var document = System.Text.Json.JsonSerializer.Deserialize<SamusVisorColorDocument>(
-            SamusVisorColorExtractor.Extract(rom), new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var document = RequiredJson.Deserialize<SamusVisorColorDocument>(
+            SamusVisorColorExtractor.Extract(rom), new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         SamusVisorColorCatalog Load(SamusVisorColorDocument value) =>
             SamusVisorColorCatalog.Load(new MemoryStream(SamusVisorColorCatalog.Write(value)));
         var stock = Load(document);
@@ -3498,8 +3499,8 @@ internal static class LookupStream1Verification
         SamusBodyArtworkCatalog body = SamusBodyArtworkFiles.Load(directory.Root, null);
         byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
-        var document = System.Text.Json.JsonSerializer.Deserialize<SamusArmCannonArtworkDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Length * 32);
         SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
@@ -3645,7 +3646,7 @@ internal static class LookupStream1Verification
             AssertTrue(edited.Pointers.SequenceEqual(supplied), "Independent basis/alias edit preserves every supplied pointer");
             bool exists = edited.TryGet((ushort)index, out var map);
             AssertEqual(supplied[index] != 0, exists, "Actual edited selector retains mutable-memory versus installed record distinction");
-            if (exists) AssertEqual(supplied[index], map!.Pointer, "Actual edited native record identity");
+            if (exists) AssertEqual(supplied[index], (map ?? throw new InvalidOperationException("Verification requires map.")).Pointer, "Actual edited native record identity");
             if (index == native.Length - 1) AssertEqual(Canonical(supplied), edited.ContentIdentity, "Original independently edited OAM canonical hash");
         }
         Directory.CreateDirectory("csharp/test-temp");
@@ -3695,7 +3696,7 @@ internal static class LookupStream1Verification
                 var stored = glyph.pixelInputs;
                 byte[] image = glyph.Planar.ToArray();
                 var contour = glyph.contourEdits;
-                AssertEqual(0, contour.Count, "Zero stock morph-circle contour overrides");
+                AssertEqual(0, (contour ?? throw new InvalidOperationException("Verification requires contour.")).Count, "Zero stock morph-circle contour overrides");
                 for (int index = 0; index < image.Length; index++)
                 {
                     byte native = LookupStream1BodyPixelsRomByte(rom, glyph.SourceAddress + index);
@@ -3716,7 +3717,7 @@ internal static class LookupStream1Verification
                         retained++;
                         basisRows.Add($"{half},{set:X},{position:X},{glyph.SourceAddress + index:X6},{native:X2},{mask:X2}");
                     }
-                    AssertEqual(!diagnostic && !blank && !shared, stored.ContainsKey(index), "Exact pixel basis; no stock defaults survive as overrides");
+                    AssertEqual(!diagnostic && !blank && !shared, (stored ?? throw new InvalidOperationException("Verification requires stored.")).ContainsKey(index), "Exact pixel basis; no stock defaults survive as overrides");
                     bytes++;
                 }
             }

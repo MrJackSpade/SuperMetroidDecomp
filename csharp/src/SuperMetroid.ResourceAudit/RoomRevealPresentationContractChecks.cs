@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -37,7 +38,7 @@ internal static class RoomRevealPresentationContractChecks
             }
             """, path: "fixture-room-reveal-consumer.cs");
         trees.Add(calls);
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("RoomRevealProviderFixture", sources,
             platforms.Append(typeof(XrayRevealVisualCatalog).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),

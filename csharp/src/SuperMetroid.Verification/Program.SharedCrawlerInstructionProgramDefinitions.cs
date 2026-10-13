@@ -73,7 +73,7 @@ internal static class SharedCrawlerInstructionProgramDefinitionsVerification
                 CrawlerSurfaceOrientation.UpsideLeft
                     ? CrawlerEnemyFunction.CrawlingVertically
                     : CrawlerEnemyFunction.CrawlingHorizontally;
-            AssertEqual(expected, enemies.CrawlerStates[0]!.Function,
+            AssertEqual(expected, (enemies.CrawlerStates[0] ?? throw new InvalidOperationException("Verification requires enemies.CrawlerStates[0].")).Function,
                 $"shared crawler ${(int)enemyDefinition:X4}/{orientation} publishes native movement");
             AssertEqual(unchecked((ushort)(entry + 8)), slot.CurrentInstruction,
                 $"shared crawler ${(int)enemyDefinition:X4}/{orientation} loops all five frames");

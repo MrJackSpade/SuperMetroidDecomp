@@ -33,7 +33,7 @@ internal abstract class NativeCheckpointRecords : IDisposable
             lastRecord++;
             result = Advance(lastRecord, lastRecord == record);
         }
-        return result!.Value;
+        return (result ?? throw new InvalidOperationException("Verification requires result."));
     }
 
     /// <summary>Whether the stream ends after the last record read.</summary>

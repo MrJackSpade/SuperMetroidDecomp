@@ -190,8 +190,8 @@ public static class SamusMorphBallMovement
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             samus.Kinematics.YSpeed = 0;
             samus.Kinematics.YSubspeed = 0;
-            int displacement = SamusExtraDisplacement
-                .CalculateExtraOnlyVerticalDisplacement(samus.Kinematics)!.Value;
+            int displacement = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) ??
+                throw new InvalidOperationException("A nonzero external Y displacement always yields a scan distance.");
             vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
             landed = displacement >= 0 && vertical.Collided;
             hitCeiling = displacement < 0 && vertical.Collided;

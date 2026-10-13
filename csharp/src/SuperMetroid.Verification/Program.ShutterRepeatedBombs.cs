@@ -30,7 +30,7 @@ internal static class ShutterRepeatedBombsVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
-            var samus = runtime.Player.Samus!;
+            var samus = runtime.Player.IntroducedSamus;
             var platform = runtime.Enemies.SlotTable.Slots[slotIndex];
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;

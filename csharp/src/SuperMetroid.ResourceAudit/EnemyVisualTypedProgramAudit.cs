@@ -54,6 +54,8 @@ internal static class EnemyVisualTypedProgramAudit
         void RequireTypedFrames<TProgram, TFrame, TCue>(AnimationProgramSet<TProgram, TFrame, TCue> programs,
             Func<TFrame, ushort> spritemap, byte bank, string owner, string source)
             where TProgram : struct, Enum
+            where TFrame : struct
+            where TCue : notnull
         {
             ushort[] frames = [.. Enum.GetValues<TProgram>().SelectMany(program => programs.Steps(program))
                 .Where(step => step.Kind == AnimationProgramStepKind.Show)

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -193,8 +194,8 @@ internal static class AuditContractChecks
         MotherBrainRoomFlashAudit.RequireOperands([neighboringOperand], "fixture.cs", exports, changed);
         Require(changed.MissingCount == 1, "a changed/unaligned color identity must remain a concrete omission");
 
-        var document = JsonSerializer.Deserialize<SuperMetroid.Core.Assets.MotherBrainRoomColorDocument>(
-            MotherBrainRoomFlashAudit.ExtractDeclarationDocument(), SuperMetroid.Core.Assets.MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<SuperMetroid.Core.Assets.MotherBrainRoomColorDocument>(
+            MotherBrainRoomFlashAudit.ExtractDeclarationDocument(), SuperMetroid.Core.Assets.MapPresentationFormat.JsonOptions);
         bool rejected = false;
         try
         {

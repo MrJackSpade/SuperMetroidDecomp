@@ -33,7 +33,7 @@ internal static class LookupPaletteFxAreasVerification
             {
                 var failure = AssertThrows<ArgumentOutOfRangeException>(
                     () => RoomPaletteFxDefinitions.GetAreaDefinition(area, bit), "Invalid area/bit rejects");
-                AssertEqual(area >= 8 ? "areaIndex" : "bitIndex", failure.ParamName!,
+                AssertEqual(area >= 8 ? "areaIndex" : "bitIndex", failure.ParamName,
                     "Area validation retains precedence");
             }
         }

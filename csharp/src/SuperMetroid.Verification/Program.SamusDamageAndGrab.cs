@@ -127,7 +127,7 @@ internal static void VerifySamusDrainedController()
     // index four, which installs the handler and advances again to index five's delay one.
     for (int tick = 0; tick < 18; tick++)
         right.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xf7, right.LastAnimationDelayCommand!.Value,
+    AssertEqual(0xf7, (right.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires right.LastAnimationDelayCommand.")),
         "drained animation reaches F7");
     AssertEqual(DrainedSamusPhase.Falling, right.Drained.Phase,
         "F7 installs drained movement handler");
@@ -729,8 +729,8 @@ internal static void VerifySamusGrabbedByDraygon()
 
     // The larger right+up+shoot chord must select the first `$AE56` record (`$ED`), not
     // the later generic shoot record (`$EE`), proving ROM priority rather than host rules.
-    SamusPoseTransition rightUpShoot = SamusPoseTransitionTable.Find(
-        bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNewInput: 0)!.Value;
+    SamusPoseTransition rightUpShoot = (SamusPoseTransitionTable.Find(
+        bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNe...."));
     AssertEqual(SamusPoseId.DraygonGrabbedAimUpRightPose,
         rightUpShoot.ProspectivePose, "right grabbed transition priority");
     samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(bus, rightUpShoot.ProspectivePose);

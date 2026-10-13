@@ -39,10 +39,10 @@ internal static class DoorEntryRoomFxSoundVerification
                 return candidate.RoomLayer3Fx.EarthquakeRequest.HasValue;
             });
         var runtime = LoadRisingTide(entry);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;
 
         SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(CartridgeDoorHeader door)
@@ -52,7 +52,7 @@ internal static class DoorEntryRoomFxSoundVerification
             loaded.RoomLoader.InitializeStartingCeresRoom();
             loaded.RoomLoader.InitializeCeresStartSamus();
             loaded.LoadCartridgeRoomThroughDoorForVerification(door);
-            loaded.Player.Samus!.InputLocked = true;
+            loaded.Player.IntroducedSamus.InputLocked = true;
             return loaded;
         }
 
@@ -61,7 +61,7 @@ internal static class DoorEntryRoomFxSoundVerification
                 runtime.RoomLayer3Fx.earthquakeSoundTimer.IsZero,
             _ => game.Step(0), maximumFrames: 600, context: "Rising Tide rumble timer reaches zero");
 
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)
         for (int x = 0; x < level.Size.X && !selected; x++)

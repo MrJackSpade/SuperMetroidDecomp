@@ -191,9 +191,9 @@ internal static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(0, firingSamus.Kinematics.YSpeed,
         "connection common tail clears whole Y speed");
     AssertEqual(0, firingSamus.Position.X.Whole, "native frame $18 offsets body thirty-one pixels left of rope start");
-    AssertEqual(12, connected.CameraPrevious!.Value.X,
+    AssertEqual(12, (connected.CameraPrevious ?? throw new InvalidOperationException("Verification requires connected.CameraPrevious.")).X,
         "connection common tail clamps previous X to twelve pixels from native body");
-    AssertEqual(59, connected.CameraPrevious!.Value.Y,
+    AssertEqual(59, connected.CameraPrevious.Value.Y,
         "connection common tail clamps previous Y to twelve pixels from native body");
 
     // The Grapple-speedkeep movie connects on the same frame that hit-interruption

@@ -72,7 +72,8 @@ internal sealed class CeresRidleyFadeColorDefinitions
     /// <summary>Scale each RGB5 channel through fifteen intervals. Both select a one-unit numerator rounding bias; this is a common fade composition rule, not a claim about SNES hardware or the original authoring tool.</summary>
     private Bgr555 Calculate(int row, int color)
     {
-        Bgr555 endpoint = kind == CeresRidleyFadeKind.Eyes ? eyePaint.Color(color) : bodyPaint!.Color(color);
+        Bgr555 endpoint = kind == CeresRidleyFadeKind.Eyes ? eyePaint.Color(color)
+            : (bodyPaint ?? throw new InvalidOperationException("A body fade requires its body paint.")).Color(color);
         int phase = kind == CeresRidleyFadeKind.Eyes ? Rows - 1 - row : row;
         return Scale(endpoint, phase);
     }

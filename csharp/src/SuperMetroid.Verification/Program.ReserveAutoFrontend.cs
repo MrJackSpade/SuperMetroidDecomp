@@ -44,7 +44,7 @@ internal static class ReserveAutoFrontendVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
@@ -121,7 +121,7 @@ internal static class ReserveAutoFrontendVerification
                 AssertTrue(!samus.ScriptLocks.StationaryScriptControlLocked,
                     "completion restores the normal animation handler on the same frame");
             AssertTrue(capture.Snapshot is not null, "automatic recovery publishes a gameplay render packet");
-            var pixels = SoftwareFrameSnapshotRenderer.Render(capture.Snapshot!);
+            var pixels = SoftwareFrameSnapshotRenderer.Render((capture.Snapshot ?? throw new InvalidOperationException("Verification requires capture.Snapshot.")));
             foreach ((int index, int digit) in new[] { (70, frame / 10), (71, frame % 10) })
             {
                 AssertEqual(ReadRetailHudDigitTile(bus, digit), runtime.Vram.ReadWord(HudState.VramDestination + index),
@@ -168,12 +168,12 @@ internal static class ReserveAutoFrontendVerification
         AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == 2), "ordinary gameplay publishes actual warning command");
         runtime.RoomLoader.InitializePostCeresZebesRoom();
         // The Zebes handoff installs a fresh Samus that carries over only the inventory.
-        samus = runtime.Player.Samus!;
+        samus = runtime.Player.Samus;
         AssertTrue(!runtime.Enemies.GunshipHealthBehavior.HasGunshipHealthHandler, "initial post-Ceres descent does not install command 1A");
         var ship = runtime.Enemies.SlotTable.Slots[0];
         ship.VariableF = (ushort)GunshipFunction.WaitForEntranceToOpen;
         ship.VariableA = 100;
-        samus.HealthWarning.Update(99, audio);
+        (samus ?? throw new InvalidOperationException("Verification requires samus.")).HealthWarning.Update(99, audio);
         samus.Health = 30; samus.InputLocked = true;
         audio.Reset(); game.StepCaptured(0, ++hostSequence, 1);
         AssertTrue(runtime.Enemies.GunshipHealthBehavior.HasGunshipHealthHandler && samus.HealthWarning.IsActive,

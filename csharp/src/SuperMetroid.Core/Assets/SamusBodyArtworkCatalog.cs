@@ -416,6 +416,18 @@ public sealed class SamusBodyTileDefinition
     /// <summary>Seven-byte record position within the native definition group.</summary>
     private readonly int position;
 
+    /// <summary>The owning catalog; a definition reconstructs shared bytes and addresses only once bound to it.</summary>
+    private SamusBodyArtworkCatalog BoundCatalog => body ??
+        throw new InvalidOperationException("This Samus body transfer is standalone; it is not bound to its catalog.");
+
+    /// <summary>The bound definition's edited in-contour pixels.</summary>
+    private Dictionary<int, byte> BoundPixelInputs => pixelInputs ??
+        throw new InvalidOperationException("This Samus body transfer is standalone; it has no edited pixel inputs.");
+
+    /// <summary>The bound definition's edited out-of-contour bits.</summary>
+    private Dictionary<int, byte> BoundContourEdits => contourEdits ??
+        throw new InvalidOperationException("This Samus body transfer is standalone; it has no contour edits.");
+
     /// <summary>Creates one standalone native body-transfer definition.</summary>
     /// <param name="sourceAddress">SNES source address of the first planar payload.</param>
     /// <param name="firstSize">Byte count of the first VRAM transfer.</param>
@@ -494,7 +506,7 @@ public sealed class SamusBodyTileDefinition
         new(this, body, upper, set, position, pointers, frames);
 
     /// <summary>Gets the SNES source address of the definition's first payload.</summary>
-    public int SourceAddress => sourceAddressOverride ?? SamusBodyTransferDefinitions.SourceAddress(body!, upper, set, position);
+    public int SourceAddress => sourceAddressOverride ?? SamusBodyTransferDefinitions.SourceAddress(BoundCatalog, upper, set, position);
     /// <summary>Gets the byte count of the first VRAM transfer.</summary>
     public ushort FirstSize => firstSizeOverride ?? calculatedFirstSize ??
         throw new InvalidDataException("Installed body composition no longer supplies its transfer row.");
@@ -517,8 +529,8 @@ public sealed class SamusBodyTileDefinition
     {
         if ((uint)index >= PayloadLength) throw new ArgumentOutOfRangeException(nameof(index));
         if (standalonePlanar is not null) return standalonePlanar[index];
-        if (pixelInputs!.TryGetValue(index, out byte value))
-            return (byte)((value & SamusBodyPixelDefinitions.ContourMask(upper, set, position, index)) | contourEdits!.GetValueOrDefault(index));
+        if (BoundPixelInputs.TryGetValue(index, out byte value))
+            return (byte)((value & SamusBodyPixelDefinitions.ContourMask(upper, set, position, index)) | BoundContourEdits.GetValueOrDefault(index));
         return TryPixelDefault(index, out byte calculated) ? calculated
             : throw new InvalidDataException("Installed body artwork lost an independent pixel input.");
     }
@@ -535,7 +547,7 @@ public sealed class SamusBodyTileDefinition
         }
         if (SamusBodyPixelDefinitions.TrySourceByte(upper, set, position, index, out int sourcePosition, out int sourceIndex))
         {
-            SamusBodyTileDefinition source = (upper ? body!.TopSet(set) : body!.BottomSet(set))[sourcePosition];
+            SamusBodyTileDefinition source = (upper ? BoundCatalog.TopSet(set) : BoundCatalog.BottomSet(set))[sourcePosition];
             if ((uint)sourceIndex < source.PayloadLength)
             {
                 value = source.ReadPlanarByte(sourceIndex);

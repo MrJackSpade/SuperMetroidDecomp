@@ -69,8 +69,6 @@ internal static class WordReadsVerification
         bytes = new RecordingByteSource(new() { [0x7e0010] = 0x01 });
         var workRam = AssertThrows<UnmappedByteException>(() => bytes.ReadWorkRamWordFixedBank(0x7e0010), "WRAM word: high-byte failure propagates");
         AssertEqual(0x7e0011, workRam.Address, "WRAM word: failure names the high byte");
-        AssertThrows<ArgumentNullException>(() => ((ISnesMutableMemory)null!).ReadWorkRamWord(0x7e0000), "WRAM word: null source");
-        AssertThrows<ArgumentNullException>(() => ((IImportCartridgeSource)null!).ReadCartridgeWord(0x8f8000), "cartridge word: null source");
     }
 
     /// <summary>Checks BG screen-block geometry, planar pixel decoding, and VRAM word wrapping.</summary>

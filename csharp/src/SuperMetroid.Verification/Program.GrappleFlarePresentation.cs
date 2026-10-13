@@ -149,8 +149,8 @@ internal static class GrappleFlarePresentationVerification
         runtime.Artwork.GrappleArtwork = grappleArtwork;
         runtime.Artwork.ChargeFlareCompositions = stock;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        var samus = runtime.Player.Samus!;
-        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
+        var samus = runtime.Player.IntroducedSamus;
+        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         samus.Presentation.InitializeAnimation(bus); samus.Presentation.PrimeGraphics(bus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
@@ -171,12 +171,12 @@ internal static class GrappleFlarePresentationVerification
         AssertTrue(!original.SequenceEqual(Draw(runtime)), "Real Grapple actor consumes current composition override");
         using var stream = new MemoryStream(SerializeGraph(game));
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
-        var restoredRuntime = restored.runtime;
+        var restoredRuntime = restored.GameplayRuntime;
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;
         restoredRuntime.Artwork.GrappleArtwork = grappleArtwork;
-        restoredRuntime.Player.Samus!.Presentation.TileTransfers.BindArtwork(body);
-        restoredRuntime.Player.Samus.ArmCannon.Artwork = body.ArmCannon;
+        restoredRuntime.Player.IntroducedSamus.Presentation.TileTransfers.BindArtwork(body);
+        restoredRuntime.Player.IntroducedSamus.ArmCannon.Artwork = body.ArmCannon;
         restored.BindArtwork(restored.Artwork with
         {
             ChargeFlareCompositions = edited,

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -186,7 +187,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                 BinaryOperatorKind.RightShift)
         {
             Report(context, EnumArithmeticRule, conversion.Syntax.GetLocation(),
-                "Casting arithmetic", conversion.Type!.Name);
+                "Casting arithmetic", conversion.Type.Name);
         }
     }
 
@@ -201,7 +202,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         };
         if (IsClosedEnum(target))
             Report(context, EnumArithmeticRule, context.Operation.Syntax.GetLocation(),
-                "Stepping an enum", target!.Name);
+                "Stepping an enum", target.Name);
     }
 
     /// <summary>Tracks every parameter reference within a method and reports primitive parameters used only as unvalidated enum casts.</summary>
@@ -342,7 +343,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             .Any(member => SymbolEqualityComparer.Default.Equals(method.ContainingType.FindImplementationForInterfaceMember(member), method));
 
     /// <summary>Restricts enum diagnostics to repository-owned enums without composable flags semantics.</summary>
-    private static bool IsClosedEnum(ITypeSymbol? type) =>
+    private static bool IsClosedEnum([NotNullWhen(true)] ITypeSymbol? type) =>
         type is INamedTypeSymbol { TypeKind: TypeKind.Enum } enumType && IsOwned(enumType) && !IsFlags(enumType);
 
     /// <summary>Compilation-wide evidence for catalog comparisons and primitive interludes.</summary>
@@ -495,7 +496,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             if (symbol is ILocalSymbol || !symbol.Locations.Any(location => location.IsInSource) ||
                 _ordered.Contains(symbol) || writes.Any(write => write.Stepped || write.Constant is null))
                 return;
-            var written = new HashSet<object>(writes.Select(write => write.Constant!));
+            var written = new HashSet<object>(writes.Select(write => write.Constant).OfType<object>());
             if (written.Count < 2)
                 return;
             bool compared = _comparedConstants.TryGetValue(symbol, out HashSet<object>? constants) &&
@@ -506,7 +507,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                 .OrderBy(location => location.SourceTree?.FilePath, StringComparer.Ordinal)
                 .ThenBy(location => location.SourceSpan.Start).First();
             context.ReportDiagnostic(Diagnostic.Create(LiteralDomainRule, site, symbol.Name,
-                TypeOf(symbol)!.ToDisplayString(), string.Join(", ", written.OrderBy(value => value))));
+                StoredType(symbol).ToDisplayString(), string.Join(", ", written.OrderBy(value => value))));
         }
 
         /// <summary>Excludes counters and accumulators modified by stepping from catalog-domain inference.</summary>
@@ -531,7 +532,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                     if (entry.Value.Names.Count < 2 || _ordered.Contains(entry.Key.Subject) || IsStepped(entry.Key.Subject))
                         continue;
                     context.ReportDiagnostic(Diagnostic.Create(CatalogComparisonRule, entry.Value.First,
-                        entry.Key.Subject.Name, TypeOf(entry.Key.Subject)!.ToDisplayString(), entry.Value.Names.Count,
+                        entry.Key.Subject.Name, StoredType(entry.Key.Subject).ToDisplayString(), entry.Value.Names.Count,
                         entry.Key.Catalog.Name));
                 }
                 foreach (var entry in _writes)
@@ -539,7 +540,10 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                     ReportLiteralDomain(context, entry.Key, entry.Value);
                     if (!_domainUses.TryGetValue(entry.Key, out string? how))
                         continue;
-                    var narrowed = entry.Value.Where(write => write.Domain is not null)
+                    var narrowed = entry.Value
+                        .SelectMany(write => write.Domain is { } domain
+                            ? new[] { (Domain: domain, write.Site) }
+                            : Array.Empty<(ITypeSymbol Domain, Location Site)>())
                         .OrderBy(write => write.Site.SourceTree?.FilePath, StringComparer.Ordinal)
                         .ThenBy(write => write.Site.SourceSpan.Start).ToArray();
                     if (narrowed.Length == 0)
@@ -550,7 +554,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                         narrowed.Any(write => !SymbolEqualityComparer.Default.Equals(write.Domain, narrowed[0].Domain))))
                         continue;
                     context.ReportDiagnostic(Diagnostic.Create(PrimitiveInterludeRule, narrowed[0].Site,
-                        entry.Key.Name, narrowed[0].Domain!.Name, TypeOf(entry.Key)!.ToDisplayString(), how));
+                        entry.Key.Name, narrowed[0].Domain.Name, StoredType(entry.Key).ToDisplayString(), how));
                 }
             }
         }
@@ -564,6 +568,10 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             IPropertyReferenceOperation property => property.Property,
             _ => null,
         };
+
+        /// <summary>The stored type of a tracked symbol; only locals, parameters, fields and properties are tracked.</summary>
+        private static ITypeSymbol StoredType(ISymbol symbol) => TypeOf(symbol) ??
+            throw new InvalidOperationException($"Tracked {symbol.Kind} {symbol.Name} has no stored type.");
 
         /// <summary>Reads the stored type of supported symbol kinds.</summary>
         private static ITypeSymbol? TypeOf(ISymbol symbol) => symbol switch
@@ -679,11 +687,11 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             .Where(reference => reference.Field.IsConst)
             .GroupBy(reference => reference.Field.ContainingType, SymbolEqualityComparer.Default)
             .Where(group => group.Select(reference => reference.Field.Name).Distinct().Count() >= 2)
-            .Select(group => group.Key!)
+            .Select(group => group.Key ?? throw new InvalidOperationException("A constant field always has a containing type."))
             .ToArray();
         if (catalogs.Length == 0)
             return;
-        Report(context, PrimitiveSwitchRule, syntax.GetLocation(), Describe(value), value.Type!.ToDisplayString(),
+        Report(context, PrimitiveSwitchRule, syntax.GetLocation(), Describe(value), value.Type.ToDisplayString(),
             string.Join(", ", catalogs.Select(catalog => catalog.Name)));
     }
 
@@ -782,7 +790,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         type.GetAttributes().Any(attribute => attribute.AttributeClass?.ToDisplayString() == "System.FlagsAttribute");
 
     /// <summary>Accepts only the eight signed and unsigned integral primitive types as raw domain carriers.</summary>
-    private static bool IsIntegral(ITypeSymbol? type) => type?.SpecialType is
+    private static bool IsIntegral([NotNullWhen(true)] ITypeSymbol? type) => type?.SpecialType is
         SpecialType.System_Byte or SpecialType.System_SByte or
         SpecialType.System_Int16 or SpecialType.System_UInt16 or
         SpecialType.System_Int32 or SpecialType.System_UInt32 or

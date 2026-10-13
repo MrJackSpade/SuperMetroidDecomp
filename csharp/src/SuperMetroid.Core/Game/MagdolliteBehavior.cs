@@ -572,7 +572,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
             MagdollitePaletteRomData.FirstAnimatedColor;
         (_room.Artwork?.MagdollitePaletteCycle ?? throw new InvalidDataException(
             "Magdollite palette animation requires installed artwork."))
-            .ApplyFrame(_presentation._cgram!, paletteFrame, destination);
+            .ApplyFrame(_presentation.Cgram, paletteFrame, destination);
     }
 
     /// <summary>

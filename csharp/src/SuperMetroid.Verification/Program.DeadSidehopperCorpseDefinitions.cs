@@ -92,8 +92,8 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
 
         initialize(slot);
 
-        DeadSidehopperEnemyState state = enemies.DeadSidehoppers[0]!;
-        AssertEqual(graphicsVariant, state.GraphicsVariant,
+        DeadSidehopperEnemyState state = (enemies.DeadSidehoppers[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadSidehoppers[0]."));
+        AssertEqual(graphicsVariant, (state ?? throw new InvalidOperationException("Verification requires state.")).GraphicsVariant,
             $"dead sidehopper parameter {parameter1} graphics variant");
         AssertEqual(expected.ConfigurationPointer, state.ConfigurationPointer,
             $"dead sidehopper parameter {parameter1} configuration");

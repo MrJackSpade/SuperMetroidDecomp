@@ -72,7 +72,7 @@ internal static class FrozenGateGlitchVerification
             RoomHeaderPointers.Caterpillar,
             new Position16<RoomPixels>(FrozenGateCameraX, FrozenGateCameraY));
 
-        RoomLevelData level = runtime.Room.LevelData!;
+        RoomLevelData level = runtime.Room.LoadedLevelData;
         RoomPlmSystem plms = runtime.Plms;
         RoomPlmSlotSnapshot gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
@@ -91,7 +91,7 @@ internal static class FrozenGateGlitchVerification
 
         for (int warm = 0; warm < 2; warm++)
         {
-            plms.Step(bus, level, runtime.Room.BackgroundStreamer!, new PlmView { Layer1Position = new(FrozenGateCameraX, FrozenGateCameraY), Bg1XOffset = 0 });
+            plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(FrozenGateCameraX, FrozenGateCameraY), Bg1XOffset = 0 });
         }
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
@@ -99,7 +99,7 @@ internal static class FrozenGateGlitchVerification
             gate.PreInstruction, "Caterpillar gate enters proximity-aware sleep");
         ushort sleepingInstruction = gate.InstructionPointer;
 
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeX(FrozenGateStartX);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
@@ -129,7 +129,7 @@ internal static class FrozenGateGlitchVerification
         AssertEqual(expected.FinalX, samus.Position.X.Whole,
             $"{expected.Distance}-pixel case preserves native final X");
 
-        plms.Step(bus, level, runtime.Room.BackgroundStreamer!, new PlmView { Layer1Position = new(FrozenGateCameraX, FrozenGateCameraY), Bg1XOffset = 0 });
+        plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(FrozenGateCameraX, FrozenGateCameraY), Bg1XOffset = 0 });
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         bool gateWoke = gate.InstructionPointer != sleepingInstruction;

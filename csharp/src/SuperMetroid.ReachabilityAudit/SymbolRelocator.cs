@@ -39,6 +39,10 @@ internal static class SymbolRelocator
     {
         /// <summary>The staying type that receives an adapter for a moved member.</summary>
         public INamedTypeSymbol? Owner => Placement == Placement.WholeType ? null : Symbol.ContainingType;
+
+        /// <summary>The adapter owner of a member move; whole-type moves have none.</summary>
+        public INamedTypeSymbol AdapterOwner => Owner ??
+            throw new InvalidOperationException($"{Symbol.Name} moves as a whole type and has no adapter owner.");
     }
 
     /// <summary>Compares Roslyn symbols across declaration and reference passes.</summary>
@@ -87,7 +91,9 @@ internal static class SymbolRelocator
             .GroupBy(m => m.Node).Select(g => g.First()).ToList();
         // Nested types of a staying owner go into its adapter.
         moves = [.. moves.Select(m => m.Symbol is INamedTypeSymbol { ContainingType: not null } ? m with { Placement = Placement.AdapterMember } : m)];
-        var moveBySymbol = moves.GroupBy(m => identity.Key(m.Symbol)!).ToDictionary(g => g.Key, g => g.First());
+        var moveBySymbol = moves.GroupBy(m => identity.Key(m.Symbol) ??
+                throw new InvalidOperationException($"Selected symbol {m.Symbol} has no repository identity."))
+            .ToDictionary(g => g.Key, g => g.First());
         var movingTypeKeys = movingTypes.Select(identity.Key).OfType<string>().ToHashSet();
         Move? MoveOf(ISymbol? symbol) => identity.Key(symbol) is { } key && moveBySymbol.TryGetValue(key, out var m) ? m : null;
         bool Moved(ISymbol symbol) => MoveOf(symbol) is not null || Containers(symbol).Any(c => identity.Key(c) is { } k && movingTypeKeys.Contains(k));
@@ -134,7 +140,7 @@ internal static class SymbolRelocator
                     {
                         // Moved documentation naming a staying owner member needs the owner's name.
                         if (enclosing is { Placement: not Placement.WholeType } && cref is NameMemberCrefSyntax &&
-                            bound.ContainingType is { } crefOwner && InOwnerChain(enclosing.Owner!, crefOwner))
+                            bound.ContainingType is { } crefOwner && InOwnerChain(enclosing.AdapterOwner, crefOwner))
                             Edit(tree, cref.Span, $"{TypeName(crefOwner)}.{cref}");
                         continue;
                     }
@@ -142,10 +148,10 @@ internal static class SymbolRelocator
                     if (shipped && enclosing is null && attribute.Parent is XmlEmptyElementSyntax element)
                         Edit(tree, element.Span, $"<c>{cref}</c>");
                     else if (cref is QualifiedCrefSyntax qualified && MoveOf(bound) is { Placement: Placement.AdapterMember } crefMove)
-                        Edit(tree, qualified.Container.Span, AdapterName(crefMove.Owner!));
+                        Edit(tree, qualified.Container.Span, AdapterName(crefMove.AdapterOwner));
                     else if (cref is NameMemberCrefSyntax && MoveOf(bound) is { Placement: Placement.AdapterMember } nameMove &&
                              (enclosing is null || !SameOwner(enclosing.Owner, nameMove.Owner)))
-                        Edit(tree, cref.Span, $"{AdapterName(nameMove.Owner!)}.{cref}");
+                        Edit(tree, cref.Span, $"{AdapterName(nameMove.AdapterOwner)}.{cref}");
                     continue;
                 }
                 if (node.Ancestors().Any(a => a is CrefSyntax)) continue;
@@ -166,7 +172,7 @@ internal static class SymbolRelocator
                     if (bound is null || MoveOf(bound) is not { Placement: Placement.AdapterMember } move)
                         continue;
                     if (model.GetSymbolInfo(left).Symbol is not INamedTypeSymbol) continue;
-                    Edit(tree, left.Span, NamespacePrefix(model, left) + AdapterName(move.Owner!));
+                    Edit(tree, left.Span, NamespacePrefix(model, left) + AdapterName(move.AdapterOwner));
                     continue;
                 }
                 if (node is not SimpleNameSyntax simple || IsQualifiedName(simple) ||
@@ -179,7 +185,7 @@ internal static class SymbolRelocator
                     // An unqualified use from code that does not move with it into the same adapter.
                     if (inside is null || inside.Placement == Placement.WholeType || !SameOwner(inside.Owner, target.Owner)
                         || inside.Placement == Placement.ExtensionMember)
-                        Edit(tree, simple.Span, $"{AdapterName(target.Owner!)}.{simple}");
+                        Edit(tree, simple.Span, $"{AdapterName(target.AdapterOwner)}.{simple}");
                     continue;
                 }
                 if (MoveOf(symbol) is { Placement: Placement.ExtensionMember } extension)
@@ -193,14 +199,14 @@ internal static class SymbolRelocator
                 if (Moved(symbol)) continue;
                 // A moved member's reference back to a staying member of its owner chain.
                 if (!symbol.IsStatic && symbol is not INamedTypeSymbol && symbol.ContainingType is { } instanceOwner &&
-                    inside.Placement == Placement.ExtensionMember && InOwnerChain(inside.Owner!, instanceOwner) &&
+                    inside.Placement == Placement.ExtensionMember && InOwnerChain(inside.AdapterOwner, instanceOwner) &&
                     symbol.Kind is SymbolKind.Field or SymbolKind.Property or SymbolKind.Method or SymbolKind.Event)
                 {
                     Edit(tree, simple.Span, $"self.{simple}");
                     Promote(symbol, promotions, IsWritten(simple));
                 }
                 else if ((symbol.IsStatic || symbol is INamedTypeSymbol) && symbol.ContainingType is { } staticOwner &&
-                    InOwnerChain(inside.Owner!, staticOwner))
+                    InOwnerChain(inside.AdapterOwner, staticOwner))
                 {
                     Edit(tree, simple.Span, $"{TypeName(staticOwner)}.{simple}");
                     Promote(symbol, promotions, IsWritten(simple));
@@ -265,9 +271,9 @@ internal static class SymbolRelocator
                 FileFor(Path.Combine(targetDirectory, relative), move.Tree).Types.Add(text);
                 continue;
             }
-            string adapterFile = Path.Combine(targetDirectory, Path.GetDirectoryName(relative)!, AdapterName(move.Owner!) + ".cs");
+            string adapterFile = Path.Combine(targetDirectory, Path.GetDirectoryName(relative) ?? "", AdapterName(move.AdapterOwner) + ".cs");
             var file = FileFor(adapterFile, move.Tree);
-            var adapter = file.Adapter(move.Owner!, movedInterfaces, implementation => MoveOf(implementation) is not null);
+            var adapter = file.Adapter(move.AdapterOwner, movedInterfaces, implementation => MoveOf(implementation) is not null);
             text = AsAdapterMember(text);
             (move.Placement == Placement.ExtensionMember ? adapter.Extensions : adapter.Members).Add(text);
         }
@@ -304,7 +310,8 @@ internal static class SymbolRelocator
         }
         foreach (var (path, file) in files)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            Directory.CreateDirectory(Path.GetDirectoryName(path) ??
+                throw new InvalidOperationException($"{path} has no containing directory."));
             // A later pass adds to the adapters and files an earlier pass created.
             File.WriteAllText(path, File.Exists(path) ? file.MergeInto(File.ReadAllText(path)) : file.Render(), new UTF8Encoding(true));
         }
@@ -348,7 +355,7 @@ internal static class SymbolRelocator
     private static SyntaxNode DeclarationNode(SyntaxNode node) => node switch
     {
         VariableDeclaratorSyntax { Parent.Parent: BaseFieldDeclarationSyntax field } when
-            ((VariableDeclarationSyntax)node.Parent!).Variables.Count == 1 => field,
+            ((VariableDeclarationSyntax)node.Parent).Variables.Count == 1 => field,
         _ => node,
     };
 
@@ -495,7 +502,7 @@ internal static class SymbolRelocator
             foreach (var contract in implemented.SelectMany(i => i.GetMembers())
                          .Where(m => m is IPropertySymbol or IMethodSymbol { MethodKind: MethodKind.Ordinary }))
                 if (owner.FindImplementationForInterfaceMember(contract) is { } implementation &&
-                    !moves(SymbolIdentity.Normalize(implementation)!))
+                    SymbolIdentity.Normalize(implementation) is { } normalized && !moves(normalized))
                     adapter.Members.Add(Forwarder(owner, implementation));
             return adapter;
         }

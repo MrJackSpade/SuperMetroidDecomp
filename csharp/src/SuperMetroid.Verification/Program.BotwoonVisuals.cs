@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Rom;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -22,7 +23,7 @@ internal static class BotwoonVisualsVerification
             ushort installedPointer = frame.Pointer;
             ushort native = installedPointer;
             selected.Add(installedPointer);
-            AssertTrue(stock.Spritemaps!.TryGetDisplay(
+            AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
                     BotwoonVisualDefinitions.Bank, installedPointer,
                     out EnemySpritemapParts installedParts),
                 $"Botwoon head frame $B3:{installedPointer:X4} is editable");
@@ -39,8 +40,8 @@ internal static class BotwoonVisualsVerification
 
         // Existing version-59 edits must survive the newly extracted head frames.
         byte[] current = EnemySpritemapFiles.Extract(rom);
-        EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
-            current, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        EnemySpritemapDocument document = RequiredJson.Deserialize<EnemySpritemapDocument>(
+            current, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         // Version 59 ends before Botwoon; removing only Botwoon from today's
         // catalog incorrectly retains every family added in subsequent versions.
         HashSet<string> previousNames = EnemySpritemapDefinitions.Frames
@@ -49,7 +50,7 @@ internal static class BotwoonVisualsVerification
         var previousFrames = document.Frames
             .Where(pair => previousNames.Contains(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        var previousBindings = document.DisplayFrames!
+        var previousBindings = (document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))
             .Where(pair => previousFrames.ContainsKey(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         AssertEqual(EnemySpritemapDefinitions.PreBotwoonFrameCount,

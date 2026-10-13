@@ -50,7 +50,7 @@ internal static class SparkMovementDefinitionsVerification
             initialize(slot);
             AssertEqual(nativeInstruction, slot.CurrentInstruction,
                 $"Spark production instruction selector {selector}");
-            AssertEqual(nativeFunction, enemies.SparkStates[0]!.Function,
+            AssertEqual(nativeFunction, (enemies.SparkStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SparkStates[0].")).Function,
                 $"Spark production function selector {selector}");
         }
 

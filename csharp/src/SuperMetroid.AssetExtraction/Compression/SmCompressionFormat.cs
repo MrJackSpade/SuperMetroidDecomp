@@ -18,15 +18,14 @@ public readonly record struct SmCompressionHeader
         }
 
         bool isLong = SmCompressionFormat.IsLongHeader(firstByte);
-        if (isLong && secondByte is null)
-            throw new InvalidDataException("Long compression header is missing its length byte.");
         // Masking to bits 5-7 yields one of the eight defined commands.
         Command = isLong
             ? (SmCompressionCommand)((firstByte <<
                 SmCompressionFormat.LongCommandShift) & SmCompressionFormat.CommandMask)
             : (SmCompressionCommand)(firstByte & SmCompressionFormat.CommandMask);
         Length = isLong
-            ? SnesLittleEndian.Word(secondByte!.Value, (byte)(firstByte & SmCompressionFormat.LongLengthHighMask)) + 1
+            ? SnesLittleEndian.Word(secondByte ?? throw new InvalidDataException("Long compression header is missing its length byte."),
+                (byte)(firstByte & SmCompressionFormat.LongLengthHighMask)) + 1
             : (firstByte & SmCompressionFormat.ShortLengthMask) + 1;
         HeaderByteCount = isLong ? 2 : 1;
     }

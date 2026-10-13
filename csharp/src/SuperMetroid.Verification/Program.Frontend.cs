@@ -481,7 +481,7 @@ internal static void VerifySavedGameLoadAppearance()
         .All(station => station.SaveStationLockedOut),
         "loading onto a save room sets the native room-entry lockout");
 
-    var appearanceHistory = runtime.Player.Samus!.PoseHistory;
+    var appearanceHistory = runtime.Player.IntroducedSamus.PoseHistory;
     SamusPoseId appearancePose = appearanceHistory.PreviousPose;
     ushort appearanceMetadata = appearanceHistory.PreviousDirectionAndMovement;
     // Distinct older sample exposes the otherwise invisible same-pose shift.
@@ -496,8 +496,8 @@ internal static void VerifySavedGameLoadAppearance()
     runtime.StepFrame(0);
     AssertEqual(appearancePose, appearanceHistory.LastDifferentPose, "appearance completion shifts prior pose");
     AssertEqual(appearanceMetadata, appearanceHistory.LastDifferentDirectionAndMovement, "appearance completion shifts prior metadata");
-    AssertEqual(runtime.Player.Samus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
-    AssertEqual(SnesLittleEndian.Word(runtime.Player.Samus.PoseMetadata.ReadPoseXDirection(bus), (byte)runtime.Player.Samus.PoseMetadata.ReadMovementType(bus)),
+    AssertEqual(runtime.Player.IntroducedSamus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
+    AssertEqual(SnesLittleEndian.Word(runtime.Player.IntroducedSamus.PoseMetadata.ReadPoseXDirection(bus), (byte)runtime.Player.IntroducedSamus.PoseMetadata.ReadMovementType(bus)),
         appearanceHistory.PreviousDirectionAndMovement, "appearance completion commits current metadata");
     AssertTrue(!runtime.SamusLoadAppearanceActive &&
         runtime.Player.Samus is { InputLocked: false },

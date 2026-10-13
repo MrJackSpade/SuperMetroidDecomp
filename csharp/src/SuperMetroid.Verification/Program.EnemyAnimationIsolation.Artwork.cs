@@ -21,7 +21,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
             // If a binding is ignored, the selected tile is observably wrong even though
             // both alternative frames are valid and have the same number of parts.
             ordinary.Frames[boyon[index].Name] = EditedAnimationParts(index);
-            ordinary.DisplayFrames![boyon[index].Name] = boyon[(index + 1) % boyon.Length].Name;
+            (ordinary.DisplayFrames ?? throw new InvalidOperationException("Verification requires ordinary.DisplayFrames."))[boyon[index].Name] = boyon[(index + 1) % boyon.Length].Name;
         }
 
         EnemyExtendedFrameDocument extended = fixture.ExtendedDocument();
@@ -36,14 +36,14 @@ internal static class EnemyAnimationIsolationArtworkVerification
         var orb = torizo.Where(frame => GoldenTorizoRightOrbFrames().Contains(frame.Pointer)).ToArray();
         AssertEqual(GoldenTorizoRightOrbFrames().Length, orb.Length, "all right-orb display frames are authored");
         for (int index = 0; index < orb.Length; index++)
-            extended.DisplayFrames![orb[index].Name] = orb[(index + 1) % orb.Length].Name;
+            (extended.DisplayFrames ?? throw new InvalidOperationException("Verification requires extended.DisplayFrames."))[orb[index].Name] = orb[(index + 1) % orb.Length].Name;
 
         // Change every projectile/death/pickup visual too: its instruction clocks,
         // positions, damage and random drop decisions must remain unchanged.
         EnemyProjectileSpritemapDocument projectile = fixture.ProjectileDocument();
         foreach (string name in projectile.Frames.Keys.ToArray())
             projectile.Frames[name] = EditedAnimationParts(5);
-        foreach (string name in projectile.ProgramFrames!.Keys.ToArray())
+        foreach (string name in (projectile.ProgramFrames ?? throw new InvalidOperationException("Verification requires projectile.ProgramFrames.")).Keys.ToArray())
             projectile.ProgramFrames[name] = EditedAnimationParts(7);
         return fixture.Build(EnemySpritemapCatalog.Load(fixture.Json(ordinary)),
             EnemyExtendedFrameCatalog.Load(fixture.Json(extended)),

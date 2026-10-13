@@ -558,7 +558,8 @@ public sealed class SuperMetroidRuntime
             // Preserve movement on either side of the frame boundary. A new camera uses
             // the fallback sampled before enemy-owned motion and the bank-$90 handler.
             var frame = new SamusHandlerFrame();
-            frame.PreviousCameraPoint = Room.Camera.PreviousSamusPoint ?? samusCameraPointAtFrameStart!.Value;
+            frame.PreviousCameraPoint = Room.Camera.PreviousSamusPoint ?? samusCameraPointAtFrameStart ??
+                throw new InvalidOperationException("A gameplay frame with Samus samples her camera point at its start.");
 
             // Whether this frame's alpha handler is the locked one installed at its start.
             bool AlphaInputLocked() => Player.Samus.InputLocked || enemyMainReleasedAlphaLock;
@@ -677,14 +678,15 @@ public sealed class SuperMetroidRuntime
                 Player.LastAerialSamusMovement is { Landed: true } ||
                 Player.LastMorphBallMovement is { Landed: true };
             bool knockbackLanded = Player.LastKnockbackMovement is { Landed: true };
-            bool drainedLanded = Player.LastDrainedSamusMovement is { Landed: true };
+            DrainedSamusMovementResult? drainedLanding = Player.LastDrainedSamusMovement is { Landed: true } landing ? landing : null;
+            bool drainedLanded = drainedLanding is not null;
             if (!frame.DeathOwnsSamus && (ordinaryOrBallLanded || knockbackLanded || drainedLanded))
             {
-                ushort impactYSpeed = drainedLanded
-                    ? Player.LastDrainedSamusMovement!.Value.ImpactYSpeed
+                ushort impactYSpeed = drainedLanding is { } drainedSpeed
+                    ? drainedSpeed.ImpactYSpeed
                     : Player.Samus.Kinematics.YSpeed;
-                ushort impactYSubspeed = drainedLanded
-                    ? Player.LastDrainedSamusMovement!.Value.ImpactYSubspeed
+                ushort impactYSubspeed = drainedLanding is { } drainedSubspeed
+                    ? drainedSubspeed.ImpactYSubspeed
                     : Player.Samus.Kinematics.YSubspeed;
                 Player.Samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
                     _addressSpace,

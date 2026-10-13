@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
@@ -33,14 +34,14 @@ internal static class ChozoStatueVisualsVerification
                 RoomPlmChozoStatueVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted Chozo JSON is empty.");
-            JsonNode clearSlope = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() ==
-                "wrecked-ship-clear-slope-access")!;
-            clearSlope["blocks"]![0] = 0x0053;
-            JsonNode blockSlope = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() ==
-                "wrecked-ship-block-slope-access")!;
-            blockSlope["blocks"]![0] = 0x0054;
+            JsonNode clearSlope = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() ==
+                "wrecked-ship-clear-slope-access");
+            clearSlope.Required("blocks")[0] = 0x0053;
+            JsonNode blockSlope = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() ==
+                "wrecked-ship-block-slope-access");
+            blockSlope.Required("blocks")[0] = 0x0054;
             Directory.CreateDirectory(
                 installation.RoomPlmChozoStatueVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -130,7 +131,7 @@ internal static class ChozoStatueVisualsVerification
                     .GetWord((ushort)ChozoStatueDraw.ClearSlopeAccess, 0, 0),
                 "Chozo override survives stock replacement");
 
-            clearSlope["blocks"]![0] = 0xf053;
+            clearSlope.Required("blocks")[0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmChozoStatueVisuals(),

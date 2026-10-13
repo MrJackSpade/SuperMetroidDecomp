@@ -809,7 +809,11 @@ internal static class AudioAssetJson
             }
             if (reader.TokenType != JsonTokenType.EndObject)
                 throw new JsonException("Music instruction is not terminated.");
-            return new AudioMusicInstructionMetadata(operation!, opcode, timing!, arguments!);
+            return new AudioMusicInstructionMetadata(
+                operation ?? throw new JsonException("Music instruction requires an operation."),
+                opcode,
+                timing ?? throw new JsonException("Music instruction requires its timing bytes."),
+                arguments ?? throw new JsonException("Music instruction requires its argument bytes."));
         }
 
         /// <summary>Interns repeated operation strings using a span lookup before allocating a new name.</summary>

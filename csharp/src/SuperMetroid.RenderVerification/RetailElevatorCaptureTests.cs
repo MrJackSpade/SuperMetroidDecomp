@@ -39,12 +39,12 @@ internal static class RetailElevatorCaptureTests
             arriving |= expected.GameState == SuperMetroidGameState.MainGameplay && !arrival.IsComplete;
             landed |= arrival.IsComplete;
             padPositions.Add(arrival.PadPosition.Y);
-            var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(actual.Snapshot!));
+            var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))));
             PixelComparison.Verify(packet, expected.Pixels, renderer.RenderForReadback(packet),
                 $"{device.Kind}: Ceres elevator {tick}, pad Y={arrival.PadPosition.Y}, complete={arrival.IsComplete}");
             samples++;
             if (arrival.IsComplete && expected.GameState == SuperMetroidGameState.MainGameplay &&
-                legacy.RuntimeForVerification!.Player.Samus is { InputLocked: false })
+                legacy.GameplayRuntimeForVerification.Player.Samus is { InputLocked: false })
             {
                 if (++releasedFrames == 60) break;
             }

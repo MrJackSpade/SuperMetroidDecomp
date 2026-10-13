@@ -161,7 +161,7 @@ internal static class Program
             if (jsonPath is not null)
             {
                 string absolute = Path.GetFullPath(jsonPath);
-                Directory.CreateDirectory(Path.GetDirectoryName(absolute)!);
+                Directory.CreateDirectory((Path.GetDirectoryName(absolute) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(absolute).")));
                 File.WriteAllText(absolute, JsonSerializer.Serialize(report, AuditReport.JsonOptions) + Environment.NewLine);
                 Console.WriteLine("Report: " + absolute);
             }

@@ -38,7 +38,7 @@ internal static class RenderFrameHandoffTestsVerification
         AssertThrows<InvalidOperationException>(() => mailbox.Publish(new(new(3, 2, 0), default(Rgba32))),
             "sequence cannot rewind across load");
         mailbox.Publish(new(new(4, 2, 0), default(Rgba32)));
-        AssertEqual(4L, mailbox.TakeLatest()!.Identity.Sequence, "new generation published");
+        AssertEqual(4L, (mailbox.TakeLatest() ?? throw new InvalidOperationException("Verification requires mailbox.TakeLatest().")).Identity.Sequence, "new generation published");
 
         // Deliberately park the consumer after it has acquired a packet. Publication
         // must remain usable without the consumer returning or releasing that packet.
@@ -65,7 +65,7 @@ internal static class RenderFrameHandoffTestsVerification
             // is used as a flaky pass criterion.
             Task.Delay(250).GetAwaiter().GetResult();
             AssertTrue(!consumer.IsCompleted, "producer finished while consumer remained blocked");
-            AssertEqual(1005L, mailbox.TakeLatest()!.Identity.Sequence, "resumption sees only newest frame");
+            AssertEqual(1005L, (mailbox.TakeLatest() ?? throw new InvalidOperationException("Verification requires mailbox.TakeLatest().")).Identity.Sequence, "resumption sees only newest frame");
             RenderMailboxCounterView metrics = mailbox.VerificationCounters;
             AssertEqual(metrics.Published, metrics.Taken + metrics.Replaced + metrics.Invalidated,
                 "every visual publication accounted for with bounded pending storage");

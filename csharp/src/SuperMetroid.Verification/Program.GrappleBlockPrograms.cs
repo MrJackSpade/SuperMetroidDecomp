@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -270,9 +271,9 @@ internal static class GrappleBlockProgramsVerification
                 RoomPlmGrappleBlockVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted Grapple-block JSON is empty.");
-            JsonNode first = document["entries"]!.AsArray().Single(entry =>
-                entry!["drawPointer"]!.GetValue<int>() ==
-                RoomPlmGrappleBlockDrawDefinitions.Grapple)!;
+            JsonNode first = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("drawPointer").GetValue<int>() ==
+                RoomPlmGrappleBlockDrawDefinitions.Grapple);
             first["visualWord"] = 0x00b8;
             Directory.CreateDirectory(installation.RoomPlmGrappleBlockVisualOverrideDirectory);
             string overridePath = Path.Combine(

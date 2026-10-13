@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -59,8 +60,8 @@ internal static class EnemyTileArtworkKraidColorsVerification
 
         string stockPath = Path.Combine(directory, KraidColorFormat.FileName);
         byte[] original = File.ReadAllBytes(stockPath);
-        KraidColorDocument document = JsonSerializer.Deserialize<KraidColorDocument>(
-            original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        KraidColorDocument document = RequiredJson.Deserialize<KraidColorDocument>(
+            original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         static PaletteRgb5[] EditFirst(PaletteRgb5[] source, int index)
         {
             PaletteRgb5[] colors = (PaletteRgb5[])source.Clone();

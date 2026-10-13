@@ -34,12 +34,12 @@ internal static class WaterfallRoomsVerification
             if (runtime.RoomLayer3Fx.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
                 throw new InvalidDataException($"Reported waterfall room {room:X4} lost configuration $16.");
             runtime.GameplayWindows.PrepareGameplayWindowRegisters();
-            runtime.RoomLayer3Fx.Step(bus, runtime.Vram, new RoomLayer3FxFrame { Camera = runtime.Room.Camera!.PixelPosition, TimeIsFrozen = false, MainGameLoopCarry = true });
+            runtime.RoomLayer3Fx.Step(bus, runtime.Vram, new RoomLayer3FxFrame { Camera = runtime.Room.LoadedCamera.PixelPosition, TimeIsFrozen = false, MainGameLoopCarry = true });
             runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
             var registers = runtime.GameplayWindows.DisplayedGameplayWindowRegisters;
             AssertEqual((byte)0x11, registers.MainScreen, "waterfall native TM");
             AssertEqual((byte)0x06, runtime.CachedGameplaySubscreen, "waterfall native TS");
-            var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)
+            var snapshot = GameplayDisplayCapture.CaptureFrame(runtime)
                 ?? throw new InvalidDataException("Waterfall room capture is absent.");
             var math = snapshot.Layers[0] as GameplayColorMathRenderLayer
                 ?? throw new InvalidDataException("Waterfall room still captures an ordinary opaque background.");

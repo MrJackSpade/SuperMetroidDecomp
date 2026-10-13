@@ -72,9 +72,9 @@ internal sealed class PlmProgramSource
             if (comparison.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.EqualsExpression) &&
                 comparison.Left.ToString() == "drawPointer" &&
                 comparison.Right is MemberAccessExpressionSyntax constant)
-                directDraws.Add((ushort)types[constant.Expression.ToString()]
-                    .GetField(constant.Name.Identifier.Text, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)!
-                    .GetRawConstantValue()!);
+                directDraws.Add((ushort)((types[constant.Expression.ToString()]
+                    .GetField(constant.Name.Identifier.Text, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static) ?? throw new InvalidOperationException("Verification requires types[constant.Expression.ToString()] .GetField(constant.Name.Identifier.Text, BindingF...."))
+                    .GetRawConstantValue() ?? throw new InvalidOperationException("Verification requires (types[constant.Expression.ToString()] .GetField(constant.Name.Identifier.Text, Binding....")));
         }
         if (drawProviders.Count == 0 || directDraws.Count == 0)
             throw new InvalidDataException("The production PLM draw dispatcher could not be inventoried.");
@@ -95,7 +95,7 @@ internal sealed class PlmProgramSource
             // read or a frame/parameter probe. Only the exact registered providers
             // are consulted; the interpreter's fixture/WRAM fallbacks never run.
             for (int address = RoomPlmMemoryLayoutTooling.CompiledProgramStart; address <= ushort.MaxValue; address++)
-                if (reader((ushort)address, out _)) result.TryAdd((ushort)address, provider.DeclaringType!.Name);
+                if (reader((ushort)address, out _)) result.TryAdd((ushort)address, (provider.DeclaringType ?? throw new InvalidOperationException("Verification requires provider.DeclaringType.")).Name);
         }
         return result;
     }
@@ -151,7 +151,7 @@ internal sealed class PlmProgramSource
         {
             object?[] arguments = new object?[provider.GetParameters().Length];
             arguments[0] = pointer;
-            return (bool)provider.Invoke(null, arguments)!;
+            return (bool)(provider.Invoke(null, arguments) ?? throw new InvalidOperationException("Verification requires provider.Invoke(null, arguments)."));
         });
         draws.Add(pointer, owned);
         return owned;

@@ -43,6 +43,9 @@ internal sealed class IntroCinematicObjectSystem
     private ushort currentEyePackedPosition;
     /// <summary>Compiled page glyphs, rebound from the installed presentation after restore.</summary>
     [NonSerialized] private IntroNarrationCharacter[]? narrationProgram;
+    /// <summary>The bound narration page's characters.</summary>
+    private IntroNarrationCharacter[] NarrationProgram => narrationProgram ??
+        throw new InvalidOperationException("No narration page is bound.");
     /// <summary>Page whose glyph stream and Japanese subtitle markers are active.</summary>
     private IntroNarrationPageId? narrationPage;
     /// <summary>Next semantic glyph in the active narration page.</summary>
@@ -269,7 +272,7 @@ internal sealed class IntroCinematicObjectSystem
             return;
         }
 
-        IntroNarrationCharacter[] program = narrationProgram!;
+        IntroNarrationCharacter[] program = NarrationProgram;
         if (narrationCharacterIndex < program.Length)
         {
             IntroNarrationCharacter character = program[narrationCharacterIndex];

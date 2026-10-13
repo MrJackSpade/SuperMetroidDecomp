@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -112,7 +113,7 @@ internal static class PaletteFxInstructionCodesVerification
     {
         foreach (FieldInfo field in GetUshortConstants(catalog))
         {
-            ushort pointer = (ushort)field.GetRawConstantValue()!;
+            ushort pointer = field.RequiredConstant<ushort>();
             _ = cartridge.ReadCartridgeByte(0x8d0000 | pointer);
         }
     }
@@ -3036,7 +3037,7 @@ internal static class PaletteFxInstructionCodesVerification
         presentationReads = reads;
         return new CartridgeReadGuard(inner)
             .Forbid(address => ClassifyPaletteFxRead(address).Forbidden is not null,
-                address => ClassifyPaletteFxRead(address).Forbidden!)
+                address => (ClassifyPaletteFxRead(address).Forbidden ?? throw new InvalidOperationException("Verification requires ClassifyPaletteFxRead(address).Forbidden.")))
             .Observe(_ => true, address => reads.Value += ClassifyPaletteFxRead(address).PresentationReads);
     }
 
@@ -3727,7 +3728,7 @@ internal static class PaletteFxInstructionCodesVerification
         FieldInfo[] fields = GetUshortConstants(catalog);
         AssertEqual(expectedCount, fields.Length, $"{catalog.Name} exhaustive entry count");
         ushort[] pointers = fields
-            .Select(field => (ushort)field.GetRawConstantValue()!)
+            .Select(field => field.RequiredConstant<ushort>())
             .ToArray();
         AssertEqual(pointers.Length, pointers.Distinct().Count(),
             $"{catalog.Name} contains no duplicate callbacks");

@@ -160,7 +160,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 $"KiHunter {(movingRight ? "right" : "left")} spit restores ground wait");
             AssertEqual((ushort)24, state.WaitTimer.RawValue,
                 $"KiHunter {(movingRight ? "right" : "left")} spit wait timer");
-            AssertEqual((ushort)0x004c, enemies.KiHunterBehavior.LastKiHunterSoundEffect!.Value,
+            AssertEqual((ushort)0x004c, (enemies.KiHunterBehavior.LastKiHunterSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.KiHunterBehavior.LastKiHunterSoundEffect.")),
                 $"KiHunter {(movingRight ? "right" : "left")} spit sound");
             RoomEnemyProjectileKind kind = movingRight
                 ? RoomEnemyProjectileKind.KiHunterAcidSpitRight
@@ -189,7 +189,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             initializeBody(body);
             initializeWings(wings);
             return (enemies, body, wings,
-                enemies.KiHunterStates[0]!, enemies.KiHunterStates[1]!);
+                (enemies.KiHunterStates[0] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter state.")), (enemies.KiHunterStates[1] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter state.")));
         }
 
         static void Install(RoomEnemySlot slot, ushort program)

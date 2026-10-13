@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -45,7 +46,7 @@ internal static class MaridiaElevatubeVisualsVerification
                 RoomPlmMaridiaElevatubeVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted elevatube JSON is empty.");
-            document["entries"]![0]!["blocks"]![0] = 0x0058;
+            document.Required("entries").Required(0).Required("blocks")[0] = 0x0058;
             Directory.CreateDirectory(
                 installation.RoomPlmMaridiaElevatubeVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -107,7 +108,7 @@ internal static class MaridiaElevatubeVisualsVerification
                     installation.RoomPlmMaridiaElevatubeVisualOverrideDirectory)
                     .GetWord(MaridiaElevatubePlmDefinitions.DrawPointer, 0, 0),
                 "elevatube override survives stock replacement");
-            document["entries"]![0]!["blocks"]![0] = 0xf058;
+            document.Required("entries").Required(0).Required("blocks")[0] = 0xf058;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmMaridiaElevatubeVisuals(),

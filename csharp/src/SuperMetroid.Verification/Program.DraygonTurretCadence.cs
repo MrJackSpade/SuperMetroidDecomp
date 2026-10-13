@@ -29,13 +29,13 @@ internal static class DraygonTurretCadenceVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xda60, camera: new Position16<RoomPixels>(256, 288));
-        var boss = runtime.Enemies.DraygonBehavior.Draygon!;
-        AssertEqual(DraygonAiFunction.IntroInitialDelay, boss.Function, "fight intro waits before the dance");
+        var boss = runtime.Enemies.DraygonBehavior.Draygon;
+        AssertEqual(DraygonAiFunction.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Function, "fight intro waits before the dance");
 
         int StepWith(byte counter8, ushort counter16)
         {
             int before = boss.TurretCadenceChecks;
-            runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Room.Camera!.PixelPosition.X, runtime.Room.Camera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, NmiFrameCounter8 = counter8, NmiFrameCounter = counter16 });
+            runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, NmiFrameCounter8 = counter8, NmiFrameCounter = counter16 });
             return boss.TurretCadenceChecks - before;
         }
 
@@ -58,7 +58,7 @@ internal static class DraygonTurretCadenceVerification
             return velocity;
         }
         var beforeTurret = SpawnGoop();
-        runtime.Enemies.DraygonBehavior.SpawnDraygonWallTurret(boss, runtime.Player.Samus!, (ushort)0);
+        runtime.Enemies.DraygonBehavior.SpawnDraygonWallTurret(boss, runtime.Player.IntroducedSamus, (ushort)0);
         var afterTurret = SpawnGoop();
         AssertEqual(beforeTurret, afterTurret, "goop speed does not inherit a turret's parameter");
         int expectedX = EnemyMath.ReadUnsignedSineMagnitudeProduct(afterTurret.Angle, DraygonProjectileSpeeds.Goop, 0x40);
@@ -74,12 +74,12 @@ internal static class DraygonTurretCadenceVerification
         explosion.Spawn(bombed.Position.Whole);
         explosion.ExplosionRadius = (ushort)0x2000;
         runtime.Enemies.Audio.PowerBomb = explosion;
-        runtime.Player.Samus!.XSpeedDivisor = 3;
+        runtime.Player.IntroducedSamus.XSpeedDivisor = 3;
         ushort bombedX = bombed.Position.X.Whole;
-        runtime.Enemies.StepEnemyProjectileInstructions(runtime.Room.LevelData!, runtime.Player.Samus,
-            new(runtime.Room.Camera!.PixelPosition.X, runtime.Room.Camera.PixelPosition.Y));
+        runtime.Enemies.StepEnemyProjectileInstructions(runtime.Room.LoadedLevelData, runtime.Player.Samus,
+            new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y));
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
-        AssertEqual((ushort)0, runtime.Player.Samus.XSpeedDivisor, "$86:8D93 clears Samus's X speed divisor");
+        AssertEqual((ushort)0, runtime.Player.IntroducedSamus.XSpeedDivisor, "$86:8D93 clears Samus's X speed divisor");
         AssertTrue(bombed.Position.X.Whole != bombedX, "the goop routine still moves the released slot");
 
         // #1269: DraygonReaction_Common's dead branch ($A5:9618) has no "already dying"

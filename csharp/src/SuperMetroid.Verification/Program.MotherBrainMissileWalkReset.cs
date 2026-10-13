@@ -31,7 +31,7 @@ internal static class MotherBrainMissileWalkResetVerification
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
-        RoomEnemySlot head = state.Head ?? throw new InvalidOperationException("Mother Brain has no head enemy.");
+        RoomEnemySlot head = state.Head;
 
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         sequence.Body.Form = 4;

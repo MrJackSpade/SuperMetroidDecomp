@@ -54,7 +54,7 @@ internal static class WindowPixelsVerification
             var packet = new RenderFrameSnapshot(new(1, 1, 1),
                 new LayeredRenderSnapshot(capturedMemory, new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers) }, 3, 15));
             var restored = RoundTripRenderPacket(packet);
-            var restoredRegisters = ((OrdinaryGameplayRenderLayer)restored.Layers!.Layers[0]).Registers;
+            var restoredRegisters = ((OrdinaryGameplayRenderLayer)(restored.Layers ?? throw new InvalidOperationException("Verification requires restored.Layers.")).Layers[0]).Registers;
             AssertEqual(windows, restoredRegisters.Windows, "window register bytes survive packet round trip");
             AssertEqual(admission, restoredRegisters.MainScreenWindowMask, "TMW survives packet round trip");
             AssertTrue(actual.AsSpan().SequenceEqual(RenderForComparison(restored)),
@@ -70,7 +70,7 @@ internal static class WindowPixelsVerification
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
                     old.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.ObjPriorityFixedColorVersion);
                 var legacy = RenderFrameSnapshotCodec.Deserialize(old);
-                AssertEqual(default(SnesWindowRegisters), ((OrdinaryGameplayRenderLayer)legacy.Layers!.Layers[0]).Registers.Windows,
+                AssertEqual(default(SnesWindowRegisters), ((OrdinaryGameplayRenderLayer)(legacy.Layers ?? throw new InvalidOperationException("Verification requires legacy.Layers.")).Layers[0]).Registers.Windows,
                     "v20 gameplay has no invented window registers");
                 AssertTrue(reference[layers].AsSpan().SequenceEqual(RenderForComparison(legacy)),
                     "v20 gameplay pixels remain unchanged");

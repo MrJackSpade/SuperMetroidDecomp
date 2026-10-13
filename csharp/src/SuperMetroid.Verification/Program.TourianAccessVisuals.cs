@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -44,12 +45,12 @@ internal static class TourianAccessVisualsVerification
                 RoomPlmTourianAccessVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted Tourian visual JSON is empty.");
-            JsonNode firstFrame = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "crumble-frame-0")!;
-            JsonNode clear = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "clear-six-rows")!;
-            firstFrame["blocks"]![0] = 0x0058;
-            clear["blocks"]![20] = 0x0058;
+            JsonNode firstFrame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "crumble-frame-0");
+            JsonNode clear = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "clear-six-rows");
+            firstFrame.Required("blocks")[0] = 0x0058;
+            clear.Required("blocks")[20] = 0x0058;
             Directory.CreateDirectory(
                 installation.RoomPlmTourianAccessVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -78,7 +79,7 @@ internal static class TourianAccessVisualsVerification
                     .GetWord((ushort)TourianAccessDraw.Clear, 5, 0),
                 "Tourian override survives stock replacement");
 
-            firstFrame["blocks"]![0] = 0xf058;
+            firstFrame.Required("blocks")[0] = 0xf058;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmTourianAccessVisuals(),

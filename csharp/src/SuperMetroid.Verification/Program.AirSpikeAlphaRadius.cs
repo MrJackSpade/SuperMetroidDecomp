@@ -30,7 +30,7 @@ internal static class AirSpikeAlphaRadiusVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        RoomLevelData level = runtime.Room.LevelData!;
+        RoomLevelData level = runtime.Room.LoadedLevelData;
         const int SpikeColumn = 32, SpikeRow = 29;
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 64; x++)
@@ -44,7 +44,7 @@ internal static class AirSpikeAlphaRadiusVerification
                 ? SamusTerrainHazardRomData.DamagingSpikeAirBehavior : (byte)0);
         }
 
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeX(SpikeColumn * 16 + 8);
@@ -54,7 +54,7 @@ internal static class AirSpikeAlphaRadiusVerification
         samus.Presentation.InitializeAnimation(bus);
         samus.Kinematics.Radius = new(5, 12);
         samus.InvincibilityTimer = NativeCountdown.Start(0);
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
         ushort health = samus.Health;
 
         runtime.StepFrame(0);

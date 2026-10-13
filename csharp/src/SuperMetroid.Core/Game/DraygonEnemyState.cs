@@ -94,11 +94,11 @@ public sealed class DraygonEnemyState
     internal void SetCursor(RoomEnemySlot part, AnimationProgramCursor<DraygonProgram> cursor) => _cursors[Ensure.NotNull(part)] = cursor;
 
     /// <summary>Native enemy slot $0040, installed by the eye initializer; tracks Samus using coordinates copied from the body.</summary>
-    public RoomEnemySlot? Eye { get; internal set; }
+    public RoomEnemySlot Eye { get => field ?? throw new InvalidOperationException("Draygon's eye part is not attached; part initialization attaches it."); internal set; }
     /// <summary>Native enemy slot $0080, installed by the tail initializer; its instruction lists drive whips and the final release handshake.</summary>
-    public RoomEnemySlot? Tail { get; internal set; }
+    public RoomEnemySlot Tail { get => field ?? throw new InvalidOperationException("Draygon's tail part is not attached; part initialization attaches it."); internal set; }
     /// <summary>Native enemy slot $00C0, installed by the arms initializer; its animation follows the body's authoritative coordinates.</summary>
-    public RoomEnemySlot? Arms { get; internal set; }
+    public RoomEnemySlot Arms { get => field ?? throw new InvalidOperationException("Draygon's arms part is not attached; part initialization attaches it."); internal set; }
 
     /// <summary>Native <c>enemy_bg2_tilemap_size</c>, measured in words.</summary>
     public ushort Bg2TilemapSize { get; internal set; }

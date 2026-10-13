@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -35,7 +36,7 @@ internal static class GunshipInstalledCompositionsVerification
         EnemyTileArtworkFiles.Extract(imported, directory, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(directory);
         EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(directory, overrideDirectory: null);
-        EnemySpritemapCatalog compositions = stock.Spritemaps!;
+        EnemySpritemapCatalog compositions = (stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps."));
         EnemySpritemapDefinition[] shipFrames = GunshipVisualDefinitions.Frames();
         AssertEqual(GunshipVisualDefinitions.FrameCount, shipFrames.Length,
             "#1154 gunship exports its two hull and eleven pad compositions");
@@ -43,7 +44,7 @@ internal static class GunshipInstalledCompositionsVerification
         {
             EnemySpritemapPart[] native = EnemySpritemapCatalog.CompileParts(
                 EnemySpritemapFiles.ExtractParts(imported, frame.Bank, frame.Pointer), frame.Name);
-            AssertTrue(compositions.TryGetDisplay(frame.Bank, frame.Pointer, out var installed),
+            AssertTrue((compositions ?? throw new InvalidOperationException("Verification requires compositions.")).TryGetDisplay(frame.Bank, frame.Pointer, out var installed),
                 $"#1154 installed gunship composition {frame.Name} is resolvable");
             AssertTrue(native.SequenceEqual(installed),
                 $"#1154 {frame.Name} retains native offsets, sizes, tiles, priority and flips");
@@ -52,8 +53,8 @@ internal static class GunshipInstalledCompositionsVerification
         // Schema 60 is the player's pre-fix format. Its edited ordinary frame
         // must survive, while the newly added gunship frames inherit current stock.
         var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var stockDocument = JsonSerializer.Deserialize<EnemySpritemapDocument>(
-            File.ReadAllText(Path.Combine(directory, EnemySpritemapDefinitions.FileName)), jsonOptions)!;
+        var stockDocument = RequiredJson.Deserialize<EnemySpritemapDocument>(
+            File.ReadAllText(Path.Combine(directory, EnemySpritemapDefinitions.FileName)), jsonOptions);
         var oldFrames = EnemySpritemapDefinitions.Frames[..EnemySpritemapDefinitions.PreGunshipFrameCount].ToArray();
         var legacy = stockDocument with
         {
@@ -72,7 +73,7 @@ internal static class GunshipInstalledCompositionsVerification
         foreach (EnemySpritemapDefinition frame in shipFrames)
         {
             AssertTrue(merged.TryGetDisplay(frame.Bank, frame.Pointer, out var inherited) &&
-                compositions.TryGetDisplay(frame.Bank, frame.Pointer, out var expected) &&
+                (compositions ?? throw new InvalidOperationException("Verification requires compositions.")).TryGetDisplay(frame.Bank, frame.Pointer, out var expected) &&
                 inherited.SequenceEqual(expected),
                 $"#1154 legacy override inherits new {frame.Name} from stock");
         }
@@ -99,15 +100,15 @@ internal static class GunshipInstalledCompositionsVerification
         long sequence = 0;
         SetState(game, SuperMetroidGameState.SetUpNewGame);
         game.StepCaptured(0, ++sequence, 1);
-        game.RuntimeForVerification!.System.SetBossBits(AreaId.Ceres, BossBits.AreaBoss);
-        game.RuntimeForVerification!.System.LoadSavedLoadingGameState(SaveLoadingGameStates.CeresDestruction);
+        game.GameplayRuntimeForVerification.System.SetBossBits(AreaId.Ceres, BossBits.AreaBoss);
+        game.GameplayRuntimeForVerification.System.LoadSavedLoadingGameState(SaveLoadingGameStates.CeresDestruction);
         SetState(game, SuperMetroidGameState.CeresGoesBoom);
         game.StepCaptured(0, ++sequence, 1);
         var scene = game.ceresDestruction;
-        scene.Phase = CeresDestructionPhase.Finished;
+        (scene ?? throw new InvalidOperationException("Verification requires scene.")).Phase = CeresDestructionPhase.Finished;
         game.StepCaptured(0, ++sequence, 1);
         game.StepCaptured(0, ++sequence, 1);
-        AssertEqual(AreaId.Crateria, game.RuntimeForVerification!.Room.ActiveRoom!.AreaIndex,
+        AssertEqual(AreaId.Crateria, game.GameplayRuntimeForVerification.Room.LoadedRoom.AreaIndex,
             "#1154 fixture reaches the reported Landing Site through the existing loader");
         // The fifteen native loading waits publish black; only the subsequent
         // gameplay fade owns the gunship OAM draw that failed in the player report.

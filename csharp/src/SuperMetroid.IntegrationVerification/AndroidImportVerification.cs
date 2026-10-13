@@ -11,7 +11,7 @@ internal static class AndroidImportVerification
     {
         VerifyMutableMemoryWithoutCartridge();
         string slot = Path.Combine(root, "debug-states", "SuperMetroid-debug-slot-9.smstate");
-        Directory.CreateDirectory(Path.GetDirectoryName(slot)!);
+        Directory.CreateDirectory((Path.GetDirectoryName(slot) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(slot).")));
         byte[] previous = [1, 2, 3];
         File.WriteAllBytes(slot, previous);
         string bad = Path.Combine(root, "bad-import.tmp");

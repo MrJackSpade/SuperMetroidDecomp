@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -438,10 +439,10 @@ internal static class ShotBlockPlmProgramsVerification
                 RoomPlmShotBlockVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted shot-block JSON is empty.");
-            JsonNode first = document["entries"]!.AsArray().Single(entry =>
-                entry!["drawPointer"]!.GetValue<int>() ==
-                RoomPlmShotBlockDrawDefinitions.SingleFrame0)!;
-            first["runs"]![0]![0] = 0x0054;
+            JsonNode first = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("drawPointer").GetValue<int>() ==
+                RoomPlmShotBlockDrawDefinitions.SingleFrame0);
+            first.Required("runs").Required(0)[0] = 0x0054;
             Directory.CreateDirectory(installation.RoomPlmShotBlockVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmShotBlockVisualOverrideDirectory,
@@ -462,12 +463,12 @@ internal static class ShotBlockPlmProgramsVerification
                     RoomPlmShotBlockDrawDefinitions.SingleFrame0, 0, 0),
                 "shot-block override survives replacement of stock content");
 
-            first["runs"]![0]![0] = 0xf054;
+            first.Required("runs").Required(0)[0] = 0xf054;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmShotBlockVisuals(),
                 "shot-block visual override rejects collision/type bits");
-            first["runs"]![0]![0] = 0x0054;
+            first.Required("runs").Required(0)[0] = 0x0054;
             File.WriteAllText(overridePath, document.ToJsonString());
             File.WriteAllText(stockPath, "corrupt stock");
             AssertThrows<InvalidDataException>(

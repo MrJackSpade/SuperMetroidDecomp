@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
@@ -37,7 +38,7 @@ public static partial class LibraryBackgroundProgramDefinitions
     /// <param name="pointer">16-bit bank-$8F list identity; values absent from the pinned retail catalog simply fail lookup.</param>
     /// <param name="program">Shared compiled definition on success, or null on failure; lookup does not execute transfers or load artwork.</param>
     /// <returns>True when the exact pointer is cataloged; false otherwise.</returns>
-    public static bool TryGet(ushort pointer, out LibraryBackgroundProgram program)
+    public static bool TryGet(ushort pointer, [NotNullWhen(true)] out LibraryBackgroundProgram? program)
     {
         int low = 0;
         int high = programs.Length - 1;
@@ -53,7 +54,7 @@ public static partial class LibraryBackgroundProgramDefinitions
             if (comparison < 0) low = middle + 1;
             else high = middle - 1;
         }
-        program = null!;
+        program = null;
         return false;
     }
 }

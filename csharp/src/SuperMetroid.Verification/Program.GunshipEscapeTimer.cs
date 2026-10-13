@@ -33,8 +33,8 @@ internal static class GunshipEscapeTimerVerification
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(0x91f8);
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
-        var samus = runtime.Player.Samus!;
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
+        var samus = runtime.Player.IntroducedSamus;
         var top = runtime.Enemies.SlotTable.Slots.First(slot => slot.Definition.InitializationAiPointer == 0xa644);
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;

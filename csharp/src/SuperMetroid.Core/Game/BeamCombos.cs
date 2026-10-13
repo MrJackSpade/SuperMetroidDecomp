@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
@@ -49,9 +49,8 @@ internal sealed class BeamCombos
         bool activated = combo is not null &&
             !(combo == SamusComboKind.Ice && _slotTable._slots[0].PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward ||
               combo == SamusComboKind.Plasma && _slotTable._slots[0].PreInstruction == SamusProjectilePreInstruction.PlasmaCombo);
-        if (activated)
+        if (activated && combo is SamusComboKind kind)
         {
-            SamusComboKind kind = combo!.Value;
             for (int i = 3; i >= 0; i--)
             {
                 var slot = _slotTable._slots[i];

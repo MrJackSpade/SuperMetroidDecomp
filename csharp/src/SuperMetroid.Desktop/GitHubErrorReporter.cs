@@ -41,7 +41,7 @@ public sealed class GitHubErrorReporter : IDisposable
     /// <summary>Remote lookup, comment, and creation operations used by the single worker.</summary>
     private readonly IGitHubIssueClient issueClient;
     /// <summary>Nonblocking multiwriter queue processed in report order by one remote worker.</summary>
-    internal readonly Channel<QueuedError> queue = Channel.CreateUnbounded<QueuedError>(
+    internal readonly Channel<QueuedWork> queue = Channel.CreateUnbounded<QueuedWork>(
         new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
     /// <summary>Counts repeated failures per fingerprint and context after excluding frame/input changes.</summary>
     private readonly Dictionary<string, int> sessionOccurrences = new(StringComparer.Ordinal);
@@ -178,30 +178,32 @@ public sealed class GitHubErrorReporter : IDisposable
     /// <summary>Processes reports serially, comments on matching fingerprints, and prints remote failures without recursively reporting them.</summary>
     private async Task ProcessQueueAsync()
     {
-        await foreach (QueuedError queued in queue.Reader.ReadAllAsync().ConfigureAwait(false))
+        await foreach (QueuedWork work in queue.Reader.ReadAllAsync().ConfigureAwait(false))
         {
-            if (queued.FlushCompletion is TaskCompletionSource completion)
+            if (work is QueueFlush flush)
             {
-                completion.TrySetResult();
+                flush.Completion.TrySetResult();
                 continue;
             }
+            if (work is not QueuedError queued)
+                throw new InvalidOperationException($"Undefined queued GitHub error work {work}.");
 
             try
             {
                 string? existingUrl = await issueClient.FindByFingerprintAsync(
                     repository,
-                    queued.Fingerprint!).ConfigureAwait(false);
+                    queued.Fingerprint).ConfigureAwait(false);
                 if (existingUrl is not null)
                 {
                     await issueClient.CommentAsync(repository, existingUrl,
-                        BuildBody(queued.Fingerprint!, queued.Exception!, queued.Context!)).ConfigureAwait(false);
+                        BuildBody(queued.Fingerprint, queued.Exception, queued.Context)).ConfigureAwait(false);
                     Console.Error.WriteLine(
                         $"GitHub error [{queued.Fingerprint}] already exists: {existingUrl}");
                     continue;
                 }
 
-                string title = BuildTitle(queued.Fingerprint!, queued.Exception!);
-                string body = BuildBody(queued.Fingerprint!, queued.Exception!, queued.Context!);
+                string title = BuildTitle(queued.Fingerprint, queued.Exception);
+                string body = BuildBody(queued.Fingerprint, queued.Exception, queued.Context);
                 string createdUrl = await issueClient.CreateAsync(repository, title, body)
                     .ConfigureAwait(false);
                 Console.Error.WriteLine(
@@ -303,19 +305,14 @@ public sealed class GitHubErrorReporter : IDisposable
         }
     }
 
-    /// <summary>One queued exception occurrence or a completion marker consumed by the serial worker.</summary>
-    internal sealed record QueuedError(
-        string? Fingerprint,
-        Exception? Exception,
-        GitHubErrorContext? Context,
-        TaskCompletionSource? FlushCompletion)
-    {
-        /// <summary>Captures the first occurrence with no queue-flush completion marker.</summary>
-        public QueuedError(string fingerprint, Exception exception, GitHubErrorContext context)
-            : this(fingerprint, exception, context, null)
-        {
-        }
-    }
+    /// <summary>One item the serial worker consumes: an exception occurrence or a flush marker.</summary>
+    internal abstract record QueuedWork;
+
+    /// <summary>One queued exception occurrence.</summary>
+    internal sealed record QueuedError(string Fingerprint, Exception Exception, GitHubErrorContext Context) : QueuedWork;
+
+    /// <summary>A marker the worker completes once every earlier item has been processed.</summary>
+    internal sealed record QueueFlush(TaskCompletionSource Completion) : QueuedWork;
 }
 
 /// <summary>Remote issue operations used to deduplicate and publish captured desktop failures.</summary>

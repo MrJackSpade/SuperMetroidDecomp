@@ -184,13 +184,13 @@ internal sealed class EnemyRoomEffects
         if (state?.LastRainbowBeamStep is { } death)
         {
             foreach (ushort definition in death.EscapePaletteFxRequests)
-                _roomPaletteFx.SpawnDefinition(_addressSpace, definition, _player.Samus!.EquippedItems);
+                _roomPaletteFx.SpawnDefinition(_addressSpace, definition, _player.IntroducedSamus.EquippedItems);
             if (death.TimerHandlingEnableRequested)
-                _player.Samus!.Drained.RelinquishTimerHackHandler();
+                _player.IntroducedSamus.Drained.RelinquishTimerHackHandler();
             if (death.MotherBrainEscapeTimerStartRequested)
                 _escapeTimer.RequestMotherBrainStart(); // The runtime already owns per-frame timer processing/drawing.
             if (death.MotherBrainBossBitRequested)
-                _system.SetBossBits(_room.ActiveRoom!.AreaIndex, BossBits.AreaMiniBoss);
+                _system.SetBossBits(_room.LoadedRoom.AreaIndex, BossBits.AreaMiniBoss);
             if (death.ZebesTimebombEventRequested)
                 _system.SetEvent(EventNumber.ZebesTimebombSet);
         }
@@ -198,7 +198,7 @@ internal sealed class EnemyRoomEffects
         {
             // The pending native LoadFxEntry call is consumed exactly once. Reapplying it
             // each frame would reset its delay and prevent the acid from moving.
-            ushort record = unchecked((ushort)(_room.ActiveRoom!.State.FxPointer +
+            ushort record = unchecked((ushort)(_room.LoadedRoom.State.FxPointer +
                 state.FxEntry * RoomFxRomData.Record.ByteCount));
             _display.LayerBlendingDefaultConfig = _roomLayer3Fx.ApplyEntry(_cgram,
                 record);

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
@@ -315,17 +316,17 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         string overrides = Path.Combine(directory, "eproj-overrides");
         Directory.CreateDirectory(overrides);
         EnemyProjectileSpritemapDocument document =
-            JsonSerializer.Deserialize<EnemyProjectileSpritemapDocument>(
+            RequiredJson.Deserialize<EnemyProjectileSpritemapDocument>(
                 File.ReadAllBytes(Path.Combine(directory,
                     EnemyProjectileSpritemapDefinitions.FileName)),
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         SpriteVisualPart[] pad = document.Frames["ceres_elevator_pad_0"];
         pad[0] = pad[0] with { OffsetX = pad[0].OffsetX + 1 };
         SpriteVisualPart[] skree = document.Frames["skree_debris"];
         skree[0] = skree[0] with { OffsetX = skree[0].OffsetX + 1 };
         EnemyProjectilePresentationFrameDefinition editableProgramFrame =
             EnemyProjectileInstructionMechanicsDefinitions.VisualFrames[0];
-        SpriteVisualPart[] shared = document.ProgramFrames![editableProgramFrame.Name];
+        SpriteVisualPart[] shared = (document.ProgramFrames ?? throw new InvalidOperationException("Verification requires document.ProgramFrames."))[editableProgramFrame.Name];
         shared[0] = shared[0] with { OffsetX = shared[0].OffsetX + 1 };
         string ceresFrameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
             .Single(frame => frame.OperandAddress == ceresOperand).Name;
@@ -436,14 +437,14 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             EnemyProjectileSpritemapDefinitions.FileName),
             EnemyProjectileSpritemapCatalog.Write(document));
         EnemyTileArtworkCatalog editedArt = EnemyTileArtworkFiles.Load(directory, overrides);
-        EnemyProjectileSpritemapCatalog edited = editedArt.ProjectileSpritemaps!;
+        EnemyProjectileSpritemapCatalog edited = (editedArt.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires editedArt.ProjectileSpritemaps."));
         var originalOam = new OamBuffer();
         var editedOam = new OamBuffer();
         originalOam.BeginFrame();
         editedOam.BeginFrame();
         originalOam.AddEnemySpritemap(installed.Get(0xb1ba).Span,
             new Position16<OamPixels>(0x0080, 0x0004), 0, 0, clipVerticalWrap: true);
-        editedOam.AddEnemySpritemap(edited.Get(0xb1ba).Span,
+        editedOam.AddEnemySpritemap((edited ?? throw new InvalidOperationException("Verification requires edited.")).Get(0xb1ba).Span,
             new Position16<OamPixels>(0x0080, 0x0004), 0, 0, clipVerticalWrap: true);
         AssertEqual((byte)(originalOam.LowTable[0] + 1), editedOam.LowTable[0],
             "enemy-projectile composition override moves the live Ceres pad OAM part");
@@ -545,7 +546,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             () => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(invalidCurrentJson),
                 installed),
             "current projectile compositions cannot silently omit Skree debris");
-        var incompleteProgramFrames = document.ProgramFrames!
+        var incompleteProgramFrames = document.ProgramFrames
             .Where(entry => entry.Key != editableProgramFrame.Name)
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         byte[] invalidProgramJson = JsonSerializer.SerializeToUtf8Bytes(
@@ -581,7 +582,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             "version-one Ceres override inherits stock Skree debris composition");
         var migratedPad = new OamBuffer();
         migratedPad.BeginFrame();
-        migratedPad.AddEnemySpritemap(migrated.ProjectileSpritemaps!.Get(0xb1ba).Span,
+        migratedPad.AddEnemySpritemap((migrated.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires migrated.ProjectileSpritemaps.")).Get(0xb1ba).Span,
             new Position16<OamPixels>(0x0080, 0x0004), 0, 0, clipVerticalWrap: true);
         AssertEqual(editedOam.LowTable[0], migratedPad.LowTable[0],
             "version-one Ceres composition edit survives the version-three catalog upgrade");
@@ -605,7 +606,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             "version-two edits inherit stock shared-program frames");
         var versionThreeFrames = EnemyProjectileInstructionMechanicsDefinitions.VisualFrames
             .ToArray().ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
+                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionThreeJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
@@ -634,7 +635,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             .ToArray()
             .Where(frame => !alcoonOperands.Contains(frame.OperandAddress))
             .ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
+                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionFourJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
@@ -661,7 +662,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             "version-four overrides inherit newly extracted Alcoon fireball frames");
         var versionFiveFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
             .ToArray().ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
+                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionFiveJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
@@ -695,7 +696,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
         var versionSixFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizoEgg
             .ToArray().ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
+                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionSixJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
@@ -722,7 +723,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             "version-six overrides inherit extracted Golden Torizo egg frames");
         var versionSevenFrames = EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects
             .ToArray().ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
+                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionSevenJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
@@ -752,7 +753,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
         var versionEightFrames = EnemyProjectilePresentationFrameDefinitions.PreGenericEnemyDeath
             .ToArray().ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
+                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionEightJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
@@ -783,7 +784,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
         var versionNineFrames = EnemyProjectilePresentationFrameDefinitions.PreEnvironmentAndAttack
             .ToArray().ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
+                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionNineJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
@@ -814,7 +815,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
         var versionTenFrames = EnemyProjectilePresentationFrameDefinitions.PreMotherBrainAndStatue
             .ToArray().ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames![frame.Name], StringComparer.Ordinal);
+                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionTenJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -58,7 +59,7 @@ internal static class PlmDoorPresentationContractChecks
             .Replace("@TWO_WORD_EYE@", $"0x{twoWordEye:X4}", StringComparison.Ordinal);
         SyntaxTree calls = CSharpSyntaxTree.ParseText(selectedConsumer, path: "fixture-plm-door-consumer.cs");
         trees.Add(calls);
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("PlmDoorProviderFixture", trees,
             platforms.Append(typeof(RoomPlmBlueDoorVisualCatalog).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
@@ -99,12 +100,12 @@ internal static class PlmDoorPresentationContractChecks
             new RoomPlmEscapeGateVisualEntry(MotherBrainEscapeGatePlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmEscapeGateVisualCatalog(entries));
         RoomPlmShotBlockDrawDefinitions.DrawList[] itemShapes =
-            PlmVisualDomainDefinitions.Get(typeof(RoomPlmCollectibleVisualCatalog).FullName!)!;
-        ConfirmCoverage(itemShapes, frame => {
+            (PlmVisualDomainDefinitions.Get((typeof(RoomPlmCollectibleVisualCatalog).FullName ?? throw new InvalidOperationException("Verification requires typeof(RoomPlmCollectibleVisualCatalog).FullName."))) ?? throw new InvalidOperationException("Verification requires PlmVisualDomainDefinitions.Get((typeof(RoomPlmCollectibleVisualCatalog).FullName ?? thr...."));
+        ConfirmCoverage((itemShapes ?? throw new InvalidOperationException("Verification requires itemShapes.")), frame => {
             Require(RoomPlmCollectibleDrawDefinitions.TryGet(frame.Pointer, out var item), "compiled item shape owns its ID");
             return new RoomPlmCollectibleVisualEntry(item.Id, VisualRuns(frame)[0][0]);
         }, entries => _ = new RoomPlmCollectibleVisualCatalog(entries));
-        ConfirmCoverage(PlmVisualDomainDefinitions.Get(typeof(RoomPlmGrappleBlockVisualCatalog).FullName!)!, frame =>
+        ConfirmCoverage((PlmVisualDomainDefinitions.Get((typeof(RoomPlmGrappleBlockVisualCatalog).FullName ?? throw new InvalidOperationException("Verification requires typeof(RoomPlmGrappleBlockVisualCatalog).FullName."))) ?? throw new InvalidOperationException("Verification requires PlmVisualDomainDefinitions.Get((typeof(RoomPlmGrappleBlockVisualCatalog).FullName ?? th....")), frame =>
             new RoomPlmGrappleBlockVisualEntry(frame.Pointer, VisualRuns(frame)[0][0]),
             entries => _ = new RoomPlmGrappleBlockVisualCatalog(entries));
 

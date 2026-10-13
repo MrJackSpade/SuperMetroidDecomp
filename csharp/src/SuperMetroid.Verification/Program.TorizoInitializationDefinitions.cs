@@ -55,8 +55,8 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual((ushort)1, actor.InstructionTimer.RawValue, "Initial instruction timer");
                 AssertEqual((ushort)0, actor.Timer.RawValue, "Initial actor timer");
                 AssertEqual((ushort)0, actor.PaletteIndex, "Initial palette index");
-                var state = variant == 0 ? enemies.BombTorizo! : enemies.BombTorizoBehavior.GoldenTorizo!;
-                AssertEqual((ushort)0, state.Velocity.X.RawValue, "Initial horizontal velocity");
+                var state = variant == 0 ? enemies.BombTorizo : enemies.BombTorizoBehavior.GoldenTorizo;
+                AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity.X.RawValue, "Initial horizontal velocity");
                 AssertEqual((ushort)0x100, state.Velocity.Y.RawValue, "Initial falling velocity");
             }
             defeated = true;

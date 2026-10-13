@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -63,12 +64,12 @@ internal static class PaletteJsonContractsVerification
                 foreach (string channel in new[] { "red", "green", "blue" })
                 {
                     foreach (int invalid in new[] { -1, 32 })
-                        Reject(Mutate(root, copy => ((JsonObject)PaletteContractNode(copy, path)!)[channel] = invalid),
+                        Reject(Mutate(root, copy => ((JsonObject)(PaletteContractNode(copy, path) ?? throw new InvalidOperationException("Verification requires PaletteContractNode(copy, path).")))[channel] = invalid),
                             $"RGB5 {string.Join('.', path)} {channel}={invalid}");
-                    Reject(Mutate(root, copy => ((JsonObject)PaletteContractNode(copy, path)!).Remove(channel)),
+                    Reject(Mutate(root, copy => ((JsonObject)(PaletteContractNode(copy, path) ?? throw new InvalidOperationException("Verification requires PaletteContractNode(copy, path)."))).Remove(channel)),
                         $"missing {string.Join('.', path)} {channel}");
                 }
-                Reject(Mutate(root, copy => ((JsonObject)PaletteContractNode(copy, path)!)["alpha"] = 255),
+                Reject(Mutate(root, copy => ((JsonObject)(PaletteContractNode(copy, path) ?? throw new InvalidOperationException("Verification requires PaletteContractNode(copy, path).")))["alpha"] = 255),
                     $"unknown color field {string.Join('.', path)}");
             }
             string json = root.ToJsonString();
@@ -80,12 +81,12 @@ internal static class PaletteJsonContractsVerification
                         $"duplicate world selection {entry.Key}");
             if (contract.Name == "map cycle")
             {
-                Reject(Mutate(root, copy => ((JsonObject)copy["frames"]![0]!).Remove("durationTicks")), "missing frame duration");
+                Reject(Mutate(root, copy => ((JsonObject)copy.Required("frames").Required(0)).Remove("durationTicks")), "missing frame duration");
                 foreach (int duration in new[] { 0, 255 })
-                    Reject(Mutate(root, copy => copy["frames"]![0]!["durationTicks"] = duration), "invalid frame duration");
+                    Reject(Mutate(root, copy => copy.Required("frames").Required(0)["durationTicks"] = duration), "invalid frame duration");
                 Reject(json.Replace("\"durationTicks\":", "\"durationTicks\":0,\"durationTicks\":", StringComparison.Ordinal),
                     "duplicate frame duration");
-                Reject(Mutate(root, copy => copy["frames"]![0]!["attack"] = 7), "unknown frame field");
+                Reject(Mutate(root, copy => copy.Required("frames").Required(0)["attack"] = 7), "unknown frame field");
             }
 
             void Reject(string json, string description)
@@ -107,8 +108,8 @@ internal static class PaletteJsonContractsVerification
         bool CaseInsensitive = false);
 
     /// <summary>Serializes a typed palette fixture into a mutable camel-case JSON document.</summary>
-    internal static JsonObject PaletteContractDocument(object document) => (JsonObject)JsonSerializer.SerializeToNode(
-        document, document.GetType(), new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })!;
+    internal static JsonObject PaletteContractDocument(object document) => (JsonObject)(JsonSerializer.SerializeToNode(
+        document, document.GetType(), new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }) ?? throw new InvalidOperationException("Verification requires JsonSerializer.SerializeToNode( document, document.GetType(), new JsonSerializerOptions...."));
 
     /// <summary>Runs a schema's production loader on supplied UTF-8 JSON text.</summary>
     private static void LoadPaletteContract(PaletteJsonContract contract, string json)
@@ -129,16 +130,16 @@ internal static class PaletteJsonContractsVerification
     private static JsonNode? PaletteContractNode(JsonNode root, string[] path)
     {
         JsonNode? node = root;
-        foreach (string part in path) node = node is JsonArray ? node[int.Parse(part)] : node![part];
+        foreach (string part in path) node = node is JsonArray ? node[int.Parse(part)] : (node ?? throw new InvalidOperationException("Verification requires node."))[part];
         return node;
     }
 
     /// <summary>Replaces the final object property or array element at a fixture path.</summary>
     private static void SetPaletteContractNode(JsonNode root, string[] path, JsonNode? value)
     {
-        JsonNode parent = PaletteContractNode(root, path[..^1])!;
+        JsonNode parent = (PaletteContractNode(root, path[..^1]) ?? throw new InvalidOperationException("Verification requires PaletteContractNode(root, path[..^1])."));
         if (parent is JsonArray array) array[int.Parse(path[^1])] = value;
-        else parent[path[^1]] = value;
+        else (parent ?? throw new InvalidOperationException("Verification requires parent."))[path[^1]] = value;
     }
 
     /// <summary>Finds representative nested array paths for shape and nullability checks.</summary>

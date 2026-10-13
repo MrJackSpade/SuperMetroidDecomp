@@ -77,9 +77,9 @@ internal static class MotherBrainEscapeTextArtworkVerification
             .SequenceEqual(editedVram.Bytes.Slice(firstDestination + 1,
                 MotherBrainEscapeTextArtworkDefinitions.PageByteCount(0) - 1)),
             "Mother Brain escape-text edit leaves neighboring source bytes unchanged");
-        RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-            .MotherBrainEscapeText!;
-        AssertTrue(reloaded.Transfer.Span.SequenceEqual(edited.MotherBrainEscapeText!.Transfer.Span),
+        RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
+            .MotherBrainEscapeText ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainEscapeText."));
+        AssertTrue((reloaded ?? throw new InvalidOperationException("Verification requires reloaded.")).Transfer.Span.SequenceEqual((edited.MotherBrainEscapeText ?? throw new InvalidOperationException("Verification requires edited.MotherBrainEscapeText.")).Transfer.Span),
             "Mother Brain escape-text override survives catalog reload");
 
         File.WriteAllBytes(overridePath, [0]);

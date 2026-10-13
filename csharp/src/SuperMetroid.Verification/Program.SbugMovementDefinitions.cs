@@ -57,8 +57,8 @@ internal static class SbugMovementDefinitionsVerification
             initialize(slot);
 
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + selector * 2);
-            SbugEnemyState state = enemies.SbugStates[0]!;
-            AssertEqual(unchecked((ushort)(selector * 2)), state.ForwardInstructionIndex,
+            SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
+            AssertEqual(unchecked((ushort)(selector * 2)), (state ?? throw new InvalidOperationException("Verification requires state.")).ForwardInstructionIndex,
                 $"Sbug production facing index {selector}");
             AssertEqual(native, slot.CurrentInstruction,
                 $"Sbug production facing instruction {selector}");
@@ -71,8 +71,8 @@ internal static class SbugMovementDefinitionsVerification
         slot.Position = slot.Position.WithWhole(samus.Position.Whole);
         for (byte behavior = 0; behavior <= (byte)SbugActivationBehavior.MoveAwayFromSamus; behavior++)
         {
-            SbugEnemyState state = enemies.SbugStates[0]!;
-            state.Function = SbugEnemyFunction.WaitForSamus;
+            SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
+            (state ?? throw new InvalidOperationException("Verification requires state.")).Function = SbugEnemyFunction.WaitForSamus;
             slot.Parameter2 = (ushort)(behavior << 8 | 1);
             runMain(slot, samus, null);
 

@@ -106,8 +106,8 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             AssertEqual(program.Terminal, snail.CurrentInstruction,
                 $"Maridia Large Snail {program.Name} terminal instruction");
 
-            MaridiaLargeSnailEnemyState state = enemies.MaridiaLargeSnailStates[0]!;
-            AssertEqual(program.FinishesAttack, state.AttackAnimationFinished,
+            MaridiaLargeSnailEnemyState state = (enemies.MaridiaLargeSnailStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MaridiaLargeSnailStates[0]."));
+            AssertEqual(program.FinishesAttack, (state ?? throw new InvalidOperationException("Verification requires state.")).AttackAnimationFinished,
                 $"Maridia Large Snail {program.Name} completion flag");
             AssertEqual(program.PlaysSplash ? (ushort?)0x000e : null,
                 enemies.MaridiaLargeSnailBehavior.LastMaridiaLargeSnailSoundEffect,
@@ -129,14 +129,14 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                 snail,
                 MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftRollingForwards,
                 2);
-            AssertTrue(enemies.MaridiaLargeSnailStates[0]!.AttackAllowsRotation,
+            AssertTrue((enemies.MaridiaLargeSnailStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MaridiaLargeSnailStates[0].")).AttackAllowsRotation,
                 "Maridia Large Snail forward roll enables its attack window");
             ExecuteMaridiaLargeSnailProgram(rom, executedOperands,
                 enemies,
                 snail,
                 snail.CurrentInstruction,
                 1);
-            AssertEqual(false, enemies.MaridiaLargeSnailStates[0]!.AttackAllowsRotation,
+            AssertEqual(false, (enemies.MaridiaLargeSnailStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MaridiaLargeSnailStates[0].")).AttackAllowsRotation,
                 "Maridia Large Snail forward roll closes its attack window");
         }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -18,7 +19,7 @@ internal static class PauseReserveUiAssetsVerification
         string stockPath = Path.Combine(stock, PauseReserveUiDefinitions.FileName);
         string path = Path.Combine(overrides, PauseReserveUiDefinitions.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        var document = JsonSerializer.Deserialize<PauseReserveUiDocument>(stockBytes, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseReserveUiDocument>(stockBytes, MapPresentationFormat.JsonOptions);
         var guard = NewPauseReserveUiReadGuard(bus);
 
         var nativeSamus = Samus(); var installedSamus = Samus();

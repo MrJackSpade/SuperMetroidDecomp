@@ -33,28 +33,28 @@ internal static class LookupLiquidWaveVerification
                 LayerBlendingConfiguration.WaterSubtractive, new Position16<Bg3Pixels>(baseScroll, 0),
                 CurrentYPosition: 100, LiquidOptions: 2, WaterBg3WavePhase: phase,
                 WaterBg2WavePhase: phase, WaterSurfaceScreenY: 100);
-            var captured = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(water)!;
+            var captured = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(water);
             for (int y = SnesGameplayFrameRenderer.HudHeight; y < SnesGameplayFrameRenderer.Height; y++)
             {
                 int offset = y > 100 ? Water((y - 101 - phase + 16) % 16) : 0;
-                AssertEqual(unchecked((ushort)(baseScroll + offset)), captured.Scrolls[y].X,
+                AssertEqual(unchecked((ushort)(baseScroll + offset)), (captured ?? throw new InvalidOperationException("Verification requires captured.")).Scrolls[y].X,
                     "Water BG3 phase subtraction and signed addition");
             }
             for (int cameraPhase = 0; cameraPhase < 16; cameraPhase++)
             {
                 ushort cameraY = (ushort)((baseScroll & 0xfff0) | cameraPhase);
-                ushort[] bg2 = SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(water,
-                    new Position16<Bg2Pixels>(baseScroll, cameraY))!;
+                ushort[] bg2 = (SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(water,
+                    new Position16<Bg2Pixels>(baseScroll, cameraY)) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(water, new Position16<Bg2Pixel...."));
                 var heat = water with { Type = RoomFxType.Lava, LavaAcidBg2WavePhase = phase };
-                ushort[] heatScroll = SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(heat, cameraY)!;
-                for (int line = 0; line < bg2.Length; line++)
+                ushort[] heatScroll = (SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(heat, cameraY) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(heat, cameraY)."));
+                for (int line = 0; line < (bg2 ?? throw new InvalidOperationException("Verification requires bg2.")).Length; line++)
                 {
                     int y = line + SnesGameplayFrameRenderer.HudHeight;
                     int waterOffset = y > 100 ? Water((phase + cameraPhase + y - 101) & 15) : 0;
                     AssertEqual(unchecked((ushort)(baseScroll + waterOffset)), bg2[line],
                         "Water BG2 phase addition, surface boundary and signed wrap");
                     AssertEqual(unchecked((ushort)(cameraY + Heat((phase + cameraPhase + line) & 15))),
-                        heatScroll[line], "Vertical heat HDMA phase and signed wrap");
+                        (heatScroll ?? throw new InvalidOperationException("Verification requires heatScroll."))[line], "Vertical heat HDMA phase and signed wrap");
                 }
             }
         }

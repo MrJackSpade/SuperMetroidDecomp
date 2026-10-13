@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -26,7 +27,7 @@ internal static class GameOptionsHeadingsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Options headings oracle revision");
         byte[] json = GameOptionsPresentationExtractor.Extract(rom);
         _ = GameOptionsPresentation.Load(new MemoryStream(json));
-        var document = JsonSerializer.Deserialize<GameOptionsPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(json, MapPresentationFormat.JsonOptions);
         Suite(nameof(VerifyGameOptionsHeadingIds), () => VerifyGameOptionsHeadingIds(rom, document));
         Suite(nameof(VerifyGameOptionsHeadingAnchors), () => VerifyGameOptionsHeadingAnchors(rom, document));
     }

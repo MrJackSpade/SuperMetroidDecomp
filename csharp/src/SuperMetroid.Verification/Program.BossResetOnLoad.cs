@@ -77,10 +77,10 @@ internal static class BossResetOnLoadVerification
                 AssertEqual(snapshot.CollectedItemBytes[index], runtime.System.GetCollectedItemByteRaw(index), "pickups preserved");
             for (int index = 0; index < Bank80SystemState.RoomChozoBitByteCount; index++)
                 AssertEqual(snapshot.RoomChozoBytes[index], runtime.System.GetRoomChozoByteRaw(index), "Chozo orbs preserved");
-            AssertEqual(slot.CollectedItems, (ushort)runtime.Player.Samus!.CollectedItems, "collected inventory preserved");
-            AssertEqual(slot.EquippedItems, (ushort)runtime.Player.Samus.EquippedItems, "equipment selection preserved");
-            AssertEqual(slot.Health, runtime.Player.Samus.Health, "health preserved");
-            AssertEqual(slot.Missiles, runtime.Player.Samus.Missiles, "ammo preserved");
+            AssertEqual(slot.CollectedItems, (ushort)runtime.Player.IntroducedSamus.CollectedItems, "collected inventory preserved");
+            AssertEqual(slot.EquippedItems, (ushort)runtime.Player.IntroducedSamus.EquippedItems, "equipment selection preserved");
+            AssertEqual(slot.Health, runtime.Player.IntroducedSamus.Health, "health preserved");
+            AssertEqual(slot.Missiles, runtime.Player.IntroducedSamus.Missiles, "ammo preserved");
             foreach (var (room, alive, defeated) in new (ushort, ushort, ushort)[]
                 { (0x9804, 0x981b, 0x9835), (0x9dc7, 0x9dd9, 0x9df3),
                   (0xb283, 0xb295, 0xb2af), (0xd8c5, 0xd8d7, 0xd8f1) })
@@ -95,7 +95,7 @@ internal static class BossResetOnLoadVerification
             AssertTrue(runtime.System.HasAnyBossBits(AreaId.Brinstar, BossBits.AreaMiniBoss),
                 "subsequent defeat persists until another explicit save load");
         }
-        AssertTrue(saves.ReadSlot(0)!.BossBytes.AsSpan().SequenceEqual(slot.BossBytes),
+        AssertTrue((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).BossBytes.AsSpan().SequenceEqual(slot.BossBytes),
             "loading with reset does not rewrite the stored save");
         Console.WriteLine("Boss reset: disabled defaults, strict INI, full saved-state preservation, outside-Tourian flags, five eye doors, Spore/Torizo/Shaktool room selection and load-only application pass.");
     }

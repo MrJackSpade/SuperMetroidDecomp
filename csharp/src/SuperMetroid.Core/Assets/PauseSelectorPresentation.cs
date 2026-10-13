@@ -90,17 +90,19 @@ public sealed class PauseSelectorPresentation
                 phase.Beam is null || !frames.TryGetValue(phase.Beam, out var beam) ||
                 phase.Equipment is null || !frames.TryGetValue(phase.Equipment, out var equipment))
                 throw new InvalidDataException($"Pause selector phase {i} has invalid timing or an unknown frame.");
-            if (i == 0)
+            if (reservePhases is null || beamPhases is null || equipmentPhases is null)
             {
                 reservePhases = new(reserve); beamPhases = new(beam); equipmentPhases = new(equipment);
             }
             else
             {
-                reservePhases!.Capture(i, reserve); beamPhases!.Capture(i, beam); equipmentPhases!.Capture(i, equipment);
+                reservePhases.Capture(i, reserve); beamPhases.Capture(i, beam); equipmentPhases.Capture(i, equipment);
             }
             if (phase.DurationTicks != MenuSelectorTiming.Duration(i))
                 (durationOverrides ??= new()).Add(i, phase.DurationTicks);
         }
+        if (reservePhases is null || beamPhases is null || equipmentPhases is null)
+            throw new InvalidDataException("Pause selector animation requires at least one phase.");
         return new(new PauseSelectorParts { AnchorOverrides = anchorOverrides, Reserve = reservePhases, Beam = beamPhases, Equipment = equipmentPhases, PhaseCount = document.Animation.Length, DurationOverrides = durationOverrides, InitialDuration = document.InitialDurationTicks, Palette = document.Palette });
     }
     /// <summary>Native $82:C137 has zero sprite offsets in every phase: each category

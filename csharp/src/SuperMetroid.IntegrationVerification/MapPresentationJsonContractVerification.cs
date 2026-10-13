@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -108,8 +109,8 @@ internal static class MapPresentationJsonContractVerification
     /// <summary>Updates a test copy's stock digest so duplicate-property rejection reaches the JSON parser.</summary>
     private static void RewriteHash(string path, byte[] baseline, string file, byte[] content)
     {
-        var manifest = System.Text.Json.Nodes.JsonNode.Parse(baseline)!;
-        manifest["sha256"]![file] = Convert.ToHexString(SHA256.HashData(content));
+        var manifest = RequiredJson.Parse(baseline);
+        manifest.Required("sha256")[file] = Convert.ToHexString(SHA256.HashData(content));
         File.WriteAllText(path, manifest.ToJsonString());
     }
 

@@ -25,7 +25,7 @@ internal static class RetailElevatorReturnTests
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.CollectedItems |= (ushort)SamusEquipmentFlags.MorphBall;
         samus.EquippedItems |= (ushort)SamusEquipmentFlags.MorphBall;
         samus.MaxMissiles = samus.Missiles = 5;
@@ -43,7 +43,7 @@ internal static class RetailElevatorReturnTests
         void Compare(string phase)
         {
             var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-            var capture = GameplayDisplayCapture.TryCaptureFrame(runtime)
+            var capture = GameplayDisplayCapture.CaptureFrame(runtime)
                 ?? throw new InvalidOperationException("Elevator return omitted its display capture.");
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples), capture);
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
@@ -63,7 +63,7 @@ internal static class RetailElevatorReturnTests
         {
             runtime.StepFrame(0);
             arrivalFrames++;
-            cameraPositions.Add(runtime.Room.Camera!.PixelPosition.Y);
+            cameraPositions.Add(runtime.Room.LoadedCamera.PixelPosition.Y);
             var actor = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);
             actorPositions.Add(actor.Position.Y.Whole);
             Compare("return");
@@ -74,8 +74,8 @@ internal static class RetailElevatorReturnTests
         for (int tick = 0; tick < 8; tick++) { runtime.StepFrame(0); Compare("settled"); }
         // Preserve the existing cartridge-derived regression endpoint, not a forced
         // screen origin: front-facing Samus selects the room's up-scroller target.
-        ushort expectedCameraY = unchecked((ushort)(samus.Position.Y.Whole - runtime.Room.ActiveRoom!.UpScroller));
-        if (runtime.Room.Camera!.PixelPosition.Y != expectedCameraY || runtime.Room.Camera.IdealPosition.Y != expectedCameraY ||
+        ushort expectedCameraY = unchecked((ushort)(samus.Position.Y.Whole - runtime.Room.ActiveRoom.UpScroller));
+        if (runtime.Room.LoadedCamera.PixelPosition.Y != expectedCameraY || runtime.Room.LoadedCamera.IdealPosition.Y != expectedCameraY ||
             runtime.BackgroundScroll.Layer1Position.Y != expectedCameraY ||
             runtime.BackgroundScroll.Bg1Scroll.Y != unchecked((ushort)(expectedCameraY + runtime.BackgroundScroll.Bg1Offset.Y)))
             throw new InvalidOperationException("Settled elevator camera and BG1 disagree with the room up-scroller target.");

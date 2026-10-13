@@ -11,7 +11,7 @@ internal static class LookupRetailDoorListsVerification
     {
         ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))
             .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)
-            .Select(pointer => pointer!.Value).Distinct().Order().ToArray();
+            .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer."))).Distinct().Order().ToArray();
         var physical = EnumerateRetailDoorPointers().ToHashSet();
         physical.Add(0x88fc);
         physical.Add(0xa18a);

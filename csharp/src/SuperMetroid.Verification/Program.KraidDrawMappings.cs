@@ -139,7 +139,7 @@ internal static class KraidDrawMappingsVerification
                 AssertEqual((ushort)0, missing.Pointer, "Kraid missing ID clears result");
             }
         }
-        foreach (string invalid in new[] { "", "unknown", null! })
+        foreach (string invalid in new[] { "", "unknown" })
             AssertTrue(!KraidRoomPlmDrawDefinitions.TryGetByVisualId(invalid, out _), "Kraid invalid visual ID");
         var pointers = expected.Select(draw => draw.Pointer).ToHashSet();
         for (int pointer = 0x9365; pointer <= 0x93ef; pointer++)

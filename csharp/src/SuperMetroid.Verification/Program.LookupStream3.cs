@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using static Program;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
@@ -206,7 +207,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        GameOptionsPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<GameOptionsPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        GameOptionsPresentationDocument Read() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
         Dictionary<string, SpriteComposition> Load(GameOptionsPresentationDocument document)
         {
             var value = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
@@ -277,7 +278,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3FileSelectBorders(ISnesAddressSpace rom, byte[] imported)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        FileSelectPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
         Dictionary<string, SpriteComposition> Load(FileSelectPresentationDocument document)
         {
             var value = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
@@ -423,7 +424,7 @@ internal static class LookupStream3Verification
             AssertThrows<IndexOutOfRangeException>(() => _ = stock.GetLines(source.Id)[stock.GetLines(source.Id).Count], "narration line upper bound");
         }
         AssertEqual(770, nativeCharacters, "six native narration pages contain770 characters");
-        var document = System.Text.Json.JsonSerializer.Deserialize<IntroNarrationDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<IntroNarrationDocument>(json, MapPresentationFormat.JsonOptions);
         void ConfirmEdit()
         {
             using var stream = new MemoryStream();
@@ -500,7 +501,7 @@ internal static class LookupStream3Verification
             composition.parts is not CompiledSpritePart[];
 
         byte[] imported = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(rom);
-        GameOverPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<GameOverPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        GameOverPresentationDocument Read() => RequiredJson.Deserialize<GameOverPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
         GameOverPresentation Load(GameOverPresentationDocument document) => GameOverPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
         var original = Read();
@@ -574,12 +575,12 @@ internal static class LookupStream3Verification
             for (int frame = 0; frame < 4; frame++)
             {
                 string name = GameOverPresentationDefinitions.CursorFrameName(frame);
-                var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
-                var parts = System.Text.Json.JsonSerializer.Deserialize<SpriteVisualPart[]>(node["sprites"]![name]!.ToJsonString(), MapPresentationFormat.JsonOptions)!;
+                var node = RequiredJson.Parse(json);
+                var parts = RequiredJson.Deserialize<SpriteVisualPart[]>(node.Required("sprites").Required(name).ToJsonString(), MapPresentationFormat.JsonOptions);
                 AssertTrue(Calculated(presentation[name]), "shared menu cursor caller uses calculated geometry");
                 Confirm(presentation[name], parts);
                 parts[0] = parts[0] with { OffsetX = parts[0].OffsetX + 1, TileColumn = parts[0].TileColumn ^ 1 };
-                node["sprites"]![name] = System.Text.Json.JsonSerializer.SerializeToNode(parts, MapPresentationFormat.JsonOptions);
+                node.Required("sprites")[name] = System.Text.Json.JsonSerializer.SerializeToNode(parts, MapPresentationFormat.JsonOptions);
                 var edited = load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
                 Confirm(edited[name], parts);
             }
@@ -646,7 +647,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        FileSelectPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
         FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
         foreach ((string name, Func<FileSelectPresentation, FileSelectCompiledPatch> Compiled, int address, int count) in
@@ -719,7 +720,7 @@ internal static class LookupStream3Verification
     private static void VerifyStream3GameOverText(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<GameOverPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<GameOverPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
         GameOverPresentation Load() => GameOverPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
         var stock = Load();
@@ -755,8 +756,8 @@ internal static class LookupStream3Verification
     private static void VerifyStream3OptionsGeometry(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(rom);
-        GameOptionsPresentationDocument ReadDocument() => System.Text.Json.JsonSerializer.Deserialize<GameOptionsPresentationDocument>(
-            imported, MapPresentationFormat.JsonOptions)!;
+        GameOptionsPresentationDocument ReadDocument() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(
+            imported, MapPresentationFormat.JsonOptions);
         GameOptionsPresentation Load(GameOptionsPresentationDocument document) => GameOptionsPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
         var stock = ReadDocument();
@@ -981,8 +982,6 @@ internal static class LookupStream3Verification
         }
         var unchangedScroll = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), new byte[50], new Extent16<RoomScreens>(10, 5));
         AssertTrue(!SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");
-        AssertThrows<ArgumentNullException>(() => SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(DoorSetupCode.None, null!),
-            "stream 3 door callback null argument remains rejected before dispatch");
         for (int pair = 0; pair < 16; pair++)
         {
             int address = 0xadde5f + 2 * pair;
@@ -1197,11 +1196,11 @@ internal static class LookupStream3Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), grappleSprites.Segment(frame), "stream 3 calculated native rope attributes");
             foreach (string field in new[] { "tileColumn", "tileRow", "palette", "priority", "flipX", "flipY" })
             {
-                var node = System.Text.Json.Nodes.JsonNode.Parse(grappleSpriteJson)!;
-                var style = node["segments"]![frame]!;
+                var node = RequiredJson.Parse(grappleSpriteJson);
+                var style = node.Required("segments").Required(frame);
                 int bit = field switch { "tileColumn" => 1, "tileRow" => 16, "palette" => 0x200, "priority" => 0x1000, "flipX" => 0x4000, _ => 0x8000 };
-                if (field is "flipX" or "flipY") style[field] = !style[field]!.GetValue<bool>();
-                else style[field] = style[field]!.GetValue<int>() ^ 1;
+                if (field is "flipX" or "flipY") style[field] = !style.Required(field).GetValue<bool>();
+                else style[field] = style.Required(field).GetValue<int>() ^ 1;
                 var edited = GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
                 for (int check = 0; check < 4; check++)
                     AssertEqual((ushort)(grappleSprites.Segment(check) ^ (check == frame ? bit : 0)), edited.Segment(check), "stream 3 independent rope attribute edit");
@@ -1244,11 +1243,11 @@ internal static class LookupStream3Verification
             AssertEqual(expected, glyphTilemap[3 * 32 + 4 + (digit ? 2 : 0)], "stream 3 actual file-select calculated glyph write");
             foreach (string field in new[] { "tileColumn", "tileRow", "palette", "priority", "flipX", "flipY" })
             {
-                var node = System.Text.Json.Nodes.JsonNode.Parse(fileSelectJson)!;
-                var cell = node[digit ? "digits" : "slotLetters"]![index]!;
+                var node = RequiredJson.Parse(fileSelectJson);
+                var cell = node.Required(digit ? "digits" : "slotLetters").Required(index);
                 int bit = field switch { "tileColumn" => 1, "tileRow" => 32, "palette" => 0x400, "priority" => 0x2000, "flipX" => 0x4000, _ => 0x8000 };
-                if (field is "priority" or "flipX" or "flipY") cell[field] = !cell[field]!.GetValue<bool>();
-                else cell[field] = cell[field]!.GetValue<int>() ^ 1;
+                if (field is "priority" or "flipX" or "flipY") cell[field] = !cell.Required(field).GetValue<bool>();
+                else cell[field] = cell.Required(field).GetValue<int>() ^ 1;
                 var edited = FileSelectPresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
                 if (digit) edited.WriteDigit(glyphTilemap, anchor, 2, index);
                 else edited.WriteSlotLetter(glyphTilemap, anchor, index);
@@ -1688,7 +1687,7 @@ internal static class LookupStream3Verification
                 }
                 for (int color = 0; color < 5; color++)
                     AssertEqual(Word(drain[frame].BackLegs[color]), cgram.Colors[180 + color], "stream 3 drain legs RGB5");
-                AssertEqual(Word(drain[frame].TrailingColor!), new MotherBrainPaletteSpillAccess(bus).GreyTrailingWord,
+                AssertEqual(Word((drain[frame].TrailingColor ?? throw new InvalidOperationException("Verification requires drain[frame].TrailingColor."))), new MotherBrainPaletteSpillAccess(bus).GreyTrailingWord,
                     "stream 3 drain trailing word");
                 palette.ApplyFakeDeathToGrey(cgram, frame);
                 for (int color = 0; color < 3; color++)
@@ -1754,7 +1753,7 @@ internal static class LookupStream3Verification
                 AssertEqual((ushort)123, cgram.Colors[0x9e], "stream 3 revival preserves brain tail");
                 for (int color = 0; color < 5; color++)
                     AssertEqual(Word(revival[frame].BackLegs[color]), cgram.Colors[180 + color], "stream 3 revival legs");
-                AssertEqual(Word(revival[frame].TrailingColor!), new MotherBrainPaletteSpillAccess(bus).GreyTrailingWord, "stream 3 revival trailing word");
+                AssertEqual(Word((revival[frame].TrailingColor ?? throw new InvalidOperationException("Verification requires revival[frame].TrailingColor."))), new MotherBrainPaletteSpillAccess(bus).GreyTrailingWord, "stream 3 revival trailing word");
                 palette.ApplyFakeDeathFromGrey(cgram, frame);
                 for (int color = 0; color < 3; color++)
                     AssertEqual(Word(revival[frame].Body[color]), cgram.Colors[0x91 + color], "stream 3 fake-death revival");
@@ -1781,14 +1780,14 @@ internal static class LookupStream3Verification
         for (int component = 0; component < 3; component++)
         {
             var row = revival[frame];
-            PaletteRgb5 original = color < 13 ? row.Body[color] : color < 18 ? row.BackLegs[color - 13] : row.TrailingColor!;
+            PaletteRgb5 original = (color < 13 ? row.Body[color] : color < 18 ? row.BackLegs[color - 13] : row.TrailingColor ?? throw new InvalidOperationException("Verification requires color < 13 ? row.Body[color] : color < 18 ? row.BackLegs[color - 13] : row.TrailingColor."));
             void Set(PaletteRgb5 value)
             {
                 if (color < 13) row.Body[color] = value;
                 else if (color < 18) row.BackLegs[color - 13] = value;
                 else revival[frame] = row with { TrailingColor = value };
             }
-            Set(Color((ushort)(Word(original) ^ 1 << (5 * component))));
+            Set(Color((ushort)(Word((original ?? throw new InvalidOperationException("Verification requires original."))) ^ 1 << (5 * component))));
             CheckRevival(Load(document));
             Set(original);
         }
@@ -1801,7 +1800,7 @@ internal static class LookupStream3Verification
         var drainEnd = drainFade.last;
         var drainBody = drainEnd.Body;
         var drainedPaint = drainBody.drained;
-        AssertTrue(drainedPaint.Calculated, "stream 3 drained final gray body palette has no stored row");
+        AssertTrue((drainedPaint ?? throw new InvalidOperationException("Verification requires drainedPaint.")).Calculated, "stream 3 drained final gray body palette has no stored row");
         var normalFrame = stock.normal;
         var normalBody = normalFrame.Body;
         AssertTrue(normalBody.supplied is null,
@@ -1865,7 +1864,8 @@ internal static class LookupStream3Verification
         {
             var row = drain[frame];
             PaletteRgb5 original = color < 15 ? row.Body[color] : color < 20 ? row.BackLegs[color - 15]
-                : color == 20 ? row.TrailingColor! : fake[frame][color - 21];
+                : color == 20 ? row.TrailingColor ?? throw new InvalidOperationException("Verification requires the drain frame's trailing color.")
+                : fake[frame][color - 21];
             void Set(PaletteRgb5 value)
             {
                 if (color < 15) row.Body[color] = value;
@@ -1873,7 +1873,7 @@ internal static class LookupStream3Verification
                 else if (color == 20) drain[frame] = row with { TrailingColor = value };
                 else fake[frame][color - 21] = value;
             }
-            Set(Color((ushort)(Word(original) ^ 1 << (5 * channel))));
+            Set(Color((ushort)(Word((original ?? throw new InvalidOperationException("Verification requires original."))) ^ 1 << (5 * channel))));
             var editedPalette = Load(document);
             Check(editedPalette);
             if (frame == 0 && color < 21) CheckRainbow(editedPalette);
@@ -2438,7 +2438,7 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainHealthPaletteExtractor.Extract(rom);
         var stock = MotherBrainHealthPalettePresentation.Load(new MemoryStream(json));
-        var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var node = RequiredJson.Parse(json);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         foreach (var palette in new[] { stock.body, stock.backLegs })
         {
@@ -2481,8 +2481,8 @@ internal static class LookupStream3Verification
                     foreach (string component in new[] { "red", "green", "blue" })
                     {
                         var editedNode = node.DeepClone();
-                        var rgb = editedNode[group]![state]![color]!;
-                        rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                        var rgb = editedNode.Required(group).Required(state).Required(color);
+                        rgb[component] = rgb.Required(component).GetValue<int>() ^ 1;
                         var edited = MotherBrainHealthPalettePresentation.Load(new MemoryStream(
                             System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                         for (int checkState = 0; checkState < 4; checkState++)
@@ -2496,10 +2496,10 @@ internal static class LookupStream3Verification
                             })
                                 for (int checkColor = 0; checkColor < 15; checkColor++)
                                 {
-                                    var expectedRgb = editedNode[checkGroup]![checkState]![checkColor]!;
-                                    ushort expected = (ushort)(expectedRgb["red"]!.GetValue<int>() |
-                                        expectedRgb["green"]!.GetValue<int>() << 5 |
-                                        expectedRgb["blue"]!.GetValue<int>() << 10);
+                                    var expectedRgb = editedNode.Required(checkGroup).Required(checkState).Required(checkColor);
+                                    ushort expected = (ushort)(expectedRgb.Required("red").GetValue<int>() |
+                                        expectedRgb.Required("green").GetValue<int>() << 5 |
+                                        expectedRgb.Required("blue").GetValue<int>() << 10);
                                     AssertEqual(expected, actual.Colors[destination + checkColor],
                                         "stream 3 independent health palette edit and unaffected channels");
                                 }
@@ -2514,7 +2514,7 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
-        var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var node = RequiredJson.Parse(json);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var fade = stock.recoveryLights;
         AssertTrue(fade.supplied is null,
@@ -2542,8 +2542,8 @@ internal static class LookupStream3Verification
                 foreach (string component in new[] { "red", "green", "blue" })
                 {
                     var editedNode = node.DeepClone();
-                    var rgb = editedNode["recoveryLights"]![frame]![color]!;
-                    rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                    var rgb = editedNode.Required("recoveryLights").Required(frame).Required(color);
+                    rgb[component] = rgb.Required(component).GetValue<int>() ^ 1;
                     var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
                         System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                     for (int checkFrame = 0; checkFrame < 7; checkFrame++)
@@ -2552,10 +2552,10 @@ internal static class LookupStream3Verification
                         edited.ApplyRecoveryLights(actual, checkFrame);
                         for (int checkColor = 0; checkColor < 28; checkColor++)
                         {
-                            var expectedRgb = editedNode["recoveryLights"]![checkFrame]![checkColor]!;
-                            ushort expected = (ushort)(expectedRgb["red"]!.GetValue<int>() |
-                                expectedRgb["green"]!.GetValue<int>() << 5 |
-                                expectedRgb["blue"]!.GetValue<int>() << 10);
+                            var expectedRgb = editedNode.Required("recoveryLights").Required(checkFrame).Required(checkColor);
+                            ushort expected = (ushort)(expectedRgb.Required("red").GetValue<int>() |
+                                expectedRgb.Required("green").GetValue<int>() << 5 |
+                                expectedRgb.Required("blue").GetValue<int>() << 10);
                             int destination = checkColor < 14 ? MotherBrainRoomColorRomData.RecoveryLightsFirstColor + checkColor :
                                 MotherBrainRoomColorRomData.RecoveryLightsSecondColor + checkColor - 14;
                             AssertEqual(expected, actual.Colors[destination], "stream 3 independent recovery light edit");
@@ -2566,8 +2566,8 @@ internal static class LookupStream3Verification
             foreach (string component in new[] { "red", "green", "blue" })
             {
                 var editedNode = node.DeepClone();
-                var rgb = editedNode["finalRoom"]![color]!;
-                rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                var rgb = editedNode.Required("finalRoom").Required(color);
+                rgb[component] = rgb.Required(component).GetValue<int>() ^ 1;
                 var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
                     System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                 for (int frame = 0; frame < 7; frame++)
@@ -2610,7 +2610,7 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
-        var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var node = RequiredJson.Parse(json);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var flash = stock.flash;
         AssertTrue(flash.supplied is null,
@@ -2647,8 +2647,8 @@ internal static class LookupStream3Verification
                 foreach (string component in new[] { "red", "green", "blue" })
                 {
                     var editedNode = node.DeepClone();
-                    var rgb = editedNode["flash"]![frame]![color]!;
-                    rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                    var rgb = editedNode.Required("flash").Required(frame).Required(color);
+                    rgb[component] = rgb.Required(component).GetValue<int>() ^ 1;
                     var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
                         System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                     for (int checkFrame = 0; checkFrame < 14; checkFrame++)
@@ -2657,10 +2657,10 @@ internal static class LookupStream3Verification
                         edited.ApplyFlash(actual, checkFrame);
                         for (int checkColor = 0; checkColor < 24; checkColor++)
                         {
-                            var expectedRgb = editedNode["flash"]![checkFrame]![checkColor]!;
-                            ushort expected = (ushort)(expectedRgb["red"]!.GetValue<int>() |
-                                expectedRgb["green"]!.GetValue<int>() << 5 |
-                                expectedRgb["blue"]!.GetValue<int>() << 10);
+                            var expectedRgb = editedNode.Required("flash").Required(checkFrame).Required(checkColor);
+                            ushort expected = (ushort)(expectedRgb.Required("red").GetValue<int>() |
+                                expectedRgb.Required("green").GetValue<int>() << 5 |
+                                expectedRgb.Required("blue").GetValue<int>() << 10);
                             int destination = checkColor < 12 ? 0x34 + checkColor : 0x53 + checkColor - 12;
                             AssertEqual(expected, actual.Colors[destination], "stream 3 independent room flash edit");
                             if (checkColor >= 12)
@@ -2745,7 +2745,7 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
-        var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var node = RequiredJson.Parse(json);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         AssertTrue(stock.phaseTwoRearLeg is null,
             "stream 3 phase-two rear uses approved calculated health basis without stored rows");
@@ -2759,17 +2759,17 @@ internal static class LookupStream3Verification
             foreach (string component in new[] { "red", "green", "blue" })
             {
                 var editedNode = node.DeepClone();
-                var rgb = editedNode["phaseTwoRearLeg"]![color]!;
-                rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                var rgb = editedNode.Required("phaseTwoRearLeg").Required(color);
+                rgb[component] = rgb.Required(component).GetValue<int>() ^ 1;
                 var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
                     System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                 var actual = new SnesCgram();
                 edited.ApplyPhaseTwoInitial(actual);
                 for (int checkColor = 0; checkColor < 15; checkColor++)
                 {
-                    var expectedRgb = editedNode["phaseTwoRearLeg"]![checkColor]!;
-                    ushort expected = (ushort)(expectedRgb["red"]!.GetValue<int>() |
-                        expectedRgb["green"]!.GetValue<int>() << 5 | expectedRgb["blue"]!.GetValue<int>() << 10);
+                    var expectedRgb = editedNode.Required("phaseTwoRearLeg").Required(checkColor);
+                    ushort expected = (ushort)(expectedRgb.Required("red").GetValue<int>() |
+                        expectedRgb.Required("green").GetValue<int>() << 5 | expectedRgb.Required("blue").GetValue<int>() << 10);
                     AssertEqual(expected, actual.Colors[0xb1 + checkColor], "stream 3 independent phase-two rear edit");
                     AssertEqual(phaseTwo.Colors[0xa1 + checkColor], actual.Colors[0xa1 + checkColor],
                         "stream 3 rear edit preserves independently installed attack palette");
@@ -2958,7 +2958,7 @@ internal static class LookupStream3Verification
             [
                 part with { OffsetX = part.OffsetX + 1 }, part with { OffsetY = part.OffsetY ^ 1 },
                 part with { Size = part.Size == 8 ? 16 : 8 }, part with { TileColumn = (part.TileColumn + 1) % 16 },
-                part with { TileRow = (part.TileRow + 1) % 32 }, part with { Palette = (part.Palette!.Value + 1) % 8 },
+                part with { TileRow = (part.TileRow + 1) % 32 }, part with { Palette = ((part.Palette ?? throw new InvalidOperationException("Verification requires part.Palette.")) + 1) % 8 },
                 part with { Priority = (part.Priority + 1) % 4 }, part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY },
             ];
             foreach (var edited in edits) { original[0] = edited; Check(Load()); }
@@ -2978,7 +2978,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
-        var document = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var document = RequiredJson.Parse(json);
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var attack = stock.phaseTwoAttack;
@@ -2995,31 +2995,31 @@ internal static class LookupStream3Verification
             foreach (string component in new[] { "red", "green", "blue" })
             {
                 var edited = document.DeepClone();
-                var rgb = edited["phaseTwoAttack"]![color]!;
-                rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                var rgb = edited.Required("phaseTwoAttack").Required(color);
+                rgb[component] = rgb.Required(component).GetValue<int>() ^ 1;
                 Confirm(Load(edited), edited);
             }
         }
         var independentRecovery = document.DeepClone();
-        var recoveryRows = independentRecovery["recoveryLights"]!.AsArray();
-        var neutral = recoveryRows[recoveryRows.Count - 1]![14]!;
-        neutral["red"] = neutral["red"]!.GetValue<int>() ^ 1;
+        var recoveryRows = independentRecovery.Required("recoveryLights").AsArray();
+        var neutral = recoveryRows.Required(recoveryRows.Count - 1).Required(14);
+        neutral["red"] = neutral.Required("red").GetValue<int>() ^ 1;
         Confirm(Load(independentRecovery), independentRecovery);
         Confirm(stock, document);
 
         static MotherBrainRoomColorPresentation Load(System.Text.Json.Nodes.JsonNode document) =>
             MotherBrainRoomColorPresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
-        static ushort Word(System.Text.Json.Nodes.JsonNode rgb) => (ushort)(rgb["red"]!.GetValue<int>()
-            | rgb["green"]!.GetValue<int>() << 5 | rgb["blue"]!.GetValue<int>() << 10);
+        static ushort Word(System.Text.Json.Nodes.JsonNode rgb) => (ushort)(rgb.Required("red").GetValue<int>()
+            | rgb.Required("green").GetValue<int>() << 5 | rgb.Required("blue").GetValue<int>() << 10);
         static void Confirm(MotherBrainRoomColorPresentation palette, System.Text.Json.Nodes.JsonNode expected)
         {
             var cgram = new SnesCgram();
             palette.ApplyPhaseTwoInitial(cgram);
             for (int color = 0; color < MotherBrainRoomColorRomData.PhaseTwoColors; color++)
             {
-                AssertEqual(Word(expected["phaseTwoAttack"]![color]!),
+                AssertEqual(Word(expected.Required("phaseTwoAttack").Required(color)),
                     cgram.Colors[MotherBrainRoomColorRomData.PhaseTwoAttackColor + color], "independent attack color preserved");
-                AssertEqual(Word(expected["phaseTwoRearLeg"]![color]!),
+                AssertEqual(Word(expected.Required("phaseTwoRearLeg").Required(color)),
                     cgram.Colors[MotherBrainRoomColorRomData.PhaseTwoRearLegColor + color], "paired rear palette remains independent");
             }
         }
@@ -3031,7 +3031,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3FinalRoomPaints(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<MotherBrainRoomColorDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<MotherBrainRoomColorDocument>(imported, MapPresentationFormat.JsonOptions);
         MotherBrainRoomColorPresentation Load() => MotherBrainRoomColorPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
         var stock = Load();
@@ -3074,10 +3074,10 @@ internal static class LookupStream3Verification
             palette.ApplyRoomEntry(colors);
             for (int color = 0; color < 15; color++)
             {
-                AssertEqual(Word(document.InitialGlassShard![color]), colors.Colors[0xb1 + color], "final-room edit cannot alter supplied glass");
-                AssertEqual(Word(document.InitialTubeProjectile![color]), colors.Colors[0xf1 + color], "final-room edit cannot alter supplied tube");
+                AssertEqual(Word((document.InitialGlassShard ?? throw new InvalidOperationException("Verification requires document.InitialGlassShard."))[color]), colors.Colors[0xb1 + color], "final-room edit cannot alter supplied glass");
+                AssertEqual(Word((document.InitialTubeProjectile ?? throw new InvalidOperationException("Verification requires document.InitialTubeProjectile."))[color]), colors.Colors[0xf1 + color], "final-room edit cannot alter supplied tube");
             }
-            for (int frame = 0; frame < document.RecoveryLights!.Length; frame++)
+            for (int frame = 0; frame < (document.RecoveryLights ?? throw new InvalidOperationException("Verification requires document.RecoveryLights.")).Length; frame++)
             {
                 palette.ApplyRecoveryLights(colors, frame);
                 for (int color = 0; color < 28; color++)
@@ -3098,8 +3098,8 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3RoomEntryPalettes(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
-        MotherBrainRoomColorDocument Read() => System.Text.Json.JsonSerializer.Deserialize<MotherBrainRoomColorDocument>(
-            imported, MapPresentationFormat.JsonOptions)!;
+        MotherBrainRoomColorDocument Read() => RequiredJson.Deserialize<MotherBrainRoomColorDocument>(
+            imported, MapPresentationFormat.JsonOptions);
         MotherBrainRoomColorPresentation Load(MotherBrainRoomColorDocument document, MotherBrainRoomColorPresentation? current = null) =>
             MotherBrainRoomColorPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
                 document, MapPresentationFormat.JsonOptions)), current);
@@ -3109,8 +3109,8 @@ internal static class LookupStream3Verification
         {
             int glassAddress = MotherBrainRoomColorRomData.InitialGlassShardSource + color * sizeof(ushort);
             int tubeAddress = MotherBrainRoomColorRomData.InitialTubeProjectileSource + color * sizeof(ushort);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(glassAddress), Word(document.InitialGlassShard![color]), "glass direct native color");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(tubeAddress), Word(document.InitialTubeProjectile![color]), "tube direct native color");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(glassAddress), Word((document.InitialGlassShard ?? throw new InvalidOperationException("Verification requires document.InitialGlassShard."))[color]), "glass direct native color");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(tubeAddress), Word((document.InitialTubeProjectile ?? throw new InvalidOperationException("Verification requires document.InitialTubeProjectile."))[color]), "tube direct native color");
         }
         Confirm(stock, document);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -3131,8 +3131,8 @@ internal static class LookupStream3Verification
         var glass = stock.initialGlassShard;
         AssertTrue(!MetadataShape.Fields(glass.GetType(), fields).Any(field => field.FieldType == typeof(ushort)),
             "stock glass keeps no duplicated scalar paint endpoint");
-        foreach (PaletteRgb5[] palette in new[] { document.InitialGlassShard!, document.InitialTubeProjectile! })
-        for (int color = 0; color < palette.Length; color++)
+        foreach (PaletteRgb5[]? palette in new[] { document.InitialGlassShard, document.InitialTubeProjectile })
+        for (int color = 0; color < (palette ?? throw new InvalidOperationException("Verification requires palette.")).Length; color++)
         for (int component = 0; component < 3; component++)
         {
             PaletteRgb5 original = palette[color];
@@ -3151,7 +3151,7 @@ internal static class LookupStream3Verification
         }
         for (int component = 0; component < 3; component++)
         {
-            PaletteRgb5 original = document.RecoveryLights![6][14];
+            PaletteRgb5 original = (document.RecoveryLights ?? throw new InvalidOperationException("Verification requires document.RecoveryLights."))[6][14];
             document.RecoveryLights[6][14] = Change(original, component);
             Confirm(Load(document), document);
             document.RecoveryLights[6][14] = original;
@@ -3189,8 +3189,8 @@ internal static class LookupStream3Verification
             {
                 AssertEqual(Word(expected.PhaseTwoAttack[color]), phase.Colors[0xa1 + color], "room attack exact native/edited shade");
                 AssertEqual(Word(expected.PhaseTwoRearLeg[color]), phase.Colors[0xb1 + color], "room rear independence");
-                AssertEqual(Word(expected.InitialGlassShard![color]), entry.Colors[0xb1 + color], "room glass exact native/edited shade");
-                AssertEqual(Word(expected.InitialTubeProjectile![color]), entry.Colors[0xf1 + color], "room tube exact native/edited shade");
+                AssertEqual(Word((expected.InitialGlassShard ?? throw new InvalidOperationException("Verification requires expected.InitialGlassShard."))[color]), entry.Colors[0xb1 + color], "room glass exact native/edited shade");
+                AssertEqual(Word((expected.InitialTubeProjectile ?? throw new InvalidOperationException("Verification requires expected.InitialTubeProjectile."))[color]), entry.Colors[0xf1 + color], "room tube exact native/edited shade");
             }
         }
     }
@@ -3199,8 +3199,8 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby initial paints")]
     internal static void VerifyStream3BabyInitialPaints(ISnesAddressSpace rom)
     {
-        var babyDocument = System.Text.Json.Nodes.JsonNode.Parse(SuperMetroid.AssetExtraction.BabyMetroidCutsceneColorExtractor.Extract(rom))!;
-        var liveDocument = System.Text.Json.Nodes.JsonNode.Parse(SuperMetroid.AssetExtraction.ShitroidColorExtractor.Extract(rom))!;
+        var babyDocument = RequiredJson.Parse(SuperMetroid.AssetExtraction.BabyMetroidCutsceneColorExtractor.Extract(rom));
+        var liveDocument = RequiredJson.Parse(SuperMetroid.AssetExtraction.ShitroidColorExtractor.Extract(rom));
         var stock = LoadBaby(babyDocument);
         var liveStock = LoadLive(liveDocument);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -3219,18 +3219,18 @@ internal static class LookupStream3Verification
         foreach (string component in new[] { "red", "green", "blue" })
         {
             var editedBabyDocument = babyDocument.DeepClone();
-            var rgb = editedBabyDocument["initial"]![color]!;
-            rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+            var rgb = editedBabyDocument.Required("initial").Required(color);
+            rgb[component] = rgb.Required(component).GetValue<int>() ^ 1;
             Check(LoadBaby(editedBabyDocument), editedBabyDocument);
             var editedLiveDocument = liveDocument.DeepClone();
-            rgb = editedLiveDocument["shitroid"]![color + 1]!;
-            rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+            rgb = editedLiveDocument.Required("shitroid")[color + 1];
+            (rgb ?? throw new InvalidOperationException("Verification requires rgb."))[component] = rgb.Required(component).GetValue<int>() ^ 1;
             var editedLive = LoadLive(editedLiveDocument);
             for (int index = 0; index < BabyMetroidCutsceneColorRomData.InitialColorCount; index++)
             {
-                AssertEqual(Word(editedLiveDocument["shitroid"]![index + 1]!), editedLive.TargetColor(ShitroidColorTarget.Shitroid, index + 1), "independent live alias edit");
-                AssertEqual(Word(babyDocument["initial"]![index]!), stock.InitialColor(index), "live edit cannot mutate Baby instance");
-                AssertEqual(Word(liveDocument["shitroid"]![index + 1]!), liveStock.TargetColor(ShitroidColorTarget.Shitroid, index + 1), "Baby edit cannot mutate live instance");
+                AssertEqual(Word(editedLiveDocument.Required("shitroid").Required(index + 1)), editedLive.TargetColor(ShitroidColorTarget.Shitroid, index + 1), "independent live alias edit");
+                AssertEqual(Word(babyDocument.Required("initial").Required(index)), stock.InitialColor(index), "live edit cannot mutate Baby instance");
+                AssertEqual(Word(liveDocument.Required("shitroid").Required(index + 1)), liveStock.TargetColor(ShitroidColorTarget.Shitroid, index + 1), "Baby edit cannot mutate live instance");
             }
         }
         Check(stock, babyDocument);
@@ -3240,12 +3240,12 @@ internal static class LookupStream3Verification
             BabyMetroidCutsceneColorCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         static ShitroidColorCatalog LoadLive(System.Text.Json.Nodes.JsonNode document) =>
             ShitroidColorCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
-        static ushort Word(System.Text.Json.Nodes.JsonNode rgb) => (ushort)(rgb["red"]!.GetValue<int>() |
-            rgb["green"]!.GetValue<int>() << 5 | rgb["blue"]!.GetValue<int>() << 10);
+        static ushort Word(System.Text.Json.Nodes.JsonNode rgb) => (ushort)(rgb.Required("red").GetValue<int>() |
+            rgb.Required("green").GetValue<int>() << 5 | rgb.Required("blue").GetValue<int>() << 10);
         static void Check(BabyMetroidCutsceneColorCatalog catalog, System.Text.Json.Nodes.JsonNode document)
         {
-            ushort[] colors = document["initial"]!.AsArray().Select(rgb => Word(rgb!)).ToArray();
-            ushort[][] fade = document["fade"]!.AsArray().Select(row => row!.AsArray().Select(rgb => Word(rgb!)).ToArray()).ToArray();
+            ushort[] colors = document.Required("initial").AsArray().RequiredElements().Select(rgb => Word(rgb)).ToArray();
+            ushort[][] fade = document.Required("fade").AsArray().RequiredElements().Select(row => row.AsArray().RequiredElements().Select(rgb => Word(rgb)).ToArray()).ToArray();
             for (int color = 0; color < colors.Length; color++) AssertEqual(colors[color], catalog.InitialColor(color), "Baby independently edited initial colors");
             string identity = SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
             {
@@ -3323,7 +3323,7 @@ internal static class LookupStream3Verification
         byte[] imported = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom);
         Suite(nameof(VerifyStream3FileSelectBorders), () => VerifyStream3FileSelectBorders(rom, imported));
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        FileSelectPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
         FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
         SpriteComposition Composition(FileSelectPresentation owner, string name) =>

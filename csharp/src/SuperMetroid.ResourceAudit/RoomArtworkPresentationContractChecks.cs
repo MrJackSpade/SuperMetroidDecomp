@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -49,7 +50,7 @@ internal static class RoomArtworkPresentationContractChecks
             .Replace("PALETTE_SOURCE", first.PaletteAddress.ToString(), StringComparison.Ordinal);
         SyntaxTree calls = CSharpSyntaxTree.ParseText(consumer, path: "fixture-room-art-consumer.cs");
         trees.Add(calls);
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("RoomArtworkProviderFixture", sources,
             platforms.Append(typeof(RoomCharacterAtlasCatalog).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),

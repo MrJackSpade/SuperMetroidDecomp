@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -129,7 +129,7 @@ internal sealed class EnemyDeathsAndDrops
         // The cartridge reads the header through the new pointer on every dispatch.
         // Our cached definition must follow that pointer even during the death frame.
         enemy.EnemyDefinitionPointer = EnemyDefinitionId.Respawn;
-        enemy.Definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.Bus!, enemy.EnemyDefinitionPointer);
+        enemy.Definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, enemy.EnemyDefinitionPointer);
         enemy.AiBank = enemy.Definition.Bank;
     }
 
@@ -427,7 +427,7 @@ internal sealed class EnemyDeathsAndDrops
             return projectile.ItemDropChancesPointerOverride;
         if (projectile.EnemyHeaderPointer == 0)
             return new EnemyOverreadMemory(_room.MemoryBus).ClearedHeaderDropChances;
-        return EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.Bus!, projectile.EnemyHeaderPointer).ItemDropChancesPointer;
+        return EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, projectile.EnemyHeaderPointer).ItemDropChancesPointer;
     }
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>
@@ -594,7 +594,7 @@ internal sealed class EnemyDeathsAndDrops
         }
 
         RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(
-            _room.Bus!,
+            _room.LoadedBus,
             spawn.Population.DefinitionPointer);
         // Unlike Initialise_Enemies ($A0:8B93) and Spawn_Enemy ($A0:93D9), Respawn_Enemy
         // ($86:F264) never writes the spritemap: the actor keeps EnemyDeath's cleared word,

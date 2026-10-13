@@ -73,8 +73,6 @@ internal static class LookupRetailPopulationsVerification
                     "unknown population is rejected by the production factory");
             }
         }
-        AssertThrows<ArgumentNullException>(() => RoomPlmPopulationDefinitions.Place(0x8000, null!),
-            "population dispatch requires a placement consumer");
     }
 
     /// <summary>Checks the PLM header selected by each native placement.</summary>

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -23,6 +23,10 @@ internal sealed class SamusFrameState
     /// explicitly introduced Samus; the Landing Site cinematic does not do so by itself.
     /// </summary>
     public SamusState? Samus { get; internal set; }
+
+    /// <summary>Samus once the scenario has introduced her; gameplay phases that move, draw or damage her require it.</summary>
+    public SamusState IntroducedSamus => Samus ??
+        throw new InvalidOperationException("Samus has not been introduced; this gameplay phase requires her actor.");
 
     /// <summary>
     /// Winning cartridge pose-transition entry for the most recently latched controller

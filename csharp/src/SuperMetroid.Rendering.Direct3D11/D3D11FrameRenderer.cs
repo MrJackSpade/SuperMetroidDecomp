@@ -153,10 +153,10 @@ public sealed class D3D11FrameRenderer : IDisposable
         if (disposed) return;
         owner.VerifyOwner();
         owner.Context.CSSetShader(null);
-        owner.Context.VSSetShader(null!);
-        owner.Context.PSSetShader(null!);
-        owner.Context.PSSetShaderResource(0, null!);
-        owner.Context.PSSetConstantBuffer(0, null!);
+        owner.Context.VSSetShader(null);
+        owner.Context.PSSetShader(null);
+        owner.Context.PSUnsetShaderResource(0);
+        owner.Context.PSSetConstantBuffer(0, null);
         owner.Context.CSSetConstantBuffer(0, null);
         owner.Context.CSSetShaderResource(0, null);
         owner.Context.CSSetUnorderedAccessView(1, null);
@@ -248,7 +248,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Draw(3, 0);
         // Avoid SRV/UAV hazards on the next emulation frame and release target binding
         // before a later swapchain resize. Raster state belongs to this render owner.
-        owner.Context.PSSetShaderResource(0, null!);
+        owner.Context.PSUnsetShaderResource(0);
         owner.Context.OMSetRenderTargets(Array.Empty<ID3D11RenderTargetView>());
     }
 

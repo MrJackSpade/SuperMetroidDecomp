@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
@@ -334,7 +335,7 @@ public sealed class FileSelectPresentation
     }
 
     /// <summary>Requires every save-slot field anchor to remain within a menu page.</summary>
-    private static void ValidateSlot(FileSelectSlotFieldDocument? slot)
+    private static void ValidateSlot([NotNull] FileSelectSlotFieldDocument? slot)
     {
         if (slot is null)
             throw new InvalidDataException("File-select slot layout is null.");

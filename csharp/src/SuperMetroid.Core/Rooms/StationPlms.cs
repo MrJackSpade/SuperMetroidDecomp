@@ -131,10 +131,10 @@ internal sealed class StationPlms
     private StationPlmState FindSaveStation(StationActivationEvent activation)
     {
         StationPlmState[] matches = _slotTable._slots
-            .Where(slot => slot.Active && slot.RoomArgument == activation.StationIndex &&
-                slot.Station is { Kind: StationKind.Save } station &&
-                station.AreaIndex == activation.AreaIndex)
-            .Select(slot => slot.Station!)
+            .Where(slot => slot.Active && slot.RoomArgument == activation.StationIndex)
+            .Select(slot => slot.Station)
+            .OfType<StationPlmState>()
+            .Where(station => station.Kind == StationKind.Save && station.AreaIndex == activation.AreaIndex)
             .ToArray();
         return matches.Length switch
         {

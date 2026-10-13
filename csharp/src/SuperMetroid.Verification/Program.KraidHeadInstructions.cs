@@ -107,7 +107,7 @@ internal static class KraidHeadInstructionsVerification
                 KraidHeadInstructionKind.DyingSound)
             {
                 AssertEqual(unchecked((byte)definition.SoundId),
-                    enemies.KraidBehavior.LastKraidSoundEffect!.Value.SoundEffect.Value,
+                    (enemies.KraidBehavior.LastKraidSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.KraidBehavior.LastKraidSoundEffect.")).SoundEffect.Value,
                     $"Kraid sound command ${definition.Pointer:X4} queues exact sound");
             }
             AssertEqual(0, guard.ForbiddenReadAttempts,

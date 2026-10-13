@@ -114,7 +114,7 @@ internal static class RidleyCollisionDefinitionsVerification
                         AssertEqual(nativeHit, compiledHit,
                             $"Ridley $A6:{frame:X4} overlap {xi},{yi}, shot={shot}");
                         AssertEqual(nativeCallback,
-                            (ushort)compiledArguments[^1]!,
+                            (ushort)(compiledArguments[^1] ?? throw new InvalidOperationException("Verification requires compiledArguments[^1].")),
                             $"Ridley $A6:{frame:X4} callback {xi},{yi}, shot={shot}");
                         if (shot == 1)
                         {

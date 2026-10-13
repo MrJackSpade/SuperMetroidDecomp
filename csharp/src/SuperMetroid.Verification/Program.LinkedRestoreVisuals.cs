@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
@@ -106,9 +107,9 @@ internal static class LinkedRestoreVisualsVerification
                 RoomPlmLinkedRestoreVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted restore JSON is empty.");
-            JsonNode bomb = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "bomb-horizontal")!;
-            bomb["blocks"]![0] = 0x0053;
+            JsonNode bomb = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "bomb-horizontal");
+            bomb.Required("blocks")[0] = 0x0053;
             Directory.CreateDirectory(
                 installation.RoomPlmLinkedRestoreVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -128,7 +129,7 @@ internal static class LinkedRestoreVisualsVerification
                     installation.RoomPlmLinkedRestoreVisualOverrideDirectory)
                     .GetWord((ushort)BombBlockRestoreDraw.Horizontal, 0, 0),
                 "restore override survives stock replacement");
-            bomb["blocks"]![0] = 0xf053;
+            bomb.Required("blocks")[0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmLinkedRestoreVisuals(),

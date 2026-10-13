@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
@@ -17,8 +18,8 @@ internal static class MotherBrainBeamWindowVerification
         AssertOwnsNoScanlineTable(typeof(MotherBrainRainbowBeamHdmaState));
         // A native 64-angle-wide beam selects gradients 32/96, both exactly 1.
         // This retains the indirect-run/carry fixture without replacing engine lookup data.
-        var paletteDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(
-            RepositoryInstallation.Installation.MapDirectory, MotherBrainRainbowPaletteFormat.FileName)))!;
+        var paletteDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
+            RepositoryInstallation.Installation.MapDirectory, MotherBrainRainbowPaletteFormat.FileName)));
         var cycle = new JsonArray();
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount; frame++)
             cycle.Add(new JsonObject { ["red"] = frame % 2 == 0 ? 31 : 0,
@@ -64,8 +65,8 @@ internal static class MotherBrainBeamWindowVerification
         MotherBrainRainbowBeamRenderSnapshot snapshot = beam.RenderSnapshot;
         AssertEqual(new MotherBrainRainbowBeamRenderSnapshot(true, beam.Color, beam.Geometry), snapshot,
             "render snapshot carries the active flag, color and geometry by value");
-        var capture = SnesGameplayFrameRenderer.CaptureMotherBrainRainbowBeam(snapshot)!;
-        AssertEqual(new ColorAddWindow(115, 255, 255, 0, 0), capture.Windows[100],
+        var capture = SnesGameplayFrameRenderer.CaptureMotherBrainRainbowBeam(snapshot);
+        AssertEqual(new ColorAddWindow(115, 255, 255, 0, 0), (capture ?? throw new InvalidOperationException("Verification requires capture.")).Windows[100],
             "shared render packet includes beam geometry and native color");
         int cursor = beam.ColorCursor;
         _ = SnesGameplayFrameRenderer.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot);
@@ -95,12 +96,12 @@ internal static class MotherBrainBeamWindowVerification
         beam.Step(true, new(100, 95), SnesAngle.ThreeQuarterTurn, 512);
         AssertEqual(retained, beam.Geometry, "native left-axis RTS preserves prior geometry");
         beam.Step(true, new(356, 95), SnesAngle.QuarterTurn, Width(64));
-        AssertEqual((byte)114, beam.Geometry!.Value.MouthScreenX, "DE20 uses low X byte, not wrapped enemy-header data");
+        AssertEqual((byte)114, (beam.Geometry ?? throw new InvalidOperationException("Verification requires beam.Geometry.")).MouthScreenX, "DE20 uses low X byte, not wrapped enemy-header data");
         AssertEqual((ushort)0xff73, RainbowBeamWindowBuilder.Build(beam.Geometry)[100],
             "low-byte mouth X rasterizes like the unwrapped head");
         AssertThrows<InvalidDataException>(() => beam.Step(true, new(100, 27), SnesAngle.QuarterTurn, Width(64)),
             "a mouth above the work area fails during the simulation update");
-        VerifyGoldenWindows(beam.PresentationColors!);
+        VerifyGoldenWindows(beam.PresentationColors);
         Console.WriteLine("  Mother Brain beam: native apex, HDMA split, HUD exclusion, retained geometry, color stride/reset, owned capture and golden windows agree.");
     }
 
@@ -123,7 +124,7 @@ internal static class MotherBrainBeamWindowVerification
         AssertEqual("6E2CA9E2B685191B", Build(150, 60, 0, Width(32)), "down dispatcher golden");
         string downLeft = Build(16, 80, 224, Width(32));
         AssertEqual("CFBC8396E8E49C1E", downLeft, "down-left zero-sentinel golden");
-        AssertEqual(MotherBrainBeamRomData.Direction.Down, beam.Geometry!.Value.Direction, "down-left fixture uses the down dispatcher");
+        AssertEqual(MotherBrainBeamRomData.Direction.Down, (beam.Geometry ?? throw new InvalidOperationException("Verification requires beam.Geometry.")).Direction, "down-left fixture uses the down dispatcher");
         AssertTrue(beam.Geometry.Value.EdgeA >= 128 && beam.Geometry.Value.EdgeB >= 128, "down-left fixture has both edges negative");
         ushort[] downLeftWindows = RainbowBeamWindowBuilder.Build(beam.Geometry);
         AssertTrue(downLeftWindows[beam.Geometry.Value.MouthY + 1] != MotherBrainBeamRomData.EmptyWindow

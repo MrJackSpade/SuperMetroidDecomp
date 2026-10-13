@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
@@ -25,8 +26,8 @@ internal static class PaletteJsonContractsLegacyVerification
         var oldEffects = (JsonObject)effects.DeepClone();
         oldEffects["version"] = RoomPaletteFxPresentationFormat.PreviousVersion;
         foreach (string field in new[] { "samusHeatPowerSuit", "samusHeatVariaSuit", "samusHeatGravitySuit" }) oldEffects.Remove(field);
-        var editedColor = (JsonObject)oldEffects["norfairForegroundPalette4"]![0]![0]!;
-        editedColor["red"] = (editedColor["red"]!.GetValue<int>() + 1) % 32;
+        var editedColor = (JsonObject)oldEffects.Required("norfairForegroundPalette4").Required(0).Required(0);
+        editedColor["red"] = (editedColor.Required("red").GetValue<int>() + 1) % 32;
         AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldEffects, json => RoomPaletteFxPresentation.Load(json)),
             "v17 room effects require explicitly installed current stock");
         var migratedEffects = ReadPaletteContract(oldEffects, json => RoomPaletteFxPresentation.Load(json, effectsStock));
@@ -53,7 +54,7 @@ internal static class PaletteJsonContractsLegacyVerification
             oldRoom.Remove("recoveryLights");
             if (version == MotherBrainRoomColorFormat.PreRoomEntryVersion)
             { oldRoom.Remove("initialGlassShard"); oldRoom.Remove("initialTubeProjectile"); }
-            ((JsonObject)oldRoom["finalRoom"]![0]!)["red"] = 31;
+            ((JsonObject)oldRoom.Required("finalRoom").Required(0))["red"] = 31;
             AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldRoom, json => MotherBrainRoomColorPresentation.Load(json)),
                 "old Mother Brain room colors require current stock");
             var migrated = ReadPaletteContract(oldRoom, json => MotherBrainRoomColorPresentation.Load(json, roomStock));
@@ -67,7 +68,7 @@ internal static class PaletteJsonContractsLegacyVerification
                 AssertTrue(new CgramPalettes(actual).ImageEquals(new CgramPalettes(expected)), "legacy inherits exact room recovery colors");
             }
             migrated.ApplyFinal(actual);
-            AssertEqual(PackPaletteContractColor((JsonObject)oldRoom["finalRoom"]![0]!),
+            AssertEqual(PackPaletteContractColor((JsonObject)oldRoom.Required("finalRoom").Required(0)),
                 actual.Colors[MotherBrainRoomColorRomData.FirstColor], "legacy retains edited final-room colors");
         }
 
@@ -76,7 +77,7 @@ internal static class PaletteJsonContractsLegacyVerification
         var oldRainbow = (JsonObject)rainbow.DeepClone();
         oldRainbow["version"] = (int)MotherBrainRainbowPaletteVersion.PreFakeDeath;
         oldRainbow.Remove("fakeDeathToGrey");
-        ((JsonObject)oldRainbow["normal"]!["body"]![0]!)["red"] = 31;
+        ((JsonObject)oldRainbow.Required("normal").Required("body").Required(0))["red"] = 31;
         AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldRainbow, json => MotherBrainRainbowPalettePresentation.Load(json)),
             "old Mother Brain rainbow colors require current stock");
         var migratedRainbow = ReadPaletteContract(oldRainbow, json => MotherBrainRainbowPalettePresentation.Load(json, rainbowStock));
@@ -88,11 +89,11 @@ internal static class PaletteJsonContractsLegacyVerification
             AssertTrue(new CgramPalettes(legacyCgram).ImageEquals(new CgramPalettes(stockCgram)), "legacy inherits exact fake-death colors");
         }
         migratedRainbow.ApplyNormal(legacyCgram);
-        AssertEqual(PackPaletteContractColor((JsonObject)oldRainbow["normal"]!["body"]![0]!),
+        AssertEqual(PackPaletteContractColor((JsonObject)oldRainbow.Required("normal").Required("body").Required(0)),
             legacyCgram.Colors[MotherBrainRainbowPaletteRomData.BodyColor], "legacy retains edited normal colors");
     }
 
     /// <summary>Packs JSON red, green, and blue channels into the cartridge's 15-bit color word.</summary>
-    private static ushort PackPaletteContractColor(JsonObject color) => (ushort)(color["red"]!.GetValue<int>() |
-        color["green"]!.GetValue<int>() << 5 | color["blue"]!.GetValue<int>() << 10);
+    private static ushort PackPaletteContractColor(JsonObject color) => (ushort)(color.Required("red").GetValue<int>() |
+        color.Required("green").GetValue<int>() << 5 | color.Required("blue").GetValue<int>() << 10);
 }

@@ -152,8 +152,8 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             slot.CurrentInstruction = program;
             slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, 40);
-            NinjaSpacePirateEnemyState state = enemies.NinjaSpacePirateStates[0]!;
-            AssertEqual(1, state.SpawnedClawCount,
+            NinjaSpacePirateEnemyState state = (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0]."));
+            AssertEqual(1, (state ?? throw new InvalidOperationException("Verification requires state.")).SpawnedClawCount,
                 $"ninja Pirate claw program $B2:{program:X4} first spawn count");
             RoomEnemyProjectileSlot claw = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             AssertEqual(
@@ -169,11 +169,11 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             slot.CurrentInstruction = program;
             slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, 3);
-            AssertEqual(function, enemies.NinjaSpacePirateStates[0]!.Function,
+            AssertEqual(function, (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0].")).Function,
                 $"ninja Pirate dive program $B2:{program:X4} function");
             AssertEqual((ushort)0x0e00, slot.PaletteIndex,
                 $"ninja Pirate dive program $B2:{program:X4} palette");
-            AssertEqual((ushort)0x0066, enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect!.Value,
+            AssertEqual((ushort)0x0066, (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
                 $"ninja Pirate dive program $B2:{program:X4} sound");
         }
 

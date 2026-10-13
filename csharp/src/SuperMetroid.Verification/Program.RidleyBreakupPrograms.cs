@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -55,7 +56,7 @@ internal static class RidleyBreakupProgramsVerification
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
         var stock = EnemySpritemapCatalog.Load(new MemoryStream(stockBytes));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = JsonSerializer.Deserialize<EnemySpritemapDocument>(stockBytes, options)!;
+        var document = RequiredJson.Deserialize<EnemySpritemapDocument>(stockBytes, options);
         var previous = EnemySpritemapDefinitions.Frames.ToArray().Take(EnemySpritemapDefinitions.PreRidleyBreakupFrameCount).ToArray();
         var legacy = document with
         {

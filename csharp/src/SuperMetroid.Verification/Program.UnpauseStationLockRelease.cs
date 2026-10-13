@@ -31,7 +31,7 @@ internal static class UnpauseStationLockReleaseVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.ScriptLocks.LockIntoRefillStation();
         runtime.NmiHandler.RunNmi(0, true);

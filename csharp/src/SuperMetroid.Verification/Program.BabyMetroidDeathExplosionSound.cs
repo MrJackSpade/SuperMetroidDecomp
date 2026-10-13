@@ -32,7 +32,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain!;
+        MotherBrainEnemyState state = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain."));
         var step = new BabyMetroidCutsceneStepResult(
             BabyMetroidCutscenePhase.TakeFinalBlow, BabyMetroidCutscenePhase.TakeFinalBlow,
             BodyStumbleRequested: false, LatchSoundQueued: false, ReleaseDustClouds: [],
@@ -40,7 +40,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             DeathExplosion: new BabyMetroidDeathExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, 0x0013),
             BabyPaletteTransfer: null, AttackTileTransfer: null, BackgroundPaletteTransfer: null);
 
-        runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state, step);
+        runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects((state ?? throw new InvalidOperationException("Verification requires state.")), step);
         AssertEqual((ushort?)0x0013, state.LastSoundEffectLibrary3, "the explosion queues library-three $13");
         AssertEqual((ushort?)null, state.LastSoundEffect, "and nothing in library two");
 

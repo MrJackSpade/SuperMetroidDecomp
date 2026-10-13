@@ -91,7 +91,8 @@ internal static class AndroidFileImport
     /// <summary>Copies through a unique temporary path and backs up an existing destination before replacement.</summary>
     private static void ReplaceWithBackup(string root, string source, string destination)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+        Directory.CreateDirectory(Path.GetDirectoryName(destination) ??
+            throw new ArgumentException($"{destination} has no containing directory.", nameof(destination)));
         string temporary = destination + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {

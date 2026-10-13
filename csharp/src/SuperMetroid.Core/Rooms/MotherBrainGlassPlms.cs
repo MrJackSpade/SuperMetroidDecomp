@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
@@ -83,7 +84,7 @@ internal sealed class MotherBrainGlassPlms
         }
 
         if (TryGetMotherBrainGlassSlot(out PlmSlot? slot))
-            slot!.RoomArgument = unchecked((ushort)(slot.RoomArgument + 1));
+            slot.RoomArgument = unchecked((ushort)(slot.RoomArgument + 1));
         else
             _motherBrainGlassLastRoomArgument = unchecked((ushort)(
                 _motherBrainGlassLastRoomArgument + 1));
@@ -225,7 +226,7 @@ internal sealed class MotherBrainGlassPlms
     private int _motherBrainGlassRoomWidth;
 
     /// <summary>Finds the original live glass slot without accepting a later PLM that reused its index.</summary>
-    internal bool TryGetMotherBrainGlassSlot(out PlmSlot? slot)
+    internal bool TryGetMotherBrainGlassSlot([NotNullWhen(true)] out PlmSlot? slot)
     {
         if ((uint)_motherBrainGlassSlotIndex < (uint)_slotTable._slots.Length)
         {

@@ -128,7 +128,7 @@ internal static class CacatacInstructionProgramDefinitionsVerification
                 $"Cacatac {(upsideUp ? "upright" : "inverted")} attack returns to idle");
             AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function,
                 $"Cacatac {(upsideUp ? "upright" : "inverted")} attack resumes patrol");
-            AssertEqual((ushort)0x0034, enemies.CacatacBehavior.LastCacatacSoundEffect!.Value,
+            AssertEqual((ushort)0x0034, (enemies.CacatacBehavior.LastCacatacSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.CacatacBehavior.LastCacatacSoundEffect.")),
                 $"Cacatac {(upsideUp ? "upright" : "inverted")} attack queues sound");
 
             ushort[] actualDirections = enemies.Projectiles.EnemyProjectiles
@@ -157,7 +157,7 @@ internal static class CacatacInstructionProgramDefinitionsVerification
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = upsideUp ? (ushort)0x0100 : (ushort)0;
             initialize(slot);
-            return (enemies, slot, enemies.CacatacStates[0]!);
+            return (enemies, slot, (enemies.CacatacStates[0] ?? throw new InvalidOperationException("Verification requires the initialized Cacatac state.")));
         }
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)

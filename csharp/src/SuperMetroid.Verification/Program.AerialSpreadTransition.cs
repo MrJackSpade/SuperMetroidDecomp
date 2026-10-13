@@ -48,7 +48,7 @@ internal static class AerialSpreadTransitionVerification
     /// <summary>Checks the single turnaround release window, charge retention during morph, and bomb expiry.</summary>
     private static void VerifyTurnaroundSpreadFrame(SuperMetroidRuntime runtime, bool left, int delay, int frame)
     {
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         bool releasedSpread = delay == 6 && frame >= 105;
         if (frame < 125 || delay != 6)
             AssertEqual((ushort)(releasedSpread ? 5 : 0), runtime.BombProjectiles.BombCounter,
@@ -66,7 +66,7 @@ internal static class AerialSpreadTransitionVerification
     /// <summary>Checks walljump pose, retained charge, held-Down release, and negative input controls frame by frame.</summary>
     private static void VerifyWallSpreadFrame(SuperMetroidRuntime runtime, bool left, int timingCase, int delay, int frame, uint previousY)
     {
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         if (frame == 89)
             AssertEqual(left ? SamusPoseId.WallJumpRightPose : SamusPoseId.WallJumpLeftPose,
                 samus.Pose, "real input must earn a walljump, including negative controls");

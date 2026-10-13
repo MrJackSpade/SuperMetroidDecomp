@@ -175,7 +175,7 @@ internal static class ExploredMapPackingDefinitionsVerification
             });
             AssertTrue(restoredSaves.ReadSlot(0) is not null, "frontend rebind restores SRAM decoding");
             restoredSaves.SaveSlot(0, snapshot);
-            AssertTrue(restoredSaves.ReadSlot(0)!.ExploredMapBytes.AsSpan().SequenceEqual(editedSaves.ReadSlot(0)!.ExploredMapBytes),
+            AssertTrue((restoredSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires restoredSaves.ReadSlot(0).")).ExploredMapBytes.AsSpan().SequenceEqual((editedSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires editedSaves.ReadSlot(0).")).ExploredMapBytes),
                 "rebound debugger game preserves decoded exploration");
         }
         finally

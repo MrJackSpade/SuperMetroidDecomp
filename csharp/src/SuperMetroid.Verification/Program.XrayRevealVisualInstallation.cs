@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Rom;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -61,23 +62,23 @@ internal static class XrayRevealVisualInstallationVerification
             XrayRevealVisualFiles.VisualFileName);
         JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
             ?? throw new InvalidDataException("Installed X-ray visuals are empty.");
-        JsonArray entries = document["entries"]!.AsArray();
-        JsonObject tall = entries.Select(node => node!.AsObject()).Single(entry =>
-            entry["collisionType"]!.GetValue<string>() == nameof(RoomCollisionType.ShootableBlock) &&
-            entry["btsValues"]!.AsArray().Any(value => value!.GetValue<int>() == 2));
-        AssertEqual("tall", tall["shape"]!.GetValue<string>(),
+        JsonArray entries = document.Required("entries").AsArray();
+        JsonObject tall = entries.RequiredElements().Select(node => node.AsObject()).Single(entry =>
+            entry.Required("collisionType").GetValue<string>() == nameof(RoomCollisionType.ShootableBlock) &&
+            entry.Required("btsValues").AsArray().RequiredElements().Any(value => value.GetValue<int>() == 2));
+        AssertEqual("tall", tall.Required("shape").GetValue<string>(),
             "shot-block BTS 2 uses the native tall copy command");
-        ushort originalTop = unchecked((ushort)tall["topLeft"]!.GetValue<int>());
+        ushort originalTop = unchecked((ushort)tall.Required("topLeft").GetValue<int>());
         tall["topLeft"] = originalTop + 1;
-        JsonArray items = document["itemMetatiles"]!.AsArray();
-        ushort originalItem = unchecked((ushort)items[0]!.GetValue<int>());
+        JsonArray items = document.Required("itemMetatiles").AsArray();
+        ushort originalItem = unchecked((ushort)items.Required(0).GetValue<int>());
         ushort editedItem = (ushort)((originalItem & 0x0c00) |
             ((originalItem + 1) & 0x03ff));
         items[0] = editedItem;
-        JsonObject roomOverlay = document["rooms"]!.AsArray()[0]!.AsObject();
-        ushort roomPointer = unchecked((ushort)roomOverlay["pointer"]!.GetValue<int>());
-        JsonObject lastRoomTile = roomOverlay["tiles"]!.AsArray().Last()!.AsObject();
-        ushort originalRoomWord = unchecked((ushort)lastRoomTile["word"]!.GetValue<int>());
+        JsonObject roomOverlay = document.Required("rooms").AsArray().Required(0).AsObject();
+        ushort roomPointer = unchecked((ushort)roomOverlay.Required("pointer").GetValue<int>());
+        JsonObject lastRoomTile = (roomOverlay.Required("tiles").AsArray().Last() ?? throw new InvalidOperationException("Verification requires roomOverlay.Required(\"tiles\").AsArray().Last().")).AsObject();
+        ushort originalRoomWord = unchecked((ushort)lastRoomTile.Required("word").GetValue<int>());
         ushort editedRoomWord = (ushort)((originalRoomWord & 0x0c00) |
             ((originalRoomWord + 1) & 0x03ff));
         lastRoomTile["x"] = 1;
@@ -130,10 +131,10 @@ internal static class XrayRevealVisualInstallationVerification
 
         _ = GameAssetInstaller.EnsureInstalled(installed.Root)
             ?? throw new InvalidOperationException("X-ray repair lost the installation.");
-        AssertEqual((ushort)(originalTop + 1), installed.LoadXrayRevealVisuals()
-                .Apply(RoomCollisionType.ShootableBlock, 2)!.Value.TopLeft,
+        AssertEqual((ushort)(originalTop + 1), (installed.LoadXrayRevealVisuals()
+                .Apply(RoomCollisionType.ShootableBlock, 2) ?? throw new InvalidOperationException("Verification requires installed.LoadXrayRevealVisuals() .Apply(RoomCollisionType.ShootableBlock, 2).")).TopLeft,
             "X-ray override survives stock installation validation");
-        AssertEqual(editedItem, installed.LoadXrayRevealVisuals().Overlays!.ItemMetatile(0),
+        AssertEqual(editedItem, (installed.LoadXrayRevealVisuals().Overlays ?? throw new InvalidOperationException("Verification requires installed.LoadXrayRevealVisuals().Overlays.")).ItemMetatile(0),
             "item overlay edit survives stock installation validation");
 
         tall["shape"] = "wide";

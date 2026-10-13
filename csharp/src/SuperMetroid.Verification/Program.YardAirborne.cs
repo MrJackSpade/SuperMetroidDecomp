@@ -17,15 +17,15 @@ internal static class YardAirborneVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.StepFrame(0);
-        AssertEqual(0x00010000u, runtime.Player.Samus!.AbsoluteMovedLastFrameXFixed,
+        AssertEqual(0x00010000u, runtime.Player.IntroducedSamus.AbsoluteMovedLastFrameXFixed,
             "stationary native distance includes one pixel for the next Yard kick");
-        runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithFractionX(0xE000);
+        runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithFractionX(0xE000);
         runtime.StepFrame(0);
-        AssertEqual(0x0001E000u, runtime.Player.Samus.AbsoluteMovedLastFrameXFixed,
+        AssertEqual(0x0001E000u, runtime.Player.IntroducedSamus.AbsoluteMovedLastFrameXFixed,
             "Yard receives full fractional camera checkpoint displacement");
-        runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithFractionX(0xC000);
+        runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithFractionX(0xC000);
         runtime.StepFrame(0);
-        AssertEqual(0x0000E000u, runtime.Player.Samus.AbsoluteMovedLastFrameXFixed,
+        AssertEqual(0x0000E000u, runtime.Player.IntroducedSamus.AbsoluteMovedLastFrameXFixed,
             "native integer-only direction test allows biased distance below one pixel");
     }
 
@@ -46,10 +46,10 @@ internal static class YardAirborneVerification
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
             var actor = enemies.SlotTable.Slots[0];
-            var state = enemies.YardStates[0]!;
+            var state = enemies.YardStates[0];
             actor.Position = new(new(512, 0xF000), new(512, 0xF000));
             actor.InstructionTimer = NativeCountdown.Start(ushort.MaxValue);
-            state.MovementFunction = YardMovementFunction.Airborne;
+            (state ?? throw new InvalidOperationException("Verification requires state.")).MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = behavior;
             state.AirborneVelocity = new FixedVector<RoomPixels>(
                 SnesSignedSixteenSixteen.FromRaw(unchecked((int)initialX)),

@@ -119,7 +119,7 @@ internal static class DebuggerObjectGraphSerializer
             writer.Write(fields.Length);
             foreach (FieldInfo field in fields)
             {
-                writer.Write(DebuggerStateTypeIdentity.GetSerializedName(field.DeclaringType!));
+                writer.Write(DebuggerStateTypeIdentity.GetSerializedName(ReflectionBoundary.DeclaringType(field)));
                 writer.Write(field.Name);
                 Write(field.GetValue(value));
             }
@@ -402,7 +402,8 @@ internal static class DebuggerObjectGraphSerializer
                 Delegate call = method.CreateDelegate(type, target);
                 combined = combined is null ? call : Delegate.Combine(combined, call);
             }
-            return Register(referenceId, combined!);
+            return Register(referenceId, combined ??
+                throw new InvalidDataException($"{UnsupportedVersion}: a saved delegate has no invocation entries."));
         }
 
         /// <summary>Restores each field only after matching its declaring type and name to this build.</summary>
@@ -428,7 +429,7 @@ internal static class DebuggerObjectGraphSerializer
                 {
                     throw new InvalidDataException(
                         $"{UnsupportedVersion}: the saved {type.FullName} has field {declaringName}.{fieldName} " +
-                        $"where this build has {field.DeclaringType!.FullName}.{field.Name}.");
+                        $"where this build has {ReflectionBoundary.DeclaringType(field).FullName}.{field.Name}.");
                 }
                 object? restoredValue;
                 try
@@ -520,7 +521,7 @@ internal static class DebuggerObjectGraphSerializer
             .Where(field => !field.IsStatic && !field.IsDefined(typeof(NonSerializedAttribute), false) &&
                 !(field.DeclaringType?.FullName == "SuperMetroid.Core.Frontend.SuperMetroidGame" &&
                     field.Name == "SaveRamChanged"))
-            .OrderBy(field => field.DeclaringType!.FullName, StringComparer.Ordinal)
+            .OrderBy(field => ReflectionBoundary.DeclaringType(field).FullName, StringComparer.Ordinal)
             .ThenBy(field => field.MetadataToken)
             .ToArray();
 
@@ -582,7 +583,7 @@ internal static class RawArrayElements
     /// <summary>The array's element storage viewed as bytes, in memory order across every dimension.</summary>
     internal static Span<byte> Bytes(Array array)
     {
-        Type elementType = array.GetType().GetElementType()!;
+        Type elementType = ReflectionBoundary.ElementType(array.GetType());
         int byteLength = elementType == typeof(SuperMetroid.Core.Assets.Rgba32)
             ? checked(array.Length * 4)
             : Buffer.ByteLength(array);

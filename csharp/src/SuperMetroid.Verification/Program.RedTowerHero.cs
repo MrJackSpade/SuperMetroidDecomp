@@ -32,8 +32,8 @@ internal static class RedTowerHeroVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.RedTower);
-            var level = runtime.Room.LevelData!;
-            var samus = runtime.Player.Samus!;
+            var level = runtime.Room.LoadedLevelData;
+            var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.StandingAimUpRightPose;
             samus.Position = samus.Position.WithWhole(new(116, 587));
@@ -45,10 +45,10 @@ internal static class RedTowerHeroVerification
             // offscreen positions intercept this shot regardless of the lower wait.
             for (int frame = 0; frame < 120; frame++)
             {
-                runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 160));
+                runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 160));
                 runtime.StepFrame((ushort)SnesButton.Up);
             }
-            runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 450));
+            runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 450));
             for (int frame = 0; frame < 120; frame++) runtime.StepFrame((ushort)SnesButton.Up);
             AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlock(new(7, 10)).CollisionType,
                 "Red Tower top target is still intact before firing");
@@ -59,10 +59,10 @@ internal static class RedTowerHeroVerification
                 ushort input = frame == 0
                     ? (ushort)((ushort)SnesButton.Up | runtime.Options.ControllerBindings.Shoot)
                     : (ushort)SnesButton.Up;
-                if (followShot && frame > 0 && runtime.Projectiles!.Slots[0].IsActive)
-                    runtime.Room.Camera.SetPosition(new Position16<RoomPixels>(0, (ushort)Math.Max(0, runtime.Projectiles.Slots[0].Position.Y.Whole - 160)));
+                if (followShot && frame > 0 && runtime.Projectiles.Slots[0].IsActive)
+                    runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, (ushort)Math.Max(0, runtime.Projectiles.Slots[0].Position.Y.Whole - 160)));
                 runtime.StepFrame(input);
-                var shot = runtime.Projectiles!.Slots[0];
+                var shot = runtime.Projectiles.Slots[0];
                 if (frame == 0)
                 {
                     AssertTrue(shot.IsActive, "Retail target probe launches its single shot");

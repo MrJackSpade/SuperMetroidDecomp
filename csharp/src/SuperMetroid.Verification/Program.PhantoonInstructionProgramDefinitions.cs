@@ -74,7 +74,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
         AssertEqual(PhantoonInstructionProgramDefinitions.EyeHitboxBody,
             body.CurrentInstruction,
             "Phantoon open-eye callback installs the eye-only body hitbox");
-        AssertTrue(enemies.PhantoonBehavior.Phantoon!.LastMaterializationSound.HasValue,
+        AssertTrue((enemies.PhantoonBehavior.Phantoon ?? throw new InvalidOperationException("Verification requires enemies.PhantoonBehavior.Phantoon.")).LastMaterializationSound.HasValue,
             "Phantoon open-eye callback queues its materialization sound");
 
         RunPhantoonInstructionProgram(

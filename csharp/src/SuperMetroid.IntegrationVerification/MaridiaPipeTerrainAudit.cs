@@ -15,7 +15,7 @@ internal static class MaridiaPipeTerrainAudit
         var gameplay = layers.Layers.ToArray().OfType<OrdinaryGameplayRenderLayer>().Single();
         var r = gameplay.Registers;
         var scroll = runtime.BackgroundScroll;
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         foreach (bool background in new[] { false, true })
         {
             if (background && ((scroll.Layer2Scroll.Horizontal | scroll.Layer2Scroll.Vertical) & 1) != 0) continue;

@@ -114,8 +114,8 @@ internal static class DeadTourianCorpseDefinitionsVerification
 
         initialize(slot);
 
-        DeadTourianCorpseEnemyState state = enemies.DeadTourianCorpses[0]!;
-        AssertEqual(species, state.Species,
+        DeadTourianCorpseEnemyState state = (enemies.DeadTourianCorpses[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadTourianCorpses[0]."));
+        AssertEqual(species, (state ?? throw new InvalidOperationException("Verification requires state.")).Species,
             $"dead {species} variant {variantIndex} species");
         AssertEqual(variantIndex, state.VariantIndex,
             $"dead {species} variant {variantIndex} index");

@@ -31,11 +31,11 @@ internal static class PowerBombAfterglowShapeVerification
         AssertEqual(PowerBombExplosionPhase.ExplosionWhite, explosion.RenderedPhase, "transition retains the final expanding oval");
         ushort finalShape = explosion.RenderedShapeDefinitionPointer;
         AssertEqual((ushort)0x9e46, finalShape, "native final white profile");
-        var last = SnesGameplayFrameRenderer.CapturePowerBombColorMath(rom, explosion, new Position16<RoomPixels>(0, 0))!;
+        var last = SnesGameplayFrameRenderer.CapturePowerBombColorMath(rom, explosion, new Position16<RoomPixels>(0, 0));
         int checkedFrames = 0;
         while (explosion.IsActive)
         {
-            var actual = SnesGameplayFrameRenderer.CapturePowerBombColorMath(rom, explosion, new Position16<RoomPixels>(0, 0))!;
+            var actual = SnesGameplayFrameRenderer.CapturePowerBombColorMath(rom, explosion, new Position16<RoomPixels>(0, 0));
             var pixels = Enumerable.Repeat(new Rgba32(0, 0, 0), 256 * 224).ToArray();
             SnesGameplayFrameRenderer.ApplyPowerBombColorMath(pixels, rom, explosion, new Position16<RoomPixels>(0, 0));
             for (int y = 32; y < 224; y++)
@@ -44,9 +44,9 @@ internal static class PowerBombAfterglowShapeVerification
                 int halfWidth = row < 192 ? rom.ReadCartridgeByte(0x880000 | (finalShape + row)) : 0;
                 var expected = halfWidth == 0 ? ColorAddWindow.Empty : new ColorAddWindow(
                     (byte)Math.Max(0, 32 - halfWidth), (byte)Math.Min(255, 32 + halfWidth), 0, 0, 0);
-                AssertEqual(expected.Left, actual.Windows[y].Left, "afterglow retains native oval left edge");
+                AssertEqual(expected.Left, (actual ?? throw new InvalidOperationException("Verification requires actual.")).Windows[y].Left, "afterglow retains native oval left edge");
                 AssertEqual(expected.Right, actual.Windows[y].Right, "afterglow retains native oval right edge");
-                AssertEqual(last.Windows[y].Left, actual.Windows[y].Left, "no rectangular transition at fade entry");
+                AssertEqual((last ?? throw new InvalidOperationException("Verification requires last.")).Windows[y].Left, actual.Windows[y].Left, "no rectangular transition at fade entry");
                 AssertEqual(last.Windows[y].Right, actual.Windows[y].Right, "fade never widens the final oval");
                 for (int x = 0; x < 256; x++)
                     if (x < expected.Left || x > expected.Right)

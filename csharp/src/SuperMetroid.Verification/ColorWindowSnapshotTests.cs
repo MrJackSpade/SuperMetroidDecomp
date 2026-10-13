@@ -52,11 +52,11 @@ internal static class ColorWindowSnapshotTestsVerification
                 {
                     expected = baseline.ToArray();
                     SamusSuitPickupRenderer.Composite(expected, pickup.Flash);
-                    retained = SamusSuitPickupRenderer.Capture(pickup.Flash)!;
-                    Compare(expected, retained);
+                    retained = SamusSuitPickupRenderer.Capture(pickup.Flash);
+                    Compare(expected, (retained ?? throw new InvalidOperationException("Verification requires retained.")));
                 }
                 pickup.Step(bus, samus, new SnesCgram());
-                if (retained is not null) Compare(expected!, retained);
+                if (retained is not null) Compare((expected ?? throw new InvalidOperationException("Verification requires expected.")), retained);
             }
             AssertTrue(!pickup.IsActive, "suit window fixture completes");
         }
@@ -77,11 +77,11 @@ internal static class ColorWindowSnapshotTestsVerification
                 {
                     expected = baseline.ToArray();
                     SnesGameplayFrameRenderer.ApplyPowerBombColorMath(expected, bus, explosion, new Position16<RoomPixels>(0, 0));
-                    retained = SnesGameplayFrameRenderer.CapturePowerBombColorMath(bus, explosion, new Position16<RoomPixels>(0, 0))!;
-                    Compare(expected, retained);
+                    retained = SnesGameplayFrameRenderer.CapturePowerBombColorMath(bus, explosion, new Position16<RoomPixels>(0, 0));
+                    Compare(expected, (retained ?? throw new InvalidOperationException("Verification requires retained.")));
                 }
                 explosion.StepFrame(bus);
-                if (retained is not null) Compare(expected!, retained);
+                if (retained is not null) Compare((expected ?? throw new InvalidOperationException("Verification requires expected.")), retained);
             }
             AssertTrue(!explosion.IsActive && phases.Contains(PowerBombExplosionPhase.Afterglow),
                 "Power Bomb fixture reaches afterglow and completes");

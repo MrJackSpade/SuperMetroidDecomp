@@ -267,7 +267,7 @@ internal static void VerifySamusAimedAerialMovement()
     AssertEqual(launchY, samus.Position.Y.Whole, "aimed transition frame does not move vertically");
 
     samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xfd, samus.LastAnimationDelayCommand!.Value, "aimed transition reaches FD");
+    AssertEqual(0xfd, (samus.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires samus.LastAnimationDelayCommand.")), "aimed transition reaches FD");
     AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "aimed transition FD applies");
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpRightPose, samus.Pose, "aimed transition FD target");
 
@@ -496,7 +496,7 @@ internal static void VerifySamusAimedAerialMovement()
     samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(1, samus.AnimationFrame, "aimed-fall reaches F0 command index");
     AssertEqual(0, samus.AnimationFrameTimer.RawValue, "F0 leaves expired timer at zero");
-    AssertEqual(0xf0, samus.LastAnimationDelayCommand!.Value, "aimed-fall records F0 command");
+    AssertEqual(0xf0, samus.LastAnimationDelayCommand.Value, "aimed-fall records F0 command");
     samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(2, samus.AnimationFrame, "timer underflow advances beyond F0");
     AssertEqual(16, samus.AnimationFrameTimer.RawValue, "post-F0 frame loads literal delay");
@@ -584,19 +584,19 @@ internal static void VerifySamusGunExtendedMovement()
     // `$91:A2F6`, and `$91:A70C`. They prove that Shot+forward, Shot in neutral jump,
     // and Shot while falling select the three distinct extended-gun movement families.
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.MovingRightNormalPose, 0xd100);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd100, (0x0000, 0x0140, 0x000b));
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd100, ((ushort)0x0000, (ushort)0x0140, (ushort)0x000b));
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.NeutralJumpRightPose, 0xd110);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd110, (0x0000, 0x0040, 0x0013));
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd110, ((ushort)0x0000, (ushort)0x0040, (ushort)0x0013));
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.FallingRightPose, 0xd120);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd120, (0x0000, 0x0040, 0x0067));
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd120, ((ushort)0x0000, (ushort)0x0040, (ushort)0x0067));
 
     // `$51/$52` share the complete `$91:A2F6/$A376` tables with their neutral-jump
     // mirrors. These minimal copies retain the exact held-Jump record that caused the
     // playable runtime failure: required-new is zero, held `$0080`, targets `$4D/$4E`.
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.NormalJumpForwardRightPose, 0xd130);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd130, (0x0000, 0x0080, 0x004d));
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd130, ((ushort)0x0000, (ushort)0x0080, (ushort)0x004d));
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.NormalJumpForwardLeftPose, 0xd140);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd140, (0x0000, 0x0080, 0x004e));
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd140, ((ushort)0x0000, (ushort)0x0080, (ushort)0x004e));
 
     // Preserve the decisive tail of retail pose `$0B`'s table at `$91:AE94`. Right+Shot
     // and Right both select `$0B` itself and therefore return directly; Shot without Right
@@ -605,17 +605,17 @@ internal static void VerifySamusGunExtendedMovement()
     // latched for as long as Shoot stayed down in the playable frontend.
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.MovingRightGunExtendedPose, 0xd150);
     SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd150,
-        (0x0000, 0x0140, 0x000b),
-        (0x0000, 0x0100, 0x000b));
+        ((ushort)0x0000, (ushort)0x0140, (ushort)0x000b),
+        ((ushort)0x0000, (ushort)0x0100, (ushort)0x000b));
 
     AssertEqual(0x0b,
-        (byte)SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, 0x0140, 0)!.Value.ProspectivePose,
+        (byte)(SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, 0x0140, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, 0x0140, 0).")).ProspectivePose,
         "Shot+Right selects running gun extension");
     AssertEqual(0x13,
-        (byte)SamusPoseTransitionTable.Find(bus, SamusPoseId.NeutralJumpRightPose, 0x0040, 0)!.Value.ProspectivePose,
+        (byte)(SamusPoseTransitionTable.Find(bus, SamusPoseId.NeutralJumpRightPose, 0x0040, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NeutralJumpRightPose, 0x0040, 0).")).ProspectivePose,
         "Shot selects neutral-jump gun extension");
     AssertEqual(0x67,
-        (byte)SamusPoseTransitionTable.Find(bus, SamusPoseId.FallingRightPose, 0x0040, 0)!.Value.ProspectivePose,
+        (byte)(SamusPoseTransitionTable.Find(bus, SamusPoseId.FallingRightPose, 0x0040, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.FallingRightPose, 0x0040, 0).")).ProspectivePose,
         "Shot selects falling gun extension");
 
     SamusPoseTransitionLookup heldRightAndShot = SamusPoseTransitionTable.Lookup(
@@ -634,9 +634,9 @@ internal static void VerifySamusGunExtendedMovement()
         "running-gun Shot-only terminator requests fallback");
 
     SamusPoseTransition forwardRightRelease =
-        SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardRightPose, (ushort)SnesButton.A, 0)!.Value;
+        (SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardRightPose, (ushort)SnesButton.A, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardRightPose, (ushort)Snes...."));
     SamusPoseTransition forwardLeftRelease =
-        SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardLeftPose, (ushort)SnesButton.A, 0)!.Value;
+        (SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardLeftPose, (ushort)SnesButton.A, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardLeftPose, (ushort)SnesB...."));
     AssertEqual(0x4d, (byte)forwardRightRelease.ProspectivePose,
         "held Jump without Right selects neutral right jump");
     AssertEqual(0x4e, (byte)forwardLeftRelease.ProspectivePose,
@@ -726,7 +726,7 @@ internal static void VerifySamusGunExtendedMovement()
     // follows seven animation ticks, independent of held-Shot selection.
     for (int tick = 0; tick < 7; tick++)
         falling.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xf8, falling.LastAnimationDelayCommand!.Value, "$E6 reaches F8 command");
+    AssertEqual(0xf8, (falling.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires falling.LastAnimationDelayCommand.")), "$E6 reaches F8 command");
     AssertTrue(falling.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "$E6 F8 transition applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, falling.Pose, "$E6 returns to standing right");
 

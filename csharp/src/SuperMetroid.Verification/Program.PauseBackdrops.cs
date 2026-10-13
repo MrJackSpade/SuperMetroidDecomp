@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -23,7 +24,7 @@ internal static class PauseBackdropsVerification
         string stockPath = Path.Combine(stock, PauseBackdropDefinitions.FileName);
         string path = Path.Combine(overrides, PauseBackdropDefinitions.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        var document = JsonSerializer.Deserialize<PauseBackdropDocument>(stockBytes, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseBackdropDocument>(stockBytes, MapPresentationFormat.JsonOptions);
         var guard = NewPauseBackdropReadGuard(bus);
         var editedAreas = document.Areas.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());
         foreach (var cells in editedAreas.Values)

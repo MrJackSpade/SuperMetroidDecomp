@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -70,10 +71,10 @@ internal static class EndingTextPresentationVerification
                 $"installed ending {sequence} draws its text");
         }
 
-        JsonObject editedDocument = JsonNode.Parse(extracted)!.AsObject();
+        JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();
         editedDocument["percentageHeading"] = "TEST";
         editedDocument["finalMessage"] = "TEST";
-        editedDocument["resultPanel"]!["text"] = "TEST";
+        editedDocument.Required("resultPanel")["text"] = "TEST";
         byte[] editedBytes = Encoding.UTF8.GetBytes(
             editedDocument.ToJsonString(MapPresentationFormat.JsonOptions));
         EndingTextPresentation edited = EndingTextPresentation.Load(
@@ -144,7 +145,7 @@ internal static class EndingTextPresentationVerification
             Path.Combine(stockDirectory, EndingTextDefinitions.FileName))),
             "installed ending text is the deterministic cartridge extraction");
         Directory.CreateDirectory(overrideDirectory);
-        JsonObject document = JsonNode.Parse(deterministic)!.AsObject();
+        JsonObject document = RequiredJson.Parse(deterministic).AsObject();
         document["finalMessage"] = "TEST";
         string replacement = Path.Combine(overrideDirectory, EndingTextDefinitions.FileName);
         File.WriteAllText(replacement, document.ToJsonString(MapPresentationFormat.JsonOptions));

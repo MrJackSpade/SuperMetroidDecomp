@@ -31,7 +31,7 @@ internal static class PhantoonWaveVerification
             AssertEqual(first, wave.ScrollCycle[0], "original-CPU first scroll word");
         }
         wave.LatchDisplay();
-        ushort[] savedDisplay = wave.DisplayedScrolls!.ToArray();
+        ushort[] savedDisplay = (wave.DisplayedScrolls ?? throw new InvalidOperationException("Verification requires wave.DisplayedScrolls.")).ToArray();
         wave.Step(boss);
         AssertTrue(savedDisplay.AsSpan().SequenceEqual(wave.DisplayedScrolls), "live HDMA step leaves latched display immutable");
         using var stream = new MemoryStream();
@@ -72,7 +72,7 @@ internal static class PhantoonWaveVerification
     {
         var blend = boss.Blending;
         boss.SemiTransparencyLayerFlags = PhantoonBlendingRomData.SemiTransparentBit;
-        boss.Mouth!.Parameter1 = PhantoonBlendingRomData.DeleteControl;
+        boss.Mouth.Parameter1 = PhantoonBlendingRomData.DeleteControl;
         for (int i = 0; i < PhantoonBlendingRomData.SetupCalls; i++)
         {
             blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);

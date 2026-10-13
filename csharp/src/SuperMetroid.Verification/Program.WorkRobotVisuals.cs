@@ -38,7 +38,7 @@ internal static class WorkRobotVisualsVerification
             AssertEqual(nativePointer, installedPointer,
                 $"Work Robot selector {index} preserves native frame identity");
             selectedFrames.Add(installedPointer);
-            AssertTrue(stock.Spritemaps!.TryGetDisplay(
+            AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
                     WorkRobotVisualDefinitions.Bank, installedPointer,
                     out EnemySpritemapParts installedParts),
                 $"Work Robot selector {index} has editable OAM");

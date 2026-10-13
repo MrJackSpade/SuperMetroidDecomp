@@ -124,8 +124,8 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
                     CollectedItems = 0x0004,
                     Position = FixedPosition<RoomPixels>.FromWhole(new(x, slot.Position.Y.Whole)),
                 };
-                runMain(slot, enemies.BlueBrinstarFaceBlockStates[0]!, samus);
-                AssertTrue(enemies.BlueBrinstarFaceBlockStates[0]!.Activated,
+                runMain(slot, (enemies.BlueBrinstarFaceBlockStates[0] ?? throw new InvalidOperationException("Verification requires enemies.BlueBrinstarFaceBlockStates[0].")), samus);
+                AssertTrue((enemies.BlueBrinstarFaceBlockStates[0] ?? throw new InvalidOperationException("Verification requires enemies.BlueBrinstarFaceBlockStates[0].")).Activated,
                     $"face-block {description} path activates");
             }
 

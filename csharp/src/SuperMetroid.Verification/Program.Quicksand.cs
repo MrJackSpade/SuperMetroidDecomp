@@ -231,7 +231,7 @@ internal static class QuicksandVerification
                 }
                 catch (ArgumentOutOfRangeException exception)
                 {
-                    AssertEqual(rawArea >= 7 ? "area" : "areaReactionIndex", exception.ParamName!,
+                    AssertEqual(rawArea >= 7 ? "area" : "areaReactionIndex", exception.ParamName,
                         "special-air bounds and validation order");
                 }
                 continue;

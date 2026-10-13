@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
@@ -95,9 +96,9 @@ internal static class ElevatorPlatformVisualsVerification
                 RoomPlmElevatorPlatformVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted elevator JSON is empty.");
-            JsonNode first = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "first-frame")!;
-            first["runs"]![0]![0] = 0x0053;
+            JsonNode first = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "first-frame");
+            first.Required("runs").Required(0)[0] = 0x0053;
             Directory.CreateDirectory(
                 installation.RoomPlmElevatorPlatformVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -118,7 +119,7 @@ internal static class ElevatorPlatformVisualsVerification
                         (ushort)ElevatorPlatformDraw.First, 0, 0),
                 "elevator override survives stock replacement");
 
-            first["runs"]![0]![0] = 0xf053;
+            first.Required("runs").Required(0)[0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmElevatorPlatformVisuals(),

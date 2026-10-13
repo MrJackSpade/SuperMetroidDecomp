@@ -28,7 +28,7 @@ internal static class GoldenTorizoCartridgeFallbackVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GoldenTorizo);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(0x0180, 0x0150));
         samus.MaxHealth = 1499;
         samus.Health = 1499;

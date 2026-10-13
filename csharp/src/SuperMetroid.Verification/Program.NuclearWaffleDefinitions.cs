@@ -57,8 +57,8 @@ internal static class NuclearWaffleDefinitionsVerification
             slot.Position = slot.Position.WithWhole(new(0x0180, 0x0200));
             initialize(slot);
 
-            NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0]!;
-            AssertEqual(definition.StartAngle, state.SweepStartAngle,
+            NuclearWaffleEnemyState state = (enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NuclearWaffleStates[0]."));
+            AssertEqual(definition.StartAngle, (state ?? throw new InvalidOperationException("Verification requires state.")).SweepStartAngle,
                 $"Nuclear Waffle production start angle {direction}");
             AssertEqual(definition.StartAngle, state.CurrentAngle,
                 $"Nuclear Waffle production current angle {direction}");

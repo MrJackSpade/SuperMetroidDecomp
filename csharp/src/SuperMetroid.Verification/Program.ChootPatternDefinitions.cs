@@ -66,10 +66,10 @@ internal static class ChootPatternDefinitionsVerification
                 slot.Parameter1 = (ushort)((patternIndex << 8) | loopCount);
                 initialize(slot);
 
-                ChootEnemyState state = enemies.ChootStates[0]!;
+                ChootEnemyState state = (enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0]."));
                 ushort jumpHeight = unchecked((ushort)(
                     loopCount * (SnesLittleEndian.LowByte(definition.FallingPatternYDistance))));
-                AssertEqual((ushort)definition.FallingPatternPointer, state.FallingPatternPointer,
+                AssertEqual((ushort)definition.FallingPatternPointer, (state ?? throw new InvalidOperationException("Verification requires state.")).FallingPatternPointer,
                     $"Choot production pattern pointer {patternIndex}/{loopCount}");
                 AssertEqual(definition.FallingPatternYDistance, state.FallingPatternYDistance,
                     $"Choot production pattern distance {patternIndex}/{loopCount}");
@@ -87,8 +87,8 @@ internal static class ChootPatternDefinitionsVerification
             fallSlot.Position = new(new(0x3456, 0x1111), new(0x789a, 0x2222));
             fallSlot.Parameter1 = (ushort)((patternIndex << 8) | 2);
             initializeFall(fallSlot);
-            ChootEnemyState fallState = fallEnemies.ChootStates[0]!;
-            fallState.FallingOrigin = new(0x4000, 0x5000);
+            ChootEnemyState fallState = (fallEnemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires fallEnemies.ChootStates[0]."));
+            (fallState ?? throw new InvalidOperationException("Verification requires fallState.")).FallingOrigin = new(0x4000, 0x5000);
             fallState.FallingPatternIndex = 0;
             fallState.FallingPatternLoopCounter = NativeCountdown.Start(1);
 

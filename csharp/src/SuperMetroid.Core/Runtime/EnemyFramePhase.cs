@@ -126,7 +126,7 @@ internal sealed class EnemyFramePhase
                 // clears flare/projectile state, but cannot restore runtime-owned CGRAM.
                 // Without this write, cancelling charge leaves its last flashing colors
                 // behind after the palette handler becomes inactive.
-                _player.Samus!.Presentation.LoadSuitPalette(_addressSpace, _cgram);
+                _player.IntroducedSamus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
             }
             if (_enemies.RoomStatus.SamusReleasedByDraygonThisFrame)
             {

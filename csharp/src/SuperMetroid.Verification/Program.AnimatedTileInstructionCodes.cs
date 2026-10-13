@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -171,7 +172,7 @@ internal static class AnimatedTileInstructionCodesVerification
     /// <summary>Collects a catalog's ushort constants and checks its count and mapped pointer uniqueness.</summary>
     private static void AssertAnimatedTileCatalog(Type catalog, int expectedCount) =>
         AssertAnimatedTileCatalog(catalog.Name, GetUshortConstants(catalog)
-            .Select(field => (ushort)field.GetRawConstantValue()!).ToArray(), expectedCount);
+            .Select(field => field.RequiredConstant<ushort>()).ToArray(), expectedCount);
 
     /// <summary>Checks that an animated-tile pointer set is complete, unique, and in the mapped bank half.</summary>
     private static void AssertAnimatedTileCatalog(string name, ushort[] pointers, int expectedCount)

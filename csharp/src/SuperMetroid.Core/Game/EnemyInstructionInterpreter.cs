@@ -133,28 +133,28 @@ internal sealed class EnemyInstructionInterpreter
             MotherBrainBodyVisualDefinitions.HasBg2(selected))
         {
             family = "Mother Brain body";
-            found = _room.Artwork!.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;
+            found = _room.InstalledArtwork.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;
         }
         else if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
             slot.Definition.Bank == CrocomireBodyVisualDefinitions.Bank &&
             CrocomireBodyVisualDefinitions.HasBg2(selected))
         {
             family = "Crocomire body";
-            found = _room.Artwork!.CrocomireBg2Frames?.TryGet(selected, out writes) == true;
+            found = _room.InstalledArtwork.CrocomireBg2Frames?.TryGet(selected, out writes) == true;
         }
         else if (PhantoonBehavior.IsPhantoonPartDefinition(slot.EnemyDefinitionPointer) &&
             slot.Definition.Bank == PhantoonBg2FrameDefinitions.Bank &&
             PhantoonBg2FrameDefinitions.IsFrame(selected))
         {
             family = "Phantoon";
-            found = _room.Artwork!.PhantoonBg2Frames?.TryGet(selected, out writes) == true;
+            found = _room.InstalledArtwork.PhantoonBg2Frames?.TryGet(selected, out writes) == true;
         }
         else if (DraygonBehavior.IsDraygonDefinition(slot.EnemyDefinitionPointer) &&
             slot.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
             DraygonBg2FrameDefinitions.IsFrame(selected))
         {
             family = "Draygon";
-            found = _room.Artwork!.DraygonBg2Frames?.TryGet(selected, out writes) == true;
+            found = _room.InstalledArtwork.DraygonBg2Frames?.TryGet(selected, out writes) == true;
         }
         if (family is null)
             return;
@@ -184,7 +184,7 @@ internal sealed class EnemyInstructionInterpreter
             for (int index = 0; index < words.Length; index++)
                 bg2[destinationWord + index] = words[index];
         }
-        new EnemyVram(_presentation._vram!).EnemyBg2Tilemap.Write(words, destinationWord);
+        new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words, destinationWord);
     }
 
     /// <summary>Resolves a frame operand through its enemy family's compiled visual selector catalog.</summary>
@@ -284,7 +284,7 @@ internal sealed class EnemyInstructionInterpreter
                 out ReadOnlyMemory<byte> characters))
             throw new InvalidDataException(
                 $"Torizo tile transfer $AA:${instruction:X4} has no installed art.");
-        _presentation._vram!.LoadBytes(transfer.DestinationWord * 2, characters.Span);
+        _presentation.Vram.LoadBytes(transfer.DestinationWord * 2, characters.Span);
     }
 
     /// <summary>

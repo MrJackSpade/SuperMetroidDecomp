@@ -68,7 +68,7 @@ internal static partial class SwapchainTests
             worker.Publish(new(new(1001,2,0), new Rgba32(91,27,173)));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.DeviceRecoveries == 2 && worker.LastConsumedSequence == 1001; });
             if (worker.LastDeviceLoss?.FailureHResult != (int)DxgiDeviceLoss.DeviceReset ||
-                worker.LastDeviceLoss!.Frame?.Generation != 2)
+                (worker.LastDeviceLoss ?? throw new InvalidOperationException("Verification requires worker.LastDeviceLoss.")).Frame?.Generation != 2)
                 throw new InvalidOperationException("Reset diagnostic retained obsolete frame/failure context.");
             RenderMailboxCounterView metrics = MailboxCounters(worker);
             var timings = worker.CaptureTimings();
@@ -202,13 +202,13 @@ internal static partial class SwapchainTests
             PumpUntil(() => worker.Ready.IsCompleted);
             worker.Ready.GetAwaiter().GetResult();
             long sequence = 1;
-            worker.Publish(new(new(sequence, 1, 0), GameplayDisplayCapture.TryCaptureFrame(runtime)!));
+            worker.Publish(new(new(sequence, 1, 0), GameplayDisplayCapture.CaptureFrame(runtime)));
             PumpUntil(() => entered.IsSet);
             var clock = Stopwatch.StartNew();
             RenderFrameSnapshot? latest = null;
             RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, new RetailDoorCase { Door = door, Destination = destination }, context, packet =>
                 {
-                    latest = new(new(++sequence, 1, packet.Identity.SimulationFrame), packet.Layers!, packet.BrightnessPasses);
+                    latest = new(new(++sequence, 1, packet.Identity.SimulationFrame), (packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")), packet.BrightnessPasses);
                     worker.Publish(latest);
                 });
             PumpUntil(() => clock.ElapsedMilliseconds >= 250);
@@ -337,8 +337,8 @@ internal static partial class SwapchainTests
         // Room-local pause slice, matching the portable capture fixture; no traversal.
         foreach (var game in new[] { legacy, captured, headless })
         {
-            game.RuntimeForVerification!.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-            game.RuntimeForVerification!.NmiHandler.RunNmi(0, true);
+            game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
+            game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0, true);
         }
         nint window = CreateWindowExW(0, "STATIC", "Hidden slow-consumer test", 0, 0, 0, 640, 480, 0, 0, 0, 0);
         if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -353,7 +353,7 @@ internal static partial class SwapchainTests
                 if (!release.Wait(TimeSpan.FromSeconds(60))) throw new TimeoutException("Slow-consumer release missing.");
             });
             PumpUntil(() => worker.Ready.IsCompleted); worker.Ready.GetAwaiter().GetResult();
-            worker.Publish(Step(0).Snapshot!);
+            worker.Publish((Step(0).Snapshot ?? throw new InvalidOperationException("Verification requires Step(0).Snapshot.")));
             PumpUntil(() => entered.IsSet);
             CompareRuntimeGraphs("before room slice");
             var blockedTime = System.Diagnostics.Stopwatch.StartNew();
@@ -414,10 +414,10 @@ internal static partial class SwapchainTests
             // and delegates are included. No state is deserialized or normalized.
             using var expected = new MemoryStream();
             using var actual = new MemoryStream();
-            DebuggerObjectGraphSerializer.Serialize(expected, legacy.RuntimeForVerification!);
-            DebuggerObjectGraphSerializer.Serialize(actual, captured.RuntimeForVerification!);
+            DebuggerObjectGraphSerializer.Serialize(expected, legacy.GameplayRuntimeForVerification);
+            DebuggerObjectGraphSerializer.Serialize(actual, captured.GameplayRuntimeForVerification);
             using var undrawn = new MemoryStream();
-            DebuggerObjectGraphSerializer.Serialize(undrawn, headless.RuntimeForVerification!);
+            DebuggerObjectGraphSerializer.Serialize(undrawn, headless.GameplayRuntimeForVerification);
             if (!expected.GetBuffer().AsSpan(0, checked((int)expected.Length))
                 .SequenceEqual(undrawn.GetBuffer().AsSpan(0, checked((int)undrawn.Length))))
                 throw new InvalidOperationException($"Headless runtime graph diverged: {context}.");

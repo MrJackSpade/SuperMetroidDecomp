@@ -24,7 +24,7 @@ internal static class BrrLoopExtractionVerification
         for (int index = 0; index < 1024; index++)
         {
             int expected = 7 + 15 * previous / 16;
-            int source = index < pcm.Length ? index : loop!.Value + (index - loop.Value) % (pcm.Length - loop.Value);
+            int source = index < pcm.Length ? index : (loop ?? throw new InvalidOperationException("Verification requires loop.")) + (index - loop.Value) % (pcm.Length - loop.Value);
             AssertEqual(expected, pcm[source], $"filtered loop sample {index} retains predictor history");
             previous = expected;
         }
@@ -34,7 +34,7 @@ internal static class BrrLoopExtractionVerification
         AssertTrue(SpcAudioAssetExtractor.TryDecodeBrr(ram, written, 0, 0,
             out pcm, out blocks, out loop), "history-independent BRR loop extracts");
         AssertEqual(16, pcm.Length, "filter-zero loop does not need duplicate passes");
-        AssertEqual(0, loop!.Value, "filter-zero loop keeps original loop start");
+        AssertEqual(0, (loop ?? throw new InvalidOperationException("Verification requires loop.")), "filter-zero loop keeps original loop start");
 
         ram[0] = 0x11; // Non-looping end marker.
         AssertTrue(SpcAudioAssetExtractor.TryDecodeBrr(ram, written, 0, 0,

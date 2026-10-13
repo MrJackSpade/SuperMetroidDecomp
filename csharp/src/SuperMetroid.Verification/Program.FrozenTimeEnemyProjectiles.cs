@@ -31,7 +31,7 @@ internal static class FrozenTimeEnemyProjectilesVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xd0b9);
-        runtime.Player.Samus!.InputLocked = true;
+        runtime.Player.IntroducedSamus.InputLocked = true;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         RoomEnemySlot victim = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser);
         runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(victim, (ushort)2);

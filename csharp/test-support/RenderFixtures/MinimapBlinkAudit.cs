@@ -27,14 +27,14 @@ internal static class MinimapBlinkAudit
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-        runtime.Player.Samus!.Position = runtime.Player.Samus!.Position.WithWholeX(128);
-        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWholeY(128);
+        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeX(128);
+        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(128);
         runtime.NmiHandler.RunNmi(0, true);
         var images = new Dictionary<bool, string>();
         for (int tick = 0; tick < 40; tick++)
         {
             // Keep this a HUD fixture, not a boss fight or a moving map-cell test.
-            runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new(128, 128));
+            runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new(128, 128));
             runtime.StepFrame(0, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false } });
             var pixels = render(runtime);
             string cell = string.Join(',', Enumerable.Range(0, 64).Select(i => pixels[(16 + i / 8) * 256 + 224 + i % 8].ToString()));

@@ -63,9 +63,15 @@ internal sealed class PauseMenuState
     /// <summary>Current BG1 map scroll in map pixels.</summary>
     internal Position16<MapPixels> mapScrollPosition;
     /// <summary>Bounded map-scroll controller initialized from visible area cells.</summary>
-    internal PauseMapScroll mapScroll = null!;
+    internal PauseMapScroll? mapScroll;
+    /// <summary>The map-scroll bounds, which exist once the map page is set up.</summary>
+    internal PauseMapScroll MapScrollBounds => mapScroll ??
+        throw new InvalidOperationException("The pause map scroll has not been set up.");
     /// <summary>Animated map arrows and their current visibility state.</summary>
     internal FileSelectMapAnimations? mapArrows;
+    /// <summary>The map arrows, which exist once the map page is set up.</summary>
+    internal FileSelectMapAnimations MapArrows => mapArrows ??
+        throw new InvalidOperationException("The pause map arrows have not been set up.");
     /// <summary>Whether elevator labels draw before map icons during a fade-out.</summary>
     private bool mapLabelsBeforeIcons;
     /// <summary>Current bank-$82 map-position marker frame.</summary>
@@ -166,7 +172,7 @@ internal sealed class PauseMenuState
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
         AdvanceAnimations(nmiFrameCounter8);
         if (ScreenMode == 0 && transition == PauseMenuTransition.None)
-            mapArrows!.StepArrows(direction => mapScroll.CanScroll(direction, mapScrollPosition));
+            MapArrows.StepArrows(direction => MapScrollBounds.CanScroll(direction, mapScrollPosition));
         SnesButton delayedPressed = (SnesButton)delayedHeldInput;
         SnesButton newlyPressed = (SnesButton)newlyPressedInput;
         if (transition != PauseMenuTransition.None)
@@ -189,7 +195,7 @@ internal sealed class PauseMenuState
             bool mapStart = HandleStartButton(delayedPressed);
             // Map arrows read the ordinary held controller word, not the delayed chrome
             // input. An accepted pulse keeps running after release, as on the cartridge.
-            if (mapScroll.Step(heldInput ?? delayedHeldInput, ref mapScrollPosition))
+            if (MapScrollBounds.Step(heldInput ?? delayedHeldInput, ref mapScrollPosition))
                 audio?.QueueSound(SoundEffectLibrary1Sounds.MapScroll, maximumQueued: 6);
             return mapStart;
         }
@@ -1005,9 +1011,8 @@ internal sealed class PauseMenuState
         // Refresh the authored base and rebuild the now-semantic inventory layer. The
         // explicit overrun bit retains the retail Boots-to-Plasma VAR artifact without
         // preserving stale pixels at a label's old editable destination.
-        bool labelsChanged = previousCatalog is null ||
-            previousCatalog.PauseEquipmentLabels.ContentIdentity != catalog.PauseEquipmentLabels.ContentIdentity;
-        if (labelsChanged)
+        if (previousCatalog is null ||
+            previousCatalog.PauseEquipmentLabels.ContentIdentity != catalog.PauseEquipmentLabels.ContentIdentity)
         {
             catalog.PauseEquipmentBase.RebindBeforeInventoryRefreshInto(equipmentTilemap);
             catalog.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
@@ -1020,7 +1025,7 @@ internal sealed class PauseMenuState
                     disabled: false);
         }
         else catalog.PauseEquipmentBase.RebindBaseInto(
-            equipmentTilemap, previousCatalog!.PauseEquipmentLabels);
+            equipmentTilemap, previousCatalog.PauseEquipmentLabels);
         // Reapply only the wireframe patch, in its native footprint. The surrounding
         // mutable labels include intentional cartridge overruns and must not be rebuilt.
         WriteSamusWireframe();

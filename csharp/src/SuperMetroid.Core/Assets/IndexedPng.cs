@@ -97,9 +97,9 @@ public static class IndexedPng
                     compressed.Write(payload);
                     break;
                 case "IEND":
-                    if (!dataSeen || payload.Length != 0 || input.ReadByte() != -1)
+                    if (!dataSeen || palette is null || payload.Length != 0 || input.ReadByte() != -1)
                         throw new InvalidDataException("Invalid PNG end or trailing data.");
-                    return DecodeRows(compressed, size, depth, palette!);
+                    return DecodeRows(compressed, size, depth, palette);
                 case "acTL": case "fcTL": case "fdAT":
                     throw new InvalidDataException("Animated PNG is not supported for a static tile atlas.");
                 default:

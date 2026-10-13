@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -15,7 +16,7 @@ internal static class PauseReserveAnchorsVerification
     internal static void VerifyPauseReserveAnchors(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions);
         var stock = PauseReserveTankPresentation.Load(new MemoryStream(bytes));
         AssertEqual(0, stock.StoredAnchorComponentCount, "stock reserve coordinates are calculated");
         Suite(nameof(VerifyPauseReserveAnchorField), () => VerifyPauseReserveAnchorField(rom, document, stock, true));

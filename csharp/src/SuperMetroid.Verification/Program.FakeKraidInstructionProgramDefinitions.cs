@@ -190,7 +190,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(movingRight ? (ushort)0x0140 : (ushort)0x00c0, slot.Position.Y.Whole)),
             };
             initialize(slot, samus);
-            state = enemies.FakeKraidStates[0]!;
+            state = (enemies.FakeKraidStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FakeKraidStates[0]."));
             return enemies;
         }
 

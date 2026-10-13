@@ -65,7 +65,7 @@ internal static class YappingMawBodyProjectileInstructionProgramDefinitionsVerif
             owner.Parameter2 = parameter;
             enemies.YappingMawBehavior.InitializeYappingMaw(owner);
 
-            RoomEnemyProjectileSlot[] bodies = enemies.YappingMawStates[0]!
+            RoomEnemyProjectileSlot[] bodies = (enemies.YappingMawStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YappingMawStates[0]."))
                 .BodyProjectiles
                 .OfType<RoomEnemyProjectileSlot>()
                 .ToArray();
@@ -107,8 +107,8 @@ internal static class YappingMawBodyProjectileInstructionProgramDefinitionsVerif
 
         var deletionSystem = new RoomEnemySystem();
         deletionSystem.BindFixtureBus(guard);
-        RoomEnemyProjectileSlot deletion = deletionCandidate!;
-        deletion.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
+        RoomEnemyProjectileSlot deletion = (deletionCandidate ?? throw new InvalidOperationException("Verification requires deletionCandidate."));
+        (deletion ?? throw new InvalidOperationException("Verification requires deletion.")).InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         deletion.InstructionTimer = NativeCountdown.Start(1);
         deletionSystem.Projectiles.ProcessEnemyProjectileInstructions(deletion, new SamusState(), Position16<RoomPixels>.Zero);
         AssertTrue(!deletion.IsActive,

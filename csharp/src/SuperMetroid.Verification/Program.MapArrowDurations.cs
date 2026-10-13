@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -16,8 +17,8 @@ internal static class MapArrowDurationsVerification
     internal static void VerifyMapArrowDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<MapArrowDocument>(bytes,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })!;
+        var document = RequiredJson.Deserialize<MapArrowDocument>(bytes,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         var stock = MapArrowPresentation.Load(new MemoryStream(bytes));
         for (int index = 0; index < 4; index++)
         {

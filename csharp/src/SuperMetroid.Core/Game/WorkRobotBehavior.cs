@@ -376,7 +376,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
             WorkRobotPaletteRomData.FirstAnimatedColor;
         (_room.Artwork?.WorkRobotPaletteCycle ?? throw new InvalidDataException(
             "Work Robot palette animation requires installed artwork."))
-            .ApplyFrame(_presentation._cgram!, record, destination);
+            .ApplyFrame(_presentation.Cgram, record, destination);
         _workRobotPaletteAnimationTimer =
             NativeCountdown.FromRaw(WorkRobotPaletteTimingDefinitions.DurationForByteOffset(
                 _workRobotPaletteAnimationTableOffset));

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.Android;
@@ -34,22 +35,22 @@ internal static class ProjectileHostBindingVerification
             CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
             session.SaveSlot(0);
-            CheckGrapple((GrappleTileAtlas)session.Game.Artwork.GrappleArtwork!, installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)session.Game.Artwork.ChargeFlareCompositions!, installation.LoadProjectiles().FlareCompositions);
+            CheckGrapple((GrappleTileAtlas)(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork.")), installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions.")), installation.LoadProjectiles().FlareCompositions);
             session.LoadSlot(0);
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
-            CheckGrapple((GrappleTileAtlas)session.Game.Artwork.GrappleArtwork!, installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)session.Game.Artwork.ChargeFlareCompositions!, installation.LoadProjectiles().FlareCompositions);
+            CheckGrapple((GrappleTileAtlas)session.Game.Artwork.GrappleArtwork, installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)session.Game.Artwork.ChargeFlareCompositions, installation.LoadProjectiles().FlareCompositions);
             if (!ReferenceEquals(content, session.Game.Artwork.ProjectileCompositions)) throw new InvalidDataException("State load lost current host projectile content.");
-            CheckBeams((BeamTileCatalog)session.Game.Artwork.BeamArtwork!, installation.LoadProjectiles().BeamTiles);
-            CheckTrails((ProjectileTrailCatalog)session.Game.Artwork.TrailArtwork!, installation.LoadProjectiles().Trails);
-            CheckFlare((ChargeFlarePlacementCatalog)session.Game.Artwork.ChargeFlarePlacement!, installation.LoadProjectiles().FlarePlacement);
+            CheckBeams((BeamTileCatalog)(session.Game.Artwork.BeamArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamArtwork.")), installation.LoadProjectiles().BeamTiles);
+            CheckTrails((ProjectileTrailCatalog)(session.Game.Artwork.TrailArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.TrailArtwork.")), installation.LoadProjectiles().Trails);
+            CheckFlare((ChargeFlarePlacementCatalog)(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement.")), installation.LoadProjectiles().FlarePlacement);
         }
         Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
         string path = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileSpriteDefinitions.FileName);
-        var document = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileSpriteDefinitions.FileName)))!;
-        var part = document["frames"]!.AsObject().First(p => p.Value!.AsArray().Count > 0).Value![0]!;
-        int x = part["offsetX"]!.GetValue<int>();
+        var document = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileSpriteDefinitions.FileName)));
+        var part = (document.Required("frames").AsObject().First(p => (p.Value ?? throw new InvalidOperationException("Verification requires p.Value.")).AsArray().Count > 0).Value ?? throw new InvalidOperationException("Verification requires a non-empty frame.")).Required(0);
+        int x = part.Required("offsetX").GetValue<int>();
         part["offsetX"] = x == 255 ? 254 : x + 1;
         File.WriteAllText(path, document.ToJsonString());
         string beamName = BeamTileAtlasDefinitions.FileName(0);
@@ -59,52 +60,52 @@ internal static class ProjectileHostBindingVerification
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, beamName)))
             IndexedPng.Write(output, new(64, 8), image.Pixels, image.Palette);
-        var colors = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName)))!;
-        colors["palettes"]![BeamPaletteDefinitions.Key(0)]![0]!["red"] = 17;
+        var colors = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName)));
+        colors.Required("palettes").Required(BeamPaletteDefinitions.Key(0)).Required(0)["red"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteDefinitions.FileName), colors.ToJsonString());
-        var trails = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName)))!;
-        trails["frames"]![ProjectileTrailVisualDefinitions.Name(ProjectileTrailVisualDefinitions.Frames[0])]!["flipX"] = true;
+        var trails = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName)));
+        trails.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(ProjectileTrailVisualDefinitions.Frames[0]))["flipX"] = true;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailVisualDefinitions.FileName), trails.ToJsonString());
         using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, ProjectileTrailAtlasDefinitions.FileName)))
             image = IndexedPng.Read(input, new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName)))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
-        var flare = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName)))!;
-        flare["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
+        var flare = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName)));
+        flare.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementDefinitions.FileName), flare.ToJsonString());
-        var flareComposition = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName)))!;
-        flareComposition["frames"]![ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0])]![0]!["offsetX"] = 17;
+        var flareComposition = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName)));
+        flareComposition.Required("frames").Required(ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0])).Required(0)["offsetX"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteDefinitions.FileName), flareComposition.ToJsonString());
         using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName)))
             image = IndexedPng.Read(input, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName)))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
-        var grappleStyles = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSpriteDefinitions.FileName)))!;
-        grappleStyles["endpoint"]!["palette"] = 4;
-        foreach (var style in grappleStyles["segments"]!.AsArray()) style!["palette"] = 4;
+        var grappleStyles = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSpriteDefinitions.FileName)));
+        grappleStyles.Required("endpoint")["palette"] = 4;
+        foreach (var style in grappleStyles.Required("segments").AsArray().RequiredElements()) style["palette"] = 4;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSpriteDefinitions.FileName), grappleStyles.ToJsonString());
-        var grappleFlare = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName)))!;
-        grappleFlare["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
+        var grappleFlare = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName)));
+        grappleFlare.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName), grappleFlare.ToJsonString());
-        var grappleSwing = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameDefinitions.FileName)))!;
-        grappleSwing["frames"]![0] = 17;
+        var grappleSwing = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameDefinitions.FileName)));
+        grappleSwing.Required("frames")[0] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameDefinitions.FileName), grappleSwing.ToJsonString());
         using (var session = new AndroidSessionData(root))
         {
             var content = session.Game.Artwork.ProjectileCompositions;
-            CheckGrapple((GrappleTileAtlas)session.Game.Artwork.GrappleArtwork!, installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)session.Game.Artwork.ChargeFlareCompositions!, installation.LoadProjectiles().FlareCompositions);
+            CheckGrapple((GrappleTileAtlas)(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork.")), installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions.")), installation.LoadProjectiles().FlareCompositions);
             session.LoadSlot(0);
-            CheckGrapple((GrappleTileAtlas)session.Game.Artwork.GrappleArtwork!, installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)session.Game.Artwork.ChargeFlareCompositions!, installation.LoadProjectiles().FlareCompositions);
+            CheckGrapple((GrappleTileAtlas)session.Game.Artwork.GrappleArtwork, installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)session.Game.Artwork.ChargeFlareCompositions, installation.LoadProjectiles().FlareCompositions);
             if (content is null || !ReferenceEquals(content, session.Game.Artwork.ProjectileCompositions))
                 throw new InvalidDataException("Restarted host did not retain newly selected content across an old state load.");
             CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);
-            CheckBeams((BeamTileCatalog)session.Game.Artwork.BeamArtwork!, installation.LoadProjectiles().BeamTiles);
-            CheckTrails((ProjectileTrailCatalog)session.Game.Artwork.TrailArtwork!, installation.LoadProjectiles().Trails);
-            CheckFlare((ChargeFlarePlacementCatalog)session.Game.Artwork.ChargeFlarePlacement!, installation.LoadProjectiles().FlarePlacement);
+            CheckBeams((BeamTileCatalog)(session.Game.Artwork.BeamArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamArtwork.")), installation.LoadProjectiles().BeamTiles);
+            CheckTrails((ProjectileTrailCatalog)(session.Game.Artwork.TrailArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.TrailArtwork.")), installation.LoadProjectiles().Trails);
+            CheckFlare((ChargeFlarePlacementCatalog)(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement.")), installation.LoadProjectiles().FlarePlacement);
         }
         File.WriteAllText(path, "invalid override");
         try
@@ -179,7 +180,7 @@ internal static class ProjectileHostBindingVerification
     private static void CheckGrapple(GrappleTileAtlas actual, GrappleTileAtlas expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind Grapple PNG.");
-        CheckFlare(actual.FlarePlacement!, expected.FlarePlacement!);
+        CheckFlare((actual.FlarePlacement ?? throw new InvalidOperationException("Verification requires actual.FlarePlacement.")), (expected.FlarePlacement ?? throw new InvalidOperationException("Verification requires expected.FlarePlacement.")));
         if (actual.SwingFrames is null || expected.SwingFrames is null) throw new InvalidDataException("Host did not bind Grapple swing frames.");
         for (int angle = 0; angle < 256; angle++)
             if (actual.SwingFrames.Resolve((byte)angle) != expected.SwingFrames.Resolve((byte)angle))
@@ -205,7 +206,7 @@ internal static class ProjectileHostBindingVerification
             var boundColors = new SuperMetroid.Core.Hardware.SnesCgram();
             var diskColors = new SuperMetroid.Core.Hardware.SnesCgram();
             (actual.Palettes ?? throw new InvalidDataException("Host palette catalog is absent.")).LoadTo(boundColors, SamusBeamCombinations.FromTableIndex(selection));
-            expected.Palettes!.LoadTo(diskColors, SamusBeamCombinations.FromTableIndex(selection));
+            (expected.Palettes ?? throw new InvalidOperationException("Verification requires expected.Palettes.")).LoadTo(diskColors, SamusBeamCombinations.FromTableIndex(selection));
             if (!new CgramPalettes(boundColors).ImageEquals(new CgramPalettes(diskColors)))
                 throw new InvalidDataException("Host restored stale palette colors instead of current selection.");
         }

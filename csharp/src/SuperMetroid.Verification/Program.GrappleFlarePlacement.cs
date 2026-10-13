@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -29,7 +30,7 @@ internal static class GrappleFlarePlacementVerification
     {
         byte[] json = GrappleFlarePlacementExtractor.Extract(rom);
         var stock = ChargeFlarePlacementCatalog.Load(new MemoryStream(json));
-        var document = JsonNode.Parse(json)!;
+        var document = RequiredJson.Parse(json);
         foreach (bool running in new[] { false, true })
         for (int direction = 0; direction < 16; direction++)
         {
@@ -38,7 +39,7 @@ internal static class GrappleFlarePlacementVerification
             int y = running ? SamusGrappleRomData.Firing.RunningFlareY : SamusGrappleRomData.Firing.DefaultFlareY;
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), x + direction * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), y + direction * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
-            var editedOffset = document["offsets"]![ChargeFlarePlacementDefinitions.Key(running, direction)]!;
+            var editedOffset = document.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(running, direction));
             editedOffset["x"] = unchecked((short)(offset.X + 7));
             editedOffset["y"] = unchecked((short)(offset.Y - 9));
         }
@@ -119,22 +120,22 @@ internal static class GrappleFlarePlacementVerification
         var runtime = CreateRetailRuntimeFixture(rom);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.NmiHandler.RunNmi(0, true);
-        byte[] beforeBinding = GraphDigest(runtime.Player.Samus!);
+        byte[] beforeBinding = GraphDigest(runtime.Player.IntroducedSamus);
         var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameExtractor.Extract(rom)));
         runtime.Artwork.GrappleArtwork = GrappleTileAtlas.Load(new MemoryStream(GrappleTileExtractor.Extract(rom)), flarePlacement: edited, swingFrames: swingFrames);
-        AssertTrue(ReferenceEquals(edited, runtime.Player.Samus!.Grapple.FlarePlacement), "Artwork rebinding reaches current Samus immediately");
-        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.Samus.Grapple.SwingFrames), "Artwork rebinding reaches current swing-frame selection");
-        AssertTrue(beforeBinding.SequenceEqual(GraphDigest(runtime.Player.Samus)), "Presentation binding is excluded from Samus saved graph");
-        runtime.Player.Samus.Grapple.FlarePlacement = null;
-        runtime.Player.Samus.Grapple.SwingFrames = null;
+        AssertTrue(ReferenceEquals(edited, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Artwork rebinding reaches current Samus immediately");
+        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Artwork rebinding reaches current swing-frame selection");
+        AssertTrue(beforeBinding.SequenceEqual(GraphDigest(runtime.Player.IntroducedSamus)), "Presentation binding is excluded from Samus saved graph");
+        runtime.Player.IntroducedSamus.Grapple.FlarePlacement = null;
+        runtime.Player.IntroducedSamus.Grapple.SwingFrames = null;
         runtime.StepFrame(0);
-        AssertTrue(ReferenceEquals(edited, runtime.Player.Samus.Grapple.FlarePlacement), "Real gameplay frame rebinds missing/restored visual origins before producers");
-        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.Samus.Grapple.SwingFrames), "Real gameplay frame rebinds swing art before pendulum update");
-        runtime.Player.Samus.Grapple.FlarePlacement = null;
-        runtime.Player.Samus.Grapple.SwingFrames = null;
+        AssertTrue(ReferenceEquals(edited, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Real gameplay frame rebinds missing/restored visual origins before producers");
+        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Real gameplay frame rebinds swing art before pendulum update");
+        runtime.Player.IntroducedSamus.Grapple.FlarePlacement = null;
+        runtime.Player.IntroducedSamus.Grapple.SwingFrames = null;
         runtime.ActorDrawing.DrawGameplayActors(false, false);
-        AssertTrue(ReferenceEquals(edited, runtime.Player.Samus.Grapple.FlarePlacement), "Independent actor drawing also rebinds visual origins");
-        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.Samus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
+        AssertTrue(ReferenceEquals(edited, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Independent actor drawing also rebinds visual origins");
+        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
         Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections preserve physical state under visual edits and ROM guard.");
     }
     /// <summary>Rejects live reads of the two cartridge flare-offset tables after artwork installation.</summary>

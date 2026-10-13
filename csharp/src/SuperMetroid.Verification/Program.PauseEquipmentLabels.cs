@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -17,8 +18,8 @@ internal static class PauseEquipmentLabelsVerification
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseEquipmentLabelDefinitions.FileName);
         string overridePath = Path.Combine(overrides, PauseEquipmentLabelDefinitions.FileName);
-        var document = JsonSerializer.Deserialize<PauseEquipmentLabelDocument>(
-            File.ReadAllBytes(stockPath), MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseEquipmentLabelDocument>(
+            File.ReadAllBytes(stockPath), MapPresentationFormat.JsonOptions);
         var guard = NewPauseEquipmentLabelReadGuard(bus);
 
         SamusState[] inventories =

@@ -71,7 +71,7 @@ internal static class HZoomerInstructionProgramDefinitionsVerification
             AssertEqual(entry, slot.CurrentInstruction,
                 $"HZoomer real initializer selects {orientation}");
             ExecuteHZoomerProgram(enemies, slot, callCount: 6);
-            AssertEqual(function, enemies.CrawlerStates[0]!.Function,
+            AssertEqual(function, (enemies.CrawlerStates[0] ?? throw new InvalidOperationException("Verification requires enemies.CrawlerStates[0].")).Function,
                 $"HZoomer {orientation} publishes native movement function");
             AssertEqual(unchecked((ushort)(entry + 8)), slot.CurrentInstruction,
                 $"HZoomer {orientation} completes and loops all five frames");

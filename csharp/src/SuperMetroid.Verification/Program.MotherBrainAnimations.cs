@@ -83,7 +83,7 @@ internal static class MotherBrainAnimationsVerification
             AssertEqual((ushort)(duration + 1), state.BrainFrameTimer, $"{program}'s timer counts up past the duration");
             enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null);
             AssertEqual((ushort)1, state.BrainFrameTimer, $"{program} installs its next frame once the timer exceeds the duration");
-            AssertEqual(AnimationProgramStepKind.Show, MotherBrainAnimations.Head.Steps(state.BrainCursor!.Value.Program)[state.BrainCursor.Value.Position].Kind,
+            AssertEqual(AnimationProgramStepKind.Show, MotherBrainAnimations.Head.Steps((state.BrainCursor ?? throw new InvalidOperationException("Verification requires state.BrainCursor.")).Program)[state.BrainCursor.Value.Position].Kind,
                 $"{program}'s cursor rests on the frame it shows");
         }
     }
@@ -112,7 +112,7 @@ internal static class MotherBrainAnimationsVerification
             MotherBrainBehavior.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.DyingDroolLoop);
             for (int draw = 0; draw <= 2; draw++)
                 enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null);
-            AssertEqual(bursts ? MotherBrainHeadProgram.DyingDroolBurst : MotherBrainHeadProgram.DyingDroolLoop, state.BrainCursor!.Value.Program,
+            AssertEqual(bursts ? MotherBrainHeadProgram.DyingDroolBurst : MotherBrainHeadProgram.DyingDroolLoop, (state.BrainCursor ?? throw new InvalidOperationException("Verification requires state.BrainCursor.")).Program,
                 $"random {random} {(bursts ? "bursts into more drool" : "keeps the drool loop")}");
         }
     }

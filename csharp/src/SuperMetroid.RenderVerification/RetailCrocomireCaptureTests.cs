@@ -16,20 +16,20 @@ internal static class RetailCrocomireCaptureTests
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(CrocomireCaptureFixture.Room, new Position16<RoomPixels>(CrocomireCaptureFixture.CameraX, 0));
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(CrocomireCaptureFixture.InitialSamusX, 120));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
         var boss = runtime.Enemies.CrocomireBehavior.Crocomire ?? throw new InvalidOperationException("Crocomire did not initialize.");
-        var death = runtime.Enemies.CrocomireBehavior.CrocomireDeath!;
+        var death = runtime.Enemies.CrocomireBehavior.CrocomireDeath;
         // Before either melting object is spawned, BG2 must use the actor's ordinary
         // scroll register. Comparing two renderers alone missed this shared defect.
         for (int tick = 0; tick < 60; tick++)
         {
             runtime.StepFrame(0);
-            var scene = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+            var scene = GameplayDisplayCapture.CaptureFrame(runtime);
             var baseLayer = (OrdinaryGameplayRenderLayer)scene.Layers[0];
-            if (!baseLayer.Bg2LineScrolls.Vertical.IsEmpty || death.MeltingHdmaActive)
+            if (!baseLayer.Bg2LineScrolls.Vertical.IsEmpty || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingHdmaActive)
                 throw new InvalidOperationException("Crocomire fight incorrectly enabled melting HDMA.");
             var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), scene);
             PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime),
@@ -47,7 +47,7 @@ internal static class RetailCrocomireCaptureTests
                 samus.Position = samus.Position.WithWholeX(CrocomireCaptureFixture.ReturnSamusX);
             runtime.StepFrame(0);
             bool shouldMelt = boss.DeathSequenceIndex is CrocomireDeathPhase.DissolveFirstImage or CrocomireDeathPhase.DissolveSecondImage;
-            if (death.MeltingHdmaActive != shouldMelt)
+            if ((death ?? throw new InvalidOperationException("Verification requires death.")).MeltingHdmaActive != shouldMelt)
                 throw new InvalidOperationException($"Crocomire HDMA lifecycle disagrees in phase {(int)boss.DeathSequenceIndex:X2}.");
             bool changed = phases.Add(boss.DeathSequenceIndex);
             bool nonuniform = death.Bg2ScrollByScanline.Any(y => y != death.Bg2ScrollByScanline[0]);
@@ -57,7 +57,7 @@ internal static class RetailCrocomireCaptureTests
             if (changed || firstDistortion || tick % 16 == 0 || complete)
             {
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.CaptureFrame(runtime));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: Crocomire tick={tick}, phase={(int)boss.DeathSequenceIndex:X2}");

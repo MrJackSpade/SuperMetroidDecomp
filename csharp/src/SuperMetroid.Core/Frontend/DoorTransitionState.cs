@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -17,8 +18,9 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class DoorTransitionState
 {
-    /// <summary>Drives source fade-out and destination fade-in from shared CGRAM targets.</summary>
-    private CartridgePaletteTransition? paletteTransition;
+    /// <summary>The door's palette transition, which exists from the start of the door fade.</summary>
+    [AllowNull]
+    private CartridgePaletteTransition PaletteTransition { get => field ?? throw new InvalidOperationException("The door palette transition has not started."); set; }
     /// <summary>Source palette snapshot restored after atomic destination room construction.</summary>
     private Bgr555[]? fadedSourcePalette;
     /// <summary>Door header captured before the destination room replaces the source.</summary>
@@ -55,7 +57,7 @@ public sealed class DoorTransitionState
             ?? throw new InvalidOperationException("Door transition requires a source room header.");
         destinationCreBitset = runtime.RoomLoader.PendingDoorDestinationCreBitset;
         sourceSamus = runtime.Player.Samus.Position;
-        paletteTransition = new CartridgePaletteTransition(
+        PaletteTransition = new CartridgePaletteTransition(
             BuildSourceFadeTarget(runtime),
             denominator: 12,
             runtime.Enemies.Presentation.GradualColorChange);
@@ -96,7 +98,7 @@ public sealed class DoorTransitionState
                 // A palette step returns to MainGameLoop. Hardware stalls while it
                 // executes are not additional dispatches, but this step is one.
                 runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
-                if (paletteTransition!.Step(runtime.Cgram))
+                if (PaletteTransition.Step(runtime.Cgram))
                 {
                     runtime.Oam.BeginFrame();
                     runtime.Oam.FinalizeFrame();
@@ -192,7 +194,7 @@ public sealed class DoorTransitionState
                     samus.SelectedHudItem = 0;
                     samus.AutoCancelHudItemIndex = 0;
                 }
-                paletteTransition = new CartridgePaletteTransition(
+                PaletteTransition = new CartridgePaletteTransition(
                     destinationTarget,
                     denominator: 12,
                     runtime.Enemies.Presentation.GradualColorChange);
@@ -276,8 +278,8 @@ public sealed class DoorTransitionState
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 // Enemy instruction lists run after the initial destination palette copy.
                 // Their target writes belong to this same fade, not a private dead buffer.
-                runtime.Enemies.ConsumeTargetPaletteWrites(paletteTransition!.SetTargetColor);
-                if (paletteTransition!.Step(runtime.Cgram))
+                runtime.Enemies.ConsumeTargetPaletteWrites(PaletteTransition.SetTargetColor);
+                if (PaletteTransition.Step(runtime.Cgram))
                 {
                     // $82:E737 releases $0795 after EnemyMain and the last fade step.
                     // Movement resumes on the following gameplay frame, not this one.

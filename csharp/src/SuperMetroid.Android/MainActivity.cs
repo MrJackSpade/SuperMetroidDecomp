@@ -158,7 +158,19 @@ public sealed class MainActivity : Activity
     /// <summary>Current key-to-SNES binding overrides used by controller event dispatch.</summary>
     private AndroidControllerPreferences controllerPreferences = new();
     /// <summary>Private-storage path for durable controller binding overrides.</summary>
-    private string ControllerPreferencesPath => Path.Combine(FilesDir!.AbsolutePath, "controller-bindings.json");
+    private string ControllerPreferencesPath => Path.Combine(PrivateFilesPath, "controller-bindings.json");
+
+    /// <summary>The app's private file directory; Android supplies it to every running activity.</summary>
+    private string PrivateFilesPath => FilesDir?.AbsolutePath ??
+        throw new IOException("Android app file storage is unavailable.");
+
+    /// <summary>The app's cache directory; Android supplies it to every running activity.</summary>
+    private string PrivateCachePath => CacheDir?.AbsolutePath ??
+        throw new IOException("Android app cache storage is unavailable.");
+
+    /// <summary>The activity's content resolver, which opens user-chosen documents.</summary>
+    private ContentResolver Documents => ContentResolver ??
+        throw new IOException("Android supplied no content resolver to open documents.");
 
     /// <summary>Loads persisted binding overrides when an installed game session starts.</summary>
     private void LoadControllerPreferences()
@@ -173,35 +185,39 @@ public sealed class MainActivity : Activity
         menuOpen = true;
         var keys = AndroidControllerMapping.Keys;
         string[] labels = keys.Select(key => $"{key} → {controllerPreferences.Resolve(key.ToString(), AndroidControllerMapping.Map(key))}").ToArray();
-        new AlertDialog.Builder(this).SetTitle("Controller → SNES button (applies now)")!
-            .SetItems(labels, (_, selected) =>
+        var dialog = new AlertDialog.Builder(this);
+        dialog.SetTitle("Controller → SNES button (applies now)");
+        dialog.SetItems(labels, (_, selected) =>
             {
                 var key = keys[selected.Which];
                 SnesButton[] buttons = Enum.GetValues<SnesButton>()
                     .Where(button => button == SnesButton.None || (((ushort)button & ((ushort)button - 1)) == 0)).ToArray();
                 var current = controllerPreferences.Resolve(key.ToString(), AndroidControllerMapping.Map(key));
-                new AlertDialog.Builder(this).SetTitle($"Map {key} to SNES")!
-                    .SetSingleChoiceItems(buttons.Select(button => button.ToString()).ToArray(), Array.IndexOf(buttons, current),
+                var choiceDialog = new AlertDialog.Builder(this);
+                choiceDialog.SetTitle($"Map {key} to SNES");
+                choiceDialog.SetSingleChoiceItems(buttons.Select(button => button.ToString()).ToArray(), Array.IndexOf(buttons, current),
                         (sender, choice) =>
                         {
                             try
                             {
                                 SaveControllerPreferences(controllerPreferences.WithBinding(key.ToString(), buttons[choice.Which]));
-                                ((AlertDialog)sender!).Dismiss();
+                                (sender as AlertDialog ?? throw new InvalidOperationException("A dialog choice is raised by its dialog.")).Dismiss();
                                 ShowControllerSettings();
                             }
                             catch (Exception error) { _ = ShowStateResult(Task.FromException<string>(error)); }
-                        })!
-                    .SetNegativeButton("Back", (_, _) => ShowControllerSettings())!
-                    .SetCancelable(false)!.Show();
-            })!
-            .SetNeutralButton("Restore defaults", (_, _) =>
+                        });
+                choiceDialog.SetNegativeButton("Back", (_, _) => ShowControllerSettings());
+                choiceDialog.SetCancelable(false);
+                choiceDialog.Show();
+            });
+        dialog.SetNeutralButton("Restore defaults", (_, _) =>
             {
                 try { SaveControllerPreferences(new()); ShowControllerSettings(); }
                 catch (Exception error) { _ = ShowStateResult(Task.FromException<string>(error)); }
-            })!
-            .SetNegativeButton("Back", (_, _) => { menuOpen = false; ShowTestingMenu(); })!
-            .SetCancelable(false)!.Show();
+            });
+        dialog.SetNegativeButton("Back", (_, _) => { menuOpen = false; ShowTestingMenu(); });
+        dialog.SetCancelable(false);
+        dialog.Show();
     }
 
     /// <summary>Atomically persists updated bindings and clears held or pending input before publishing them.</summary>
@@ -221,11 +237,12 @@ public sealed class MainActivity : Activity
     private void ChooseDiagnosticExport()
     {
         menuOpen = true;
-        new AlertDialog.Builder(this).SetTitle("Export private diagnostics")!
-            .SetMessage($"Include saved slot {selectedSlot}, regular save, recordings and their preserved seeds, settings, and error/timing logs. " +
+        var dialog2 = new AlertDialog.Builder(this);
+        dialog2.SetTitle("Export private diagnostics");
+        dialog2.SetMessage($"Include saved slot {selectedSlot}, regular save, recordings and their preserved seeds, settings, and error/timing logs. " +
                 "This does not overwrite or create a state slot. Debugger states may contain ROM data: keep the ZIP private. " +
-                "Choose local device storage to transfer it later; nothing is uploaded automatically.")!
-            .SetPositiveButton("Choose file", (_, _) =>
+                "Choose local device storage to transfer it later; nothing is uploaded automatically.");
+        dialog2.SetPositiveButton("Choose file", (_, _) =>
             {
                 try
                 {
@@ -238,9 +255,10 @@ public sealed class MainActivity : Activity
 #pragma warning restore CS0618
                 }
                 catch (Exception error) { _ = ShowStateResult(Task.FromException<string>(error)); }
-            })!
-            .SetNegativeButton("Cancel", (_, _) => { menuOpen = false; ShowTestingMenu(); })!
-            .SetCancelable(false)!.Show();
+            });
+        dialog2.SetNegativeButton("Cancel", (_, _) => { menuOpen = false; ShowTestingMenu(); });
+        dialog2.SetCancelable(false);
+        dialog2.Show();
     }
 
 #pragma warning disable CS0672, CS0618 // Paired with the document request above; no AndroidX dependency.
@@ -277,12 +295,12 @@ public sealed class MainActivity : Activity
     /// <summary>Stages a diagnostic ZIP, copies it to the chosen document, and removes the staging file.</summary>
     private async Task<string> ExportDiagnostics(global::Android.Net.Uri uri)
     {
-        string temporary = Path.Combine(CacheDir!.AbsolutePath, $"diagnostics-{Guid.NewGuid():N}.zip");
+        string temporary = Path.Combine(PrivateCachePath, $"diagnostics-{Guid.NewGuid():N}.zip");
         try
         {
             if (session is null) throw new InvalidOperationException("No game session is available for export.");
             await session.ExportDiagnostics(temporary, selectedSlot);
-            using System.IO.Stream destination = ContentResolver!.OpenOutputStream(uri, "wt")
+            using System.IO.Stream destination = Documents.OpenOutputStream(uri, "wt")
                 ?? throw new IOException("Android could not open the selected export document.");
             using System.IO.Stream source = File.OpenRead(temporary);
             await source.CopyToAsync(destination);
@@ -339,15 +357,18 @@ public sealed class MainActivity : Activity
             ?? throw new IOException("Android audio service is unavailable.");
         inputManager = (InputManager?)GetSystemService(InputService)
             ?? throw new IOException("Android input service is unavailable.");
-        hostHandler = new Handler(Looper.MainLooper!);
+        hostHandler = new Handler(Looper.MainLooper ?? throw new IOException("Android has no main looper."));
         hostFocusListener = new HostFocusListener(this);
-        using var attributes = new AudioAttributes.Builder().SetUsage(AudioUsageKind.Game)!
-            .SetContentType(AudioContentType.Music)!.Build()!;
+        using var attributesBuilder = new AudioAttributes.Builder();
+        attributesBuilder.SetUsage(AudioUsageKind.Game);
+        attributesBuilder.SetContentType(AudioContentType.Music);
+        using var attributes = attributesBuilder.Build() ??
+            throw new IOException("Android could not build the game audio attributes.");
         using var builder = new AudioFocusRequestClass.Builder(AudioFocus.Gain);
-        audioFocusRequest = builder.SetAudioAttributes(attributes)!
-            .SetAcceptsDelayedFocusGain(true)!
-            .SetWillPauseWhenDucked(true)!
-            .SetOnAudioFocusChangeListener(hostFocusListener, hostHandler)!.Build();
+        audioFocusRequest = builder.SetAudioAttributes(attributes)
+            .SetAcceptsDelayedFocusGain(true)
+            .SetWillPauseWhenDucked(true)
+            .SetOnAudioFocusChangeListener(hostFocusListener, hostHandler).Build();
         inputManager.RegisterInputDeviceListener(hostFocusListener, hostHandler);
     }
 
@@ -423,11 +444,12 @@ public sealed class MainActivity : Activity
     private void ChooseImport(bool state)
     {
         menuOpen = true;
-        new AlertDialog.Builder(this).SetTitle(state ? $"Import into slot {selectedSlot}?" : "Import regular save?")!
-            .SetMessage(state
+        var dialog3 = new AlertDialog.Builder(this);
+        dialog3.SetTitle(state ? $"Import into slot {selectedSlot}?" : "Import regular save?");
+        dialog3.SetMessage(state
                 ? "Choose a trusted .smstate file, not a ZIP. After validation it replaces this slot; the previous file is retained in import-backups. It is not automatically loaded."
-                : "Choose a Super Metroid JSON save, not a ZIP or .srm. It will replace the regular save at next app launch, after validation and backup. Current gameplay is unchanged.")!
-            .SetPositiveButton("Choose file", (_, _) =>
+                : "Choose a Super Metroid JSON save, not a ZIP or .srm. It will replace the regular save at next app launch, after validation and backup. Current gameplay is unchanged.");
+        dialog3.SetPositiveButton("Choose file", (_, _) =>
             {
                 try
                 {
@@ -439,18 +461,19 @@ public sealed class MainActivity : Activity
 #pragma warning restore CS0618
                 }
                 catch (Exception error) { _ = ShowStateResult(Task.FromException<string>(error)); }
-            })!
-            .SetNegativeButton("Cancel", (_, _) => { menuOpen = false; ShowTestingMenu(); })!
-            .SetCancelable(false)!.Show();
+            });
+        dialog3.SetNegativeButton("Cancel", (_, _) => { menuOpen = false; ShowTestingMenu(); });
+        dialog3.SetCancelable(false);
+        dialog3.Show();
     }
 
     /// <summary>Copies the selected document to a temporary file and hands it to the session's validated importer.</summary>
     private async Task<string> ImportDocument(global::Android.Net.Uri uri, bool state)
     {
-        string temporary = Path.Combine(CacheDir!.AbsolutePath, $"import-{Guid.NewGuid():N}.tmp");
+        string temporary = Path.Combine(PrivateCachePath, $"import-{Guid.NewGuid():N}.tmp");
         try
         {
-            using (System.IO.Stream source = ContentResolver!.OpenInputStream(uri)
+            using (System.IO.Stream source = Documents.OpenInputStream(uri)
                 ?? throw new IOException("Android could not open the selected import."))
             using (System.IO.Stream destination = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write))
                 await source.CopyToAsync(destination);
@@ -466,7 +489,8 @@ public sealed class MainActivity : Activity
         if (destroyed) return;
         menuOpen = true;
         var layout = new LinearLayout(this) { Orientation = global::Android.Widget.Orientation.Vertical };
-        int padding = (int)(24 * Resources!.DisplayMetrics!.Density);
+        int padding = (int)(24 * (Resources?.DisplayMetrics?.Density ??
+            throw new IOException("Android supplied no display metrics.")));
         layout.SetPadding(padding, padding, padding, padding);
         var title = new TextView(this) { Text = "Choose your Super Metroid ROM", TextSize = 24 };
         var description = new TextView(this)
@@ -510,7 +534,7 @@ public sealed class MainActivity : Activity
             var progress = new Progress<string>(message => { if (!destroyed) status.Text = message; });
             await Task.Run(() =>
             {
-                using System.IO.Stream source = ContentResolver!.OpenInputStream(uri)
+                using System.IO.Stream source = Documents.OpenInputStream(uri)
                     ?? throw new IOException("Android could not open that file. Choose another local ROM.");
                 GameAssetInstaller.Install(source, root, token, progress);
             }, token);
@@ -543,17 +567,19 @@ public sealed class MainActivity : Activity
         menuOpen = true;
         try
         {
-            string path = Path.Combine(FilesDir!.AbsolutePath, "SuperMetroid.ini");
+            string path = Path.Combine(PrivateFilesPath, "SuperMetroid.ini");
             var saved = SuperMetroidGameOptionsIni.Parse(File.ReadAllText(path), path);
             var definitions = AndroidSettingDefinitions.All;
-            new AlertDialog.Builder(this).SetTitle("Settings — apply on next app launch")!
-                .SetItems(definitions.Select(d => $"{d.Label}: {d.Read(saved)}" +
+            var dialog4 = new AlertDialog.Builder(this);
+            dialog4.SetTitle("Settings — apply on next app launch");
+            dialog4.SetItems(definitions.Select(d => $"{d.Label}: {d.Read(saved)}" +
                     (session?.EffectiveOptions is { } active && d.Read(active) != d.Read(saved)
                         ? $" (active: {d.Read(active)})" : "")).ToArray(), (_, selected) =>
                 {
                     var definition = definitions[selected.Which];
-                    new AlertDialog.Builder(this).SetTitle(definition.Label)!
-                        .SetSingleChoiceItems(definition.Values, Array.IndexOf(definition.Values, definition.Read(saved)),
+                    var choiceDialog2 = new AlertDialog.Builder(this);
+                    choiceDialog2.SetTitle(definition.Label);
+                    choiceDialog2.SetSingleChoiceItems(definition.Values, Array.IndexOf(definition.Values, definition.Read(saved)),
                             (sender, choice) =>
                             {
                                 try
@@ -564,16 +590,18 @@ public sealed class MainActivity : Activity
                                         definition.Section, definition.Key, definition.Values[choice.Which]);
                                     File.WriteAllText(path + ".tmp", updated);
                                     File.Move(path + ".tmp", path, overwrite: true);
-                                    ((AlertDialog)sender!).Dismiss();
+                                    (sender as AlertDialog ?? throw new InvalidOperationException("A dialog choice is raised by its dialog.")).Dismiss();
                                     ShowIniSettings();
                                 }
                                 catch (Exception error) { _ = ShowStateResult(Task.FromException<string>(error)); }
-                            })!
-                        .SetNegativeButton("Back", (_, _) => ShowIniSettings())!
-                        .SetCancelable(false)!.Show();
-                })!
-                .SetNegativeButton("Back", (_, _) => { menuOpen = false; ShowTestingMenu(); })!
-                .SetCancelable(false)!.Show();
+                            });
+                    choiceDialog2.SetNegativeButton("Back", (_, _) => ShowIniSettings());
+                    choiceDialog2.SetCancelable(false);
+                    choiceDialog2.Show();
+                });
+            dialog4.SetNegativeButton("Back", (_, _) => { menuOpen = false; ShowTestingMenu(); });
+            dialog4.SetCancelable(false);
+            dialog4.Show();
         }
         catch (Exception error) { _ = ShowStateResult(Task.FromException<string>(error)); }
     }
@@ -592,9 +620,9 @@ public sealed class MainActivity : Activity
         if (session is null || menuOpen) return;
         menuOpen = true;
         session.SetActive(false);
-        new AlertDialog.Builder(this)
-            .SetTitle($"Testing tools - slot {DebuggerSaveStateStore.SlotName(selectedSlot)}")!
-            .SetItems(new[] { "Resume", "Choose state slot", "Save state", "Load state", "INI settings (next launch)", "Controller bindings", "Export private diagnostics", "Import debugger state", "Import regular save (next launch)" }, (_, args) =>
+        var dialog5 = new AlertDialog.Builder(this);
+        dialog5.SetTitle($"Testing tools - slot {DebuggerSaveStateStore.SlotName(selectedSlot)}");
+        dialog5.SetItems(new[] { "Resume", "Choose state slot", "Save state", "Load state", "INI settings (next launch)", "Controller bindings", "Export private diagnostics", "Import debugger state", "Import regular save (next launch)" }, (_, args) =>
             {
                 menuOpen = false;
                 switch (args.Which)
@@ -609,25 +637,27 @@ public sealed class MainActivity : Activity
                     case 7: ChooseImport(state: true); break;
                     case 8: ChooseImport(state: false); break;
                 }
-            })!
-            .SetOnCancelListener(new MenuCancelled(this))!
-            .Show();
+            });
+        dialog5.SetOnCancelListener(new MenuCancelled(this));
+        dialog5.Show();
     }
 
     /// <summary>Shows the available debugger state slots and returns to the testing menu after selection.</summary>
     private void ChooseStateSlot()
     {
         menuOpen = true;
-        new AlertDialog.Builder(this).SetTitle("Debugger state slot")!
-            .SetSingleChoiceItems(Enumerable.Range(0, DebuggerStateFormat.AutomaticSlot + 1).Select(slot => $"Slot {DebuggerSaveStateStore.SlotName(slot)}").ToArray(), selectedSlot,
+        var dialog6 = new AlertDialog.Builder(this);
+        dialog6.SetTitle("Debugger state slot");
+        dialog6.SetSingleChoiceItems(Enumerable.Range(0, DebuggerStateFormat.AutomaticSlot + 1).Select(slot => $"Slot {DebuggerSaveStateStore.SlotName(slot)}").ToArray(), selectedSlot,
                 (sender, args) =>
                 {
                     selectedSlot = args.Which;
-                    ((AlertDialog)sender!).Dismiss();
+                    (sender as AlertDialog ?? throw new InvalidOperationException("A dialog choice is raised by its dialog.")).Dismiss();
                     menuOpen = false;
                     ShowTestingMenu();
-                })!
-            .SetOnCancelListener(new MenuCancelled(this))!.Show();
+                });
+        dialog6.SetOnCancelListener(new MenuCancelled(this));
+        dialog6.Show();
     }
 
     /// <summary>Displays an asynchronous host-tool result or full exception after logging failures.</summary>
@@ -642,9 +672,12 @@ public sealed class MainActivity : Activity
             global::Android.Util.Log.Error("SuperMetroid", message);
         }
         if (destroyed) return;
-        new AlertDialog.Builder(this).SetTitle("Debugger state")!.SetMessage(message)!
-            .SetPositiveButton("OK", (_, _) => { menuOpen = false; ShowTestingMenu(); })!
-            .SetCancelable(false)!.Show();
+        var dialog7 = new AlertDialog.Builder(this);
+        dialog7.SetTitle("Debugger state");
+        dialog7.SetMessage(message);
+        dialog7.SetPositiveButton("OK", (_, _) => { menuOpen = false; ShowTestingMenu(); });
+        dialog7.SetCancelable(false);
+        dialog7.Show();
     }
 
     /// <summary>Reopens gameplay eligibility when a cancellable host dialog closes.</summary>

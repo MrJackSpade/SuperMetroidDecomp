@@ -26,12 +26,12 @@ internal static class EnemyProjectileLegacyOverridesVerification
                 Frames = EnemyProjectileSpritemapDefinitions.Frames.Take(count).ToDictionary(frame => frame.Name,
                     frame => stockDocument.Frames[frame.Name].ToArray(), StringComparer.Ordinal),
                 ProgramFrames = version >= EnemyProjectileSpritemapVersion.FirstProgramFrame
-                    ? programs.ToDictionary(frame => frame.Name, frame => stockDocument.ProgramFrames![frame.Name].ToArray(), StringComparer.Ordinal) : null,
+                    ? programs.ToDictionary(frame => frame.Name, frame => (stockDocument.ProgramFrames ?? throw new InvalidOperationException("Verification requires stockDocument.ProgramFrames."))[frame.Name].ToArray(), StringComparer.Ordinal) : null,
             };
             string firstName = EnemyProjectileSpritemapDefinitions.Frames[0].Name;
             document.Frames[firstName] = [document.Frames[firstName][0] with { OffsetX = -11, OffsetY = 6, TileRow = 27, FlipX = true }];
             if (programs.Length != 0)
-                document.ProgramFrames![programs[0].Name] = [document.ProgramFrames[programs[0].Name][0] with { OffsetX = 23, OffsetY = -9, TileRow = 31, FlipY = true }];
+                (document.ProgramFrames ?? throw new InvalidOperationException("Verification requires document.ProgramFrames."))[programs[0].Name] = [document.ProgramFrames[programs[0].Name][0] with { OffsetX = 23, OffsetY = -9, TileRow = 31, FlipY = true }];
             EnemyProjectileSpritemapCatalog merged = Load(document, stock);
             string prefix = $"enemy projectile schema {(int)version}: ";
             foreach (var frame in EnemyProjectileSpritemapDefinitions.Frames)
@@ -41,7 +41,7 @@ internal static class EnemyProjectileLegacyOverridesVerification
             }
             foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameDefinitions.All)
             {
-                SpriteVisualPart[] expected = document.ProgramFrames?.GetValueOrDefault(frame.Name) ?? stockDocument.ProgramFrames![frame.Name];
+                SpriteVisualPart[] expected = document.ProgramFrames?.GetValueOrDefault(frame.Name) ?? (stockDocument.ProgramFrames ?? throw new InvalidOperationException("Verification requires stockDocument.ProgramFrames."))[frame.Name];
                 AssertParts(expected, merged.GetProgramFrame(frame.OperandAddress).Span, prefix + frame.Name);
             }
             AssertTrue(stockIdentity != merged.ContentIdentity, prefix + "edits change identity");
@@ -56,10 +56,10 @@ internal static class EnemyProjectileLegacyOverridesVerification
             if (programs.Length == 0) continue;
             programSchemas++;
             AssertThrows<InvalidDataException>(() => Load(document with { ProgramFrames = null }, stock), prefix + "missing program frames reject");
-            var missing = new Dictionary<string, SpriteVisualPart[]>(document.ProgramFrames!, StringComparer.Ordinal);
+            var missing = new Dictionary<string, SpriteVisualPart[]>((document.ProgramFrames ?? throw new InvalidOperationException("Verification requires document.ProgramFrames.")), StringComparer.Ordinal);
             missing.Remove(programs[0].Name);
             AssertThrows<InvalidDataException>(() => Load(document with { ProgramFrames = missing }, stock), prefix + "incomplete program frames reject");
-            var wrongKey = new Dictionary<string, SpriteVisualPart[]>(missing, StringComparer.Ordinal) { ["unknown-program"] = document.ProgramFrames![programs[0].Name] };
+            var wrongKey = new Dictionary<string, SpriteVisualPart[]>(missing, StringComparer.Ordinal) { ["unknown-program"] = document.ProgramFrames[programs[0].Name] };
             AssertThrows<InvalidDataException>(() => Load(document with { ProgramFrames = wrongKey }, stock), prefix + "same-count wrong program keys reject");
         }
         AssertThrows<InvalidDataException>(() => Load(stockDocument with { Version = (int)EnemyProjectileSpritemapVersion.CeresOnly - 1 }, stock), "projectile unknown old version rejects");
@@ -84,7 +84,7 @@ internal static class EnemyProjectileLegacyOverridesVerification
                 AssertEqual(unchecked((byte)(sbyte)part.OffsetY), actual[index].Y, context + " Y");
                 AssertEqual(part.TileRow * EnemyProjectileSpritemapDefinitions.TileColumns + part.TileColumn,
                     actual[index].Attributes.TileNumber, context + " tile");
-                AssertEqual(part.Palette!.Value, actual[index].Attributes.PaletteIndex, context + " palette");
+                AssertEqual((part.Palette ?? throw new InvalidOperationException("Verification requires part.Palette.")), actual[index].Attributes.PaletteIndex, context + " palette");
                 AssertEqual(part.Priority, actual[index].Attributes.Priority, context + " priority");
                 AssertEqual(part.Size == 16, actual[index].X.IsLarge, context + " size");
                 AssertEqual(part.FlipX, actual[index].Attributes.FlipHorizontally, context + " horizontal flip");

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -116,7 +117,7 @@ internal static class EnemyInstructionCodePointersVerification
         {
             foreach (FieldInfo field in GetUshortConstants(ownerSet))
             {
-                ushort word = (ushort)field.GetRawConstantValue()!;
+                ushort word = field.RequiredConstant<ushort>();
                 AssertTrue(!Enum.IsDefined((CommonEnemyInstruction)word),
                     $"{ownerSet.Name}.{field.Name} does not reuse common enemy instruction ${word:X4}");
             }
@@ -160,7 +161,7 @@ internal static class EnemyInstructionCodePointersVerification
         {
             foreach (FieldInfo field in GetUshortConstants(catalog))
             {
-                ushort pointer = (ushort)field.GetRawConstantValue()!;
+                ushort pointer = field.RequiredConstant<ushort>();
                 _ = bus.ReadCartridgeByte(((int)new SnesAddress(bank, pointer)));
                 readableEntries++;
             }
@@ -174,7 +175,7 @@ internal static class EnemyInstructionCodePointersVerification
         FieldInfo[] fields = GetUshortConstants(catalog);
         AssertTrue(fields.Length != 0, $"{catalog.Name} contains named instruction pointers");
         ushort[] pointers = fields
-            .Select(field => (ushort)field.GetRawConstantValue()!)
+            .Select(field => field.RequiredConstant<ushort>())
             .ToArray();
         AssertEqual(pointers.Length, pointers.Distinct().Count(),
             $"{catalog.Name} contains no duplicate addresses");

@@ -19,7 +19,7 @@ internal static class RetailKraidCaptureTests
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         // Match the existing Kraid rise audit's stationary approach position.
         samus.Position = samus.Position.WithWhole(new(128, 456));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -37,7 +37,7 @@ internal static class RetailKraidCaptureTests
             if (changed || tick % 8 == 0 || mainLoop)
             {
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.CaptureFrame(runtime));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: Kraid rise tick={tick}, AI={body.VariableA:X4}");
@@ -70,7 +70,7 @@ internal static class RetailKraidCaptureTests
             if (changed || tick % 4 == 0 || finished)
             {
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.CaptureFrame(runtime));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid growth tick={tick}, AI={body.VariableA:X4}");
                 growthSamples++;
@@ -100,7 +100,7 @@ internal static class RetailKraidCaptureTests
             if (changed || tick % 4 == 0 || boss.DeathSequenceComplete)
             {
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.CaptureFrame(runtime));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid death tick={tick}, AI={body.VariableA:X4}");
                 deathSamples++;

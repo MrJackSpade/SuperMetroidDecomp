@@ -133,8 +133,8 @@ internal static class DesktopTimerSoakTests
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
             Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
         Check(game.GameState == SuperMetroidGameState.MainGameplay, "desktop soak seed startup failed");
-        game.RuntimeForVerification!.LoadCartridgeRoomForDebug(paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
-        game.RuntimeForVerification!.NmiHandler.RunNmi(0, true);
+        game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+        game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0, true);
         Step(0);
         if (paused) Step((ushort)SnesButton.Start);
         for (int warmup = 0; warmup < 120; warmup++) Step(0);

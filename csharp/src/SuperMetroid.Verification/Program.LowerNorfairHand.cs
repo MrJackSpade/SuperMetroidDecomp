@@ -39,7 +39,7 @@ internal static class LowerNorfairHandVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xb1e5);
         runtime.StepFrame(0);
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         var hand = level.GetCollisionBlock(new(4, 8));
         AssertTrue(runtime.Plms.BlockReactions.TrySpawnProjectileShotBlock(level, hand.Index,
             hand.Bts, new SamusProjectileTypeWord(0x0300), true), "power bomb breaks the retail hand cover");
@@ -47,7 +47,7 @@ internal static class LowerNorfairHandVerification
         hand = level.GetCollisionBlock(new(4, 8));
         AssertEqual(RoomCollisionType.SpecialBlock, hand.CollisionType, "destroyed cover becomes solid hand");
         AssertEqual((byte)0x83, hand.Behavior, "Norfair hand activation BTS");
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         foreach (bool hasSpaceJump in new[] { false, true })
         {
             samus.CollectedItems = hasSpaceJump ? (ushort)SamusEquipmentFlags.SpaceJump : (ushort)0;
@@ -109,16 +109,16 @@ internal static class LowerNorfairHandVerification
         // handler updates the surface registers, then the following NMI displays them.
         runtime.StepFrame(0);
         runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
-        AssertEqual((ushort)0x2d2, runtime.Display.DisplayedRoomLayer3Fx!.Value.CurrentYPosition,
+        AssertEqual((ushort)0x2d2, (runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("Verification requires runtime.Display.DisplayedRoomLayer3Fx.")).CurrentYPosition,
             "final drained height reaches display without a room transition");
         runtime.LoadCartridgeRoomForDebug(0xb1e5);
         runtime.StepFrame(0);
         AssertEqual((ushort)0x2d2, runtime.RoomLayer3Fx.BaseYPosition, "re-entry restores drained acid");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         AssertTrue(level != runtime.Room.LevelData, "re-entry uses newly loaded room terrain");
-        AssertTrue(runtime.Room.LevelData!.GetCollisionBlock(new(4, 8)).CollisionType != RoomCollisionType.SpecialBlock,
+        AssertTrue(runtime.Room.LoadedLevelData.GetCollisionBlock(new(4, 8)).CollisionType != RoomCollisionType.SpecialBlock,
             "completed statue does not install another hand trigger");
-        RoomLevelData reentered = runtime.Room.LevelData!;
+        RoomLevelData reentered = runtime.Room.LoadedLevelData;
         reentered.SetBlockDefinitionWord(0x53 * 4, 0x0053);
         AssertEqual((ushort)0x0053,
             reentered.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(

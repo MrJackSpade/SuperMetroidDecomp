@@ -40,7 +40,7 @@ internal static class NativeSnapshotImportVerification
         runtime.System.LoadEventBytes(memory.AsSpan(NativeSnapshotMemory.Events, Bank80SystemState.EventByteCount));
         runtime.System.LoadOpenedDoorBytes(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, Bank80SystemState.DoorBitByteCount));
         runtime.LoadCartridgeRoomForDebug(W(NativeSnapshotMemory.Room), new Position16<RoomPixels>(W(NativeSnapshotMemory.CameraX), W(NativeSnapshotMemory.CameraY)));
-        ScrollBoundaryCamera camera = runtime.Room.Camera!;
+        ScrollBoundaryCamera camera = runtime.Room.LoadedCamera;
         // The room load wrote only the integer layer-one words; import the native fractions,
         // ideal position and speed words as whole camera values.
         camera.Position = camera.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromWords(
@@ -49,7 +49,7 @@ internal static class NativeSnapshotImportVerification
         camera.Speed = FixedVector<RoomPixels>.FromWords(
                 W(NativeSnapshotMemory.CameraSpeedX), W(NativeSnapshotMemory.CameraSpeedXFraction),
                 W(NativeSnapshotMemory.CameraSpeedY), W(NativeSnapshotMemory.CameraSpeedYFraction));
-        runtime.Room.Camera!.FinishSamusScrolling(FixedPosition<RoomPixels>.FromWords(
+        runtime.Room.LoadedCamera.FinishSamusScrolling(FixedPosition<RoomPixels>.FromWords(
             W(NativeSnapshotMemory.PreviousSamusX), W(NativeSnapshotMemory.PreviousSamusXFraction),
             W(NativeSnapshotMemory.PreviousSamusY), W(NativeSnapshotMemory.PreviousSamusYFraction)));
         // Preserve the native room's already-mutated doors and item blocks. Rebuilding
@@ -80,7 +80,7 @@ internal static class NativeSnapshotImportVerification
         for (int index = 0; index < initialHud.Length; index++)
             initialHud[index] = W(NativeSnapshotMemory.HudTilemap + index * 2);
         runtime.Hud._previousSelectedItem = W(NativeSnapshotMemory.PreviousHudSelection);
-        byte[] initialScrolls = runtime.Room.Camera.Scrolls._cells;
+        byte[] initialScrolls = runtime.Room.LoadedCamera.Scrolls._cells;
         memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount).CopyTo(initialScrolls);
         WorkRamByteTable scrollZones = new RoomScrollMemory(bus).Zones;
         for (int index = 0; index < initialScrolls.Length; index++)
@@ -292,7 +292,7 @@ internal static class NativeSnapshotImportVerification
         runtime.Controller1.Latch(W(NativeSnapshotMemory.HeldInput));
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = (SuperMetroidGameState)W(NativeSnapshotMemory.GameState);
         if (game.GameState == SuperMetroidGameState.PausedB)
             ImportNativePauseMenu(game, runtime, bus, W, memory);

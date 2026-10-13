@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
@@ -72,7 +73,7 @@ internal static class MapSaveMarkersVerification
             }
             catch (ArgumentOutOfRangeException error)
             {
-                AssertEqual("area", error.ParamName!, "area validation retains precedence over index validation");
+                AssertEqual("area", error.ParamName, "area validation retains precedence over index validation");
             }
         }
     }
@@ -111,7 +112,7 @@ internal static class MapSaveMarkersVerification
             AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(guard, AreaId.Crateria, invalid, original.SaveMarkers), "out-of-range marker rejected");
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = JsonSerializer.Deserialize<MapSaveMarkerDocument>(File.ReadAllBytes(Path.Combine(stock, MapSaveMarkerFormat.FileName)), options)!;
+        var document = RequiredJson.Deserialize<MapSaveMarkerDocument>(File.ReadAllBytes(Path.Combine(stock, MapSaveMarkerFormat.FileName)), options);
         var points = new Dictionary<string, Position16<MapPixels>>(document.Markers);
         points["Maridia.Save.0"] = points["Maridia.Save.0"] with { X = (ushort)(points["Maridia.Save.0"].X + 8) };
         Directory.CreateDirectory(overrides);
@@ -125,8 +126,8 @@ internal static class MapSaveMarkersVerification
         snapshot.MapStationBytes[(int)AreaId.Maridia] = 1;
         snapshot.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, snapshot);
-        var slot = saves.ReadSlot(0)!;
-        var control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0, original);
+        var slot = saves.ReadSlot(0);
+        var control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
         var menu = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, edited);
         for (int frame = 0; frame < 104; frame++)
         {

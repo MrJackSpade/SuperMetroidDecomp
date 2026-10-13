@@ -31,7 +31,7 @@ internal static class CeresBlastPlacementVerification
             try { _ = actual(invalid); }
             catch (ArgumentOutOfRangeException exception)
             {
-                AssertEqual("index", exception.ParamName!, "blast placement index parameter");
+                AssertEqual("index", exception.ParamName, "blast placement index parameter");
                 continue;
             }
             throw new InvalidOperationException("Unsupported blast index was accepted.");

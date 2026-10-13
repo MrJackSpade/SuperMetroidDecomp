@@ -31,7 +31,7 @@ internal static class LookupAnimatedFramesVerification
             AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve((AnimatedTileObject)original.Object, out var definition),
                 "Original animation object resolves");
             int count = (original.End - original.First) / 4;
-            AssertEqual(count, definition.Frames.Count, "Native frame count");
+            AssertEqual(count, (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count, "Native frame count");
             var enumerated = definition.Frames.ToArray();
             AssertEqual(count, enumerated.Length, "Calculated frame enumeration count");
             for (int index = 0; index < count; index++)
@@ -61,7 +61,7 @@ internal static class LookupAnimatedFramesVerification
         {
             AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve((AnimatedTileObject)original.Object, out var definition), "Animation resolves");
             int index = 0;
-            foreach (var frame in definition.Frames)
+            foreach (var frame in (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames)
             {
                 ushort expected = ReadVerificationWord(rom, 0x870000 | (original.First + 4 * index));
                 AssertEqual(expected, frame.Duration, "Native enumerated frame duration");

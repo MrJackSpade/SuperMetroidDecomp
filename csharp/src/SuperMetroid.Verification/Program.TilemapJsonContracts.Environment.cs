@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -38,8 +39,8 @@ internal static class TilemapJsonContractsEnvironmentVerification
             void Load(string text) => AssertTrue(RoomMetatileAtlas.Load(TilemapContractStream(text), native.Length)
                 .Transfer.Span.SequenceEqual(native), "metatile compilation retains every quadrant/tile/priority/flip bit");
             Load(json); Load(TilemapContractHistoricalCasing(json));
-            foreach (string corrupt in TilemapContractCorruptions(json, root => (JsonObject)root["blocks"]![0]!["topLeft"]!)
-                .Concat(new[] { TilemapContractMutate(json, root => root["blocks"]![0]!["collision"] = 7),
+            foreach (string corrupt in TilemapContractCorruptions(json, root => (JsonObject)root.Required("blocks").Required(0).Required("topLeft"))
+                .Concat(new[] { TilemapContractMutate(json, root => root.Required("blocks").Required(0)["collision"] = 7),
                     json.Replace("\"topLeft\":", "\"TopLeft\":null,\"topLeft\":", StringComparison.Ordinal) }))
                 Reject($"metatiles ({blockCount})", corrupt, text => RoomMetatileAtlas.Load(TilemapContractStream(text), native.Length));
         }
@@ -59,9 +60,9 @@ internal static class TilemapJsonContractsEnvironmentVerification
                 "all six BG3 effect pages retain every compiled word");
         }
         LoadFx(fxJson); LoadFx(TilemapContractHistoricalCasing(fxJson));
-        foreach (string corrupt in TilemapContractCorruptions(fxJson, root => (JsonObject)root["pages"]!["Lava"]![0]!)
+        foreach (string corrupt in TilemapContractCorruptions(fxJson, root => (JsonObject)root.Required("pages").Required("Lava").Required(0))
             .Concat(new[] { fxJson.Replace("\"Lava\":", "\"Lava\":[],\"Lava\":", StringComparison.Ordinal),
-                TilemapContractMutate(fxJson, root => root["pages"]!["Rain"] = new JsonArray()) }))
+                TilemapContractMutate(fxJson, root => root.Required("pages")["Rain"] = new JsonArray()) }))
             Reject("room FX BG3", corrupt, text => RoomFxLayer3TilemapCatalog.Load(TilemapContractStream(text)));
 
         var eyeWords = TilemapContractWords(IntroEyeTilemapFormat.FrameCount * IntroEyeTilemapFormat.CellsPerFrame);
@@ -84,8 +85,8 @@ internal static class TilemapJsonContractsEnvironmentVerification
         LoadEyes(eyeJson);
         Reject("opening eyes (case-sensitive)", TilemapContractHistoricalCasing(eyeJson),
             text => IntroEyeTilemapPresentation.Load(TilemapContractStream(text)));
-        foreach (string corrupt in TilemapContractCorruptions(eyeJson, root => (JsonObject)root["frames"]![0]!["cells"]![0]!)
-            .Concat(new[] { TilemapContractMutate(eyeJson, root => root["frames"]![0]!["duration"] = 7),
+        foreach (string corrupt in TilemapContractCorruptions(eyeJson, root => (JsonObject)root.Required("frames").Required(0).Required("cells").Required(0))
+            .Concat(new[] { TilemapContractMutate(eyeJson, root => root.Required("frames").Required(0)["duration"] = 7),
                 eyeJson.Replace("\"id\":", "\"id\":\"unused\",\"id\":", StringComparison.Ordinal) }))
             Reject("opening eyes", corrupt, text => IntroEyeTilemapPresentation.Load(TilemapContractStream(text)));
 
@@ -106,7 +107,7 @@ internal static class TilemapJsonContractsEnvironmentVerification
         LoadDivider(dividerJson);
         Reject("opening divider (case-sensitive)", TilemapContractHistoricalCasing(dividerJson),
             text => IntroFinalLineTilemap.Load(TilemapContractStream(text)));
-        foreach (string corrupt in TilemapContractCorruptions(dividerJson, root => (JsonObject)root["cells"]![0]!))
+        foreach (string corrupt in TilemapContractCorruptions(dividerJson, root => (JsonObject)root.Required("cells").Required(0)))
             Reject("opening divider", corrupt, text => IntroFinalLineTilemap.Load(TilemapContractStream(text)));
 
         var overlayWords = CeresEscapeOverlayTilemapDefinitions.All.ToArray().ToDictionary(page => page.Name,
@@ -123,8 +124,8 @@ internal static class TilemapJsonContractsEnvironmentVerification
         foreach (string corrupt in new[] { "{\"version\":1," + overlayJson[1..],
             TilemapContractMutate(overlayJson, root => root["duration"] = 7),
             overlayJson.Replace("\"emergency\":", "\"emergency\":[],\"emergency\":", StringComparison.Ordinal),
-            TilemapContractMutate(overlayJson, root => root["pages"]!.AsObject().Remove("emergency")),
-            TilemapContractMutate(overlayJson, root => root["pages"]!["japanese_0"] = new JsonArray()) })
+            TilemapContractMutate(overlayJson, root => root.Required("pages").AsObject().Remove("emergency")),
+            TilemapContractMutate(overlayJson, root => root.Required("pages")["japanese_0"] = new JsonArray()) })
             Reject("Ceres warning", corrupt, text => CeresEscapeOverlayTilemapCatalog.Load(TilemapContractStream(text)));
 
         AssertEqual(0, accepted.Count, "tilemap loaders must reject ambiguous/unknown content:\n" + string.Join('\n', accepted));

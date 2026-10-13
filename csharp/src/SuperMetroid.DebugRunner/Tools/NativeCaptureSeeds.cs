@@ -41,7 +41,7 @@ internal static class NativeCaptureSeeds
     {
         var bus = RepositoryRom.Load();
         var scenario = new ShallowWaterJumpScenario(RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true), bus);
-        var level = scenario.Runtime.Room.LevelData!;
+        var level = scenario.Runtime.Room.LoadedLevelData;
         string output = Path.GetFullPath("csharp/test-temp/issue-1258-water-jump");
         Directory.CreateDirectory(output);
         using (var writer = new BinaryWriter(File.Create(Path.Combine(output, "room.bin"))))

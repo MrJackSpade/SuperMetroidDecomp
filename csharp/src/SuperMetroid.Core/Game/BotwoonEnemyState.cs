@@ -176,6 +176,10 @@ public sealed class BotwoonEnemyState
     public RoomEnemyProjectileSlot?[] BodySegments { get; } =
         new RoomEnemyProjectileSlot?[13];
 
+    /// <summary>The spawned body segment at <paramref name="index"/>; body movement runs only after all thirteen spawn.</summary>
+    internal RoomEnemyProjectileSlot Segment(int index) => BodySegments[index] ??
+        throw new InvalidOperationException($"Botwoon body segment {index} has not spawned or lost its projectile slot.");
+
     /// <summary>
     /// Native variable 10 for each aliased segment record. One means that body point is
     /// travelling inside the wall/hole; crossing the head's saved ring offset toggles it.

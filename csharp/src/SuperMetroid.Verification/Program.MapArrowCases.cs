@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -17,8 +18,8 @@ internal static class MapArrowCasesVerification
         Suite(nameof(VerifyMapArrowXSelection), () => VerifyMapArrowXSelection(rom, original));
         Suite(nameof(VerifyMapArrowYSelection), () => VerifyMapArrowYSelection(rom, original));
         Suite(nameof(VerifyMapArrowShapeCases), () => VerifyMapArrowShapeCases(rom));
-        var document = JsonSerializer.Deserialize<MapArrowDocument>(bytes,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })!;
+        var document = RequiredJson.Deserialize<MapArrowDocument>(bytes,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         for (int selected = 1; selected <= 4; selected++)
         {
             var direction = (MapScrollDirection)selected;

@@ -73,9 +73,9 @@ internal sealed class ClosedPresentationAudit
                 // Additional partial metadata declarations could mutate the private
                 // native arrays used to derive installation keys and DMA lengths.
                 if (valid)
-                    valid = new[] { typeof(SuperMetroid.Core.Game.RoomEnemyGraphicsSetDefinitions).FullName!,
-                        typeof(SuperMetroid.Core.Game.RoomEnemyDefinitionCatalog).FullName!, typeof(EnemyTileSourceDefinitions).FullName! }
-                        .All(type => compilation.GetTypeByMetadataName(type) is { } dependency &&
+                    valid = new[] { typeof(SuperMetroid.Core.Game.RoomEnemyGraphicsSetDefinitions).FullName,
+                        typeof(SuperMetroid.Core.Game.RoomEnemyDefinitionCatalog).FullName, typeof(EnemyTileSourceDefinitions).FullName }
+                        .All(type => compilation.GetTypeByMetadataName((type ?? throw new InvalidOperationException("Verification requires type."))) is { } dependency &&
                             dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                                 source.Path == declaration.SyntaxTree.FilePath)));
             }
@@ -87,10 +87,10 @@ internal sealed class ClosedPresentationAudit
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IFieldSymbol field &&
                             field.ContainingType.ToDisplayString() == typeof(EnemyProjectileSpritemapDefinitions).FullName));
                 if (valid)
-                    valid = new[] { typeof(EnemyProjectileSpritemapDefinitions).FullName!,
-                        typeof(SuperMetroid.Core.Game.EnemyProjectilePresentationFrameDefinitions).FullName!,
-                        typeof(SuperMetroid.Core.Game.EnemyProjectileInstructionMechanicsDefinitions).FullName! }
-                        .All(type => compilation.GetTypeByMetadataName(type) is { } dependency &&
+                    valid = new[] { typeof(EnemyProjectileSpritemapDefinitions).FullName,
+                        typeof(SuperMetroid.Core.Game.EnemyProjectilePresentationFrameDefinitions).FullName,
+                        typeof(SuperMetroid.Core.Game.EnemyProjectileInstructionMechanicsDefinitions).FullName }
+                        .All(type => compilation.GetTypeByMetadataName((type ?? throw new InvalidOperationException("Verification requires type."))) is { } dependency &&
                             dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                                 source.Path == declaration.SyntaxTree.FilePath)));
             }
@@ -98,10 +98,10 @@ internal sealed class ClosedPresentationAudit
                 contract.Type is "SuperMetroid.Core.Assets.EnemySpritemapCatalog" or "SuperMetroid.Core.Assets.EnemyExtendedFrameCatalog")
             {
                 string[] definitions = contract.Type == typeof(EnemySpritemapCatalog).FullName
-                    ? [typeof(EnemySpritemapDefinitions).FullName!]
-                    : [typeof(EnemyExtendedFrameDefinitions).FullName!, typeof(EnemyExtendedFrameSequence).FullName!,
-                        typeof(BossOamFrameDefinitions).FullName!, typeof(PirateArtworkNameDefinitions).FullName!,
-                        typeof(SuperMetroid.Core.Game.CommonEnemyEmptyExtendedFrameDefinitions).FullName!];
+                    ? [(typeof(EnemySpritemapDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(EnemySpritemapDefinitions).FullName."))]
+                    : [(typeof(EnemyExtendedFrameDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(EnemyExtendedFrameDefinitions).FullName.")), (typeof(EnemyExtendedFrameSequence).FullName ?? throw new InvalidOperationException("Verification requires typeof(EnemyExtendedFrameSequence).FullName.")),
+                        (typeof(BossOamFrameDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(BossOamFrameDefinitions).FullName.")), (typeof(PirateArtworkNameDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(PirateArtworkNameDefinitions).FullName.")),
+                        (typeof(SuperMetroid.Core.Game.CommonEnemyEmptyExtendedFrameDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(SuperMetroid.Core.Game.CommonEnemyEmptyExtendedFrameDefinitions).FullName."))];
                 valid = definitions.All(type => compilation.GetTypeByMetadataName(type) is { } dependency &&
                     dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                         source.Path == declaration.SyntaxTree.FilePath)));
@@ -203,7 +203,7 @@ internal sealed class ClosedPresentationAudit
         foreach (IArgumentOperation argument in operation.Arguments)
         {
             var owner = (Type: operation.TargetMethod.ContainingType.Name,
-                Method: operation.TargetMethod.Name, Parameter: argument.Parameter!.Name);
+                Method: operation.TargetMethod.Name, Parameter: (argument.Parameter ?? throw new InvalidOperationException("Verification requires argument.Parameter.")).Name);
             if (argument.Value.ConstantValue is not { HasValue: true, Value: not null } value) continue;
             int[]? identities = ClosedPresentationIdentityDefinitions.Get(owner.Type, owner.Method, owner.Parameter);
             ProviderIndexDomain? range = ClosedPresentationIndexDefinitions.Get(owner.Type, owner.Method, owner.Parameter);

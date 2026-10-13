@@ -56,7 +56,7 @@ internal static class DesktopAccess
         internal async Task FlushAsync()
         {
             var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-            var marker = new GitHubErrorReporter.QueuedError(null, null, null, completion);
+            var marker = new GitHubErrorReporter.QueueFlush(completion);
             if (!reporter.queue.Writer.TryWrite(marker))
                 throw new ObjectDisposedException(nameof(GitHubErrorReporter));
             await completion.Task.ConfigureAwait(false);

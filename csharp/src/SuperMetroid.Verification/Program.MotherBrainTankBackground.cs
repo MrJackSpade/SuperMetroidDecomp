@@ -41,16 +41,16 @@ internal static class MotherBrainTankBackgroundVerification
             "Mother Brain initialization must preserve both pages of the actual pipe-room background");
         for (int index = 0; index < 0x800; index++)
             AssertEqual((ushort)0x0338, ReadStaged(index), "Initializer prepares all enemy BG2 staging words");
-        var state = runtime.Enemies.MotherBrainEncounter.MotherBrain!;
-        AssertEqual((ushort)0x800, state.EnemyBg2TilemapSize, "Native default transfer size is bytes, not words");
+        var state = runtime.Enemies.MotherBrainEncounter.MotherBrain;
+        AssertEqual((ushort)0x800, (state ?? throw new InvalidOperationException("Verification requires state.")).EnemyBg2TilemapSize, "Native default transfer size is bytes, not words");
         runtime.Enemies.MotherBrainBehavior.SetupMotherBrainPhaseTwoGraphics(state);
         var blank = Enumerable.Repeat((ushort)0x0338, 0x400).ToArray();
         expectedVram.ExecuteWordTransfer(blank, 0x4800, 1);
         AssertTrue(runtime.Vram.Bytes.Slice(bg2ByteAddress, 0x1000).SequenceEqual(
             expectedVram.Bytes.Slice(bg2ByteAddress, 0x1000)),
             "Phase-two setup publishes the staged first page at the native transition, retaining page two");
-        var artwork = runtime.Enemies.TileArtwork!;
-        AssertTrue(artwork.MotherBrainBodyBg2Frames!.TryGet(0xa252, out var writes),
+        var artwork = runtime.Enemies.TileArtwork;
+        AssertTrue(((artwork ?? throw new InvalidOperationException("Verification requires artwork.")).MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires (artwork ?? throw new InvalidOperationException(\"Verification requires artwork.\")).Moth....")).TryGet(0xa252, out var writes),
             "Crouched body BG2 artwork is installed");
         state.Body.ExtraProperties = state.Body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
         runtime.Enemies.Instructions.ApplyInstalledEnemyBg2Frame(state.Body, (ushort)0xa252);

@@ -55,7 +55,7 @@ internal static class PhantoonSoundDefinitionsVerification
                     (ushort)PhantoonInstruction.PlayPhantoonMaterializationSFX),
                 $"Phantoon materialization callback {call} resumes instruction stream");
             AssertEqual(PhantoonSoundDefinitions.MaterializationSound(index),
-                state.LastMaterializationSound!.Value,
+                (state.LastMaterializationSound ?? throw new InvalidOperationException("Verification requires state.LastMaterializationSound.")),
                 $"Phantoon materialization callback {call} sound");
             AssertEqual((ushort)((index + 1) % 3), state.MaterializationSoundIndex,
                 $"Phantoon materialization callback {call} next index");

@@ -60,7 +60,7 @@ internal static class BeamCallbackTablesVerification
                 projectiles.Firing.TryFireBeam(bus, room, samus, (ushort)SnesButton.X, shared, null, charged);
                 AssertTrue(projectiles.Slots[0].Type != 0 || projectiles.Slots[0].InstructionPointer != 0,
                     $"charged={charged} beam {beamType:X1} initializes");
-                AssertEqual(SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(beamType)).Translated!.Value,
+                AssertEqual((SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(beamType)).Translated ?? throw new InvalidOperationException("Verification requires SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(beam....")),
                     projectiles.Slots[0].PreInstruction,
                     $"charged={charged} beam {beamType:X1} initializer installs compiled callback");
                 continue;
@@ -82,7 +82,7 @@ internal static class BeamCallbackTablesVerification
             SamusBeamCallbackDefinition expected =
                 SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(beamType));
             AssertEqual(
-                expected.Translated!.Value,
+                (expected.Translated ?? throw new InvalidOperationException("Verification requires expected.Translated.")),
                 fired.PreInstruction,
                 $"charged={charged} beam {beamType:X1} installs compiled callback");
         }

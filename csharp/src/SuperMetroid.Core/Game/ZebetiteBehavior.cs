@@ -195,7 +195,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         firstPhysicalSlot.VariableC = paletteCycle;
         (_room.Artwork?.ZebetiteColors ?? throw new InvalidOperationException(
             "Zebetite requires installed palette-cycle colors."))
-            .Apply(_presentation._cgram!, paletteCycle, ZebetiteDefinitions.PaletteDestinationColor);
+            .Apply(_presentation.Cgram, paletteCycle, ZebetiteDefinitions.PaletteDestinationColor);
     }
 
     /// <summary>Restarts the instruction list chosen from the half's pairing and current health.</summary>
@@ -230,7 +230,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         }
 
         RoomEnemySlot spawned = _slotTable._slots[slotIndex];
-        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.Bus!, population.DefinitionPointer);
+        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, population.DefinitionPointer);
         _dispatch.InitializeSlotFromDefinition(spawned, population, definition);
         _dispatch.RunInitializationAi(spawned);
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));

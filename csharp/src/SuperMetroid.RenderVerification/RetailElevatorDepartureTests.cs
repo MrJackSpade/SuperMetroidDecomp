@@ -19,7 +19,7 @@ internal static class RetailElevatorDepartureTests
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.RoomLoader.InitializePostCeresZebesRoom();
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Presentation.InitializeAnimation(bus);
@@ -33,7 +33,7 @@ internal static class RetailElevatorDepartureTests
         {
             var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
-                GameplayDisplayCapture.TryCaptureFrame(runtime) ?? throw new InvalidOperationException("Missing elevator capture."));
+                GameplayDisplayCapture.CaptureFrame(runtime) ?? throw new InvalidOperationException("Missing elevator capture."));
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                 $"{device.Kind}: downward elevator {phase}, sample={samples}");

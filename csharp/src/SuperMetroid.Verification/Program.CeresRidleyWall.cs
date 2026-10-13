@@ -16,17 +16,17 @@ internal static class CeresRidleyWallVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom);
-        var ridley = runtime.Enemies.RidleyEncounter.CeresRidley!;
+        var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
         var body = runtime.Enemies.SlotTable.Slots[0];
         // Continue an in-flight lunge just before its left-boundary collision. The real
         // attack dispatcher still calculates acceleration and the shared mover clips X.
-        ridley.Function = RidleyAiFunction.CeresLungeMain;
+        (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function = RidleyAiFunction.CeresLungeMain;
         ridley.FunctionTimer = NativeCountdown.Start(100);
         ridley.MovementAnimationEnabled = 1;
         ridley.Velocity = ridley.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-768)));
         body.Position = body.Position.WithWhole(new(41, 100));
-        runtime.Player.Samus!.Position = runtime.Player.Samus!.Position.WithWholeX(20);
-        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWholeY(168);
+        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeX(20);
+        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(168);
         runtime.StepFrame(0);
         runtime.NmiHandler.RunNmi(0, true);
         AssertEqual(40, body.Position.X.Whole, "Ceres lunge clips at native left bound");

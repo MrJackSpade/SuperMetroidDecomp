@@ -152,7 +152,7 @@ internal sealed class FrontendDisplay
         // materialize a stored packet simply because this simulation-only caller steps.
         if (!renderGameplayFrames) return;
         if (captureIdentity is { } identity)
-            capturedDisplay = new(identity, GameplayDisplayCapture.TryCaptureFrame(activeRuntime)
+            capturedDisplay = new(identity, GameplayDisplayCapture.CaptureFrame(activeRuntime)
                 ?? throw new InvalidOperationException("Gameplay publication omitted its render snapshot."));
         else Pixels = SuperMetroidRuntimeFrameRenderer.Render(activeRuntime);
     }

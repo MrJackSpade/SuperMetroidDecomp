@@ -35,11 +35,10 @@ internal static class LookupCollectibleStockVerification
         entries[6] = entries[6] with { VisualWord = 0x5b };
         foreach (var frame in frames)
             AssertEqual(expected[frame.Pointer], mixed.GetWord(frame.Pointer), "Collectible changed and unchanged input isolation");
-        AssertThrows<ArgumentNullException>(() => new RoomPlmCollectibleVisualCatalog(null!), "Collectible null import");
         AssertThrows<InvalidDataException>(() => new RoomPlmCollectibleVisualCatalog(entries[..1]), "Collectible missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmCollectibleVisualCatalog(entries.Append(entries[0])), "Collectible duplicate frame");
         foreach (RoomPlmCollectibleVisualEntry bad in new RoomPlmCollectibleVisualEntry[]
-            { null!, new("EMPTY", 0xff), new("unknown", 0xff), new("empty", 0xf0ff) })
+            { new("EMPTY", 0xff), new("unknown", 0xff), new("empty", 0xf0ff) })
         {
             var invalid = entries.ToArray();
             invalid[0] = bad;

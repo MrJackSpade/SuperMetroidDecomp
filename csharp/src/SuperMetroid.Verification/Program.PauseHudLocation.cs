@@ -24,7 +24,7 @@ internal static class PauseHudLocationVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         var maps = RetailPresentationFixture();
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(0x200, 0x300));
         var expectedColors = new SnesCgram();
         for (int i = 0; i < 256; i++)

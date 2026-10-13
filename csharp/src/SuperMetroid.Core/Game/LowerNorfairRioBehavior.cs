@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Audio;
+using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -85,12 +86,11 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
                 return;
 
             case LowerNorfairRioEnemyFunction.WaitForAttackOpportunity:
-                bool canAttack = samus is not null && (random & 0x0101) != 0 &&
-                    EnemyMath.IsWithinStrictModularDistance(
+                if (samus is null || (random & 0x0101) == 0 ||
+                    !EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         slot.Position.X.Whole,
-                        LowerNorfairRioHorizontalTriggerDistance);
-                if (!canAttack)
+                        LowerNorfairRioHorizontalTriggerDistance))
                 {
                     // Unlike upper Norfair Rio, this variant clears the handshake and calls
                     // its list installer on every rejected frame. The helper itself prevents
@@ -106,7 +106,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
                 state.Velocity = new(
                     new SnesSignedEightEight(RioLaunchDefinitions.LowerNorfairXVelocity),
                     new SnesSignedEightEight(RioLaunchDefinitions.LowerNorfairYVelocity));
-                if (unchecked((short)(samus!.Position.X.Whole - slot.Position.X.Whole)) < 0)
+                if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0)
                     NegateLowerNorfairRioXVelocity(state);
                 InstallLowerNorfairRioInstructionList(
                     slot,
@@ -128,9 +128,9 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
 
             case LowerNorfairRioEnemyFunction.Dive:
                 RequireLowerNorfairRioLevel(level);
-                MoveLowerNorfairRioHorizontally(level!, slot, state);
+                MoveLowerNorfairRioHorizontally(level, slot, state);
                 if (_terrain.MoveEnemyVertically(
-                        level!,
+                        level,
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
                 {
@@ -145,9 +145,9 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
 
             case LowerNorfairRioEnemyFunction.ReturnToPerch:
                 RequireLowerNorfairRioLevel(level);
-                MoveLowerNorfairRioHorizontally(level!, slot, state);
+                MoveLowerNorfairRioHorizontally(level, slot, state);
                 if (_terrain.MoveEnemyVertically(
-                        level!,
+                        level,
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
                 {
@@ -324,7 +324,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects flight movement before collision data for the room is available.</summary>
-    private static void RequireLowerNorfairRioLevel(RoomLevelData? level)
+    private static void RequireLowerNorfairRioLevel([NotNull] RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Lower Norfair Rio movement requires room level data.");

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
@@ -44,14 +45,14 @@ internal static class FileSelectNameCasesVerification
         foreach (int invalid in new[] { int.MinValue, -1, expected.Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => nameAt(invalid), $"{field} invalid ordinal");
 
-        var root = JsonNode.Parse(source)!.AsObject();
-        var values = root.Single(pair => pair.Key.Equals(field, StringComparison.OrdinalIgnoreCase)).Value!.AsObject();
+        var root = RequiredJson.Parse(source).AsObject();
+        var values = (root.Single(pair => pair.Key.Equals(field, StringComparison.OrdinalIgnoreCase)).Value ?? throw new InvalidOperationException("Verification requires the field's value.")).AsObject();
         AssertTrue(values.Select(pair => pair.Key).ToHashSet(StringComparer.Ordinal).SetEquals(expected),
             $"{field} independent extractor supplies precisely the required identities");
         _ = FileSelectPresentation.Load(new MemoryStream(source));
         foreach (string name in expected)
         {
-            JsonNode original = values[name]!;
+            JsonNode original = values.Required(name);
             values.Remove(name);
             Reject("missing required identity");
             values.Add("Unexpected.Identity", original);
@@ -62,7 +63,7 @@ internal static class FileSelectNameCasesVerification
             values.Remove(name.ToLowerInvariant());
             values.Add(name, original);
         }
-        values.Add("Unexpected.Identity", values[expected[0]]!.DeepClone());
+        values.Add("Unexpected.Identity", values.Required(expected[0]).DeepClone());
         Reject("additional identity");
 
         void Reject(string reason)

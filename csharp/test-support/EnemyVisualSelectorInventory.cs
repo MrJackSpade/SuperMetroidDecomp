@@ -41,14 +41,14 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
             byte[] banks = declaredBank.HasValue
                 ? [checked((byte)declaredBank.Value)]
                 : Enumerable.Range(0x80, 0x60)
-                    .Where(bank => catalog.CompiledMechanicsByteProbe!(((int)new SnesAddress(checked((byte)bank), firstAddress))))
+                    .Where(bank => (catalog.CompiledMechanicsByteProbe ?? throw new InvalidOperationException("Verification requires catalog.CompiledMechanicsByteProbe."))(((int)new SnesAddress(checked((byte)bank), firstAddress))))
                     .Select(bank => (byte)bank).ToArray();
             if (banks.Length != 1)
             {
                 unresolved.Add($"{name}: {banks.Length} matching banks");
                 continue;
             }
-            IReadOnlyList<ushort> presentation = catalog.PresentationOperands ?? [catalog.SinglePresentationOperand!.Value];
+            IReadOnlyList<ushort> presentation = catalog.PresentationOperands ?? [(catalog.SinglePresentationOperand ?? throw new InvalidOperationException("Verification requires catalog.SinglePresentationOperand."))];
             foreach (ushort address in presentation)
             {
                 int source = ((int)new SnesAddress(banks[0], address));

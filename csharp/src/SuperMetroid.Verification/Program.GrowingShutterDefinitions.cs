@@ -27,8 +27,8 @@ internal static class GrowingShutterDefinitionsVerification
                     slot.Parameter2 = (ushort)((high << 8) | speed);
                     slot.Position = slot.Position.WithWholeY(selector < 2 ? (ushort)65530 : (ushort)5);
                     initialize(slot);
-                    GrowingShutterEnemyState state = enemies.GrowingShutterStates[0]!;
-                    AssertEqual(Word(0xa2ea4e + selector * 2), (ushort)state.Function, "Shutter real dispatch without bus");
+                    GrowingShutterEnemyState state = (enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("Verification requires enemies.GrowingShutterStates[0]."));
+                    AssertEqual(Word(0xa2ea4e + selector * 2), (ushort)(state ?? throw new InvalidOperationException("Verification requires state.")).Function, "Shutter real dispatch without bus");
                     AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), state.GrowthVelocity, "Shutter native whole speed");
                     AssertEqual(Word(0xa2ea58 + speed * 4), state.GrowthSubvelocity, "Shutter native fractional speed");
                     int direction = selector < 2 ? 1 : -1;

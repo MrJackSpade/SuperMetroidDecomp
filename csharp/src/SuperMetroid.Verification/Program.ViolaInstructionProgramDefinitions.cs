@@ -68,7 +68,7 @@ internal static class ViolaInstructionProgramDefinitionsVerification
                 CrawlerSurfaceOrientation.UpsideLeft
                     ? CrawlerEnemyFunction.CrawlingVertically
                     : CrawlerEnemyFunction.CrawlingHorizontally;
-            AssertEqual(expected, enemies.CrawlerStates[0]!.Function,
+            AssertEqual(expected, (enemies.CrawlerStates[0] ?? throw new InvalidOperationException("Verification requires enemies.CrawlerStates[0].")).Function,
                 $"Viola {orientation} publishes native movement function");
             AssertEqual(unchecked((ushort)(ViolaInstructionProgramDefinitions.NormalLoop + 4)),
                 slot.CurrentInstruction,

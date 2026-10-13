@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
@@ -71,7 +72,7 @@ internal static void VerifySamusRenderingSlice()
     for (int tick = 0; tick < 30; tick++)
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0, samus.AnimationFrame, "healthy $F6 command loops standing animation");
-    AssertEqual(0xf6, samus.LastAnimationDelayCommand!.Value, "healthy standing loop command");
+    AssertEqual(0xf6, (samus.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires samus.LastAnimationDelayCommand.")), "healthy standing loop command");
 
     // Below 30 energy, the same command enters frames 5-8. Command $FE,$04 then subtracts
     // four byte positions and loops that faster eight-tick breathing sequence.
@@ -84,7 +85,7 @@ internal static void VerifySamusRenderingSlice()
     for (int tick = 0; tick < 32; tick++)
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(5, samus.AnimationFrame, "$FE,$04 loops low-health standing sequence");
-    AssertEqual(0xfe, samus.LastAnimationDelayCommand!.Value, "low-health backward-loop command");
+    AssertEqual(0xfe, samus.LastAnimationDelayCommand.Value, "low-health backward-loop command");
 
     // Pose $FD overreads the native pointer table and selects $91:0302, a mutable
     // low-bank WRAM alias. This is the cartridge-faithful way to supply otherwise
@@ -99,7 +100,7 @@ internal static void VerifySamusRenderingSlice()
     WriteUnusedPoseDelayInstruction(bus, [0x01, 0xfa, 0x31, 0x32]);
     unusedInstructionSamus.Presentation.InitializeAnimation(bus);
     unusedInstructionSamus.Presentation.AnimateDeathFrame(bus);
-    AssertEqual(0xfa, unusedInstructionSamus.LastAnimationDelayCommand!.Value,
+    AssertEqual(0xfa, (unusedInstructionSamus.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires unusedInstructionSamus.LastAnimationDelayCommand.")),
         "unused vertical-speed instruction reaches `$FA`");
     AssertEqual(SamusPoseId.MorphBallFallingRightPose, unusedInstructionSamus.PendingTransitionalPose,
         "$FA` zero Y speed selects first pose byte");
@@ -115,7 +116,7 @@ internal static void VerifySamusRenderingSlice()
     unusedInstructionSamus.EquippedItems = 0;
     unusedInstructionSamus.Presentation.InitializeAnimation(bus);
     unusedInstructionSamus.Presentation.AnimateDeathFrame(bus);
-    AssertEqual(0xfc, unusedInstructionSamus.LastAnimationDelayCommand!.Value,
+    AssertEqual(0xfc, unusedInstructionSamus.LastAnimationDelayCommand.Value,
         "unused equipment instruction reaches `$FC`");
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, unusedInstructionSamus.PendingTransitionalPose,
         "$FC` unequipped branch selects first pose byte");
@@ -481,14 +482,14 @@ internal static void VerifySamusArmCannon()
     // Keep the fixture's custom selector, after-body order and signed offsets,
     // expressed through installed drawing data rather than a patched ROM record.
     string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-    var document = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(
-        Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName)))!;
-    document["posePointers"]![1] = SamusArmCannonArtworkFormat.DrawingDataStart;
+    var document = RequiredJson.Parse(File.ReadAllText(
+        Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName)));
+    document.Required("posePointers")[1] = SamusArmCannonArtworkFormat.DrawingDataStart;
     int[] drawing = [2, 2, 7, 0xfd, 9, 0xfb];
     for (int index = 0; index < drawing.Length; index++)
-        document["drawingData"]![index] = drawing[index];
-    document["spriteAttributes"]![2] = 0x281f;
-    document["tileSources"]![2] = new System.Text.Json.Nodes.JsonArray(0, 0x9a00, 0x9c00, 0x9e00);
+        document.Required("drawingData")[index] = drawing[index];
+    document.Required("spriteAttributes")[2] = 0x281f;
+    document.Required("tileSources")[2] = new System.Text.Json.Nodes.JsonArray(0, 0x9a00, 0x9c00, 0x9e00);
     using var placement = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString()));
     using var tiles = File.OpenRead(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
     var artwork = SamusArmCannonArtworkCatalogTooling.Load(placement, tiles);

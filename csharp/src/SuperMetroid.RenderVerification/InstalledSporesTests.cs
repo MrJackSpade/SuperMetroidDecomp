@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -91,10 +92,10 @@ internal static class InstalledSporesTests
             {
                 bool frozen = frame is >= 37 and < 45;
                 var camera = new Position16<RoomPixels>(unchecked((ushort)(frame * 79)), unchecked((ushort)(65520 + frame * 3)));
-                RoomLayer3FxRenderSnapshot before = baseline.CaptureForDisplay()!.Value;
+                RoomLayer3FxRenderSnapshot before = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
                 baseline.Step(memory, baselineVram, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
                 replacement.Step(memory, editedVram, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
-                var capture = baseline.CaptureForDisplay()!.Value;
+                var capture = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
                 if (frozen) Require(capture == before, "Frozen spores changed scroll or phase.");
                 else
                 {
@@ -125,7 +126,7 @@ internal static class InstalledSporesTests
                 {
                     var gameplay = new OrdinaryGameplayRenderLayer(new(default, default, new Extent16<TilemapCells>(64, 32),
                         GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x4000, SnesMainScreenLayers.Bg2));
-                    var layer = SnesGameplayFrameRenderer.CaptureSpores(gameplay, replacement.CaptureForDisplay()!.Value);
+                    var layer = SnesGameplayFrameRenderer.CaptureSpores(gameplay, (replacement.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires replacement.CaptureForDisplay().")));
                     Require(!layer.RevealBlocks && layer.ColorMath == (SnesColorMathControl)0x32 &&
                         layer.Lines.ToArray().All(line => line.Left > line.Right) && layer.Subscreen is not null,
                         "Spore capture does not use native source-aware $32 blending.");
@@ -247,18 +248,18 @@ internal static class InstalledSporesTests
         using (var output = File.Create(Path.Combine(overrides, RoomFxAnimatedTileAtlasFormat.FileName)))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
 
-        JsonNode tilemaps = JsonNode.Parse(File.ReadAllBytes(Path.Combine(maps, RoomFxLayer3TilemapFormat.FileName)))!;
-        foreach (JsonNode? cell in tilemaps["pages"]!["Spores"]!.AsArray())
+        JsonNode tilemaps = RequiredJson.Parse(File.ReadAllBytes(Path.Combine(maps, RoomFxLayer3TilemapFormat.FileName)));
+        foreach (JsonNode? cell in tilemaps.Required("pages").Required("Spores").AsArray().RequiredElements())
         {
-            cell!["tileColumn"] = 16; cell["tileRow"] = 2;
+            cell["tileColumn"] = 16; cell["tileRow"] = 2;
             cell["palette"] = 6; cell["flipX"] = true;
         }
         File.WriteAllText(Path.Combine(overrides, RoomFxLayer3TilemapFormat.FileName), tilemaps.ToJsonString());
-        JsonNode palettes = JsonNode.Parse(File.ReadAllBytes(Path.Combine(maps, RoomFxPaletteBlendDefinitions.FileName)))!;
-        foreach (JsonNode? blend in palettes["blends"]!.AsObject().Select(pair => pair.Value))
-        foreach (JsonNode? color in blend!.AsArray())
+        JsonNode palettes = RequiredJson.Parse(File.ReadAllBytes(Path.Combine(maps, RoomFxPaletteBlendDefinitions.FileName)));
+        foreach (JsonNode? blend in palettes.Required("blends").AsObject().Select(pair => pair.Value))
+        foreach (JsonNode? color in (blend ?? throw new InvalidOperationException("Verification requires blend.")).AsArray().RequiredElements())
         {
-            color!["red"] = 3; color["green"] = 6; color["blue"] = 9;
+            color["red"] = 3; color["green"] = 6; color["blue"] = 9;
         }
         File.WriteAllText(Path.Combine(overrides, RoomFxPaletteBlendDefinitions.FileName), palettes.ToJsonString());
     }
@@ -286,8 +287,8 @@ internal static class InstalledSporesTests
             {
                 File.Delete(baselinePath); Reject(baselinePath);
                 File.WriteAllBytes(baselinePath, [0, 1, 2]); Reject(baselinePath);
-                JsonNode manifest = JsonNode.Parse(manifestBytes)!;
-                manifest["sha256"]![file] = Convert.ToHexString(SHA256.HashData(new byte[] { 0, 1, 2 }));
+                JsonNode manifest = RequiredJson.Parse(manifestBytes);
+                manifest.Required("sha256")[file] = Convert.ToHexString(SHA256.HashData(new byte[] { 0, 1, 2 }));
                 File.WriteAllText(manifestPath, manifest.ToJsonString());
                 Reject(baselinePath); // A valid edit must not conceal hash-valid malformed stock.
             }

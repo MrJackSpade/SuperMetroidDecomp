@@ -451,9 +451,9 @@ public sealed class ManagedSnesDsp
     private void DecodePcm(int voiceIndex)
     {
         Voice voice = voices[voiceIndex];
-        if (voice.ReleasedBrrCursor.HasValue)
+        if (voice.ReleasedBrrCursor is ushort releasedCursor)
         {
-            AdvanceReleasedBrr(voiceIndex);
+            AdvanceReleasedBrr(voiceIndex, releasedCursor);
             return;
         }
         ManagedPcmSample sample = voice.Sample ?? throw new InvalidOperationException(
@@ -476,8 +476,9 @@ public sealed class ManagedSnesDsp
                 // at zero gain cannot become audible again without KON. Follow its
                 // block headers/ENDX without requiring a nonexistent playable WAV.
                 // Audible voices still require a real, replaceable sample mapping.
-                voice.ReleasedBrrCursor = ReadLoopAddress(voice.SourceNumber);
-                AdvanceReleasedBrr(voiceIndex);
+                ushort loopCursor = ReadLoopAddress(voice.SourceNumber);
+                voice.ReleasedBrrCursor = loopCursor;
+                AdvanceReleasedBrr(voiceIndex, loopCursor);
                 return;
             }
             (sample, voice.SampleCursor) = bank.ResolveLoopEntry(voice.SourceNumber);
@@ -529,10 +530,9 @@ public sealed class ManagedSnesDsp
     /// released voice. Predictor samples cannot affect output, echo or pitch modulation
     /// at zero gain; KON clears this state and starts a fully validated PCM voice.
     /// </summary>
-    private void AdvanceReleasedBrr(int index)
+    private void AdvanceReleasedBrr(int index, ushort cursor)
     {
         Voice voice = voices[index];
-        ushort cursor = voice.ReleasedBrrCursor!.Value;
         if ((voice.PreviousFlags & DspBrrLayout.EndFlag) != 0)
         {
             cursor = ReadLoopAddress(voice.SourceNumber);

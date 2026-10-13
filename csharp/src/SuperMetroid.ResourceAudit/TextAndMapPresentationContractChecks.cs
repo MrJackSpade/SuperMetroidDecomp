@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -60,7 +61,7 @@ internal static class TextAndMapPresentationContractChecks
             """;
         SyntaxTree calls = CSharpSyntaxTree.ParseText(consumer, path: "fixture-text-map-consumer.cs");
         trees.Add(calls);
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("TextMapProviderFixture", sources,
             platforms.Append(typeof(CreditsPresentation).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),

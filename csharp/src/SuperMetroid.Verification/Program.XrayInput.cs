@@ -28,7 +28,7 @@ internal static class XrayInputVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.PoseMetadata.RefreshCollisionRadii(bus);
@@ -50,7 +50,7 @@ internal static class XrayInputVerification
             runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
             if (frame < 8)
             {
-                var startup = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+                var startup = GameplayDisplayCapture.CaptureFrame(runtime);
                 AssertEqual(frame != 0, startup.Layers[0] is GameplayColorMathRenderLayer,
                     "setup pre-instruction starts blending one call after the instruction list installs it");
                 if (frame != 0)
@@ -64,10 +64,10 @@ internal static class XrayInputVerification
             VerifyXrayWindowGeometry(bus, samus, xrayGeometryReference);
         }
         AssertEqual(XrayBeamPhase.Full, samus.Xray.BeamPhase, "held Run widens the X-ray beam fully");
-        var horizontal = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+        var horizontal = GameplayDisplayCapture.CaptureFrame(runtime);
         var horizontalPixels = SoftwareLayeredSnapshotRenderer.Render(horizontal);
-        var probe = runtime.Room.LevelData!.GetPlmCollisionBlockByIndex(7 * runtime.Room.LevelData.Size.X + 12);
-        AssertEqual((ushort)255, XrayRevealTable.Find(probe.CollisionType, probe.Behavior)!.Value.TopLeft,
+        var probe = runtime.Room.LoadedLevelData.GetPlmCollisionBlockByIndex(7 * runtime.Room.LoadedLevelData.Size.X + 12);
+        AssertEqual((ushort)255, (XrayRevealTable.Find(probe.CollisionType, probe.Behavior) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(probe.CollisionType, probe.Behavior).")).TopLeft,
             "native air definition replaces decorative wall art with the blank metatile");
         var ordinaryPixels = SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.CaptureOrdinaryBase(runtime));
         int revealedAirPixel = 120 * 256 + 200;
@@ -83,7 +83,7 @@ internal static class XrayInputVerification
             runtime.StepFrame((ushort)(runtime.Options.ControllerBindings.Dash | (ushort)(frame < 80 ? SnesButton.Up : SnesButton.Down)));
             VerifyXrayWindowGeometry(bus, samus, xrayGeometryReference);
         }
-        var captured = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+        var captured = GameplayDisplayCapture.CaptureFrame(runtime);
         var reveal = captured.Layers.ToArray().OfType<GameplayColorMathRenderLayer>().Single();
         AssertTrue(reveal.Lines.ToArray().Any(line => line.Left <= line.Right), "full X-ray publishes a nonempty visible window");
         var pixels = SoftwareLayeredSnapshotRenderer.Render(captured);
@@ -100,7 +100,7 @@ internal static class XrayInputVerification
 
         var beforeRelease = RenderFrameSnapshotWriter.Serialize(new(new(1, 1, 0), captured));
         runtime.StepFrame(0);
-        var releaseEdge = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+        var releaseEdge = GameplayDisplayCapture.CaptureFrame(runtime);
         AssertTrue(releaseEdge.Layers[0] is GameplayColorMathRenderLayer,
             "release edge retains the beam until native deactivation executes on the following frame");
         AssertTrue(((GameplayColorMathRenderLayer)releaseEdge.Layers[0]).Lines.SequenceEqual(reveal.Lines),
@@ -108,7 +108,7 @@ internal static class XrayInputVerification
         for (int frame = 0; frame < 2; frame++)
         {
             runtime.StepFrame(0);
-            var restoring = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+            var restoring = GameplayDisplayCapture.CaptureFrame(runtime);
             AssertTrue(restoring.Layers[0] is GameplayColorMathRenderLayer, "BG2 restore retains X-ray layer ownership");
             AssertTrue(((GameplayColorMathRenderLayer)restoring.Layers[0]).Lines.ToArray().All(line => line.Left > line.Right),
                 "deactivation closes the beam while BG2 restore completes");
@@ -116,14 +116,14 @@ internal static class XrayInputVerification
         }
         runtime.StepFrame(0);
         AssertTrue(!runtime.Freeze.TimeIsFrozen, "phase five releases gameplay time");
-        var finishFrame = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+        var finishFrame = GameplayDisplayCapture.CaptureFrame(runtime);
         AssertTrue(finishFrame.Layers[0] is GameplayColorMathRenderLayer,
             "phase five still publishes X-ray blending before the next HDMA pass resets configuration");
         AssertEqual((byte)0, ((GameplayColorMathRenderLayer)finishFrame.Layers[0]).FixedRed,
             "phase five clears the non-Fireflea fixed color");
         for (int frame = 0; frame < 26; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "releasing Run restores ordinary gameplay");
-        AssertTrue(!GameplayDisplayCapture.TryCaptureFrame(runtime)!.Layers.ToArray().Any(layer => layer is GameplayColorMathRenderLayer),
+        AssertTrue(!GameplayDisplayCapture.CaptureFrame(runtime).Layers.ToArray().Any(layer => layer is GameplayColorMathRenderLayer),
             "release removes the X-ray display window");
         AssertTrue(pixels.SequenceEqual(RenderForComparison(captured)),
             "a queued X-ray frame remains immutable after gameplay resumes");
@@ -143,7 +143,7 @@ internal static class XrayInputVerification
             AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(bus), new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }), "excluded-room capture fixture activates");
             for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
             var baseFrame = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
-            var excludedFrame = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+            var excludedFrame = GameplayDisplayCapture.CaptureFrame(runtime);
             var excluded = (GameplayColorMathRenderLayer)excludedFrame.Layers[0];
             AssertTrue(!excluded.RevealBlocks, "native excluded room never substitutes the reveal map");
             AssertTrue(baseFrame.Memory.Vram.SequenceEqual(excludedFrame.Memory.Vram), "excluded room retains original VRAM");

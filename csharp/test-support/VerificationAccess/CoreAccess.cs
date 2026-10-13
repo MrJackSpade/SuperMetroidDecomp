@@ -21,6 +21,8 @@ internal static class CoreAccess
     {
         /// <summary>Reads the gameplay runtime currently owned by the frontend state machine.</summary>
         internal SuperMetroidRuntime? RuntimeForVerification => game.runtime;
+        /// <summary>The gameplay runtime a test requires: the frontend must be in a loaded game.</summary>
+        internal SuperMetroidRuntime GameplayRuntimeForVerification => game.GameplayRuntime;
         /// <summary>Remaining authored hold frames before the attract demo advances.</summary>
         internal int AttractDemoHoldFramesRemaining => game.demoHoldFramesRemaining;
         /// <summary>Whether the current runtime permits ordinary grounded Samus movement.</summary>
@@ -393,7 +395,7 @@ internal static class CoreAccess
             }
             else
             {
-                _firedSlot = _slots!.FiredSlot(projectiles);
+                _firedSlot = (_slots ?? throw new InvalidOperationException("Verification requires _slots.")).FiredSlot(projectiles);
             }
 
             _projectiles = projectiles;

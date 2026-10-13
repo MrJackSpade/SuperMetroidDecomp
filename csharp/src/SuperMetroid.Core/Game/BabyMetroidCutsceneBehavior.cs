@@ -61,7 +61,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         }
 
         RoomEnemySlot babySlot = _slotTable._slots[slotIndex];
-        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.Bus!, population.DefinitionPointer);
+        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, population.DefinitionPointer);
         _dispatch.InitializeSlotFromDefinition(babySlot, population, definition);
         _dispatch.RunInitializationAi(babySlot);
 
@@ -144,10 +144,10 @@ internal sealed class BabyMetroidCutsceneBehavior
             state.LastSoundEffect = ShitroidSoundDefinitions.DrainCry;
         }
         BabyMetroidCutsceneStepResult step = baby.Step(
-            _room.Bus!,
+            _room.LoadedBus,
             target,
             sequence,
-            state.Head!.Position.Whole,
+            state.Head.Position.Whole,
             layer1: camera,
             enemyFrameCounter: slot.FrameCounter,
             randomNumber: _room.Random.Read());
@@ -200,7 +200,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         if (step.FatalBlowStarted)
         {
             _audio.QueueEnemySound(SoundEffectLibrary3Sounds.BabyMetroidDeathCry, maximumQueued: 6);
-            SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation.ApplyBabyMetroidDeathBlackout(_presentation._cgram!);
+            SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation.ApplyBabyMetroidDeathBlackout(_presentation.Cgram);
             state.RequestMusic(MusicCommand.Stop, MusicCommandDelay.EightFrames);
         }
         if (step.SamusThemeStarted)
@@ -253,7 +253,7 @@ internal sealed class BabyMetroidCutsceneBehavior
 
         (_presentation.MotherBrainRoomColors ?? throw new InvalidOperationException(
             "Mother Brain recovery requires installed room colors."))
-            .ApplyRecoveryLights(_presentation._cgram!, request.PaletteIndex);
+            .ApplyRecoveryLights(_presentation.Cgram, request.PaletteIndex);
     }
 
     /// <summary>Requires the native fade source, destination, and color count before copying installed Baby shades to CGRAM.</summary>

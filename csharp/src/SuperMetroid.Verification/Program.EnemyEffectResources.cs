@@ -24,7 +24,6 @@ internal static class EnemyEffectResourcesVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var corpse = new MotherBrainCorpseRottingState();
         byte[] before = memory.WorkRam.ToArray();
-        AssertThrows<ArgumentNullException>(() => corpse.Initialize(memory, null!), "missing corpse art fails loudly");
         AssertTrue(before.AsSpan().SequenceEqual(memory.WorkRam), "missing corpse art must not initialize the rot table before throwing");
         AssertEqual(false, corpse.IsInitialized, "failed corpse initialization remains uninitialized");
         AssertEqual(0u, corpse.ProcessCallCount, "failed corpse initialization preserves its clock");

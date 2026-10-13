@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json.Nodes;
@@ -50,9 +51,9 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         string fileName = EnemyTileArtworkFormat.PaletteFileName(
             EnemyDefinitionId.PirateGoldWall);
         string overridePath = Path.Combine(overrideDirectory, fileName);
-        JsonNode edit = JsonNode.Parse(File.ReadAllText(Path.Combine(stockDirectory, fileName)))!;
-        JsonNode red = edit["colors"]![4]!["red"]!;
-        edit["colors"]![4]!["red"] = red.GetValue<int>() ^ 1;
+        JsonNode edit = RequiredJson.Parse(File.ReadAllText(Path.Combine(stockDirectory, fileName)));
+        JsonNode red = edit.Required("colors").Required(4).Required("red");
+        edit.Required("colors").Required(4)["red"] = red.GetValue<int>() ^ 1;
         File.WriteAllText(overridePath, edit.ToJsonString());
         var selected = EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory);
         (RoomEnemySlot editedSlot, SnesCgram editedColors) = Initialize(

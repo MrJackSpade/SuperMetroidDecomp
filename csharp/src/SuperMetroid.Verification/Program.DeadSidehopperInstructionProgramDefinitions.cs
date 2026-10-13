@@ -87,7 +87,7 @@ internal static class DeadSidehopperInstructionProgramDefinitionsVerification
             corpse.CurrentInstruction,
             "Dead sidehopper hopping program executes end-hop callback and reaches sleep");
         AssertEqual(DeadSidehopperAiFunction.BeginPostLandingDelay,
-            enemies.DeadSidehoppers[0]!.Function,
+            (enemies.DeadSidehoppers[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadSidehoppers[0].")).Function,
             "Dead sidehopper end-hop callback returns ownership to main AI");
         AssertEqual(0, guard.ObservedWords.Count,
             "Dead sidehopper execution uses compiled spritemap selectors");

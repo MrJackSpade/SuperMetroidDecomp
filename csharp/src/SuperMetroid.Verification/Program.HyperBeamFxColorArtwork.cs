@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.Json;
@@ -176,9 +177,9 @@ internal static class HyperBeamFxColorArtworkVerification
         }
         AssertEqual(1, extracted.CompletedCycles, "Hyper Beam palette loop retains compiled control cadence");
 
-        var edit = JsonNode.Parse(json)!;
-        JsonNode red = edit["frames"]![3]![2]!["red"]!;
-        edit["frames"]![3]![2]!["red"] = red.GetValue<int>() ^ 1;
+        var edit = RequiredJson.Parse(json);
+        JsonNode red = edit.Required("frames").Required(3).Required(2).Required("red");
+        edit.Required("frames").Required(3).Required(2)["red"] = red.GetValue<int>() ^ 1;
         var edited = HyperBeamFxColorCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes(edit.ToJsonString())));
         nativeCgram = new SnesCgram();
@@ -194,7 +195,7 @@ internal static class HyperBeamFxColorArtworkVerification
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Apply(new SnesCgram(), invalidFrame, 225), "FX frame bounds");
         foreach (string editScope in new[] { "all", "even", "green", "red", "white", "shade-sources" })
         {
-            var document = JsonSerializer.Deserialize<HyperBeamFxColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<HyperBeamFxColorDocument>(json, MapPresentationFormat.JsonOptions);
             for (int frame = 0; frame < 10; frame++)
             for (int color = 0; color < 8; color++)
             {
@@ -233,17 +234,17 @@ internal static class HyperBeamFxColorArtworkVerification
         AssertThrows<InvalidDataException>(() => HyperBeamFxColorCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes(source.Insert(1, "\"version\":1,")))),
             "Duplicate Hyper Beam FX metadata rejected");
-        var invalid = JsonNode.Parse(json)!;
-        invalid["frames"]![0]![0]!["red"] = 32;
+        var invalid = RequiredJson.Parse(json);
+        invalid.Required("frames").Required(0).Required(0)["red"] = 32;
         Reject(invalid, "Out-of-range Hyper Beam FX channel rejected");
-        invalid = JsonNode.Parse(json)!;
-        invalid["frames"]!.AsArray().RemoveAt(0);
+        invalid = JsonNode.Parse(json);
+        (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("frames").AsArray().RemoveAt(0);
         Reject(invalid, "Missing Hyper Beam FX frame rejected");
-        invalid = JsonNode.Parse(json)!;
-        invalid["frames"]![0]!.AsArray().RemoveAt(0);
+        invalid = JsonNode.Parse(json);
+        (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("frames").Required(0).AsArray().RemoveAt(0);
         Reject(invalid, "Missing Hyper Beam FX color rejected");
-        invalid = JsonNode.Parse(json)!;
-        invalid["frames"]![0]![0]!["damage"] = 1;
+        invalid = JsonNode.Parse(json);
+        (invalid ?? throw new InvalidOperationException("Verification requires invalid.")).Required("frames").Required(0).Required(0)["damage"] = 1;
         Reject(invalid, "Gameplay property in Hyper Beam FX artwork rejected");
         Console.WriteLine("Hyper Beam FX colors: 80 ROM words, all ten timed frames and loop, full-CGRAM parity, ROM-free live cycle, isolated edit and strict JSON pass.");
 

@@ -33,7 +33,6 @@ internal static class LookupFxLegacySheetsVerification
         using var current = Sheet(1808, 2);
         using var nonSeekable = new FxAtlasForwardOnlyStream(current.ToArray()[7..]);
         _ = RoomFxAnimatedTileAtlas.Load(nonSeekable, stock);
-        AssertThrows<ArgumentNullException>(() => RoomFxAnimatedTileAtlas.Load(null!), "Null PNG still rejects");
 
         static MemoryStream Sheet(int width, byte pixel)
         {

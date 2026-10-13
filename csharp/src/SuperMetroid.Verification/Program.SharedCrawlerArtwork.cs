@@ -29,7 +29,7 @@ internal static class SharedCrawlerArtworkVerification
             ushort compiled = EnemySpritemapDefinitions.SharedCrawlerFrameAt(operand);
             AssertEqual(ReadSharedCrawlerInstructionWord(rom, operand), compiled,
                 $"Shared crawler selector $A3:{operand:X4} matches the pinned cartridge");
-            AssertTrue(stock.Spritemaps!.TryGet(
+            AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGet(
                     EnemySpritemapDefinitions.HZoomerBank, compiled, out _),
                 $"Shared crawler $A3:{operand:X4} uses installed HZoomer artwork");
             foreach (EnemyDefinitionId definition in definitions)

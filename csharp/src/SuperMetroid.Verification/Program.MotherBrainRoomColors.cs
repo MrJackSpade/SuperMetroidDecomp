@@ -81,9 +81,9 @@ internal static class MotherBrainRoomColorsVerification
             Change(document.FinalRoom[MotherBrainRoomColorRomData.SliceColors]);
         document.PhaseTwoAttack[0] = Change(document.PhaseTwoAttack[0]);
         document.PhaseTwoRearLeg[0] = Change(document.PhaseTwoRearLeg[0]);
-        document.InitialGlassShard![0] = Change(document.InitialGlassShard[0]);
-        document.InitialTubeProjectile![0] = Change(document.InitialTubeProjectile[0]);
-        document.RecoveryLights![0][0] = Change(document.RecoveryLights[0][0]);
+        (document.InitialGlassShard ?? throw new InvalidOperationException("Verification requires document.InitialGlassShard."))[0] = Change(document.InitialGlassShard[0]);
+        (document.InitialTubeProjectile ?? throw new InvalidOperationException("Verification requires document.InitialTubeProjectile."))[0] = Change(document.InitialTubeProjectile[0]);
+        (document.RecoveryLights ?? throw new InvalidOperationException("Verification requires document.RecoveryLights."))[0][0] = Change(document.RecoveryLights[0][0]);
         document.RecoveryLights[0][MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination] =
             Change(document.RecoveryLights[0][MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination]);
         using (var file = File.Create(replacement))
@@ -120,12 +120,12 @@ internal static class MotherBrainRoomColorsVerification
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorPresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
-                InitialGlassShard = document.InitialGlassShard!.Take(14).ToArray(),
+                InitialGlassShard = document.InitialGlassShard.Take(14).ToArray(),
             }, MapPresentationFormat.JsonOptions))), "reject truncated room-entry glass colors");
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorPresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
-                RecoveryLights = document.RecoveryLights!.Take(6).ToArray(),
+                RecoveryLights = document.RecoveryLights.Take(6).ToArray(),
             }, MapPresentationFormat.JsonOptions))), "reject truncated room-light recovery sequence");
         byte[] previousVersion = JsonSerializer.SerializeToUtf8Bytes(document with
         {

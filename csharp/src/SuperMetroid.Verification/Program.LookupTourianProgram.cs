@@ -16,7 +16,7 @@ internal static class LookupTourianProgramVerification
                 out var definition), "Original statue resolves");
             ushort[] expected = OriginalTourianFrames(rom, header).Select(x => x.Operand).ToArray();
             AssertEqual(9, expected.Length, "Native timed-frame count");
-            AssertEqual(expected.Length, definition.SourceOperandPointers.Count, "Calculated operand count");
+            AssertEqual(expected.Length, (definition ?? throw new InvalidOperationException("Verification requires definition.")).SourceOperandPointers.Count, "Calculated operand count");
             AssertTrue(expected.SequenceEqual(definition.SourceOperandPointers), "Original enumerated operand positions");
             for (int index = 0; index < expected.Length; index++)
                 AssertEqual(expected[index], definition.SourceOperandPointers[index], "Original indexed operand position");
@@ -84,7 +84,7 @@ internal static class LookupTourianProgramVerification
                     expected.Add((ushort)(instruction.Cursor + offset));
             for (int value = 0; value <= ushort.MaxValue; value++)
             {
-                bool found = definition.TryReadMechanicsWord((ushort)value, out ushort word);
+                bool found = (definition ?? throw new InvalidOperationException("Verification requires definition.")).TryReadMechanicsWord((ushort)value, out ushort word);
                 AssertEqual(expected.Contains((ushort)value), found, "Complete native mechanics word domain");
                 if (!found) AssertEqual((ushort)0, word, "Odd, source and unrelated words preserve false/zero");
             }
@@ -98,7 +98,7 @@ internal static class LookupTourianProgramVerification
     {
         AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)header, out var definition),
             "Original statue resolves for control word");
-        AssertTrue(definition.TryReadMechanicsWord(pointer, out ushort actual), "Original control word is compiled");
+        AssertTrue((definition ?? throw new InvalidOperationException("Verification requires definition.")).TryReadMechanicsWord(pointer, out ushort actual), "Original control word is compiled");
         AssertEqual(ReadVerificationWord(rom, 0x870000 | pointer), actual, "Original statue control word");
     }
 

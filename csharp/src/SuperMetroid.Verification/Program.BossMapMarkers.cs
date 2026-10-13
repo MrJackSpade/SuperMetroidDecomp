@@ -91,7 +91,7 @@ internal static class BossMapMarkersVerification
                 runtime.NmiHandler.RunNmi(0, true);
                 runtime.RoomLoader.InitializeStartingCeresRoom();
                 runtime.RoomLoader.InitializeCeresStartSamus();
-                slot.ApplyTo(runtime.Player.Samus!, runtime.System);
+                slot.ApplyTo(runtime.Player.IntroducedSamus, runtime.System);
                 ushort room = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(restored, (AreaId)area, 0).RoomPointer;
                 for (int entry = 0; entry < 2; entry++)
                 {

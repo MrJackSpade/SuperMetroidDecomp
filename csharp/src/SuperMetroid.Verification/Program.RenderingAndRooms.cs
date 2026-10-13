@@ -1025,7 +1025,7 @@ internal static void VerifyBackgroundTilemapStreamer()
         BackgroundLayer.Level,
         BackgroundUpdateAxis.Column,
         SourceBlock: new(2, 3), VramBlock: new(0x11, 5));
-    TilemapStreamUpdate column = streamer.Build(columnRequest)!
+    TilemapStreamUpdate column = streamer.Build(columnRequest)
         ?? throw new InvalidOperationException("Non-Mode-7 column was incorrectly skipped.");
     AssertEqual(32, column.Segments[0].SourceWords.Length, "column left staging words");
     AssertEqual(0x0001, column.Segments[0].SourceWords[0], "column top-left tile");
@@ -1048,7 +1048,7 @@ internal static void VerifyBackgroundTilemapStreamer()
         BackgroundLayer.Level,
         BackgroundUpdateAxis.Row,
         SourceBlock: new(2, 3), VramBlock: new(5, 6));
-    TilemapStreamUpdate row = streamer.Build(rowRequest)!
+    TilemapStreamUpdate row = streamer.Build(rowRequest)
         ?? throw new InvalidOperationException("Non-Mode-7 row was incorrectly skipped.");
     AssertEqual(34, row.Segments[0].SourceWords.Length, "row top staging words");
     AssertEqual(0x0001, row.Segments[0].SourceWords[0], "row top-left tile");

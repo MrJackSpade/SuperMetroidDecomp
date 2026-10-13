@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -93,12 +94,12 @@ internal static class InstallationOverrideLifecycleVerification
         string[] directories = typeof(GameInstallation).GetProperties()
             .Where(property => property.PropertyType == typeof(string) &&
                 property.Name.EndsWith("OverrideDirectory", StringComparison.Ordinal))
-            .Select(property => Path.GetFileName((string)property.GetValue(installation)!))
+            .Select(property => Path.GetFileName((string)(property.GetValue(installation) ?? throw new InvalidOperationException("Verification requires property.GetValue(installation)."))))
             .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         string[] declared = MetadataShape.Fields(typeof(GameInstallationLayout), BindingFlags.Public | BindingFlags.Static)
             .Where(field => field.FieldType == typeof(string) && field.Name.EndsWith("DirectoryName", StringComparison.Ordinal) &&
                 field.Name != nameof(GameInstallationLayout.ContentDirectoryName))
-            .Select(field => (string)field.GetValue(null)!).Distinct(StringComparer.Ordinal)
+            .Select(field => (string)(field.GetValue(null) ?? throw new InvalidOperationException("Verification requires field.GetValue(null)."))).Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal).ToArray();
         Assert(directories.SequenceEqual(declared), "every declared installed domain exposes a persistent override directory");
         foreach (string directory in directories)
@@ -106,7 +107,7 @@ internal static class InstallationOverrideLifecycleVerification
         {
             string target = Path.Combine(installation.Root, "overrides", directory,
                 Path.GetRelativePath(Path.Combine(installation.ContentDirectory, directory), file));
-            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            Directory.CreateDirectory((Path.GetDirectoryName(target) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(target).")));
             File.Copy(file, target);
         }
         File.WriteAllText(Path.Combine(installation.Root, "overrides", "artist-note.txt"), "preserve unrecognized user files");
@@ -125,7 +126,7 @@ internal static class InstallationOverrideLifecycleVerification
                          method.GetParameters().Length == 0).OrderBy(method => method.Name, StringComparer.Ordinal))
         {
             object catalog;
-            try { catalog = loader.Invoke(installation, null)!; }
+            try { catalog = (loader.Invoke(installation, null) ?? throw new InvalidOperationException("Verification requires loader.Invoke(installation, null).")); }
             catch (TargetInvocationException error) when (error.InnerException is not null)
             {
                 ExceptionDispatchInfo.Capture(error.InnerException).Throw();
@@ -133,7 +134,7 @@ internal static class InstallationOverrideLifecycleVerification
             }
             string identity = catalog is InstalledProjectilePresentation projectile
                 ? projectile.SelectedSha256
-                : catalog.GetType().GetProperty("ContentIdentity")?.GetValue(catalog) as string
+                : (catalog ?? throw new InvalidOperationException("Verification requires catalog.")).GetType().GetProperty("ContentIdentity")?.GetValue(catalog) as string
                     ?? throw new InvalidDataException($"Catalog {loader.Name} lacks selected-content identity.");
             result.Add(loader.Name, identity);
         }
@@ -206,15 +207,15 @@ internal static class InstallationOverrideLifecycleVerification
             new(checked((ushort)IntroFontAtlasFormat.Width), checked((ushort)IntroFontAtlasFormat.Height)),
             IntroFontAtlasFormat.BitsPerPixel);
         string palettePath = Path.Combine(installation.GameplayBasePaletteOverrideDirectory, GameplayBasePaletteFormat.ArtworkFileName);
-        GameplayBasePaletteDocument palette = JsonSerializer.Deserialize<GameplayBasePaletteDocument>(
-            File.ReadAllBytes(palettePath), GameplayBasePaletteFormat.JsonOptions)!;
+        GameplayBasePaletteDocument palette = RequiredJson.Deserialize<GameplayBasePaletteDocument>(
+            File.ReadAllBytes(palettePath), GameplayBasePaletteFormat.JsonOptions);
         PaletteRgb5 color = palette.Initial[0];
         palette.Initial[0] = color with { Red = (color.Red + 1) % 32 };
         File.WriteAllBytes(palettePath, GameplayBasePaletteCatalog.Write(palette));
         ushort selectedColor = (ushort)(palette.Initial[0].Red | palette.Initial[0].Green << 5 | palette.Initial[0].Blue << 10);
 
         string audioPath = Path.Combine(installation.AudioOverrideDirectory, ExtractedAudioAssetCatalog.ManifestFileName);
-        AudioAssetManifest manifest = JsonSerializer.Deserialize<AudioAssetManifest>(File.ReadAllText(audioPath), AudioAssetJson.Options)!;
+        AudioAssetManifest manifest = RequiredJson.Deserialize<AudioAssetManifest>(File.ReadAllText(audioPath), AudioAssetJson.Options);
         AudioCanonicalSampleMetadata sample = manifest.CanonicalSamples[0];
         string wavePath = Path.Combine(installation.AudioOverrideDirectory, sample.WavFile.Replace('/', Path.DirectorySeparatorChar));
         (int rate, short[] pcm) = PcmWaveFile.ReadMonoPcm16(File.ReadAllBytes(wavePath), wavePath);

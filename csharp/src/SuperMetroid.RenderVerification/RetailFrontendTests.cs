@@ -24,9 +24,9 @@ internal static class RetailFrontendTests
             {
                 var expected = title.Render();
                 var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), title.CaptureRenderSnapshot());
-                if (title.Phase == TitleSequencePhase.SceneThreeZoom && packet.Mode7!.Gradient.IsEmpty)
+                if (title.Phase == TitleSequencePhase.SceneThreeZoom && (packet.Mode7 ?? throw new InvalidOperationException("Verification requires packet.Mode7.")).Gradient.IsEmpty)
                     throw new InvalidOperationException("Native scene-three gradient was not spawned.");
-                if (title.Phase == TitleSequencePhase.YearText && !packet.Mode7!.Gradient.IsEmpty)
+                if (title.Phase == TitleSequencePhase.YearText && !(packet.Mode7 ?? throw new InvalidOperationException("Verification requires packet.Mode7.")).Gradient.IsEmpty)
                     throw new InvalidOperationException("Title gradient spawned before its native scene command.");
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),

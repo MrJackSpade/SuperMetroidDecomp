@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -20,7 +21,7 @@ internal static class RoomPlmInstructionListCatalogVerification
             .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
             .ToArray();
         ushort[] pointers = fields
-            .Select(field => (ushort)field.GetRawConstantValue()!)
+            .Select(field => field.RequiredConstant<ushort>())
             .ToArray();
 
         AssertTrue(fields.Length > 0, "PLM instruction-list catalog is populated");

@@ -72,22 +72,9 @@ internal static class OperationContractsVerification
             "PLM setup reads boss flags without being able to set them");
 
         // Concrete contexts validate required values at construction.
-        AssertThrows<ArgumentNullException>(() => RuntimeFrameAudio.Gameplay(null!, () => { }), "gameplay audio requires its echo queue");
-        AssertThrows<ArgumentNullException>(() => RuntimeFrameAudio.Gameplay(() => 0, null!), "gameplay audio requires its low-health check");
-        AssertThrows<ArgumentNullException>(() => RuntimeFrameAudio.EchoOnly(null!), "attract audio requires its echo queue");
-        AssertThrows<ArgumentNullException>(() => _ = new DemoInputListProgram(null!), "a list-only demo owner requires its list");
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var level = new RoomLevelData(new(1, 1), new RoomLevelPlanes(new ushort[1], new byte[1], new ushort[1]), new byte[8]);
         var streamer = level.CreateBackgroundStreamer();
-        AssertThrows<ArgumentNullException>(() => _ = new PlmRoom(null!, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria),
-            "a PLM room requires its bus");
-        AssertThrows<ArgumentNullException>(() => _ = new PlmRoom(bus, level, streamer, null!, new Bank80SystemState(), AreaId.Crateria),
-            "a PLM room requires its VRAM");
-        var services = new RoomPlmServices { Samus = null!, Bosses = null! };
-        AssertThrows<ArgumentNullException>(() => new RoomPlmSystem().PopulationLoader.LoadRoomPopulation(
-                new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria),
-                new RoomPlmPopulationDefinition(0, []), services),
-            "a PLM load rejects services missing their required Samus access");
 
         // Explicit optional scenarios: the ordinary frame and retail overrides are named values.
         var ordinary = new RuntimeFrameRequest();

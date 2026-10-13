@@ -65,8 +65,8 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         CheckUnchangedBand(PhantoonColorRomData.PowerOnCount,
             native.ResolvePowerOn, colors.ResolvePowerOn, "power-on");
         AssertEqual(colors.ResolvePowerOn(1),
-            EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .PhantoonColors!.ResolvePowerOn(1),
+            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
+                .PhantoonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .PhantoonColors.")).ResolvePowerOn(1),
             "Phantoon override survives catalog reload");
 
         // Drive the actual boss palette handlers. The complete authored color range is

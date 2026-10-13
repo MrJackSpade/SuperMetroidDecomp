@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -81,8 +82,8 @@ internal static class RoomMetatilesVerification
             RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);
         JsonNode edited = JsonNode.Parse(files[RoomMetatileFormat.CreFileName])
             ?? throw new InvalidDataException("CRE metatile JSON is empty.");
-        JsonNode topLeft = edited["blocks"]![0]!["topLeft"]!;
-        int originalColumn = topLeft["tileColumn"]!.GetValue<int>();
+        JsonNode topLeft = edited.Required("blocks").Required(0).Required("topLeft");
+        int originalColumn = topLeft.Required("tileColumn").GetValue<int>();
         topLeft["tileColumn"] = (originalColumn + 1) % RoomMetatileFormat.TileColumns;
         RoomMetatileAtlas modified = RoomMetatileAtlas.Load(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited)), cre.Length);

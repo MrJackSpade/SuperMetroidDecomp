@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -72,7 +73,7 @@ internal static class IntroCinematicRomDataVerification
         // shared by two owners (a common delete or cry) is one bank-$8B address.
         ushort[] bank8BCodePointers = GetUshortConstants(typeof(CinematicCodePointers))
             .Where(field => field.Name != nameof(CinematicCodePointers.InstructionCommandBit))
-            .Select(field => (ushort)field.GetRawConstantValue()!)
+            .Select(field => field.RequiredConstant<ushort>())
             .Concat(new[]
             {
                 typeof(CinematicSpriteInstruction), typeof(CinematicBackgroundInstruction),
@@ -89,11 +90,11 @@ internal static class IntroCinematicRomDataVerification
             .ToArray();
         ushort[] bank8BLists = GetUshortConstants(typeof(CinematicCodePointers.Lists))
             .Where(field => field.Name != nameof(CinematicCodePointersListsConstants.MetroidEggParticleStride))
-            .Select(field => (ushort)field.GetRawConstantValue()!)
+            .Select(field => field.RequiredConstant<ushort>())
             .ToArray();
         ushort[] bank8CLists = GetUshortConstants(typeof(CinematicCodePointers.BackgroundLists))
             .Concat(GetUshortConstants(typeof(CinematicCodePointersIndirectData)))
-            .Select(field => (ushort)field.GetRawConstantValue()!)
+            .Select(field => field.RequiredConstant<ushort>())
             .ToArray();
 
         AssertTrue(bank8BCodePointers.Length >= 50,
@@ -104,7 +105,7 @@ internal static class IntroCinematicRomDataVerification
             "cinematic background catalog covers translated bank-$8C streams");
         AssertEqual(GetUshortConstants(typeof(CinematicCodePointers)).Count(),
             GetUshortConstants(typeof(CinematicCodePointers))
-                .Select(field => (ushort)field.GetRawConstantValue()!).Distinct().Count(),
+                .Select(field => field.RequiredConstant<ushort>()).Distinct().Count(),
             "cinematic callback constants are unique");
         AssertEqual(bank8BLists.Length, bank8BLists.Distinct().Count(),
             "cinematic bank-$8B list pointers are unique");

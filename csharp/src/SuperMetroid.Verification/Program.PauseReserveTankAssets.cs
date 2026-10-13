@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -22,7 +23,7 @@ internal static class PauseReserveTankAssetsVerification
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseReserveTankDefinitions.FileName), path = Path.Combine(overrides, PauseReserveTankDefinitions.FileName);
         byte[] bytes = File.ReadAllBytes(stockPath);
-        var document = JsonSerializer.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions);
         var guard = NewReserveTankAssetReadGuard(bus);
         Suite(nameof(VerifyPauseReserveAnchors), () => VerifyPauseReserveAnchors(bus));
         int comparisons = 0;

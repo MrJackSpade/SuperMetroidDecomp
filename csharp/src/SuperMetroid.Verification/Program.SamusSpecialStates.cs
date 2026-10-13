@@ -430,7 +430,7 @@ internal static void VerifySamusXray()
     AssertTrue(!standing.Xray.ConsumeActivationSoundRequest(),
         "consumed X-ray startup sound cannot replay");
 
-    AssertEqual(2, standing.Xray.StepMovement(bus, standing)!.Value,
+    AssertEqual(2, (standing.Xray.StepMovement(bus, standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "angle 40 selects forward X-ray frame");
     AssertEqual(15, standing.AnimationFrameTimer.RawValue, "X-ray movement forces timer fifteen");
     standing.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
@@ -510,7 +510,7 @@ internal static void VerifySamusXray()
     for (int frame = 0; frame < 80; frame++)
         standing.Xray.StepBeam(bus, standing, (ushort)(SnesButton.B | SnesButton.Up));
     AssertEqual(10, standing.Xray.Angle.TableIndex, "right X-ray upper clamp includes width");
-    AssertEqual(0, standing.Xray.StepMovement(bus, standing)!.Value,
+    AssertEqual(0, (standing.Xray.StepMovement(bus, standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "upper-clamped angle selects looking-up art");
 
     // Start a turn while the dedicated handler owns input. `$0100-angle` mirrors ten to
@@ -545,7 +545,7 @@ internal static void VerifySamusXray()
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray completion publishes stable pose");
     AssertEqual(4, standing.PoseHistory.PreviousDirectionAndMovement, "X-ray completion publishes stable metadata");
     AssertEqual(SamusPoseId.XrayingStandingLeftPose, standing.Pose, "X-ray turn installs left standing body");
-    AssertEqual(0, standing.Xray.StepMovement(bus, standing)!.Value,
+    AssertEqual(0, (standing.Xray.StepMovement(bus, standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "left near-up angle selects looking-up art");
 
     // Releasing Dash enters states three/four/five. State five restores ordinary left
@@ -840,7 +840,7 @@ internal static void VerifySamusDeathSequence()
         "explosion begins at index zero");
     AssertEqual(20, samus.DeathSequence.AnimationTimer.RawValue,
         "same-call first explosion decrement");
-    AssertEqual(0x081c, samus.DeathSequence.ExplosionSpritemapIndex!.Value,
+    AssertEqual(0x081c, (samus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires samus.DeathSequence.ExplosionSpritemapIndex.")),
         "right explosion base spritemap");
     AssertEqual(0x0100, cgram.Colors[192], "finish restores suit palette zero");
     AssertEqual(0x0400, cgram.Colors[240], "finish restores suitless palette zero");

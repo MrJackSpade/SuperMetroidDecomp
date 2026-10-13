@@ -26,7 +26,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.NmiHandler.RunNmi(0, true);
         AssertTrue(SuperMetroidRuntimeFrameRenderer.Render(runtime).AsSpan().SequenceEqual(
-            SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.TryCaptureFrame(runtime)!)), "Ceres Mode-7 capture parity");
+            SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.CaptureFrame(runtime))), "Ceres Mode-7 capture parity");
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
         runtime.NmiHandler.RunNmi(0, true);
 
@@ -62,17 +62,17 @@ internal static class GameplayCaptureIntegrationTestsVerification
         for (int i = 0; i < 50; i++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
         runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int i = 0; i < 13; i++) runtime.MessageBox.Step(0);
-        runtime.SuitPickup.Begin(bus, runtime.Player.Samus!, new(0, 0), SamusSuitPickupKind.Varia);
-        runtime.SuitPickup.Step(bus, runtime.Player.Samus!, runtime.Cgram);
+        runtime.SuitPickup.Begin(bus, runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Step(bus, runtime.Player.IntroducedSamus, runtime.Cgram);
         Rgba32[] expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-        LayeredRenderSnapshot captured = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+        LayeredRenderSnapshot captured = GameplayDisplayCapture.CaptureFrame(runtime);
         AssertTrue(captured.Layers.Length == 4 && captured.Layers[0] is OrdinaryGameplayRenderLayer
             && captured.Layers[1] is ScanlineColorAddRenderLayer && captured.Layers[2] is MessageBoxRenderLayer
             && captured.Layers[3] is ScanlineColorAddRenderLayer, "base/Power Bomb/message/suit order");
         var retained = RoundTripRenderPacket(new(new(1, 1, 0), captured));
         AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(retained)), "composed gameplay overlay parity");
         runtime.MessageBox.Step((ushort)SnesButton.A);
-        runtime.SuitPickup.Step(bus, runtime.Player.Samus!, runtime.Cgram);
+        runtime.SuitPickup.Step(bus, runtime.Player.IntroducedSamus, runtime.Cgram);
         runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
         AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");
 
@@ -107,8 +107,8 @@ internal static class GameplayCaptureIntegrationTestsVerification
         // following slice only exercises one room and its pause/fade dispatch states.
         foreach (SuperMetroidGame game in new[] { legacy, packets })
         {
-            game.RuntimeForVerification!.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
-            game.RuntimeForVerification!.NmiHandler.RunNmi(0, true);
+            game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
+            game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0, true);
         }
         bool sawPause = false;
         var fadeFrames = new Dictionary<SuperMetroidGameState, int>

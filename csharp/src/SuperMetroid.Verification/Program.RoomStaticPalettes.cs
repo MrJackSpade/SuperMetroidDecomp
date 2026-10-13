@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -72,8 +73,8 @@ internal static class RoomStaticPalettesVerification
         string selectedName = RoomStaticPaletteFormat.SourceFileName(selectedSource);
         JsonNode edited = JsonNode.Parse(files[selectedName])
             ?? throw new InvalidDataException("Extracted room palette JSON is empty.");
-        JsonNode color = edited["colors"]![0]!;
-        int originalRed = color["red"]!.GetValue<int>();
+        JsonNode color = edited.Required("colors").Required(0);
+        int originalRed = color.Required("red").GetValue<int>();
         color["red"] = originalRed ^ 1;
         RoomStaticPalette replacement = RoomStaticPalette.Load(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited)));

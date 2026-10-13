@@ -55,10 +55,10 @@ internal static class RendererCaptureTests
                 form.WindowState = FormWindowState.Minimized;
                 // Hidden forms do not receive native minimize messages. Raise the
                 // real host event explicitly while retaining their child dimensions.
-                typeof(Form).GetMethod("OnResize", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(form, [EventArgs.Empty]);
+                (typeof(Form).GetMethod("OnResize", BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException("Verification requires typeof(Form).GetMethod(\"OnResize\", BindingFlags.Instance | BindingFlags.NonPublic).")).Invoke(form, [EventArgs.Empty]);
                 await Until(() => worker.IsSurfaceSuspended, worker);
                 form.WindowState = FormWindowState.Normal;
-                typeof(Form).GetMethod("OnResize", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(form, [EventArgs.Empty]);
+                (typeof(Form).GetMethod("OnResize", BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException("Verification requires typeof(Form).GetMethod(\"OnResize\", BindingFlags.Instance | BindingFlags.NonPublic).")).Invoke(form, [EventArgs.Empty]);
                 await Until(() => !worker.IsSurfaceSuspended, worker);
                 var canvas = control.canvas;
                 await Until(() => worker.LastDrawnSize

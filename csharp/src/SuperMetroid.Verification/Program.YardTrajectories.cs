@@ -36,7 +36,7 @@ internal static class YardTrajectoriesVerification
             var random = new Bank80SystemState();
             enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }));
             var actor = enemies.SlotTable.Slots[focus];
-            var state = enemies.YardStates[focus]!;
+            var state = enemies.YardStates[focus];
             var samus = new SamusState { Health = 999, MaxHealth = 999,
                 Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole - 64)), actor.Position.Y.Whole)) };
             samus.PoseMetadata.RefreshCollisionRadii(bus);
@@ -45,7 +45,7 @@ internal static class YardTrajectoriesVerification
             for (int frame = 0; frame < 1200; frame++)
             {
                 ushort x = actor.Position.X.Whole, y = actor.Position.Y.Whole;
-                var function = state.MovementFunction;
+                var function = (state ?? throw new InvalidOperationException("Verification requires state.")).MovementFunction;
                 ushort cameraX = unchecked((ushort)Math.Max(0, x - 128)), cameraY = unchecked((ushort)Math.Max(0, y - 112));
                 enemies.StepFrame(new RoomEnemyFrame { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
                 int distance = Math.Max(Math.Abs(unchecked((short)(actor.Position.X.Whole - x))), Math.Abs(unchecked((short)(actor.Position.Y.Whole - y))));
@@ -71,9 +71,9 @@ internal static class YardTrajectoriesVerification
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
             var actor = enemies.SlotTable.Slots[0];
-            var state = enemies.YardStates[0]!;
+            var state = enemies.YardStates[0];
             actor.Position = FixedPosition<RoomPixels>.FromWhole(new(256, unchecked((ushort)(256 - actor.Radius.Y))));
-            state.Direction = direction;
+            (state ?? throw new InvalidOperationException("Verification requires state.")).Direction = direction;
             state.AirborneFacingDirection = facing;
             state.MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = YardBehavior.Dropped;

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
@@ -76,8 +77,8 @@ internal static class GameOverPresentationVerification
         AssertTrue(comparedFrames > 500,
             "game-over parity covers animation, music wait, input and fade");
 
-        var document = JsonSerializer.Deserialize<GameOverPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<GameOverPresentationDocument>(
+            extracted, MapPresentationFormat.JsonOptions);
         document = document with
         {
             BabyAnchor = new(checked((ushort)(document.BabyAnchor.X + 8)), document.BabyAnchor.Y),
@@ -142,13 +143,13 @@ internal static class GameOverPresentationVerification
         AssertThrows<InvalidDataException>(() => GameOverPresentation.Write(Stream.Null,
             document with { Tilemap = document.Tilemap[..^1] }),
             "game-over rejects incomplete tilemap");
-        var missingSprite = JsonSerializer.Deserialize<GameOverPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions)!;
+        var missingSprite = RequiredJson.Deserialize<GameOverPresentationDocument>(
+            extracted, MapPresentationFormat.JsonOptions);
         missingSprite.Sprites.Remove(GameOverPresentationDefinitions.EggFrame);
         AssertThrows<InvalidDataException>(() => GameOverPresentation.Write(Stream.Null, missingSprite),
             "game-over rejects missing named sprite");
-        var shortPalette = JsonSerializer.Deserialize<GameOverPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions)!;
+        var shortPalette = RequiredJson.Deserialize<GameOverPresentationDocument>(
+            extracted, MapPresentationFormat.JsonOptions);
         shortPalette.BabyPalettes[GameOverPresentationDefinitions.BabyPaletteName(
             GameOverBabyPalette.OpenCry)] = [0];
         AssertThrows<InvalidDataException>(() => GameOverPresentation.Write(Stream.Null, shortPalette),

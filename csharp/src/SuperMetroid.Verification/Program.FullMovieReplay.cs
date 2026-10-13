@@ -168,11 +168,11 @@ internal static class FullMovieReplayVerification
                 // The box's own HandleSounds calls span frames the capture does not split,
                 // so they read the session's SPC model frame by frame.
                 soundAcknowledgements.Expect(null);
-                for (; frame < boxFrameLimit && game.RuntimeForVerification!.MessageBox.IsActive; frame++)
+                for (; frame < boxFrameLimit && game.GameplayRuntimeForVerification.MessageBox.IsActive; frame++)
                     game.Step(frameInputs[frame]);
                 if (step.MessageBoxEndFrame is { } nativeEnd)
                 {
-                    if (game.RuntimeForVerification!.MessageBox.IsActive || frame != nativeEnd + 1)
+                    if (game.GameplayRuntimeForVerification.MessageBox.IsActive || frame != nativeEnd + 1)
                         throw new InvalidDataException(
                             $"The port's message box closed after source frame {frame - 1}, but native dispatch {update} " +
                             $"(source frames {step.SourceFrame}-{endSourceFrame}) returned from it at {nativeEnd}.");
@@ -180,7 +180,7 @@ internal static class FullMovieReplayVerification
                 // A confirmation box reads the controller itself ($85:84BA), which the native
                 // capture records as a following NMI-continuation update. The box then
                 // legitimately stays open into that update and continues there.
-                else if (!game.RuntimeForVerification!.MessageBox.IsActive || frame != endSourceFrame ||
+                else if (!game.GameplayRuntimeForVerification.MessageBox.IsActive || frame != endSourceFrame ||
                     update >= updates.Count || updates[update].Kind != "nmi-continuation")
                     throw new InvalidDataException(
                         $"The port's message box closed after source frame {frame - 1}, but native dispatch {update} " +
@@ -281,7 +281,7 @@ internal static class FullMovieReplayVerification
             Console.WriteLine("  eproj port   " + string.Join(" ", portProjectiles));
             Console.WriteLine("  eproj native " + string.Join(" ", nativeProjectiles));
             Console.WriteLine($"  ceres port={traceEnemies.RidleyEncounter.CeresStatus:X4} native={Native(0x093f)} " +
-                $"nmi port={game.RuntimeForVerification!.Nmi.NmiFrameCounter:X4} native-raw={Native(0x05b6)}");
+                $"nmi port={game.GameplayRuntimeForVerification.Nmi.NmiFrameCounter:X4} native-raw={Native(0x05b6)}");
             foreach (var actor in traceEnemies.SlotTable.Slots.Where(slot => slot.EnemyDefinitionPointer != 0))
             {
                 // $0F86 properties, $0F92 instruction list pointer, $0F94 instruction timer.
@@ -356,11 +356,11 @@ internal static class FullMovieReplayVerification
         if (game.GameState != SuperMetroidGameState.MainGameplay) return mismatches;
 
         Check("Samus pose", (ushort)samus.Pose, MovieDesyncMemory.SamusPose);
-        Check("Room", runtime.Room.ActiveRoom!.Pointer, MovieDesyncMemory.Room);
-        Check("Camera X", runtime.Room.Camera!.PixelPosition.X, MovieDesyncMemory.CameraX);
-        Check("Camera Y", runtime.Room.Camera.PixelPosition.Y, MovieDesyncMemory.CameraY);
-        Check("Camera X fraction", runtime.Room.Camera.Position.X.Fraction, MovieDesyncMemory.CameraXSubposition);
-        Check("Camera Y fraction", runtime.Room.Camera.Position.Y.Fraction, MovieDesyncMemory.CameraYSubposition);
+        Check("Room", runtime.Room.LoadedRoom.Pointer, MovieDesyncMemory.Room);
+        Check("Camera X", runtime.Room.LoadedCamera.PixelPosition.X, MovieDesyncMemory.CameraX);
+        Check("Camera Y", runtime.Room.LoadedCamera.PixelPosition.Y, MovieDesyncMemory.CameraY);
+        Check("Camera X fraction", runtime.Room.LoadedCamera.Position.X.Fraction, MovieDesyncMemory.CameraXSubposition);
+        Check("Camera Y fraction", runtime.Room.LoadedCamera.Position.Y.Fraction, MovieDesyncMemory.CameraYSubposition);
         Check("Accepted NMI", runtime.Nmi.NmiFrameCounter, MovieDesyncMemory.NmiCounter);
         if (runtime.Enemies.RidleyEncounter.Ridley is { } ridley)
             for (int index = 0; index < ridley.TailSegments.Length; index++)
@@ -387,14 +387,14 @@ internal static class FullMovieReplayVerification
                 mismatches.Add($"Enemy projectile {slot} is allocated while the Ceres arrival owns it");
             Check($"Enemy projectile {slot} ID", active ? id : (ushort)0, MovieDesyncMemory.EnemyProjectileIds + offset);
             if (!active) return;
-            Check($"Enemy projectile {slot} X", arrival!.PadPosition.X, MovieDesyncMemory.EnemyProjectileX + offset);
+            Check($"Enemy projectile {slot} X", arrival.PadPosition.X, MovieDesyncMemory.EnemyProjectileX + offset);
             Check($"Enemy projectile {slot} Y", y, MovieDesyncMemory.EnemyProjectileY + offset);
         }
         bool arrivalLive = arrival is { IsComplete: false };
         if (arrivalLive)
         {
-            CheckArrivalSlot(17, arrival!.PadActive, 0xa387, arrival!.PadPosition.Y);
-            CheckArrivalSlot(16, arrival!.PlatformActive, 0xa395, arrival!.PlatformPosition.Y);
+            CheckArrivalSlot(17, (arrival ?? throw new InvalidOperationException("Verification requires arrival.")).PadActive, 0xa387, arrival.PadPosition.Y);
+            CheckArrivalSlot(16, arrival.PlatformActive, 0xa395, arrival.PlatformPosition.Y);
         }
         for (int slot = 0; slot < (arrivalLive ? 16 : projectiles.Count); slot++)
         {

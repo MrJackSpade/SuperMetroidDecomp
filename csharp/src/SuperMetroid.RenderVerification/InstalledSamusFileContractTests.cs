@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -27,7 +28,7 @@ internal static class InstalledSamusFileContractTests
             var originals = Directory.GetFiles(source).ToDictionary(path => Path.GetFileName(path),
                 File.ReadAllBytes, StringComparer.Ordinal);
             Restore();
-            string[] names = originals.Keys.Select(name => name!).Order(StringComparer.Ordinal).ToArray();
+            string[] names = originals.Keys.Select(name => name).Order(StringComparer.Ordinal).ToArray();
             foreach (string name in names)
             {
                 string path = Path.Combine(stock, name);
@@ -57,12 +58,12 @@ internal static class InstalledSamusFileContractTests
             }
             foreach (string name in names.Where(name => name.EndsWith(".json", StringComparison.Ordinal)))
             {
-                JsonObject original = JsonNode.Parse(originals[name])!.AsObject();
+                JsonObject original = RequiredJson.Parse(originals[name]).AsObject();
                 string path = Path.Combine(IsOverridable(name) ? overrides : stock, name);
                 var cases = new List<string> { "null", "[]", Mutate(root => root["gameplayDamage"] = 7) };
                 foreach (string property in original.Select(pair => pair.Key))
                     cases.Add(Mutate(root => root.Remove(property)));
-                int version = original["version"]!.GetValue<int>();
+                int version = original.Required("version").GetValue<int>();
                 for (int old = 0; old < version; old++) cases.Add(Mutate(root => root["version"] = old));
                 cases.Add(Mutate(root => root["version"] = version + 1));
                 string text = Encoding.UTF8.GetString(originals[name]);
@@ -83,26 +84,26 @@ internal static class InstalledSamusFileContractTests
             }
             // Required references are inventoried from catalog construction, not
             // discovered by playing poses until one happens to request missing art.
-            BodyMutation(root => root["posePointers"]![0] = 0, "pose frame pointer");
-            BodyMutation(root => root["spritemapTopBases"]![0] = SamusSpritemapArtworkCatalog.PointerCount,
+            BodyMutation(root => root.Required("posePointers")[0] = 0, "pose frame pointer");
+            BodyMutation(root => root.Required("spritemapTopBases")[0] = SamusSpritemapArtworkCatalog.PointerCount,
                 "spritemap base");
-            BodyMutation(root => root["spritemaps"]![0]!["parts"] = null, "spritemap parts");
-            BodyMutation(root => root["top"]![0] = null, "body definition group");
-            BodyMutation(root => root["top"]![0]![0] = null, "body definition record");
-            BodyMutation(root => root["spritemaps"]![0] = null, "spritemap record");
-            BodyMutation(root => root["top"]![0]![0]!["firstSize"] = 0, "DMA size");
-            BodyMutation(root => root["landingYOffsets"]![0] = 256, "visual landing byte");
-            BodyMutation(root => root["spritemaps"]!.AsArray().RemoveAt(0), "required spritemap identity");
-            BodyMutation(root => root["hashes"]!.AsObject().Remove("top-00.png"), "required provenance entry");
+            BodyMutation(root => root.Required("spritemaps").Required(0)["parts"] = null, "spritemap parts");
+            BodyMutation(root => root.Required("top")[0] = null, "body definition group");
+            BodyMutation(root => root.Required("top").Required(0)[0] = null, "body definition record");
+            BodyMutation(root => root.Required("spritemaps")[0] = null, "spritemap record");
+            BodyMutation(root => root.Required("top").Required(0).Required(0)["firstSize"] = 0, "DMA size");
+            BodyMutation(root => root.Required("landingYOffsets")[0] = 256, "visual landing byte");
+            BodyMutation(root => root.Required("spritemaps").AsArray().RemoveAt(0), "required spritemap identity");
+            BodyMutation(root => root.Required("hashes").AsObject().Remove("top-00.png"), "required provenance entry");
             foreach (string property in new[] { "topSet", "topPosition", "bottomSet", "bottomPosition" })
-                BodyMutation(root => root["frames"]![0]!.AsObject().Remove(property), "required frame field");
+                BodyMutation(root => root.Required("frames").Required(0).AsObject().Remove(property), "required frame field");
             foreach (string property in new[] { "x", "y", "attributes" })
-                BodyMutation(root => root["spritemaps"]![0]!["parts"]![0]!.AsObject().Remove(property),
+                BodyMutation(root => root.Required("spritemaps").Required(0).Required("parts").Required(0).AsObject().Remove(property),
                     "required OAM field");
             foreach (string property in new[] { "sourceAddress", "firstSize", "secondSize" })
-                BodyMutation(root => root["top"]![0]![0]!.AsObject().Remove(property), "required DMA field");
+                BodyMutation(root => root.Required("top").Required(0).Required(0).AsObject().Remove(property), "required DMA field");
             foreach (string property in new[] { "pointer", "parts" })
-                BodyMutation(root => root["spritemaps"]![0]!.AsObject().Remove(property), "required map field");
+                BodyMutation(root => root.Required("spritemaps").Required(0).AsObject().Remove(property), "required map field");
             foreach (string name in names.Where(name => name.EndsWith(".png", StringComparison.Ordinal)))
             {
                 using var stream = new MemoryStream(originals[name], writable: false);
@@ -144,7 +145,7 @@ internal static class InstalledSamusFileContractTests
             SamusBodyArtworkCatalog Load() => SamusBodyArtworkFiles.Load(stock, overrides);
             void Restore()
             {
-                foreach (var pair in originals) File.WriteAllBytes(Path.Combine(stock, pair.Key!), pair.Value);
+                foreach (var pair in originals) File.WriteAllBytes(Path.Combine(stock, pair.Key), pair.Value);
                 foreach (string file in Directory.GetFiles(overrides)) File.Delete(file);
             }
             void Reject(string context, string path, bool requireInner = false)
@@ -164,7 +165,7 @@ internal static class InstalledSamusFileContractTests
             }
             void BodyMutation(Action<JsonObject> edit, string context)
             {
-                JsonObject body = JsonNode.Parse(originals[SamusBodyArtworkFiles.ManifestFileName])!.AsObject();
+                JsonObject body = RequiredJson.Parse(originals[SamusBodyArtworkFiles.ManifestFileName]).AsObject();
                 edit(body);
                 string path = Path.Combine(overrides, SamusBodyArtworkFiles.ManifestFileName);
                 File.WriteAllText(path, body.ToJsonString());
@@ -186,9 +187,9 @@ internal static class InstalledSamusFileContractTests
                 { manifestName = SamusDeathTileAtlasFormat.ManifestFileName; field = "artworkSha256"; }
                 else
                 { manifestName = "samus-arm-cannon-manifest.json"; field = name.EndsWith(".png", StringComparison.Ordinal) ? "pngSha256" : "jsonSha256"; }
-                JsonObject manifest = JsonNode.Parse(originals[manifestName])!.AsObject();
+                JsonObject manifest = RequiredJson.Parse(originals[manifestName]).AsObject();
                 string hash = Convert.ToHexString(SHA256.HashData(bytes));
-                if (field == "hashes") manifest[field]![name] = hash;
+                if (field == "hashes") manifest.Required(field)[name] = hash;
                 else manifest[field] = hash;
                 File.WriteAllText(Path.Combine(stock, manifestName), manifest.ToJsonString());
             }

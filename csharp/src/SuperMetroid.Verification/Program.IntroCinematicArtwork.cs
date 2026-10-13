@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using static Program;
 using static RepositoryInputsVerification;
 using System.Runtime.InteropServices;
@@ -627,8 +628,8 @@ internal static class IntroCinematicArtworkVerification
 
         string eyePath = Path.Combine(installation.IntroCinematicDirectory,
             IntroEyeTilemapFormat.FileName);
-        IntroEyeTilemapDocument document = JsonSerializer.Deserialize<IntroEyeTilemapDocument>(
-            File.ReadAllBytes(eyePath), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        IntroEyeTilemapDocument document = RequiredJson.Deserialize<IntroEyeTilemapDocument>(
+            File.ReadAllBytes(eyePath), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var firstFrame = document.Frames[0];
         var firstCell = firstFrame.Cells[0];
         firstFrame.Cells[0] = firstCell with
@@ -707,8 +708,8 @@ internal static class IntroCinematicArtworkVerification
 
         string caretPath = Path.Combine(installation.IntroCinematicDirectory,
             IntroCaretSpriteFormat.FileName);
-        IntroCaretSpriteDocument document = JsonSerializer.Deserialize<IntroCaretSpriteDocument>(
-            File.ReadAllBytes(caretPath), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        IntroCaretSpriteDocument document = RequiredJson.Deserialize<IntroCaretSpriteDocument>(
+            File.ReadAllBytes(caretPath), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         AssertEqual(1, document.Frames.Count,
             "caret asset excludes neighboring non-caret spritemaps");
         var previousFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
@@ -766,8 +767,8 @@ internal static class IntroCinematicArtworkVerification
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         nativeState.SetupFirstIllustratedPage();
         installedState.SetupFirstIllustratedPage();
-        (nativeState.objects).Step(0);
-        (installedState.objects).Step(0);
+        ((nativeState.objects ?? throw new InvalidOperationException("Verification requires nativeState.objects."))).Step(0);
+        ((installedState.objects ?? throw new InvalidOperationException("Verification requires installedState.objects."))).Step(0);
         var nativeOam = nativeState.PrepareIllustratedPageOam();
         var installedOam = installedState.PrepareIllustratedPageOam();
         AssertTrue(installedOam.ImageEquals(nativeOam),
@@ -808,7 +809,7 @@ internal static class IntroCinematicArtworkVerification
                 state.MotherBrainLevelData.AsSpan().SequenceEqual(native),
             "flashback setup retains the exact native physical level without ROM reads");
         var level = state.flashbackLevel;
-        for (int index = 0; index < level.ForegroundEntries.Length; index++)
+        for (int index = 0; index < (level ?? throw new InvalidOperationException("Verification requires level.")).ForegroundEntries.Length; index++)
         {
             ushort expected = index * sizeof(ushort) < native.Length
                 ? (ushort)(SnesLittleEndian.Word(native[index * 2], native[index * 2 + 1]))
@@ -849,9 +850,9 @@ internal static class IntroCinematicArtworkVerification
 
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         string name = IntroMotherBrainSpriteFormat.FileName;
-        IntroMotherBrainSpriteDocument document = JsonSerializer.Deserialize<IntroMotherBrainSpriteDocument>(
+        IntroMotherBrainSpriteDocument document = RequiredJson.Deserialize<IntroMotherBrainSpriteDocument>(
             File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         document.Frames["mother-brain-frame-0"] = document.Frames["mother-brain-frame-0"]
             .Select(part => part with { Palette = 0 }).ToArray();
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
@@ -885,7 +886,7 @@ internal static class IntroCinematicArtworkVerification
         {
             state.SetupFirstIllustratedPage();
             state.SetupMotherBrainFlashback();
-            (state.flashbackMotherBrain).Step(guarded);
+            ((state.flashbackMotherBrain ?? throw new InvalidOperationException("Verification requires state.flashbackMotherBrain."))).Step(guarded);
         }
         Rgba32[] stockPixels = stockState.RenderMotherBrainFlashback();
         Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
@@ -930,9 +931,9 @@ internal static class IntroCinematicArtworkVerification
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         string name = IntroMotherBrainExplosionSpriteFormat.FileName;
         IntroMotherBrainExplosionSpriteDocument document =
-            JsonSerializer.Deserialize<IntroMotherBrainExplosionSpriteDocument>(
+            RequiredJson.Deserialize<IntroMotherBrainExplosionSpriteDocument>(
                 File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         document.Frames["small-explosion-0"] = document.Frames["small-explosion-0"]
             .Select(part => part with { Palette = 0 }).ToArray();
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
@@ -995,7 +996,7 @@ internal static class IntroCinematicArtworkVerification
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address => IntroArtworkForbiddenRead(address, blocked) is not null,
-            address => IntroArtworkForbiddenRead(address, blocked)!);
+            address => (IntroArtworkForbiddenRead(address, blocked) ?? throw new InvalidOperationException("Verification requires IntroArtworkForbiddenRead(address, blocked).")));
         return guard;
     }
 

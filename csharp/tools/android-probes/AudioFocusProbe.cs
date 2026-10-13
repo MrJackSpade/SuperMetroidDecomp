@@ -36,7 +36,7 @@ internal sealed class AudioFocusProbe(Activity activity, Func<AudioFocusProbe.Ho
 
     /// <summary>Appends a timestamped observation to the Activity's private probe log.</summary>
     private void Log(string text) =>
-        File.AppendAllText(Path.Combine(activity.FilesDir!.AbsolutePath, "audio-focus-probe.log"), $"{DateTimeOffset.UtcNow:O} {text}\n");
+        File.AppendAllText(Path.Combine(activity.FilesDir.AbsolutePath, "audio-focus-probe.log"), $"{DateTimeOffset.UtcNow:O} {text}\n");
 
     /// <summary>Requests transient or duck focus, samples timing, and releases the request after three seconds.</summary>
     private void Run(string mode)
@@ -51,15 +51,15 @@ internal sealed class AudioFocusProbe(Activity activity, Func<AudioFocusProbe.Ho
             _ => throw new ArgumentException("Expected transient or duck audio-focus probe.")
         };
         var listener = new ProbeFocusListener();
-        using var attributes = new AudioAttributes.Builder().SetUsage(AudioUsageKind.Game)!
-            .SetContentType(AudioContentType.Music)!.Build()!;
+        using var attributes = new AudioAttributes.Builder().SetUsage(AudioUsageKind.Game)
+            .SetContentType(AudioContentType.Music).Build();
         using var builder = new AudioFocusRequestClass.Builder(gain);
-        var request = builder.SetAudioAttributes(attributes)!
-            .SetOnAudioFocusChangeListener(listener, hostHandler)!.Build()!;
+        var request = builder.SetAudioAttributes(attributes)
+            .SetOnAudioFocusChangeListener(listener, hostHandler).Build();
         focusProbeActive = true;
         var result = audioManager.RequestAudioFocus(request);
         Log($"requested={mode} result={result} focused={state.Focused} resumed={state.Resumed}");
-        string timingLog = Path.Combine(activity.FilesDir!.AbsolutePath, "timing.log");
+        string timingLog = Path.Combine(activity.FilesDir.AbsolutePath, "timing.log");
         string? heldTiming = null;
         hostHandler.PostDelayed(() => heldTiming = File.ReadLines(timingLog).Last(), 1000);
         hostHandler.PostDelayed(() => Log($"heldTimingUnchanged={heldTiming == File.ReadLines(timingLog).Last()} canRun={host().CanRun}"), 2500);

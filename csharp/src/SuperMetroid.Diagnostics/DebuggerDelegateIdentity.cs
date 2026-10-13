@@ -11,13 +11,13 @@ internal static class DebuggerDelegateIdentity
     {
         writer.Write(method.Name);
         writer.Write(method.IsStatic);
-        writer.Write(method.ReturnType.AssemblyQualifiedName!);
+        writer.Write(ReflectionBoundary.AssemblyQualifiedName(method.ReturnType));
         Type[] arguments = method.IsGenericMethod ? method.GetGenericArguments() : [];
         writer.Write(arguments.Length);
-        foreach (Type argument in arguments) writer.Write(argument.AssemblyQualifiedName!);
+        foreach (Type argument in arguments) writer.Write(ReflectionBoundary.AssemblyQualifiedName(argument));
         ParameterInfo[] parameters = method.GetParameters();
         writer.Write(parameters.Length);
-        foreach (ParameterInfo parameter in parameters) writer.Write(parameter.ParameterType.AssemblyQualifiedName!);
+        foreach (ParameterInfo parameter in parameters) writer.Write(ReflectionBoundary.AssemblyQualifiedName(parameter.ParameterType));
     }
 
     /// <summary>Resolves a unique compatible method signature using loader-approved types across assembly versions.</summary>

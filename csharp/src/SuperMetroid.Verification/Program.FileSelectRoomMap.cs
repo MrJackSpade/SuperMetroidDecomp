@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
@@ -106,8 +107,8 @@ internal static class FileSelectRoomMapVerification
         snapshot.MapStationBytes[4] = 1;
         snapshot.UsedSaveStationBytes[8] = 1;
         saves.SaveSlot(0, snapshot);
-        var slot = saves.ReadSlot(0)!;
-        var cancel = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, RetailPresentationFixture());
+        var slot = saves.ReadSlot(0);
+        var cancel = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, RetailPresentationFixture());
         var control = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, RetailPresentationFixture());
         foreach (var menu in new[] { cancel, control })
         {
@@ -173,7 +174,7 @@ internal static class FileSelectRoomMapVerification
         animations.BindPalette(MapPaletteCycle.Load(paletteJson));
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var artwork = SuperMetroid.AssetExtraction.MapSpriteExtractor.Extract(retail);
-        var spriteDocument = System.Text.Json.JsonSerializer.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options)!;
+        var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
         {
             MapSpriteId id = MapArrowDefinitions.SpriteBase(direction);
@@ -231,7 +232,7 @@ internal static class FileSelectRoomMapVerification
         var system = new Bank80SystemState();
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var landmarks = MapLandmarkDefinitions.AllIds().ToDictionary(id => id, _ => new Position16<MapPixels>(511, 255));
-        landmarks[MapLandmarkDefinitions.Bosses(AreaId.Brinstar).ToArray().First(id => id is not null)!] = new(32, 40);
+        landmarks[(MapLandmarkDefinitions.Bosses(AreaId.Brinstar).ToArray().First(id => id is not null) ?? throw new InvalidOperationException("Verification requires MapLandmarkDefinitions.Bosses(AreaId.Brinstar).ToArray().First(id => id is not null)."))] = new(32, 40);
         var destination = MapLandmarkDefinitions.Elevators(AreaId.Brinstar).ToArray().First(label =>
             label.Destination == AreaId.Crateria);
         landmarks[destination.Id] = new(96, 112);
@@ -245,7 +246,7 @@ internal static class FileSelectRoomMapVerification
         MapStationLayout.Write(stationJson, new() { Version = 1, Markers = stations });
         stationJson.Position = 0;
         var artwork = SuperMetroid.AssetExtraction.MapSpriteExtractor.Extract(bus);
-        var document = System.Text.Json.JsonSerializer.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options)!;
+        var document = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (ushort id in new ushort[] { 9, 0x62, 0x0b, 0x59, 0x5b, 0x5d })
         {
             string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == (MapSpriteId)id).Name;
@@ -335,9 +336,9 @@ internal static class FileSelectRoomMapVerification
         if (savedArea == 6)
         {
             Until(() => game.RuntimeForVerification is not null, 200);
-            AssertEqual(AreaId.Ceres, game.RuntimeForVerification!.Room.ActiveRoom!.AreaIndex,
+            AssertEqual(AreaId.Ceres, game.GameplayRuntimeForVerification.Room.LoadedRoom.AreaIndex,
                 "Ceres checkpoint bypasses Zebes map and retains elevator arrival");
-            AssertTrue(game.RuntimeForVerification!.Room.CeresElevatorArrival is not null,
+            AssertTrue(game.GameplayRuntimeForVerification.Room.CeresElevatorArrival is not null,
                 "Ceres checkpoint still owns its arrival sequence");
             return;
         }
@@ -367,7 +368,7 @@ internal static class FileSelectRoomMapVerification
         frame = game.Step(0x1000);
         Until(() => game.RuntimeForVerification is not null, 100);
         AssertEqual(SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(bus, AreaId.Maridia, 0).RoomPointer,
-            game.RuntimeForVerification!.Room.ActiveRoom!.Pointer, "second map confirmation loads selected SRAM station");
+            game.GameplayRuntimeForVerification.Room.LoadedRoom.Pointer, "second map confirmation loads selected SRAM station");
         void Until(Func<bool> predicate, int limit)
         {
             for (int tick = 0; tick < limit && !predicate(); tick++)
@@ -479,15 +480,15 @@ internal static class FileSelectRoomMapVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
-        var positions = System.Text.Json.JsonSerializer.Deserialize<MapSaveMarkerDocument>(
-            SuperMetroid.AssetExtraction.MapSaveMarkerExtractor.Extract(bus), options)!;
+        var positions = RequiredJson.Deserialize<MapSaveMarkerDocument>(
+            SuperMetroid.AssetExtraction.MapSaveMarkerExtractor.Extract(bus), options);
         positions.Markers[MapSaveMarkerDefinitions.Id(AreaId.Crateria, 0)] = new(100, 80);
         using var positionJson = new MemoryStream();
         MapSaveMarkerLayout.Write(positionJson, positions);
         positionJson.Position = 0;
         var layout = MapSaveMarkerLayout.Load(positionJson);
         var artwork = SuperMetroid.AssetExtraction.MapSpriteExtractor.Extract(bus);
-        var document = System.Text.Json.JsonSerializer.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options)!;
+        var document = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         // Preserve the original fixture's one-part (-2,-3) sprite and priority three.
         foreach (ushort id in new ushort[] { 0x12, 0x5f, 0x60, 0x61 })
         {

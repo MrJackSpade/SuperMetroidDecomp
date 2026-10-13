@@ -26,12 +26,12 @@ internal static class OldTourianEscapeShaftWallVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.Climb);
-        AssertTrue(runtime.Plms!.BombTorizoHand.HasActiveHeader(PlmHeaderId.OldTourianEscapeShaftFakeWall),
+        AssertTrue(runtime.Plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.OldTourianEscapeShaftFakeWall),
             "the escape state's setup spawns the fake-wall PLM");
 
         int Explosions() => runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion);
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(0x00e8, 0x088b));
         runtime.StepFrame(0);
         AssertEqual(0, Explosions(), "Samus left of X $F0 leaves the wall asleep");
@@ -43,7 +43,7 @@ internal static class OldTourianEscapeShaftWallVerification
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion);
         AssertEqual((ushort)0x0110, explosion.Variable0, "the explosion is centred on the wall's X");
         AssertEqual((ushort)0x0888, explosion.Variable1, "the explosion is centred on the wall's Y");
-        RoomLevelData level = runtime.Room.LevelData!;
+        RoomLevelData level = runtime.Room.LoadedLevelData;
         for (int column = 0; column < 2; column++)
         for (int row = 0; row < 3; row++)
         {

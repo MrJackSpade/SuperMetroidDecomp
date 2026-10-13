@@ -478,7 +478,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileFrameResult chargedRelease = chargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
     int? chargedReleaseSlot = beforeChargedRelease.FiredSlot(chargeProjectiles);
     AssertTrue(chargedReleaseSlot is not null, "charged release allocates projectile");
-    SamusProjectileSlot chargedSlot = chargeProjectiles.Slots[chargedReleaseSlot!.Value];
+    SamusProjectileSlot chargedSlot = chargeProjectiles.Slots[(chargedReleaseSlot ?? throw new InvalidOperationException("Verification requires chargedReleaseSlot."))];
     AssertEqual(60, chargedSlot.Damage, "charged release uses charged data pointer");
     AssertEqual(0x0010, unchecked((ushort)(chargedSlot.Type & 0x0010)),
         "charged release sets charged type bit");
@@ -567,7 +567,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(bridgeReleaseSlot is not null,
         "pose-direction bridge forces charged release while Shoot remains held");
     AssertEqual(2,
-        bridgeProjectiles.Slots[bridgeReleaseSlot!.Value].Direction,
+        bridgeProjectiles.Slots[(bridgeReleaseSlot ?? throw new InvalidOperationException("Verification requires bridgeReleaseSlot."))].Direction,
         "pose-direction bridge supplies stored low-byte direction");
     AssertEqual(0, bridgeProjectiles.Charge.FlareCounter,
         "pose-direction bridge consumes charge counter");
@@ -603,7 +603,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         AssertTrue(combinedChargedReleaseSlot is not null,
             $"charged beam combination {beamType} allocates on release");
         SamusProjectileSlot combinedChargedSlot =
-            combinedChargeProjectiles.Slots[combinedChargedReleaseSlot!.Value];
+            combinedChargeProjectiles.Slots[(combinedChargedReleaseSlot ?? throw new InvalidOperationException("Verification requires combinedChargedReleaseSlot."))];
         AssertEqual(NativeDamage(0x9383d9, beamType), combinedChargedSlot.Damage,
             $"charged beam combination {beamType} indexes charged data pointer");
         AssertEqual((ushort)30, combinedChargeBombs.CooldownTimer.RawValue,
@@ -1098,7 +1098,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(postMissileBeamSlot.HasValue,
         "Shoot after missile deselection allocates a new beam");
     SamusProjectileSlot postMissileBeam =
-        missileProjectiles.Slots[postMissileBeamSlot!.Value];
+        missileProjectiles.Slots[(postMissileBeamSlot ?? throw new InvalidOperationException("Verification requires postMissileBeamSlot."))];
     AssertEqual(0x8000, postMissileBeam.Type,
         "post-missile shot rebuilds active packed type as uncharged Power Beam");
     AssertEqual(0x0014, postMissileBeam.Damage,
@@ -1241,7 +1241,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     const ushort residentDoorArgument = 37;
     const int residentDoorBlock = 3 * 16 + 5;
     InstallResidentDoorPlmGraphFixture(bus);
-    WriteRoomPlmPopulationFixture(bus, residentDoorPopulation, (0xc88a, 5, 3, residentDoorArgument));
+    WriteRoomPlmPopulationFixture(bus, residentDoorPopulation, ((ushort)0xc88a, (byte)5, (byte)3, residentDoorArgument));
 
     var residentWords = new ushort[16 * 16];
     residentWords[residentDoorBlock] = 0x8120;
@@ -1307,7 +1307,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     const int greyDoorBlock = 6 * 16 + 2;
 
     InstallGreyDoorPlmGraphFixture(bus);
-    WriteRoomPlmPopulationFixture(bus, greyDoorPopulation, (0xc842, 2, 6, greyDoorRawArgument));
+    WriteRoomPlmPopulationFixture(bus, greyDoorPopulation, ((ushort)0xc842, (byte)2, (byte)6, greyDoorRawArgument));
 
     var greyDoorWords = new ushort[16 * 16];
     greyDoorWords[greyDoorBlock] = 0x8220;

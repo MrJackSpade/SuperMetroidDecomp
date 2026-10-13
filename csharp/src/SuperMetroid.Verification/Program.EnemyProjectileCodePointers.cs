@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -29,7 +30,7 @@ internal static class EnemyProjectileCodePointersVerification
             .Distinct()
             .Count(), "enemy projectile callback addresses are unique");
         AssertEqual(lists.Length, lists
-            .Select(field => (ushort)field.GetRawConstantValue()!)
+            .Select(field => field.RequiredConstant<ushort>())
             .Distinct()
             .Count(), "enemy projectile list addresses are unique");
 
@@ -38,7 +39,7 @@ internal static class EnemyProjectileCodePointersVerification
             ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath)
             : null;
         foreach ((string name, ushort pointer) in callbacks.Concat(
-            lists.Select(field => (field.Name, (ushort)field.GetRawConstantValue()!))))
+            lists.Select(field => (field.Name, field.RequiredConstant<ushort>()))))
         {
             AssertTrue(pointer >= 0x8000,
                 $"enemy projectile pointer {name} is in mapped bank-$86 ROM");

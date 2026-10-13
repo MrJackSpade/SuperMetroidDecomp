@@ -95,7 +95,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 for (int index = 0; index < PaletteFxHeatProgramDefinition.ColorsPerFrame; index++)
                 {
                     ushort pointer = ColorPointer(frame, index);
-                    if (!previousVersionFallback!.TryReadColor(pointer, out Bgr555 stockColor))
+                    if (!(previousVersionFallback ?? throw new InvalidDataException("A previous-version room palette-FX override requires the current stock presentation.")).TryReadColor(pointer, out Bgr555 stockColor))
                         throw new InvalidDataException(
                             $"Current stock is missing {definition.Suit} heat color $8D:{pointer:X4}.");
                     colors.Add(pointer, stockColor);

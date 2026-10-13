@@ -45,17 +45,17 @@ internal static class RoomDefinitionIntegrationVerification
             "guarded post-Ceres room entry retains compiled incoming door");
         AssertEqual(expected.Room.ActiveRoom, actual.Room.ActiveRoom,
             "guarded post-Ceres room entry retains compiled header, selection, and state");
-        AssertTrue(expected.Room.Camera!.Scrolls.Storage.SequenceEqual(
-                actual.Room.Camera!.Scrolls.Storage),
+        AssertTrue(expected.Room.LoadedCamera.Scrolls.Storage.SequenceEqual(
+                actual.Room.LoadedCamera.Scrolls.Storage),
             "guarded post-Ceres room entry retains compiled scroll constraints");
-        AssertEqual((expected.Room.Camera.PixelPosition.X, expected.Room.Camera.PixelPosition.Y),
-            (actual.Room.Camera.PixelPosition.X, actual.Room.Camera.PixelPosition.Y),
+        AssertEqual((expected.Room.LoadedCamera.PixelPosition.X, expected.Room.LoadedCamera.PixelPosition.Y),
+            (actual.Room.LoadedCamera.PixelPosition.X, actual.Room.LoadedCamera.PixelPosition.Y),
             "guarded post-Ceres room entry retains camera placement");
-        AssertEqual((expected.Player.Samus!.Kinematics.Position.X.RawValue, expected.Player.Samus.Kinematics.Position.Y.RawValue),
-            (actual.Player.Samus!.Kinematics.Position.X.RawValue, actual.Player.Samus.Kinematics.Position.Y.RawValue),
+        AssertEqual((expected.Player.IntroducedSamus.Kinematics.Position.X.RawValue, expected.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
+            (actual.Player.IntroducedSamus.Kinematics.Position.X.RawValue, actual.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
             "guarded post-Ceres room entry retains Samus placement");
 
-        ushort initialCameraY = actual.Room.Camera.PixelPosition.Y;
+        ushort initialCameraY = actual.Room.LoadedCamera.PixelPosition.Y;
         int frames = 0;
         bool cameraMoved = false;
         while (actual.Enemies.GunshipBehavior.LastGunshipEvent != GunshipFrameEvent.LandingCompleted &&
@@ -66,21 +66,21 @@ internal static class RoomDefinitionIntegrationVerification
             AssertEqual(expectedFrame, actualFrame,
                 $"guarded post-Ceres frame result {frames}");
             AssertEqual(
-                (expected.Room.Camera.PixelPosition.X, expected.Room.Camera.Position.X.Fraction,
-                    expected.Room.Camera.PixelPosition.Y, expected.Room.Camera.Position.Y.Fraction,
-                    expected.Room.Camera.IdealPosition.X, expected.Room.Camera.IdealPosition.Y),
-                (actual.Room.Camera.PixelPosition.X, actual.Room.Camera.Position.X.Fraction,
-                    actual.Room.Camera.PixelPosition.Y, actual.Room.Camera.Position.Y.Fraction,
-                    actual.Room.Camera.IdealPosition.X, actual.Room.Camera.IdealPosition.Y),
+                (expected.Room.LoadedCamera.PixelPosition.X, expected.Room.LoadedCamera.Position.X.Fraction,
+                    expected.Room.LoadedCamera.PixelPosition.Y, expected.Room.LoadedCamera.Position.Y.Fraction,
+                    expected.Room.LoadedCamera.IdealPosition.X, expected.Room.LoadedCamera.IdealPosition.Y),
+                (actual.Room.LoadedCamera.PixelPosition.X, actual.Room.LoadedCamera.Position.X.Fraction,
+                    actual.Room.LoadedCamera.PixelPosition.Y, actual.Room.LoadedCamera.Position.Y.Fraction,
+                    actual.Room.LoadedCamera.IdealPosition.X, actual.Room.LoadedCamera.IdealPosition.Y),
                 $"guarded post-Ceres camera trajectory frame {frames}");
             AssertEqual(
-                (expected.Player.Samus!.Kinematics.Position.X.RawValue, expected.Player.Samus.Kinematics.Position.Y.RawValue),
-                (actual.Player.Samus!.Kinematics.Position.X.RawValue, actual.Player.Samus.Kinematics.Position.Y.RawValue),
+                (expected.Player.IntroducedSamus.Kinematics.Position.X.RawValue, expected.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
+                (actual.Player.IntroducedSamus.Kinematics.Position.X.RawValue, actual.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
                 $"guarded post-Ceres carried-Samus trajectory frame {frames}");
             AssertEqual(expected.Enemies.GunshipBehavior.LastGunshipEvent,
                 actual.Enemies.GunshipBehavior.LastGunshipEvent,
                 $"guarded post-Ceres gunship boundary frame {frames}");
-            cameraMoved |= actual.Room.Camera.PixelPosition.Y != initialCameraY;
+            cameraMoved |= actual.Room.LoadedCamera.PixelPosition.Y != initialCameraY;
             frames++;
         }
 
@@ -139,7 +139,7 @@ internal static class RoomDefinitionIntegrationVerification
         ushort[] roomPointers = File.ReadLines(symbolPath)
             .Select(TryParseRoomHeaderPointer)
             .Where(pointer => pointer.HasValue)
-            .Select(pointer => pointer!.Value)
+            .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer.")))
             .Distinct()
             .Order()
             .ToArray();

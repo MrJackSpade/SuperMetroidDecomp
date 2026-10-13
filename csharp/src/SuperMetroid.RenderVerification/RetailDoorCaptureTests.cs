@@ -25,8 +25,8 @@ internal static class RetailDoorCaptureTests
             ushort door = left ? DoorPointers.CeresDeadScientistFromFinalHallway : DoorPointers.CeresFinalHallwayFromDeadScientist;
             runtime.LoadCartridgeRoomForDebug(left ? RoomHeaderPointers.CeresFinalHallway : RoomHeaderPointers.CeresDeadScientistRoom,
                 new Position16<RoomPixels>(left ? DoorTransitionAuditPositions.Origin : DoorTransitionAuditPositions.SecondScreenCameraX, 0));
-            runtime.Player.Samus!.Kinematics.Position = runtime.Player.Samus!.Kinematics.Position.WithX(SnesFixedPosition.FromRaw(left ? DoorTransitionAuditPositions.LeftDoorSamusXFixed : DoorTransitionAuditPositions.SecondScreenRightDoorSamusXFixed));
-            runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithY(SnesFixedPosition.FromRaw(DoorTransitionAuditPositions.CeresCorridorDoorSamusYFixed));
+            runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithX(SnesFixedPosition.FromRaw(left ? DoorTransitionAuditPositions.LeftDoorSamusXFixed : DoorTransitionAuditPositions.SecondScreenRightDoorSamusXFixed));
+            runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithY(SnesFixedPosition.FromRaw(DoorTransitionAuditPositions.CeresCorridorDoorSamusYFixed));
             SwapchainTests.VerifyBlockedDoor(device, renderer, runtime, bus, door, destination, left ? "left" : "right");
         }
     }
@@ -44,7 +44,7 @@ internal static class RetailDoorCaptureTests
                 if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrollFrames++;
                 transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                var packet = new RenderFrameSnapshot(new(++frames, 1, (ushort)frames), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+                var packet = new RenderFrameSnapshot(new(++frames, 1, (ushort)frames), GameplayDisplayCapture.CaptureFrame(runtime));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 publish?.Invoke(packet);
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
@@ -60,14 +60,14 @@ internal static class RetailDoorCaptureTests
     {
         // Same staged approach as the existing visual regression: discover the real
         // authored door via its collision block, then run the production dispatcher.
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         for (int index = 0; index < level.ForegroundEntries.Length; index++)
         {
             var block = level.GetCollisionBlockByIndex(index);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(bus, block.Behavior, runtime.Player.Samus!.Pose, publishDoorSideEffects: false);
+            var door = level.ResolveDoorCollision(bus, block.Behavior, runtime.Player.IntroducedSamus.Pose, publishDoorSideEffects: false);
             if (door.Pointer != pointer) continue;
-            level.ResolveDoorCollision(bus, block.Behavior, runtime.Player.Samus.Pose, publishDoorSideEffects: true);
+            level.ResolveDoorCollision(bus, block.Behavior, runtime.Player.IntroducedSamus.Pose, publishDoorSideEffects: true);
             return;
         }
         throw new InvalidOperationException($"No authored collision for door {pointer:X4}.");

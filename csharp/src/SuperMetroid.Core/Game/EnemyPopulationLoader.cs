@@ -111,7 +111,7 @@ internal sealed class EnemyPopulationLoader
                     $"offset ${vramByteOffset:X4}, size ${byteCount:X4}.");
             }
 
-            _room.Artwork!.LoadTo(definitionPointer, byteCount, new EnemyVram(vram).EnemyTiles, stagingOffset);
+            _room.Artwork.LoadTo(definitionPointer, byteCount, new EnemyVram(vram).EnemyTiles, stagingOffset);
 
             _graphicsSet.Add(new RoomEnemyGraphicsSetEntry(
                 definitionPointer,

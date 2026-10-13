@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -289,7 +290,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, stock, overrides, original, initialPalettes));
         string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = JsonSerializer.Deserialize<MapPresentationDocument>(File.ReadAllText(Path.Combine(stock, name)), options)!;
+        var document = RequiredJson.Deserialize<MapPresentationDocument>(File.ReadAllText(Path.Combine(stock, name)), options);
         document.Cells[0] = document.Cells[0] with { TileColumn = (document.Cells[0].TileColumn + 1) % MapPresentationFormat.AtlasColumns };
         int visibleCell = Enumerable.Range(0, document.Cells.Length).First(i => rules[AreaId.Crateria].IsDiscoverable(new(checked((ushort)(i % 64)), checked((ushort)(i / 64)))));
         document.Cells[visibleCell] = document.Cells[visibleCell] with { Palette = (document.Cells[visibleCell].Palette + 1) % 8 };
@@ -490,17 +491,17 @@ internal static class MapPresentationVerification
         document.Rainbow[0].Body[0] = beam with { Red = beam.Red == 31 ? 30 : beam.Red + 1 };
         PaletteRgb5 drain = document.ToGrey[0].Body[0];
         document.ToGrey[0].Body[0] = drain with { Blue = drain.Blue == 31 ? 30 : drain.Blue + 1 };
-        PaletteRgb5 authoredTail = document.ToGrey[0].TrailingColor!;
+        PaletteRgb5 authoredTail = (document.ToGrey[0].TrailingColor ?? throw new InvalidOperationException("Verification requires document.ToGrey[0].TrailingColor."));
         document.ToGrey[0] = document.ToGrey[0] with
         {
-            TrailingColor = authoredTail with
+            TrailingColor = (authoredTail ?? throw new InvalidOperationException("Verification requires authoredTail.")) with
             {
                 Green = authoredTail.Green == 31 ? 30 : authoredTail.Green + 1,
             },
         };
         PaletteRgb5 revive = document.FromGrey[0].BackLegs[0];
         document.FromGrey[0].BackLegs[0] = revive with { Green = revive.Green == 31 ? 30 : revive.Green + 1 };
-        PaletteRgb5 fakeDeath = document.FakeDeathToGrey![0][0];
+        PaletteRgb5 fakeDeath = (document.FakeDeathToGrey ?? throw new InvalidOperationException("Verification requires document.FakeDeathToGrey."))[0][0];
         document.FakeDeathToGrey[0][0] = fakeDeath with
         {
             Red = fakeDeath.Red == 31 ? 30 : fakeDeath.Red + 1,
@@ -537,7 +538,7 @@ internal static class MapPresentationVerification
         var stockOutput = new SnesCgram();
         var editedOutput = new SnesCgram();
         original.MotherBrainRainbowPalette.ApplyRainbow(stockOutput, 0);
-        runtime.Enemies.Presentation.MotherBrainRainbowColors!.ApplyRainbow(editedOutput, 0);
+        (runtime.Enemies.Presentation.MotherBrainRainbowColors ?? throw new InvalidOperationException("Verification requires runtime.Enemies.Presentation.MotherBrainRainbowColors.")).ApplyRainbow(editedOutput, 0);
         AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
             editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
             "installed rainbow override reaches the room-enemy binding");
@@ -628,7 +629,7 @@ internal static class MapPresentationVerification
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
-                FakeDeathToGrey = document.FakeDeathToGrey!.Take(7).ToArray(),
+                FakeDeathToGrey = document.FakeDeathToGrey.Take(7).ToArray(),
             }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain fake-death grey fade");
         // Older override documents remain loadable after stock regeneration, with only
         // the newly introduced fake-death colors supplied by the current stock file.
@@ -1397,8 +1398,8 @@ internal static class MapPresentationVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         AssertEqual(edited.Get(AreaId.Ceres).GetTile(runtime.Hud.MinimapCenter).CharacterIndex,
             (ushort)(runtime.Hud.Tiles[60] & 0x3ff), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
-        var room = runtime.Room.ActiveRoom!;
-        var pause = new SuperMetroid.Core.Frontend.PauseMenuState(guard, new PauseMenuEntry { Samus = runtime.Player.Samus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, MapPresentation = edited });
+        var room = runtime.Room.LoadedRoom;
+        var pause = new SuperMetroid.Core.Frontend.PauseMenuState(guard, new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, MapPresentation = edited });
         Position16<MapPixels> scroll = pause.MapScroll;
         pause.BindMapPresentation(original);
         AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");

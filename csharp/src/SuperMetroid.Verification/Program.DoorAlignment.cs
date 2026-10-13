@@ -100,7 +100,7 @@ internal static class DoorAlignmentVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(sourceRoom);
 
-        RoomLevelData level = runtime.Room.LevelData!;
+        RoomLevelData level = runtime.Room.LoadedLevelData;
         int doorX = -1;
         int doorY = -1;
         byte behavior = 0;
@@ -127,7 +127,7 @@ internal static class DoorAlignmentVerification
         runtime.LoadCartridgeRoomForDebug(
             sourceRoom,
             camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
         samus.HorizontalSpeed.BaseSpeed = 1;
@@ -137,9 +137,9 @@ internal static class DoorAlignmentVerification
         samus.HorizontalSpeed.HasRunningMomentum = true;
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
-        runtime.Room.LevelData!.ResolveDoorCollision(bus, behavior, samus.Pose, true);
-        runtime.Room.Camera!.SetPosition(
-            new Position16<RoomPixels>(runtime.Room.Camera.PixelPosition.X, unchecked((ushort)(runtime.Room.Camera.PixelPosition.Y + 2))));
+        runtime.Room.LoadedLevelData.ResolveDoorCollision(bus, behavior, samus.Pose, true);
+        runtime.Room.LoadedCamera.SetPosition(
+            new Position16<RoomPixels>(runtime.Room.LoadedCamera.PixelPosition.X, unchecked((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 2))));
         runtime.GameTime.Load(frames: 58, seconds: 56, minutes: 34, hours: 12);
 
         var transition = new DoorTransitionState();
@@ -170,7 +170,7 @@ internal static class DoorAlignmentVerification
             "two-pixel offset takes two movement calls and one completion call");
         AssertTrue(observedDestinationBuild,
             "door transition exercised the destination OAM handoff");
-        AssertEqual(destinationRoom, runtime.Room.ActiveRoom!.Pointer,
+        AssertEqual(destinationRoom, runtime.Room.LoadedRoom.Pointer,
             "offset retail transition reaches its destination");
         AssertEqual((ushort)58, runtime.GameTime.Frames, "door transition excludes game-time frames");
         AssertEqual((ushort)56, runtime.GameTime.Seconds, "door transition excludes game-time seconds");

@@ -44,7 +44,7 @@ internal static class ZoaInstructionProgramDefinitionsVerification
         foreach (ZoaAnimationSelector selector in selectors)
         {
             RoomEnemySystem enemies = CreateZoaProgramSystem(guard, selector, out RoomEnemySlot slot);
-            ZoaEnemyState state = enemies.ZoaStates[0]!;
+            ZoaEnemyState state = (enemies.ZoaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ZoaStates[0]."));
             AssertEqual(ZoaAnimationDefinitions.InstructionList(selector),
                 slot.CurrentInstruction, $"Zoa installs {selector} program");
 
@@ -55,7 +55,7 @@ internal static class ZoaInstructionProgramDefinitionsVerification
             }
 
             RunZoaProgram(enemies, slot, 1);
-            AssertEqual((ushort)4, state.XSpeedTableIndex,
+            AssertEqual((ushort)4, (state ?? throw new InvalidOperationException("Verification requires state.")).XSpeedTableIndex,
                 $"Zoa {selector} first callback selects speed row four");
             RunZoaProgram(enemies, slot, 64);
             AssertEqual((ushort)8, state.XSpeedTableIndex,
@@ -114,8 +114,8 @@ internal static class ZoaInstructionProgramDefinitionsVerification
             enemies.ZoaBehavior.InitializeZoa(slot = enemies.SlotTable.Slots[0]);
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Zoa;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
-            ZoaEnemyState state = enemies.ZoaStates[0]!;
-            state.PreviousInstructionListTableIndex = selector == ZoaAnimationSelector.None
+            ZoaEnemyState state = (enemies.ZoaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ZoaStates[0]."));
+            (state ?? throw new InvalidOperationException("Verification requires state.")).PreviousInstructionListTableIndex = selector == ZoaAnimationSelector.None
                 ? ZoaAnimationSelector.Rising
                 : ZoaAnimationSelector.None;
             state.InstructionListTableIndex = selector;

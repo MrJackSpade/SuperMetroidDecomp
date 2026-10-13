@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -51,7 +52,7 @@ internal static class ProjectilePresentationContractChecks
                 System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal);
         SyntaxTree calls = CSharpSyntaxTree.ParseText(consumer, path: "fixture-projectile-consumer.cs");
         trees.Add(calls);
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("ProjectileProviderFixture", sources,
             platforms.Append(typeof(BeamTileCatalog).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),

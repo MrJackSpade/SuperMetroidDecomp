@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -50,7 +50,7 @@ internal sealed class EndingCreditsPresentation
         if (_ending.Phase == EndingCreditsPhase.Credits)
         {
             layers.Add(new Bg4BppRenderLayer(EndingCreditsRomData.Rendering.CreditsTilemapWord,
-                EndingCreditsRomData.Rendering.CreditsCharacterWord, new Position16<BgPlanePixels>(0, _ending.credits!.VerticalScroll), new Extent16<TilemapCells>(32, 32), null));
+                EndingCreditsRomData.Rendering.CreditsCharacterWord, new Position16<BgPlanePixels>(0, _ending.Credits.VerticalScroll), new Extent16<TilemapCells>(32, 32), null));
             // Credits intentionally do not run the sprite draw routine.
             oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
         }
@@ -114,8 +114,8 @@ internal sealed class EndingCreditsPresentation
     {
         get
         {
-            short a = Scale(ReadSine(unchecked((byte)(_ending.postShot!.Angle + SnesAngle.QuarterTurn.TableIndex))), (ushort)_ending.postShot.Scale);
-            short b = Scale(ReadSine(_ending.postShot.Angle), (ushort)_ending.postShot.Scale);
+            short a = Scale(ReadSine(unchecked((byte)(_ending.PostShot.Angle + SnesAngle.QuarterTurn.TableIndex))), (ushort)_ending.PostShot.Scale);
+            short b = Scale(ReadSine(_ending.PostShot.Angle), (ushort)_ending.PostShot.Scale);
             return new(a, b, unchecked((short)-b), a,
                 new Offset16<Mode7Pixels>(EndingPostShotDefinitions.CenterX, EndingPostShotDefinitions.CenterY),
                 new Offset16<Mode7Pixels>(EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY));
@@ -138,7 +138,7 @@ internal sealed class EndingCreditsPresentation
             // Function 126 installs font 3 at word $4000 and the circular credits map at
             // BG1SC word $4800. The half-pixel accumulator itself is held by the credits
             // object; the PPU consumes only its whole vertical-scroll word.
-            SnesBgTilemapRenderer.Composite4BppViewport(pixels, _ending.vram, _ending.cgram, new BgVramAddresses { TilemapBaseWord = EndingCreditsRomData.Rendering.CreditsTilemapWord, CharacterBaseWord = EndingCreditsRomData.Rendering.CreditsCharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, _ending.credits!.VerticalScroll), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
+            SnesBgTilemapRenderer.Composite4BppViewport(pixels, _ending.vram, _ending.cgram, new BgVramAddresses { TilemapBaseWord = EndingCreditsRomData.Rendering.CreditsTilemapWord, CharacterBaseWord = EndingCreditsRomData.Rendering.CreditsCharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, _ending.Credits.VerticalScroll), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
         }
         else if (_ending.Phase >= EndingCreditsPhase.PostCreditsBlank)
         {

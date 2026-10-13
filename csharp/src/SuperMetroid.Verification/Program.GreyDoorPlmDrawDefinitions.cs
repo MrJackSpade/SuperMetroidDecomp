@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
@@ -322,9 +323,9 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 RoomPlmGreyDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted grey-door JSON is empty.");
-            JsonNode frame = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "grey-right-frame-0")!;
-            frame["blocks"]![0] = 0x0053;
+            JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "grey-right-frame-0");
+            frame.Required("blocks")[0] = 0x0053;
             Directory.CreateDirectory(
                 installation.RoomPlmGreyDoorVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -344,12 +345,12 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                     .GetWord(0xa6d7, 0),
                 "grey-door override survives stock replacement");
 
-            frame["blocks"]![0] = 0xf053;
+            frame.Required("blocks")[0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmGreyDoorVisuals(),
                 "invalid grey-door override fails loudly");
-            frame["blocks"]![0] = stock;
+            frame.Required("blocks")[0] = stock;
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmGreyDoorVisuals(),

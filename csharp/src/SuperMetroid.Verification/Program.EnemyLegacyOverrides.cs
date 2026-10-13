@@ -32,7 +32,7 @@ internal static class EnemyLegacyOverridesVerification
         EnemySpritemapDefinition native = definitions[0], selected = definitions[1], inherited = definitions[2];
         // Non-identity stock bindings make inheritance observable for schemas that
         // predate editable bindings. Distinct art prevents a lost remap going unnoticed.
-        stockDocument.DisplayFrames![native.Name] = inherited.Name;
+        (stockDocument.DisplayFrames ?? throw new InvalidOperationException("Verification requires stockDocument.DisplayFrames."))[native.Name] = inherited.Name;
         stockDocument.Frames[inherited.Name] =
             [stockDocument.Frames[inherited.Name][0] with { OffsetX = 19, OffsetY = -7, TileColumn = 3 }];
         EnemySpritemapCatalog stock = Load(stockDocument);
@@ -60,7 +60,7 @@ internal static class EnemyLegacyOverridesVerification
                 [document.Frames[native.Name][0] with { OffsetX = -11, OffsetY = 5, TileColumn = 5 }];
             document.Frames[selected.Name] =
                 [document.Frames[selected.Name][0] with { OffsetX = 23, OffsetY = -9, TileColumn = 7 }];
-            if (hasBindings) document.DisplayFrames![native.Name] = selected.Name;
+            if (hasBindings) (document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))[native.Name] = selected.Name;
 
             EnemySpritemapCatalog merged = Load(document, stock);
             string prefix = $"enemy OAM schema {version}: ";
@@ -77,7 +77,7 @@ internal static class EnemyLegacyOverridesVerification
                     prefix + frame.Name + " preserves authored art or inherits new stock art");
 
                 string selectedName = document.DisplayFrames?.GetValueOrDefault(frame.Name)
-                    ?? stockDocument.DisplayFrames![frame.Name];
+                    ?? stockDocument.DisplayFrames[frame.Name];
                 SpriteVisualPart[] expectedDisplay = document.Frames.GetValueOrDefault(selectedName)
                     ?? stockDocument.Frames[selectedName];
                 AssertTrue(merged.TryGetDisplay(frame.Bank, frame.Pointer, out var displayed),
@@ -98,17 +98,17 @@ internal static class EnemyLegacyOverridesVerification
             bindingSchemas++;
             AssertThrows<InvalidDataException>(() => Load(document with { DisplayFrames = null }, stock),
                 prefix + "missing binding data is rejected rather than silently inherited");
-            var missing = new Dictionary<string, string>(document.DisplayFrames!, StringComparer.Ordinal);
+            var missing = new Dictionary<string, string>((document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames.")), StringComparer.Ordinal);
             missing.Remove(native.Name);
             AssertThrows<InvalidDataException>(() => Load(document with { DisplayFrames = missing }, stock),
                 prefix + "incomplete bindings are rejected");
             var wrongKey = new Dictionary<string, string>(missing, StringComparer.Ordinal) { ["unknown-native"] = selected.Name };
             AssertThrows<InvalidDataException>(() => Load(document with { DisplayFrames = wrongKey }, stock),
                 prefix + "correct counts cannot disguise a missing native binding");
-            var unknown = new Dictionary<string, string>(document.DisplayFrames!, StringComparer.Ordinal) { [native.Name] = "unknown-frame" };
+            var unknown = new Dictionary<string, string>(document.DisplayFrames, StringComparer.Ordinal) { [native.Name] = "unknown-frame" };
             AssertThrows<InvalidDataException>(() => Load(document with { DisplayFrames = unknown }, stock),
                 prefix + "unknown selected frames are rejected");
-            var crossBank = new Dictionary<string, string>(document.DisplayFrames!, StringComparer.Ordinal)
+            var crossBank = new Dictionary<string, string>(document.DisplayFrames, StringComparer.Ordinal)
             {
                 [native.Name] = authored.First(frame => frame.Bank != native.Bank).Name,
             };

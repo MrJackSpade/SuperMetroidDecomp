@@ -168,7 +168,7 @@ internal static class SamusArmCannonPlacementDefinitions
         int index = body.Spritemaps.TopBase(pose) + sourcePhase;
         if ((uint)index >= SamusSpritemapArtworkCatalog.PointerCount ||
             !body.Spritemaps.TryGet((ushort)index, out SamusSpritemapDefinition? map) ||
-            map!.Parts.Length == 0) return false;
+            map.Parts.Length == 0) return false;
         int best = int.MinValue, selectedX = 0, selectedY = 0;
         foreach (SamusSpritePart part in map.Parts)
         {

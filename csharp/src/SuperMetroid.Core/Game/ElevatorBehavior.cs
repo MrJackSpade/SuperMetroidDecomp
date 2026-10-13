@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Game;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>The Elevator species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class ElevatorBehavior : IEnemySpecies
@@ -251,7 +251,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         // them as two requests matters because each library owns an independent SPC port.
         _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, ElevatorDepartureSoundLibrary3), maximumQueued: 6);
         _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, ElevatorDepartureSoundLibrary1), maximumQueued: 6);
-        samus.PoseMetadata.SetupForElevator(_room.Bus!);
+        samus.PoseMetadata.SetupForElevator(_room.LoadedBus);
         samusProjectiles?.Reset();
         ElevatorClearedProjectileData = true;
         PinSamusToElevator(slot, samus);

@@ -89,7 +89,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
     internal void InitializeN00bTubeCracks()
     {
         (_room.Artwork?.ChozoAndTubeColors ?? throw new InvalidDataException(
-            "Tube crack colors require installed artwork.")).ApplyTubeCracks(_presentation._cgram!);
+            "Tube crack colors require installed artwork.")).ApplyTubeCracks(_presentation.Cgram);
     }
 
     /// <summary>Ports $AA:E725-$E7A1 for both shipped parameter-two variants.</summary>
@@ -146,8 +146,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
     {
         var colors = _room.Artwork?.ChozoAndTubeColors ?? throw new InvalidDataException(
             "Chozo statue colors require installed artwork.");
-        if (wreckedShip) colors.ApplyWreckedShip(_presentation._cgram!);
-        else colors.ApplyLowerNorfair(_presentation._cgram!);
+        if (wreckedShip) colors.ApplyWreckedShip(_presentation.Cgram);
+        else colors.ApplyLowerNorfair(_presentation.Cgram);
     }
 
     /// <summary>

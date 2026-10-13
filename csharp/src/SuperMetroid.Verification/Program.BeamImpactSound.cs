@@ -29,7 +29,7 @@ internal static class BeamImpactSoundVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        RoomLevelData level = runtime.Room.LevelData!;
+        RoomLevelData level = runtime.Room.LoadedLevelData;
         // A floored corridor ending in a solid column at block 44, inside the settled view.
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 64; x++)
@@ -39,18 +39,18 @@ internal static class BeamImpactSoundVerification
                 y >= 32 || x == 44 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
             level.SetBehavior(index, 0);
         }
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(512, 490));
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
         for (int frame = 0; frame < 64; frame++)
             runtime.StepFrame(0);
 
         runtime.StepFrame((ushort)SnesButton.X);
-        AssertTrue(runtime.Projectiles!.Slots[0].Type != 0, "the shot is live");
+        AssertTrue(runtime.Projectiles.Slots[0].Type != 0, "the shot is live");
         for (int frame = 0; frame < 120; frame++)
         {
             bool exploding = runtime.Projectiles.Slots[0].PackedType.IsFamily(SamusProjectileFamily.BeamExplosion);

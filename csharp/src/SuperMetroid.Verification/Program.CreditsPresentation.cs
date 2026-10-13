@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -60,8 +61,8 @@ internal static class CreditsPresentationVerification
         AssertTrue(runtime.Step().Finished && !runtime.Enabled,
             "credits finish on the boundary after the final installed row");
 
-        JsonObject editedDocument = JsonNode.Parse(extracted)!.AsObject();
-        JsonObject editedLine = editedDocument["lines"]![0]!.AsObject();
+        JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();
+        JsonObject editedLine = editedDocument.Required("lines").Required(0).AsObject();
         editedLine["text"] = "TEST STAFF";
         editedLine["column"] = 3;
         editedLine["palette"] = 6;
@@ -79,15 +80,15 @@ internal static class CreditsPresentationVerification
         Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document => document["version"] = 2,
             "unsupported staff-credit schema rejected"));
         Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document =>
-            document["lines"]!.AsArray().RemoveAt(0), "missing staff-credit line rejected"));
+            document.Required("lines").AsArray().RemoveAt(0), "missing staff-credit line rejected"));
         Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document =>
-            document["lines"]![0]!["id"] = "wrong", "reordered staff-credit identity rejected"));
+            document.Required("lines").Required(0)["id"] = "wrong", "reordered staff-credit identity rejected"));
         Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document =>
-            document["lines"]![0]!["text"] = "BAD?", "unsupported staff-credit glyph rejected"));
+            document.Required("lines").Required(0)["text"] = "BAD?", "unsupported staff-credit glyph rejected"));
         Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document =>
-            document["lines"]![0]!["column"] = 31, "overflowing staff-credit line rejected"));
+            document.Required("lines").Required(0)["column"] = 31, "overflowing staff-credit line rejected"));
         Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document =>
-            document["lines"]![0]!["palette"] = 8, "invalid staff-credit palette rejected"));
+            document.Required("lines").Required(0)["palette"] = 8, "invalid staff-credit palette rejected"));
         AssertThrows<InvalidDataException>(() => CreditsPresentation.Load(
             new MemoryStream("not json"u8.ToArray())), "corrupt staff-credit JSON rejected");
 
@@ -100,7 +101,7 @@ internal static class CreditsPresentationVerification
     private static void VerifyBadCreditDocument(byte[] extracted,
         Action<JsonObject> mutate, string identity)
     {
-        JsonObject document = JsonNode.Parse(extracted)!.AsObject();
+        JsonObject document = RequiredJson.Parse(extracted).AsObject();
         mutate(document);
         byte[] bytes = Encoding.UTF8.GetBytes(
             document.ToJsonString(MapPresentationFormat.JsonOptions));
@@ -115,8 +116,8 @@ internal static class CreditsPresentationVerification
         Directory.CreateDirectory(overrideDirectory);
         string stockPath = Path.Combine(
             stockDirectory, CreditsPresentationDefinitions.FileName);
-        JsonObject document = JsonNode.Parse(File.ReadAllBytes(stockPath))!.AsObject();
-        JsonObject first = document["lines"]![0]!.AsObject();
+        JsonObject document = RequiredJson.Parse(File.ReadAllBytes(stockPath)).AsObject();
+        JsonObject first = document.Required("lines").Required(0).AsObject();
         first["text"] = "EDITED STAFF";
         first["column"] = 2;
         first["palette"] = 7;

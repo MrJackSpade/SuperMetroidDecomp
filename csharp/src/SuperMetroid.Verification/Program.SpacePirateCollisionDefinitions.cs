@@ -274,7 +274,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             bool hit = slot.EnemyDefinitionPointer == (EnemyDefinitionId)0xffff
                 ? ReferenceExtendedCollision(rom, arguments)
                 : ExtendedHitboxWalker.Find(enemies, arguments);
-            return (hit, (ushort)arguments[4]!);
+            return (hit, (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4].")));
         }
     }
 

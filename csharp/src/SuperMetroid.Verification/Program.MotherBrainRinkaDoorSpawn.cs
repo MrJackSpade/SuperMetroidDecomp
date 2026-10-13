@@ -30,7 +30,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.RinkaShaft);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(0x14, 0x028b));
         samus.InputLocked = true;
@@ -39,10 +39,10 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.DoorLoaderProgress = new CameraReachedLoaderProgress(runtime, 0x038c);
 
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)
         for (int x = 0; x < level.Size.X && !selected; x++)
@@ -60,7 +60,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         for (int guard = 0; game.GameState != SuperMetroidGameState.MainGameplay && guard < 600; guard++)
             game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the door transition completes");
-        AssertEqual(FixtureRoomHeaders.MotherBrain, runtime.Room.ActiveRoom!.Pointer, "Samus is in Mother Brain's room");
+        AssertEqual(FixtureRoomHeaders.MotherBrain, runtime.Room.LoadedRoom.Pointer, "Samus is in Mother Brain's room");
 
         RoomEnemySlot[] rinkas = runtime.Enemies.SlotTable.Slots
             .Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka && slot.Parameter1 != 0)
@@ -80,7 +80,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
     internal sealed class CameraReachedLoaderProgress(SuperMetroidRuntime runtime, ushort cameraX) : IDoorLoaderProgressSource
     {
         /// <summary>Allows enemy initialization once scrolling reaches the recorded layer-1 X.</summary>
-        public bool HasInitializedEnemySlot(int slot) => runtime.Room.Camera!.PixelPosition.X <= cameraX;
+        public bool HasInitializedEnemySlot(int slot) => runtime.Room.LoadedCamera.PixelPosition.X <= cameraX;
     }
 
     /// <summary>Runs the focused scrolling-camera Rinka spawn check.</summary>

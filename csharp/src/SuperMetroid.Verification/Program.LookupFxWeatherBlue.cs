@@ -15,7 +15,7 @@ internal static class LookupFxWeatherBlueVerification
         {
             ushort native = ReadVerificationWord(rom, 0x89aa06 + id);
             int expected = (native >> 5) & 31;
-            AssertEqual(expected, RoomFxPaletteBlendDefinitions.CalculatedThirdGreen((RoomFxPaletteBlend)id)!.Value, "Native weather third green");
+            AssertEqual(expected, (RoomFxPaletteBlendDefinitions.CalculatedThirdGreen((RoomFxPaletteBlend)id) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdGreen((RoomFxPaletteBlend)id).")), "Native weather third green");
             AssertEqual(expected, (stock.Resolve((RoomFxPaletteBlend)id)[2].ToWord() >> 5) & 31, "Installed weather third green");
             var cgram = new SnesCgram(); stock.Apply(cgram, (RoomFxPaletteBlend)id);
             AssertEqual(expected, (cgram.Colors[27].ToWord() >> 5) & 31, "Applied weather third green");
@@ -41,7 +41,7 @@ internal static class LookupFxWeatherBlueVerification
         {
             ushort native = ReadVerificationWord(rom, 0x89aa06 + id);
             int expected = (native >> 10) & 31;
-            AssertEqual(expected, RoomFxPaletteBlendDefinitions.CalculatedThirdBlue((RoomFxPaletteBlend)id, native & 31)!.Value, "Native weather third blue");
+            AssertEqual(expected, (RoomFxPaletteBlendDefinitions.CalculatedThirdBlue((RoomFxPaletteBlend)id, native & 31) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdBlue((RoomFxPaletteBlend)id, native & 31).")), "Native weather third blue");
             AssertEqual(expected, (stock.Resolve((RoomFxPaletteBlend)id)[2].ToWord() >> 10) & 31, "Installed weather third blue");
             var cgram = new SnesCgram();
             stock.Apply(cgram, (RoomFxPaletteBlend)id);

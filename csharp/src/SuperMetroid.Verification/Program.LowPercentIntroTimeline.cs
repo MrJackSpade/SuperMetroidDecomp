@@ -129,12 +129,12 @@ internal static class LowPercentIntroTimelineVerification
         {
             case 1809:
                 // $90:A3BA: the demo's held shot restarts and holds the standing animation.
-                AssertEqual((ushort)0x000f, flashback!.AnimationFrameTimer.RawValue, "update 1809 standing-shot animation timer");
+                AssertEqual((ushort)0x000f, (flashback ?? throw new InvalidOperationException("Verification requires flashback.")).AnimationFrameTimer.RawValue, "update 1809 standing-shot animation timer");
                 AssertEqual((ushort)0, flashback.AnimationFrame, "update 1809 standing-shot animation frame");
                 break;
             case 1884:
                 // $8B:B90B: Rinka zero, stepped in its spawn pass, strikes Samus on native's update.
-                AssertEqual((byte)0x54, (byte)flashback!.Pose, "update 1884 Rinka knockback pose");
+                AssertEqual((byte)0x54, (byte)(flashback ?? throw new InvalidOperationException("Verification requires flashback.")).Pose, "update 1884 Rinka knockback pose");
                 break;
             case 2050:
                 // $90:EB02 cleared the run's movement records, so the missile inherits nothing.
@@ -145,21 +145,21 @@ internal static class LowPercentIntroTimelineVerification
                 break;
             case 2111:
                 // $91:874B: the demo-end lock keeps the running animation of an unchanged pose.
-                AssertEqual((ushort)0x000e, flashback!.AnimationFrameTimer.RawValue, "update 2111 locked Samus animation timer");
+                AssertEqual((ushort)0x000e, (flashback ?? throw new InvalidOperationException("Verification requires flashback.")).AnimationFrameTimer.RawValue, "update 2111 locked Samus animation timer");
                 break;
             case 2400:
                 // $8B:B842 cleared $1A57, so Samus is not processed during the page-two text.
-                AssertEqual((ushort)0x0003, flashback!.AnimationFrameTimer.RawValue, "update 2400 frozen Samus animation timer");
+                AssertEqual((ushort)0x0003, (flashback ?? throw new InvalidOperationException("Verification requires flashback.")).AnimationFrameTimer.RawValue, "update 2400 frozen Samus animation timer");
                 AssertEqual((ushort)0, flashback.AnimationFrame, "update 2400 frozen Samus animation frame");
                 break;
             case 3012:
                 // $8B:AF99: pose two was already set, so the discovery keeps her animation running.
-                AssertEqual((ushort)0x0002, discovery!.AnimationFrameTimer.RawValue, "update 3012 discovery Samus animation timer");
+                AssertEqual((ushort)0x0002, (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).AnimationFrameTimer.RawValue, "update 3012 discovery Samus animation timer");
                 AssertEqual((ushort)0, discovery.AnimationFrame, "update 3012 discovery Samus animation frame");
                 break;
             case 3990:
                 // $91:8682 pointed both state handlers at an RTL during update 3943.
-                AssertEqual((ushort)0x0028, discovery!.Position.X.Whole, "update 3990 stopped Samus X");
+                AssertEqual((ushort)0x0028, (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).Position.X.Whole, "update 3990 stopped Samus X");
                 AssertEqual((ushort)0x5000, discovery.Kinematics.Position.X.Fraction, "update 3990 stopped Samus X fraction");
                 break;
         }

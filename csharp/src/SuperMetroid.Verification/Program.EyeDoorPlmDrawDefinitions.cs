@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
@@ -235,9 +236,9 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
                 RoomPlmEyeDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted eye-door JSON is empty.");
-            JsonNode frame = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "right-eye-frame-0")!;
-            frame["blocks"]![0] = 0x0055;
+            JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "right-eye-frame-0");
+            frame.Required("blocks")[0] = 0x0055;
             Directory.CreateDirectory(
                 installation.RoomPlmEyeDoorVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -257,7 +258,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
                     .GetWord(0x9c5b, 0),
                 "eye-door override survives stock replacement");
 
-            frame["blocks"]![0] = 0xf055;
+            frame.Required("blocks")[0] = 0xf055;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmEyeDoorVisuals(),

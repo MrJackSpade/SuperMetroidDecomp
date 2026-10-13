@@ -30,7 +30,7 @@ internal static class FirefleaMovementDefinitionsVerification
             slot.Parameter2 = (ushort)(radiusIndex << 8);
             slot.Position = slot.Position.WithWhole(new(0x100, 0x100));
             initialize(slot);
-            AssertEqual(native, enemies.FirefleaStates[0]!.Radius,
+            AssertEqual(native, (enemies.FirefleaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FirefleaStates[0].")).Radius,
                 $"Fireflea initializer radius {radiusIndex}");
         }
 

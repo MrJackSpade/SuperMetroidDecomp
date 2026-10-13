@@ -42,7 +42,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
             ushort selected = (ushort)EnemyInstructionInterpreter.ReadEnemyVisualSelector(slot, operand);
             AssertEqual(native, selected,
                 $"Oum visual selector $A2:{operand:X4} matches native");
-            AssertTrue(stock.ExtendedFrames!.TryGetDisplay(
+            AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
                     MaridiaLargeSnailCollisionDefinitions.Bank, selected, out _),
                 $"Oum visual selector $A2:{operand:X4} has installed art");
             seen.Add(selected);
@@ -136,8 +136,8 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
                         bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                         AssertEqual(nativeHit, compiledHit,
                             $"Oum $A2:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
-                        AssertEqual((ushort)nativeArguments[^1]!,
-                            (ushort)compiledArguments[^1]!,
+                        AssertEqual((ushort)(nativeArguments[^1] ?? throw new InvalidOperationException("Verification requires nativeArguments[^1].")),
+                            (ushort)(compiledArguments[^1] ?? throw new InvalidOperationException("Verification requires compiledArguments[^1].")),
                             $"Oum $A2:{frame:X4} callback {x:X4},{y:X4}, shot={shot}");
                         probes++;
                     }

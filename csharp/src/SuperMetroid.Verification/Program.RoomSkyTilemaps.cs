@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -85,13 +86,13 @@ internal static class RoomSkyTilemapsVerification
             LibraryBackgroundInstruction compiled = landingProgram.Instructions[index];
             AssertEqual(LibraryBackgroundCommand.TransferForDoor, native.Command,
                 $"Landing Site command {index} is door-selected");
-            AssertEqual(compiled.DoorPointer, native.DoorPointer!.Value,
+            AssertEqual(compiled.DoorPointer, (native.DoorPointer ?? throw new InvalidOperationException("Verification requires native.DoorPointer.")),
                 $"Landing Site command {index} door");
             AssertEqual(compiled.SourceAddress, native.SourceAddress,
                 $"Landing Site command {index} sky source");
-            AssertEqual(compiled.Destination, native.VramDestination!.Value,
+            AssertEqual(compiled.Destination, (native.VramDestination ?? throw new InvalidOperationException("Verification requires native.VramDestination.")),
                 $"Landing Site command {index} VRAM destination");
-            AssertEqual(compiled.ByteCount, native.TransferByteCount!.Value,
+            AssertEqual(compiled.ByteCount, (native.TransferByteCount ?? throw new InvalidOperationException("Verification requires native.TransferByteCount.")),
                 $"Landing Site command {index} transfer size");
             _ = LandingSiteEntryState.Load(
                 NewSkyPageReadGuard(bus, blockLandingList: true), compiled.DoorPointer);
@@ -176,8 +177,8 @@ internal static class RoomSkyTilemapsVerification
         int selectedCell = sourceOffset % RoomSkyTilemapFormat.PageByteCount / sizeof(ushort);
         JsonNode editedDocument = JsonNode.Parse(json[selectedPage])
             ?? throw new InvalidDataException("Scrolling-sky page JSON is empty.");
-        JsonNode editedCell = editedDocument["pages"]![0]!["cells"]![selectedCell]!;
-        editedCell["tileColumn"] = (editedCell["tileColumn"]!.GetValue<int>() + 1)
+        JsonNode editedCell = editedDocument.Required("pages").Required(0).Required("cells").Required(selectedCell);
+        editedCell["tileColumn"] = (editedCell.Required("tileColumn").GetValue<int>() + 1)
             % RoomBackgroundTilemapFormat.TileColumns;
         pages[selectedPage] = RoomBackgroundTilemapAtlas.Load(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(editedDocument)),

@@ -101,7 +101,7 @@ internal static class AttractDemoSceneVerification
                 AssertEqual(SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(retail, set, scene), StockAttractDemoScenes.Get(set, scene),
                     $"compiled scene {set}/{scene} matches every cartridge setup field");
                 total++;
-                VerifyCompiledAttractInput(retail, StockAttractDemoScenes.Get(set, scene)!);
+                VerifyCompiledAttractInput(retail, (StockAttractDemoScenes.Get(set, scene) ?? throw new InvalidOperationException("Verification requires StockAttractDemoScenes.Get(set, scene).")));
             }
             AssertTrue(StockAttractDemoScenes.Get(set, counts[set]) is null &&
                 SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(retail, set, counts[set]) is null, "stock set sentinel");
@@ -130,9 +130,9 @@ internal static class AttractDemoSceneVerification
         {
             for (int sceneIndex = 0; sceneIndex < sceneCounts[set]; sceneIndex++)
             {
-                AttractDemoScene scene = StockAttractDemoScenes.Get(set, sceneIndex)!;
+                AttractDemoScene scene = (StockAttractDemoScenes.Get(set, sceneIndex) ?? throw new InvalidOperationException("Verification requires StockAttractDemoScenes.Get(set, sceneIndex)."));
                 StockAttractInputPrograms.ObjectDefinition definition =
-                    StockAttractInputPrograms.GetObject(scene.InputObject);
+                    StockAttractInputPrograms.GetObject((scene ?? throw new InvalidOperationException("Verification requires scene.")).InputObject);
                 int objectAddress = DemoInputRomData.BankBase | scene.InputObject;
                 AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(objectAddress), definition.Initializer, "native attract initializer");
                 AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((objectAddress + 2)), definition.PreInstruction, "native attract callback");
@@ -194,10 +194,10 @@ internal static class AttractDemoSceneVerification
         {
             for (int sceneIndex = 0; sceneIndex < sceneCounts[set]; sceneIndex++)
             {
-                AttractDemoScene scene = StockAttractDemoScenes.Get(set, sceneIndex)!;
+                AttractDemoScene scene = (StockAttractDemoScenes.Get(set, sceneIndex) ?? throw new InvalidOperationException("Verification requires StockAttractDemoScenes.Get(set, sceneIndex)."));
                 // The production input owner has no address-space capability. Room and
                 // presentation initialization are separate from this dispatch contract.
-                var input = new AttractDemoInput(scene);
+                var input = new AttractDemoInput((scene ?? throw new InvalidOperationException("Verification requires scene.")));
                 for (int frame = 0; frame < scene.Duration; frame++)
                     input.StepStock(SuperMetroidGameState.PlayingDemo,
                         frame < 200 ? SamusMovementType.DraygonHeld : SamusMovementType.Standing);

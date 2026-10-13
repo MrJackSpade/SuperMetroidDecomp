@@ -399,17 +399,16 @@ public sealed class SamusCrystalFlashState
         CrystalPaletteTimer = crystalPaletteTimer.Remaining;
         if (crystalPaletteTimer.IsZeroOrNegative)
         {
-            bool cataloguedBody = colors is not null &&
-                CommonPaletteTimer % SamusPaletteRomData.CrystalFlash.BodyRecordByteCount == 0 &&
-                CommonPaletteTimer < SamusPaletteRomData.CrystalFlash.BodyRecordCount *
-                    SamusPaletteRomData.CrystalFlash.BodyRecordByteCount;
-            if (!cataloguedBody)
+            if (colors is null ||
+                CommonPaletteTimer % SamusPaletteRomData.CrystalFlash.BodyRecordByteCount != 0 ||
+                CommonPaletteTimer >= SamusPaletteRomData.CrystalFlash.BodyRecordCount *
+                    SamusPaletteRomData.CrystalFlash.BodyRecordByteCount)
                 throw new InvalidDataException(
                     $"Crystal Flash body frame {CommonPaletteTimer} has no installed color.");
             CrystalPaletteTimer =
                 NativeCountdown.FromRaw(CrystalFlashPaletteTimingDefinitions.DurationForByteOffset(
                     CommonPaletteTimer));
-            colors!.ApplyBody(cgram,
+            colors.ApplyBody(cgram,
                 CommonPaletteTimer / SamusPaletteRomData.CrystalFlash.BodyRecordByteCount);
 
             ushort nextRecord = unchecked((ushort)(

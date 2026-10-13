@@ -28,7 +28,7 @@ internal static class JumpNoXMovementVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.RedFish);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.NormalJumpAimDownLeftPose;
         samus.Position = samus.Position.WithWhole(new(0x0225, 0x004a));
         samus.PoseMetadata.RefreshCollisionRadii(bus);
@@ -40,7 +40,7 @@ internal static class JumpNoXMovementVerification
         samus.Kinematics.YSubacceleration = 0x1c00;
         samus.HorizontalSpeed.AccelerationMode = 0;
 
-        SamusAerialMovement.StepNormalJump(bus, runtime.Room.LevelData!, samus,
+        SamusAerialMovement.StepNormalJump(bus, runtime.Room.LoadedLevelData, samus,
             (ushort)(SnesButton.A | SnesButton.B), nmiFrameCounter: 0);
         AssertEqual((ushort)0x004a, samus.Position.Y.Whole, "no horizontal move means no slope alignment");
         AssertEqual((ushort)0x0225, samus.Position.X.Whole, "X is unchanged");

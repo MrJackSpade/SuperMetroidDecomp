@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -39,7 +40,7 @@ internal static class PauseSelectorAnchorsVerification
         Suite(nameof(VerifyPauseLabelIdentityAdmission), () => VerifyPauseLabelIdentityAdmission(rom, expectedNames.Where(entry => entry.category != PauseEquipmentCategory.Reserves).Select(entry => entry.name)
             .Append("Beam.Hyper").ToArray()));
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions);
         var stock = PauseSelectorPresentation.Load(new MemoryStream(bytes));
         AssertEqual(0, stock.StoredAnchorComponentCount, "stock selector stores no coordinate table");
         Suite(nameof(VerifyPauseSelectorAnchorField), () => VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: true));
@@ -58,7 +59,7 @@ internal static class PauseSelectorAnchorsVerification
     private static void VerifyPauseLabelIdentityAdmission(ISnesAddressSpace rom, string[] names)
     {
         byte[] source = PauseEquipmentLabelExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<PauseEquipmentLabelDocument>(source, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseEquipmentLabelDocument>(source, MapPresentationFormat.JsonOptions);
         AssertTrue(document.Labels.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(names), "native extractor supplies exact label identities");
         _ = PauseEquipmentLabelPresentation.Load(new MemoryStream(source));
         foreach (string name in names)

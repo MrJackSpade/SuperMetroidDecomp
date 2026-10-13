@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -32,9 +33,9 @@ internal static class ChargeFlarePlacementVerification
         Suite(nameof(VerifyChargeFlareCompositions), () => VerifyChargeFlareCompositions(bus));
         byte[] json = ChargeFlarePlacementExtractor.Extract(bus);
         var stock = ChargeFlarePlacementCatalog.Load(new MemoryStream(json));
-        var document = JsonNode.Parse(json)!;
-        foreach (var entry in document["offsets"]!.AsObject())
-            entry.Value!["x"] = entry.Value["x"]!.GetValue<int>() + 7;
+        var document = RequiredJson.Parse(json);
+        foreach (var entry in document.Required("offsets").AsObject())
+            (entry.Value ?? throw new InvalidOperationException("Verification requires entry.Value."))["x"] = (entry.Value ?? throw new InvalidOperationException("Verification requires entry.Value.")).Required("x").GetValue<int>() + 7;
         var edited = Load(document);
         Suite(nameof(VerifyRuntimeFlarePlacement), () => VerifyRuntimeFlarePlacement(bus, stock, edited));
         var system = new SamusProjectileSystem();
@@ -110,12 +111,12 @@ internal static class ChargeFlarePlacementVerification
                 AssertEqual((original.GetEntry(i).X + 7) & 511, changed.GetEntry(i).X, "Public normal/Hyper path forwards selected placement to all components");
             AssertTrue(GraphDigest(originalSystem).SequenceEqual(GraphDigest(editedSystem)), "Normal/Hyper flare visual edits retain identical complete post-tick simulation state");
         }
-        document["offsets"]!.AsObject().Remove(ChargeFlarePlacementDefinitions.Key(false, 0));
+        document.Required("offsets").AsObject().Remove(ChargeFlarePlacementDefinitions.Key(false, 0));
         AssertThrows<InvalidDataException>(() => Load(document), "Missing flare placement rejected");
-        document = JsonNode.Parse(json)!;
-        document["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 32768;
+        document = JsonNode.Parse(json);
+        (document ?? throw new InvalidOperationException("Verification requires document.")).Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 32768;
         AssertThrows<InvalidDataException>(() => Load(document), "Out-of-range flare position rejected");
-        document = JsonNode.Parse(json)!; document["damage"] = 1;
+        document = JsonNode.Parse(json); (document ?? throw new InvalidOperationException("Verification requires document."))["damage"] = 1;
         AssertThrows<InvalidDataException>(() => Load(document), "Flare placement cannot contain mechanics fields");
         AssertThrows<InvalidDataException>(() => ChargeFlarePlacementCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))), "Duplicate flare properties rejected");
         Console.WriteLine($"Flare placement: {cases} native OAM cases with position ROM forbidden, visible edited displacement, whole-state isolation and invalid-resource rejection pass.");
@@ -155,9 +156,9 @@ internal static class ChargeFlarePlacementVerification
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.Player.Samus!.Pose = SamusPoseId.FacingRightNormalPose;
-        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
-        runtime.Player.Samus.Presentation.InitializeAnimation(bus); runtime.Player.Samus.Presentation.PrimeGraphics(bus);
+        runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
+        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
+        runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(bus); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics(bus);
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
@@ -195,7 +196,7 @@ internal static class ChargeFlarePlacementVerification
         AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Flare catalog does not enter frontend/runtime saved graphs");
         with.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
-        var restoredRuntime = restored.runtime;
+        var restoredRuntime = restored.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.ChargeFlarePlacement is null, "Restored flare catalog requires host rebind");
         BindRetailRuntimeFixture(restoredRuntime);
         game.BindArtwork(game.Artwork with

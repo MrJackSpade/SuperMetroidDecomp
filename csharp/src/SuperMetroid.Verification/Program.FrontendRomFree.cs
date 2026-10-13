@@ -299,8 +299,8 @@ internal static class FrontendRomFreeVerification
                         // comparison without letting damage switch the frontend
                         // into a death screen before the next room is loaded.
                         var options = new SuperMetroidGameOptions { Invincibility = true };
-                        nativeRoom.RuntimeForVerification!.ApplyHostOptions(options);
-                        installedRoom.RuntimeForVerification!.ApplyHostOptions(options);
+                        nativeRoom.GameplayRuntimeForVerification.ApplyHostOptions(options);
+                        installedRoom.GameplayRuntimeForVerification.ApplyHostOptions(options);
                     });
                 // Cross the wake/combat handoff into the first linked walking
                 // lists. The older 700-frame low-health check reached Game Over
@@ -309,21 +309,21 @@ internal static class FrontendRomFreeVerification
                     {
                         // Enter the authored lower-right wake rectangle on both
                         // independently stepped games, without crossing a door.
-                        nativeRoom.RuntimeForVerification!.Player.Samus!.Position = nativeRoom.RuntimeForVerification!.Player.Samus!.Position.WithWhole(new(0x0180, 0x0150));
-                        installedRoom.RuntimeForVerification!.Player.Samus!.Position = installedRoom.RuntimeForVerification!.Player.Samus!.Position.WithWhole(new(0x0180, 0x0150));
+                        nativeRoom.GameplayRuntimeForVerification.Player.IntroducedSamus.Position = nativeRoom.GameplayRuntimeForVerification.Player.IntroducedSamus.Position.WithWhole(new(0x0180, 0x0150));
+                        installedRoom.GameplayRuntimeForVerification.Player.IntroducedSamus.Position = installedRoom.GameplayRuntimeForVerification.Player.IntroducedSamus.Position.WithWhole(new(0x0180, 0x0150));
                         // The attack choices are random. Pin the seed this scenario was authored
                         // against so earlier frontend timing cannot change which attacks occur.
-                        nativeRoom.RuntimeForVerification!.System.SetRandomNumber(0x23fc);
-                        installedRoom.RuntimeForVerification!.System.SetRandomNumber(0x23fc);
+                        nativeRoom.GameplayRuntimeForVerification.System.SetRandomNumber(0x23fc);
+                        installedRoom.GameplayRuntimeForVerification.System.SetRandomNumber(0x23fc);
                         var options = new SuperMetroidGameOptions { Invincibility = false };
-                        nativeRoom.RuntimeForVerification!.ApplyHostOptions(options);
-                        installedRoom.RuntimeForVerification!.ApplyHostOptions(options);
+                        nativeRoom.GameplayRuntimeForVerification.ApplyHostOptions(options);
+                        installedRoom.GameplayRuntimeForVerification.ApplyHostOptions(options);
                     });
                 VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo left-foot right-sonic program" }, frameCount: 90, setup: (nativeRoom, installedRoom) =>
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
-                            RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.SlotTable.Slots.Single(
+                            RoomEnemySlot boss = game.GameplayRuntimeForVerification.Enemies.SlotTable.Slots.Single(
                                 slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction = GoldenTorizoRightSonicInstructionProgramDefinitions.Start;
                             boss.InstructionTimer = NativeCountdown.Start(1);
@@ -333,7 +333,7 @@ internal static class FrontendRomFreeVerification
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
-                            RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.SlotTable.Slots.Single(
+                            RoomEnemySlot boss = game.GameplayRuntimeForVerification.Enemies.SlotTable.Slots.Single(
                                 slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction =
                                 GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward;
@@ -344,13 +344,13 @@ internal static class FrontendRomFreeVerification
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
-                            RoomEnemySystem enemies = game.RuntimeForVerification!.Enemies;
+                            RoomEnemySystem enemies = game.GameplayRuntimeForVerification.Enemies;
                             RoomEnemySlot boss = enemies.SlotTable.Slots.Single(slot =>
                                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction = GoldenTorizoStunnedInstructionProgramDefinitions.Start;
                             boss.InstructionTimer = NativeCountdown.Start(1);
                             boss.Parameter2 |= GoldenTorizoBehavioralProperties.Stunned;
-                            enemies.BombTorizoBehavior.GoldenTorizo!.ReturnInstruction =
+                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).ReturnInstruction =
                                 GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenStun = true });
@@ -372,12 +372,12 @@ internal static class FrontendRomFreeVerification
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
-                            RoomEnemySystem enemies = game.RuntimeForVerification!.Enemies;
+                            RoomEnemySystem enemies = game.GameplayRuntimeForVerification.Enemies;
                             RoomEnemySlot boss = enemies.SlotTable.Slots.Single(slot =>
                                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction = GoldenTorizoLeftFootOrbInstructionProgramDefinitions.Start;
                             boss.InstructionTimer = NativeCountdown.Start(1);
-                            enemies.BombTorizoBehavior.GoldenTorizo!.ReturnInstruction =
+                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).ReturnInstruction =
                                 GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenLeftFootOrb = true });
@@ -415,20 +415,20 @@ internal static class FrontendRomFreeVerification
             DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(installedSnapshot);
         bindInstalled(nativeRoom, false);
         bindInstalled(installedRoom, false);
-        nativeRoom.RuntimeForVerification!.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
-        installedRoom.RuntimeForVerification!.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
+        nativeRoom.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
+        installedRoom.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
         AssertEqual(RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord,
-            installedRoom.RuntimeForVerification!.Display.GameplayHudCharacterBaseWord,
+            installedRoom.GameplayRuntimeForVerification.Display.GameplayHudCharacterBaseWord,
             "restored Kraid room selects the relocated HUD character base");
         int bg2Byte = KraidBackgroundRomData.LiveBg2TilemapWord * sizeof(ushort);
         int bg2Bytes = KraidBackgroundRomData.WorkingTilemapWords * sizeof(ushort);
-        AssertTrue(nativeRoom.RuntimeForVerification!.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
-                .SequenceEqual(installedRoom.RuntimeForVerification!.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
+        AssertTrue(nativeRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
+                .SequenceEqual(installedRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
             "restored Kraid BG2 pages match before the first accepted NMI");
         FrontendFrame expected = nativeRoom.Step(0);
         FrontendFrame actual = installedRoom.Step(0);
-        AssertTrue(nativeRoom.RuntimeForVerification!.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
-                .SequenceEqual(installedRoom.RuntimeForVerification!.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
+        AssertTrue(nativeRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
+                .SequenceEqual(installedRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
             "restored Kraid BG2 pages remain intact after the deferred HUD refresh");
         AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
             "restored Kraid first frame matches native pixels after HUD artwork rebind");
@@ -469,16 +469,16 @@ internal static class FrontendRomFreeVerification
                 int first = 0;
                 while (actual.Pixels[first].Equals(expected.Pixels[first]))
                     first++;
-                var nativeSamus = native.RuntimeForVerification!.Player.Samus!;
-                var installedSamus = installed.RuntimeForVerification!.Player.Samus!;
+                var nativeSamus = native.GameplayRuntimeForVerification.Player.IntroducedSamus;
+                var installedSamus = installed.GameplayRuntimeForVerification.Player.IntroducedSamus;
                 int firstVram = 0;
-                ReadOnlySpan<byte> nativeVram = native.RuntimeForVerification!.Vram.Bytes;
-                ReadOnlySpan<byte> installedVram = installed.RuntimeForVerification!.Vram.Bytes;
+                ReadOnlySpan<byte> nativeVram = native.GameplayRuntimeForVerification.Vram.Bytes;
+                ReadOnlySpan<byte> installedVram = installed.GameplayRuntimeForVerification.Vram.Bytes;
                 while (firstVram < nativeVram.Length && nativeVram[firstVram] == installedVram[firstVram])
                     firstVram++;
                 int firstOam = 0;
-                ReadOnlySpan<byte> nativeOam = native.RuntimeForVerification!.DisplayedOam.LowTable;
-                ReadOnlySpan<byte> installedOam = installed.RuntimeForVerification!.DisplayedOam.LowTable;
+                ReadOnlySpan<byte> nativeOam = native.GameplayRuntimeForVerification.DisplayedOam.LowTable;
+                ReadOnlySpan<byte> installedOam = installed.GameplayRuntimeForVerification.DisplayedOam.LowTable;
                 while (firstOam < nativeOam.Length && nativeOam[firstOam] == installedOam[firstOam])
                     firstOam++;
                 throw new InvalidOperationException(
@@ -521,9 +521,9 @@ internal static class FrontendRomFreeVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyFrontendRomFreeRoom(SuperMetroidGame native, SuperMetroidGame installed, RomFreeRoom room, int frameCount = 90, Action<SuperMetroidGame, SuperMetroidGame>? setup = null, GoldenTorizoForcing golden = default, ushort heldInput = 0)
     {
-        native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
+        native.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(
             room.RoomPointer);
-        installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
+        installed.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(
             room.RoomPointer);
         AssertEqual(SuperMetroidGameState.MainGameplay, native.GameState,
             $"native {room.RoomName} fixture begins in active gameplay");
@@ -532,14 +532,14 @@ internal static class FrontendRomFreeVerification
         // These isolated rooms are not one continuous playthrough. Refill on
         // entry so damage in an earlier room cannot turn a later comparison
         // into two identical death screens.
-        native.RuntimeForVerification!.Player.Samus!.MaxHealth = 1499;
-        native.RuntimeForVerification!.Player.Samus!.Health = 1499;
-        installed.RuntimeForVerification!.Player.Samus!.MaxHealth = 1499;
-        installed.RuntimeForVerification!.Player.Samus!.Health = 1499;
+        native.GameplayRuntimeForVerification.Player.IntroducedSamus.MaxHealth = 1499;
+        native.GameplayRuntimeForVerification.Player.IntroducedSamus.Health = 1499;
+        installed.GameplayRuntimeForVerification.Player.IntroducedSamus.MaxHealth = 1499;
+        installed.GameplayRuntimeForVerification.Player.IntroducedSamus.Health = 1499;
         setup?.Invoke(native, installed);
         RoomEnemySlot? awakenedGoldenTorizo = room.RoomPointer == RoomHeaderPointers.GoldenTorizo &&
             setup is not null
-            ? installed.RuntimeForVerification!.Enemies.SlotTable.Slots.FirstOrDefault(slot =>
+            ? installed.GameplayRuntimeForVerification.Enemies.SlotTable.Slots.FirstOrDefault(slot =>
                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo)
             : null;
         if (room.RoomPointer == RoomHeaderPointers.GoldenTorizo && setup is not null)
@@ -547,7 +547,7 @@ internal static class FrontendRomFreeVerification
             AssertTrue(awakenedGoldenTorizo is not null,
                 "Golden Torizo wake-up fixture loaded its live boss slot");
             VerifyTorizoOperandFreeCallbackDoesNotReadNextWord(
-                installed.RuntimeForVerification!.Enemies, awakenedGoldenTorizo!);
+                installed.GameplayRuntimeForVerification.Enemies, (awakenedGoldenTorizo ?? throw new InvalidOperationException("Verification requires awakenedGoldenTorizo.")));
         }
         bool goldenWakeObserved = false;
         bool goldenWalkingObserved = false;
@@ -561,8 +561,8 @@ internal static class FrontendRomFreeVerification
         bool forcedGoldenLeftTurnObserved = false;
         bool forcedGoldenFallingLeftObserved = false;
         bool goldenLeftFootOrbProgramObserved = false;
-        ReadOnlySpan<byte> nativeLoadedVram = native.RuntimeForVerification!.Vram.Bytes;
-        ReadOnlySpan<byte> installedLoadedVram = installed.RuntimeForVerification!.Vram.Bytes;
+        ReadOnlySpan<byte> nativeLoadedVram = native.GameplayRuntimeForVerification.Vram.Bytes;
+        ReadOnlySpan<byte> installedLoadedVram = installed.GameplayRuntimeForVerification.Vram.Bytes;
         int firstLoadVram = 0;
         while (firstLoadVram < nativeLoadedVram.Length &&
                nativeLoadedVram[firstLoadVram] == installedLoadedVram[firstLoadVram])
@@ -638,8 +638,8 @@ internal static class FrontendRomFreeVerification
             // The stun's ClearAnimationLock and its return path's UnmarkStunned release the
             // boss; later attacks may lock again, so observe the release, not the last frame.
             else if (forcedGoldenStunObserved && !forcedGoldenStunReleased &&
-                     installed.RuntimeForVerification!.Enemies.BombTorizoBehavior.GoldenTorizo!.ShotGuard == 0 &&
-                     (awakenedGoldenTorizo!.Parameter2 & GoldenTorizoBehavioralProperties.Stunned) == 0)
+                     (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo.")).ShotGuard == 0 &&
+                     ((awakenedGoldenTorizo ?? throw new InvalidOperationException("Verification requires awakenedGoldenTorizo.")).Parameter2 & GoldenTorizoBehavioralProperties.Stunned) == 0)
                 forcedGoldenStunReleased = true;
             if (awakenedGoldenTorizo is not null &&
                 golden.ForcedGoldenLeftTurnStart is not null &&
@@ -679,8 +679,8 @@ internal static class FrontendRomFreeVerification
                     maxX = Math.Max(maxX, x);
                     maxY = Math.Max(maxY, y);
                 }
-                ReadOnlySpan<byte> nativeVram = native.RuntimeForVerification!.Vram.Bytes;
-                ReadOnlySpan<byte> installedVram = installed.RuntimeForVerification!.Vram.Bytes;
+                ReadOnlySpan<byte> nativeVram = native.GameplayRuntimeForVerification.Vram.Bytes;
+                ReadOnlySpan<byte> installedVram = installed.GameplayRuntimeForVerification.Vram.Bytes;
                 int firstVram = 0;
                 while (firstVram < nativeVram.Length &&
                        nativeVram[firstVram] == installedVram[firstVram])
@@ -693,8 +693,8 @@ internal static class FrontendRomFreeVerification
                         if (nativeVram[offset] != installedVram[offset]) changed++;
                     if (changed != 0) changedVramPages.Add($"${page:X4}:{changed}");
                 }
-                ReadOnlySpan<Bgr555> nativeColors = native.RuntimeForVerification!.Cgram.Colors;
-                ReadOnlySpan<Bgr555> installedColors = installed.RuntimeForVerification!.Cgram.Colors;
+                ReadOnlySpan<Bgr555> nativeColors = native.GameplayRuntimeForVerification.Cgram.Colors;
+                ReadOnlySpan<Bgr555> installedColors = installed.GameplayRuntimeForVerification.Cgram.Colors;
                 int changedColors = 0;
                 for (int color = 0; color < nativeColors.Length; color++)
                     if (nativeColors[color] != installedColors[color]) changedColors++;
@@ -710,10 +710,10 @@ internal static class FrontendRomFreeVerification
             }
             if (room.RoomPointer == RoomHeaderPointers.Draygon && frame == 0)
             {
-                ReadOnlySpan<byte> nativeEvir = native.RuntimeForVerification!.Vram.Bytes
+                ReadOnlySpan<byte> nativeEvir = native.GameplayRuntimeForVerification.Vram.Bytes
                     .Slice(DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
                         DraygonIntroPresentationDefinitions.EvirTilesByteCount);
-                ReadOnlySpan<byte> installedEvir = installed.RuntimeForVerification!.Vram.Bytes
+                ReadOnlySpan<byte> installedEvir = installed.GameplayRuntimeForVerification.Vram.Bytes
                     .Slice(DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
                         DraygonIntroPresentationDefinitions.EvirTilesByteCount);
                 AssertTrue(installedEvir.SequenceEqual(nativeEvir),

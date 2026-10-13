@@ -52,7 +52,7 @@ internal static class RightFacingGateGlitchVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.PinkBrinstarHopper);
 
-        RoomLevelData original = runtime.Room.LevelData!;
+        RoomLevelData original = runtime.Room.LoadedLevelData;
         var residentGate = runtime.Plms.PopulationSlots.Single(
             slot => slot.HeaderPointer == PlmHeaderId.DownwardGate);
         var shotBlock = runtime.Plms.PopulationSlots.Single(
@@ -90,7 +90,7 @@ internal static class RightFacingGateGlitchVerification
             };
             var plms = new RoomPlmSystem();
             var streamer = level.CreateBackgroundStreamer(0);
-            plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, populationVram, new Bank80SystemState(), runtime.Room.ActiveRoom.AreaIndex), RoomPlmPopulationImporter.Read(bus, runtime.Room.ActiveRoom!.State.PlmPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+            plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, populationVram, new Bank80SystemState(), runtime.Room.LoadedRoom.AreaIndex), RoomPlmPopulationImporter.Read(bus, runtime.Room.LoadedRoom.State.PlmPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             for (int warm = 0; warm < 2; warm++)
                 plms.Step(bus, level, streamer, new PlmView { Layer1Position = new((ushort)cameraX, (ushort)cameraY), Bg1XOffset = 0 });
             plms.Gates.TakeDownwardGateProjectileRequests();
@@ -166,7 +166,7 @@ internal static class RightFacingGateGlitchVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.EastTunnel);
 
-        RoomLevelData level = runtime.Room.LevelData!;
+        RoomLevelData level = runtime.Room.LoadedLevelData;
         var gate = runtime.Plms.PopulationSlots.Single(
             slot => slot.HeaderPointer == PlmHeaderId.DownwardGate);
         var shotBlock = runtime.Plms.PopulationSlots.Single(
@@ -177,7 +177,7 @@ internal static class RightFacingGateGlitchVerification
         AssertEqual((ushort)0x000a, shotBlock.RoomArgument,
             "Authored East Tunnel green-right trigger table row");
 
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeX(238);
@@ -189,7 +189,7 @@ internal static class RightFacingGateGlitchVerification
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(128, 0));
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(128, 0));
 
         RoomEnemySlot frozen = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon);

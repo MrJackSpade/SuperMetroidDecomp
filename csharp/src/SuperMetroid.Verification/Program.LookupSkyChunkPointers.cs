@@ -36,7 +36,7 @@ internal static class LookupSkyChunkPointersVerification
         {
             var exception = AssertThrows<ArgumentOutOfRangeException>(
                 () => ScrollingSkyChunkPointerDefinitions.Get((ScrollingSkyChunkTable)invalidTable, index), "Unknown sky table rejects first");
-            AssertEqual("pointerTable", exception.ParamName!, "Table rejection precedes index handling");
+            AssertEqual("pointerTable", exception.ParamName, "Table rejection precedes index handling");
         }
 
         for (int camera = 0; camera <= ushort.MaxValue; camera++)

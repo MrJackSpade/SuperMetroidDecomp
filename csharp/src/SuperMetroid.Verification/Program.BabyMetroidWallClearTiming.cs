@@ -31,7 +31,7 @@ internal static class BabyMetroidWallClearTimingVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.BigBoy);
-        RoomLevelData level = runtime.Room.LevelData!;
+        RoomLevelData level = runtime.Room.LoadedLevelData;
         const int WallColumn = 0x30, WallRow = 11;
         // The wall as Baby Metroid's earlier create request leaves it: rows 9-12 solid.
         for (int row = 9; row <= 12; row++)
@@ -39,12 +39,12 @@ internal static class BabyMetroidWallClearTimingVerification
                 RoomLevelWord.Create(0x00ff, 0, RoomCollisionType.SolidBlock).Raw);
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var shitroid = (ShitroidEnemyState)runtime.Enemies.ShitroidBehavior._shitroid;
-        shitroid.Function = ShitroidAiFunction.RiseAfterFeeding;
+        var shitroid = (ShitroidEnemyState)(runtime.Enemies.ShitroidBehavior._shitroid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.ShitroidBehavior._shitroid."));
+        (shitroid ?? throw new InvalidOperationException("Verification requires shitroid.")).Function = ShitroidAiFunction.RiseAfterFeeding;
         shitroid.StateTimer = NativeCountdown.Start(0);
 
         // A dash like the movie's: the wall's left edge is three pixels ahead and she moves 2.F000.
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.MovingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(0x02f9, 0x00bb));
@@ -53,7 +53,7 @@ internal static class BabyMetroidWallClearTimingVerification
         samus.HorizontalSpeed.BaseSubspeed = 0x3000;
         samus.HorizontalSpeed.ExtraRunSpeed = 2;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0xc000;
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0x0200, 0x0000));
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0200, 0x0000));
         runtime.StepFrame(unchecked((ushort)(SnesButton.Right | SnesButton.B)));
 
         AssertEqual(ShitroidAiFunction.HoverNearSamus, shitroid.Function, "Baby Metroid finished rising this frame");

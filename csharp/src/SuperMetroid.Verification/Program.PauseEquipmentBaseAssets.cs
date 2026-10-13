@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -20,7 +21,7 @@ internal static class PauseEquipmentBaseAssetsVerification
         string stockPath = Path.Combine(stock, PauseEquipmentBaseDefinitions.FileName);
         string path = Path.Combine(overrides, PauseEquipmentBaseDefinitions.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        var document = JsonSerializer.Deserialize<PauseEquipmentBaseDocument>(stockBytes, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseEquipmentBaseDocument>(stockBytes, MapPresentationFormat.JsonOptions);
         byte[] nativeBase = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseEquipmentBaseDefinitions.Source,
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
         AssertTrue(nativeBase.AsSpan().SequenceEqual(original.PauseEquipmentBase.CreateTilemap()),

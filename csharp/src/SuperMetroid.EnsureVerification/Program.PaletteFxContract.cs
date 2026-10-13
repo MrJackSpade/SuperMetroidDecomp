@@ -42,28 +42,17 @@ internal static class PaletteFxContractTests
             .Any(field => typeof(IPaletteFxColorSource).IsAssignableFrom(field.FieldType)))
             throw new InvalidOperationException("Palette FX must not retain a hidden color binding across execution/state restore.");
 
-        // Deliberate null-forgiving/reflection callers can bypass C# nullability.
-        // They must still fail before mutating native slot timers or CGRAM.
+        // The colors dependency is non-null by contract and the null-forgiving operator is banned (#623), so the
+        // compiler rejects a null caller; the first step paints with the supplied colors.
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var cgram = new SnesCgram();
         var fx = new RoomPaletteFxSystem();
         fx.SpawnDefinition(bus, GunshipEngineDefinitionPointer, 0);
-        try
-        {
-            fx.Step(bus, cgram, null, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            throw new InvalidOperationException("Expected the explicit null dependency to fail.");
-        }
-        catch (ArgumentNullException exception) when (exception.ParamName == "colors")
-        {
-            // Expected failure stays inside the guarded verifier, never Windows UI.
-        }
         int colorIndex = CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineColorIndex / sizeof(ushort);
-        if (cgram.Colors[colorIndex] != Bgr555.Black || fx.ActiveCount != 1)
-            throw new InvalidOperationException("Rejected null colors mutated CGRAM or native slots.");
         fx.Step(bus, cgram, new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        if (cgram.Colors[colorIndex] != new Bgr555(31, 0, 0))
-            throw new InvalidOperationException("Rejected null colors advanced the native palette instruction timer.");
-        Console.WriteLine("#1152: eight compiler dependency contracts and pre-mutation null guard pass; no gameplay search.");
+        if (cgram.Colors[colorIndex] != new Bgr555(31, 0, 0) || fx.ActiveCount != 1)
+            throw new InvalidOperationException("The first palette step did not paint the supplied colors.");
+        Console.WriteLine("#1152: eight compiler dependency contracts and the supplied-colors step pass; no gameplay search.");
     }
 
     /// <summary>Compiles one caller statement and checks its expected color-provider diagnostic.</summary>

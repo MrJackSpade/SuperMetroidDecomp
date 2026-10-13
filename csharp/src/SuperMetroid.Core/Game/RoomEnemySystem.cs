@@ -748,9 +748,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 // hit must publish Phantoon's hurt clock before this frame ticks it.
                 if (slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
                     frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
-                    PhantoonBehavior.ResolvePhantoonProjectileHits(Room.Bus!, frame.SamusProjectiles, frame.SharedProjectiles);
+                    PhantoonBehavior.ResolvePhantoonProjectileHits(Room.LoadedBus, frame.SamusProjectiles, frame.SharedProjectiles);
                 if (frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
-                    Collision.ResolveOrdinaryProjectileHits(Room.Bus!, frame.SamusProjectiles, frame.SharedProjectiles,
+                    Collision.ResolveOrdinaryProjectileHits(Room.LoadedBus, frame.SamusProjectiles, frame.SharedProjectiles,
                         frame.Samus, nativeIndex);
                 // Alpha already updated the bomb slots. Native EnemyMain checks
                 // them before this actor's touch and AI, so escape starts now.

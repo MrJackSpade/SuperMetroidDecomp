@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
@@ -3032,7 +3033,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyExtractedSamusLoadingPaletteFxPresentation), () => VerifyExtractedSamusLoadingPaletteFxPresentation(rom, RoomPaletteFxPresentation.Load(new MemoryStream(json))));
         foreach (int editMode in new[] { 0, 1, 2 })
         {
-            var document = System.Text.Json.JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json, MapPresentationFormat.JsonOptions);
             int ordinal = 1000;
             foreach (var frames in new[] { document.SamusLoadingPowerSuit, document.SamusLoadingVariaSuit, document.SamusLoadingGravitySuit })
             for (int frame = 0; frame < 9; frame++)
@@ -3065,11 +3066,11 @@ internal static class VerificationAssert
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         var presentation = RoomPaletteFxPresentation.Load(new MemoryStream(json));
         Suite(nameof(VerifyExtractedSamusHeatPaletteFxPresentation), () => VerifyExtractedSamusHeatPaletteFxPresentation(rom, presentation));
-        var document = System.Text.Json.JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json,
-            MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json,
+            MapPresentationFormat.JsonOptions);
         int ordinal = 1000;
-        foreach (var frames in new[] { document.SamusHeatPowerSuit!, document.SamusHeatVariaSuit!, document.SamusHeatGravitySuit! })
-        foreach (var row in frames)
+        foreach (var frames in new[] { document.SamusHeatPowerSuit, document.SamusHeatVariaSuit, document.SamusHeatGravitySuit })
+        foreach (var row in (frames ?? throw new InvalidOperationException("Verification requires frames.")))
         for (int color = 0; color < row.Length; color++, ordinal++)
             row[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
         var edited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,
@@ -3083,8 +3084,8 @@ internal static class VerificationAssert
             AssertEqual((ushort)ordinal, actual, "Every separately edited heat color survives alias compilation");
         }
         document = System.Text.Json.JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json,
-            MapPresentationFormat.JsonOptions)!;
-        foreach (var frames in new[] { document.SamusLoadingPowerSuit, document.SamusLoadingVariaSuit, document.SamusLoadingGravitySuit })
+            MapPresentationFormat.JsonOptions);
+        foreach (var frames in new[] { (document ?? throw new InvalidOperationException("Verification requires document.")).SamusLoadingPowerSuit, document.SamusLoadingVariaSuit, document.SamusLoadingGravitySuit })
         for (int color = 0; color < 16; color++)
             frames[0][color] = new PaletteRgb5 { Red = 1, Green = 2, Blue = 3 };
         var loadingEdited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,

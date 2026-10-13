@@ -61,8 +61,8 @@ internal static class EnemyTileArtworkDachoraColorsVerification
             CheckEditedFrame(DachoraPalettePhase.Shine, frame);
         }
         AssertEqual(colors.Resolve(DachoraPalettePhase.Shine, 3, 5),
-            EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .DachoraColors!.Resolve(DachoraPalettePhase.Shine, 3, 5),
+            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
+                .DachoraColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .DachoraColors.")).Resolve(DachoraPalettePhase.Shine, 3, 5),
             "Dachora color override survives catalog reload");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(

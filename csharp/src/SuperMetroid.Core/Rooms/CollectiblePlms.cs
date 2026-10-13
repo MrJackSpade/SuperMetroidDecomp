@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
@@ -102,13 +102,10 @@ internal sealed class CollectiblePlms
 
     /// <summary>Every currently allocated permanent-item PLM in native slot order.</summary>
     public IReadOnlyList<CollectiblePlmSnapshot> Collectibles => _slotTable._slots
-        .Where(slot => slot.Active && slot.Item is not null)
-        .Select(slot => new CollectiblePlmSnapshot(
-            slot.HeaderPointer,
-            slot.BlockIndex,
-            slot.RoomArgument,
-            slot.Item!.Kind,
-            slot.Item.GraphicsSlot))
+        .Where(slot => slot.Active)
+        .SelectMany(slot => slot.Item is { } item
+            ? [new CollectiblePlmSnapshot(slot.HeaderPointer, slot.BlockIndex, slot.RoomArgument, item.Kind, item.GraphicsSlot)]
+            : Array.Empty<CollectiblePlmSnapshot>())
         .ToArray();
 
     /// <summary>

@@ -21,20 +21,20 @@ internal static class RetailRidleyCaptureTests
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, new Position16<RoomPixels>(0, 0));
         runtime.NmiHandler.RunNmi(0, true);
-        var ridley = runtime.Enemies.RidleyEncounter.CeresRidley!;
+        var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
         var retained = new List<(RenderFrameSnapshot Packet, Rgba32[] Expected)>();
         foreach (ushort scale in new ushort[] { 128, 240, 256 })
         foreach (short tilt in new short[] { -33, 0, 33 })
         foreach (short scroll in new short[] { -19, 0, 19 })
         {
-            ridley.Mode7Active = true;
+            (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Mode7Active = true;
             ridley.Mode7MatrixA = scale; ridley.Mode7MatrixD = scale;
             ridley.Mode7MatrixB = unchecked((ushort)tilt);
             ridley.Mode7MatrixC = unchecked((ushort)-tilt);
             ridley.Mode7Center = new Position16<Mode7Pixels>(128, 120);
             ridley.Mode7Offset = new Offset16<Mode7Pixels>(7, unchecked((short)scroll));
             var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime).ToArray();
-            var scene = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+            var scene = GameplayDisplayCapture.CaptureFrame(runtime);
             if (scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null } mixed ||
                 mixed.HudScanlines != SnesPpuLayout.GameplayHudHeightPixels)
                 throw new InvalidOperationException("Retail Ridley fixture did not capture mixed Mode-7 floor and HUD.");
@@ -44,7 +44,7 @@ internal static class RetailRidleyCaptureTests
                 $"{device.Kind}: retail Ridley scale={scale}, tilt={tilt}, scroll={scroll}");
             retained.Add((packet, expected));
         }
-        ridley.Mode7Active = false;
+        (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Mode7Active = false;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, new Bgr555(0, 0, 0));
         foreach (var sample in retained.AsEnumerable().Reverse())

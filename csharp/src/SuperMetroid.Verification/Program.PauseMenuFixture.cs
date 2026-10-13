@@ -107,6 +107,7 @@ internal static class PauseMenuFixtureVerification
             RoomPaletteFx = stock.RoomPaletteFx,
             MotherBrainHealthPalette = stock.MotherBrainHealthPalette,
             MotherBrainRainbowPalette = stock.MotherBrainRainbowPalette,
+            MotherBrainRoomColors = stock.MotherBrainRoomColors,
             RoomFxAnimatedTiles = stock.RoomFxAnimatedTiles,
             RoomFxLayer3Tilemaps = stock.RoomFxLayer3Tilemaps,
             RoomFxPaletteBlends = stock.RoomFxPaletteBlends,

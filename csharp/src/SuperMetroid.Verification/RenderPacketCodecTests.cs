@@ -51,16 +51,16 @@ internal static class RenderPacketCodecTestsVerification
         var registers = new Mode7RenderRegisters(short.MinValue, short.MaxValue, -1, 0,
             new Offset16<Mode7Pixels>(-123, 456), new Offset16<Mode7Pixels>(-789, 1023), true);
         var mode7 = new RenderFrameSnapshot(new(1, 1, 0), new Mode7ObjRenderSnapshot(memory, registers, 3, 15));
-        AssertEqual(registers, RoundTripRenderPacket(mode7).Mode7!.Background!.Value, "signed matrix and outside policy preserved");
+        AssertEqual(registers, ((RoundTripRenderPacket(mode7).Mode7 ?? throw new InvalidOperationException("Verification requires RoundTripRenderPacket(mode7).Mode7.")).Background ?? throw new InvalidOperationException("Verification requires (RoundTripRenderPacket(mode7).Mode7 ?? throw new InvalidOperationException(\"Verificatio....")), "signed matrix and outside policy preserved");
         var wrapping = registers with { FillOutsideWithCharacterZero = false, WrapOutsideMap = true };
         var wrapPacket = new RenderFrameSnapshot(new(1, 1, 0), new Mode7ObjRenderSnapshot(memory, wrapping, 3, 15));
-        AssertEqual(wrapping, RoundTripRenderPacket(wrapPacket).Mode7!.Background!.Value, "Mode 7 wrap policy survives packet round trip");
+        AssertEqual(wrapping, ((RoundTripRenderPacket(wrapPacket).Mode7 ?? throw new InvalidOperationException("Verification requires RoundTripRenderPacket(wrapPacket).Mode7.")).Background ?? throw new InvalidOperationException("Verification requires (RoundTripRenderPacket(wrapPacket).Mode7 ?? throw new InvalidOperationException(\"Verifi....")), "Mode 7 wrap policy survives packet round trip");
         byte[] oldWrap = RenderFrameSnapshotWriter.Serialize(wrapPacket);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(oldWrap.AsSpan(RenderPacketFormat.Signature.Length), 21);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(oldWrap), "version 21 cannot claim Mode 7 wrapping");
         byte[] legacyFill = RenderFrameSnapshotWriter.Serialize(mode7);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(legacyFill.AsSpan(RenderPacketFormat.Signature.Length), 21);
-        AssertEqual(registers, RenderFrameSnapshotCodec.Deserialize(legacyFill).Mode7!.Background!.Value, "legacy boolean overflow retains character-zero semantics");
+        AssertEqual(registers, ((RenderFrameSnapshotCodec.Deserialize(legacyFill).Mode7 ?? throw new InvalidOperationException("Verification requires RenderFrameSnapshotCodec.Deserialize(legacyFill).Mode7.")).Background ?? throw new InvalidOperationException("Verification requires (RenderFrameSnapshotCodec.Deserialize(legacyFill).Mode7 ?? throw new InvalidOperationEx....")), "legacy boolean overflow retains character-zero semantics");
         var insertedMode7 = new RenderFrameSnapshot(new(2, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new Mode7RenderLayer(registers) }, 3, 15));
         byte[] invalidOldVersion = RenderFrameSnapshotWriter.Serialize(insertedMode7);

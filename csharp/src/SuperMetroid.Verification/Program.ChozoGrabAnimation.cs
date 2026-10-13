@@ -30,7 +30,7 @@ internal static class ChozoGrabAnimationVerification
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(0xc98e);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.CollectedItems = samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
         samus.PoseMetadata.RefreshCollisionRadii(bus);
@@ -39,7 +39,7 @@ internal static class ChozoGrabAnimationVerification
         samus.AnimationFrame = 2;
         samus.AnimationFrameTimer = NativeCountdown.Start((ushort)3);
         samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y)));
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         var block = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(0x4a, 0x17)));
         AssertEqual(ChozoStatuePlmRomData.WreckedShipHandBts.Value, block.Bts.Value,
             "fixture uses the retail statue hand block");

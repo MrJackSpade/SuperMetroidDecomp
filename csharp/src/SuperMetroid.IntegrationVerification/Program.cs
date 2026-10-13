@@ -92,10 +92,10 @@ internal static class Program
                         if (zip.GetEntry(required) is null) throw new InvalidDataException($"Export omitted {required}.");
                     foreach (string journal in journals)
                     {
-                        using var entry = zip.GetEntry("input-recordings/" + Path.GetFileName(journal))!.Open();
+                        using var entry = (zip.GetEntry("input-recordings/" + Path.GetFileName(journal)) ?? throw new InvalidOperationException("Verification requires zip.GetEntry(\"input-recordings/\" + Path.GetFileName(journal)).")).Open();
                         ControllerInputRecording.Read(entry);
                     }
-                    using var seedEntry = zip.GetEntry("input-recordings/" + Path.GetFileName(seedPath))!.Open();
+                    using var seedEntry = (zip.GetEntry("input-recordings/" + Path.GetFileName(seedPath)) ?? throw new InvalidOperationException("Verification requires zip.GetEntry(\"input-recordings/\" + Path.GetFileName(seedPath)).")).Open();
                     using var copy = new MemoryStream();
                     seedEntry.CopyTo(copy);
                     if (!originalSeed.AsSpan().SequenceEqual(copy.ToArray())) throw new InvalidDataException("Export modified the exact replay seed.");

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -85,7 +86,7 @@ internal static class FinitePresentationNameFlowChecks
         SyntaxTree optionsProvider = CSharpSyntaxTree.ParseText(File.ReadAllText(
             "csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs"),
             path: "csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs");
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("FiniteNameFixture", [calls, provider, optionsProvider,
             CSharpSyntaxTree.ParseText("global using System; global using System.IO; global using System.Linq; " +
                 "global using System.Collections.Generic;", path: "<name-flow-usings>")],

@@ -23,12 +23,12 @@ internal static class KraidGrowthCommandCursorVerification
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guard = new KraidHeadProgramReadGuard(rom);
-        var referenceArt = new EnemyIdentityFixture().Build().KraidBackground!;
+        var referenceArt = new EnemyIdentityFixture().Build().KraidBackground;
         var head = KraidHeadTilemapAtlas.Load(new MemoryStream(KraidHeadTilemapAtlas.Encode(
             new byte[KraidBackgroundRomData.HeadTilemapWords * 2])));
         var enemies = new RoomEnemySystem
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), KraidBackground = new KraidBackgroundArtwork(referenceArt.Upper, referenceArt.Lower,
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), KraidBackground = new KraidBackgroundArtwork((referenceArt ?? throw new InvalidOperationException("Verification requires referenceArt.")).Upper, referenceArt.Lower,
                     new Dictionary<ushort, KraidHeadTilemapAtlas> { [0x9dc8] = head }, referenceArt.RoomBackgroundTiles) }),
         };
         var state = new KraidEnemyState();

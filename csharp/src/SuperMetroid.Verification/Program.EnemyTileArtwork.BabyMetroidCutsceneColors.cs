@@ -66,8 +66,8 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
                 $"cutscene Baby fade {index} adjacent color stays native");
         }
         AssertEqual(colors.FadeColor(6, 5),
-            EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .BabyMetroidCutsceneColors!.FadeColor(6, 5),
+            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
+                .BabyMetroidCutsceneColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .BabyMetroidCutsceneColors.")).FadeColor(6, 5),
             "cutscene Baby color override survives catalog reload");
 
         var guard = NewBabyMetroidCutsceneColorReadGuard(rom);

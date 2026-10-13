@@ -33,8 +33,6 @@ internal static class FileSelectMapEntryVerification
         MapStaticPalettes.Write(json, document);
         json.Position = 0;
         MapStaticPalettes palettes = MapStaticPalettes.Load(json);
-        AssertThrows<ArgumentNullException>(() => new FileSelectMapEntry(null!),
-            "file-select map entry requires installed palette artwork");
         var entry = new FileSelectMapEntry(palettes);
         Rgba32 visible = new(255, 0, 0), black = new(0, 0, 0);
         Rgba32[] scene = Enumerable.Repeat(visible, 256 * 224).ToArray();

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Hardware;
+using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
@@ -122,11 +123,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
                 return;
             case PipeBugEnemyFunction.BrinstarWaitForSamus:
                 RequirePipeBugSamus(samus);
-                RunBrinstarPipeBugWaiting(slot, state, samus!);
+                RunBrinstarPipeBugWaiting(slot, state, samus);
                 return;
             case PipeBugEnemyFunction.BrinstarEmerge:
                 RequirePipeBugSamus(samus);
-                RunBrinstarPipeBugEmergence(slot, state, samus!);
+                RunBrinstarPipeBugEmergence(slot, state, samus);
                 return;
             case PipeBugEnemyFunction.BrinstarFlyHorizontally:
                 RunBrinstarPipeBugFlight(slot, state, camera.X);
@@ -143,12 +144,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
                 return;
             case PipeBugEnemyFunction.NorfairWaitForSamus:
                 RequirePipeBugSamus(samus);
-                RunNorfairPipeBugSamusWait(slot, state, samus!);
+                RunNorfairPipeBugSamusWait(slot, state, samus);
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairRise:
                 RequirePipeBugSamus(samus);
-                RunNorfairPipeBugRise(slot, state, samus!);
+                RunNorfairPipeBugRise(slot, state, samus);
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairLeaderStagger:
@@ -174,7 +175,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
                 return;
             case PipeBugEnemyFunction.NorfairWaitForStagger:
                 RequirePipeBugSamus(samus);
-                RunNorfairPipeBugStaggerWait(slot, state, samus!);
+                RunNorfairPipeBugStaggerWait(slot, state, samus);
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairFlyLeft:
@@ -188,18 +189,18 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
 
             case PipeBugEnemyFunction.YellowWaitForSamus:
                 RequirePipeBugSamus(samus);
-                RunYellowPipeBugWaiting(slot, state, samus!);
+                RunYellowPipeBugWaiting(slot, state, samus);
                 return;
             case PipeBugEnemyFunction.YellowEmergenceDelay:
                 RunYellowPipeBugDelay(slot, state);
                 return;
             case PipeBugEnemyFunction.YellowFlyLeft:
                 RequirePipeBugSamus(samus);
-                RunYellowPipeBugStraightFlight(slot, state, samus!, camera, movingLeft: true);
+                RunYellowPipeBugStraightFlight(slot, state, samus, camera, movingLeft: true);
                 return;
             case PipeBugEnemyFunction.YellowFlyRight:
                 RequirePipeBugSamus(samus);
-                RunYellowPipeBugStraightFlight(slot, state, samus!, camera, movingLeft: false);
+                RunYellowPipeBugStraightFlight(slot, state, samus, camera, movingLeft: false);
                 return;
             case PipeBugEnemyFunction.YellowArcLeft:
                 RunYellowPipeBugArc(slot, state, camera, movingLeft: true);
@@ -698,7 +699,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects a behavior callback that needs Samus but received no live player actor.</summary>
-    private static void RequirePipeBugSamus(SamusState? samus)
+    private static void RequirePipeBugSamus([NotNull] SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Pipe Bug behavior requires the active Samus actor.");

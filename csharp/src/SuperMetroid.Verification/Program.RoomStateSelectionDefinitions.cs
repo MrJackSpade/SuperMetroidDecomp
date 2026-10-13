@@ -25,7 +25,7 @@ internal static class RoomStateSelectionDefinitionsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Room selector oracle revision");
         ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))
             .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)
-            .Select(pointer => pointer!.Value).Distinct().Order().ToArray();
+            .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer."))).Distinct().Order().ToArray();
         AssertEqual(262, rooms.Length, "Original retail room selector identities");
         var known = rooms.ToHashSet();
         for (int value = 0; value <= ushort.MaxValue; value++)

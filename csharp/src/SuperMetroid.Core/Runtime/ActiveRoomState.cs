@@ -26,6 +26,9 @@ internal sealed class ActiveRoomState
 
     /// <summary>The selected room/state header for a generic cartridge-backed room.</summary>
     public CartridgeRoomHeader? ActiveRoom { get; internal set; }
+    /// <summary>The loaded room's header; gameplay runs only in a loaded room.</summary>
+    public CartridgeRoomHeader LoadedRoom => ActiveRoom ??
+        throw new InvalidOperationException("No room is loaded.");
 
     /// <summary>The load-station door whose setup code established the current room.</summary>
     public CartridgeDoorHeader? ActiveDoor { get; internal set; }
@@ -44,6 +47,9 @@ internal sealed class ActiveRoomState
     /// table is loaded; this prevents the runtime from silently assuming Landing Site.
     /// </summary>
     public ScrollBoundaryCamera? Camera { get; internal set; }
+    /// <summary>The loaded room's scroll camera.</summary>
+    public ScrollBoundaryCamera LoadedCamera => Camera ??
+        throw new InvalidOperationException("No room camera is loaded.");
 
     /// <summary>Landing Site's ROM-backed bank-$80 tilemap producer after room initialization.</summary>
     public BackgroundTilemapStreamer? BackgroundStreamer { get; internal set; }
@@ -56,6 +62,9 @@ internal sealed class ActiveRoomState
     /// share this instance; null means no room level stream has been loaded yet.
     /// </summary>
     public RoomLevelData? LevelData { get; internal set; }
+    /// <summary>The loaded room's level data.</summary>
+    public RoomLevelData LoadedLevelData => LevelData ??
+        throw new InvalidOperationException("No room level data is loaded.");
 
     /// <summary>Landing Site's bank-$88 scrolling-sky updater after room initialization.</summary>
     public ScrollingSkyState? ScrollingSky { get; internal set; }

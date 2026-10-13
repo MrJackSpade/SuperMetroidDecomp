@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
@@ -65,8 +66,8 @@ internal static class GameOptionsPresentationVerification
             native.MoonwalkEnabled && installed.MoonwalkEnabled,
             "installed options path retains special toggles");
 
-        var document = JsonSerializer.Deserialize<GameOptionsPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
+            extracted, MapPresentationFormat.JsonOptions);
         document.HeadingAnchors[GameOptionsPresentationDefinitions.PrimaryMenu] =
             document.HeadingAnchors[GameOptionsPresentationDefinitions.PrimaryMenu] with
             { X = (ushort)(document.HeadingAnchors[GameOptionsPresentationDefinitions.PrimaryMenu].X + 8) };
@@ -134,13 +135,13 @@ internal static class GameOptionsPresentationVerification
             {
                 ControllerLabelAnchors = document.ControllerLabelAnchors[..^1],
             }), "options reject incomplete controller-label anchors");
-        var missingPage = JsonSerializer.Deserialize<GameOptionsPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions)!;
+        var missingPage = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
+            extracted, MapPresentationFormat.JsonOptions);
         missingPage.Pages.Remove(GameOptionsPresentationDefinitions.SpecialJapanesePage);
         AssertThrows<InvalidDataException>(() => GameOptionsPresentation.Write(Stream.Null, missingPage),
             "options reject a missing named page");
-        var overlappingToggle = JsonSerializer.Deserialize<GameOptionsPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions)!;
+        var overlappingToggle = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
+            extracted, MapPresentationFormat.JsonOptions);
         GameOptionsToggleVisualDocument toggle = overlappingToggle.SpecialToggles[
             GameOptionsPresentationDefinitions.IconCancelToggle];
         overlappingToggle.SpecialToggles[GameOptionsPresentationDefinitions.IconCancelToggle] =

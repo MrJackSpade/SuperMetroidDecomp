@@ -38,7 +38,7 @@ internal static class HeroShotRuntimeVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-            var level = runtime.Room.LevelData!;
+            var level = runtime.Room.LoadedLevelData;
             // Construct a finite corridor within the loaded room. Do not alter
             // camera/scroll policies or projectile processing to make a shot live.
             for (int y = 16; y < 36; y++)
@@ -49,28 +49,28 @@ internal static class HeroShotRuntimeVerification
                     y >= 32 || x == 54 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
                 level.SetBehavior(index, 0);
             }
-            var samus = runtime.Player.Samus!;
+            var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new(512, 490));
             samus.PoseMetadata.RefreshCollisionRadii(bus);
             samus.Presentation.InitializeAnimation(bus);
-            runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
+            runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
             for (int frame = -64; frame < 0; frame++)
             {
                 runtime.StepFrame(0);
                 CompareNative(frame);
             }
-            ushort settledCameraX = runtime.Room.Camera.PixelPosition.X;
+            ushort settledCameraX = runtime.Room.LoadedCamera.PixelPosition.X;
             int impact = -1, deleted = -1;
             void CompareNative(int frame)
             {
-                var shot = runtime.Projectiles!.Slots[0];
+                var shot = runtime.Projectiles.Slots[0];
                 if (native is not null)
                 {
                     ushort[] actual = [samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction,
                         samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction, (ushort)samus.Pose,
-                        runtime.Room.Camera.PixelPosition.X, runtime.Room.Camera.PixelPosition.Y,
+                        runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y,
                         shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
                         unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.Type, shot.InstructionPointer];
                     var expected = native[(walkAfterShot ? 1 : 0, frame)];
@@ -90,7 +90,7 @@ internal static class HeroShotRuntimeVerification
                 ushort input = frame == 0 ? runtime.Options.ControllerBindings.Shoot
                     : walkAfterShot ? (ushort)SnesButton.Right : (ushort)0;
                 runtime.StepFrame(input);
-                var shot = runtime.Projectiles!.Slots[0];
+                var shot = runtime.Projectiles.Slots[0];
                 CompareNative(frame);
                 if (frame == 0)
                 {
@@ -110,19 +110,19 @@ internal static class HeroShotRuntimeVerification
                 }
                 if (!shot.IsActive) { deleted = frame; break; }
             }
-            Console.WriteLine($"Runtime Hero walking={walkAfterShot}: impact={impact}, deletion={deleted}, SamusX={samus.Position.X.Whole}, cameraX={runtime.Room.Camera.PixelPosition.X}.");
+            Console.WriteLine($"Runtime Hero walking={walkAfterShot}: impact={impact}, deletion={deleted}, SamusX={samus.Position.X.Whole}, cameraX={runtime.Room.LoadedCamera.PixelPosition.X}.");
             if (walkAfterShot)
             {
                 AssertTrue(impact >= 0 && deleted < 0,
                     "Ordinary Samus movement and camera tracking preserve the shot to the target");
-                AssertTrue(samus.Position.X.Whole > 512 && runtime.Room.Camera.PixelPosition.X > settledCameraX,
+                AssertTrue(samus.Position.X.Whole > 512 && runtime.Room.LoadedCamera.PixelPosition.X > settledCameraX,
                     "The actual runtime movement and camera owners advance without test camera writes");
             }
             else
             {
                 AssertTrue(deleted >= 0 && impact < 0,
                     "Without following movement the identical shot expires before the target");
-                AssertEqual(settledCameraX, runtime.Room.Camera.PixelPosition.X,
+                AssertEqual(settledCameraX, runtime.Room.LoadedCamera.PixelPosition.X,
                     "Stationary control does not drift the camera during the shot lifetime");
             }
         }

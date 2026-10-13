@@ -204,11 +204,11 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(!normalDoorMove.Collided, "normal type-$9 door returns carry clear");
     AssertEqual(0x00020000, normalDoorMove.AcceptedDisplacement,
         "normal type-$9 door accepts full horizontal displacement");
-    AssertEqual(normalDoorPointer, doorLevel.PendingDoorTransition!.Pointer,
+    AssertEqual(normalDoorPointer, (doorLevel.PendingDoorTransition ?? throw new InvalidOperationException("Verification requires doorLevel.PendingDoorTransition.")).Pointer,
         "normal type-$9 door publishes exact bank-$83 pointer");
-    AssertEqual(0x95a8, doorLevel.PendingDoorTransition!.DestinationRoomPointer,
+    AssertEqual(0x95a8, doorLevel.PendingDoorTransition.DestinationRoomPointer,
         "normal type-$9 door preserves destination room header");
-    AssertEqual(normalDoorPointer, doorLevel.ConsumePendingDoorTransition()!.Pointer,
+    AssertEqual(normalDoorPointer, (doorLevel.ConsumePendingDoorTransition() ?? throw new InvalidOperationException("Verification requires doorLevel.ConsumePendingDoorTransition().")).Pointer,
         "door transition publication is consumed exactly once");
     AssertTrue(doorLevel.PendingDoorTransition is null,
         "consumed door transition does not leak into later movement");
@@ -763,8 +763,8 @@ internal static void VerifySamusGroundedReversal()
     // pending until the transition seam; applying it initializes pose $02 frame zero.
     for (int tick = 0; tick < 6; tick++)
         animatedTurn.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xf8, animatedTurn.LastAnimationDelayCommand!.Value, "turn reaches command $F8");
-    AssertEqual(SamusPoseId.FacingLeftNormalPose, animatedTurn.PendingTransitionalPose!.Value, "turn $F8 publishes left-standing pose");
+    AssertEqual(0xf8, (animatedTurn.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires animatedTurn.LastAnimationDelayCommand.")), "turn reaches command $F8");
+    AssertEqual(SamusPoseId.FacingLeftNormalPose, (animatedTurn.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires animatedTurn.PendingTransitionalPose.")), "turn $F8 publishes left-standing pose");
     AssertTrue(animatedTurn.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "turn animation transition applies");
     AssertEqual(SamusPoseId.FacingLeftNormalPose, animatedTurn.Pose, "turn animation ends facing left");
     AssertEqual(0, animatedTurn.AnimationFrame, "turn completion resets animation frame");
@@ -882,8 +882,8 @@ internal static void VerifySamusGroundedReversal()
 
         for (int tick = 0; tick < 6; tick++)
             aimedTurn.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-        AssertEqual(0xf8, aimedTurn.LastAnimationDelayCommand!.Value, $"aimed turn reaches $F8 case {caseIndex}");
-        AssertEqual(testCase.Destination, aimedTurn.PendingTransitionalPose!.Value, $"aimed turn publishes destination case {caseIndex}");
+        AssertEqual(0xf8, (aimedTurn.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires aimedTurn.LastAnimationDelayCommand.")), $"aimed turn reaches $F8 case {caseIndex}");
+        AssertEqual(testCase.Destination, (aimedTurn.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires aimedTurn.PendingTransitionalPose.")), $"aimed turn publishes destination case {caseIndex}");
         AssertTrue(aimedTurn.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), $"aimed turn transition applies case {caseIndex}");
         AssertEqual(testCase.Destination, aimedTurn.Pose, $"aimed turn destination case {caseIndex}");
         AssertEqual(0, aimedTurn.AnimationFrame, $"aimed turn target frame zero case {caseIndex}");
@@ -999,8 +999,8 @@ internal static void VerifySamusGroundedReversal()
 
         for (int tick = 0; tick < 6; tick++)
             crouchedTurn.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-        AssertEqual(0xf8, crouchedTurn.LastAnimationDelayCommand!.Value, $"crouched turn reaches $F8 case {caseIndex}");
-        AssertEqual(testCase.Destination, crouchedTurn.PendingTransitionalPose!.Value, $"crouched turn publishes destination case {caseIndex}");
+        AssertEqual(0xf8, (crouchedTurn.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires crouchedTurn.LastAnimationDelayCommand.")), $"crouched turn reaches $F8 case {caseIndex}");
+        AssertEqual(testCase.Destination, (crouchedTurn.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires crouchedTurn.PendingTransitionalPose.")), $"crouched turn publishes destination case {caseIndex}");
         AssertTrue(crouchedTurn.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), $"crouched turn transition applies case {caseIndex}");
         AssertEqual(testCase.Destination, crouchedTurn.Pose, $"crouched turn destination case {caseIndex}");
     }
@@ -1265,9 +1265,9 @@ internal static void VerifySamusMoonwalking()
     animated.PoseTransitions.ApplyMoonwalkTurnJump(bus, SamusPoseId.MoonwalkTurnJumpLeftPose);
     for (int tick = 0; tick < 6; tick++)
         animated.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xf8, animated.LastAnimationDelayCommand!.Value,
+    AssertEqual(0xf8, (animated.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires animated.LastAnimationDelayCommand.")),
         "moonwalk turn reaches command $F8");
-    AssertEqual(SamusPoseId.SpinJumpLeftPose, animated.PendingTransitionalPose!.Value,
+    AssertEqual(SamusPoseId.SpinJumpLeftPose, (animated.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires animated.PendingTransitionalPose.")),
         "moonwalk turn publishes literal spin-left operand");
     AssertTrue(animated.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus),
         "moonwalk terminal spin transition applies");

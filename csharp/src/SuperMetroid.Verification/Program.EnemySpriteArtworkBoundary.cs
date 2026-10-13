@@ -30,7 +30,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         EnemyTileArtworkCatalog artwork = installation.LoadEnemyTiles();
-        EnemyProjectileSpritemapCatalog projectileArtwork = artwork.ProjectileSpritemaps!;
+        EnemyProjectileSpritemapCatalog projectileArtwork = (artwork.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires artwork.ProjectileSpritemaps."));
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureBus(memory);
@@ -78,7 +78,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
             projectileCases++;
         }
         roomSlot.Clear();
-        AssertEqual(0, projectileArtwork.Get(EnemyProjectileSpritemapDefinitions.BlankSpritemap).Length,
+        AssertEqual(0, (projectileArtwork ?? throw new InvalidOperationException("Verification requires projectileArtwork.")).Get(EnemyProjectileSpritemapDefinitions.BlankSpritemap).Length,
             "native initial blank projectile is compiled as a zero-part frame");
         foreach ((ushort pointer, string name) in EnemyProjectileSpritemapDefinitions.Frames)
         {

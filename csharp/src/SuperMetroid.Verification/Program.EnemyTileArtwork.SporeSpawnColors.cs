@@ -71,8 +71,8 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
                 frame, "death background");
         }
         AssertEqual(colors.ResolveDeathSprite(6, 5),
-            EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .SporeSpawnColors!.ResolveDeathSprite(6, 5),
+            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
+                .SporeSpawnColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .SporeSpawnColors.")).ResolveDeathSprite(6, 5),
             "Spore Spawn override survives catalog reload");
 
         CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(

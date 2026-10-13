@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using static Program;
 using static RepositoryInputsVerification;
 using System.Buffers.Binary;
@@ -44,7 +45,7 @@ internal static class EnemyDefinitionBoundaryVerification
         foreach (ushort frame in TorizoCollisionDefinitions.FramePointers)
         foreach ((ushort x, ushort y) in new (ushort, ushort)[] { (128, 96), (0, 0), (511, 252) })
         {
-            AssertTrue(artwork.ExtendedFrames!.TryGet(TorizoInstructionProgramDefinitions.Bank, frame, out _),
+            AssertTrue((artwork.ExtendedFrames ?? throw new InvalidOperationException("Verification requires artwork.ExtendedFrames.")).TryGet(TorizoInstructionProgramDefinitions.Bank, frame, out _),
                 $"installed Torizo extended frame {frame:X4}");
             OamBuffer actual = DrawExtendedForBank(artwork, memory, TorizoInstructionProgramDefinitions.Bank, frame, new(x, y));
             var expected = new OamBuffer();
@@ -197,9 +198,9 @@ internal static class EnemyDefinitionBoundaryVerification
                     AssertEqual((ushort)(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((definition.SourceAddress +
                         (frame * definition.NativeFrameStrideColors + color) * 2)) & 0x7fff),
                         catalog.Resolve(definition.Id, frame, color), "editable auxiliary RGB5 color");
-        var document = JsonSerializer.Deserialize<EnemyAuxiliaryColorDocument>(json,
+        var document = RequiredJson.Deserialize<EnemyAuxiliaryColorDocument>(json,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter<EnemyAuxiliaryPalette>() } })!;
+                Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter<EnemyAuxiliaryPalette>() } });
         document.Palettes[EnemyAuxiliaryPalette.FaceBlock][0][0] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
         EnemyAuxiliaryColorCatalog edited = EnemyAuxiliaryColorCatalog.Load(
             new MemoryStream(EnemyAuxiliaryColorCatalog.Write(document), writable: false));

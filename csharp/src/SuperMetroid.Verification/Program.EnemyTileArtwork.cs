@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -229,9 +230,9 @@ internal static class EnemyTileArtworkVerification
             string firstTilemapFile = Path.Combine(directory,
                 CrocomireMeltingArtworkFormat.FirstTilemapFileName);
             CrocomireMeltingTilemapDocument tilemapDocument =
-                JsonSerializer.Deserialize<CrocomireMeltingTilemapDocument>(
+                RequiredJson.Deserialize<CrocomireMeltingTilemapDocument>(
                     File.ReadAllBytes(firstTilemapFile),
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             CrocomireMeltingTilemapCell[] editedCells =
                 (CrocomireMeltingTilemapCell[])tilemapDocument.Cells.Clone();
             editedCells[0] = editedCells[0] with
@@ -283,9 +284,9 @@ internal static class EnemyTileArtworkVerification
 
             string stockPalettePath = Path.Combine(directory,
                 EnemyTileArtworkFormat.PaletteFileName(editedPointer));
-            EnemyPaletteSheetDocument paletteDocument = JsonSerializer.Deserialize<EnemyPaletteSheetDocument>(
+            EnemyPaletteSheetDocument paletteDocument = RequiredJson.Deserialize<EnemyPaletteSheetDocument>(
                 File.ReadAllBytes(stockPalettePath),
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             PaletteRgb5[] editedColors = (PaletteRgb5[])paletteDocument.Colors.Clone();
             editedColors[0] = editedColors[0] with { Red = editedColors[0].Red ^ 1 };
             string paletteOverridePath = Path.Combine(overrideDirectory,

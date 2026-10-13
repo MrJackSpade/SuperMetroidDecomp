@@ -64,7 +64,7 @@ internal static class ZeroInstructionProgramDefinitionsVerification
                 CrawlerSurfaceOrientation.UpsideLeft
                     ? CrawlerEnemyFunction.CrawlingVertically
                     : CrawlerEnemyFunction.CrawlingHorizontally;
-            AssertEqual(expected, enemies.CrawlerStates[0]!.Function,
+            AssertEqual(expected, (enemies.CrawlerStates[0] ?? throw new InvalidOperationException("Verification requires enemies.CrawlerStates[0].")).Function,
                 $"Zero {orientation} publishes native movement function");
             AssertEqual(unchecked((ushort)(entry + 8)), slot.CurrentInstruction,
                 $"Zero {orientation} completes and loops all six frames");

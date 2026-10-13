@@ -64,10 +64,10 @@ internal static class CeresRidleyColorsVerification
         Paint(document.Health[0]);
         Paint(document.Health[1]);
         Paint(document.Health[2]);
-        Paint(document.Alarm![7]);
+        Paint((document.Alarm ?? throw new InvalidOperationException("Verification requires document.Alarm."))[7]);
         Paint(document.RetreatBg);
         Paint(document.RetreatShared);
-        Paint(document.Baby![1]);
+        Paint((document.Baby ?? throw new InvalidOperationException("Verification requires document.Baby."))[1]);
         string replacement = Path.Combine(overrideDirectory, CeresRidleyColorFormat.FileName);
         File.WriteAllBytes(replacement, CeresRidleyColorCatalog.Write(document));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);

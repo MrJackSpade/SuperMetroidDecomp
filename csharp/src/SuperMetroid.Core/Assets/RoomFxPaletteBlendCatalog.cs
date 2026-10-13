@@ -210,9 +210,12 @@ internal sealed class RoomFxPairColor
     /// <summary>Rebuilds the ink from retained edits and any still-applicable shared tint rules.</summary>
     public Bgr555 CreateColor()
     {
-        int red = redOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection, isPrimary)!.Value;
-        int green = greenOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red, isPrimary)!.Value;
-        int blue = blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red, green, isPrimary)!.Value;
+        int red = redOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection, isPrimary) ??
+            throw new InvalidOperationException("A blend color without a red edit has a calculated red.");
+        int green = greenOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red, isPrimary) ??
+            throw new InvalidOperationException("A blend color without a green edit has a calculated green.");
+        int blue = blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red, green, isPrimary) ??
+            throw new InvalidOperationException("A blend color without a blue edit has a calculated blue.");
         return new Bgr555(red, green, blue);
     }
 }
@@ -241,8 +244,10 @@ internal sealed class RoomFxThirdColor
 
     /// <summary>Combines the retained red channel with edited or calculated weather channels.</summary>
     public Bgr555 CreateColor() => new(red,
-        greenOverride ?? RoomFxPaletteBlendDefinitions.CalculatedThirdGreen(selection)!.Value,
-        blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(selection, red)!.Value);
+        greenOverride ?? RoomFxPaletteBlendDefinitions.CalculatedThirdGreen(selection) ??
+            throw new InvalidOperationException("A blend color without a green edit has a calculated green."),
+        blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(selection, red) ??
+            throw new InvalidOperationException("A blend color without a blue edit has a calculated blue."));
 }
 /// <summary>Editable RGB5 inks for the eight native room-FX blend selections, with separate optional fixed-color tints for Ceres haze.</summary>
 public sealed record RoomFxPaletteBlendDocument

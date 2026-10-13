@@ -62,10 +62,10 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
             "right-swimming Skultera program selects native layer six");
 
         Action<RoomEnemySlot, SkulteraEnemyState, bool> beginTurn = SkulteraBehavior.BeginSkulteraTurn;
-        SkulteraEnemyState leftState = leftSystem.SkulteraStates[0]!;
-        SkulteraEnemyState rightState = rightSystem.SkulteraStates[0]!;
-        beginTurn(left, leftState, true);
-        beginTurn(right, rightState, false);
+        SkulteraEnemyState leftState = (leftSystem.SkulteraStates[0] ?? throw new InvalidOperationException("Verification requires leftSystem.SkulteraStates[0]."));
+        SkulteraEnemyState rightState = (rightSystem.SkulteraStates[0] ?? throw new InvalidOperationException("Verification requires rightSystem.SkulteraStates[0]."));
+        beginTurn(left, (leftState ?? throw new InvalidOperationException("Verification requires leftState.")), true);
+        beginTurn(right, (rightState ?? throw new InvalidOperationException("Verification requires rightState.")), false);
         AssertEqual(SkulteraInstructionProgramDefinitions.TurningRight,
             left.CurrentInstruction, "left swimmer enters turning-right program");
         AssertEqual(SkulteraInstructionProgramDefinitions.TurningLeft,

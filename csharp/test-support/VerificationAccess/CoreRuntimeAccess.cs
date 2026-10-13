@@ -41,7 +41,7 @@ internal static class SuperMetroidRuntimeAccess
             // Radius is pose data, so construct/refresh pose $01 before deriving the surface
             // center. The temporary Y=0 is never rendered or stepped.
             self.InitializeDebugSamus(new(xPosition, 0));
-            ushort yRadius = self.Player.Samus!.Kinematics.Radius.Y;
+            ushort yRadius = self.Player.IntroducedSamus.Kinematics.Radius.Y;
 
             if ((uint)minimumFloorBlockY >= (uint)self.Room.LevelData.Size.Y)
                 throw new ArgumentOutOfRangeException(nameof(minimumFloorBlockY));
@@ -86,7 +86,7 @@ internal static class SuperMetroidRuntimeAccess
                     // Entry placement clamps a requested origin left of or above the room to zero.
                     (ushort)Math.Max(0, xPosition - 0x60),
                     (ushort)Math.Max(0, restingY - desiredScreenY)));
-                self.Player.Samus.Position = self.Player.Samus.Position.WithWholeY(restingY);
+                self.Player.IntroducedSamus.Position = self.Player.IntroducedSamus.Position.WithWholeY(restingY);
                 self.Player.GroundedSamusMovementEnabled = true;
                 self.Player.LastGroundedSamusMovement = null;
                 self.Player.LastAerialSamusMovement = null;
@@ -123,7 +123,7 @@ internal static class SuperMetroidRuntimeAccess
             self.Artwork.BindSamusPalettePresentation();
 
             SamusPresentation.LoadPowerSuitPalette(self._addressSpace, self.Cgram, self.Artwork.MapPresentation?.SamusSuitColors);
-            self.Player.Samus!.PoseMetadata.RefreshCollisionRadii(self._addressSpace);
+            self.Player.Samus.PoseMetadata.RefreshCollisionRadii(self._addressSpace);
             self.Player.Samus.Presentation.InitializeAnimation(self._addressSpace);
             if (self.Room.LandingSiteEntry is not null)
             {

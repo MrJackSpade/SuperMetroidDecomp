@@ -116,7 +116,11 @@ public sealed class IntroCinematicPalette
             if (crossFadeInputs is not null)
             {
                 if (color == 0) return crossFadeInputs[0];
-                if (color <= 8) return sharedGradient!.Resolve(color);
+                if (color <= 8)
+                {
+                    return (sharedGradient ?? throw new InvalidOperationException(
+                        "A cross-faded intro palette requires its shared gradient.")).Resolve(color);
+                }
                 if (color <= 12) return new Bgr555(0, 0, crossFadeInputs[1].Blue -
                     (color - 9) * IntroCinematicPaletteFormat.CrossFadeBlueStep);
                 return crossFadeInputs[color - 11];

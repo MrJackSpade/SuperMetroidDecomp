@@ -24,7 +24,7 @@ internal static class LookupFxBlendBlackColorsVerification
         foreach (byte id in OriginalBlackBlendIds())
         {
             int expected = (ReadVerificationWord(rom, 0x89aa06 + id) >> shift) & 31;
-            AssertEqual(expected, (RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id)!.Value.ToWord() >> shift) & 31, "Original third-color component");
+            AssertEqual(expected, ((RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id).")).ToWord() >> shift) & 31, "Original third-color component");
             AssertEqual(expected, (stock.Resolve((RoomFxPaletteBlend)id)[2].ToWord() >> shift) & 31, "Resolved third-color component");
             var cgram = new SnesCgram();
             stock.Apply(cgram, (RoomFxPaletteBlend)id);
@@ -39,16 +39,16 @@ internal static class LookupFxBlendBlackColorsVerification
         {
             byte id = (byte)value;
             if (OriginalBlackBlendIds().Contains(id)) AssertEqual((ushort)0,
-                RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id)!.Value, "Six liquid selections calculate black");
+                (RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id).")), "Six liquid selections calculate black");
             else if (id is 0x22 or 0x62) AssertTrue(RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id) is null, "Weather third color stays independent");
             else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id), "Unknown calculated-color selector rejects");
         }
         foreach (var field in MetadataShape.Fields(typeof(RoomFxPaletteBlendCatalog), BindingFlags.Instance | BindingFlags.NonPublic)
                      .Where(field => field.FieldType == typeof(RoomFxBlendColors)))
         {
-            var owner = (RoomFxBlendColors)field.GetValue(stock)!;
+            var owner = (RoomFxBlendColors)(field.GetValue(stock) ?? throw new InvalidOperationException("Verification requires field.GetValue(stock)."));
             bool weather = field.Name is "landingSiteRain" or "fog";
-            AssertEqual(weather, owner.thirdOverride is not null, "Stock black values are not stored");
+            AssertEqual(weather, (owner ?? throw new InvalidOperationException("Verification requires owner.")).thirdOverride is not null, "Stock black values are not stored");
             _ = owner.CreateColors();
             AssertEqual(weather, owner.thirdOverride is not null, "Output creation does not cache black");
         }

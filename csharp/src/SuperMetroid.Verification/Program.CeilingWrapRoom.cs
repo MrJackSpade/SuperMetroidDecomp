@@ -28,19 +28,19 @@ internal static class CeilingWrapRoomVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.FrogSpeedway);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
         samus.Position = samus.Position.WithWhole(new(1237, 139));
         samus.EquippedBeams = beams; samus.EquippedItems = 0;
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(1109, 0));
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(1109, 0));
         int mismatches = 0;
         for (int frame = 0; frame < native.Length; frame++)
         {
             runtime.StepFrame((ushort)(SnesButton.X | SnesButton.Left | SnesButton.R | (dash ? SnesButton.B : 0)));
-            string actual = $"{frame},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)samus.Pose:X2},{runtime.Plms.SlotTable.ActiveCount},{runtime.Room.Camera.PixelPosition.X}";
+            string actual = $"{frame},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)samus.Pose:X2},{runtime.Plms.SlotTable.ActiveCount},{runtime.Room.LoadedCamera.PixelPosition.X}";
             if (actual != native[frame] && mismatches++ < 8)
                 Console.WriteLine($"Speedway mismatch:\n{actual}\n{native[frame]}");
         }
@@ -58,7 +58,7 @@ internal static class CeilingWrapRoomVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.FrogSpeedway);
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(1237, 139)),
             PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose, EquippedBeams = 5 };
         samus.Kinematics.Radius = new(5, 21);
@@ -75,7 +75,7 @@ internal static class CeilingWrapRoomVerification
             ushort pressed = frame == 0 ? held : (ushort)0;
             bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, held, pressed);
             shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = held, ControllerNewInput = pressed }, new(1109, 0), bombs);
-            plms.Step(bus, level, runtime.Room.BackgroundStreamer!, new PlmView { Layer1Position = new(1109, 0), Bg1XOffset = 0 });
+            plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(1109, 0), Bg1XOffset = 0 });
             if (firstFull < 0 && plms.SlotTable.ActiveCount == 40) firstFull = frame;
         }
         AssertEqual(343, firstFull, "Authored room reaches full pool with live PLM timers");

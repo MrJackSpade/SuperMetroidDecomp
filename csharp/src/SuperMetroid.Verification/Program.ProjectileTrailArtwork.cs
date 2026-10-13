@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -103,10 +104,10 @@ internal static class ProjectileTrailArtworkVerification
             AssertEqual(attributes, side.TileNumberAttributes, "Artwork selection does not mutate stored trail attributes");
             draws++;
         }
-        var document = JsonNode.Parse(json)!;
+        var document = RequiredJson.Parse(json);
         ushort first = ProjectileTrailVisualDefinitions.Frames[0];
-        var part = document["frames"]![ProjectileTrailVisualDefinitions.Name(first)]!;
-        part["flipX"] = !part["flipX"]!.GetValue<bool>();
+        var part = document.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(first));
+        part["flipX"] = !part.Required("flipX").GetValue<bool>();
         var edited = Load(document);
         Suite(nameof(VerifyRuntimeTrailBinding), () => VerifyRuntimeTrailBinding(bus, catalog, edited));
         AssertEqual((ushort)(catalog.Resolve(first) ^ 0x4000), edited.Resolve(first), "Trail flip edit changes only horizontal-flip bit");
@@ -122,13 +123,13 @@ internal static class ProjectileTrailArtworkVerification
         animation.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), changed, Position16<RoomPixels>.Zero, true, edited);
         AssertTrue(original.GetEntry(0).FlipX != changed.GetEntry(0).FlipX, "Edited trail flip reaches production draw");
         AssertEqual(1, trail.InstructionTimer.RawValue, "Rebound art retains current timer");
-        document["frames"]![ProjectileTrailVisualDefinitions.Name(first)]!["duration"] = 0;
+        document.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(first))["duration"] = 0;
         AssertThrows<InvalidDataException>(() => Load(document), "Trail art cannot change duration");
-        document = JsonNode.Parse(json)!;
-        document["frames"]!.AsObject().Remove(ProjectileTrailVisualDefinitions.Name(first));
+        document = JsonNode.Parse(json);
+        (document ?? throw new InvalidOperationException("Verification requires document.")).Required("frames").AsObject().Remove(ProjectileTrailVisualDefinitions.Name(first));
         AssertThrows<InvalidDataException>(() => Load(document), "Missing trail art rejected");
-        document = JsonNode.Parse(json)!;
-        document["frames"]![ProjectileTrailVisualDefinitions.Name(first)]!["palette"] = 8;
+        document = JsonNode.Parse(json);
+        (document ?? throw new InvalidOperationException("Verification requires document.")).Required("frames").Required(ProjectileTrailVisualDefinitions.Name(first))["palette"] = 8;
         AssertThrows<InvalidDataException>(() => Load(document), "Invalid trail palette rejected");
         Console.WriteLine($"Trail artwork: {draws} native OAM comparisons, frozen-start preservation, live edit isolation and strict metadata rejection pass.");
         // Round-trip an edited frame node through the same JSON catalog validation as installed assets.
@@ -187,7 +188,7 @@ internal static class ProjectileTrailArtworkVerification
         var side = runtime.Projectiles.TrailSlots[0].Left;
         side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
         side.InstructionTimer = NativeCountdown.Start(3); side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
-        side.Position = side.Position.WithX((ushort)(runtime.Room.Camera!.PixelPosition.X + 100)).WithY((ushort)(runtime.Room.Camera.PixelPosition.Y + 100));
+        side.Position = side.Position.WithX((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100)).WithY((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100));
         var game = CreateRetailGameFixture(bus);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         game.runtime = runtime;
@@ -224,7 +225,7 @@ internal static class ProjectileTrailArtworkVerification
         AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Trail catalogs are excluded from both frontend and runtime snapshots");
         with.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
-        var restoredRuntime = restored.runtime;
+        var restoredRuntime = restored.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.TrailArtwork is null, "Restored trail catalog requires host rebind");
         BindRetailRuntimeFixture(restoredRuntime);
         restored.BindArtwork(restored.Artwork with

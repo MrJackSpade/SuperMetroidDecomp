@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -40,8 +41,8 @@ internal static class GameplayMessagePanelsVerification
             comparedWords += installed.Tilemap.Length;
         }
 
-        JsonObject document = JsonNode.Parse(extracted)!.AsObject();
-        JsonObject missile = document["panels"]![GameplayMessageId.MissileTank.ToString()]!.AsObject();
+        JsonObject document = RequiredJson.Parse(extracted).AsObject();
+        JsonObject missile = document.Required("panels").Required(GameplayMessageId.MissileTank.ToString()).AsObject();
         missile["title"] = "MISSILE TEST";
         byte[] editedBytes = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
             MapPresentationFormat.JsonOptions));
@@ -91,8 +92,8 @@ internal static class GameplayMessagePanelsVerification
             "installed gameplay-message panels are the deterministic cartridge extraction");
 
         Directory.CreateDirectory(overrideDirectory);
-        JsonObject document = JsonNode.Parse(deterministic)!.AsObject();
-        document["panels"]![GameplayMessageId.GrappleBeam.ToString()]!["title"] =
+        JsonObject document = RequiredJson.Parse(deterministic).AsObject();
+        document.Required("panels").Required(GameplayMessageId.GrappleBeam.ToString())["title"] =
             "GRAPPLE TEST";
         string replacement = Path.Combine(
             overrideDirectory, GameplayMessagePanelDefinitions.FileName);

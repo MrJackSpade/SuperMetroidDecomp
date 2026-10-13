@@ -66,7 +66,7 @@ internal static class PlmProgramAudit
         foreach (FieldInfo field in instructionLists)
         {
             if (!field.IsLiteral || field.FieldType != typeof(ushort)) continue;
-            ushort address = (ushort)field.GetRawConstantValue()!;
+            ushort address = field.RequiredConstant<ushort>();
             string? route = TypedListRoute(field.Name);
             if (route is not null) report.Classifications.Add(new());
             else walker.Visit(address, field.Name);
@@ -75,7 +75,7 @@ internal static class PlmProgramAudit
         {
             // Reuse the same typed route for assignments to scroll/save identities.
             string? name = instructionLists.FirstOrDefault(field => field.IsLiteral && field.FieldType == typeof(ushort) &&
-                    (ushort)field.GetRawConstantValue()! == address)?.Name;
+                    field.RequiredConstant<ushort>() == address)?.Name;
             if (name is null || TypedListRoute(name) is null) walker.Visit(address, owner);
         }
 
@@ -103,7 +103,7 @@ internal static class PlmProgramAudit
         if (jsonPath is not null)
         {
             string absolute = Path.GetFullPath(jsonPath);
-            Directory.CreateDirectory(Path.GetDirectoryName(absolute)!);
+            Directory.CreateDirectory((Path.GetDirectoryName(absolute) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(absolute).")));
             File.WriteAllText(absolute, JsonSerializer.Serialize(report, AuditReport.JsonOptions) + Environment.NewLine);
             Console.WriteLine("Report: " + absolute);
         }

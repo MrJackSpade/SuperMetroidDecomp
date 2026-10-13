@@ -547,7 +547,8 @@ internal static class CartridgeEncodingScanner
     private static (CartridgeEncodingClass Class, string Basis) ClassifyHex(SyntaxToken token)
     {
         ulong value = HexValue(token.Text);
-        SyntaxNode context = Climb(token.Parent!);
+        SyntaxNode context = Climb(token.Parent ??
+            throw new InvalidOperationException("A hex literal token always belongs to an expression."));
         SyntaxNode? parent = context.Parent;
 
         if (parent is InitializerExpressionSyntax { RawKind: (int)SyntaxKind.ArrayInitializerExpression } or

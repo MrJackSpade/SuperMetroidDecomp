@@ -20,12 +20,12 @@ internal static class ReportedEyeStateFixture
             Path.GetFullPath("standalone-assets/audio"));
         const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
         data.Game.SetupSelectedGame();
-        var runtime = data.Game.runtime;
+        var runtime = data.Game.GameplayRuntime;
         // Room identity is fixture data; normal room loading owns its population,
         // graphics, HDMA initialization, and camera-dependent render snapshots.
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BlueBrinstarEnergyTankRoom, new Position16<RoomPixels>(384, 512));
         var body = runtime.Enemies.SlotTable.Slots[1];
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.CollectedItems = (ushort)SamusEquipmentFlags.MorphBall;
         samus.InputLocked = true;
         samus.Position = samus.Position.WithWhole(new((ushort)(body.Position.X.Whole - 64), (ushort)(body.Position.Y.Whole - 32)));

@@ -45,7 +45,7 @@ internal static class KraidSinkScheduleVerification
             ushort expected = offset == 19
                 ? (ushort)(SnesLittleEndian.Word(KraidSinkPlmFieldRomByte(rom, code + offset), KraidSinkPlmFieldRomByte(rom, code + offset + 1)))
                 : KraidSinkPlmFieldRomByte(rom, code + offset);
-            AssertEqual(expected, field(request!.Value), "Native sink callback inline field");
+            AssertEqual(expected, field((request ?? throw new InvalidOperationException("Verification requires request."))), "Native sink callback inline field");
             count++;
         }
         AssertEqual(6, count, "Six distinct platform mutations");

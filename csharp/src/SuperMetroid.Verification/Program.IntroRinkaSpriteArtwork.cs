@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -59,9 +60,9 @@ internal static class IntroRinkaSpriteArtworkVerification
 
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         string name = IntroRinkaSpriteFormat.FileName;
-        IntroRinkaSpriteDocument document = JsonSerializer.Deserialize<IntroRinkaSpriteDocument>(
+        IntroRinkaSpriteDocument document = RequiredJson.Deserialize<IntroRinkaSpriteDocument>(
             File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         document.Frames["rinka-0"] = document.Frames["rinka-0"]
             .Select(part => part with { Palette = 0 }).ToArray();
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -50,9 +51,9 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         string name = IntroDiscoveryActorSpriteFormat.FileName;
         IntroDiscoveryActorSpriteDocument document =
-            JsonSerializer.Deserialize<IntroDiscoveryActorSpriteDocument>(
+            RequiredJson.Deserialize<IntroDiscoveryActorSpriteDocument>(
                 File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         document.Frames["egg-intact"] = document.Frames["egg-intact"]
             .Select(part => part with { OffsetX = part.OffsetX + 1 }).ToArray();
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
@@ -75,7 +76,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
             AssertEqual(IntroCinematicPhase.BabyDiscovery, state.Phase,
                 "discovery actor visual probe reached the lit gameplay palette");
             var discovery = state.babyDiscovery;
-            discovery.Step(0, 1);
+            (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).Step(0, 1);
         }
         Rgba32[] stockPixels = stockState.RenderBabyDiscovery();
         Rgba32[] editedPixels = editedState.RenderBabyDiscovery();

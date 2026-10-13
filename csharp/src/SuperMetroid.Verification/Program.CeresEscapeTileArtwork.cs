@@ -19,7 +19,7 @@ internal static class CeresEscapeTileArtworkVerification
         foreach (CeresEscapeTileSheetDefinition page in
                  CeresEscapeTileArtworkDefinitions.All)
         {
-            AssertTrue(stock.CeresEscapeTiles!.TryResolve(page.SourceAddress,
+            AssertTrue((stock.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires stock.CeresEscapeTiles.")).TryResolve(page.SourceAddress,
                     page.ByteCount, out ReadOnlyMemory<byte> nativePage),
                 $"Ceres escape page {page.FileName} resolves completely");
             for (int offset = 0; offset < page.ByteCount; offset++)
@@ -133,8 +133,8 @@ internal static class CeresEscapeTileArtworkVerification
         AssertEqual(editedChunk.Span[0],
             editedVram.ReadByte(warningTransfer.DestinationWord * 2),
             "edited Ceres warning PNG changes the production VRAM upload");
-        AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .CeresEscapeTiles!.TryResolve(warning.SourceAddress, 0x0200,
+        AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
+                .CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .CeresEscapeTiles.")).TryResolve(warning.SourceAddress, 0x0200,
                     out ReadOnlyMemory<byte> reloaded) &&
                    reloaded.Span.SequenceEqual(editedChunk.Span),
             "Ceres warning tile override survives catalog reload");

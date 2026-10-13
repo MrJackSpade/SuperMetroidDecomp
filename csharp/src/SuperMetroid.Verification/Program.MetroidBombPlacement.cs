@@ -37,8 +37,8 @@ internal static class MetroidBombPlacementVerification
         target.Position = target.Position.WithWhole(new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 8)));
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
         enemies.Collision.ResolveOrdinarySamusContact(samus, 0);
-        var state = enemies.MetroidStates[0]!;
-        AssertEqual(MetroidAiFunction.AttachedToSamus, state.Function, "real touch attaches Metroid to morphed Samus");
+        var state = enemies.MetroidStates[0];
+        AssertEqual(MetroidAiFunction.AttachedToSamus, (state ?? throw new InvalidOperationException("Verification requires state.")).Function, "real touch attaches Metroid to morphed Samus");
         var bombs = CreateBombFixture();
         var shots = CreateProjectileFixture();
         int firstExplosion = -1, detached = -1;
@@ -85,7 +85,7 @@ internal static class MetroidBombPlacementVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room.Pointer, new Position16<RoomPixels>(0, 0));
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         for (int y = 0; y < level.Size.Y; y++)
         for (int x = 0; x < level.Size.X; x++)
         {
@@ -94,7 +94,7 @@ internal static class MetroidBombPlacementVerification
             level.SetBehavior(index, 0);
         }
         runtime.InitializeDebugGroundedSamus(128, 100, 10);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
@@ -113,7 +113,7 @@ internal static class MetroidBombPlacementVerification
         foreach (var other in runtime.Enemies.SlotTable.Slots.Skip(1)) other.Clear();
         target.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 145));
         runtime.Controller1.Latch(0);
-        var state = runtime.Enemies.MetroidStates[0]!;
+        var state = runtime.Enemies.MetroidStates[0];
 
         // Exact native rows 61..66, case right/travel2/single. The complete 40-case
         // trace is enforced by DebugRunner; these boundaries run in the core suite.
@@ -133,7 +133,7 @@ internal static class MetroidBombPlacementVerification
             runtime.StepFrame(input);
             if (frame < 61) continue;
             AssertEqual(expected[frame - 61],
-                (target.Position.X.Whole, target.Position.Y.Whole, state.Function, state.EscapeTimer.RawValue, samus.Health),
+                (target.Position.X.Whole, target.Position.Y.Whole, (state ?? throw new InvalidOperationException("Verification requires state.")).Function, state.EscapeTimer.RawValue, samus.Health),
                 $"native bomb/EnemyMain detach trajectory at frame {frame}");
             AssertEqual(0x00950000u, samus.Kinematics.Position.X.RawValue, "Samus remains at native release X");
             AssertEqual(0x0099ffffu, samus.Kinematics.Position.Y.RawValue, "Samus stays on the floor during detach");

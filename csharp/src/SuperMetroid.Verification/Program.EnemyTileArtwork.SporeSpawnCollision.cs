@@ -91,7 +91,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
                 AssertEqual(nativeFound, installedFound,
                     $"Spore Spawn frame {frame.Pointer:X4} native overlap at {x},{y}, shot={shot}");
                 AssertEqual(nativeCallback,
-                    (ushort)installedArguments[^1]!,
+                    (ushort)(installedArguments[^1] ?? throw new InvalidOperationException("Verification requires installedArguments[^1].")),
                     $"Spore Spawn frame {frame.Pointer:X4} callback at {x},{y}, shot={shot}");
                 callbackComparisons++;
             }

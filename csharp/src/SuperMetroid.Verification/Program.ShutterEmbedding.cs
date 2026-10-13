@@ -34,7 +34,7 @@ internal static class ShutterEmbeddingVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom, new Position16<RoomPixels>(0, 0));
-            var samus = runtime.Player.Samus!;
+            var samus = runtime.Player.IntroducedSamus;
             var platform = runtime.Enemies.SlotTable.Slots[slot];
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;
             samus.InputLocked = false;
@@ -50,7 +50,7 @@ internal static class ShutterEmbeddingVerification
                 ushort input = frame < stopAt ? (ushort)direction : (ushort)0;
                 if (frame == bombAt || frame == bombAt + 20) input |= runtime.Options.ControllerBindings.Shoot;
                 runtime.StepFrame(input);
-                activated |= runtime.Enemies.VerticalShutterStates[slot]!.Function == VerticalShutterFunction.MovingUp;
+                activated |= (runtime.Enemies.VerticalShutterStates[slot] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.VerticalShutterStates[slot].")).Function == VerticalShutterFunction.MovingUp;
                 carried |= samus.Kinematics.ExtraDisplacement.Y.RawValue < 0;
                 int gap = platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y;
                 if (Math.Abs(samus.Position.X.Whole-platform.Position.X.Whole) < platform.Radius.X+samus.Kinematics.Radius.X &&

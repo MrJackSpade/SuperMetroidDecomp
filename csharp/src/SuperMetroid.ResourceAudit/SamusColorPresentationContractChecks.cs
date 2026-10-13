@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -62,7 +63,7 @@ internal static class SamusColorPresentationContractChecks
         SyntaxTree calls = CSharpSyntaxTree.ParseText(consumer.Replace("@LAST_SHINE@", $"0x{lastShine:X4}",
             StringComparison.Ordinal), path: "fixture-samus-color-consumer.cs");
         trees.Add(calls);
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("SamusColorProviderFixture", trees,
             platforms.Append(typeof(SamusSuitColorCatalog).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),

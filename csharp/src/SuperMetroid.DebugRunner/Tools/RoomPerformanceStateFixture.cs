@@ -23,7 +23,7 @@ internal static class RoomPerformanceStateFixture
             Path.GetFullPath("standalone-assets/audio"));
         const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
         data.Game.SetupSelectedGame();
-        var runtime = data.Game.runtime;
+        var runtime = data.Game.GameplayRuntime;
         bool surface = scene == "surface";
         ushort camera = surface ? (ushort)1024 : (ushort)0;
         if (scene == "map")
@@ -38,8 +38,8 @@ internal static class RoomPerformanceStateFixture
             ushort room = surface ? RoomHeaderPointers.LandingSite : RoomHeaderPointersTooling.CrateriaSaveStation;
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(camera, camera));
         }
-        runtime.Player.Samus!.InputLocked = true;
-        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new((ushort)(camera + (surface ? 128 : 64)), (ushort)(camera + 160)));
+        runtime.Player.IntroducedSamus.InputLocked = true;
+        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(camera + (surface ? 128 : 64)), (ushort)(camera + 160)));
         data.Game.GameState = SuperMetroidGameState.MainGameplay;
         double stepMs = 0, renderMs = 0, audioMs = 0;
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
@@ -64,7 +64,7 @@ internal static class RoomPerformanceStateFixture
         }
         if (data.Game.GameState != SuperMetroidGameState.MainGameplay)
             throw new InvalidDataException($"Performance fixture unexpectedly left gameplay: {data.Game.GameState}");
-        PngWriterTooling.WriteRgba(Path.Combine(root, "room.png"), new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), pixels!);
+        PngWriterTooling.WriteRgba(Path.Combine(root, "room.png"), new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), pixels);
         Console.WriteLine(data.SaveSlot(9));
         Console.WriteLine($"{scene}: room ${(byte?)data.Game.GameplayActiveAreaIndex:X2}/${data.Game.GameplayActiveRoomIndex:X2}; " +
             $"600 measured Windows frames: step (including audio synthesis)={stepMs / 600:F3}ms render={renderMs / 600:F3}ms audio copy={audioMs / 600:F3}ms.");

@@ -37,7 +37,7 @@ internal sealed class SamusMechanicsSnapshot
                 { values.Add(path, "reference:" + original); return; }
                 references.Add(value, path);
             }
-            values.Add(path, type.FullName!);
+            values.Add(path, (type.FullName ?? throw new InvalidOperationException("Verification requires type.FullName.")));
             if (value is IEnumerable sequence)
             {
                 int index = 0;
@@ -47,7 +47,7 @@ internal sealed class SamusMechanicsSnapshot
             }
             foreach (FieldInfo field in Fields.GetOrAdd(type, SerializableFields))
             {
-                Visit(field.GetValue(value), path + "." + field.DeclaringType!.Name + "." + field.Name);
+                Visit(field.GetValue(value), path + "." + (field.DeclaringType ?? throw new InvalidOperationException("Verification requires field.DeclaringType.")).Name + "." + field.Name);
             }
         }
     }

@@ -82,7 +82,7 @@ internal static class KraidFootCollisionDefinitionsVerification
                     AssertEqual(nativeHit, installedHit,
                         $"Kraid foot $A7:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
                     AssertEqual(nativeCallback,
-                        (ushort)installedArguments[^1]!,
+                        (ushort)(installedArguments[^1] ?? throw new InvalidOperationException("Verification requires installedArguments[^1].")),
                         $"Kraid foot $A7:{frame:X4} callback {x:X4},{y:X4}, shot={shot}");
                     probes++;
                 }

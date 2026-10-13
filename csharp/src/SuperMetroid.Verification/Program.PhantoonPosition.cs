@@ -41,9 +41,9 @@ internal static class PhantoonPositionVerification
             boundary.RoomLoader.InitializeStartingCeresRoom();
             boundary.RoomLoader.InitializeCeresStartSamus();
             boundary.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomHeaderPointers.Phantoon);
-            var state = boundary.Enemies.PhantoonBehavior.Phantoon!;
-            state.Body.VariableF = (ushort)PhantoonAiFunction.MoveInFigureEightThenOpenEye;
-            state.Eye!.VariableA = timer;
+            var state = boundary.Enemies.PhantoonBehavior.Phantoon;
+            (state ?? throw new InvalidOperationException("Verification requires state.")).Body.VariableF = (ushort)PhantoonAiFunction.MoveInFigureEightThenOpenEye;
+            state.Eye.VariableA = timer;
             boundary.StepFrame(0);
             AssertEqual((ushort)(timer == 2 ? PhantoonAiFunction.MoveInFigureEightThenOpenEye : PhantoonAiFunction.NoOperation),
                 state.Body.VariableF, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
@@ -53,19 +53,19 @@ internal static class PhantoonPositionVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xcd13);
-        AssertEqual((ushort)120, runtime.Enemies.PhantoonBehavior.Phantoon!.Body.VariableE,
+        AssertEqual((ushort)120, (runtime.Enemies.PhantoonBehavior.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.PhantoonBehavior.Phantoon.")).Body.VariableE,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(40, 184));
         samus.InputLocked = true;
         var positions = new HashSet<(ushort X, ushort Y)>();
         for (int frame = 0; frame < 1400; frame++)
         {
-            var phantoon = runtime.Enemies.PhantoonBehavior.Phantoon!;
+            var phantoon = runtime.Enemies.PhantoonBehavior.Phantoon;
             ushort displayedX = phantoon.Bg2Scroll.X;
             ushort displayedY = phantoon.Bg2Scroll.Y;
-            ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Room.Camera!.PixelPosition.X);
-            ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Room.Camera.PixelPosition.Y);
+            ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X);
+            ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y);
             runtime.StepFrame(0);
             AssertEqual(phantoon.Bg2Scroll, runtime.BackgroundScroll.Bg2Scroll,
                 $"Phantoon live BG2 handoff frame {frame}");
@@ -75,7 +75,7 @@ internal static class PhantoonPositionVerification
             AssertEqual(displayedY, layer.Registers.Bg2Scroll.Y, "Phantoon captured vertical register follows accepted NMI");
             // $A7:CEA6 anchors the BG2 image's (40,40) origin to the body. Assert the
             // rendered anchor against the physical body, not merely two copied fields.
-            if (phantoon.Eye!.Parameter1 == 0)
+            if (phantoon.Eye.Parameter1 == 0)
             {
                 AssertEqual(displayedBodyX, unchecked((ushort)(40 - layer.Registers.Bg2Scroll.X)),
                     "Phantoon displayed BG2 anchor shares the collision body's horizontal position");

@@ -33,8 +33,8 @@ internal static class ElevatubeScrollingVerification
             runtime.LoadCartridgeRoomForDebug(door.DestinationRoomPointer);
             runtime.LoadCartridgeRoomThroughDoorForVerification(door,
                 camera: new Position16<RoomPixels>(0, fromNorth ? (ushort)0 : (ushort)2304));
-            var samus = runtime.Player.Samus!;
-            var camera = runtime.Room.Camera!;
+            var samus = runtime.Player.IntroducedSamus;
+            var camera = runtime.Room.LoadedCamera;
             samus.Position = samus.Position.WithWholeX(MaridiaElevatubeRomData.SamusCenterX);
             samus.Position = samus.Position.WithWholeY(fromNorth ? MaridiaElevatubeRomData.NorthStartingPosition
                 : MaridiaElevatubeRomData.SouthStartingPosition);
@@ -48,7 +48,7 @@ internal static class ElevatubeScrollingVerification
                 runtime.StepFrame(0);
                 AssertEqual(expectedY, samus.Kinematics.Position.Y.RawValue,
                     "tube displacement contains only room-main velocity, not ordinary falling");
-                var checkpoint = camera.PreviousSamusPoint!.Value;
+                var checkpoint = (camera.PreviousSamusPoint ?? throw new InvalidOperationException("Verification requires camera.PreviousSamusPoint."));
                 uint savedY = checkpoint.Y.RawValue;
                 AssertEqual(beforeY, savedY, "scroll checkpoint precedes elevatube room-main movement");
                 AssertTrue(samus.Kinematics.Position.Y.RawValue != savedY,

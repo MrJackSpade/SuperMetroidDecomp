@@ -33,17 +33,17 @@ internal static class DoorWaitsForMessageBoxVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        runtime.Player.Samus!.InputLocked = false;
+        runtime.Player.IntroducedSamus.InputLocked = false;
         CartridgeDoorHeader door = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
             .First(candidate => (candidate.DestinationRoomPointer & 0x8000) != 0);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;
 
         // The gameplay call's movement published the door; its PLM handler opened the notice.
-        (runtime.Room.LevelData!).PendingDoorTransition = door;
+        (runtime.Room.LoadedLevelData).PendingDoorTransition = door;
         runtime.MessageBox.Begin(bus, GameplayMessageId.MissileRechargeCompleted, 0);
         game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the open box holds the door's state");

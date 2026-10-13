@@ -39,7 +39,7 @@ internal static class LookupSpeedEscapeStagesVerification
                     "Speed escape rejects every unsupported timer offset");
             else
             {
-                SpeedBoosterEscapeStageDefinition stage = SpeedBoosterEscapeStageDefinitions.Resolve(offset)!.Value;
+                SpeedBoosterEscapeStageDefinition stage = (SpeedBoosterEscapeStageDefinitions.Resolve(offset) ?? throw new InvalidOperationException("Verification requires SpeedBoosterEscapeStageDefinitions.Resolve(offset)."));
                 ushort actual = field switch
                 {
                     0 => stage.TargetSamusX,

@@ -48,7 +48,7 @@ internal static class EndingSetupNmiWaitsVerification
             AssertEqual(expected.RandomNumber, game.DispatcherRandomNumber,
                 $"ending call {call} makes {(mainLoop ? "one main-loop" : "no")} RNG call");
             bool setupDone = call > EndingCreditsRomData.SetupNmiWaits;
-            AssertEqual(setupDone, ending.Phase != EndingCreditsPhase.SetupEscapeFromZebes,
+            AssertEqual(setupDone, (ending ?? throw new InvalidOperationException("Verification requires ending.")).Phase != EndingCreditsPhase.SetupEscapeFromZebes,
                 $"the scene setup runs on call {EndingCreditsRomData.SetupNmiWaits + 1}, not call {call}");
         }
         Console.WriteLine("Ending setup NMI waits: nine resumed calls skip the main-loop RNG and precede the scene setup.");

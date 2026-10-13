@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
@@ -100,9 +101,9 @@ internal static class StationVisualsVerification
                 RoomPlmStationVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted station JSON is empty.");
-            JsonNode frame = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "map-frame-0")!;
-            frame["runs"]![0]![0] = 0x0053;
+            JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "map-frame-0");
+            frame.Required("runs").Required(0)[0] = 0x0053;
             Directory.CreateDirectory(installation.RoomPlmStationVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmStationVisualOverrideDirectory,
@@ -119,7 +120,7 @@ internal static class StationVisualsVerification
                     installation.RoomPlmStationVisualOverrideDirectory).GetWord(pointer, 0, 0),
                 "station visual override survives stock replacement");
 
-            frame["runs"]![0]![0] = 0xf053;
+            frame.Required("runs").Required(0)[0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmStationVisuals(),

@@ -62,7 +62,7 @@ public sealed class EndingPalette
             throw new ArgumentOutOfRangeException(nameof(index));
         if (logoFade is not null) return logoFade.Color(index);
         return Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(
-            nativeBytes!.AsSpan(index * Bgr555.ByteCount)));
+            nativeBytes.AsSpan(index * Bgr555.ByteCount)));
     }
 
     /// <summary>Preserves the cartridge's partial source/destination CGRAM transfers.</summary>

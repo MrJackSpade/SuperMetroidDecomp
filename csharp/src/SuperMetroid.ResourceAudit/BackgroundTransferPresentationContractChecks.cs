@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -69,7 +70,7 @@ internal static class BackgroundTransferPresentationContractChecks
             "GunshipLiftoffTransferDefinitions.First.SourceAddress", GunshipLiftoffTransferDefinitionsTooling.First.SourceAddress
                 .ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal), path: calls.FilePath);
         trees[^1] = calls;
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("BackgroundTransferProviderFixture", sources,
             platforms.Append(typeof(GunshipLiftoffArtworkCatalog).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),

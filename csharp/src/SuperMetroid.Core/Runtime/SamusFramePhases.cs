@@ -209,24 +209,24 @@ internal sealed class SamusFramePhases
     {
         RoomLevelData level = _room.LevelData ?? throw new InvalidOperationException(
             "Uninitialized-pose movement requires active room level data.");
-        switch (_player.Samus!.PoseMetadata.ReadMovementType(_addressSpace))
+        switch (_player.IntroducedSamus.PoseMetadata.ReadMovementType(_addressSpace))
         {
             case SamusMovementType.Special:
                 // `$90:A7DA` only clears the momentum-transition selector.
                 break;
             case SamusMovementType.SpinJumping:
                 _player.LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(
-                    _addressSpace, level, _player.Samus, _controller1.Current, _nmi.NmiFrameCounter,
+                    _addressSpace, level, _player.IntroducedSamus, _controller1.Current, _nmi.NmiFrameCounter,
                     _controller1.NewlyPressed, _plms);
                 break;
             case SamusMovementType.NormalJumping:
                 _player.LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(
-                    _addressSpace, level, _player.Samus, _controller1.Current, _nmi.NmiFrameCounter, _plms);
+                    _addressSpace, level, _player.IntroducedSamus, _controller1.Current, _nmi.NmiFrameCounter, _plms);
                 break;
             default:
                 throw new NotSupportedException(
-                    $"Cached movement type ${(byte)_player.Samus.PoseMetadata.ReadMovementType(_addressSpace):X2} under " +
-                    $"uninitialized pose ${(int)_player.Samus.Pose:X2} has no translated $90:A337 mover.");
+                    $"Cached movement type ${(byte)_player.IntroducedSamus.PoseMetadata.ReadMovementType(_addressSpace):X2} under " +
+                    $"uninitialized pose ${(int)_player.IntroducedSamus.Pose:X2} has no translated $90:A337 mover.");
         }
     }
     /// <summary>Runs Samus's terrain probes and movement dispatcher after alpha input, honoring script locks and enemy-main ordering.</summary>

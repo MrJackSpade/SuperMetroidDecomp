@@ -32,7 +32,7 @@ internal static class DrainedSparkCrashVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.PoseMetadata.RefreshCollisionRadii(bus);
@@ -50,7 +50,7 @@ internal static class DrainedSparkCrashVerification
         AssertEqual(SamusPoseId.FacingLeftNormalPose, samus.Pose, "the finished crash stands Samus up");
         AssertEqual(DrainedSamusPhase.Inactive, samus.Drained.Phase, "normal movement replaces the drained pose's handler");
         // $90:D482 indexes its angle table with the drained pose, reading $90:D506/$D507.
-        AssertEqual((ushort)0xb6, runtime.Projectiles!.Slots[3].Variable, "the first echo takes the overread angle $B6");
+        AssertEqual((ushort)0xb6, runtime.Projectiles.Slots[3].Variable, "the first echo takes the overread angle $B6");
         AssertEqual((ushort)0x0a, runtime.Projectiles.Slots[4].Variable, "the second echo takes the overread angle $0A");
         Console.WriteLine("  Drained spark crash: the crash keeps its handler through the drain and stands Samus up.");
     }

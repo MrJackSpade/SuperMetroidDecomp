@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -75,10 +76,10 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         string overrides = Path.Combine(stockDirectory, "tourian-statue-color-overrides");
         Directory.CreateDirectory(overrides);
         string overridePath = Path.Combine(overrides, TourianStatueColorFormat.FileName);
-        JsonNode changed = JsonNode.Parse(stockBytes)!;
-        changed["base"]![1]!["red"] = changed["base"]![1]!["red"]!.GetValue<int>() ^ 1;
-        changed["statue"]![1]!["green"] = changed["statue"]![1]!["green"]!.GetValue<int>() ^ 1;
-        changed["eye"]![2]![1]!["blue"] = changed["eye"]![2]![1]!["blue"]!.GetValue<int>() ^ 1;
+        JsonNode changed = RequiredJson.Parse(stockBytes);
+        changed.Required("base").Required(1)["red"] = changed.Required("base").Required(1).Required("red").GetValue<int>() ^ 1;
+        changed.Required("statue").Required(1)["green"] = changed.Required("statue").Required(1).Required("green").GetValue<int>() ^ 1;
+        changed.Required("eye").Required(2).Required(1)["blue"] = changed.Required("eye").Required(2).Required(1).Required("blue").GetValue<int>() ^ 1;
         File.WriteAllBytes(overridePath, Encoding.UTF8.GetBytes(changed.ToJsonString()));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         SnesCgram nativeEntryCgram = SeedColors();
@@ -100,9 +101,9 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         // The $87:837F grey instruction is reached on re-entry after each
         // defeated-boss statue's grey event. Exercise the actual room program,
         // including its four compiled destination operands.
-        JsonNode greyOnly = JsonNode.Parse(stockBytes)!;
-        greyOnly["grey"]![1]!["blue"] =
-            greyOnly["grey"]![1]!["blue"]!.GetValue<int>() ^ 1;
+        JsonNode greyOnly = RequiredJson.Parse(stockBytes);
+        greyOnly.Required("grey").Required(1)["blue"] =
+            greyOnly.Required("grey").Required(1).Required("blue").GetValue<int>() ^ 1;
         byte[] greyBytes = Encoding.UTF8.GetBytes(greyOnly.ToJsonString());
         File.WriteAllBytes(overridePath, greyBytes);
         EnemyTileArtworkCatalog editedGrey = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
@@ -142,8 +143,8 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         AssertTrue(greyBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction preserves Tourian statue override");
         EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        AssertEqual(editedGrey.TourianStatueColors!.ResolveGrey(1),
-            reloaded.TourianStatueColors!.ResolveGrey(1),
+        AssertEqual((editedGrey.TourianStatueColors ?? throw new InvalidOperationException("Verification requires editedGrey.TourianStatueColors.")).ResolveGrey(1),
+            (reloaded.TourianStatueColors ?? throw new InvalidOperationException("Verification requires reloaded.TourianStatueColors.")).ResolveGrey(1),
             "Tourian statue grey edit survives reload");
         File.WriteAllText(overridePath, "broken");
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
@@ -151,8 +152,8 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         File.WriteAllText(overridePath, "{\"version\":1,\"version\":1}");
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "Duplicate Tourian statue property fails loudly");
-        JsonNode invalid = JsonNode.Parse(stockBytes)!;
-        invalid["eye"]![0]![0]!["red"] = 32;
+        JsonNode invalid = RequiredJson.Parse(stockBytes);
+        invalid.Required("eye").Required(0).Required(0)["red"] = 32;
         AssertThrows<InvalidDataException>(() => TourianStatueColorCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes(invalid.ToJsonString()))),
             "Out-of-range Tourian statue RGB5 channel rejected");

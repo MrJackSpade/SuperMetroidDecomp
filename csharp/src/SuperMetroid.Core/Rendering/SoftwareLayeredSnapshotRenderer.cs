@@ -75,9 +75,9 @@ public static class SoftwareLayeredSnapshotRenderer
                         for (int i = 0; i < subscreen.Length; i++)
                         {
                             bool eligible = mask[i].A != 0;
-                            if (sub.MainObjects && objects.Pixels[i].A != 0 &&
-                                (!eligible || objects.Priorities[i] >= (highMain![i].A != 0 ? 3 : 2)))
-                                eligible = palettes![i] >= 4;
+                            if (palettes is not null && highMain is not null && objects.Pixels[i].A != 0 &&
+                                (!eligible || objects.Priorities[i] >= (highMain[i].A != 0 ? 3 : 2)))
+                                eligible = palettes[i] >= 4;
                             if (!eligible) subscreen[i] = default;
                         }
                     }
@@ -178,7 +178,7 @@ public static class SoftwareLayeredSnapshotRenderer
                         if (objects.Priorities[pixel] == obj.Priority)
                         {
                             Rgba32 value = objects.Pixels[pixel];
-                            output[pixel] = obj.FixedColor is { } priorityWhite && priorityPalettes![pixel] >= 4
+                            output[pixel] = obj.FixedColor is { } priorityWhite && priorityPalettes is not null && priorityPalettes[pixel] >= 4
                                 ? new Rgba32(AddFixed(value.R, priorityWhite.Red), AddFixed(value.G, priorityWhite.Green),
                                     AddFixed(value.B, priorityWhite.Blue)) : value;
                         }

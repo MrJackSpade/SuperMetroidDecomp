@@ -112,7 +112,7 @@ internal static class SamusBodyTransferDefinitions
                 int mapIndex = baseIndex + phase;
                 if ((uint)mapIndex >= SamusSpritemapArtworkCatalog.PointerCount ||
                     !body.Spritemaps.TryGet((ushort)mapIndex, out SamusSpritemapDefinition? map)) continue;
-                foreach (SamusSpritePart part in map!.Parts)
+                foreach (SamusSpritePart part in map.Parts)
                 {
                     int tile = (part.Attributes & 511) - (upper ? 0 : 8);
                     int width = (part.X & 0x8000) != 0 ? LargeObjTilesAcross : 1;

@@ -57,14 +57,14 @@ internal static class WaverInstructionProgramDefinitionsVerification
         {
             RoomEnemySystem enemies =
                 CreateWaverProgramSystem(guard, selector, out RoomEnemySlot slot);
-            WaverEnemyState state = enemies.WaverStates[0]!;
+            WaverEnemyState state = (enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0]."));
             AssertEqual(WaverAnimationDefinitions.InstructionList(selector),
                 slot.CurrentInstruction, $"Waver installs {selector} program");
             RunWaverProgram(enemies, slot, frames);
             AssertEqual(terminal, slot.CurrentInstruction,
                 $"Waver {selector} program sleeps at native terminal command");
             AssertEqual(selector.HasFlag(WaverAnimationSelector.Spinning),
-                state.SpinFinished, $"Waver {selector} spin-completion callback");
+                (state ?? throw new InvalidOperationException("Verification requires state.")).SpinFinished, $"Waver {selector} spin-completion callback");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -118,8 +118,8 @@ internal static class WaverInstructionProgramDefinitionsVerification
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Waver;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             initialize(slot);
-            WaverEnemyState state = enemies.WaverStates[0]!;
-            state.CurrentInstructionListIndex = selector == WaverAnimationSelector.None
+            WaverEnemyState state = (enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0]."));
+            (state ?? throw new InvalidOperationException("Verification requires state.")).CurrentInstructionListIndex = selector == WaverAnimationSelector.None
                 ? WaverAnimationSelector.FacingRight
                 : WaverAnimationSelector.None;
             state.RequestedInstructionListIndex = selector;

@@ -62,7 +62,7 @@ internal sealed class TourianUnlockBehavior
         else
             (_room.Artwork?.TourianStatueColors ?? throw new InvalidOperationException(
                 "Tourian statue eye requires installed colors."))
-                .ApplyEye(_presentation._cgram!, parameter);
+                .ApplyEye(_presentation.Cgram, parameter);
     }
 
     /// <summary>Spawns a splash, particle, or tail at its parent, applying water height or randomized motion.</summary>

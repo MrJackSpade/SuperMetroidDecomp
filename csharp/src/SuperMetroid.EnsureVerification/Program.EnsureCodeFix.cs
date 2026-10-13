@@ -85,7 +85,8 @@ internal static class EnsureCodeFixTests
         if (diagnostic is null || actions.Count != 1)
             throw new InvalidOperationException($"Expected one {id} fix, got {actions.Count} for: {source}");
         Document changed = actions[0].GetOperationsAsync(CancellationToken.None).GetAwaiter().GetResult()
-            .OfType<ApplyChangesOperation>().Single().ChangedSolution.GetDocument(document.Id)!;
+            .OfType<ApplyChangesOperation>().Single().ChangedSolution.GetDocument(document.Id) ??
+            throw new InvalidOperationException("The code fix removed the edited document.");
         string text = changed.GetTextAsync().GetAwaiter().GetResult().ToString();
         string actualGame = text[text.IndexOf("class Game", StringComparison.Ordinal)..];
         if (Normalize(actualGame) != Normalize(expectedGame))

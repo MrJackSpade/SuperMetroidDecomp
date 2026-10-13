@@ -33,7 +33,7 @@ internal static class GateJumpTraceVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.KronicBoost);
-            var samus = runtime.Player.Samus!;
+            var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
             samus.Position = samus.Position.WithWhole(new(140, 379));
@@ -42,7 +42,7 @@ internal static class GateJumpTraceVerification
             samus.Missiles = samus.MaxMissiles = 10;
             samus.PoseMetadata.RefreshCollisionRadii(bus);
             samus.Presentation.InitializeAnimation(bus);
-            runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 224));
+            runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 224));
             bool activated = false;
             for (int frame = -60; frame < 80; frame++)
             {

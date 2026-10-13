@@ -55,10 +55,10 @@ internal static class RetailRoomPublicationTests
             {
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 var packet = new RenderFrameSnapshot(new(++sequence, 1, (ushort)tick),
-                    GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+                    GameplayDisplayCapture.CaptureFrame(runtime));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 if (fx == PublishedFx.Heat &&
-                    (packet.Layers!.Layers[0] is not OrdinaryGameplayRenderLayer heat ||
+                    ((packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0] is not OrdinaryGameplayRenderLayer heat ||
                     heat.Bg2LineScrolls.Vertical.ToArray().Distinct().Count() != 3))
                     throw new InvalidOperationException("Heat packet lost the three-valued vertical distortion table.");
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),

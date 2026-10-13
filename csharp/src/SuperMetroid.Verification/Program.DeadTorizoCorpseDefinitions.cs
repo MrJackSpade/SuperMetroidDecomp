@@ -59,8 +59,8 @@ internal static class DeadTorizoCorpseDefinitionsVerification
 
         initialize(slot);
 
-        DeadTorizoEnemyState state = enemies.DeadTorizo!;
-        AssertEqual(definition.RottingTablePointer, state.TablePointer,
+        DeadTorizoEnemyState state = (enemies.DeadTorizo ?? throw new InvalidOperationException("Verification requires enemies.DeadTorizo."));
+        AssertEqual(definition.RottingTablePointer, (state ?? throw new InvalidOperationException("Verification requires state.")).TablePointer,
             "dead Torizo production rotting table");
         AssertEqual(definition.VramTransferPointer, state.VramTablePointer,
             "dead Torizo production VRAM table");

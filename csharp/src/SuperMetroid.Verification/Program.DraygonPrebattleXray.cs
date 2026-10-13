@@ -30,7 +30,7 @@ internal static class DraygonPrebattleXrayVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xda60, camera: new Position16<RoomPixels>(256, 288));
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(456, 459));
@@ -42,9 +42,9 @@ internal static class DraygonPrebattleXrayVerification
         runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         AssertTrue(samus.Xray.IsActive, "bottom-right arena position activates X-Ray through held Run");
         for (int frame = 0; frame < 40; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
-        var boss = runtime.Enemies.DraygonBehavior.Draygon!;
-        AssertEqual(DraygonAiFunction.IntroInitialDelay, boss.Function, "X-Ray preserves the pre-battle phase");
-        var scene = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+        var boss = runtime.Enemies.DraygonBehavior.Draygon;
+        AssertEqual(DraygonAiFunction.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Function, "X-Ray preserves the pre-battle phase");
+        var scene = GameplayDisplayCapture.CaptureFrame(runtime);
         var math = (GameplayColorMathRenderLayer)scene.Layers[0];
         var r = math.Gameplay.Registers;
         AssertTrue(!math.RevealBlocks, "native boss exclusion preserves the original BG2 artwork");

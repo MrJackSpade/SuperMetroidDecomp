@@ -22,11 +22,11 @@ internal static class PostCeresLandingHandOffVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
-        ScrollBoundaryCamera ceresCamera = runtime.Room.Camera!;
+        ScrollBoundaryCamera ceresCamera = runtime.Room.LoadedCamera;
         ceresCamera.SetDoorTransitionPosition(ceresCamera.PixelPosition, FixedPosition<RoomPixels>.FromWords(0, 0xa000, 0, 0x1234));
         // The escape ends with Samus running: the 13% capture enters the load carrying
         // base speed $1.8000 and extra run speed $0.8000, plus inventory from Ceres.
-        SamusState escaped = runtime.Player.Samus!;
+        SamusState escaped = runtime.Player.IntroducedSamus;
         escaped.HorizontalSpeed.BaseSpeed = 1;
         escaped.HorizontalSpeed.BaseSubspeed = 0x8000;
         escaped.HorizontalSpeed.ExtraRunSpeed = 0;
@@ -35,7 +35,7 @@ internal static class PostCeresLandingHandOffVerification
         escaped.MaxMissiles = 10;
         runtime.RoomLoader.InitializePostCeresZebesRoom();
         // $82:8057 InitializeSamus clears Samus RAM ($0A02 on) but not the inventory below it.
-        SamusState landed = runtime.Player.Samus!;
+        SamusState landed = runtime.Player.IntroducedSamus;
         AssertEqual((0u, (ushort)0, (ushort)0),
             (landed.HorizontalSpeed.BaseFixed, landed.HorizontalSpeed.ExtraRunSpeed, landed.HorizontalSpeed.ExtraRunSubspeed),
             "station load clears the escape's running speeds");
@@ -44,7 +44,7 @@ internal static class PostCeresLandingHandOffVerification
         AssertEqual(SamusPoseId.ForwardFacingPowerSuitPose, landed.Pose, "station load clears Samus's pose");
         // $80:C470/$C479 write only the integer layer-one words.
         AssertEqual(((ushort)0xa000, (ushort)0x1234),
-            (runtime.Room.Camera!.Position.X.Fraction, runtime.Room.Camera.Position.Y.Fraction),
+            (runtime.Room.LoadedCamera.Position.X.Fraction, runtime.Room.LoadedCamera.Position.Y.Fraction),
             "station load keeps the previous camera fractions");
 
         // Hold Left+B throughout: locked handlers ignore it until the ship unlocks Samus.
@@ -53,20 +53,20 @@ internal static class PostCeresLandingHandOffVerification
         while (runtime.Enemies.GunshipBehavior.LastGunshipEvent != GunshipFrameEvent.LandingCompleted &&
                frames++ < PostCeresLandingMaximumFrames)
         {
-            ushort cameraX = runtime.Room.Camera.PixelPosition.X;
+            ushort cameraX = runtime.Room.LoadedCamera.PixelPosition.X;
             runtime.StepFrame(input);
             if (runtime.Enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.LandingPadOpened)
-                AssertEqual(cameraX, runtime.Room.Camera.PixelPosition.X,
+                AssertEqual(cameraX, runtime.Room.LoadedCamera.PixelPosition.X,
                     "hatch placement writes SamusPreviousXPosition, so the camera does not scroll");
         }
         AssertEqual(GunshipFrameEvent.LandingCompleted, runtime.Enemies.GunshipBehavior.LastGunshipEvent,
             "post-Ceres landing completes");
         // $A2:A987 runs in EnemyMain, after this frame's locked current-state handler.
-        AssertEqual((byte)0, (byte)runtime.Player.Samus!.Pose, "unlock frame keeps the locked alpha's forward pose");
-        ushort unlockedX = runtime.Player.Samus.Position.X.Whole;
+        AssertEqual((byte)0, (byte)runtime.Player.IntroducedSamus.Pose, "unlock frame keeps the locked alpha's forward pose");
+        ushort unlockedX = runtime.Player.IntroducedSamus.Position.X.Whole;
         runtime.StepFrame(input);
-        AssertEqual(SamusPoseId.TurningRightToLeftPose, runtime.Player.Samus.Pose, "first unlocked alpha accepts the held turn");
-        AssertEqual(unlockedX, runtime.Player.Samus.Position.X.Whole, "the turn carries no speed from the Ceres escape");
+        AssertEqual(SamusPoseId.TurningRightToLeftPose, runtime.Player.IntroducedSamus.Pose, "first unlocked alpha accepts the held turn");
+        AssertEqual(unlockedX, runtime.Player.IntroducedSamus.Position.X.Whole, "the turn carries no speed from the Ceres escape");
 
         Console.WriteLine("  Post-Ceres hand-off: station-load fractions, hatch X words and unlock alpha agree.");
     }

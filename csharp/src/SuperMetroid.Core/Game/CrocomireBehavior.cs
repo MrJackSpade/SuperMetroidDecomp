@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -144,7 +145,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         // zero inclusively. Preserve that palette-boundary write because later fades compare
         // the exact target image produced by the cartridge.
         (_room.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
-            "Crocomire requires installed color artwork.")).ApplyInitial(_presentation._cgram!);
+            "Crocomire requires installed color artwork.")).ApplyInitial(_presentation.Cgram);
     }
 
     /// <summary>Ports <c>InitAI_CrocomireTongue</c> at $A4:F67A.</summary>
@@ -265,7 +266,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         if (!white)
         {
             (_room.Artwork?.CrocomireColors ?? throw new InvalidDataException(
-                "Crocomire hurt palette requires installed artwork.")).ApplyFightBody(_presentation._cgram!);
+                "Crocomire hurt palette requires installed artwork.")).ApplyFightBody(_presentation.Cgram);
             return;
         }
         _presentation.BossPalettes.CrocomireFightBody.Fill(Bgr555.White);
@@ -567,7 +568,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             throw new ArgumentOutOfRangeException(nameof(startWord));
         }
 
-        new EnemyVram(_presentation._vram!).EnemyBg2Tilemap.Write(
+        new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(
             RequireCrocomireDeath().Bg2WorkingTilemap.Slice(startWord, wordCount), startWord);
     }
 
@@ -1181,7 +1182,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             death.RumbleYOffset = 32896;
             state.DeathPhaseDelay = NativeCountdown.Start(128);
             (_room.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
-                "Crocomire wall spikes require installed colors.")).ApplyWallSpikes(_presentation._cgram!);
+                "Crocomire wall spikes require installed colors.")).ApplyWallSpikes(_presentation.Cgram);
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
             return;
         }
@@ -1233,7 +1234,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
         body.PaletteIndex = 0;
         (_room.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
-            "Crocomire skeleton requires installed colors.")).ApplySkeletonArm(_presentation._cgram!);
+            "Crocomire skeleton requires installed colors.")).ApplySkeletonArm(_presentation.Cgram);
 
         foreach (RoomEnemyProjectileSlot projectile in _projectiles.EnemyProjectiles)
             projectile.Clear();
@@ -1362,7 +1363,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             return;
         // The native OBSEL base contributes $6000 words. Only character
         // pixels are editable; the transfer order and VRAM position are not.
-        new EnemyVram(_presentation._vram!).CrocomireSkeletonTiles.Load(artwork.Chunk(entry).Span,
+        new EnemyVram(_presentation.Vram).CrocomireSkeletonTiles.Load(artwork.Chunk(entry).Span,
             frame.DestinationOffset * sizeof(ushort));
         death.TargetHeightOrSkeletonTileIndex += 2;
     }
@@ -1490,17 +1491,17 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             case CrocomireBodyCueKind.MoveLeft:
                 RequireCrocomireLevel(level);
                 if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == 0)
-                    MoveCrocomire(body, level!, -4);
+                    MoveCrocomire(body, level, -4);
                 return null;
             case CrocomireBodyCueKind.MoveLeftWithDust:
                 SpawnCrocomireRandomFootDust(state);
                 RequireCrocomireLevel(level);
                 if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == 0)
-                    MoveCrocomire(body, level!, -4);
+                    MoveCrocomire(body, level, -4);
                 return null;
             case CrocomireBodyCueKind.MoveLeftTowardSpikeWall:
                 RequireCrocomireLevel(level);
-                if (MoveCrocomire(body, level!, -4))
+                if (MoveCrocomire(body, level, -4))
                 {
                     state.FightFunction = CrocomireFightFunction.BackingOffSpikeWall;
                     return CrocomireBodyProgram.BackOffFromSpikeWall;
@@ -1512,22 +1513,22 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             case CrocomireBodyCueKind.MoveRightIfOnScreen:
                 RequireCrocomireLevel(level);
                 if (CrocomireBodyIsOnScreen(body, cameraX))
-                    MoveCrocomire(body, level!, 4);
+                    MoveCrocomire(body, level, 4);
                 return null;
             case CrocomireBodyCueKind.MoveRight:
                 RequireCrocomireLevel(level);
-                MoveCrocomire(body, level!, 4);
+                MoveCrocomire(body, level, 4);
                 return null;
             case CrocomireBodyCueKind.MoveRightIfOnScreenWithDust:
                 SpawnCrocomireRandomFootDust(state);
                 RequireCrocomireLevel(level);
                 if (CrocomireBodyIsOnScreen(body, cameraX))
-                    MoveCrocomire(body, level!, 4);
+                    MoveCrocomire(body, level, 4);
                 return null;
             case CrocomireBodyCueKind.MoveRightWithDust:
                 SpawnCrocomireRandomFootDust(state);
                 RequireCrocomireLevel(level);
-                MoveCrocomire(body, level!, 4);
+                MoveCrocomire(body, level, 4);
                 return null;
             case CrocomireBodyCueKind.Dust:
                 SpawnCrocomireDust(state, cue.DustOffset);
@@ -1809,7 +1810,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects death and melting operations when the arena collision level is unavailable.</summary>
-    private static void RequireCrocomireLevel(RoomLevelData? level)
+    private static void RequireCrocomireLevel([NotNull] RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Crocomire movement requires room level data.");
@@ -1947,7 +1948,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         int sourceOffset = unchecked((ushort)(source - CrocomireMeltingTransferDefinitions.ScratchStart));
         if (sourceOffset < 0 || sourceOffset + byteCount > death.MeltingGraphics.Length)
             throw new InvalidDataException("Crocomire melting VRAM record exceeds the scratch image.");
-        _presentation._vram!.LoadBytes(destinationWord * 2, death.MeltingGraphics.Slice(sourceOffset, byteCount));
+        _presentation.Vram.LoadBytes(destinationWord * 2, death.MeltingGraphics.Slice(sourceOffset, byteCount));
     }
 
     /// <summary>Starts Crocomire's dissolve after installed graphics and tilemap data are ready.</summary>

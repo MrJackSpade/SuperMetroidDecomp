@@ -32,7 +32,7 @@ internal static class BossDisplayBindingsResourcesVerification
         bad[ordinary] = [];
         AssertThrows<InvalidDataException>(() => EnemyExtendedFrameCatalog.Load(json.Json(stock.Oam with { Frames = bad })),
             "empty components are permitted only on declared BG2-only physical roots");
-        var cross = new Dictionary<string, string>(edits.Oam.DisplayFrames!, StringComparer.Ordinal);
+        var cross = new Dictionary<string, string>((edits.Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires edits.Oam.DisplayFrames.")), StringComparer.Ordinal);
         string phantoon = cross.Keys.First(name => name.StartsWith("phantoon_bg2_", StringComparison.Ordinal));
         string draygon = cross.Keys.First(name => name.StartsWith("draygon_bg2_", StringComparison.Ordinal));
         cross[phantoon] = draygon;
@@ -45,14 +45,14 @@ internal static class BossDisplayBindingsResourcesVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreBg2BossBindings,
             Frames = old.ToDictionary(frame => frame.Name, frame => edits.Oam.Frames[frame.Name]),
-            DisplayFrames = old.ToDictionary(frame => frame.Name, frame => edits.Oam.DisplayFrames![frame.Name]),
+            DisplayFrames = old.ToDictionary(frame => frame.Name, frame => edits.Oam.DisplayFrames[frame.Name]),
         };
         // Older Draygon bindings cannot point at the new BG2 keys. Use an authored
         // old OAM target just as a real schema-26 file does.
         string oldDraygon = old.First(frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal)).Name;
-        foreach (string name in legacy.DisplayFrames!.Keys.ToArray())
+        foreach (string name in legacy.DisplayFrames.Keys.ToArray())
             if (!legacy.Frames.ContainsKey(legacy.DisplayFrames[name])) legacy.DisplayFrames[name] = oldDraygon;
-        EnemyExtendedFrameCatalog baseline = stock.Build().ExtendedFrames!;
+        EnemyExtendedFrameCatalog baseline = (stock.Build().ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.Build().ExtendedFrames."));
         EnemyExtendedFrameCatalog merged = EnemyExtendedFrameCatalog.Load(json.Json(legacy), baseline);
         AssertEqual(merged.ContentIdentity, EnemyExtendedFrameCatalog.Load(json.Json(legacy), baseline).ContentIdentity,
             "schema-26 merge persists identically across reload");

@@ -75,7 +75,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             slot.Position = slot.Position.WithWholeY(0x0100);
             enemies.PlatformsBehavior.InitializePlatform(slot);
 
-            PlatformEnemyState state = enemies.PlatformStates[0]!;
+            PlatformEnemyState state = (enemies.PlatformStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PlatformStates[0]."));
             ushort expectedInitial = testCase.IsKamer
                 ? testCase.Direction == PlatformHorizontalMovement.Left
                     ? PlatformInstructionProgramDefinitions.KamerStillLeft
@@ -87,7 +87,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
                 $"real {(testCase.IsKamer ? "Kamer" : "Tripper")} initializer " +
                 $"selects {testCase.Direction} still program");
 
-            (testCase.IsMoving ? installMoving : installStill)(slot, state);
+            (testCase.IsMoving ? installMoving : installStill)(slot, (state ?? throw new InvalidOperationException("Verification requires state.")));
             AssertEqual(testCase.EntryPoint, slot.CurrentInstruction,
                 $"production platform installer selects $A3:{testCase.EntryPoint:X4}");
 

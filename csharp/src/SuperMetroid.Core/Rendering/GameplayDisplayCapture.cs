@@ -12,7 +12,7 @@ public static class GameplayDisplayCapture
     /// Captures the full currently modeled gameplay composition, including mixed video-mode bands,
     /// room FX, X-ray ownership, message glyphs, and the final suit/power-bomb color effects.
     /// </summary>
-    public static LayeredRenderSnapshot? TryCaptureFrame(SuperMetroidRuntime runtime)
+    public static LayeredRenderSnapshot CaptureFrame(SuperMetroidRuntime runtime)
     {
         Ensure.NotNull(runtime);
         LayeredRenderSnapshot basis = runtime.Room.ActiveDoor?.UsesCeresElevatorMode7 == true || runtime.Enemies.RidleyEncounter.CeresRidley is { Mode7Active: true }
@@ -21,8 +21,8 @@ public static class GameplayDisplayCapture
         GameplayPpuRenderSnapshot ppu = runtime.Display.DisplayedGameplayPpu;
         bool doorOwnsDisplay = runtime.Room.DoorTransitionMainScreenLayers is not null;
         if (!doorOwnsDisplay && CaptureXray(runtime, basis) is { } xray) return xray;
-        if (!doorOwnsDisplay && runtime.Enemies.PhantoonBehavior.Phantoon is not null)
-            layers[0] = CapturePhantoonBlending(runtime, basis);
+        if (!doorOwnsDisplay && runtime.Enemies.PhantoonBehavior.Phantoon is { } phantoon)
+            layers[0] = CapturePhantoonBlending(phantoon, basis);
         if (!doorOwnsDisplay && runtime.RoomLayer3Fx.Type == RoomFxType.Fireflea)
             layers[0] = CaptureFirefleaDarkness(runtime, basis);
         if (!doorOwnsDisplay)
@@ -104,6 +104,7 @@ public static class GameplayDisplayCapture
             ? SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(vertical, bg2Scroll.Y) : null;
         KraidEnemyState? kraid = runtime.Enemies.KraidBehavior.Kraid;
         bool kraidBg = kraid is { OwnsBg2Tilemap: true };
+        Position16<Bg2Pixels> kraidBg2Scroll = kraid is { OwnsBg2Tilemap: true } owner ? owner.Bg2Scroll : default;
         bool crocomireBg = runtime.Enemies.CrocomireBehavior.Crocomire is not null;
         bool verticalStatueMap = runtime.RoomLayer3Fx.Type == RoomFxType.TourianEntranceStatue;
         ushort character = runtime.Room.ActiveRoom?.State.SetupCallback ==
@@ -114,8 +115,8 @@ public static class GameplayDisplayCapture
         SnesMainScreenLayers displayedMainScreen =
             (SnesMainScreenLayers)(displayedWindows.MainScreen & 0x1f);
         var registers = new OrdinaryGameplayRegisters(bg1Scroll,
-            new Position16<Bg2Pixels>(kraidBg ? Add(kraid!.Bg2Scroll.X, shake.Bg2.X)
-                : crocomireBg ? Add(runtime.Enemies.CrocomireBehavior.CrocomireBg2Scroll.X, shake.Bg2.X) : bg2Scroll.X, kraidBg ? Add(kraid!.Bg2Scroll.Y, shake.Bg2.Y)
+            new Position16<Bg2Pixels>(kraidBg ? Add(kraidBg2Scroll.X, shake.Bg2.X)
+                : crocomireBg ? Add(runtime.Enemies.CrocomireBehavior.CrocomireBg2Scroll.X, shake.Bg2.X) : bg2Scroll.X, kraidBg ? Add(kraidBg2Scroll.Y, shake.Bg2.Y)
                 : crocomireBg ? Add(runtime.Enemies.CrocomireBehavior.CrocomireBg2Scroll.Y, shake.Bg2.Y)
                 : sky is not null ? Add(sky.VerticalScroll, shake.Bg2.Y) : bg2Scroll.Y),
             kraidBg ? new Extent16<TilemapCells>(KraidBackgroundRomData.TilemapWidthInTiles, KraidBackgroundRomData.TilemapHeightInTiles)
@@ -214,10 +215,10 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>Removes BG2 when Phantoon is hidden, or uses it as an additive subscreen when the body is semitransparent.</summary>
-    private static RenderLayer CapturePhantoonBlending(SuperMetroidRuntime runtime, LayeredRenderSnapshot basis)
+    private static RenderLayer CapturePhantoonBlending(PhantoonEnemyState phantoon, LayeredRenderSnapshot basis)
     {
         var ordinary = (OrdinaryGameplayRenderLayer)basis.Layers[0];
-        var mode = runtime.Enemies.PhantoonBehavior.Phantoon!.Blending.DisplayedConfiguration;
+        var mode = phantoon.Blending.DisplayedConfiguration;
         if (mode is not (LayerBlendingConfiguration.PhantoonHidden or LayerBlendingConfiguration.PhantoonSemiTransparent))
             return ordinary;
         var gameplay = new OrdinaryGameplayRenderLayer(ordinary.Registers with

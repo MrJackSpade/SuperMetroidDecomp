@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -70,8 +71,8 @@ internal static class IntroNarrationPresentationVerification
                 $"installed opening narration {page} draws its text");
         }
 
-        JsonObject editedDocument = JsonNode.Parse(extracted)!.AsObject();
-        editedDocument["pages"]![IntroNarrationPageId.Page6.ToString()]!["lines"]![0]!["text"] =
+        JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();
+        editedDocument.Required("pages").Required(IntroNarrationPageId.Page6.ToString()).Required("lines").Required(0)["text"] =
             "TEST";
         byte[] editedBytes = Encoding.UTF8.GetBytes(
             editedDocument.ToJsonString(MapPresentationFormat.JsonOptions));
@@ -117,7 +118,7 @@ internal static class IntroNarrationPresentationVerification
         AssertEqual((ushort)16, restored.Caret.X,
             "restored opening narration resumes at its saved character");
 
-        editedDocument["pages"]![IntroNarrationPageId.Page6.ToString()]!["lines"]![0]!["text"] =
+        editedDocument.Required("pages").Required(IntroNarrationPageId.Page6.ToString()).Required("lines").Required(0)["text"] =
             "lowercase";
         byte[] malformed = Encoding.UTF8.GetBytes(
             editedDocument.ToJsonString(MapPresentationFormat.JsonOptions));
@@ -196,8 +197,8 @@ internal static class IntroNarrationPresentationVerification
             "installed opening narration is the deterministic cartridge extraction");
 
         Directory.CreateDirectory(overrideDirectory);
-        JsonObject document = JsonNode.Parse(deterministic)!.AsObject();
-        document["pages"]![IntroNarrationPageId.Page1.ToString()]!["lines"]![0]!["text"] =
+        JsonObject document = RequiredJson.Parse(deterministic).AsObject();
+        document.Required("pages").Required(IntroNarrationPageId.Page1.ToString()).Required("lines").Required(0)["text"] =
             "TEST";
         string replacement = Path.Combine(
             overrideDirectory, IntroNarrationDefinitions.FileName);

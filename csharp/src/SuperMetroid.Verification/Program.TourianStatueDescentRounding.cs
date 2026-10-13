@@ -30,7 +30,7 @@ internal static class TourianStatueDescentRoundingVerification
                      EventNumber.DraygonStatueGrey, EventNumber.KraidStatueGrey })
             runtime.System.SetEvent(grey);
         runtime.LoadCartridgeRoomForDebug(0xa66a);
-        runtime.Player.Samus!.InputLocked = true;
+        runtime.Player.IntroducedSamus.InputLocked = true;
 
         StepUntil(() => runtime.TourianStatues.VerticalOffset != 0, _ => runtime.StepFrame(0),
             maximumFrames: 400, context: "the statue descent begins");

@@ -111,8 +111,8 @@ internal static class OwtchInstructionProgramDefinitionsVerification
             slot.Parameter1 = (ushort)initialState;
             initialize(slot);
 
-            OwtchEnemyState state = enemies.OwtchStates[0]!;
-            state.Behavior = initialState;
+            OwtchEnemyState state = (enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires enemies.OwtchStates[0]."));
+            (state ?? throw new InvalidOperationException("Verification requires state.")).Behavior = initialState;
             slot.CurrentInstruction = program;
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.Timer = NativeCountdown.Start(0);

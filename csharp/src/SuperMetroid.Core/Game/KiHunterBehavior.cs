@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Hardware;
+using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -155,44 +156,44 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         {
             case KiHunterEnemyFunction.FlyingPatrol:
                 RequireKiHunterWorld(actor, samus, level);
-                RunKiHunterFlyingPatrol(actor, state, samus!, level!);
+                RunKiHunterFlyingPatrol(actor, state, samus, level);
                 return;
             case KiHunterEnemyFunction.Swooping:
                 RequireKiHunterWorld(actor, samus, level);
-                RunKiHunterSwoop(actor, state, level!);
+                RunKiHunterSwoop(actor, state, level);
                 return;
             case KiHunterEnemyFunction.RecoveringFromSwoop:
                 RequireKiHunterWorld(actor, samus, level);
-                RunKiHunterSwoopRecovery(actor, state, level!);
+                RunKiHunterSwoopRecovery(actor, state, level);
                 return;
             case KiHunterEnemyFunction.FallingAfterWingLoss:
                 RequireKiHunterLevel(level);
-                RunKiHunterFalling(actor, state, level!);
+                RunKiHunterFalling(actor, state, level);
                 return;
             case KiHunterEnemyFunction.StartGroundJump:
                 RequireKiHunterSamus(samus);
-                StartKiHunterGroundJump(actor, state, samus!);
+                StartKiHunterGroundJump(actor, state, samus);
                 return;
             case KiHunterEnemyFunction.NoOp:
                 return;
             case KiHunterEnemyFunction.GroundJump:
                 RequireKiHunterLevel(level);
-                RunKiHunterGroundJump(actor, state, level!);
+                RunKiHunterGroundJump(actor, state, level);
                 return;
             case KiHunterEnemyFunction.GroundWait:
                 RequireKiHunterSamus(samus);
-                RunKiHunterGroundWait(actor, state, samus!);
+                RunKiHunterGroundWait(actor, state, samus);
                 return;
             case KiHunterEnemyFunction.SelectAcidSpit:
                 RequireKiHunterSamus(samus);
-                SelectKiHunterAcidSpit(actor, state, samus!);
+                SelectKiHunterAcidSpit(actor, state, samus);
                 return;
             case KiHunterEnemyFunction.FollowBody:
                 FollowKiHunterBody(actor);
                 return;
             case KiHunterEnemyFunction.DetachedWing:
                 RequireKiHunterLevel(level);
-                RunDetachedKiHunterWing(actor, state, level!);
+                RunDetachedKiHunterWing(actor, state, level);
                 return;
             default:
                 throw new InvalidDataException(
@@ -834,8 +835,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies
     /// <summary>Requires a live Samus, room collision data and a body definition before body-only movement AI.</summary>
     private static void RequireKiHunterWorld(
         RoomEnemySlot actor,
-        SamusState? samus,
-        RoomLevelData? level)
+        [NotNull] SamusState? samus,
+        [NotNull] RoomLevelData? level)
     {
         RequireKiHunterSamus(samus);
         RequireKiHunterLevel(level);
@@ -844,14 +845,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects a missing Samus actor for target-dependent Ki-Hunter movement.</summary>
-    private static void RequireKiHunterSamus(SamusState? samus)
+    private static void RequireKiHunterSamus([NotNull] SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Ki-Hunter AI requires the active Samus actor.");
     }
 
     /// <summary>Rejects missing room collision data for flight and ground movement.</summary>
-    private static void RequireKiHunterLevel(RoomLevelData? level)
+    private static void RequireKiHunterLevel([NotNull] RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Ki-Hunter movement requires room collision data.");

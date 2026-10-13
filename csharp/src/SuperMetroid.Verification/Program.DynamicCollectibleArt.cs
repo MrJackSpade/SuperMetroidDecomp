@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -49,9 +50,9 @@ internal static class DynamicCollectibleArtVerification
                 Path.Combine(stockDirectory,
                     RoomPlmDynamicCollectibleArtFiles.PaletteFileName)))
                 ?? throw new InvalidDataException("Stock item palettes are empty.");
-            JsonNode bombs = paletteDocument["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "Bombs")!;
-            bombs["offsets"]![0] = 1;
+            JsonNode bombs = paletteDocument.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "Bombs");
+            bombs.Required("offsets")[0] = 1;
             string paletteOverride = Path.Combine(overrideDirectory,
                 RoomPlmDynamicCollectibleArtFiles.PaletteFileName);
             File.WriteAllText(paletteOverride, paletteDocument.ToJsonString());

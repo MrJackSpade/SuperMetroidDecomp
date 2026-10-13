@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -86,8 +87,8 @@ internal static class GameplayHudPresentationVerification
         AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
             "installed minimap anchor matches native and needs no HUD visual ROM data");
 
-        var document = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(extracted,
-            MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(extracted,
+            MapPresentationFormat.JsonOptions);
         document = document with
         {
             Digits = document.Digits with { HealthAnchor = new(4, 2) },
@@ -155,13 +156,13 @@ internal static class GameplayHudPresentationVerification
             document with { Template = document.Template[..^1] }), "HUD rejects incomplete template");
         AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(Stream.Null,
             document with { TopRow = document.TopRow[..^1] }), "HUD rejects incomplete immutable row");
-        var overlap = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(extracted,
-            MapPresentationFormat.JsonOptions)!;
+        var overlap = RequiredJson.Deserialize<GameplayHudPresentationDocument>(extracted,
+            MapPresentationFormat.JsonOptions);
         overlap = overlap with { Digits = overlap.Digits with { HealthAnchor = new(8, 0) } };
         AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(Stream.Null, overlap),
             "HUD rejects overlapping visual owners");
-        var missingIcon = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(extracted,
-            MapPresentationFormat.JsonOptions)!;
+        var missingIcon = RequiredJson.Deserialize<GameplayHudPresentationDocument>(extracted,
+            MapPresentationFormat.JsonOptions);
         missingIcon.Icons.Remove("XRay");
         AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(Stream.Null, missingIcon),
             "HUD rejects missing named icons");

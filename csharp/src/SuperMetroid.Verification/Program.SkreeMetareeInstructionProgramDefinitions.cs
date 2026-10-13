@@ -112,8 +112,8 @@ internal static class SkreeMetareeInstructionProgramDefinitionsVerification
                 if (phase == SkreeMetareeAnimationPhase.PreparingAttack)
                 {
                     bool ready = metaree
-                        ? enemies.MetareeStates[0]!.AttackReady
-                        : enemies.SkreeStates[0]!.AttackReady;
+                        ? (enemies.MetareeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MetareeStates[0].")).AttackReady
+                        : (enemies.SkreeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SkreeStates[0].")).AttackReady;
                     AssertTrue(ready, $"{SpeciesName(metaree)} preparation publishes ready flag");
                 }
                 if (phase == SkreeMetareeAnimationPhase.Diving)
@@ -141,8 +141,8 @@ internal static class SkreeMetareeInstructionProgramDefinitionsVerification
             {
                 slot.EnemyDefinitionPointer = EnemyDefinitionId.Metaree;
                 enemies.MetareeBehavior.InitializeMetaree(slot);
-                MetareeEnemyState state = enemies.MetareeStates[0]!;
-                state.InstalledInstructionListIndex = phase == SkreeMetareeAnimationPhase.Idling
+                MetareeEnemyState state = (enemies.MetareeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MetareeStates[0]."));
+                (state ?? throw new InvalidOperationException("Verification requires state.")).InstalledInstructionListIndex = phase == SkreeMetareeAnimationPhase.Idling
                     ? SkreeMetareeAnimationPhase.PreparingAttack
                     : SkreeMetareeAnimationPhase.Idling;
                 state.RequestedInstructionListIndex = phase;
@@ -153,8 +153,8 @@ internal static class SkreeMetareeInstructionProgramDefinitionsVerification
             {
                 slot.EnemyDefinitionPointer = EnemyDefinitionId.Skree;
                 enemies.SkreeBehavior.InitializeSkree(slot);
-                SkreeEnemyState state = enemies.SkreeStates[0]!;
-                state.InstalledInstructionIndex = phase == SkreeMetareeAnimationPhase.Idling
+                SkreeEnemyState state = (enemies.SkreeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SkreeStates[0]."));
+                (state ?? throw new InvalidOperationException("Verification requires state.")).InstalledInstructionIndex = phase == SkreeMetareeAnimationPhase.Idling
                     ? SkreeMetareeAnimationPhase.PreparingAttack
                     : SkreeMetareeAnimationPhase.Idling;
                 state.RequestedInstructionIndex = phase;

@@ -28,7 +28,7 @@ internal static class RoomScrollDefinitionsVerification
         ushort[] roomPointers = File.ReadLines(symbolPath)
             .Select(TryParseRoomHeaderPointer)
             .Where(pointer => pointer.HasValue)
-            .Select(pointer => pointer!.Value)
+            .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer.")))
             .Distinct()
             .Order()
             .ToArray();
@@ -123,7 +123,7 @@ internal static class RoomScrollDefinitionsVerification
                     : RoomScrollState.Green)
                 : ceresResidue[index];
         }
-        AssertTrue(expectedCeres.AsSpan().SequenceEqual(guardedCeres.Room.Camera!.Scrolls.Storage),
+        AssertTrue(expectedCeres.AsSpan().SequenceEqual(guardedCeres.Room.LoadedCamera.Scrolls.Storage),
             "production Ceres entry installs compiled scroll storage");
 
         Console.WriteLine(

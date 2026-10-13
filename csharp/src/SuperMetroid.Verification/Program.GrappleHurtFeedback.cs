@@ -34,7 +34,7 @@ internal static class GrappleHurtFeedbackVerification
         foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
         var level = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
         runtime.Room.LevelData = level;
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.EquippedItems = (ushort)SamusEquipmentFlags.GrappleBeam;
         samus.SelectedHudItem = SamusHudRomData.GrappleSelectedItem;
@@ -95,7 +95,7 @@ internal static class GrappleHurtFeedbackVerification
         using var fieldBytes = new MemoryStream();
         using (var writer = new BinaryWriter(fieldBytes, System.Text.Encoding.UTF8, leaveOpen: true))
         {
-            writer.Write(typeof(SamusState).AssemblyQualifiedName!);
+            writer.Write((typeof(SamusState).AssemblyQualifiedName ?? throw new InvalidOperationException("Verification requires typeof(SamusState).AssemblyQualifiedName.")));
             writer.Write("<PreviousHealthForHurtCheck>k__BackingField");
             DebuggerObjectGraphSerializer.Serialize(fieldBytes, (ushort)99);
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -34,10 +35,10 @@ internal static class SaveSchemaTranslationVerification
         target.SaveRam.Fill(0xa5);
         GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), target, RetailPresentationFixture());
         AssertSameBytes(target.SaveRam, bus.SaveRam, "named schema rebuilds canonical SRAM and clears stale target bytes");
-        var loaded = new SuperMetroidSaveRam(target, RetailPresentationFixture()).ReadSlot(0)!;
+        var loaded = new SuperMetroidSaveRam(target, RetailPresentationFixture()).ReadSlot(0);
         var restoredSamus = new SamusState();
         var restoredSystem = new Bank80SystemState();
-        loaded.ApplyTo(restoredSamus, restoredSystem);
+        (loaded ?? throw new InvalidOperationException("Verification requires loaded.")).ApplyTo(restoredSamus, restoredSystem);
         AssertEqual(27, restoredSamus.ReserveMissiles, "reserve missiles reach the live Samus owner");
         AssertEqual(65535, restoredSystem.LoadedItemCount, "item load count reaches live progression owner");
         AssertTrue(loaded.JapaneseText && new SuperMetroidSaveRam(target, RetailPresentationFixture()).HasCompletedGame, "language and completion survive save load");
@@ -48,13 +49,13 @@ internal static class SaveSchemaTranslationVerification
         Suite(nameof(VerifyNamedSaveRuntime), () => VerifyNamedSaveRuntime(bus, ram));
 
         // Build a genuine old envelope independently: old named fields override its raw mirror.
-        JsonObject legacy = JsonNode.Parse(json)!.AsObject();
+        JsonObject legacy = RequiredJson.Parse(json).AsObject();
         legacy["schemaVersion"] = 1;
         legacy.Remove("gameCompleted");
-        JsonObject slot = legacy["slots"]![0]!.AsObject();
+        JsonObject slot = legacy.Required("slots").Required(0).AsObject();
         slot.Remove("japaneseText"); slot.Remove("loadedItemCount");
-        slot["resources"]!.AsObject().Remove("reserveMissiles");
-        slot["resources"]!["health"] = 42; // Deliberately differs from native image health 99.
+        slot.Required("resources").AsObject().Remove("reserveMissiles");
+        slot.Required("resources")["health"] = 42; // Deliberately differs from native image health 99.
         byte[] native = bus.SaveRam.ToArray();
         native[0x1a00] = 0xa5; // Unused SRAM, outside all slots and metadata.
         var pages = new JsonArray();
@@ -65,21 +66,21 @@ internal static class SaveSchemaTranslationVerification
         var upgraded = GameSaveJsonCodec.Deserialize(oldJson);
         AssertEqual(2, upgraded.SchemaVersion, "schema-one import becomes schema two");
         GameSaveJsonCodec.Apply(upgraded, target, RetailPresentationFixture());
-        var imported = new SuperMetroidSaveRam(target, RetailPresentationFixture()).ReadSlot(0)!;
-        AssertEqual(42, imported.Health, "legacy named health overrides stale raw image");
+        var imported = new SuperMetroidSaveRam(target, RetailPresentationFixture()).ReadSlot(0);
+        AssertEqual(42, (imported ?? throw new InvalidOperationException("Verification requires imported.")).Health, "legacy named health overrides stale raw image");
         AssertEqual(27, imported.ReserveMissiles, "legacy importer decodes reserve missile word");
         AssertEqual(65535, imported.LoadedItemCount, "legacy importer decodes item load word");
         AssertTrue(imported.JapaneseText && new SuperMetroidSaveRam(target, RetailPresentationFixture()).HasCompletedGame, "legacy importer decodes language and completion");
         AssertEqual(0, target.SaveRam[0x1a00], "confirmed unused bytes are not perpetuated");
         AssertTrue(!GameSaveJsonCodec.Serialize(upgraded).Contains("preservedUntranslatedSram", StringComparison.Ordinal), "legacy import never re-emits its blob");
-        var bad = JsonNode.Parse(oldJson)!.AsObject();
-        bad["preservedUntranslatedSram"]![0]!["bytes"] = "not hex";
+        var bad = RequiredJson.Parse(oldJson).AsObject();
+        bad.Required("preservedUntranslatedSram").Required(0)["bytes"] = "not hex";
         AssertInvalidJsonSave(bad.ToJsonString(), "not hexadecimal");
-        bad = JsonNode.Parse(oldJson)!.AsObject();
-        bad["preservedUntranslatedSram"]!.AsArray().RemoveAt(0);
+        bad = RequiredJson.Parse(oldJson).AsObject();
+        bad.Required("preservedUntranslatedSram").AsArray().RemoveAt(0);
         AssertInvalidJsonSave(bad.ToJsonString(), "32 pages");
         AssertInvalidJsonSave("{\"schemaVersion\":\"two\"}", "schemaVersion");
-        var illegalV2 = JsonNode.Parse(json)!.AsObject();
+        var illegalV2 = RequiredJson.Parse(json).AsObject();
         illegalV2["preservedUntranslatedSram"] = new JsonArray();
         AssertInvalidJsonSave(illegalV2.ToJsonString(), "preservedUntranslatedSram");
 
@@ -93,7 +94,7 @@ internal static class SaveSchemaTranslationVerification
             GameSaveFileStore.LoadOrMigrate(target, path, Path.Combine(fixtureDirectory, "absent.srm"), RetailPresentationFixture());
             AssertEqual(oldJson, File.ReadAllText(path + ".bak"), "automatic upgrade backs up the exact original schema-one JSON");
             AssertTrue(!File.ReadAllText(path).Contains("preservedUntranslatedSram", StringComparison.Ordinal), "automatic upgrade replaces old format with named schema");
-            AssertEqual(42, new SuperMetroidSaveRam(target, RetailPresentationFixture()).ReadSlot(0)!.Health, "automatic upgrade applies named values");
+            AssertEqual(42, (new SuperMetroidSaveRam(target, RetailPresentationFixture()).ReadSlot(0) ?? throw new InvalidOperationException("Verification requires new SuperMetroidSaveRam(target, RetailPresentationFixture()).ReadSlot(0).")).Health, "automatic upgrade applies named values");
         }
         finally { Directory.Delete(fixtureDirectory, recursive: true); }
         Console.WriteLine("Schema two: named missing state, runtime restoration, legacy JSON conversion, precedence, padding removal, strict failures and backed-up upgrade pass.");

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -37,10 +37,18 @@ internal sealed class EnemyPresentation
     [field: NonSerialized]
     public MotherBrainRoomColorPresentation? MotherBrainRoomColors { get; set; }
     /// <summary>The bound CGRAM's enemy and boss ranges.</summary>
-    internal EnemyPalettes BossPalettes => new(_cgram!);
+    internal EnemyPalettes BossPalettes => new(Cgram);
 
     /// <summary>The bound CGRAM's hardware banks and rows, for actors whose palette row is selected at run time.</summary>
-    internal CgramPalettes CgramRows => new(_cgram!);
+    internal CgramPalettes CgramRows => new(Cgram);
+
+    /// <summary>The room's bound VRAM; enemy artwork transfers require the room's video memory to be bound.</summary>
+    internal SnesVram Vram => _vram ??
+        throw new InvalidOperationException("Enemy presentation has no bound VRAM; the room's video memory must be bound first.");
+
+    /// <summary>The room's bound CGRAM; enemy palette writes require the room's video memory to be bound.</summary>
+    internal SnesCgram Cgram => _cgram ??
+        throw new InvalidOperationException("Enemy presentation has no bound CGRAM; the room's video memory must be bound first.");
     /// <summary>VRAM shared with room and enemy artwork transfers.</summary>
     internal SnesVram? _vram;
     /// <summary>CGRAM backing boss and enemy palette views.</summary>

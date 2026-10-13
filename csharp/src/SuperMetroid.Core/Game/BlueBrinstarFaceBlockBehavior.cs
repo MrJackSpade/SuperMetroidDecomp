@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Game;
+using System.Diagnostics.CodeAnalysis;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>The blue Brinstar face block species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
@@ -100,7 +101,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
         if (state.Activated)
             return;
 
-        ushort verticalDelta = unchecked((ushort)(samus!.Position.Y.Whole - slot.Position.Y.Whole));
+        ushort verticalDelta = unchecked((ushort)(samus.Position.Y.Whole - slot.Position.Y.Whole));
         if (AbsoluteFaceBlockDelta(verticalDelta) >= slot.Parameter1)
             return;
 
@@ -129,7 +130,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
     }
 
     /// <summary>Uses the collected-item word so unequipping Morph Ball does not put active blocks back to sleep.</summary>
-    private static bool HasCollectedMorphBall(SamusState? samus) =>
+    private static bool HasCollectedMorphBall([NotNullWhen(true)] SamusState? samus) =>
         samus is not null &&
         (samus.CollectedItems & BlueBrinstarFaceBlockMorphBallItemMask) != 0;
 

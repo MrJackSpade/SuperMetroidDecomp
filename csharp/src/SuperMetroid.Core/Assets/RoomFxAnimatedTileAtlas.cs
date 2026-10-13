@@ -181,14 +181,12 @@ public static class RoomFxAnimatedTileAtlasFormat
         total += TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount;
         yield return new(TourianStatueAnimatedTileArtworkDefinitions.FirstSource,
             TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount, false);
-        RoomFxAnimatedTileMechanicsDefinitions.TryResolve(AnimatedTileObject.Spores, out var spores);
-        foreach (var segment in Frames(spores))
+        foreach (var segment in Frames(RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.Spores)))
         {
             total += segment.ByteCount;
             yield return segment;
         }
-        RoomFxAnimatedTileMechanicsDefinitions.TryResolve(AnimatedTileObject.HorizontalSpikes, out var spikes);
-        foreach (var segment in Frames(spikes))
+        foreach (var segment in Frames(RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.HorizontalSpikes)))
         {
             total += segment.ByteCount;
             yield return segment;

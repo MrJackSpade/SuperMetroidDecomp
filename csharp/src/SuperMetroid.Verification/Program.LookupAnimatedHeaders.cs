@@ -24,7 +24,7 @@ internal static class LookupAnimatedHeadersVerification
             bool resolved = RoomFxAnimatedTileMechanicsDefinitions.TryResolve(header, out var definition);
             AssertEqual(original.Contains(pointer), resolved, "Simple animation full identity domain");
             if (resolved)
-                AssertEqual(pointer, (ushort)definition.ObjectPointer, "Selected native object identity");
+                AssertEqual(pointer, (ushort)(definition ?? throw new InvalidOperationException("Verification requires definition.")).ObjectPointer, "Selected native object identity");
             else
                 AssertTrue(definition is null, "Unknown simple animation preserves null output");
         }
@@ -54,7 +54,7 @@ internal static class LookupAnimatedHeadersVerification
             ushort expected = ReadVerificationWord(rom, (0x870000 | pointer) + offset);
             AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve((AnimatedTileObject)pointer, out var definition),
                 "Original object resolves");
-            AssertEqual(expected, field(definition), "Native selected header field");
+            AssertEqual(expected, field((definition ?? throw new InvalidOperationException("Verification requires definition."))), "Native selected header field");
             AssertEqual(expected, field(enumerated[(AnimatedTileObject)pointer]), "Native enumeration header view");
             AssertTrue(definition.TryReadMechanicsWord((ushort)(pointer + offset), out ushort word),
                 "Header mechanics word is available");

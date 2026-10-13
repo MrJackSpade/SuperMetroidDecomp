@@ -31,10 +31,10 @@ internal static class MotherBrainFakeDeathLockVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain!;
-        state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock;
+        MotherBrainEnemyState state = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain."));
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock;
         state.FunctionTimer = NativeCountdown.Start(0);
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

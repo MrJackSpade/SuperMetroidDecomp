@@ -30,7 +30,7 @@ internal static class XrayControlsVerification
             runtime.Options.ControllerBindings = remapped
                 ? ControllerBindings.Default.AssignAndSwap(0, ControllerBindings.Default.Dash)
                 : ControllerBindings.Default;
-            var samus = runtime.Player.Samus!;
+            var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new(128, 139));
@@ -58,7 +58,7 @@ internal static class XrayControlsVerification
                 ((ushort)SamusProjectileFamily.Bomb >> 8) * sizeof(ushort));
             pendingBomb.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
                 (SamusProjectileRomData.Banks.Projectile | bombData) + sizeof(ushort));
-            pendingBomb.SpritemapPointer = runtime.Artwork.ProjectileFrameBindings!.Resolve(pendingBomb.InstructionPointer);
+            pendingBomb.SpritemapPointer = (runtime.Artwork.ProjectileFrameBindings ?? throw new InvalidOperationException("Verification requires runtime.Artwork.ProjectileFrameBindings.")).Resolve(pendingBomb.InstructionPointer);
             pendingBomb.InstructionTimer = NativeCountdown.Start(100);
             pendingBomb.BombTimer = NativeCountdown.Start(60);
             runtime.StepFrame((ushort)(runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));

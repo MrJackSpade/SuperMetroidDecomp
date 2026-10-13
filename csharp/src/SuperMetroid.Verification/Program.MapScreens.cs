@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
@@ -46,7 +47,7 @@ internal static class MapScreensVerification
         Directory.CreateDirectory(overrides);
         string jsonPath = Path.Combine(overrides, MapScreenDefinitions.FileName);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = JsonSerializer.Deserialize<MapScreenDocument>(File.ReadAllBytes(Path.Combine(stock, MapScreenDefinitions.FileName)), options)!;
+        var document = RequiredJson.Deserialize<MapScreenDocument>(File.ReadAllBytes(Path.Combine(stock, MapScreenDefinitions.FileName)), options);
         foreach (var page in document.Pages)
         {
             var isolated = new Dictionary<string, MapPresentationCell[]>(document.Pages);
@@ -147,8 +148,8 @@ internal static class MapScreensVerification
         data.MapStationBytes[(int)AreaId.Maridia] = 1;
         data.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, data);
-        var slot = saves.ReadSlot(0)!;
-        var control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0, original);
+        var slot = saves.ReadSlot(0);
+        var control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
         var changed = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, edited);
         for (int tick = 0; tick < 104; tick++)
         {
@@ -170,7 +171,7 @@ internal static class MapScreensVerification
             AssertTrue(control.Render().AsSpan().SequenceEqual(changed.Render()), "restored menu retains exact load fade pixels");
         }
         AssertTrue(changed.LoadRequested, "screen fixture reaches load handoff");
-        AssertTrue(saves.ReadSlot(0)!.ToSnapshot().MapStationBytes.AsSpan().SequenceEqual(data.MapStationBytes), "screen edits preserve saved map progression");
+        AssertTrue((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).ToSnapshot().MapStationBytes.AsSpan().SequenceEqual(data.MapStationBytes), "screen edits preserve saved map progression");
     }
 
     /// <summary>Forbids runtime cartridge reads across all migrated world pages, room frames, labels, and map character sheets.</summary>

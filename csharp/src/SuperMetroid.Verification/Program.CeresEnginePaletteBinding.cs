@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -67,7 +68,7 @@ internal static class CeresEnginePaletteBindingVerification
         try
         {
             string paletteFile = Path.Combine(installation.MapDirectory, RoomPaletteFxPresentationFormat.FileName);
-            JsonObject document = JsonNode.Parse(File.ReadAllText(paletteFile))!.AsObject();
+            JsonObject document = RequiredJson.Parse(File.ReadAllText(paletteFile)).AsObject();
             string key = document.Select(property => property.Key).Single(name =>
                 name.Equals(nameof(RoomPaletteFxPresentationDocument.CeresGunshipEngineLights), StringComparison.OrdinalIgnoreCase));
             document[key] = new JsonArray(
@@ -109,7 +110,7 @@ internal static class CeresEnginePaletteBindingVerification
         Console.WriteLine("#1150: stock engine flicker, edited-color state rebind, unchanged scene clock/camera and legacy-owner reconstruction pass (RAM-only).");
 
         static CeresDestructionCinematicState Scene(SuperMetroidGame owner) =>
-            owner.ceresDestruction;
+            (owner.ceresDestruction ?? throw new InvalidOperationException("Verification requires owner.ceresDestruction."));
 
         static Bgr555[] Colors(CeresDestructionCinematicState owner) =>
             (owner.cgram).Colors.ToArray();

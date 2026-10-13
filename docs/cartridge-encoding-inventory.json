@@ -23,7 +23,7 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 31466,
+    "RawHexLiteral": 31463,
     "PointerDispatch": 1143,
     "OpaqueWordArray": 1126,
     "CatalogHexLiteral": 99797,
@@ -32,11 +32,11 @@
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 1,
     "CountdownSelfDecrement": 53,
-    "class:NumericQuantity": 55559,
+    "class:NumericQuantity": 55557,
     "class:DomainIdentity": 6776,
     "class:ComposableBits": 1679,
     "class:StructuredInstruction": 44212,
-    "class:CartridgeAddress": 24599,
+    "class:CartridgeAddress": 24598,
     "class:Unknown": 963,
     "storageWidthMembers": 1760
   },
@@ -9092,16 +9092,16 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 27352,
+        "RawHexLiteral": 27349,
         "PointerDispatch": 378,
         "OpaqueWordArray": 990,
         "CatalogHexLiteral": 5563,
         "OwnedWidthOperation": 60,
-        "class:NumericQuantity": 10601,
+        "class:NumericQuantity": 10599,
         "class:DomainIdentity": 635,
         "class:ComposableBits": 564,
         "class:StructuredInstruction": 14035,
-        "class:CartridgeAddress": 7991,
+        "class:CartridgeAddress": 7990,
         "class:Unknown": 517,
         "storageWidthMembers": 303
       },
@@ -17000,9 +17000,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.LookupRetailPopulations.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 286,
+            "RawHexLiteral": 285,
             "OpaqueWordArray": 1,
-            "class:NumericQuantity": 1,
             "class:StructuredInstruction": 285,
             "class:CartridgeAddress": 1
           }
@@ -21362,11 +21361,11 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.WordReads.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 95,
-            "class:NumericQuantity": 62,
+            "RawHexLiteral": 93,
+            "class:NumericQuantity": 61,
             "class:ComposableBits": 2,
             "class:StructuredInstruction": 4,
-            "class:CartridgeAddress": 27
+            "class:CartridgeAddress": 26
           }
         },
         {

@@ -64,7 +64,7 @@ internal static class SciserInstructionProgramDefinitionsVerification
                 CrawlerSurfaceOrientation.UpsideLeft
                     ? CrawlerEnemyFunction.CrawlingVertically
                     : CrawlerEnemyFunction.CrawlingHorizontally;
-            AssertEqual(expected, enemies.CrawlerStates[0]!.Function,
+            AssertEqual(expected, (enemies.CrawlerStates[0] ?? throw new InvalidOperationException("Verification requires enemies.CrawlerStates[0].")).Function,
                 $"Sciser {orientation} publishes native movement function");
             AssertEqual(unchecked((ushort)(entry + 8)), slot.CurrentInstruction,
                 $"Sciser {orientation} completes and loops all four frames");

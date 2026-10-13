@@ -120,20 +120,20 @@ internal static class BoyonInstructionProgramDefinitionsVerification
 
         RoomEnemySystem bouncingSystem =
             CreateBoyonProgramSystem(guard, out RoomEnemySlot bouncing);
-        BoyonEnemyState bouncingState = bouncingSystem.BoyonStates[0]!;
+        BoyonEnemyState bouncingState = (bouncingSystem.BoyonStates[0] ?? throw new InvalidOperationException("Verification requires bouncingSystem.BoyonStates[0]."));
         var samus = new SamusState
         {
             Position = FixedPosition<RoomPixels>.FromWhole(bouncing.Position.Whole),
         };
         Action<RoomEnemySlot, BoyonEnemyState, SamusState?> runMain = BoyonBehavior.RunBoyonMain;
-        runMain(bouncing, bouncingState, samus);
+        runMain(bouncing, (bouncingState ?? throw new InvalidOperationException("Verification requires bouncingState.")), samus);
         runMain(bouncing, bouncingState, samus);
         AssertEqual(BoyonInstructionProgramDefinitions.Bouncing, bouncing.CurrentInstruction,
             "Boyon proximity path selects bouncing program");
         RunBoyonProgram(bouncingSystem, bouncing, frames: 40);
         AssertTrue(bouncing.Properties.HasAny(EnemyProperties.ProcessOffScreen),
             "Boyon bouncing program enables off-screen processing");
-        AssertEqual((ushort)0x000e, bouncingSystem.BoyonBehavior.LastBoyonSoundEffect!.Value,
+        AssertEqual((ushort)0x000e, (bouncingSystem.BoyonBehavior.LastBoyonSoundEffect ?? throw new InvalidOperationException("Verification requires bouncingSystem.BoyonBehavior.LastBoyonSoundEffect.")),
             "Boyon bouncing callback publishes native sound");
         AssertTrue(!bouncingState.BounceDisabled,
             "Boyon bouncing callback permits the movement arc");

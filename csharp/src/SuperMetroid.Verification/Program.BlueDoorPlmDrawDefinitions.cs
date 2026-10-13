@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
@@ -167,9 +168,9 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                 RoomPlmBlueDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted blue-door JSON is empty.");
-            JsonNode frame = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "left-frame-1")!;
-            frame["blocks"]![0] = 0x0053;
+            JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "left-frame-1");
+            frame.Required("blocks")[0] = 0x0053;
             Directory.CreateDirectory(installation.RoomPlmBlueDoorVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmBlueDoorVisualOverrideDirectory,
@@ -186,12 +187,12 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                     installation.RoomPlmBlueDoorVisualOverrideDirectory).GetWord(firstDraw, 0),
                 "blue-door override survives stock replacement");
 
-            frame["blocks"]![0] = 0xf053;
+            frame.Required("blocks")[0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmBlueDoorVisuals(),
                 "invalid blue-door override fails loudly");
-            frame["blocks"]![0] = stock;
+            frame.Required("blocks")[0] = stock;
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmBlueDoorVisuals(),

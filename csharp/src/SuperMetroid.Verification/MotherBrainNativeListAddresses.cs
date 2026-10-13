@@ -198,7 +198,9 @@ internal static class MotherBrainNativeListAddresses
     /// <param name="Ends">Whether the opcode ends the native list.</param>
     internal readonly record struct NativeOp<TProgram, TFrame, TCue>(
         int Operands, Func<ushort[], Func<ushort, TProgram>, AnimationProgramStep<TProgram, TFrame, TCue>[]> Steps, bool Ends)
-        where TProgram : struct, Enum;
+        where TProgram : struct, Enum
+        where TFrame : struct
+        where TCue : notnull;
 
     /// <summary>The body opcodes, each a single cue.</summary>
     private static Dictionary<ushort, NativeOp<MotherBrainBodyProgram, MotherBrainBodyFrame, B>> BodyNativeOps { get; } =
@@ -372,6 +374,8 @@ internal static class MotherBrainNativeListAddresses
         (TProgram Program, ushort Entry)[] entries, Func<TFrame, ushort> spritemap,
         IReadOnlyDictionary<ushort, NativeOp<TProgram, TFrame, TCue>> ops)
         where TProgram : struct, Enum
+        where TFrame : struct
+        where TCue : notnull
     {
         AssertEqual(Enum.GetValues<TProgram>().Length, entries.Length, $"every typed {typeof(TProgram).Name} has a native entry");
         Dictionary<ushort, TProgram> programAt = entries.ToDictionary(entry => entry.Entry, entry => entry.Program);

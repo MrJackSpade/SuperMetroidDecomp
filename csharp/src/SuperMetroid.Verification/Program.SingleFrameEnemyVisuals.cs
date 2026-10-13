@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -21,7 +22,7 @@ internal static class SingleFrameEnemyVisualsVerification
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
         var stock = EnemySpritemapCatalog.Load(new MemoryStream(stockBytes));
-        var document = JsonSerializer.Deserialize<EnemySpritemapDocument>(stockBytes, options)!;
+        var document = RequiredJson.Deserialize<EnemySpritemapDocument>(stockBytes, options);
         EnemySpritemapDefinition[] previous = EnemySpritemapDefinitions.Frames
             .ToArray().Take(EnemySpritemapDefinitions.PreSingleFrameFrameCount).ToArray();
         string edited = previous[0].Name;
@@ -63,15 +64,15 @@ internal static class SingleFrameEnemyVisualsVerification
 
         byte[] projectileBytes = EnemyProjectileSpritemapFiles.Extract(rom);
         var projectileStock = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(projectileBytes));
-        var projectileDocument = JsonSerializer.Deserialize<EnemyProjectileSpritemapDocument>(projectileBytes, options)!;
+        var projectileDocument = RequiredJson.Deserialize<EnemyProjectileSpritemapDocument>(projectileBytes, options);
         var projectileLegacy = projectileDocument with
         {
             Version = (int)EnemyProjectileSpritemapVersion.PrePolypRock,
             ProgramFrames = EnemyProjectilePresentationFrameDefinitions.PrePolypRock.ToArray()
-                .ToDictionary(frame => frame.Name, frame => projectileDocument.ProgramFrames![frame.Name]),
+                .ToDictionary(frame => frame.Name, frame => (projectileDocument.ProgramFrames ?? throw new InvalidOperationException("Verification requires projectileDocument.ProgramFrames."))[frame.Name]),
         };
         string editedProjectile = EnemyProjectilePresentationFrameDefinitions.PrePolypRock[0].Name;
-        projectileLegacy.ProgramFrames![editedProjectile] =
+        projectileLegacy.ProgramFrames[editedProjectile] =
             [projectileLegacy.ProgramFrames[editedProjectile][0] with { OffsetX = -12 }];
         byte[] projectileLegacyBytes = JsonSerializer.SerializeToUtf8Bytes(projectileLegacy, options);
         var projectileMerged = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(projectileLegacyBytes), projectileStock);

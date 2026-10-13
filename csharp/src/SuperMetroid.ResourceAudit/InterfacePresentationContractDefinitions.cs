@@ -43,14 +43,14 @@ internal static class InterfacePresentationContractDefinitions
     /// <summary>Lists the source-owned implementations for audited palette or cinematic dispatch, returning null for contracts outside this closed set.</summary>
     internal static string[]? Implementations(string type) => type switch
     {
-        "SuperMetroid.Core.Assets.IPaletteFxColorSource" => [typeof(RoomPaletteFxPresentation).FullName!, typeof(TitlePalettePresentation).FullName!],
+        "SuperMetroid.Core.Assets.IPaletteFxColorSource" => [(typeof(RoomPaletteFxPresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(RoomPaletteFxPresentation).FullName.")), (typeof(TitlePalettePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(TitlePalettePresentation).FullName."))],
         "SuperMetroid.Core.Assets.IIntroCinematicSpritePresentation" =>
-            [typeof(IntroDiscoveryActorSpritePresentation).FullName!, typeof(IntroEggEffectSpritePresentation).FullName!,
-             typeof(IntroRinkaSpritePresentation).FullName!, typeof(IntroScientistSpritePresentation).FullName!,
-             typeof(CeresFlightSpritePresentation).FullName!, typeof(CeresDestructionSpritePresentation).FullName!,
-             typeof(CeresSceneSpritePresentation).FullName!, typeof(EndingCloudSpritePresentation).FullName!,
-             typeof(EndingCompletionTextSpritePresentation).FullName!, typeof(EndingExplosionSpritePresentation).FullName!,
-             typeof(EndingLogoSpritePresentation).FullName!, typeof(EndingRewardSpritePresentation).FullName!],
+            [(typeof(IntroDiscoveryActorSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(IntroDiscoveryActorSpritePresentation).FullName.")), (typeof(IntroEggEffectSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(IntroEggEffectSpritePresentation).FullName.")),
+             (typeof(IntroRinkaSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(IntroRinkaSpritePresentation).FullName.")), (typeof(IntroScientistSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(IntroScientistSpritePresentation).FullName.")),
+             (typeof(CeresFlightSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(CeresFlightSpritePresentation).FullName.")), (typeof(CeresDestructionSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(CeresDestructionSpritePresentation).FullName.")),
+             (typeof(CeresSceneSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(CeresSceneSpritePresentation).FullName.")), (typeof(EndingCloudSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingCloudSpritePresentation).FullName.")),
+             (typeof(EndingCompletionTextSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingCompletionTextSpritePresentation).FullName.")), (typeof(EndingExplosionSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingExplosionSpritePresentation).FullName.")),
+             (typeof(EndingLogoSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingLogoSpritePresentation).FullName.")), (typeof(EndingRewardSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingRewardSpritePresentation).FullName."))],
         _ => null,
     };
 }

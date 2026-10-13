@@ -22,12 +22,12 @@ public sealed class IntroCinematicState
     /// <summary>Reusable final frame; a returned image remains valid until the next cinematic render.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
     /// <summary>Requests a trail tile upload after the host binds replacement artwork.</summary>
-    [NonSerialized] private bool trailArtworkRefreshPending;
+    [NonSerialized] private ProjectileTrailAtlas? pendingTrailTiles;
     /// <summary>Host-owned trail artwork whose binding requests a tile refresh on the next display.</summary>
     [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork
     {
         get;
-        set { field = value; trailArtworkRefreshPending = value?.Tiles is not null; }
+        set { field = value; pendingTrailTiles = value?.Tiles; }
     }
     /// <summary>Current timed-projectile composition selected by the host.</summary>
     [field: NonSerialized]
@@ -162,30 +162,57 @@ public sealed class IntroCinematicState
     private readonly Bgr555[] introPalette = new Bgr555[CgramPalettes.ColorCount];
     /// <summary>Persistent bank-$8C actor and caret walker for illustrated pages.</summary>
     internal IntroCinematicObjectSystem? objects;
+    /// <summary>The intro's sprite objects, which exist from the first text page onward.</summary>
+    internal IntroCinematicObjectSystem Objects => objects ??
+        throw new InvalidOperationException("The intro's sprite objects have not been created; the text pages create them.");
     /// <summary>Applies the selected Japanese subtitle treatment to narration pages.</summary>
     private readonly IntroJapaneseSubtitles subtitles;
     /// <summary>Interpolates selected CGRAM spans during text and scene crossfades.</summary>
     private CinematicPaletteFader? paletteFader;
+    /// <summary>The intro's palette fader, which exists while the intro's scenes run.</summary>
+    private CinematicPaletteFader PaletteFader => paletteFader ??
+        throw new InvalidOperationException("The intro's palette fader has not been created.");
     /// <summary>Samus gameplay state shared by the Mother Brain and SR388 flashbacks.</summary>
     internal SamusState? flashbackSamus;
+    /// <summary>Samus in the Mother Brain flashback, which exists while the flashback runs.</summary>
+    internal SamusState FlashbackSamus => flashbackSamus ??
+        throw new InvalidOperationException("The Mother Brain flashback has not introduced Samus.");
     /// <summary>$1A57 during the Mother Brain flashback: $8B:AF65 sets it, $8B:B842 clears it.</summary>
     private IntroSamusDisplay flashbackSamusDisplay;
     /// <summary>Mother Brain animation state active only in the first gameplay flashback.</summary>
     internal IntroMotherBrainSpriteState? flashbackMotherBrain;
+    /// <summary>Mother Brain's sprite in the flashback, which exists while the flashback runs.</summary>
+    internal IntroMotherBrainSpriteState FlashbackMotherBrain => flashbackMotherBrain ??
+        throw new InvalidOperationException("The Mother Brain flashback is not running.");
     /// <summary>Explosion actors shown after the Mother Brain demo input ends.</summary>
     internal IntroMotherBrainExplosionSystem? flashbackMotherBrainExplosions;
     /// <summary>Rinka actors and collision for the Mother Brain scene.</summary>
     internal IntroRinkaSystem? flashbackRinkas;
     /// <summary>Egg and baby actors in the SR388 discovery flashback.</summary>
     internal IntroBabyDiscoveryState? babyDiscovery;
+    /// <summary>The Baby Metroid discovery scene, which exists while that scene runs.</summary>
+    internal IntroBabyDiscoveryState BabyDiscovery => babyDiscovery ??
+        throw new InvalidOperationException("The Baby Metroid discovery scene is not running.");
     /// <summary>Laboratory actors shared by delivery and examination scenes.</summary>
     internal IntroScientistCutsceneState? scientistCutscene;
+    /// <summary>The scientist cutscene, which exists while that scene runs.</summary>
+    internal IntroScientistCutsceneState ScientistCutscene => scientistCutscene ??
+        throw new InvalidOperationException("The scientist cutscene is not running.");
     /// <summary>Final SPACE COLONY flight sequence after the narrated pages.</summary>
     internal IntroCeresFlightState? ceresFlight;
+    /// <summary>The flight to Ceres, which exists while that scene runs.</summary>
+    internal IntroCeresFlightState CeresFlight => ceresFlight ??
+        throw new InvalidOperationException("The Ceres flight is not running.");
     /// <summary>Scripted controller stream for the Mother Brain gameplay demonstration.</summary>
     internal DemoInputState? flashbackDemoInput;
+    /// <summary>The flashback's scripted controller input, which exists while the flashback runs.</summary>
+    internal DemoInputState FlashbackDemoInput => flashbackDemoInput ??
+        throw new InvalidOperationException("The Mother Brain flashback is not running.");
     /// <summary>Collision data for the gameplay-style flashback room.</summary>
     internal RoomLevelData? flashbackLevel;
+    /// <summary>The flashback room's collision, which exists while the flashback runs.</summary>
+    internal RoomLevelData FlashbackLevel => flashbackLevel ??
+        throw new InvalidOperationException("The Mother Brain flashback room is not loaded.");
     /// <summary>Cinematic-function countdown for the active palette transition.</summary>
     private NativeCountdown crossfadeCounter;
     /// <summary>Alternate transition countdown retained between scientist and text phases.</summary>
@@ -402,7 +429,7 @@ public sealed class IntroCinematicState
                 // $8B:A66F, so HasQueuedMusic becomes clear after fourteen update slots.
                 if (MusicQueueFinished())
                 {
-                    objects!.StartEnglishPageOne();
+                    Objects.StartEnglishPageOne();
                     // $8B:A82B seeds both fade words with two.
                     Phase = IntroCinematicPhase.FadeInPageOne;
                     fade.SetTiming(IntroCinematicRomData.Fade.NarrationSlowFade, IntroCinematicRomData.Fade.NarrationSlowFade);
@@ -532,7 +559,7 @@ public sealed class IntroCinematicState
                 break;
 
             case IntroCinematicPhase.CeresFlight:
-                ceresFlight!.Step();
+                CeresFlight.Step();
                 break;
         }
 
@@ -668,7 +695,7 @@ public sealed class IntroCinematicState
     {
         // Shared native setup $8B:B018 moves the persistent narration caret to Y=$F8.
         // It remains alive and will be restored by the next text-page setup.
-        objects!.PlaceCaretOffScreen();
+        Objects.PlaceCaretOffScreen();
 
         // $8B:AEB8 changes BG1SC to $50. The corresponding 32x32 visual map was already
         // uploaded by the initial $96:FF14 decompression; $8C:BEC3 below is gameplay
@@ -738,7 +765,7 @@ public sealed class IntroCinematicState
         {
             FadeOutPaletteSpans(IntroCinematicRomData.Palette.Gameplay);
             FadeInPaletteSpans(IntroCinematicRomData.Palette.Narration);
-            paletteFader!.ComposeInto(cgram);
+            PaletteFader.ComposeInto(cgram);
         }
 
         crossfadeCounter = crossfadeCounter.Decrement().Remaining;
@@ -756,7 +783,7 @@ public sealed class IntroCinematicState
     {
         // $8B:B35F spawns page-two's bank-$8C BG object, selects the reverse gameplay-to-
         // text palette routine, and restores the already allocated caret object.
-        objects!.StartEnglishPageTwo();
+        Objects.StartEnglishPageTwo();
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(cgram);
@@ -779,7 +806,7 @@ public sealed class IntroCinematicState
         {
             FadeInPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
             FadeOutPaletteSpans(IntroCinematicRomData.Palette.Narration);
-            paletteFader!.ComposeInto(cgram);
+            PaletteFader.ComposeInto(cgram);
         }
 
         crossfadeCounter = crossfadeCounter.Decrement().Remaining;
@@ -790,7 +817,7 @@ public sealed class IntroCinematicState
     /// <summary>Replaces Mother Brain actors with SR388 egg and baby owners and selects the second gameplay room page.</summary>
     internal void SetupBabyDiscoveryCrossfade()
     {
-        objects!.PlaceCaretOffScreen();
+        Objects.PlaceCaretOffScreen();
 
         // $8B:AF7B selects BG1SC=$54 (the second cartridge-authored room page), declares a
         // 32x16 collision room, carries Samus into new egg/baby/demo owners, and reuses the same
@@ -824,7 +851,7 @@ public sealed class IntroCinematicState
         {
             FadeOutPaletteSpans(IntroCinematicRomData.Palette.Gameplay);
             FadeInPaletteSpans(IntroCinematicRomData.Palette.Narration);
-            paletteFader!.ComposeInto(cgram);
+            PaletteFader.ComposeInto(cgram);
         }
 
         crossfadeCounter = crossfadeCounter.Decrement().Remaining;
@@ -843,7 +870,7 @@ public sealed class IntroCinematicState
         // Egg opcode $B33E selects page three. On the next cinematic-function call $B370
         // spawns its bank-$8C text object and enters the same gameplay-to-text palette
         // routine used after Mother Brain. The SR388 actors continue running beneath it.
-        objects!.StartEnglishPageThree();
+        Objects.StartEnglishPageThree();
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(cgram);
@@ -864,7 +891,7 @@ public sealed class IntroCinematicState
     {
         // Scientist crossfades use the sibling native setup at $8B:B151, which performs
         // the same off-screen caret move before changing the visible layer configuration.
-        objects!.PlaceCaretOffScreen();
+        Objects.PlaceCaretOffScreen();
 
         // $B0F2 selects BG1SC=$58, starts it 32 pixels right with vertical scroll eight,
         // seeds IntroCrossFadeTimer, and spawns definition $CE61 before configuring the
@@ -898,7 +925,7 @@ public sealed class IntroCinematicState
         {
             FadeOutPaletteSpans(IntroCinematicRomData.Palette.Gameplay);
             FadeInPaletteSpans(IntroCinematicRomData.Palette.Discovery);
-            paletteFader!.ComposeInto(cgram);
+            PaletteFader.ComposeInto(cgram);
         }
 
         crossfadeCounter = crossfadeCounter.Decrement().Remaining;
@@ -915,7 +942,7 @@ public sealed class IntroCinematicState
         // Actor opcode $B346 selects page four. $B381 starts its text stream and seeds the
         // cinematic-function counter, while the reverse routine deliberately consumes the
         // still-$007F IntroCrossFadeTimer set by the delivery scene.
-        objects!.StartEnglishPageFour();
+        Objects.StartEnglishPageFour();
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(cgram);
@@ -938,7 +965,7 @@ public sealed class IntroCinematicState
         {
             FadeInPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
             FadeOutPaletteSpans(IntroCinematicRomData.Palette.Discovery);
-            paletteFader!.ComposeInto(cgram);
+            PaletteFader.ComposeInto(cgram);
         }
 
         introCrossfadeCounter = introCrossfadeCounter.Decrement().Remaining;
@@ -949,7 +976,7 @@ public sealed class IntroCinematicState
     /// <summary>Starts the second laboratory scene on its vertically offset BG1 page.</summary>
     private void SetupBabyMetroidExamination()
     {
-        objects!.PlaceCaretOffScreen();
+        Objects.PlaceCaretOffScreen();
 
         // $B123 selects BG1SC=$5C, starts the page at Y=-24, and spawns definition $CE67.
         // Its setup is otherwise the same two-counter scientist crossfade as delivery.
@@ -969,7 +996,7 @@ public sealed class IntroCinematicState
     /// <summary>Starts page five after the baby examination scene and selects the reverse palette transition.</summary>
     private void SetupPageFiveCrossfade()
     {
-        objects!.StartEnglishPageFive();
+        Objects.StartEnglishPageFive();
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(cgram);
@@ -998,7 +1025,7 @@ public sealed class IntroCinematicState
     {
         // $8B:B207 has no palette transition. Only the English text region, caret, eye
         // stream, and final page object are replaced.
-        objects!.StartEnglishPageSix();
+        Objects.StartEnglishPageSix();
         scientistCutscene = null;
         Phase = IntroCinematicPhase.PageSixText;
     }
@@ -1006,13 +1033,13 @@ public sealed class IntroCinematicState
     /// <summary>Runs the scripted Samus gameplay, projectiles, collisions, and palette updates for the Mother Brain flashback.</summary>
     internal void StepMotherBrainDemo()
     {
-        flashbackDemoInput!.Step(bus, new FlashbackDemoProgram(this));
+        FlashbackDemoInput.Step(bus, new FlashbackDemoProgram(this));
 
         // HandleHUDSpecificBehaviorAndProjectiles calls the shared cooldown owner before
         // its ordinary-projectile half. Standing pose two cannot place bombs, but running
         // the real owner is still required for missile admission timing.
-        flashbackBombProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = flashbackLevel! }, flashbackSamus!, flashbackDemoInput.Held, flashbackDemoInput.NewlyPressed);
-        flashbackProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = flashbackLevel! }, flashbackSamus!, new ProjectileButtonInput { ControllerInput = flashbackDemoInput.Held, ControllerNewInput = flashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = flashbackDemoInput.PublishedPreviousNewlyPressed }, layer1: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
+        flashbackBombProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = FlashbackLevel }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
+        flashbackProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = FlashbackLevel }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, layer1: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
         if (flashbackProjectiles.LastFrameResult.QueuedSoundEffect is { } soundEffect)
         {
             audio?.QueueSound(
@@ -1023,7 +1050,7 @@ public sealed class IntroCinematicState
         // $90:E70D/$90:E71C: both the demo and locked handlers end with
         // ResetMovementAndPoseChangeVariables, so a later missile inherits only the
         // movement recorded in its own dispatch.
-        flashbackSamus!.PoseTransitions.ClearPoseTransitionShotDirection();
+        FlashbackSamus.PoseTransitions.ClearPoseTransitionShotDirection();
         SamusProjectileInheritance.ClearMovement(bus);
     }
 
@@ -1033,8 +1060,8 @@ public sealed class IntroCinematicState
     /// </summary>
     private void StepMotherBrainFlashbackSamus()
     {
-        SamusState samus = flashbackSamus!;
-        RoomLevelData level = flashbackLevel!;
+        SamusState samus = FlashbackSamus;
+        RoomLevelData level = FlashbackLevel;
         ushort demoInput = flashbackDemoInput?.Held ?? 0;
 
         // Accepted NMI transfers the definitions selected by the previous Samus draw. This
@@ -1159,11 +1186,11 @@ public sealed class IntroCinematicState
         // handler call. State-handler function pointers are not independently dispatched by
         // this scoped frontend yet; freezing input after the exact pose change has the same
         // observable contract for the remaining Mother Brain explosion frames.
-        flashbackSamus!.Pose = SamusPoseId.FacingLeftNormalPose;
-        flashbackSamus.PoseMetadata.RefreshCollisionRadii(bus);
+        FlashbackSamus.Pose = SamusPoseId.FacingLeftNormalPose;
+        FlashbackSamus.PoseMetadata.RefreshCollisionRadii(bus);
         // $91:874B: a Samus already in pose two keeps her running animation.
-        flashbackSamus.Presentation.SetAnimationFrameIfPoseChanged(bus);
-        flashbackSamus.CommitPoseHistory(bus);
+        FlashbackSamus.Presentation.SetAnimationFrameIfPoseChanged(bus);
+        FlashbackSamus.CommitPoseHistory(bus);
         demo.Disable();
         return DemoInputInstructionResult.ContinueAt(argumentPointer);
     }
@@ -1211,10 +1238,10 @@ public sealed class IntroCinematicState
         // Both direct rendering and detached capture enter here once per display.
         // The intro's standard OBJ upload owns these same trail regions; its separate
         // compressed cinematic sheet starts later and must not be replaced.
-        if (trailArtworkRefreshPending)
+        if (pendingTrailTiles is { } trailTiles)
         {
-            TrailArtwork!.Tiles!.LoadTo(vram);
-            trailArtworkRefreshPending = false;
+            trailTiles.LoadTo(vram);
+            pendingTrailTiles = null;
         }
         var oam = new OamBuffer();
         oam.BeginFrame();
@@ -1222,7 +1249,7 @@ public sealed class IntroCinematicState
         // cinematic objects; once $B842 clears it, only the objects remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            flashbackSamus!.Presentation.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
+            FlashbackSamus.Presentation.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
             flashbackProjectiles.DrawLiveProjectiles(bus, oam, Position16<RoomPixels>.Zero, nmiFrameCounter, ProjectileCompositions);
             flashbackProjectiles.HandleTrailsAndDraw(bus, oam, Position16<RoomPixels>.Zero, timeIsFrozen: false, TrailArtwork);
             flashbackProjectiles.DrawExplosions(bus, oam, Position16<RoomPixels>.Zero, ProjectileCompositions);
@@ -1231,13 +1258,13 @@ public sealed class IntroCinematicState
         flashbackMotherBrainExplosions?.Draw(oam,
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro Mother Brain explosions require installed character artwork.")).MotherBrainExplosionSprites);
-        if (flashbackMotherBrain!.IsVisible && flashbackMotherBrain.SpriteMapPointer != 0)
+        if (FlashbackMotherBrain.IsVisible && FlashbackMotherBrain.SpriteMapPointer != 0)
         {
             // cinematic_var15=$FFFF makes DrawIntroSprites draw Samus first and cinematic
             // actors afterward. Retaining that OAM insertion order preserves overlap wins.
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro Mother Brain sprites require installed character artwork.")).MotherBrainSprites.Draw(
-                flashbackMotherBrain.SpriteMapPointer, oam,
+                FlashbackMotherBrain.SpriteMapPointer, oam,
                 IntroMotherBrainSpriteState.Position.ToOam(),
                 IntroMotherBrainSpriteState.PaletteBits);
         }
@@ -1269,10 +1296,10 @@ public sealed class IntroCinematicState
         var oam = new OamBuffer();
         oam.BeginFrame();
         // $8B:8E2D orders Samus against the cinematic objects by $1A57's sign.
-        IntroSamusDisplay display = babyDiscovery!.SamusDisplay;
+        IntroSamusDisplay display = BabyDiscovery.SamusDisplay;
         if (display == IntroSamusDisplay.SamusFirst)
             DrawBabyDiscoverySamus(oam);
-        babyDiscovery.DrawActors(oam, characterArtwork?.EggEffectSprites,
+        BabyDiscovery.DrawActors(oam, characterArtwork?.EggEffectSprites,
             characterArtwork?.DiscoveryActorSprites);
         if (display == IntroSamusDisplay.ObjectsFirst)
             DrawBabyDiscoverySamus(oam);
@@ -1287,8 +1314,8 @@ public sealed class IntroCinematicState
         // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the
         // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
-        babyDiscovery!.Samus.Presentation.TileTransfers.TransferToVram(bus, vram);
-        babyDiscovery.Samus.Presentation.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
+        BabyDiscovery.Samus.Presentation.TileTransfers.TransferToVram(bus, vram);
+        BabyDiscovery.Samus.Presentation.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
     }
 
     /// <summary>Composes the delivery or examination laboratory with its scrolling BG1 and actor priority.</summary>
@@ -1315,7 +1342,7 @@ public sealed class IntroCinematicState
     {
         var oam = new OamBuffer();
         oam.BeginFrame();
-        scientistCutscene!.Draw(oam, characterArtwork?.ScientistSprites);
+        ScientistCutscene.Draw(oam, characterArtwork?.ScientistSprites);
         oam.FinalizeFrame();
         return oam;
     }
@@ -1378,7 +1405,7 @@ public sealed class IntroCinematicState
     {
         var oam = new OamBuffer();
         oam.BeginFrame();
-        if (objects!.SpriteMapPointer != 0)
+        if (Objects.SpriteMapPointer != 0)
         {
             // The persistent caret begins at (8,24), moves to (8,$F8) during illustrated
             // crossfades, and is restored when the next narration page starts.
@@ -1386,7 +1413,7 @@ public sealed class IntroCinematicState
             // the OBJ character base, matching the initial $9A:D200 -> VMADD $6000 DMA.
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro caret sprites require installed character artwork.")).CaretSprites.Draw(
-                objects.SpriteMapPointer, oam, objects.Caret.ToOam(),
+                Objects.SpriteMapPointer, oam, Objects.Caret.ToOam(),
                 IntroCinematicRomData.Objects.ScientistPalette.Raw);
         }
         oam.FinalizeFrame();
@@ -1512,21 +1539,21 @@ public sealed class IntroCinematicState
     private void ClearPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
     {
         foreach (IntroPaletteSpan span in spans)
-            paletteFader!.Clear(span.ByteOffset, span.ByteCount);
+            PaletteFader.Clear(span.ByteOffset, span.ByteCount);
     }
 
     /// <summary>Raises selected CGRAM components toward the prepared palette target for the incoming scene.</summary>
     private void FadeInPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
     {
         foreach (IntroPaletteSpan span in spans)
-            paletteFader!.FadeIn(span.ByteOffset, span.ByteCount);
+            PaletteFader.FadeIn(span.ByteOffset, span.ByteCount);
     }
 
     /// <summary>Reduces selected palette components during a scene-to-text or text-to-scene fade.</summary>
     private void FadeOutPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
     {
         foreach (IntroPaletteSpan span in spans)
-            paletteFader!.FadeOut(span.ByteOffset, span.ByteCount);
+            PaletteFader.FadeOut(span.ByteOffset, span.ByteCount);
     }
 
     /// <summary>Applies the current INIDISP brightness to final pixels, emitting opaque black at zero.</summary>
@@ -1595,7 +1622,7 @@ public sealed class IntroCinematicState
             IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
         {
             oam = PrepareScientistOam();
-            room = Plane(scientistCutscene!.TilemapBaseWord, scientistCutscene.Background.AsBgPlaneScroll());
+            room = Plane(ScientistCutscene.TilemapBaseWord, ScientistCutscene.Background.AsBgPlaneScroll());
         }
         else if (objects is null)
         {

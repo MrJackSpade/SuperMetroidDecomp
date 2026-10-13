@@ -111,7 +111,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         }
 
         /// <summary>Starts Golden Torizo's compiled death sequence after its orb attack.</summary>
-        internal void BeginDeath() => new Action<RoomEnemySlot, TorizoEnemyState>(BombTorizoBehavior.BeginBombTorizoDeath)(Actor, Torizo!);
+        internal void BeginDeath() => new Action<RoomEnemySlot, TorizoEnemyState>(BombTorizoBehavior.BeginBombTorizoDeath)(Actor, (Torizo ?? throw new InvalidOperationException("Verification requires Torizo.")));
 
         /// <summary>Advances the fixture's deterministic RNG and records each consumption.</summary>
         private ushort NextRandom()

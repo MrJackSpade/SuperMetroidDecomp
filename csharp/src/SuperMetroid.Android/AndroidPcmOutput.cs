@@ -25,23 +25,27 @@ internal sealed class AndroidPcmOutput : IDisposable
         int minimumBytes = AudioTrack.GetMinBufferSize(CartridgeAudioRenderer.SampleRate,
             ChannelOut.Stereo, Encoding.Pcm16bit);
         if (minimumBytes <= 0) throw new IOException($"AudioTrack minimum buffer query failed: {minimumBytes}.");
-        using var attributes = new AudioAttributes.Builder()
-            .SetUsage(AudioUsageKind.Game)!
-            .SetContentType(AudioContentType.Music)!.Build()!;
-        using var format = new AudioFormat.Builder()
-            .SetSampleRate(CartridgeAudioRenderer.SampleRate)!
-            .SetEncoding(Encoding.Pcm16bit)!
-            .SetChannelMask(ChannelOut.Stereo)!.Build()!;
+        using var attributesBuilder = new AudioAttributes.Builder();
+        attributesBuilder.SetUsage(AudioUsageKind.Game);
+        attributesBuilder.SetContentType(AudioContentType.Music);
+        using var attributes = attributesBuilder.Build() ??
+            throw new IOException("Android could not build the game audio attributes.");
+        using var formatBuilder = new AudioFormat.Builder();
+        formatBuilder.SetSampleRate(CartridgeAudioRenderer.SampleRate);
+        formatBuilder.SetEncoding(Encoding.Pcm16bit);
+        formatBuilder.SetChannelMask(ChannelOut.Stereo);
+        using var format = formatBuilder.Build() ??
+            throw new IOException("Android could not build the PCM audio format.");
         using var builder = new AudioTrack.Builder();
         // Request the interactive route rather than the device's deep-buffer music
         // route. Android may still report None if a fast track is not granted; keep
         // the effective mode in diagnostics instead of assuming the hint was honored.
-        track = builder.SetAudioAttributes(attributes)!
-            .SetAudioFormat(format)!
-            .SetTransferMode(AudioTrackMode.Stream)!
-            .SetPerformanceMode(AudioTrackPerformanceMode.LowLatency)!
+        track = builder.SetAudioAttributes(attributes)
+            .SetAudioFormat(format)
+            .SetTransferMode(AudioTrackMode.Stream)
+            .SetPerformanceMode(AudioTrackPerformanceMode.LowLatency)
             .SetBufferSizeInBytes(Math.Max(minimumBytes,
-                CartridgeAudioRenderer.StereoFramesPerVideoFrame * CartridgeAudioRenderer.ChannelCount * sizeof(short) * 3))!
+                CartridgeAudioRenderer.StereoFramesPerVideoFrame * CartridgeAudioRenderer.ChannelCount * sizeof(short) * 3))
             .Build();
         if (track.State != AudioTrackState.Initialized)
         {

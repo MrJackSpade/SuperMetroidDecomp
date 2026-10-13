@@ -161,8 +161,8 @@ internal static class GrappleConnectionDefinitionsVerification
             AssertEqual(row.Pose, samus.Pose, "Special body pose");
             AssertEqual(row.Function == GrappleConnectionFunction.LockedInPlace ? GrapplePhase.ConnectedLocked : GrapplePhase.WallGrab, g.Phase, "Special next phase");
             AssertEqual(0, g.WallJumpTimer.RawValue, "Special resets wall-jump timer");
-            AssertEqual(Clamp(x, 0), result.CameraPrevious!.Value.X, "Special previous-camera X clamp");
-            AssertEqual(Clamp(y, ushort.MaxValue), result.CameraPrevious!.Value.Y, "Special previous-camera Y clamp");
+            AssertEqual(Clamp(x, 0), (result.CameraPrevious ?? throw new InvalidOperationException("Verification requires result.CameraPrevious.")).X, "Special previous-camera X clamp");
+            AssertEqual(Clamp(y, ushort.MaxValue), result.CameraPrevious.Value.Y, "Special previous-camera Y clamp");
         }
         // Limit wrapped camera movement to twelve pixels toward the new body coordinate.
         static ushort Clamp(ushort current, ushort previous)

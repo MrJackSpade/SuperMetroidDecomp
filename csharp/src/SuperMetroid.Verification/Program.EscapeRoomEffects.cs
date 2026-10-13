@@ -20,7 +20,7 @@ internal static class EscapeRoomEffectsVerification
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
             runtime.LoadCartridgeRoomForDebug(room);
-            runtime.Player.Samus!.InputLocked = true;
+            runtime.Player.IntroducedSamus.InputLocked = true;
             int explosionFrames = 0;
             bool visibleExplosion = false, visibleShake = false;
             var offsets = new HashSet<(short, short)>();
@@ -41,8 +41,8 @@ internal static class EscapeRoomEffectsVerification
                     var baseline = SoftwareLayeredSnapshotRenderer.Render(new(capture.Memory, [noObjects], capture.ObjectSelection, capture.Brightness));
                     foreach (var sprite in runtime.Enemies.RoomSpriteObjects.Where(s => s.IsActive))
                     {
-                        int x = sprite.Position.X.Whole - runtime.Room.Camera!.PixelPosition.X, y = sprite.Position.Y.Whole - runtime.Room.Camera.PixelPosition.Y;
-                        if (Math.Abs(sprite.Position.X.Whole - runtime.Player.Samus.Position.X.Whole) < 40 && Math.Abs(sprite.Position.Y.Whole - runtime.Player.Samus.Position.Y.Whole) < 40) continue;
+                        int x = sprite.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X, y = sprite.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y;
+                        if (Math.Abs(sprite.Position.X.Whole - runtime.Player.IntroducedSamus.Position.X.Whole) < 40 && Math.Abs(sprite.Position.Y.Whole - runtime.Player.IntroducedSamus.Position.Y.Whole) < 40) continue;
                         int changed = 0;
                         for (int py = Math.Max(32, y - 8); py < Math.Min(224, y + 8); py++)
                             for (int px = Math.Max(0, x - 8); px < Math.Min(256, x + 8); px++)
@@ -69,7 +69,7 @@ internal static class EscapeRoomEffectsVerification
             AssertTrue(visibleShake, $"escape {room:X4} shake visibly displaces terrain");
             if (room == 0x9804)
             {
-                var level = runtime.Room.LevelData!;
+                var level = runtime.Room.LoadedLevelData;
                 int origin = level.GetBlockIndex(new(15, 10));
                 AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Behavior, "retail room loader installs rescue wall");
                 runtime.Plms.TrySpawnProjectileShotBlock(level, origin, (byte)0x4f, 1, true);
@@ -80,7 +80,7 @@ internal static class EscapeRoomEffectsVerification
                 runtime.Plms.ProjectileTriggers.TryNotifyResidentProjectileHit(door.BlockIndex, 1);
                 for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
                 AssertEqual(0, runtime.Plms.GreyDoorSnapshots.Count, "exit door finishes opening");
-                var samus = runtime.Player.Samus!;
+                var samus = runtime.Player.IntroducedSamus;
                 samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(48, 112));
                 samus.Kinematics.Radius = new(5, 16);
                 for (int frame = 0; frame < 32 && !runtime.RoomLoader.HasPendingDoorTransition; frame++)

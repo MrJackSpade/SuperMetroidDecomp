@@ -32,9 +32,9 @@ internal static class CrocomirePresentation1193Verification
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(0xa98d);
-        var boss = runtime.Enemies.CrocomireBehavior.Crocomire!;
-        var death = runtime.Enemies.CrocomireBehavior.CrocomireDeath!;
-        var samus = runtime.Player.Samus!;
+        var boss = runtime.Enemies.CrocomireBehavior.Crocomire;
+        var death = runtime.Enemies.CrocomireBehavior.CrocomireDeath;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Health = samus.MaxHealth = 999;
         samus.Position = samus.Position.WithWhole(new(600, 120));
@@ -42,16 +42,16 @@ internal static class CrocomirePresentation1193Verification
         samus.Presentation.InitializeAnimation(bus);
         samus.CommitPoseHistory(bus);
         samus.InputLocked = false;
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(512, 0));
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(512, 0));
         game.GameState = SuperMetroidGameState.MainGameplay;
-        AssertEqual(RoomMainCallback.CrocomireRoomShaking, runtime.Room.ActiveRoom!.State.MainCallback,
+        AssertEqual(RoomMainCallback.CrocomireRoomShaking, runtime.Room.LoadedRoom.State.MainCallback,
             "Actual Crocomire room selects native shaking callback");
         if (!spikes)
         {
-            boss.DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall;
+            (boss ?? throw new InvalidOperationException("Verification requires boss.")).DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall;
             boss.Body.Properties = boss.Body.Properties.Without(EnemyProperties.Invisible);
             boss.RumbleTableOffset = 6;
-            death.RumbleYOffset = 0;
+            (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = 0;
             death.RumbleCooldown = NativeCountdown.Start(10);
             death.RumbleDelta = 1;
         }
@@ -83,7 +83,7 @@ internal static class CrocomirePresentation1193Verification
             else
             {
                 ushort expected = unchecked((ushort)(runtime.BackgroundScroll.Layer1Position.Y +
-                    runtime.BackgroundScroll.Bg1Offset.Y + death.RumbleYOffset));
+                    runtime.BackgroundScroll.Bg1Offset.Y + (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset));
                 AssertEqual(expected, runtime.BackgroundScroll.Bg1Scroll.Y,
                     $"Comeback frame {frame} applies current enemy rumble to foreground scroll");
                 if (frame != 0)
@@ -100,8 +100,8 @@ internal static class CrocomirePresentation1193Verification
         if (spikes)
         {
             VerifyCrocomireSpikeCompatibility(runtime, bus, maps.RoomFxAnimatedTiles);
-            runtime.RoomSpikes.LoadRoom(bus, runtime.Room.ActiveRoom.State.FxPointer,
-                runtime.Room.ActiveDoor!.Pointer, runtime.Room.ActiveRoom.AreaIndex);
+            runtime.RoomSpikes.LoadRoom(bus, runtime.Room.LoadedRoom.State.FxPointer,
+                (runtime.Room.ActiveDoor ?? throw new InvalidOperationException("Verification requires runtime.Room.ActiveDoor.")).Pointer, runtime.Room.LoadedRoom.AreaIndex);
             samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.AnimatedTiles;
             game.Step(0);
             AssertEqual(false, runtime.VramWrites.Entries.Any(write => write.EncodedVramDestination == 0x3d60),
@@ -122,12 +122,12 @@ internal static class CrocomirePresentation1193Verification
             scroll.Bg1Offset = scroll.Bg1Offset.WithY(3);
             scroll.CalculateScrollsAndUpdates();
             ushort bg2 = scroll.Bg2Scroll.Y;
-            death.RumbleYOffset = unchecked((ushort)-4);
+            (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = unchecked((ushort)-4);
             runtime.RoomMains.RunCrocomireComebackRoomMain();
             AssertEqual((ushort)99, scroll.Bg1Scroll.Y, "Native rumble includes BG1's ordinary Y offset");
             AssertEqual(bg2, scroll.Bg2Scroll.Y, "Hidden-wall rumble leaves BG2 unchanged");
             AssertEqual((ushort)100, scroll.Layer1Position.Y, "Rumble does not move the camera or streaming origin");
-            boss.Body.Properties = boss.Body.Properties.With(EnemyProperties.Invisible);
+            (boss ?? throw new InvalidOperationException("Verification requires boss.")).Body.Properties = boss.Body.Properties.With(EnemyProperties.Invisible);
             scroll.CalculateScrollsAndUpdates();
             runtime.RoomMains.RunCrocomireComebackRoomMain();
             AssertEqual((ushort)103, scroll.Bg1Scroll.Y, "Invisible body suppresses the native room callback");
@@ -188,7 +188,7 @@ internal static class CrocomirePresentation1193Verification
             restored.Step(bus, runtime.Vram, actual);
             AssertTrue(expected.Entries.SequenceEqual(actual.Entries), "Current debugger graph retains exact spike cadence");
         }
-        runtime.RoomSpikes = null;
+        runtime.RoomSpikes = new RoomSpikeAnimatedTilesState();
         var restarted = new VramWriteQueue();
         runtime.RoomSpikes.Step(bus, runtime.Vram, restarted);
         AssertEqual(0x879d84, restarted.Entries.Single().SourceAddress,

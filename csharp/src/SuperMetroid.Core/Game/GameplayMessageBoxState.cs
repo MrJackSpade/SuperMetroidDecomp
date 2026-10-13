@@ -360,7 +360,8 @@ public sealed class GameplayMessageBoxState
                 {
                     // $85:80D9 opens the ordinary completion notice only after the
                     // saving sound's synchronous wait. Preserve YES across that message.
-                    ISnesAddressSpace bus = _activeBus!;
+                    ISnesAddressSpace bus = _activeBus ?? throw new InvalidOperationException(
+                        "The gunship saving sound runs only inside an open message box.");
                     Phase = GameplayMessageBoxPhase.Inactive;
                     Begin(bus, GameplayMessageIds.SaveCompleted, _controller.Current);
                     // The second box skips Initialise_PPU_for_MessageBoxes and the clear,

@@ -15,8 +15,8 @@ internal static class SpikeDamageBoostVerification
         runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(runtime.Room.ActiveRoom!.Pointer, new Position16<RoomPixels>(0, 0));
-        var level = runtime.Room.LevelData!;
+        runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Pointer, new Position16<RoomPixels>(0, 0));
+        var level = runtime.Room.LoadedLevelData;
         for (int y = 0; y <= 16; y++)
         for (int x = 0; x < level.Size.X; x++)
             level.SetForegroundEntry(y * level.Size.X + x,
@@ -25,7 +25,7 @@ internal static class SpikeDamageBoostVerification
         level.SetForegroundEntry(hazardBlock, 0x2000);
         level.SetBehavior(hazardBlock, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
         runtime.InitializeDebugGroundedSamus(128, 160, 16);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Health = 99;
         samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
@@ -61,8 +61,8 @@ internal static class SpikeDamageBoostVerification
         // Independent native seed: forward-held spike contact, left-facing, delay four,
         // frame 27. Hurt just expired above the floor; normal type-$0A probes downward.
         runtime.InitializeDebugGroundedSamus(83, 232, 16);
-        samus = runtime.Player.Samus!;
-        samus.InputLocked = false;
+        samus = runtime.Player.Samus;
+        (samus ?? throw new InvalidOperationException("Verification requires samus.")).InputLocked = false;
         samus.Pose = SamusPoseId.KnockbackRightPose;
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
@@ -181,7 +181,7 @@ internal static class SpikeDamageBoostVerification
             (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.VerticalSpeedFixed),
             "underwater turn floor contact preserves native accumulated speed");
         AssertEqual(SamusPoseId.FallingLeftPose, samus.Pose, "turn animation completes at floor");
-        AssertEqual(false, runtime.Player.LastAerialSamusMovement!.Value.Landed,
+        AssertEqual(false, (runtime.Player.LastAerialSamusMovement ?? throw new InvalidOperationException("Verification requires runtime.Player.LastAerialSamusMovement.")).Landed,
             "turn suppresses collision-owned landing presentation");
         runtime.StepFrame(0x0280);
         AssertEqual((0x0062c000u, 0x00ebffffu, 0u),

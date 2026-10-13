@@ -79,13 +79,13 @@ internal static class HopperAnimationDefinitionsVerification
             };
             slot.Parameter1 = upsideDown ? (ushort)1 : (ushort)0;
             initialize(slot);
-            HopperEnemyState state = enemies.HopperStates[0]!;
+            HopperEnemyState state = (enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0]."));
             AssertEqual(
                 HopperAnimationDefinitions.InstructionList(variant, upsideDown, jumping: false),
                 slot.CurrentInstruction,
                 $"hopper production initial landed list {variant}/{orientation}");
 
-            state.XVelocity = 3;
+            (state ?? throw new InvalidOperationException("Verification requires state.")).XVelocity = 3;
             startJump(slot, state, upsideDown, false);
             AssertEqual(
                 HopperAnimationDefinitions.InstructionList(variant, upsideDown, jumping: true),

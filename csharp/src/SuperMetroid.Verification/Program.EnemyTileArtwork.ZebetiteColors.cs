@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json.Nodes;
@@ -48,9 +49,9 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         string overrides = Path.Combine(stockDirectory, "zebetite-color-overrides");
         Directory.CreateDirectory(overrides);
         string overridePath = Path.Combine(overrides, ZebetiteColorFormat.FileName);
-        JsonNode editedDocument = JsonNode.Parse(stockBytes)!;
-        JsonNode red = editedDocument["frames"]![3]![1]!["red"]!;
-        editedDocument["frames"]![3]![1]!["red"] = red.GetValue<int>() ^ 1;
+        JsonNode editedDocument = RequiredJson.Parse(stockBytes);
+        JsonNode red = editedDocument.Required("frames").Required(3).Required(1).Required("red");
+        editedDocument.Required("frames").Required(3).Required(1)["red"] = red.GetValue<int>() ^ 1;
         byte[] selectedBytes = System.Text.Encoding.UTF8.GetBytes(editedDocument.ToJsonString());
         File.WriteAllBytes(overridePath, selectedBytes);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
@@ -89,7 +90,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             "Stock re-extraction preserves the Zebetite color override");
         var reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         var persistedCgram = new SnesCgram();
-        reloaded.ZebetiteColors!.Apply(persistedCgram, 3,
+        (reloaded.ZebetiteColors ?? throw new InvalidOperationException("Verification requires reloaded.ZebetiteColors.")).Apply(persistedCgram, 3,
             ZebetiteDefinitions.PaletteDestinationColor);
         AssertEqual(selectedCgram.Colors[ZebetiteDefinitions.PaletteDestinationColor + 1],
             persistedCgram.Colors[ZebetiteDefinitions.PaletteDestinationColor + 1],
@@ -101,8 +102,8 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         File.WriteAllText(overridePath, "{\"version\":1,\"version\":1}");
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "Duplicate Zebetite color property fails loudly");
-        var invalid = JsonNode.Parse(stockBytes)!;
-        invalid["frames"]![0]![0]!["green"] = 32;
+        var invalid = RequiredJson.Parse(stockBytes);
+        invalid.Required("frames").Required(0).Required(0)["green"] = 32;
         AssertThrows<InvalidDataException>(() => ZebetiteColorCatalog.Load(
             new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid.ToJsonString()))),
             "Out-of-range Zebetite RGB5 component rejected");

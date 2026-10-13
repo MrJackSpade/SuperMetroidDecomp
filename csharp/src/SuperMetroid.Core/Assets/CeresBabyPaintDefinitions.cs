@@ -104,7 +104,10 @@ internal sealed class CeresBabyPaintDefinitions
     };
 
     /// <summary>Resolves shared body paint from the Ceres fade or standalone Norfair composition.</summary>
-    private Bgr555 BodyColor(int color) => body is not null ? body.Resolve(15, color) : standaloneBody!.Color(color);
+    private Bgr555 BodyColor(int color) =>
+        body is not null ? body.Resolve(15, color)
+        : standaloneBody is not null ? standaloneBody.Color(color)
+        : throw new InvalidOperationException("Ceres Baby body paint has neither a fade nor a standalone composition.");
 
     /// <summary>Clips calculated material channel values into RGB5 color space.</summary>
     private static Bgr555 Pack(int red, int green, int blue) => Bgr555.Saturating(red, green, blue);

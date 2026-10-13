@@ -28,7 +28,7 @@ internal static class AttractRuntimeBindingsVerification
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount)
                     .Select(_ => new PaletteRgb5 { Red = 1, Green = 2, Blue = 3 }).ToArray()))));
         var enemyArtwork = new EnemyIdentityFixture().Build();
-        var objects = enemyArtwork.KraidBackground!.RoomBackgroundTiles;
+        var objects = (enemyArtwork.KraidBackground ?? throw new InvalidOperationException("Verification requires enemyArtwork.KraidBackground.")).RoomBackgroundTiles;
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         // Exact cause of #1171: the previous attract path constructed this owner
         // without passing its already-installed palette catalog.
@@ -46,7 +46,7 @@ internal static class AttractRuntimeBindingsVerification
         var create = new Action<bool>(game.CreateGameplayRuntime);
         ushort incomingRandom = game.DispatcherRandomNumber;
         create(true);
-        var demo = game.runtime;
+        var demo = game.GameplayRuntime;
         AssertTrue(demo.Cgram.Colors.SequenceEqual(palettes.Initial), "attract runtime loads all installed initial colors");
         AssertTrue(ReferenceEquals(objects, demo.Artwork.StandardObjectArt), "attract runtime binds installed standard objects");
         AssertTrue(ReferenceEquals(enemyArtwork, demo.Enemies.TileArtwork), "attract runtime binds installed enemy artwork");
@@ -54,7 +54,7 @@ internal static class AttractRuntimeBindingsVerification
         AssertTrue(!demo.Options.PlayerInvincibilityEnabled && !demo.Options.InfiniteAmmoEnabled && !demo.Options.PreventEscapeTimeout,
             "attract runtime ignores host cheats");
         create(false);
-        var selected = game.runtime;
+        var selected = game.GameplayRuntime;
         AssertTrue(!ReferenceEquals(demo, selected), "selected play and attract playback own separate runtimes");
         AssertTrue(selected.Cgram.Colors.SequenceEqual(palettes.Initial), "selected runtime retains installed palette binding");
         AssertTrue(selected.Options.PlayerInvincibilityEnabled && selected.Options.InfiniteAmmoEnabled && selected.Options.PreventEscapeTimeout,

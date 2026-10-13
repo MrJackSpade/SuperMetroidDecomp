@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -30,9 +31,9 @@ internal static class GrappleSpriteArtworkVerification
         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleSpriteDefinitions.EndpointAttributeAddress), catalog.Endpoint, "Extracted endpoint attributes match native immediate");
         for (int i = 0; i < 4; i++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleSpriteDefinitions.SegmentAttributeAddresses[i]), catalog.Segment(i), "Extracted segment attributes match timed native record");
-        var document = JsonNode.Parse(json)!;
-        Change(document["endpoint"]!);
-        foreach (var segment in document["segments"]!.AsArray()) Change(segment!);
+        var document = RequiredJson.Parse(json);
+        Change(document.Required("endpoint"));
+        foreach (var segment in document.Required("segments").AsArray().RequiredElements()) Change(segment);
         var changedCatalog = GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         var stock = GrappleTileAtlas.Load(new MemoryStream(png), catalog);
         var changed = GrappleTileAtlas.Load(new MemoryStream(png), changedCatalog);
@@ -79,29 +80,29 @@ internal static class GrappleSpriteArtworkVerification
         }
         foreach (string bad in new[] { "null", "{}", "{", "{\"version\":1,\"version\":1}", System.Text.Encoding.UTF8.GetString(json).Replace("\"palette\": 5", "\"palette\": 8") })
             AssertThrows<InvalidDataException>(() => GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(bad))), "Invalid Grapple presentation rejected");
-        var missing = JsonNode.Parse(json)!; missing["segments"]!.AsArray().RemoveAt(0);
+        var missing = RequiredJson.Parse(json); missing.Required("segments").AsArray().RemoveAt(0);
         AssertThrows<InvalidDataException>(() => GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(missing.ToJsonString()))), "Missing segment appearance rejected");
-        var mechanic = JsonNode.Parse(json)!; mechanic["segments"]![0]!["duration"] = 1;
+        var mechanic = RequiredJson.Parse(json); mechanic.Required("segments").Required(0)["duration"] = 1;
         AssertThrows<InvalidDataException>(() => GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(mechanic.ToJsonString()))), "Editable timing field rejected");
         AssertThrows<InvalidDataException>(() => catalog.Segment(4), "Out-of-range visual selector rejected");
         foreach (var (field, value) in new (string, int)[] { ("tileColumn", -1), ("tileColumn", 16), ("tileRow", -1), ("tileRow", 32), ("palette", -1), ("priority", 4) })
         {
-            var invalid = JsonNode.Parse(json)!; invalid["endpoint"]![field] = value;
+            var invalid = RequiredJson.Parse(json); invalid.Required("endpoint")[field] = value;
             AssertThrows<InvalidDataException>(() => GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid.ToJsonString()))), "Invalid Grapple style field: " + field);
         }
-        var incomplete = JsonNode.Parse(json)!; incomplete["endpoint"]!.AsObject().Remove("priority");
+        var incomplete = RequiredJson.Parse(json); incomplete.Required("endpoint").AsObject().Remove("priority");
         AssertThrows<InvalidDataException>(() => GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(incomplete.ToJsonString()))), "Missing visual field rejected");
-        var boundary = JsonNode.Parse(json)!;
-        boundary["endpoint"]!["tileColumn"] = 15; boundary["endpoint"]!["tileRow"] = 31;
-        boundary["endpoint"]!["palette"] = 7; boundary["endpoint"]!["priority"] = 3;
-        boundary["endpoint"]!["flipX"] = true; boundary["endpoint"]!["flipY"] = true;
+        var boundary = RequiredJson.Parse(json);
+        boundary.Required("endpoint")["tileColumn"] = 15; boundary.Required("endpoint")["tileRow"] = 31;
+        boundary.Required("endpoint")["palette"] = 7; boundary.Required("endpoint")["priority"] = 3;
+        boundary.Required("endpoint")["flipX"] = true; boundary.Required("endpoint")["flipY"] = true;
         AssertEqual(ushort.MaxValue, GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(boundary.ToJsonString()))).Endpoint,
             "Every OBJ attribute bit can be authored without leaking into timing/geometry");
         Console.WriteLine($"Grapple sprite JSON: {cases} production frames match native OAM; edited tile/palette preserves positions, full simulation state and uploads with visual ROM forbidden.");
         static void Change(JsonNode style)
         {
-            style["tileColumn"] = style["tileColumn"]!.GetValue<int>() ^ 1;
-            style["palette"] = style["palette"]!.GetValue<int>() ^ 1;
+            style["tileColumn"] = style.Required("tileColumn").GetValue<int>() ^ 1;
+            style["palette"] = style.Required("palette").GetValue<int>() ^ 1;
         }
     }
 

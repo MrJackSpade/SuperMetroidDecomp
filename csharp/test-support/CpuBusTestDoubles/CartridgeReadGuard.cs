@@ -84,7 +84,7 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
     /// <summary>Adds to <see cref="ObservedWords"/> each bank-local table word whose low or high byte is read.</summary>
     internal CartridgeReadGuard ObserveWords(int bankBase, int count, Func<int, ushort> wordAddress) =>
         Observe(address => FindWord(address, bankBase, count, wordAddress) is not null,
-            address => ObservedWords.Add(FindWord(address, bankBase, count, wordAddress)!.Value));
+            address => ObservedWords.Add((FindWord(address, bankBase, count, wordAddress) ?? throw new InvalidOperationException("Verification requires FindWord(address, bankBase, count, wordAddress)."))));
 
     /// <summary>Rejects every write <paramref name="match"/> selects with <paramref name="failure"/>.</summary>
     internal CartridgeReadGuard RejectWrites(Func<int, bool> match, Func<int, Exception> failure)
@@ -148,7 +148,7 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
                 ForbiddenReadAttempts++;
                 throw rule.Failure(address);
             }
-            rule.Observe!(address);
+            (rule.Observe ?? throw new InvalidOperationException("Verification requires rule.Observe."))(address);
         }
     }
 

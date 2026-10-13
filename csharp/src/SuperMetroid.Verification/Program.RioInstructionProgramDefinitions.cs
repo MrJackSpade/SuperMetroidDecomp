@@ -65,8 +65,8 @@ internal static class RioInstructionProgramDefinitionsVerification
             rio.CurrentInstruction,
             "idle fallthrough and post-swoop program return to first repeated idle frame");
 
-        RioEnemyState state = enemies.RioStates[0]!;
-        state.AnimationFinished = false;
+        RioEnemyState state = (enemies.RioStates[0] ?? throw new InvalidOperationException("Verification requires enemies.RioStates[0]."));
+        (state ?? throw new InvalidOperationException("Verification requires state.")).AnimationFinished = false;
         ExecuteRioProgram(
             enemies,
             processArguments,

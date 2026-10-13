@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical component of one Golden Torizo extended frame; not editable art.</summary>
@@ -140,7 +141,7 @@ internal static class TorizoCollisionDefinitions
         if (Enum.IsDefined((EmptyFrame)frame)) return new(SingleEmpty, false);
         if (TryFind(LeftFrames, LeftStart, frame, out GoldenTorizoCollisionComponent[]? left) ||
             TryFind(AwakeningFrames, AwakeningStart, frame, out left))
-            return new(left!, false);
+            return new(left, false);
         ushort cursor = RightStart;
         for (int index = 0; index < MirroredCount; index++)
         {
@@ -162,7 +163,7 @@ internal static class TorizoCollisionDefinitions
 
     /// <summary>Walks variable-size native frame records from a run start and selects the exact pointer if present.</summary>
     private static bool TryFind(GoldenTorizoCollisionComponent[][] run, ushort start, ushort frame,
-        out GoldenTorizoCollisionComponent[]? components)
+        [NotNullWhen(true)] out GoldenTorizoCollisionComponent[]? components)
     {
         ushort cursor = start;
         foreach (GoldenTorizoCollisionComponent[] candidate in run)

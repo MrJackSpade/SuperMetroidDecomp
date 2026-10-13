@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -33,7 +34,7 @@ internal static class LookupDachoraColorsVerification
         for (int frame = 0; frame < 4; frame++)
         for (int color = 0; color < 16; color++)
         {
-            var document = JsonSerializer.Deserialize<DachoraColorDocument>(source, options)!;
+            var document = RequiredJson.Deserialize<DachoraColorDocument>(source, options);
             PaletteRgb5[] row = phase == DachoraPalettePhase.Speed ? document.Speed[frame] : document.Shine[frame];
             row[color] = row[color] with { Red = row[color].Red ^ 1 };
             var edited = DachoraColorCatalog.Load(new MemoryStream(DachoraColorCatalog.Write(document)));

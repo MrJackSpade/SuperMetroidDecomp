@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
@@ -44,7 +45,7 @@ internal static class MapPaletteCycleVerification
         AssertTrue(loops > 5, "highlight parity crosses multiple loop boundaries");
 
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = JsonSerializer.Deserialize<MapPaletteCycleDocument>(File.ReadAllBytes(Path.Combine(stock, MapPaletteCycleFormat.FileName)), options)!;
+        var document = RequiredJson.Deserialize<MapPaletteCycleDocument>(File.ReadAllBytes(Path.Combine(stock, MapPaletteCycleFormat.FileName)), options);
         var replacementDocument = document with { Frames = document.Frames.Select(f => f with
         {
             Colors = f.Colors.Select(c => new PaletteRgb5 { Red = 31 - c.Red, Green = 31 - c.Green, Blue = 31 - c.Blue }).ToArray()
@@ -107,9 +108,9 @@ internal static class MapPaletteCycleVerification
         saved.MapStationBytes[(int)AreaId.Maridia] = 1;
         saved.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, saved);
-        var slot = saves.ReadSlot(0)!;
+        var slot = saves.ReadSlot(0);
         var nativeMenu = new FileSelectMapMenuState(bus,
-            new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, original);
+            new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
         var menu = new FileSelectMapMenuState(guard, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, original);
         for (int tick = 0; tick < 48; tick++) { nativeMenu.Step(0); menu.Step(0); }
         nativeMenu.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);

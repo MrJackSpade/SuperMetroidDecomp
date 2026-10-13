@@ -85,7 +85,7 @@ internal static class TorizoPaletteShakeVerification
         for (int call = 2; call < 14; call++)
         {
             Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
-            restored.PaletteTransition!.Step(restoredColors, TorizoPaletteDefinitions.BodyPaletteMask);
+            (restored.PaletteTransition ?? throw new InvalidOperationException("Verification requires restored.PaletteTransition.")).Step(restoredColors, TorizoPaletteDefinitions.BodyPaletteMask);
             AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(restoredColors)), "Mid-fade save preserves each color step");
         }
         VerifyTorizoPaletteCatalogsAgainstRetailRom(cgram);

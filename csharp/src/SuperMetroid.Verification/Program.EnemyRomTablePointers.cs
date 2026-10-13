@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -43,10 +44,10 @@ internal static class EnemyRomTablePointersVerification
         AssertTrue(fields.Length >= 50, "enemy ROM data catalog covers fixed data tables");
         foreach (FieldInfo field in fields)
         {
-            int address = (int)field.GetRawConstantValue()!;
+            int address = field.RequiredConstant<int>();
             AssertTrue(
                 address is >= 0x808000 and <= 0xffffff,
-                $"{field.DeclaringType!.Name}.{field.Name} is a mapped SNES ROM address");
+                $"{(field.DeclaringType ?? throw new InvalidOperationException("Verification requires field.DeclaringType.")).Name}.{field.Name} is a mapped SNES ROM address");
         }
 
         string romPath = Path.GetFullPath("Super Metroid.smc");

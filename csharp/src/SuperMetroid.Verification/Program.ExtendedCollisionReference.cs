@@ -13,14 +13,14 @@ internal static class ExtendedCollisionReferenceVerification
     [CpuBusBoundary("exact bus test: retail ROM reference model of extended spritemap collision")]
     internal static bool ReferenceExtendedCollision(CartridgeImportAddressSpace source, object?[] arguments)
     {
-        var enemy = (RoomEnemySlot)arguments[0]!;
-        var target = (Position16<RoomPixels>)arguments[1]!;
-        var radius = (Extent16<RoomPixels>)arguments[2]!;
+        var enemy = (RoomEnemySlot)(arguments[0] ?? throw new InvalidOperationException("Verification requires arguments[0]."));
+        var target = (Position16<RoomPixels>)(arguments[1] ?? throw new InvalidOperationException("Verification requires arguments[1]."));
+        var radius = (Extent16<RoomPixels>)(arguments[2] ?? throw new InvalidOperationException("Verification requires arguments[2]."));
         ushort x = target.X, y = target.Y;
         ushort radiusX = radius.X, radiusY = radius.Y;
-        bool shot = (bool)arguments[3]!;
+        bool shot = (bool)(arguments[3] ?? throw new InvalidOperationException("Verification requires arguments[3]."));
         arguments[4] = (ushort)0;
-        int bank = (int)new SnesAddress(enemy.Definition.Bank, 0);
+        int bank = (int)new SnesAddress((enemy ?? throw new InvalidOperationException("Verification requires enemy.")).Definition.Bank, 0);
         byte Byte(int offset) => source.ReadCartridgeByte(bank | (ushort)offset);
         ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
         static bool Negative(int value) => unchecked((short)value) < 0;

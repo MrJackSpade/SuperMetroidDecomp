@@ -203,7 +203,8 @@ public sealed class MotherBrainRainbowPalettePresentation
             new MotherBrainPalettes(cgram).DrainedRearLegs.Write(color, frames.Leg(frame, color));
         var spill = new MotherBrainPaletteMemoryDefinitions(
             SnesMemoryBusRequirement.Require(bus, "Mother Brain's grey palette spill requires live WRAM."));
-        spill.GreyTrailingWord = frames.Trailing(frame)!.Value;
+        spill.GreyTrailingWord = frames.Trailing(frame) ??
+            throw new InvalidDataException($"Mother Brain grey-transition frame {frame} has no WRAM spill color.");
     }
 
     /// <summary>Mirrors body inks to the brain palette and writes the selected rear-leg inks.</summary>
@@ -242,7 +243,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                 MotherBrainDrainedPaletteRomData.RevivalColors,
                 MotherBrainDrainedPaletteRomData.BackLegCount, true, nameof(document.FromGrey)),
             version == MotherBrainRainbowPaletteVersion.PreFakeDeath
-                ? currentStock!.fakeDeathToGrey
+                ? (currentStock ?? throw new InvalidDataException("A pre-fake-death Mother Brain rainbow override requires the current stock presentation.")).fakeDeathToGrey
                 : CompileFakeDeathFrames(document.FakeDeathToGrey),
             CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.ColorCount, false, nameof(document.Normal))[0],
@@ -768,7 +769,8 @@ public sealed class MotherBrainRainbowPalettePresentation
 
         /// <summary>Maps a flattened body, rear, or trailing index into one supplied frame.</summary>
         private Bgr555 ReadColor(PaletteFrame palette, int color) => color < BodyCount ? palette.Body[color]
-            : color < BodyCount + LegCount ? palette.Leg(color - BodyCount) : palette.TrailingColor!.Value;
+            : color < BodyCount + LegCount ? palette.Leg(color - BodyCount)
+            : palette.TrailingColor ?? throw new InvalidDataException("A supplied revival frame has no WRAM spill color.");
 
         /// <summary>Applies the native per-ink revival frame choice before nearest RGB5 interpolation.</summary>
         private Bgr555 Interpolate(int frame, int color)

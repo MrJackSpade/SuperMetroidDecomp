@@ -19,8 +19,8 @@ internal static class GrappleTileBindingVerification
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.NmiHandler.RunNmi(0, true);
-        var samus = runtime.Player.Samus!;
-        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
+        var samus = runtime.Player.IntroducedSamus;
+        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         samus.Presentation.InitializeAnimation(bus); samus.Presentation.PrimeGraphics(bus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.PointAnimationFrame = 1; samus.Grapple.PointAnimationTimer = NativeCountdown.Start(4);
@@ -61,7 +61,7 @@ internal static class GrappleTileBindingVerification
         byte[] nativeVram = runtime.Vram.Bytes.ToArray();
         using var stream = new MemoryStream(legacy);
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
-        var restoredRuntime = restored.runtime;
+        var restoredRuntime = restored.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.GrappleArtwork is null, "Restored state requires current host Grapple artwork");
         byte[] retained = restoredRuntime.Vram.Bytes.ToArray();
         BindRetailRuntimeFixture(restoredRuntime);
@@ -83,16 +83,16 @@ internal static class GrappleTileBindingVerification
         {
             GrappleArtwork = stock,
         });
-        var typedRuntime = typedRestored.runtime;
+        var typedRuntime = typedRestored.GameplayRuntime;
         BindRetailRuntimeFixture(typedRuntime);
         typedRestored.BindArtwork(typedRestored.Artwork with
         {
             GrappleArtwork = stock,
         });
         typedRuntime.NmiHandler.RunNmi(0, true);
-        AssertTrue(stock.Resolve(GrappleTileDefinitions.PointAssetFor(typedRuntime.Player.Samus!.Grapple.PointAnimationFrame)).Span.SequenceEqual(
+        AssertTrue(stock.Resolve(GrappleTileDefinitions.PointAssetFor(typedRuntime.Player.IntroducedSamus.Grapple.PointAnimationFrame)).Span.SequenceEqual(
             typedRuntime.Vram.Bytes.Slice(GrappleTileDefinitions.PointDestination * 2, 32)), "Typed pending state also resolves newly selected endpoint artwork");
-        AssertTrue(stock.Resolve(GrappleTileDefinitions.SegmentAssetFor(typedRuntime.Player.Samus.Grapple.Angle.RawValue)).Span.SequenceEqual(
+        AssertTrue(stock.Resolve(GrappleTileDefinitions.SegmentAssetFor(typedRuntime.Player.IntroducedSamus.Grapple.Angle.RawValue)).Span.SequenceEqual(
             typedRuntime.Vram.Bytes.Slice(GrappleTileDefinitions.SegmentDestination * 2, 128)), "Typed pending state also resolves newly selected rope artwork");
         static void Draw(SuperMetroidRuntime target)
         {

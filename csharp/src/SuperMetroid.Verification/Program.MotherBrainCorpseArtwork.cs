@@ -113,7 +113,7 @@ internal static class MotherBrainCorpseArtworkVerification
             editedVram.ReadByte(editedVramOffset),
             "Mother Brain corpse PNG edit changes live sprite VRAM");
         var editedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        new MotherBrainCorpseRottingState().Initialize(editedBus, edited.MotherBrainCorpse!);
+        new MotherBrainCorpseRottingState().Initialize(editedBus, (edited.MotherBrainCorpse ?? throw new InvalidOperationException("Verification requires edited.MotherBrainCorpse.")));
         WorkRamByteTable installedTiles = MotherBrainCorpseTiles(installedBus);
         WorkRamByteTable editedTiles = MotherBrainCorpseTiles(editedBus);
         AssertEqual((byte)(installedTiles[0] ^ 0x80),
@@ -124,9 +124,9 @@ internal static class MotherBrainCorpseArtworkVerification
                 editedTiles[offset],
                 "Mother Brain corpse PNG edit leaves other staged pixels unchanged");
         var reloadedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-            .MotherBrainCorpse!;
-        new MotherBrainCorpseRottingState().Initialize(reloadedBus, reloaded);
+        RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
+            .MotherBrainCorpse ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainCorpse."));
+        new MotherBrainCorpseRottingState().Initialize(reloadedBus, (reloaded ?? throw new InvalidOperationException("Verification requires reloaded.")));
         AssertEqual(editedTiles[0], MotherBrainCorpseTiles(reloadedBus)[0],
             "Mother Brain corpse override survives catalog reload");
 

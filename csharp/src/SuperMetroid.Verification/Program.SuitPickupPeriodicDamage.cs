@@ -27,9 +27,9 @@ internal static class SuitPickupPeriodicDamageVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
 
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.MaxHealth = 299;
         samus.Health = 299;
         samus.SubunitHealth = 0;
@@ -37,7 +37,7 @@ internal static class SuitPickupPeriodicDamageVerification
         samus.EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit;
         samus.LiquidPhysics.PeriodicSubDamage = 0;
         samus.LiquidPhysics.PeriodicDamage = 0;
-        runtime.SuitPickup.Begin(bus, samus, runtime.Room.Camera.PixelPosition, SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Begin(bus, samus, runtime.Room.LoadedCamera.PixelPosition, SamusSuitPickupKind.Varia);
 
         // Reference ledger: the same producer calls, consumed once by the $90:E9CE port
         // after the transformation.

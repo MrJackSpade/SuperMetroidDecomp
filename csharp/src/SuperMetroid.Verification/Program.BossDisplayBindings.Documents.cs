@@ -32,7 +32,7 @@ internal static class BossDisplayBindingsDocumentsVerification
                     Parts = [new() { OffsetX = 2, OffsetY = 3, Size = index % 2 == 0 ? 16 : 8,
                         TileColumn = index % 16, TileRow = index / 16, Palette = 1, Priority = 2,
                         FlipX = edited, FlipY = edited }] } ];
-                if (edited) Oam.DisplayFrames![frame.Name] = family[(index + 1) % family.Length].Name;
+                if (edited) (Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires Oam.DisplayFrames."))[frame.Name] = family[(index + 1) % family.Length].Name;
             }
             Crocomire = Bg2(CrocomireBg2FrameDefinitions.Frames, edited);
             Phantoon = Bg2(PhantoonBg2FrameDefinitions.Frames, edited);
@@ -44,7 +44,7 @@ internal static class BossDisplayBindingsDocumentsVerification
 
         /// <summary>Resolves the redirected display pose for a native frame in the fixture.</summary>
         internal EnemyExtendedFrameDefinition Selected(EnemyExtendedFrameDefinition native) =>
-            EnemyExtendedFrameDefinitions.Frames.ToArray().Single(frame => frame.Name == Oam.DisplayFrames![native.Name]);
+            EnemyExtendedFrameDefinitions.Frames.ToArray().Single(frame => frame.Name == (Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires Oam.DisplayFrames."))[native.Name]);
 
         /// <summary>Locates authored BG2 writes by bank and native frame pointer.</summary>
         internal EnemyBg2WriteDocument[] Writes(byte bank, ushort pointer)

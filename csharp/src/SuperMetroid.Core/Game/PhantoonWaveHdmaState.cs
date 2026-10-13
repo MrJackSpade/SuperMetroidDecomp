@@ -45,7 +45,7 @@ public sealed class PhantoonWaveHdmaState
     {
         if (_pendingSetup)
         {
-            boss.Eye!.Parameter1 = _pendingMode;
+            boss.Eye.Parameter1 = _pendingMode;
             _cycleLength = ((_pendingMode & PhantoonWaveRomData.LongWaveModeBit) != 0
                 ? PhantoonWaveRomData.LongHalfCycle : PhantoonWaveRomData.ShortHalfCycle) * 2;
             Phase = PhantoonWaveRomData.InitialPhase;
@@ -54,12 +54,12 @@ public sealed class PhantoonWaveHdmaState
             return; // The pre-instruction precedes setup; it cannot run on this call.
         }
         if (!Active) return;
-        if (boss.Eye!.Parameter1 == 0)
+        if (boss.Eye.Parameter1 == 0)
         {
             Active = false; // Native deletes the channel, retaining its last data words.
             return;
         }
-        Phase = (ushort)((Phase + 2 * boss.Mouth!.VariableF) & PhantoonWaveRomData.PhaseMask);
+        Phase = (ushort)((Phase + 2 * boss.Mouth.VariableF) & PhantoonWaveRomData.PhaseMask);
         PhantoonWaveTable.Build(boss.Eye.Parameter1, Phase, boss.Mouth.VariableD,
             boss.Bg2Scroll.X, _cycle.AsSpan(0, _cycleLength));
     }

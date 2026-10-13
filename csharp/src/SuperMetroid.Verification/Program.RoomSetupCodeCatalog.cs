@@ -33,7 +33,7 @@ internal static class RoomSetupCodeCatalogVerification
         ushort[] roomPointers = File.ReadLines(symbolPath)
             .Select(TryParseRoomHeaderPointer)
             .Where(pointer => pointer.HasValue)
-            .Select(pointer => pointer!.Value)
+            .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer.")))
             .Distinct()
             .ToArray();
         var statePointers = new HashSet<ushort>();

@@ -1346,7 +1346,7 @@ internal static class RoomPlmPopulationVerification
         }
         AssertTrue(error is not null,
             "unsupported room-population header fails at load time");
-        AssertTrue(error!.Message.Contains("$8F:9400", StringComparison.Ordinal) &&
+        AssertTrue((error ?? throw new InvalidOperationException("Verification requires error.")).Message.Contains("$8F:9400", StringComparison.Ordinal) &&
             error.Message.Contains("record 0", StringComparison.Ordinal) &&
             error.Message.Contains("$84:B123", StringComparison.Ordinal) &&
             error.Message.Contains("(3,4)", StringComparison.Ordinal) &&

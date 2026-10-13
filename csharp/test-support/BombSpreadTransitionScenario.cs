@@ -26,7 +26,7 @@ internal sealed class BombSpreadTransitionScenario
     /// <summary>Production gameplay runtime stepped by the scenario.</summary>
     internal SuperMetroidRuntime Runtime { get; }
     /// <summary>Samus state owned by the scenario runtime.</summary>
-    internal SamusState Samus => Runtime.Player.Samus!;
+    internal SamusState Samus => Runtime.Player.IntroducedSamus;
     /// <summary>Number of updates recorded for the aerial or walljump route.</summary>
     internal int FrameCount => WallRoute ? 300 : 260;
 
@@ -42,7 +42,7 @@ internal sealed class BombSpreadTransitionScenario
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         // Match the grounded technique clearing, extending it upward for the jump.
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)

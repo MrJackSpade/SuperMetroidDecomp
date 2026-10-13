@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
@@ -36,9 +37,9 @@ internal static class BombTorizoHandVisualsVerification
                 RoomPlmBombTorizoHandVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted hand JSON is empty.");
-            JsonNode intact = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "intact")!;
-            intact["blocks"]![0] = 0x0053;
+            JsonNode intact = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "intact");
+            intact.Required("blocks")[0] = 0x0053;
             Directory.CreateDirectory(
                 installation.RoomPlmBombTorizoHandVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -59,7 +60,7 @@ internal static class BombTorizoHandVisualsVerification
                     .GetWord((ushort)BombTorizoHandDraw.Intact, 0, 0),
                 "hand override survives stock replacement");
 
-            intact["blocks"]![0] = 0xf053;
+            intact.Required("blocks")[0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmBombTorizoHandVisuals(),

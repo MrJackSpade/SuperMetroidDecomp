@@ -13,7 +13,8 @@ internal static class SolutionLoader
     /// <summary>Loads every listed project once, reports workspace failures, and returns only error-free compilations.</summary>
     public static async Task<LoadedSolution> LoadAsync(string solutionPath)
     {
-        string solutionDirectory = Path.GetDirectoryName(solutionPath)!;
+        string solutionDirectory = Path.GetDirectoryName(Path.GetFullPath(solutionPath)) ??
+            throw new ArgumentException($"{solutionPath} has no containing directory.", nameof(solutionPath));
         using var workspace = MSBuildWorkspace.Create(new Dictionary<string, string> { ["Configuration"] = "Release" });
         var failures = new List<string>();
         workspace.RegisterWorkspaceFailedHandler(e =>
@@ -57,6 +58,7 @@ internal static class SolutionLoader
         if (compileErrors.Count > 0)
             throw new InvalidOperationException(
                 $"{compileErrors.Count} compile errors:\n" + string.Join('\n', compileErrors.Distinct(StringComparer.Ordinal)));
-        return new LoadedSolution(Path.GetDirectoryName(solutionDirectory)!, compiled);
+        return new LoadedSolution(Path.GetDirectoryName(solutionDirectory) ??
+            throw new InvalidOperationException($"{solutionDirectory} has no repository root above it."), compiled);
     }
 }

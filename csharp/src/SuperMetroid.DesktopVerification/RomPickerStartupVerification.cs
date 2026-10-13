@@ -20,11 +20,11 @@ internal static partial class RomPickerStartupVerification
             {
                 // Construct without showing setup: OnShown must not inspect or install into
                 // the player's app-data directory during this ROM-free dialog regression.
-                using var setup = (Form)Activator.CreateInstance(
-                    game.GetType("SuperMetroid.Game.RomSetupForm", throwOnError: true)!,
-                    [Array.Empty<string>()])!;
-                _ = setup.Handle;
-                var choose = (Button)setup.AcceptButton!;
+                using var setup = (Form)(Activator.CreateInstance(
+                    (game.GetType("SuperMetroid.Game.RomSetupForm", throwOnError: true) ?? throw new InvalidOperationException("Verification requires game.GetType(\"SuperMetroid.Game.RomSetupForm\", throwOnError: true).")),
+                    [Array.Empty<string>()]) ?? throw new InvalidOperationException("Verification requires Activator.CreateInstance( (game.GetType(\"SuperMetroid.Game.RomSetupForm\", throwOnError:...."));
+                _ = (setup ?? throw new InvalidOperationException("Verification requires setup.")).Handle;
+                var choose = (Button)(setup.AcceptButton ?? throw new InvalidOperationException("Verification requires setup.AcceptButton."));
                 using var context = new ApplicationContext();
                 using var timer = new System.Windows.Forms.Timer { Interval = 50 };
                 uint ownerThread = GetCurrentThreadId();
@@ -61,7 +61,7 @@ internal static partial class RomPickerStartupVerification
                     if (started) return;
                     started = true;
                     timer.Start();
-                    typeof(Button).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic)!
+                    (typeof(Button).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException("Verification requires typeof(Button).GetMethod(\"OnClick\", BindingFlags.Instance | BindingFlags.NonPublic)."))
                         .Invoke(choose, [EventArgs.Empty]);
                     returned = true;
                     // An async-void click failure is posted to this message loop. Allow it

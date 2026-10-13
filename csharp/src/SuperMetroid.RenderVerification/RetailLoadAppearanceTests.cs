@@ -42,17 +42,17 @@ internal static class RetailLoadAppearanceTests
                 throw new InvalidOperationException("Capture changed load appearance timing.");
             if (sawMap)
             {
-                PixelComparison.Verify(actual.Snapshot!, expected.Pixels, SoftwareFrameSnapshotRenderer.Render(actual.Snapshot!),
+                PixelComparison.Verify((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")), expected.Pixels, SoftwareFrameSnapshotRenderer.Render((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))),
                     $"saved-file load software capture frame {tick}");
-                PixelComparison.Verify(actual.Snapshot!, expected.Pixels, renderer.RenderForReadback(actual.Snapshot!),
+                PixelComparison.Verify(actual.Snapshot, expected.Pixels, renderer.RenderForReadback(actual.Snapshot),
                     $"{device.Kind}: saved-file load frame {tick}, {expected.GameState}");
                 samples++;
             }
             if (sawAppearance && legacy.RuntimeForVerification is { } runtime && !runtime.SamusLoadAppearanceActive &&
                 legacy.GameState == SuperMetroidGameState.MainGameplay)
             {
-                if (runtime.Player.Samus!.InputLocked || captured.RuntimeForVerification!.SamusLoadAppearanceActive ||
-                    captured.RuntimeForVerification!.Player.Samus!.InputLocked)
+                if (runtime.Player.IntroducedSamus.InputLocked || captured.GameplayRuntimeForVerification.SamusLoadAppearanceActive ||
+                    captured.GameplayRuntimeForVerification.Player.IntroducedSamus.InputLocked)
                     throw new InvalidOperationException("Load appearance did not release both owners.");
                 completed = true; break;
             }

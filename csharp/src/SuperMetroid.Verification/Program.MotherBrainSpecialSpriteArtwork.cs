@@ -111,10 +111,10 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 .SequenceEqual(editedVram.Bytes.Slice(firstDestination + 1,
                     MotherBrainSpecialSpriteSheetDefinition.PageByteCount - 1)),
                 $"{sheet.FileName} edit leaves neighboring bytes unchanged");
-            RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-                .MotherBrainSpecialSprites!.Get(sheet.SourceAddress);
+            RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
+                .MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainSpecialSprites.")).Get(sheet.SourceAddress);
             AssertTrue(reloaded.Transfer.Span.SequenceEqual(
-                    edited.MotherBrainSpecialSprites!.Get(sheet.SourceAddress).Transfer.Span),
+                    (edited.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires edited.MotherBrainSpecialSprites.")).Get(sheet.SourceAddress).Transfer.Span),
                 $"{sheet.FileName} override survives catalog reload");
 
             File.WriteAllBytes(overridePath, [0]);

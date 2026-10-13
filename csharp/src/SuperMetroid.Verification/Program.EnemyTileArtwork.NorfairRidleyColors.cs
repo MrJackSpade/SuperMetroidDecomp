@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -71,11 +72,11 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         string overrides = Path.Combine(stockDirectory, "norfair-ridley-color-overrides");
         Directory.CreateDirectory(overrides);
         string overridePath = Path.Combine(overrides, NorfairRidleyColorFormat.FileName);
-        JsonNode changed = JsonNode.Parse(stockBytes)!;
-        int initialRed = changed["initial"]![1]!["red"]!.GetValue<int>();
-        int revealBlue = changed["reveal"]![7]![3]!["blue"]!.GetValue<int>();
-        changed["initial"]![1]!["red"] = initialRed ^ 1;
-        changed["reveal"]![7]![3]!["blue"] = revealBlue ^ 1;
+        JsonNode changed = RequiredJson.Parse(stockBytes);
+        int initialRed = changed.Required("initial").Required(1).Required("red").GetValue<int>();
+        int revealBlue = changed.Required("reveal").Required(7).Required(3).Required("blue").GetValue<int>();
+        changed.Required("initial").Required(1)["red"] = initialRed ^ 1;
+        changed.Required("reveal").Required(7).Required(3)["blue"] = revealBlue ^ 1;
         byte[] editedBytes = Encoding.UTF8.GetBytes(changed.ToJsonString());
         File.WriteAllBytes(overridePath, editedBytes);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
@@ -109,8 +110,8 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction leaves Norfair Ridley override untouched");
         EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        AssertEqual(edited.NorfairRidleyColors!.ResolveReveal(7, 3),
-            reloaded.NorfairRidleyColors!.ResolveReveal(7, 3),
+        AssertEqual((edited.NorfairRidleyColors ?? throw new InvalidOperationException("Verification requires edited.NorfairRidleyColors.")).ResolveReveal(7, 3),
+            (reloaded.NorfairRidleyColors ?? throw new InvalidOperationException("Verification requires reloaded.NorfairRidleyColors.")).ResolveReveal(7, 3),
             "Norfair Ridley reveal edit survives restart/re-extraction");
         File.WriteAllText(overridePath, "broken");
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
@@ -118,8 +119,8 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         File.WriteAllText(overridePath, "{\"version\":1,\"version\":1}");
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "Duplicate Norfair Ridley JSON property fails loudly");
-        JsonNode invalid = JsonNode.Parse(stockBytes)!;
-        invalid["reveal"]![0]![0]!["green"] = 32;
+        JsonNode invalid = RequiredJson.Parse(stockBytes);
+        invalid.Required("reveal").Required(0).Required(0)["green"] = 32;
         AssertThrows<InvalidDataException>(() => NorfairRidleyColorCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes(invalid.ToJsonString()))),
             "Out-of-range Norfair Ridley RGB5 component rejected");

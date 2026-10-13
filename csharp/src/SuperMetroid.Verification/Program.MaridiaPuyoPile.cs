@@ -36,7 +36,7 @@ internal static class MaridiaPuyoPileVerification
             AssertEqual(EnemyDefinitionId.Puyo, actor.EnemyDefinitionPointer, "pile actor is retail Puyo");
             AssertEqual(population[i].X, actor.Position.X.Whole, "native pile spawn X");
             AssertEqual(population[i].Y, actor.Position.Y.Whole, "native pile spawn Y");
-            AssertEqual(population[i].Delay, enemies.PuyoStates[i]!.HopCooldownTimer.RawValue, "native full-word initial cooldown");
+            AssertEqual(population[i].Delay, (enemies.PuyoStates[i] ?? throw new InvalidOperationException("Verification requires enemies.PuyoStates[i].")).HopCooldownTimer.RawValue, "native full-word initial cooldown");
         }
         var firstHop = Enumerable.Repeat(-1, population.Length).ToArray();
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 128)), Health = 999, MaxHealth = 999 };
@@ -45,11 +45,11 @@ internal static class MaridiaPuyoPileVerification
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
             for (int i = 0; i < population.Length; i++)
             {
-                var state = enemies.PuyoStates[i]!;
-                if (firstHop[i] < 0 && state.Function == PuyoEnemyFunction.Airborne) firstHop[i] = frame;
+                var state = enemies.PuyoStates[i];
+                if (firstHop[i] < 0 && (state ?? throw new InvalidOperationException("Verification requires state.")).Function == PuyoEnemyFunction.Airborne) firstHop[i] = frame;
                 if (frame <= population[i].Delay)
                 {
-                    AssertEqual(PuyoEnemyFunction.Grounded, state.Function, "native cooldown holds pile member grounded");
+                    AssertEqual(PuyoEnemyFunction.Grounded, (state ?? throw new InvalidOperationException("Verification requires state.")).Function, "native cooldown holds pile member grounded");
                     AssertEqual(population[i].X, enemies.SlotTable.Slots[i].Position.X.Whole, "waiting pile X does not drift");
                     AssertEqual(population[i].Y, enemies.SlotTable.Slots[i].Position.Y.Whole, "waiting pile Y does not collapse");
                 }

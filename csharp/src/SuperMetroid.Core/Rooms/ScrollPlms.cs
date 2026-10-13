@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms;
@@ -102,7 +102,7 @@ internal sealed class ScrollPlms
     {
         // Instruction $8B55 clears PLM_Vars and restores type-$3 special air, then
         // the list loops to Sleep. BTS $46 remains unchanged and can wake it again.
-        slot.Scroll!.Triggered = false;
+        (slot.Scroll ?? throw new InvalidOperationException("A scroll PLM slot owns scroll trigger state.")).Triggered = false;
         slot.RestoreLevelWord = 0;
         slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerWaiting;
         ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;

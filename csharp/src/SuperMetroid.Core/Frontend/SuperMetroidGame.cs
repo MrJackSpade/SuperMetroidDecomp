@@ -316,6 +316,27 @@ public sealed class SuperMetroidGame
     internal PauseMenuState? pauseMenu;
     /// <summary>Live gameplay runtime, absent during frontend-only phases.</summary>
     internal SuperMetroidRuntime? runtime;
+    /// <summary>The state of the opening title sequence, which exists only while that phase runs.</summary>
+    internal TitleSequenceState ActiveTitle => title ??
+        throw new InvalidOperationException("The opening title sequence is not running.");
+    /// <summary>The state of the file-select menu, which exists only while that phase runs.</summary>
+    internal FileSelectMenuState ActiveFileSelect => fileSelect ??
+        throw new InvalidOperationException("The file-select menu is not running.");
+    /// <summary>The state of the options menu, which exists only while that phase runs.</summary>
+    internal GameOptionsMenuState ActiveOptions => options ??
+        throw new InvalidOperationException("The options menu is not running.");
+    /// <summary>The state of the intro cinematic, which exists only while that phase runs.</summary>
+    internal IntroCinematicState ActiveIntro => intro ??
+        throw new InvalidOperationException("The intro cinematic is not running.");
+    /// <summary>The state of the ending and credits, which exists only while that phase runs.</summary>
+    internal EndingCreditsState ActiveEndingCredits => endingCredits ??
+        throw new InvalidOperationException("The ending and credits is not running.");
+    /// <summary>The state of the pause menu, which exists only while that phase runs.</summary>
+    internal PauseMenuState ActivePauseMenu => pauseMenu ??
+        throw new InvalidOperationException("The pause menu is not running.");
+    /// <summary>The live gameplay runtime; gameplay phases run only while a game is loaded.</summary>
+    internal SuperMetroidRuntime GameplayRuntime => runtime ??
+        throw new InvalidOperationException("No gameplay runtime is loaded; this phase runs only during gameplay.");
     /// <summary>Ceres elevator departure and blackout transition state.</summary>
     private readonly CeresDepartureState ceresDeparture = new();
     /// <summary>Reserve-tank recovery state that can temporarily own the dispatcher.</summary>
@@ -386,7 +407,8 @@ public sealed class SuperMetroidGame
         this.bus = Ensure.NotNull(bus);
         ConfiguredOptions = gameOptions ?? new SuperMetroidGameOptions();
         display = new FrontendDisplay(renderGameplayFrames);
-        saveRam = new SuperMetroidSaveRam(bus, Artwork.MapPresentation);
+        // The host binds artwork after construction; BindArtwork then rebinds the save RAM's map presentation.
+        saveRam = new SuperMetroidSaveRam(bus, mapPresentation: null);
         selectedSaveSlot = saveRam.ReadSelectedSlot();
         // Construction is power-on: boot evaluates SRAM once before entering MainGameLoop.
         bootMainLoopCarry = saveRam.DetermineBootMainLoopCarry();
@@ -479,7 +501,7 @@ public sealed class SuperMetroidGame
         // SendAPUData stalls a door dispatch while door IRQs keep NMIs accepted; nothing
         // between this update's own NMI and the upload reads the counters.
         if (doorAudioDispatch && prologueMusicCommands.Any(command => command.Kind == CartridgeAudioCommandKind.Upload))
-            runtime!.NmiHandler.AcceptHardwareWaitNmis(DoorMusicUploadNmis.AcceptedNmisDuringUpload(audio.MusicDataIndex));
+            GameplayRuntime.NmiHandler.AcceptHardwareWaitNmis(DoorMusicUploadNmis.AcceptedNmisDuringUpload(audio.MusicDataIndex));
         var gameplayAudio = new GameplayAudioFramePublication(audio);
         FrameNumber++;
         if (runtime is null)
@@ -516,16 +538,16 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.OpeningCinematic:
-                title!.Step(controllerInput);
-                display.PublishMenu(title);
-                if (title.FileSelectRequested)
+                ActiveTitle.Step(controllerInput);
+                display.PublishMenu(ActiveTitle);
+                if (ActiveTitle.FileSelectRequested)
                 {
                     // `$8B:9F52` sets game_state=4 only after the slow fade reaches black.
                     fileSelect = new FileSelectMenuState(bus, audio, Artwork.MapPresentation);
                     GameState = SuperMetroidGameState.FileSelectMenus;
                     display.PublishMenu(fileSelect);
                 }
-                else if (title.DemoRequested)
+                else if (ActiveTitle.DemoRequested)
                 {
                     demoScene = 0;
                     demoLoadFramesRemaining = -1;
@@ -535,20 +557,20 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.FileSelectMenus:
-                fileSelect!.Step(controllerInput);
-                if (fileSelect.SaveRamChangedThisFrame)
+                ActiveFileSelect.Step(controllerInput);
+                if (ActiveFileSelect.SaveRamChangedThisFrame)
                     SaveRamChanged?.Invoke();
-                display.PublishMenu(fileSelect);
-                if (fileSelect.TitleRequested)
+                display.PublishMenu(ActiveFileSelect);
+                if (ActiveFileSelect.TitleRequested)
                 {
                     // The assembly calls SoftReset from menu index 33. Re-entering state
                     // zero makes all frontend-owned state disposable and deterministic.
                     GameState = SuperMetroidGameState.Reset;
                 }
-                else if (fileSelect.NewGameRequested)
+                else if (ActiveFileSelect.NewGameRequested)
                 {
-                    selectedSaveSlot = fileSelect.SelectedSaveSlot;
-                    loadingExistingSave = fileSelect.SelectedSlotContainsSave;
+                    selectedSaveSlot = ActiveFileSelect.SelectedSaveSlot;
+                    loadingExistingSave = ActiveFileSelect.SelectedSlotContainsSave;
                     saveRam.SelectSlot(selectedSaveSlot);
                     SaveRamChanged?.Invoke();
                     // Existing slots restore the same seven controller words and two
@@ -571,15 +593,15 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.GameOptionsMenu:
-                options!.Step(controllerInput);
-                display.PublishMenu(options);
-                if (options.FileSelectRequested)
+                ActiveOptions.Step(controllerInput);
+                display.PublishMenu(ActiveOptions);
+                if (ActiveOptions.FileSelectRequested)
                 {
                     fileSelect = new FileSelectMenuState(bus, audio, Artwork.MapPresentation);
                     GameState = SuperMetroidGameState.FileSelectMenus;
                     display.PublishMenu(fileSelect);
                 }
-                else if (options.IntroRequested)
+                else if (ActiveOptions.IntroRequested)
                 {
                     if (loadingExistingSave)
                     {
@@ -602,7 +624,7 @@ public sealed class SuperMetroidGame
                             }
                             else
                             {
-                                intro = CreateIntroCinematic(options.JapaneseText);
+                                intro = CreateIntroCinematic(ActiveOptions.JapaneseText);
                                 GameState = SuperMetroidGameState.IntroCinematic;
                                 display.PublishIntro(intro);
                             }
@@ -636,7 +658,7 @@ public sealed class SuperMetroidGame
                     }
                     else
                     {
-                        intro = CreateIntroCinematic(options.JapaneseText);
+                        intro = CreateIntroCinematic(ActiveOptions.JapaneseText);
                         GameState = SuperMetroidGameState.IntroCinematic;
                         display.PublishIntro(intro);
                     }
@@ -644,9 +666,9 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.IntroCinematic:
-                intro!.Step(controllerInput);
-                display.PublishIntro(intro);
-                if (intro.CeresFlightFinished)
+                ActiveIntro.Step(controllerInput);
+                display.PublishIntro(ActiveIntro);
+                if (ActiveIntro.CeresFlightFinished)
                 {
                     // `$8B:C100` writes state $1F, area six, and load-station zero only
                     // after the SPACE COLONY fade has reached forced blank. Preserve the
@@ -671,8 +693,8 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.MadeItToCeresElevator:
-                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = gameplayAudio.GameplayFrameAudio(runtime) });
-                display.PublishGameplay(runtime);
+                GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = gameplayAudio.GameplayFrameAudio(GameplayRuntime) });
+                display.PublishGameplay(GameplayRuntime);
                 // State $20 is only the departure hold. The arrival descent runs in
                 // ordinary state eight while the bank-$86 elevator objects lock Samus.
                 if (ceresDeparture.Phase != CeresDeparturePhase.HoldingOnElevator)
@@ -687,43 +709,43 @@ public sealed class SuperMetroidGame
 
             case SuperMetroidGameState.ReserveTanksAuto:
                 SamusReserveAutoRecoveryStep reserveStep = default;
-                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(runtime), AfterAcceptedNmi = () =>
+                GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(GameplayRuntime), AfterAcceptedNmi = () =>
                     {
-                        SamusState samus = runtime.Player.Samus
+                        SamusState samus = GameplayRuntime.Player.Samus
                             ?? throw new InvalidOperationException(
                                 "Reserve recovery requires a live Samus state.");
                         reserveStep = reserveRecovery.StepAfterNmi(
                             samus,
-                            runtime.Nmi.NmiFrameCounter);
+                            GameplayRuntime.Nmi.NmiFrameCounter);
                         if (reserveStep.RefillSoundRequested)
                             audio.QueueSoundAndGetAccumulator(SoundEffectLibrary3Sounds.ReserveRefill, 3,
-                                soundSuppressed: runtime.PowerBombExplosionSuppressesSounds);
+                                soundSuppressed: GameplayRuntime.PowerBombExplosionSuppressesSounds);
                         // $82:DC18-$DC24 clears the freeze and restores state eight
                         // BEFORE calling gameplay. Unfreezing after StepFrame lets
                         // Samus resume while projectiles/enemies remain a frame behind.
                         if (reserveStep.Completed)
                         {
-                            runtime.Freeze.GameplayTimeFrozen = false;
+                            GameplayRuntime.Freeze.GameplayTimeFrozen = false;
                             GameState = SuperMetroidGameState.MainGameplay;
                         }
                     } });
-                display.PublishGameplay(runtime);
+                display.PublishGameplay(GameplayRuntime);
                 // $82:DC2B invokes the external low-health check even while the
                 // locked Samus beta handler omits it. Publish prior gameplay sounds
                 // first; their native queue occupancy affects this final Max6 call.
                 CollectTranslatedAudioRequests(gameplayAudio);
-                runtime.Player.Samus!.HealthWarning.Update(runtime.Player.Samus.Health, audio,
-                    soundSuppressed: runtime.PowerBombExplosionSuppressesSounds);
+                GameplayRuntime.Player.IntroducedSamus.HealthWarning.Update(GameplayRuntime.Player.IntroducedSamus.Health, audio,
+                    soundSuppressed: GameplayRuntime.PowerBombExplosionSuppressesSounds);
                 break;
 
             case SuperMetroidGameState.DeathSequenceStart:
                 // State $13 deliberately completes one final state-eight pass under the
                 // global freeze word, then snapshots the visible palette and makes every
                 // target row black except Samus's sixteen-color suit row.
-                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(runtime) });
-                display.PublishGameplay(runtime);
+                GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(GameplayRuntime) });
+                display.PublishGameplay(GameplayRuntime);
                 PrepareDeathPaletteFade();
-                SamusState dyingSamus = runtime.Player.Samus
+                SamusState dyingSamus = GameplayRuntime.Player.Samus
                     ?? throw new InvalidOperationException("Death sequence lost its Samus owner.");
                 dyingSamus.SelectedHudItem = 0;
                 dyingSamus.AutoCancelHudItemIndex = 0;
@@ -734,9 +756,9 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.DeathBlackOutSurroundings:
-                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(runtime) });
+                GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(GameplayRuntime) });
                 bool paletteBlackoutComplete = StepDeathPaletteFade();
-                display.PublishGameplay(runtime);
+                display.PublishGameplay(GameplayRuntime);
                 if (paletteBlackoutComplete)
                 {
                     // `$82:DCE0` cancels all three SFX libraries, then installs the death
@@ -752,11 +774,11 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.DeathWaitForMusic:
-                runtime!.DeathSequence.DrawFatalSamusFrame(controllerInput);
-                display.PublishGameplay(runtime);
+                GameplayRuntime.DeathSequence.DrawFatalSamusFrame(controllerInput);
+                display.PublishGameplay(GameplayRuntime);
                 if (!audio.HasQueuedMusic)
                 {
-                    runtime.DeathSequence.BeginDeathSequenceAfterMusicWait();
+                    GameplayRuntime.DeathSequence.BeginDeathSequenceAfterMusicWait();
                     GameState = SuperMetroidGameState.DeathPreFlashing;
                 }
                 break;
@@ -765,8 +787,8 @@ public sealed class SuperMetroidGame
             case SuperMetroidGameState.DeathFlashing:
             case SuperMetroidGameState.DeathExplosionWhiteOut:
                 SamusDeathSequenceStepResult deathStep =
-                    runtime!.DeathSequence.StepDeathSequenceFrame(controllerInput);
-                display.PublishGameplay(runtime);
+                    GameplayRuntime.DeathSequence.StepDeathSequenceFrame(controllerInput);
+                display.PublishGameplay(GameplayRuntime);
                 if (deathStep.PhaseAfterStep == SamusDeathSequencePhase.Flashing)
                     GameState = SuperMetroidGameState.DeathFlashing;
                 else if (deathStep.PhaseAfterStep == SamusDeathSequencePhase.SuitExplosion)
@@ -780,8 +802,8 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.DeathFinalBlackOut:
-                runtime!.RunBlankGameplayFrame(controllerInput);
-                display.PublishGameplay(runtime);
+                GameplayRuntime.RunBlankGameplayFrame(controllerInput);
+                display.PublishGameplay(GameplayRuntime);
                 if (deathFadeCounter == 0)
                 {
                     deathFadeCounter = 1;
@@ -797,7 +819,7 @@ public sealed class SuperMetroidGame
                 ApplyDisplayBrightness(deathFadeBrightness);
                 if (deathFadeBrightness == 0)
                 {
-                    runtime.Freeze.GameplayTimeFrozen = false;
+                    GameplayRuntime.Freeze.GameplayTimeFrozen = false;
                     // The game-over menu runs no gameplay owner: every exit reloads SRAM or
                     // soft resets. Releasing the runtime hands the live RNG and accepted-NMI
                     // counters to the frontend, which keeps counting them through the menu.
@@ -891,11 +913,11 @@ public sealed class SuperMetroidGame
                 // State $0C continues running ordinary gameplay while INIDISP darkens.
                 // This matters for moving enemies/projectiles and is why pause cannot be
                 // represented as a desktop-only frozen bitmap.
-                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(runtime) });
-                display.PublishGameplay(runtime);
-                if (runtime.RoomLoader.HasPendingDoorTransition)
+                GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(GameplayRuntime) });
+                display.PublishGameplay(GameplayRuntime);
+                if (GameplayRuntime.RoomLoader.HasPendingDoorTransition)
                     GameState = SuperMetroidGameState.HitDoorBlock;
-                if (runtime.ConsumeTimeUpRequest())
+                if (GameplayRuntime.ConsumeTimeUpRequest())
                     BeginTimeUp();
                 pauseBrightness = screenFade.Advance(pauseBrightness, brightening: false);
                 ApplyDisplayBrightness(pauseBrightness);
@@ -912,17 +934,17 @@ public sealed class SuperMetroidGame
                 // `$82:8CEF` owns the force-blank setup frame: pause tiles, base maps,
                 // palette, inventory labels, and PPU bases are installed before state $0E.
                 // Keep accepting NMI so the controller's previous sample remains truthful.
-                runtime!.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 // The pause hook returns directly into `$82:8D16`, which sends the three
                 // cartridge stop sequences before any pause graphics are initialized.
                 // Letting gameplay SFX continue under frozen gameplay causes stale echo,
                 // charge, beam, or environmental voices to pulse throughout the menu.
                 audio.QueueCancelSoundEffects();
-                CartridgeRoomHeader pauseRoom = runtime.Room.ActiveRoom ??
+                CartridgeRoomHeader pauseRoom = GameplayRuntime.Room.ActiveRoom ??
                     throw new InvalidOperationException(
                         "Pause setup requires an active cartridge room header.");
-                pauseMenu = new PauseMenuState(bus, new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidOperationException(
-                        "Pause setup requires a live Samus state."), System = runtime.System, AreaIndex = pauseRoom.AreaIndex, RoomMapPosition = pauseRoom.MapPosition, Audio = audio, GameplayVram = runtime.Vram, MapRevealMode = ConfiguredOptions.MapReveal, MapPresentation = Artwork.MapPresentation });
+                pauseMenu = new PauseMenuState(bus, new PauseMenuEntry { Samus = GameplayRuntime.Player.Samus ?? throw new InvalidOperationException(
+                        "Pause setup requires a live Samus state."), System = GameplayRuntime.System, AreaIndex = pauseRoom.AreaIndex, RoomMapPosition = pauseRoom.MapPosition, Audio = audio, GameplayVram = GameplayRuntime.Vram, MapRevealMode = ConfiguredOptions.MapReveal, MapPresentation = Artwork.MapPresentation });
                 BeginPauseFade(0);
                 display.PublishMenu(pauseMenu);
                 ApplyDisplayBrightness(pauseBrightness);
@@ -930,33 +952,33 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.PausedA:
-                runtime!.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseBrightness = screenFade.Advance(pauseBrightness, brightening: true);
-                pauseMenu!.AdvanceAnimations(runtime.Nmi.NmiFrameCounter8, advancePalette: false);
-                display.PublishMenu(pauseMenu!);
+                ActivePauseMenu.AdvanceAnimations(GameplayRuntime.Nmi.NmiFrameCounter8, advancePalette: false);
+                display.PublishMenu(ActivePauseMenu);
                 ApplyDisplayBrightness(pauseBrightness);
                 if (pauseBrightness == PauseFadeTiming.FullyLit)
                     GameState = SuperMetroidGameState.PausedB;
                 break;
 
             case SuperMetroidGameState.PausedB:
-                runtime!.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-                pauseMenu!.SynchronizeAcceptedHud(runtime.Vram);
-                runtime.UpdatePauseHeldInput();
-                ushort previousReserveMode = runtime.Player.Samus!.ReserveTankMode;
-                bool unpauseRequested = pauseMenu!.Step(
-                    runtime.System.TimedHeldInput,
-                    runtime.Controller1.NewlyPressed,
-                    runtime.Controller1.Current,
-                    runtime.Nmi.NmiFrameCounter8);
+                GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                ActivePauseMenu.SynchronizeAcceptedHud(GameplayRuntime.Vram);
+                GameplayRuntime.UpdatePauseHeldInput();
+                ushort previousReserveMode = GameplayRuntime.Player.IntroducedSamus.ReserveTankMode;
+                bool unpauseRequested = ActivePauseMenu.Step(
+                    GameplayRuntime.System.TimedHeldInput,
+                    GameplayRuntime.Controller1.NewlyPressed,
+                    GameplayRuntime.Controller1.Current,
+                    GameplayRuntime.Nmi.NmiFrameCounter8);
                 // State $0F runs the HUD writer after pause input. Its DMA is visible
                 // at the next accepted NMI, including the first unpause fade frame.
                 if (previousReserveMode == PauseReserveLabelRomData.AutoMode &&
-                    runtime.Player.Samus.ReserveTankMode == PauseReserveTransferRomData.ManualMode)
-                    runtime.Hud.ClearAutoReserveIndicator();
-                runtime.Hud.UpdateGameplayCounters(bus, runtime.Player.Samus, timeIsFrozen: true);
-                runtime.Hud.QueueUpload(bus, runtime.VramWrites);
-                display.PublishMenu(pauseMenu);
+                    GameplayRuntime.Player.IntroducedSamus.ReserveTankMode == PauseReserveTransferRomData.ManualMode)
+                    GameplayRuntime.Hud.ClearAutoReserveIndicator();
+                GameplayRuntime.Hud.UpdateGameplayCounters(bus, GameplayRuntime.Player.IntroducedSamus, timeIsFrozen: true);
+                GameplayRuntime.Hud.QueueUpload(bus, GameplayRuntime.VramWrites);
+                display.PublishMenu(ActivePauseMenu);
                 if (unpauseRequested)
                 {
                     BeginPauseFade(PauseFadeTiming.FullyLit);
@@ -965,10 +987,10 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.UnpausingA:
-                runtime!.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-                pauseMenu!.SynchronizeAcceptedHud(runtime.Vram);
-                pauseMenu!.AdvanceAnimations(runtime.Nmi.NmiFrameCounter8, fadingOut: true, advancePalette: false);
-                display.PublishMenu(pauseMenu!);
+                GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                ActivePauseMenu.SynchronizeAcceptedHud(GameplayRuntime.Vram);
+                ActivePauseMenu.AdvanceAnimations(GameplayRuntime.Nmi.NmiFrameCounter8, fadingOut: true, advancePalette: false);
+                display.PublishMenu(ActivePauseMenu);
                 pauseBrightness = screenFade.Advance(pauseBrightness, brightening: false);
                 ApplyDisplayBrightness(pauseBrightness);
                 if (pauseBrightness == 0)
@@ -980,7 +1002,7 @@ public sealed class SuperMetroidGame
                 // hooks, HDMA, and animtiles under forced blank. Pause graphics live in a
                 // separate PPU image here, so discarding it restores the untouched runtime
                 // image without a host-authored reconstruction.
-                SamusState resumedSamus = runtime!.Player.Samus ??
+                SamusState resumedSamus = GameplayRuntime.Player.Samus ??
                     throw new InvalidOperationException(
                         "Pause teardown requires live Samus equipment state.");
                 // EquipmentScreenCategory_ButtonResponse mutates the live equipped word,
@@ -988,7 +1010,7 @@ public sealed class SuperMetroidGame
                 // `$11` reruns `$90:AC8D` before its accepted NMI; omitting that handoff
                 // made the new damage/type word immediate while art stayed stale until the
                 // next room load happened to invoke the same routine.
-                runtime.SamusPhases.QueueGameplayBeamTilesAndLoadPalette(resumedSamus.EquippedBeams);
+                GameplayRuntime.SamusPhases.QueueGameplayBeamTilesAndLoadPalette(resumedSamus.EquippedBeams);
                 resumedSamus.ReconcilePauseBallEquipment(bus);
                 // The native teardown also reconciles equipment-dependent momentum.
                 // Keep the speed pair until the next gameplay frame, as the cartridge does.
@@ -996,11 +1018,11 @@ public sealed class SuperMetroidGame
                     (resumedSamus.EquippedItems & (ushort)SamusEquipmentFlags.SpeedBooster) != 0);
                 // Samus command $0C also calls LoadSamusSuitPalette at $91:E6CB.
                 // Equipment bits are live, but the restored gameplay palette is cached.
-                resumedSamus.Presentation.LoadSuitPalette(bus, runtime.Cgram);
-                runtime.Plms.Stations.ResumeMapStationsAfterUnpause();
+                resumedSamus.Presentation.LoadSuitPalette(bus, GameplayRuntime.Cgram);
+                GameplayRuntime.Plms.Stations.ResumeMapStationsAfterUnpause();
                 resumedSamus.ScriptLocks.ReleaseRefillStationLockOnUnpause();
-                runtime.Enemies.ElevatorBehavior.ClearElevatorFlagsOnGameplayResume();
-                runtime!.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                GameplayRuntime.Enemies.ElevatorBehavior.ClearElevatorFlagsOnGameplayResume();
+                GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseMenu = null;
                 BeginPauseFade(0);
                 display.PublishBlack();
@@ -1022,8 +1044,8 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.BlackoutFromCeres:
-                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = gameplayAudio.GameplayFrameAudio(runtime) });
-                display.PublishGameplay(runtime);
+                GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = gameplayAudio.GameplayFrameAudio(GameplayRuntime) });
+                display.PublishGameplay(GameplayRuntime);
                 bool ceresReachedForcedBlank = ceresDeparture.StepFadeAfterGameplay();
                 ApplyDisplayBrightness(ceresDeparture.Brightness);
                 if (ceresReachedForcedBlank)
@@ -1031,10 +1053,10 @@ public sealed class SuperMetroidGame
                     // GameState_33 saves the live area-six/station-zero slot only after
                     // INIDISP reaches forced blank. This is the durable post-Ridley Ceres
                     // checkpoint the retail loader later replaces with Zebes arrival.
-                    AutomaticCheckpointSaver.SaveCeresDeparture(bus, runtime, selectedSaveSlot);
+                    AutomaticCheckpointSaver.SaveCeresDeparture(bus, GameplayRuntime, selectedSaveSlot);
                     SaveRamChanged?.Invoke();
-                    runtime.Enemies.RidleyEncounter.CeresStatus = 0;
-                    runtime.EscapeTimer.Clear();
+                    GameplayRuntime.Enemies.RidleyEncounter.CeresStatus = 0;
+                    GameplayRuntime.EscapeTimer.Clear();
                     // $82:83F3-$840B: stop music and silence all three sound libraries.
                     audio.QueueMusicDelayed8(MusicCommand.Stop);
                     audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
@@ -1053,17 +1075,17 @@ public sealed class SuperMetroidGame
                 // toward the white target with denominator eight.
                 RunMainGameplayState(controllerInput, gameplayAudio);
                 if ((timeUpPaletteFade ?? throw new InvalidOperationException(
-                        "Time-up white-out started without its target palette.")).Step(runtime!.Cgram))
+                        "Time-up white-out started without its target palette.")).Step(GameplayRuntime.Cgram))
                 {
                     GameState = SuperMetroidGameState.WhitingOutFromTimeUp;
                     screenFade.Clear();
                 }
-                display.PublishGameplay(runtime);
+                display.PublishGameplay(GameplayRuntime);
                 break;
 
             case SuperMetroidGameState.WhitingOutFromTimeUp:
                 // `$82:8431` runs no gameplay: it fades the whitened frame to forced blank.
-                runtime!.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseBrightness = screenFade.Advance(pauseBrightness, brightening: false);
                 ApplyDisplayBrightness(pauseBrightness);
                 if (pauseBrightness == 0)
@@ -1117,15 +1139,15 @@ public sealed class SuperMetroidGame
                 }
                 // The `$22` Zebes-landing branch of $82:8000, followed by its NMI waits. The
                 // dispatch's own accepted NMI counts in the gameplay owner kept from Ceres.
-                runtime!.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-                runtime.RoomLoader.InitializePostCeresZebesRoom();
+                GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                GameplayRuntime.RoomLoader.InitializePostCeresZebesRoom();
                 BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
                     GameLoadingCompletion.GameplayFadeIn);
                 break;
 
             case SuperMetroidGameState.MainGameplayFadeIn:
-                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(runtime) });
-                display.PublishGameplay(runtime);
+                GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(GameplayRuntime) });
+                display.PublishGameplay(GameplayRuntime);
                 ApplyDisplayBrightness(postCeresFadeBrightness);
                 HandleGunshipLandingSave();
                 if (postCeresFadeCounter-- <= 0)
@@ -1156,23 +1178,23 @@ public sealed class SuperMetroidGame
                 // State $0A ($82:E1B7) follows in the same dispatch and publishes state $0B.
                 // MainGameLoop's HDMA pass ($88:84B9) runs before this state handler. A rising
                 // liquid's rumble or ambient sound it requests is admitted ahead of the cancels.
-                runtime!.DoorTransition.RunDoorSoundWaitPrologue(controllerInput);
-                PublishDoorEntryRoomFxSounds(runtime);
+                GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput);
+                PublishDoorEntryRoomFxSounds(GameplayRuntime);
                 // $82:E1BB sets the door/enemy pause flags, then $82:E1CA-E1D6 run the source
                 // enemy/draw owners while sounds are still admitted, so an enemy instruction's
                 // sound on this frame is queued before the door's cancels.
-                doorTransition.Begin(runtime);
-                runtime.DoorTransition.DrawDoorTransitionActors(runEnemyProjectiles: false);
-                CollectDoorSoundWaitAudioRequests(runtime);
+                doorTransition.Begin(GameplayRuntime);
+                GameplayRuntime.DoorTransition.DrawDoorTransitionActors(runEnemyProjectiles: false);
+                CollectDoorSoundWaitAudioRequests(GameplayRuntime);
                 // $82:E26B calls $84:8250, which runs Samus code $1D, then $82:E272 queues
                 // library-two $71 so movement/charge loops terminate rather than leaking
                 // into the next room.
-                SamusState doorSamus = runtime.Player.Samus
+                SamusState doorSamus = GameplayRuntime.Player.Samus
                     ?? throw new InvalidOperationException("Door transition requires live Samus state.");
                 SamusMovementType doorMovementType = doorSamus.PoseMetadata.ReadMovementType(bus);
                 // A live power-bomb explosion drops all three requests inside the queue
                 // routines, so neither ring holds anything for $E29E to wait on.
-                bool doorSoundsSuppressed = runtime.PowerBombExplosionSuppressesSounds;
+                bool doorSoundsSuppressed = GameplayRuntime.PowerBombExplosionSuppressesSounds;
                 if (doorMovementType is
                     SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
                 {
@@ -1180,7 +1202,7 @@ public sealed class SuperMetroidGame
                         maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
                 }
                 else if ((controllerInput & (ushort)SnesButton.X) == 0 &&
-                    runtime.Projectiles.Charge.FlareCounter < 16)
+                    GameplayRuntime.Projectiles.Charge.FlareCounter < 16)
                 {
                     audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.CancelAll,
                         maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
@@ -1196,9 +1218,9 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.LoadingNextRoomB:
-                doorTransition.Step(runtime!, audio, controllerInput, DoorLoaderProgress,
-                    publishSoundWaitAudio: () => CollectDoorSoundWaitAudioRequests(runtime!));
-                display.PublishGameplay(runtime!);
+                doorTransition.Step(GameplayRuntime, audio, controllerInput, DoorLoaderProgress,
+                    publishSoundWaitAudio: () => CollectDoorSoundWaitAudioRequests(GameplayRuntime));
+                display.PublishGameplay(GameplayRuntime);
                 if (doorTransition.Phase == DoorTransitionPhase.Complete)
                 {
                     // $82:E72F ORs $1F into $51 before the destination fade-in, so a door
@@ -1207,9 +1229,9 @@ public sealed class SuperMetroidGame
                     audio.DoorTransitionSoundsDisabled = false;
                     // The cartridge resumes spin audio only after sound admission is
                     // restored at the final fade boundary, not on each fade frame.
-                    if (SamusSpinSoundCommand.Select(bus, runtime!.Player.Samus!) is { } spinSound)
+                    if (SamusSpinSoundCommand.Select(bus, GameplayRuntime.Player.IntroducedSamus) is { } spinSound)
                         audio.QueueSoundAndGetAccumulator(spinSound, maximumQueued: 9,
-                            soundSuppressed: runtime.AttractDemo.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
+                            soundSuppressed: GameplayRuntime.AttractDemo.IsAttractDemo || GameplayRuntime.PowerBombExplosionSuppressesSounds);
                     GameState = SuperMetroidGameState.MainGameplay;
                 }
                 break;
@@ -1218,8 +1240,8 @@ public sealed class SuperMetroidGame
                 // State $26 calls the complete state-eight gameplay coroutine before
                 // HandleFadeOut. The fleeing gunship, room animations, and APU publishers
                 // therefore continue behind every darkening frame.
-                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(runtime) });
-                display.PublishGameplay(runtime);
+                GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(GameplayRuntime) });
+                display.PublishGameplay(GameplayRuntime);
                 // HandleFadingOut ($80:8924) reloads the counter from ScreenFadeDelay, which
                 // $A2:AD26 zeroed, so the brightness falls one step on every call.
                 if (endingFadeCounter-- <= 0)
@@ -1237,17 +1259,17 @@ public sealed class SuperMetroidGame
                     audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
                     audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
                     audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
-                    SamusState endingSamus = runtime.Player.Samus ??
+                    SamusState endingSamus = GameplayRuntime.Player.Samus ??
                         throw new InvalidOperationException(
                             "Ending inventory calculation requires the live Samus state.");
-                    endingCredits = new EndingCreditsState(bus, audio, new EndingCreditsSetup { GameTimeHours = ConfiguredOptions.EndingTimeOverrideMinutes is { } endingMinutes ? (ushort)(endingMinutes / 60) : runtime.GameTime.Hours, GameTimeMinutes = ConfiguredOptions.EndingTimeOverrideMinutes is { } totalMinutes ? (ushort)(totalMinutes % 60) : runtime.GameTime.Minutes, Inventory = new EndingInventorySnapshot(
+                    endingCredits = new EndingCreditsState(bus, audio, new EndingCreditsSetup { GameTimeHours = ConfiguredOptions.EndingTimeOverrideMinutes is { } endingMinutes ? (ushort)(endingMinutes / 60) : GameplayRuntime.GameTime.Hours, GameTimeMinutes = ConfiguredOptions.EndingTimeOverrideMinutes is { } totalMinutes ? (ushort)(totalMinutes % 60) : GameplayRuntime.GameTime.Minutes, Inventory = new EndingInventorySnapshot(
                             endingSamus.MaxHealth,
                             endingSamus.MaxReserveEnergy,
                             endingSamus.MaxMissiles,
                             endingSamus.MaxSuperMissiles,
                             endingSamus.MaxPowerBombs,
                             endingSamus.CollectedItems,
-                            endingSamus.CollectedBeams), JapaneseText = runtime.JapaneseText, CrittersEscaped = runtime.System.HasEvent(EventNumber.CrittersEscaped) });
+                            endingSamus.CollectedBeams), JapaneseText = GameplayRuntime.JapaneseText, CrittersEscaped = GameplayRuntime.System.HasEvent(EventNumber.CrittersEscaped) });
                     endingCredits.BindEndingText(Artwork.MapPresentation?.EndingText);
                     endingCredits.BindFlightArtwork(Artwork.IntroCinematicArt?.CeresFlight);
                     endingCredits.BindMode7Artwork(Artwork.EndingMode7Art);
@@ -1262,15 +1284,15 @@ public sealed class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.EndingAndCredits:
-                EndingCreditsPhase previousEndingPhase = endingCredits!.Phase;
-                endingCredits.Step();
+                EndingCreditsPhase previousEndingPhase = ActiveEndingCredits.Phase;
+                ActiveEndingCredits.Step();
                 if (previousEndingPhase != EndingCreditsPhase.SeeYouNextMission &&
-                    endingCredits.Phase == EndingCreditsPhase.SeeYouNextMission)
+                    ActiveEndingCredits.Phase == EndingCreditsPhase.SeeYouNextMission)
                 {
                     saveRam.SetGameCompleted(true);
                     SaveRamChanged?.Invoke();
                 }
-                display.PublishEnding(endingCredits);
+                display.PublishEnding(ActiveEndingCredits);
                 break;
 
             case SuperMetroidGameState.TransitionToDemoA:
@@ -1306,7 +1328,7 @@ public sealed class SuperMetroidGame
         if (messageWasActive)
         {
             // A message-box lag frame runs exactly the routine's own audio calls.
-            MessageBoxFrameAudio boxAudio = runtime!.MessageBox.LastFrameAudio;
+            MessageBoxFrameAudio boxAudio = GameplayRuntime.MessageBox.LastFrameAudio;
             musicHandler = boxAudio.MusicHandlerCalls != 0;
             soundHandlers = boxAudio.SoundHandlerCalls;
         }
@@ -1328,7 +1350,7 @@ public sealed class SuperMetroidGame
         // draw-time epilogue did not run. Preserve its held-only publication;
         // updating the press edge or auto-jump timer here would invent gameplay.
         if (pauseInputEpilogue)
-            runtime!.Player.Samus!.InputSnapshot.PublishMainLoopHeldInput(runtime.Controller1.Current);
+            GameplayRuntime.Player.IntroducedSamus.InputSnapshot.PublishMainLoopHeldInput(GameplayRuntime.Controller1.Current);
         return CurrentFrame;
     }
 
@@ -1515,11 +1537,11 @@ public sealed class SuperMetroidGame
     private string PhaseName => GameState switch
     {
         SuperMetroidGameState.Reset => "Reset",
-        SuperMetroidGameState.OpeningCinematic => title!.Phase.ToString(),
-        SuperMetroidGameState.FileSelectMenus => fileSelect!.Phase.ToString(),
-        SuperMetroidGameState.GameOptionsMenu => options!.Phase.ToString(),
+        SuperMetroidGameState.OpeningCinematic => ActiveTitle.Phase.ToString(),
+        SuperMetroidGameState.FileSelectMenus => ActiveFileSelect.Phase.ToString(),
+        SuperMetroidGameState.GameOptionsMenu => ActiveOptions.Phase.ToString(),
         SuperMetroidGameState.FileSelectMap => fileSelectMap?.Phase.ToString() ?? "Preparing saved-game map",
-        SuperMetroidGameState.IntroCinematic => intro!.Phase.ToString(),
+        SuperMetroidGameState.IntroCinematic => ActiveIntro.Phase.ToString(),
         SuperMetroidGameState.SetUpNewGame =>
             loadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
         SuperMetroidGameState.MadeItToCeresElevator =>
@@ -1622,17 +1644,17 @@ public sealed class SuperMetroidGame
         // visible nor on the exact frame it closes. Preserve entry state before
         // StepFrame consumes the acknowledgement; checking IsActive afterward alone
         // misses that final suspended frame.
-        bool messageBoxOwnedFrame = runtime!.MessageBox.IsActive;
+        bool messageBoxOwnedFrame = GameplayRuntime.MessageBox.IsActive;
         bool mapStationMessageOwnedFrame = messageBoxOwnedFrame &&
-            runtime.MessageBox.MessageId == GameplayMessageIds.MapDataAccessCompleted;
+            GameplayRuntime.MessageBox.MessageId == GameplayMessageIds.MapDataAccessCompleted;
         // Station command six installs an inert new-state handler before this
         // frame. Retraction can restore normal input later in StepFrame, after the
         // cartridge's Samus-handler call site has already passed pause-check.
-        bool samusInputLockedAtFrameStart = runtime.Player.Samus?.InputLocked == true;
-        runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(runtime) });
-        bool timeUp = runtime.ConsumeTimeUpRequest();
+        bool samusInputLockedAtFrameStart = GameplayRuntime.Player.Samus?.InputLocked == true;
+        GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(GameplayRuntime) });
+        bool timeUp = GameplayRuntime.ConsumeTimeUpRequest();
         HandleSaveStationPersistence();
-        display.PublishGameplay(runtime);
+        display.PublishGameplay(GameplayRuntime);
         HandleGunshipLandingSave();
         if (RouteOutOfHealth())
         {
@@ -1646,11 +1668,11 @@ public sealed class SuperMetroidGame
             // door hits and before pause-check, which then sees a state other than eight.
             BeginTimeUp();
         }
-        else if (runtime.Enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.EscapeTakeoffCompleted)
+        else if (GameplayRuntime.Enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.EscapeTakeoffCompleted)
         {
             BeginZebesEscapeFade();
         }
-        else if (mapStationMessageOwnedFrame && !runtime.MessageBox.IsActive)
+        else if (mapStationMessageOwnedFrame && !GameplayRuntime.MessageBox.IsActive)
         {
             // Bank $85's message-close return explicitly selects state $0C
             // for map acquisition, independently of Start or station input lock.
@@ -1667,7 +1689,7 @@ public sealed class SuperMetroidGame
             pauseMenu = null;
             GameState = SuperMetroidGameState.PausingDarkening;
         }
-        else if (runtime.RoomMains.LastCeresElevatorShaftRoomMain.DepartureRequestedThisFrame)
+        else if (GameplayRuntime.RoomMains.LastCeresElevatorShaftRoomMain.DepartureRequestedThisFrame)
         {
             // `$89:ACC3` has already selected standing pose, locked Samus, and
             // published game state $20. The following dispatcher call owns the
@@ -1675,7 +1697,7 @@ public sealed class SuperMetroidGame
             ceresDeparture.Begin();
             GameState = SuperMetroidGameState.MadeItToCeresElevator;
         }
-        else if (runtime.RoomLoader.HasPendingDoorTransition && !runtime.MessageBox.IsActive)
+        else if (GameplayRuntime.RoomLoader.HasPendingDoorTransition && !GameplayRuntime.MessageBox.IsActive)
         {
             // `$94:938B/$93CE` changes WRAM game_state during the gameplay call.
             // The already-produced gameplay image remains this frame's image; the
@@ -1921,7 +1943,7 @@ public sealed class SuperMetroidGame
     private void StartSavedCeresDestruction(SuperMetroidSaveSlot slot)
     {
         CreateGameplayRuntime();
-        runtime!.RoomLoader.RestoreSavedPlayerState(slot, ConfiguredOptions.ResetBossesOnLoad);
+        runtime.RoomLoader.RestoreSavedPlayerState(slot, ConfiguredOptions.ResetBossesOnLoad);
         // Unlike an ongoing escape, a file-select resume has a fresh gameplay
         // owner. Construct its ordinary HUD now so the cinematic's later room
         // handoff retains initialized HUD state and standard graphics transfers.
@@ -1940,9 +1962,9 @@ public sealed class SuperMetroidGame
     {
         // Live edits in options take precedence over the snapshot loaded at file select.
         if (options is null) return;
-        runtime!.Options.ControllerBindings = options.ControllerBindings;
-        runtime.Options.MoonwalkEnabled = options.MoonwalkEnabled;
-        runtime.Options.IconCancelEnabled = options.IconCancelEnabled;
+        GameplayRuntime.Options.ControllerBindings = options.ControllerBindings;
+        GameplayRuntime.Options.MoonwalkEnabled = options.MoonwalkEnabled;
+        GameplayRuntime.Options.IconCancelEnabled = options.IconCancelEnabled;
     }
 
     /// <summary>
@@ -1951,7 +1973,7 @@ public sealed class SuperMetroidGame
     /// the persisted HUD selection before the first live gameplay update.
     /// </summary>
     private void InitializeSelectedGameHud(SuperMetroidSaveSlot slot) =>
-        runtime!.HudSetup.InitializeHud(new HudSnapshot(
+        GameplayRuntime.HudSetup.InitializeHud(new HudSnapshot(
             slot.Health,
             slot.MaxHealth,
             slot.Missiles,
@@ -2063,7 +2085,7 @@ public sealed class SuperMetroidGame
         // loads the area-six station-zero room and finally runs SamusCode_08. This is the
         // same cartridge-backed sequence used by the room diagnostic; there is no host
         // terrain image, hand-placed Samus, or alternate playable-only initialization.
-        runtime!.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.NmiHandler.PublishForcedBlankTransfers();
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -2186,7 +2208,7 @@ public sealed class SuperMetroidGame
                 }
                 else
                 {
-                    runtime!.RunBlankGameplayFrame(controllerInput);
+                    GameplayRuntime.RunBlankGameplayFrame(controllerInput);
                     if (--demoLoadFramesRemaining == 0)
                         GameState = SuperMetroidGameState.TransitionToDemoB;
                 }
@@ -2196,8 +2218,8 @@ public sealed class SuperMetroidGame
             case SuperMetroidGameState.TransitionToDemoB:
                 // State $29 runs one gameplay frame before revealing the room. Its
                 // extra frame does not decrement the state-$2A demo countdown.
-                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.AttractFrameAudio(runtime) });
-                display.PublishGameplay(runtime);
+                GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.AttractFrameAudio(GameplayRuntime) });
+                display.PublishGameplay(GameplayRuntime);
                 GameState = SuperMetroidGameState.PlayingDemo;
                 break;
 
@@ -2206,18 +2228,18 @@ public sealed class SuperMetroidGame
                 {
                     // Native is suspended in WaitForNMI here: no actor, animation, or
                     // script advances during the ninety-frame final-image hold.
-                    runtime!.NmiHandler.RunNmi(controllerInput, true);
-                    if (runtime.Controller1.NewlyPressed != 0)
+                    GameplayRuntime.NmiHandler.RunNmi(controllerInput, true);
+                    if (GameplayRuntime.Controller1.NewlyPressed != 0)
                         FinishAttractPlayback(cancelled: true);
                     else if (--demoHoldFramesRemaining == 0)
                         FinishAttractPlayback(cancelled: false);
                 }
                 else
                 {
-                    runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.AttractFrameAudio(runtime) });
-                    display.PublishGameplay(runtime);
+                    GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.AttractFrameAudio(GameplayRuntime) });
+                    display.PublishGameplay(GameplayRuntime);
                     // Demo beta has restored the physical controller pair at this point.
-                    if (runtime.Controller1.NewlyPressed != 0)
+                    if (GameplayRuntime.Controller1.NewlyPressed != 0)
                         FinishAttractPlayback(cancelled: true);
                     else if (--demoFramesRemaining <= 0)
                         demoHoldFramesRemaining = AttractDemoRomData.FinalImageHoldFrames;
@@ -2334,7 +2356,7 @@ public sealed class SuperMetroidGame
     /// </summary>
     private void StepGameLoadingWait(ushort controllerInput)
     {
-        runtime!.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
         if (--gameLoadingWaitsRemaining != 0)
         {
             display.PublishBlack();
@@ -2352,7 +2374,7 @@ public sealed class SuperMetroidGame
                 break;
             case GameLoadingCompletion.MainGameplay:
                 GameState = SuperMetroidGameState.MainGameplay;
-                display.PublishGameplay(runtime);
+                display.PublishGameplay(GameplayRuntime);
                 break;
             default:
                 throw new InvalidDataException($"Invalid game-loading completion {gameLoadingCompletion}.");
@@ -2375,11 +2397,11 @@ public sealed class SuperMetroidGame
         if (!waitingForDownwardsElevator)
         {
             // $82:E17D: an ordinary door finishes at once.
-            if (runtime!.Enemies.ElevatorBehavior.ElevatorFlags == 0)
+            if (GameplayRuntime.Enemies.ElevatorBehavior.ElevatorFlags == 0)
                 return true;
             // Samus command 0 locks Samus; an upward elevator then finishes at once.
-            runtime.Player.Samus!.InputLocked = true;
-            if ((short)runtime.Enemies.ElevatorBehavior.ElevatorDirection < 0)
+            GameplayRuntime.Player.IntroducedSamus.InputLocked = true;
+            if ((short)GameplayRuntime.Enemies.ElevatorBehavior.ElevatorDirection < 0)
                 return true;
             downwardsElevatorDelayTimer = ElevatorDoorDefinitions.DownwardsElevatorDelayFrames;
             waitingForDownwardsElevator = true;
@@ -2391,8 +2413,8 @@ public sealed class SuperMetroidGame
             waitingForDownwardsElevator = false;
             return true;
         }
-        runtime!.DoorTransition.RunDoorSoundWaitFrame(controllerInput);
-        display.PublishGameplay(runtime);
+        GameplayRuntime.DoorTransition.RunDoorSoundWaitFrame(controllerInput);
+        display.PublishGameplay(GameplayRuntime);
         return false;
     }
 
@@ -2482,7 +2504,7 @@ public sealed class SuperMetroidGame
             // $24 fades without a gameplay call; its HDMA objects still run until it clears them.
             case SuperMetroidGameState.WhitingOutFromTimeUp:
                 // HDMA runs before $0D disables it; lava swaps the live RNG bytes.
-                runtime!.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
+                GameplayRuntime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
                 break;
             case SuperMetroidGameState.FileSelectMenus:
             case SuperMetroidGameState.SetUpNewGame:

@@ -82,7 +82,7 @@ static void VerifyKraidLibraryHudArtwork(
         throw new InvalidDataException("Kraid HUD lists disagree about their direct-ROM upload geometry.");
     AssertEqual(LibraryBackgroundCommand.TransferToVramForKraid, transfer.Command,
         "Kraid HUD upload uses the special library-background transfer");
-    AssertEqual((ushort)HudTileAtlasFormat.CharacterByteCount, transfer.TransferByteCount!.Value,
+    AssertEqual((ushort)HudTileAtlasFormat.CharacterByteCount, (transfer.TransferByteCount ?? throw new InvalidOperationException("Verification requires transfer.TransferByteCount.")),
         "Kraid HUD upload contains characters without the normal clearing half");
 
     byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress,
@@ -106,7 +106,7 @@ static void VerifyKraidLibraryHudArtwork(
     var installedVram = new SnesVram();
     LibraryBackgroundExecutionResult installed = LibraryBackgroundLoader.Execute(bus, installedVram, transfer.ListPointer, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
     AssertEqual(native, installed, "Kraid command results stay unchanged with installed HUD art");
-    int destinationByte = transfer.VramDestination!.Value * 2;
+    int destinationByte = (transfer.VramDestination ?? throw new InvalidOperationException("Verification requires transfer.VramDestination.")) * 2;
     for (int index = 0; index < planar.Length; index++)
         AssertEqual(stockVram.ReadByte(destinationByte + index),
             installedVram.ReadByte(destinationByte + index),

@@ -38,7 +38,7 @@ internal static class GroundedSpreadTransitionVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         // A local flat clearing isolates the input/pose/charge path from slopes,
         // gunship interaction and scenery. The actual runtime still drives each tick.
         for (int y = 24; y < 36; y++)
@@ -49,7 +49,7 @@ internal static class GroundedSpreadTransitionVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
             level.SetBehavior(index, 0);
         }
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);

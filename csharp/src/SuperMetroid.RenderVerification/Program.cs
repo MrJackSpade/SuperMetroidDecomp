@@ -109,7 +109,7 @@ internal static class Program
                     MinimapBlinkAudit.Run("Super Metroid.smc", runtime =>
                     {
                         var packet = new RenderFrameSnapshot(new(++sequence, 1, runtime.Nmi.NmiFrameCounter),
-                            GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+                            GameplayDisplayCapture.CaptureFrame(runtime));
                         var pixels = renderer.RenderForReadback(packet);
                         PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime), pixels,
                             $"{kind}: minimap blink frame {sequence}");
@@ -186,9 +186,9 @@ internal static class Program
                     last = new(new(i + 1, 1, 0), new Rgba32((byte)i, 73, 129));
                     renderer.Render(last);
                 }
-                PixelComparison.Verify(last!, SoftwareFrameSnapshotRenderer.Render(last!), renderer.Readback(),
+                PixelComparison.Verify((last ?? throw new InvalidOperationException("Verification requires last.")), SoftwareFrameSnapshotRenderer.Render((last ?? throw new InvalidOperationException("Verification requires last."))), renderer.Readback(),
                     $"{kind}: 64 submissions with deferred readback");
-                PixelComparison.Verify(last!, SoftwareFrameSnapshotRenderer.Render(last!), renderer.Readback(),
+                PixelComparison.Verify(last, SoftwareFrameSnapshotRenderer.Render(last), renderer.Readback(),
                     $"{kind}: repeat deferred readback");
                 Console.WriteLine($"{kind}: deferred submission/readback and uninitialized readback guard passed.");
                 int samples = 0;

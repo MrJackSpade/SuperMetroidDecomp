@@ -29,7 +29,7 @@ internal static class LookupTreadmillMechanicsVerification
     internal static WreckedShipTreadmillObjectDefinition TreadmillDefinition(ushort header)
     {
         AssertTrue(WreckedShipTreadmillMechanicsDefinitions.TryResolve((AnimatedTileObject)header, out var definition), "Native treadmill resolves");
-        return definition;
+        return (definition ?? throw new InvalidOperationException("Verification requires definition."));
     }
 
     /// <summary>Checks that a compiled mechanics word is owned and equals the cartridge word.</summary>
@@ -58,7 +58,7 @@ internal static class LookupTreadmillMechanicsVerification
             ushort value = (ushort)header;
             bool found = WreckedShipTreadmillMechanicsDefinitions.TryResolve(header, out var definition);
             AssertEqual(value is 0x8275 or 0x827b, found, "Complete header domain");
-            if (found) AssertEqual(value, (ushort)definition.ObjectPointer, "Resolved identity");
+            if (found) AssertEqual(value, (ushort)(definition ?? throw new InvalidOperationException("Verification requires definition.")).ObjectPointer, "Resolved identity");
             else AssertTrue(definition is null, "Unknown header returns null");
         }
         foreach (ushort undefined in UndefinedAnimatedTileObjects)

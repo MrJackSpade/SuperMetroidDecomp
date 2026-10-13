@@ -179,7 +179,7 @@ internal static class BotwoonAnimationsVerification
         enemies.BotwoonBehavior._botwoonState = state;
         spawnBody(head, state, 2);
         RoomEnemyProjectileSlot body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
-        AssertEqual(BotwoonSegmentProgram.Hidden, ((BotwoonProjectileAnimation)body.Animation!).Segment,
+        AssertEqual(BotwoonSegmentProgram.Hidden, ((BotwoonProjectileAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).Segment,
             "the real body producer starts a non-tail segment hidden");
         body.Position = body.Position.WithWholeY(200);
         body.Velocity = body.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Falling));

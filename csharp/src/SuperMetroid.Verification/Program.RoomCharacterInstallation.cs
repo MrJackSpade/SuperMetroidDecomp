@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -90,9 +91,9 @@ internal static class RoomCharacterInstallationVerification
             LibraryBackgroundSource ghostTransfer = LibraryBackgroundSourceInventory.Scan(bus)
                 .Single(entry => entry.SourceAddress == ghostSource);
             AssertEqual((ushort)RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount,
-                ghostTransfer.TransferByteCount!.Value, "statue-ghost library upload length");
+                (ghostTransfer.TransferByteCount ?? throw new InvalidOperationException("Verification requires ghostTransfer.TransferByteCount.")), "statue-ghost library upload length");
             AssertEqual(RoomAssetRomData.LibraryBackground.TourianStatueGhost.VramDestinationWord,
-                ghostTransfer.VramDestination!.Value, "statue-ghost library VRAM destination");
+                (ghostTransfer.VramDestination ?? throw new InvalidOperationException("Verification requires ghostTransfer.VramDestination.")), "statue-ghost library VRAM destination");
             var nativeGhostVram = new SnesVram();
             SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeGhostVram,
                 ghostTransfer.ListPointer, activeDoorPointer: 0);
@@ -131,8 +132,8 @@ internal static class RoomCharacterInstallationVerification
             string paletteStockPath = Path.Combine(installed.RoomPaletteDirectory, paletteName);
             JsonNode paletteDocument = JsonNode.Parse(File.ReadAllText(paletteStockPath))
                 ?? throw new InvalidDataException("Installed room palette JSON is empty.");
-            JsonNode firstColor = paletteDocument["colors"]![0]!;
-            int stockRed = firstColor["red"]!.GetValue<int>();
+            JsonNode firstColor = paletteDocument.Required("colors").Required(0);
+            int stockRed = firstColor.Required("red").GetValue<int>();
             firstColor["red"] = stockRed ^ 1;
             Directory.CreateDirectory(installed.RoomPaletteOverrideDirectory);
             string paletteOverridePath = Path.Combine(installed.RoomPaletteOverrideDirectory, paletteName);
@@ -166,8 +167,8 @@ internal static class RoomCharacterInstallationVerification
             string blockStockPath = Path.Combine(installed.RoomMetatileDirectory, blockName);
             JsonNode blockDocument = JsonNode.Parse(File.ReadAllText(blockStockPath))
                 ?? throw new InvalidDataException("Installed room-block JSON is empty.");
-            JsonNode firstTile = blockDocument["blocks"]![0]!["topLeft"]!;
-            firstTile["tileColumn"] = (firstTile["tileColumn"]!.GetValue<int>() + 1)
+            JsonNode firstTile = blockDocument.Required("blocks").Required(0).Required("topLeft");
+            firstTile["tileColumn"] = (firstTile.Required("tileColumn").GetValue<int>() + 1)
                 % RoomMetatileFormat.TileColumns;
             Directory.CreateDirectory(installed.RoomMetatileOverrideDirectory);
             string blockOverridePath = Path.Combine(installed.RoomMetatileOverrideDirectory, blockName);
@@ -195,10 +196,10 @@ internal static class RoomCharacterInstallationVerification
                 "manifest substitution fixture uses an uncatalogued source");
             JsonNode alteredManifest = JsonNode.Parse(originalBackgroundManifest)
                 ?? throw new InvalidDataException("Installed background manifest is empty.");
-            JsonObject manifestEntries = alteredManifest["entries"]!.AsObject();
+            JsonObject manifestEntries = alteredManifest.Required("entries").AsObject();
             string stockName = RoomBackgroundTilemapFormat.SourceFileName(stockSource);
             string substitutedName = RoomBackgroundTilemapFormat.SourceFileName(substitutedSource);
-            JsonNode alteredEntry = manifestEntries[stockName]!.DeepClone();
+            JsonNode alteredEntry = manifestEntries.Required(stockName).DeepClone();
             alteredEntry["sourceAddress"] = substitutedSource;
             manifestEntries.Remove(stockName);
             manifestEntries[substitutedName] = alteredEntry;
@@ -235,8 +236,8 @@ internal static class RoomCharacterInstallationVerification
                 backgroundName);
             JsonNode backgroundDocument = JsonNode.Parse(File.ReadAllText(backgroundStockPath))
                 ?? throw new InvalidDataException("Installed background JSON is empty.");
-            JsonNode backgroundCell = backgroundDocument["pages"]![0]!["cells"]![0]!;
-            backgroundCell["tileColumn"] = (backgroundCell["tileColumn"]!.GetValue<int>() + 1)
+            JsonNode backgroundCell = backgroundDocument.Required("pages").Required(0).Required("cells").Required(0);
+            backgroundCell["tileColumn"] = (backgroundCell.Required("tileColumn").GetValue<int>() + 1)
                 % RoomBackgroundTilemapFormat.TileColumns;
             Directory.CreateDirectory(installed.RoomBackgroundTilemapOverrideDirectory);
             string backgroundOverridePath = Path.Combine(
@@ -266,8 +267,8 @@ internal static class RoomCharacterInstallationVerification
                 "installed scrolling-sky page retains native door-selected bytes");
             JsonNode skyDocument = JsonNode.Parse(File.ReadAllText(skyStockPath))
                 ?? throw new InvalidDataException("Installed scrolling-sky JSON is empty.");
-            JsonNode skyCell = skyDocument["pages"]![0]!["cells"]![0]!;
-            skyCell["tileColumn"] = (skyCell["tileColumn"]!.GetValue<int>() + 1)
+            JsonNode skyCell = skyDocument.Required("pages").Required(0).Required("cells").Required(0);
+            skyCell["tileColumn"] = (skyCell.Required("tileColumn").GetValue<int>() + 1)
                 % RoomBackgroundTilemapFormat.TileColumns;
             string skyOverridePath = Path.Combine(
                 installed.RoomBackgroundTilemapOverrideDirectory, skyName);

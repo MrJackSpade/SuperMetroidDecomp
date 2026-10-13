@@ -31,10 +31,10 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xda60, camera: new Position16<RoomPixels>(256, 288));
-        DraygonEnemyState draygon = runtime.Enemies.DraygonBehavior.Draygon!;
+        DraygonEnemyState draygon = (runtime.Enemies.DraygonBehavior.Draygon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.DraygonBehavior.Draygon."));
         // Stage the end of the intro rather than replaying the dance; the fight's hitboxes
         // carry Draygon's own touch routine.
-        draygon.FunctionTimer = NativeCountdown.Start(0x100);
+        (draygon ?? throw new InvalidOperationException("Verification requires draygon.")).FunctionTimer = NativeCountdown.Start(0x100);
         runtime.StepFrame(0);
         draygon.FunctionTimer = NativeCountdown.Start(DraygonIntroDanceDefinitions.DurationFrames);
         runtime.StepFrame(0);
@@ -44,7 +44,7 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         draygon.Body.Health = 0;
 
         // A Screw Attack spin harms the enemy without hurting Samus, as the movie's spark does.
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.EquippedItems |= (ushort)SamusEquipmentFlags.ScrewAttack;
         samus.Pose = SamusPoseId.ScrewAttackRightPose;
@@ -55,7 +55,7 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
         // EnemyMain processes only on-screen enemies; frame the swooping body.
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 0x0100));
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 0x0100));
         runtime.StepFrame(0);
 
         AssertEqual(DraygonAiFunction.Dying, draygon.Function, "touching the dead Draygon runs its death reaction");

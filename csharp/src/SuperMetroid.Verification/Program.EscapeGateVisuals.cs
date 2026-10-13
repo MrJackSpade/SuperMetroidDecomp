@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
@@ -151,9 +152,9 @@ internal static class EscapeGateVisualsVerification
                 RoomPlmEscapeGateVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted escape-gate JSON is empty.");
-            JsonNode closed = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "closed")!;
-            closed["blocks"]![0] = 0x0053;
+            JsonNode closed = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "closed");
+            closed.Required("blocks")[0] = 0x0053;
             Directory.CreateDirectory(
                 installation.RoomPlmEscapeGateVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -173,7 +174,7 @@ internal static class EscapeGateVisualsVerification
                     installation.RoomPlmEscapeGateVisualOverrideDirectory).GetWord(
                     (ushort)MotherBrainEscapeGateDraw.Closed, 0),
                 "escape-gate override survives stock replacement");
-            closed["blocks"]![0] = 0xf053;
+            closed.Required("blocks")[0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmEscapeGateVisuals(),

@@ -132,7 +132,7 @@ public sealed class OamBuffer
 
         if (artwork.TryGet(spritemapIndex, out SamusSpritemapDefinition? definition))
         {
-            foreach (SamusSpritePart part in definition!.Parts)
+            foreach (SamusSpritePart part in definition.Parts)
                 AddSamusSpritePart(new SnesSpritemapXWord(part.X), part.Y,
                     part.Attributes, origin);
             return;

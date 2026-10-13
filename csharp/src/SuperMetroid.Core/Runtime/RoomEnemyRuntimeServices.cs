@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Runtime;
@@ -59,10 +59,10 @@ internal sealed class RoomEnemyRuntimeServices(
     public void SetDefeated(BossBits bits) => system.SetBossBits(area, bits);
 
     /// <summary>Reads a camera scroll-zone cell without mutating its storage.</summary>
-    RoomScrollState IRoomScrollZoneAccess.Read(int index) => room.Camera.Scrolls.ReadState(index);
+    RoomScrollState IRoomScrollZoneAccess.Read(int index) => room.LoadedCamera.Scrolls.ReadState(index);
 
     /// <summary>Writes one camera scroll-zone cell through the room's storage owner.</summary>
-    public void Write(int index, RoomScrollState state) => room.Camera.Scrolls.SetStorage(index, state);
+    public void Write(int index, RoomScrollState state) => room.LoadedCamera.Scrolls.SetStorage(index, state);
 
     /// <summary>Pairs Samus's stationary script lock with the player's grounded-movement gate.</summary>
     public void SetControlsEnabled(bool enabled)

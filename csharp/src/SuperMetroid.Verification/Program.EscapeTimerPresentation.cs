@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -114,8 +115,8 @@ internal static class EscapeTimerPresentationVerification
         AssertTrue(native.HighTable.SequenceEqual(installed.HighTable),
             "installed timer label/digits exactly match native high OAM");
 
-        var document = JsonSerializer.Deserialize<EscapeTimerPresentationDocument>(extracted,
-            MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<EscapeTimerPresentationDocument>(extracted,
+            MapPresentationFormat.JsonOptions);
         document.Anchors["Minutes"] = document.Anchors["Minutes"] with
         {
             X = (short)(document.Anchors["Minutes"].X + 1),

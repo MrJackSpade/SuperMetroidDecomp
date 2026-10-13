@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -98,9 +99,9 @@ internal static class BotwoonWallVisualsVerification
                 RoomPlmBotwoonWallVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted Botwoon wall JSON is empty.");
-            JsonNode clear = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "clear-wall")!;
-            clear["blocks"]![3] = 0x0058;
+            JsonNode clear = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "clear-wall");
+            clear.Required("blocks")[3] = 0x0058;
             Directory.CreateDirectory(
                 installation.RoomPlmBotwoonWallVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -123,7 +124,7 @@ internal static class BotwoonWallVisualsVerification
                     .GetWord(BotwoonWallPlmDrawDefinitions.ClearPointer, 0, 3),
                 "Botwoon wall override survives stock replacement");
 
-            clear["blocks"]![3] = 0xf058;
+            clear.Required("blocks")[3] = 0xf058;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmBotwoonWallVisuals(),

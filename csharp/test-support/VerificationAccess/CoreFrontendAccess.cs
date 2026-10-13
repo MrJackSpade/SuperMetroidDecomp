@@ -366,7 +366,7 @@ internal static class SuperMetroidGameAccess
             if (self.runtime is not null || self.GameState != SuperMetroidGameState.Reset)
                 throw new InvalidOperationException(
                     "Direct-room verification requires a fresh frontend.");
-            if (!((bool)(self.SetupSelectedGame())!))
+            if (!((bool)(self.SetupSelectedGame())))
                 throw new InvalidOperationException(
                     "New-game runtime setup did not select the Ceres arrival path.");
             self.GameState = SuperMetroidGameState.MainGameplay;

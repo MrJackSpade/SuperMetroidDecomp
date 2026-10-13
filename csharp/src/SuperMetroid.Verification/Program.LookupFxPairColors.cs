@@ -41,7 +41,7 @@ internal static class LookupFxPairColorsVerification
                 5 => RoomFxPaletteBlendDefinitions.CalculatedPairGreen((RoomFxPaletteBlend)id, native & 31, color == 0),
                 _ => RoomFxPaletteBlendDefinitions.CalculatedPairBlue((RoomFxPaletteBlend)id, native & 31, (native >> 5) & 31, color == 0),
             };
-            AssertEqual(expected, calculated!.Value, "Native paired-color component rule");
+            AssertEqual(expected, (calculated ?? throw new InvalidOperationException("Verification requires calculated.")), "Native paired-color component rule");
             AssertEqual(expected, (stock.Resolve((RoomFxPaletteBlend)id)[color].ToWord() >> shift) & 31, "Installed paired-color component");
             var cgram = new SnesCgram();
             stock.Apply(cgram, (RoomFxPaletteBlend)id);

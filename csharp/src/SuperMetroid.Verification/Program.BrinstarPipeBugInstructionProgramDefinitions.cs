@@ -152,8 +152,8 @@ internal static class BrinstarPipeBugInstructionProgramDefinitionsVerification
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
             slot.Parameter1 = strong ? (ushort)1 : (ushort)0;
             initialize(slot);
-            PipeBugEnemyState state = enemies.PipeBugStates[0]!;
-            state.InstalledAnimationState = selector == PipeBugAnimationSelector.None
+            PipeBugEnemyState state = (enemies.PipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PipeBugStates[0]."));
+            (state ?? throw new InvalidOperationException("Verification requires state.")).InstalledAnimationState = selector == PipeBugAnimationSelector.None
                 ? PipeBugAnimationSelector.Shooting
                 : PipeBugAnimationSelector.None;
             state.AnimationState = selector;

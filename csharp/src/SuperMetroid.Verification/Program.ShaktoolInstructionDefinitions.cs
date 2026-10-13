@@ -38,17 +38,17 @@ internal static class ShaktoolInstructionDefinitionsVerification
 
         RoomEnemySystem enemies = CreateCompiledShaktoolGroup(rom);
         RoomEnemySlot center = enemies.SlotTable.Slots[3];
-        ShaktoolSegmentState centerState = enemies.ShaktoolSegments[3]!;
-        ShaktoolSegmentState nextState = enemies.ShaktoolSegments[4]!;
+        ShaktoolSegmentState centerState = (enemies.ShaktoolSegments[3] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[3]."));
+        ShaktoolSegmentState nextState = (enemies.ShaktoolSegments[4] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[4]."));
         Action<RoomEnemySlot, ShaktoolSegmentState> orient = enemies.ShaktoolBehavior.AdvanceAndOrientShaktoolCenter;
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             ushort midpoint = unchecked((ushort)(bucket << 8));
             center.Parameter1 = 0;
-            centerState.OrbitAngle = unchecked((ushort)(midpoint ^ 0x8000));
+            (centerState ?? throw new InvalidOperationException("Verification requires centerState.")).OrbitAngle = unchecked((ushort)(midpoint ^ 0x8000));
             centerState.AngularVelocity = 0;
             centerState.OrientationAndAcceleration = 0;
-            nextState.OrbitAngle = midpoint;
+            (nextState ?? throw new InvalidOperationException("Verification requires nextState.")).OrbitAngle = midpoint;
             orient(center, centerState);
             AssertEqual(bucket, unchecked((ushort)(
                     SnesLittleEndian.LowByte(centerState.OrientationAndAcceleration))),
@@ -59,9 +59,9 @@ internal static class ShaktoolInstructionDefinitionsVerification
         }
 
         RoomEnemySlot tail = enemies.SlotTable.Slots[6];
-        ShaktoolSegmentState tailState = enemies.ShaktoolSegments[6]!;
+        ShaktoolSegmentState tailState = (enemies.ShaktoolSegments[6] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[6]."));
         Action<RoomEnemySlot, ShaktoolSegmentState, Position16<RoomPixels>> reverse = enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision;
-        reverse(tail, tailState, tail.Position.Whole);
+        reverse(tail, (tailState ?? throw new InvalidOperationException("Verification requires tailState.")), tail.Position.Whole);
         for (int index = 0; index < 7; index++)
         {
             AssertEqual(ShaktoolInstructionDefinitions.CollisionForSegment(index),
@@ -131,9 +131,9 @@ internal static class ShaktoolInstructionDefinitionsVerification
         }
 
         RoomEnemySlot tail = enemies.SlotTable.Slots[6];
-        ShaktoolSegmentState tailState = enemies.ShaktoolSegments[6]!;
+        ShaktoolSegmentState tailState = (enemies.ShaktoolSegments[6] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[6]."));
         Action<RoomEnemySlot, ShaktoolSegmentState, Position16<RoomPixels>> reverse = enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision;
-        reverse(tail, tailState, tail.Position.Whole);
+        reverse(tail, (tailState ?? throw new InvalidOperationException("Verification requires tailState.")), tail.Position.Whole);
         for (int index = 0; index < 7; index++)
             RunForcedShaktoolInstructions(enemies, enemies.SlotTable.Slots[index], 8);
 

@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -26,8 +28,11 @@ internal static class EnemyProjectileArtworkContractChecks
         Require(catalog.Get(directId).IsEmpty && catalog.GetProgramFrame(program.OperandAddress).IsEmpty &&
             catalog.Get(EnemyProjectileSpritemapDefinitions.BlankSpritemap).IsEmpty, "complete authored empty compositions and native blank");
         string directName = EnemyProjectileSpritemapDefinitions.Frames[0].Name;
-        direct[directName] = null!;
-        Reject(() => Load(document), "null direct composition");
+        var camelCase = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        JsonNode withNullFrame = RequiredJson.Parse(JsonSerializer.SerializeToUtf8Bytes(document, camelCase));
+        withNullFrame.Required("frames")[directName] = null;
+        Reject(() => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(withNullFrame.ToJsonString())), null),
+            "null direct composition");
         direct.Remove(directName); direct.Add("unowned-direct", []);
         Reject(() => Load(document), "same-count substituted direct composition");
         direct.Remove("unowned-direct"); direct.Add(directName, []);
@@ -66,7 +71,7 @@ internal static class EnemyProjectileArtworkContractChecks
             }
             """, path: "fixture-enemy-projectile-consumer.cs");
         trees.Add(calls);
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("EnemyProjectileArtworkFixture", sources,
             platforms.Append(typeof(EnemyProjectileSpritemapCatalog).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),

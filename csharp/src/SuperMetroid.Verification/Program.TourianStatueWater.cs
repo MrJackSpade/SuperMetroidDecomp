@@ -33,14 +33,14 @@ internal static class TourianStatueWaterVerification
         AssertEqual(RoomFxType.TourianEntranceStatue, runtime.RoomLayer3Fx.Type, "Actual four-statues room owns special FX 26");
         AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.BaseYPosition, "Retail statues water begins at Y=B0");
         AssertEqual(true, runtime.RoomLayer3Fx.IsRenderable, "Statue special FX must supply its water plane");
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 120));
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
         samus.CommitPoseHistory(bus);
         samus.InputLocked = false;
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 0));
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 0));
         game.GameState = SuperMetroidGameState.MainGameplay;
         for (int frame = 0; frame < 3; frame++) game.Step(0);
         AssertEqual(RoomFxType.TourianEntranceStatue, samus.LiquidPhysics.FxType, "Samus retains native special FX identity");
@@ -53,7 +53,7 @@ internal static class TourianStatueWaterVerification
         AssertEqual((short)0xb0, displayed.WaterSurfaceScreenY, "Displayed water surface stays at native room height");
         AssertEqual(LayerBlendingConfiguration.LiquidOrFogAdditive, displayed.LayerBlendConfiguration, "Native configuration 18");
         var basis = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
-        var full = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+        var full = GameplayDisplayCapture.CaptureFrame(runtime);
         AssertEqual(1, full.Layers.ToArray().Count(layer => layer is Bg2BppColorMathRenderLayer), "One BG3 water plane accompanies the statue");
         var dryPixels = SoftwareLayeredSnapshotRenderer.Render(basis);
         var wetPixels = SoftwareLayeredSnapshotRenderer.Render(full);
@@ -73,7 +73,7 @@ internal static class TourianStatueWaterVerification
         var descending = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];
         AssertEqual(unchecked((ushort)(runtime.Display.DisplayedGameplayPpu.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset)),
             descending.Registers.Bg2Scroll.Y, "Statue descent retains its independent BG2 vertical scroll");
-        AssertEqual((short)0xb0, runtime.Display.DisplayedRoomLayer3Fx!.Value.WaterSurfaceScreenY,
+        AssertEqual((short)0xb0, runtime.Display.DisplayedRoomLayer3Fx.Value.WaterSurfaceScreenY,
             "Statue motion does not move its water surface");
         runtime.RoomLayer3Fx.ApplyCartridgeMotionWrites(targetYPosition: 0xb4,
             packedYVelocity: 0x0100, timer: 1);

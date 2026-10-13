@@ -11,9 +11,9 @@ internal static class MotherBrainAscentCaptureVerification
     internal static int VerifyMotherBrainAscentCapture(SuperMetroidRuntime runtime)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var state = runtime.Enemies.MotherBrainEncounter.MotherBrain!;
+        var state = runtime.Enemies.MotherBrainEncounter.MotherBrain;
         AssertTrue(Layer().MainScreenLayersByLine.IsEmpty, "No ascent mask before the native state starts it");
-        state.FunctionTimer = NativeCountdown.Start(0);
+        (state ?? throw new InvalidOperationException("Verification requires state.")).FunctionTimer = NativeCountdown.Start(0);
         runtime.Enemies.MotherBrainBehavior.PrepareMotherBrainForRising(state);
         AssertTrue(state.RisingHdmaActive, "Production rising setup activates HDMA");
         var captured = Layer();

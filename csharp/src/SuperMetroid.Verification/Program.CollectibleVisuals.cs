@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -144,8 +145,8 @@ internal static class CollectibleVisualsVerification
                 RoomPlmCollectibleVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted collectible JSON is empty.");
-            JsonNode frame = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "energy-tank-0")!;
+            JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "energy-tank-0");
             frame["visualWord"] = 0x0053;
             Directory.CreateDirectory(installation.RoomPlmCollectibleVisualOverrideDirectory);
             string overridePath = Path.Combine(

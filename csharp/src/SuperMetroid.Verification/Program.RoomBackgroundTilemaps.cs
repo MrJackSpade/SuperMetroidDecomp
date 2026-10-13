@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -63,8 +64,8 @@ internal static class RoomBackgroundTilemapsVerification
         byte[] original = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), ceresSource);
         JsonNode edited = JsonNode.Parse(files[RoomBackgroundTilemapFormat.SourceFileName(ceresSource)])
             ?? throw new InvalidDataException("Ceres background JSON is empty.");
-        JsonNode firstCell = edited["pages"]![0]!["cells"]![0]!;
-        firstCell["tileColumn"] = (firstCell["tileColumn"]!.GetValue<int>() + 1)
+        JsonNode firstCell = edited.Required("pages").Required(0).Required("cells").Required(0);
+        firstCell["tileColumn"] = (firstCell.Required("tileColumn").GetValue<int>() + 1)
             % RoomBackgroundTilemapFormat.TileColumns;
         RoomBackgroundTilemapAtlas modified = RoomBackgroundTilemapAtlas.Load(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited)),

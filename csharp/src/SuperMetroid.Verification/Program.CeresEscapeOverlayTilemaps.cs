@@ -83,7 +83,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         AssertTrue(stockOverlay.TryResolve(title.SourceAddress,
                 title.WordCount * sizeof(ushort), out ReadOnlyMemory<byte> stockWords),
             "stock English Ceres title resolves");
-        AssertTrue(edited.CeresEscapeOverlayTilemaps!.TryResolve(title.SourceAddress,
+        AssertTrue((edited.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires edited.CeresEscapeOverlayTilemaps.")).TryResolve(title.SourceAddress,
                 title.WordCount * sizeof(ushort), out ReadOnlyMemory<byte> editedWords),
             "edited English Ceres title resolves");
         AssertEqual((byte)(stockWords.Span[0] ^ 1), editedWords.Span[0],
@@ -102,8 +102,8 @@ internal static class CeresEscapeOverlayTilemapsVerification
             editedVram.ReadWord(
                 CeresEscapeOverlayTilemapDefinitions.EmergencyDestination),
             "edited Ceres title changes the live VRAM word");
-        AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .CeresEscapeOverlayTilemaps!.TryResolve(title.SourceAddress,
+        AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
+                .CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .CeresEscapeOverlayTilemaps.")).TryResolve(title.SourceAddress,
                     title.WordCount * sizeof(ushort),
                     out ReadOnlyMemory<byte> reloaded) &&
                    reloaded.Span.SequenceEqual(editedWords.Span),

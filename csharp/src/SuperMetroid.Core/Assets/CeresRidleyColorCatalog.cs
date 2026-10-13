@@ -165,11 +165,11 @@ public sealed class CeresRidleyColorCatalog
         return new(new CeresRidleyColorParts { Start = Compile(document.Start, CeresRidleyPaletteRomData.StartColorCount, "start"), EyeFade = new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Eyes, CompileRows(document.EyeFade, CeresRidleyPaletteRomData.EyeFadeRowCount,
                 CeresRidleyPaletteRomData.EyeFadeColorCount, "eye fade")), BodyFade = compiledBody, Health = CompileRows(document.Health, CeresRidleyPaletteRomData.HealthRowCount,
                 CeresRidleyPaletteRomData.HealthColorCount, "health"), Alarm = version != CeresRidleyColorVersion.Current
-                ? stockForLegacyOverride!.alarm
+                ? (stockForLegacyOverride ?? throw new InvalidDataException("A legacy Ceres Ridley color override requires the current stock catalog.")).alarm
                 : new CeresRidleyAlarmColorDefinitions(CompileRows(document.Alarm, CeresRidleyPaletteRomData.AlarmRowCount,
                     CeresRidleyPaletteRomData.AlarmColorCount, "alarm")), RetreatBg = Compile(document.RetreatBg, CeresRidleyPaletteRomData.RetreatBgColorCount, "retreat BG"), RetreatShared = Compile(document.RetreatShared, CeresRidleyPaletteRomData.RetreatSharedColorCount,
                 "retreat shared"), Baby = version == CeresRidleyColorVersion.PreBaby
-                ? stockForLegacyOverride!.baby
+                ? (stockForLegacyOverride ?? throw new InvalidDataException("A legacy Ceres Ridley color override requires the current stock catalog.")).baby
                 : new CeresBabyPaintDefinitions(CompileRows(document.Baby, CeresRidleyPaletteRomData.BabyRowCount,
                     CeresRidleyPaletteRomData.BabyColorCount, "Baby"), compiledBody) });
     }

@@ -1521,7 +1521,7 @@ internal sealed class EnemyCollision
         {
             SamusProjectileSystem projectiles = _frameContext._samusProjectilesForEnemyFrame
                 ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires the live projectile owner.");
-            projectiles.Firing.ConsumePseudoScrewCharge(_presentation._cgram!, samus);
+            projectiles.Firing.ConsumePseudoScrewCharge(_presentation.Cgram, samus);
         }
 
         ushort baseDamage = contactDamageIndex switch

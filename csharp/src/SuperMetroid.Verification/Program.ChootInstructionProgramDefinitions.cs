@@ -56,7 +56,7 @@ internal static class ChootInstructionProgramDefinitionsVerification
         slot.Parameter2 = 0;
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
         initialize(slot);
-        ChootEnemyState state = enemies.ChootStates[0]!;
+        ChootEnemyState state = (enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0]."));
         object?[] processArguments =
             [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
@@ -69,7 +69,7 @@ internal static class ChootInstructionProgramDefinitionsVerification
         AssertTrue((slot.Properties & (ushort)EnemyProperties.ProcessOffScreen) == 0,
             "Choot idle program disables off-screen processing");
 
-        state.JumpDelayTimer = NativeCountdown.Start(0);
+        (state ?? throw new InvalidOperationException("Verification requires state.")).JumpDelayTimer = NativeCountdown.Start(0);
         prepareJump(slot, state);
         AssertEqual(ChootInstructionProgramDefinitions.Jumping, slot.CurrentInstruction,
             "Choot real preparation handoff installs jumping program");

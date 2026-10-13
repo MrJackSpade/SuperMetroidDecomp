@@ -98,10 +98,10 @@ public static class SoftwareGameplayColorMathRenderer
                 {
                     sub = bg2Sampler.Sample(Bg2Source(r, layer.Gameplay, lineIndex, new Position16<ScreenPixels>((ushort)x, (ushort)y))).Color;
                 }
-                if (layer.AddSubscreen && layer.Subscreen is { } bg3 && y >= bg3.FirstScanline)
+                if (layer.AddSubscreen && layer.Subscreen is { } bg3 && subSampler is not null && y >= bg3.FirstScanline)
                 {
                     Position16<BgPlanePixels> scroll = bg3.Scrolls[y];
-                    var pixel = subSampler!.Sample(scroll + new Offset16<BgPlanePixels>((short)x, (short)y));
+                    var pixel = subSampler.Sample(scroll + new Offset16<BgPlanePixels>((short)x, (short)y));
                     // Gameplay uses Mode 1 with BG3 priority: high BG3 beats both
                     // BG2 priorities; low BG3 is behind both. Transparent pixels
                     // never replace an opaque operand on the same subscreen.

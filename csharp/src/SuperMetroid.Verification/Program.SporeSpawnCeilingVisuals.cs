@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -45,12 +46,12 @@ internal static class SporeSpawnCeilingVisualsVerification
                 RoomPlmSporeSpawnCeilingVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted Spore Spawn ceiling JSON is empty.");
-            JsonNode first = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "crumble-frame-0")!;
-            JsonNode clear = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "clear-ceiling")!;
-            first["blocks"]![0] = 0x0058;
-            clear["blocks"]![3] = 0x0059;
+            JsonNode first = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "crumble-frame-0");
+            JsonNode clear = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "clear-ceiling");
+            first.Required("blocks")[0] = 0x0058;
+            clear.Required("blocks")[3] = 0x0059;
             Directory.CreateDirectory(
                 installation.RoomPlmSporeSpawnCeilingVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -80,7 +81,7 @@ internal static class SporeSpawnCeilingVisualsVerification
                     .GetWord((ushort)SporeSpawnCeilingDraw.Clear, 1, 1),
                 "Spore Spawn override survives stock replacement");
 
-            first["blocks"]![0] = 0xf058;
+            first.Required("blocks")[0] = 0xf058;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmSporeSpawnCeilingVisuals(),

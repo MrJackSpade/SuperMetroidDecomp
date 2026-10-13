@@ -36,13 +36,13 @@ internal static class LookupAnimatedAreasVerification
             {
                 var failure = AssertThrows<ArgumentOutOfRangeException>(
                     () => AreaAnimatedTileObjectDefinitions.NativeObjectPointer(area, bit), "Native selection rejects");
-                AssertEqual(area >= 8 ? "nativeAreaIndex" : "bit", failure.ParamName!, "Native area-first validation");
+                AssertEqual(area >= 8 ? "nativeAreaIndex" : "bit", failure.ParamName, "Native area-first validation");
             }
             if (area >= 7 || bit >= 8)
             {
                 var failure = AssertThrows<ArgumentOutOfRangeException>(
                     () => AreaAnimatedTileObjectDefinitions.Read((AreaId)area, bit), "Retail selection rejects");
-                AssertEqual(bit >= 8 ? "bit" : "area", failure.ParamName!, "Retail bit-first validation");
+                AssertEqual(bit >= 8 ? "bit" : "area", failure.ParamName, "Retail bit-first validation");
             }
         }
         foreach (int invalid in new[] { int.MinValue, -1, int.MaxValue })

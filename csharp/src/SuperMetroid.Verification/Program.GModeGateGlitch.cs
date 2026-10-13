@@ -65,12 +65,12 @@ internal static class GModeGateGlitchVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.KronicBoost);
 
-        RoomLevelData level = runtime.Room.LevelData!;
+        RoomLevelData level = runtime.Room.LoadedLevelData;
         RoomPlmSystem plms = runtime.Plms;
         RoomPlmSlotSnapshot gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         for (int warm = 0; warm < 2; warm++)
-            plms.Step(bus, level, runtime.Room.BackgroundStreamer!, new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
+            plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         ushort sleepingGateInstruction = gate.InstructionPointer;
@@ -85,7 +85,7 @@ internal static class GModeGateGlitchVerification
                 "direct G-Mode fixture fills the native forty-slot PLM pool");
         }
 
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         EnterDirectGMode(bus, samus);
         samus.Position = samus.Position.WithWhole(new(140, 360));
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
@@ -118,7 +118,7 @@ internal static class GModeGateGlitchVerification
 
             if (!samus.Xray.ArePlmsSuspended)
             {
-                plms.Step(bus, level, runtime.Room.BackgroundStreamer!, new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
+                plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
             }
 
             RoomPlmSlotSnapshot currentGate = plms.PopulationSlots.Single(slot =>
@@ -142,7 +142,7 @@ internal static class GModeGateGlitchVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
 
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         EnterDirectGMode(bus, samus);
         samus.Xray.TransitionDirectGModeToIndirect();
         AssertTrue(!samus.Xray.IsActive && samus.Xray.IsGMode,

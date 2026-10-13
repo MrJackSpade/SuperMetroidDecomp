@@ -106,10 +106,10 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        runtime.Player.Samus!.InputLocked = true;
+        runtime.Player.IntroducedSamus.InputLocked = true;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;
         game.AudioForVerification.Reset();
         return game;
@@ -118,14 +118,14 @@ internal static class HostIndependentAudioAcknowledgementsVerification
     /// <summary>Resolves the Landing Site's first door block and enters the door transition.</summary>
     private static void EnterLandingSiteDoor(SuperMetroidGame game)
     {
-        SuperMetroidRuntime runtime = game.RuntimeForVerification!;
-        var level = runtime.Room.LevelData!;
+        SuperMetroidRuntime runtime = game.GameplayRuntimeForVerification;
+        var level = runtime.Room.LoadedLevelData;
         for (int y = 0; y < level.Size.Y; y++)
         for (int x = 0; x < level.Size.X; x++)
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(game.bus, block.Behavior, runtime.Player.Samus!.Pose, true);
+            level.ResolveDoorCollision(game.bus, block.Behavior, runtime.Player.IntroducedSamus.Pose, true);
             game.GameState = SuperMetroidGameState.HitDoorBlock;
             return;
         }

@@ -96,7 +96,7 @@ public sealed class EnemySpritemapCatalog
             : [];
         if (expectedCount < 0 ||
             document.Frames is null || document.Frames.Count != expected.Length ||
-            (legacyOverride && stockForLegacyOverride!.frames.Count !=
+            (legacyOverride && (stockForLegacyOverride ?? throw new InvalidDataException("A legacy enemy composition override requires the current stock catalog.")).frames.Count !=
                 EnemySpritemapDefinitions.Frames.Length))
             throw new InvalidDataException(
                 "Enemy compositions require the current version and every named frame.");
@@ -144,10 +144,10 @@ public sealed class EnemySpritemapCatalog
         }
         if (!legacyOverride)
             return new EnemySpritemapCatalog(frames, displayFrames);
-        var merged = new Dictionary<int, EnemySpritemapParts>(stockForLegacyOverride!.frames);
+        var merged = new Dictionary<int, EnemySpritemapParts>((stockForLegacyOverride ?? throw new InvalidDataException("A legacy enemy composition override requires the current stock catalog.")).frames);
         foreach ((int identity, EnemySpritemapParts parts) in frames)
             merged[identity] = parts;
-        var mergedBindings = new Dictionary<int, int>(stockForLegacyOverride.displayFrames);
+        var mergedBindings = new Dictionary<int, int>((stockForLegacyOverride ?? throw new InvalidDataException("A legacy enemy composition override requires the current stock catalog.")).displayFrames);
         foreach ((int identity, int selected) in displayFrames)
             mergedBindings[identity] = selected;
         return new EnemySpritemapCatalog(merged, mergedBindings);

@@ -31,11 +31,11 @@ internal static class DoorAnimatedTilesVerification
         for (int area = 1; area <= 4; area++)
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(0xa5ed);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = true;
 
         // Select the source room's door into the statue room.
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         CartridgeDoorHeader? entry = null;
         for (int y = 0; y < level.Size.Y && entry is null; y++)
         for (int x = 0; x < level.Size.X && entry is null; x++)
@@ -51,7 +51,7 @@ internal static class DoorAnimatedTilesVerification
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         int handlerFrames = 0;
         for (int frame = 0; frame < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; frame++)
@@ -62,7 +62,7 @@ internal static class DoorAnimatedTilesVerification
             game.Step(0);
         }
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the door completes");
-        AssertEqual((ushort)0xa66a, runtime.Room.ActiveRoom!.Pointer, "the door enters the statue room");
+        AssertEqual((ushort)0xa66a, runtime.Room.LoadedRoom.Pointer, "the door enters the statue room");
 
         // A directly loaded statue room stepped by the same number of handler calls.
         var reference = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -71,7 +71,7 @@ internal static class DoorAnimatedTilesVerification
         reference.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             reference.System.SetBossBits(area, BossBits.AreaBoss);
-        reference.LoadCartridgeRoomThroughDoorForVerification(entry!);
+        reference.LoadCartridgeRoomThroughDoorForVerification((entry ?? throw new InvalidOperationException("Verification requires entry.")));
         for (int call = 0; call < handlerFrames; call++)
             reference.TourianStatues.StepTiles();
 

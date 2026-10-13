@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -38,7 +39,7 @@ internal static class MapStationLayoutVerification
         // All 14 pairs are checked by the importer against independently read native lists;
         // every possible station-discovery subset above compares the original drawing path.
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = JsonSerializer.Deserialize<MapStationLayoutDocument>(File.ReadAllBytes(Path.Combine(stock, MapStationLayoutFormat.FileName)), options)!;
+        var document = RequiredJson.Deserialize<MapStationLayoutDocument>(File.ReadAllBytes(Path.Combine(stock, MapStationLayoutFormat.FileName)), options);
         var points = new Dictionary<string, Position16<MapPixels>>(document.Markers);
         const string moved = "Brinstar.Missile.0";
         points[moved] = new(80, 64);

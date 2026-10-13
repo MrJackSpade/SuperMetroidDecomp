@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
@@ -43,7 +44,7 @@ internal static class EnemyAiCodePointersVerification
 
             foreach (FieldInfo field in fields)
             {
-                ushort pointer = (ushort)field.GetRawConstantValue()!;
+                ushort pointer = field.RequiredConstant<ushort>();
                 AssertTrue(pointer >= 0x8000,
                     $"enemy interaction callback {bankCatalog.Name}.{field.Name} is in mapped ROM");
                 interactionPointers.Add(pointer);
@@ -60,11 +61,11 @@ internal static class EnemyAiCodePointersVerification
                 field.IsLiteral &&
                 field.FieldType == typeof(ushort) &&
                 field.Name.EndsWith("Ai", StringComparison.Ordinal) &&
-                (ushort)field.GetRawConstantValue()! >= 0x8000)
+                field.RequiredConstant<ushort>() >= 0x8000)
             .ToArray();
         foreach (FieldInfo callback in translatedCallbacks)
         {
-            ushort pointer = (ushort)callback.GetRawConstantValue()!;
+            ushort pointer = callback.RequiredConstant<ushort>();
             AssertTrue(interactionPointers.Contains(pointer),
                 $"translated enemy callback {callback.Name} (${pointer:X4}) is centrally named");
         }

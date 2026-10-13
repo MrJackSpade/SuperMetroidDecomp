@@ -111,7 +111,8 @@ public sealed record ControllerInputRecording
         }
         destination.Write(header);
         if (formatVersion == ControllerInputRecordingVersion.Current)
-            GameContentComponentFormat.Write(destination, ContentIdentity!.AdditionalContentSha256);
+            GameContentComponentFormat.Write(destination, (ContentIdentity ?? throw new InvalidDataException(
+                "A current-format recording requires its game content identity.")).AdditionalContentSha256);
         destination.Write(InitialSaveRam);
 
         Span<byte> word = stackalloc byte[sizeof(ushort)];

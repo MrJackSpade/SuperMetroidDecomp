@@ -32,7 +32,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     /// <summary>Serializes WinMM operations with reset and disposal.</summary>
     internal readonly Lock deviceGate = new();
     /// <summary>Background owner of blocking waveOut buffer submission.</summary>
-    private readonly Thread submissionWorker = null!;
+    private readonly Thread submissionWorker;
     /// <summary>Open WinMM wave output handle, or zero after cleanup.</summary>
     private nint device;
     /// <summary>Next pinned hardware slot to receive a PCM frame.</summary>

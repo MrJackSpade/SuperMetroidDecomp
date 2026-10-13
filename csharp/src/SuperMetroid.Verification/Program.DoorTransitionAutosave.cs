@@ -51,8 +51,8 @@ internal static class DoorTransitionAutosaveVerification
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),
                 typeof(SuperMetroidGame).Module.ModuleVersionId);
             var store = DebuggerSaveStateStore.ForInstalledGame(directory, null, identity);
-            string storeDirectory = Path.GetDirectoryName(store.GetSlotPath(0))!;
-            Directory.CreateDirectory(storeDirectory);
+            string storeDirectory = (Path.GetDirectoryName(store.GetSlotPath(0)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(store.GetSlotPath(0))."));
+            Directory.CreateDirectory((storeDirectory ?? throw new InvalidOperationException("Verification requires storeDirectory.")));
             for (int slot = 0; slot < DebuggerStateFormat.SlotCount; slot++)
                 File.WriteAllText(store.GetSlotPath(slot), "manual slot " + slot);
             string autoPath = store.GetSlotPath(DebuggerStateFormat.AutomaticSlot);
@@ -64,7 +64,7 @@ internal static class DoorTransitionAutosaveVerification
             PrepareDoor(0x92fd, 0x91f8);
             int writes = FinishDoor(enabled: true);
             AssertEqual(1, writes, "one autosave only at completed transition");
-            AssertEqual((ushort)0x91f8, game.GameplayActiveRoomPointer!.Value, "autosave destination is Landing Site");
+            AssertEqual((ushort)0x91f8, (game.GameplayActiveRoomPointer ?? throw new InvalidOperationException("Verification requires game.GameplayActiveRoomPointer.")), "autosave destination is Landing Site");
             byte[] first = File.ReadAllBytes(autoPath);
             string bundle = Path.Combine(directory, "auto-diagnostics.zip");
             SuperMetroid.Android.AndroidDiagnosticBundle.Create(directory, bundle, DebuggerStateFormat.AutomaticSlot);
@@ -97,8 +97,8 @@ internal static class DoorTransitionAutosaveVerification
                 AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "restored frame cadence");
                 AssertSameBytes(bus.WorkRam, loaded.AddressSpace.WorkRam, "restored continuation WRAM");
                 AssertSameBytes(bus.SaveRam, loaded.AddressSpace.SaveRam, "restored continuation SRAM");
-                AssertEqual(runtime.Player.Samus!.Position.X.Whole, loaded.Game.RuntimeForVerification!.Player.Samus!.Position.X.Whole, "restored Samus movement");
-                AssertEqual(runtime.System.RandomNumber, loaded.Game.RuntimeForVerification!.System.RandomNumber, "restored RNG");
+                AssertEqual(runtime.Player.IntroducedSamus.Position.X.Whole, loaded.Game.GameplayRuntimeForVerification.Player.IntroducedSamus.Position.X.Whole, "restored Samus movement");
+                AssertEqual(runtime.System.RandomNumber, loaded.Game.GameplayRuntimeForVerification.System.RandomNumber, "restored RNG");
                 AssertTrue(expectedPcm.AsSpan().SequenceEqual(actualPcm), "restored continuation PCM");
                 AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.MainGameplay,
                     store, bus, game) is null, "ordinary gameplay does not replace auto");
@@ -108,7 +108,7 @@ internal static class DoorTransitionAutosaveVerification
                 store, bus, game) is null, "replay does not overwrite recovery");
             PrepareDoor(0x91f8, 0x92fd);
             AssertEqual(1, FinishDoor(enabled: true), "second transition writes one replacement");
-            AssertEqual((ushort)0x92fd, store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.RoomPointer!.Value,
+            AssertEqual((ushort)0x92fd, (store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.RoomPointer ?? throw new InvalidOperationException("Verification requires store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.RoomPointer.")),
                 "second auto points at new destination");
             byte[] second = File.ReadAllBytes(autoPath);
             AssertTrue(!first.AsSpan().SequenceEqual(second), "second transition replaces auto");
@@ -150,7 +150,7 @@ internal static class DoorTransitionAutosaveVerification
             void PrepareDoor(ushort source, ushort destination)
             {
                 runtime.LoadCartridgeRoomForDebug(source);
-                var level = runtime.Room.LevelData!;
+                var level = runtime.Room.LoadedLevelData;
                 for (int y = 0; y < level.Size.Y; y++)
                 for (int x = 0; x < level.Size.X; x++)
                 {
@@ -159,13 +159,13 @@ internal static class DoorTransitionAutosaveVerification
                     var door = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false);
                     if (door.Door?.DestinationRoomPointer != destination) continue;
                     runtime.LoadCartridgeRoomForDebug(source, camera: new Position16<RoomPixels>((ushort)(x / 16 * 256), (ushort)(y / 16 * 256)));
-                    var samus = runtime.Player.Samus!;
+                    var samus = runtime.Player.IntroducedSamus;
                     samus.InputLocked = false;
                     samus.PoseId = SamusPoseId.FacingRightNormalPose;
                     samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));
                     samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
-                    runtime.Room.LevelData!.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
-                    game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+                    runtime.Room.LoadedLevelData.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
+                    game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
                     game.GameState = SuperMetroidGameState.HitDoorBlock;
                     return;
                 }

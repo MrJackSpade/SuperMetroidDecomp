@@ -754,7 +754,8 @@ public static class SnesGameplayFrameRenderer
         // Both display-packet and immediate rendering consume the same cartridge
         // endpoint builder. Backend equality is useful coverage, but the separate
         // executed-ROM fixture is the independent oracle for these endpoints.
-        ScanlineColorAddRenderLayer layer = CaptureMorphBallEyeBeam(bus, beam, layer1)!;
+        ScanlineColorAddRenderLayer layer = CaptureMorphBallEyeBeam(bus, beam, layer1) ??
+            throw new InvalidOperationException("An active morph-ball eye beam always captures its windows.");
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
             ColorAddWindow window = layer.Windows[screenY];

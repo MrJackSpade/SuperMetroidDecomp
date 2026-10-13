@@ -39,7 +39,7 @@ internal static class BossDisplayBindingsVerification
                 baseline.SetFrame(frame.Pointer, fresh: true); replacement.SetFrame(frame.Pointer, fresh: true);
                 baseline.ClearBg2(); replacement.ClearBg2();
                 AssertBodyOam(baseline.Draw(), stock.Oam.Frames[frame.Name], baseline.Actor);
-                string selected = edits.Oam.DisplayFrames![frame.Name];
+                string selected = (edits.Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires edits.Oam.DisplayFrames."))[frame.Name];
                 AssertBodyOam(replacement.Draw(), edits.Oam.Frames[selected], replacement.Actor);
                 AssertBossBg2(baseline.Vram, stock.Writes(frame.Bank, frame.Pointer));
                 AssertBossBg2(replacement.Vram, edits.Writes(frame.Bank,

@@ -120,7 +120,7 @@ internal static class DeadTourianCorpseArtworkVerification
                 $"dead Tourian corpse program {index} has an installed selector");
             AssertEqual(nativePointer, installedPointer,
                 $"dead Tourian corpse program {index} keeps its native identity");
-            AssertTrue(stock.Spritemaps!.TryGetDisplay(
+            AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
                     DeadTourianCorpseVisualDefinitions.Bank, installedPointer,
                     out EnemySpritemapParts installedParts),
                 $"dead Tourian corpse program {index} has installed OAM");
@@ -151,7 +151,7 @@ internal static class DeadTourianCorpseArtworkVerification
             AssertEqual(nativePointer, installedPointer,
                 $"dead Sidehopper selector {index} preserves identity");
             sidehopperPointers.Add(installedPointer);
-            AssertTrue(stock.Spritemaps!.TryGetDisplay(
+            AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
                     DeadTourianCorpseVisualDefinitions.Bank, installedPointer,
                     out EnemySpritemapParts installedParts),
                 $"dead Sidehopper selector {index} has installed OAM");

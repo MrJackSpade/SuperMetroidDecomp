@@ -76,7 +76,7 @@ public sealed class D3D11SwapchainPresenter : IDisposable
         if (!ReferenceEquals(renderer.DeviceOwner, owner)) throw new InvalidOperationException("Renderer and swapchain must share a device owner.");
         if (target is null) throw new InvalidOperationException("Swapchain target is unavailable after failed resize.");
         if (renderer.SubmittedIdentity != identity) throw new InvalidOperationException("Presentation identity does not match the rendered frame.");
-        renderer.DrawDisplay(target!, size);
+        renderer.DrawDisplay(target, size);
         // Finish GPU timing after display commands, before the CPU's blocking Present.
         // This remains one timestamp-disjoint interval for the whole rendered frame.
         timer?.End();

@@ -163,8 +163,8 @@ internal static void VerifySamusMorphBallMovement()
     // reach the frame-two branch while retaining its native F9 operands.
     for (int tick = 0; tick < 6; tick++)
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xf9, samus.LastAnimationDelayCommand!.Value, "morph transition reaches F9");
-    AssertEqual(SamusPoseId.MorphBallGroundRightPose, samus.PendingTransitionalPose!.Value,
+    AssertEqual(0xf9, (samus.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires samus.LastAnimationDelayCommand.")), "morph transition reaches F9");
+    AssertEqual(SamusPoseId.MorphBallGroundRightPose, (samus.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires samus.PendingTransitionalPose.")),
         "F9 selects no-spring grounded endpoint");
     AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "grounded F9 endpoint applies");
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, samus.Pose, "morph entry reaches stable ball");
@@ -502,7 +502,7 @@ internal static void VerifySamusMorphBallMovement()
     airborneEntry.Kinematics.YSubspeed = 1;
     for (int tick = 0; tick < 6; tick++)
         airborneEntry.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(SamusPoseId.MorphBallFallingRightPose, airborneEntry.PendingTransitionalPose!.Value,
+    AssertEqual(SamusPoseId.MorphBallFallingRightPose, (airborneEntry.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires airborneEntry.PendingTransitionalPose.")),
         "F9 nonzero Y subspeed selects airborne endpoint");
 
     // Repeat entry with Spring Ball bit `$0002`. F9 must use its equipped grounded operand,
@@ -521,7 +521,7 @@ internal static void VerifySamusMorphBallMovement()
         "Spring Ball fixture begins morph entry");
     for (int tick = 0; tick < 6; tick++)
         spring.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(SamusPoseId.SpringBallGroundRightPose, spring.PendingTransitionalPose!.Value,
+    AssertEqual(SamusPoseId.SpringBallGroundRightPose, (spring.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires spring.PendingTransitionalPose.")),
         "F9 equipped endpoint selects Spring Ball ground");
     AssertTrue(spring.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "Spring Ball F9 applies");
     spring.PoseTransitions.ApplyMorphBallPoseChange(bus, SamusPoseId.SpringBallMovingRightPose);
@@ -703,7 +703,7 @@ internal static void VerifySamusMorphBallMovement()
     AssertEqual(0x0501, bombs.Slots[0].Type, "first explosion pass marks block cross handled");
     AssertEqual(0x8000, floor.GetCollisionBlockByIndex(4 * width + 3).LevelWord,
         "bottom reaction leaves the fixture solid floor intact without inventing a PLM");
-    AssertEqual(1, explosion.SoundRequests!.Count,
+    AssertEqual(1, (explosion.SoundRequests ?? throw new InvalidOperationException("Verification requires explosion.SoundRequests.")).Count,
         "normal bomb fuse expiry publishes exactly one sound request");
     AssertEqual(
         new SamusSoundRequest(SoundEffectLibrary2Sounds.BombExplosion, 6),
@@ -739,7 +739,7 @@ internal static void VerifySamusMorphBallMovement()
         "releasing Down while holding charged Shoot starts bomb spread");
     AssertTrue(spreadReleased.BeamChargeConsumed,
         "bomb spread publishes charge teardown to shared beam owner");
-    AssertEqual(1, spreadReleased.SoundRequests!.Count,
+    AssertEqual(1, (spreadReleased.SoundRequests ?? throw new InvalidOperationException("Verification requires spreadReleased.SoundRequests.")).Count,
         "bomb spread publishes one charge-cancellation sound request");
     AssertEqual(
         new SamusSoundRequest(SoundEffectLibrary1Sounds.CancelAll, 9),
@@ -925,7 +925,7 @@ internal static void VerifySamusMorphBallMovement()
         "normal explosion publishes active status $8000");
     AssertEqual(
         new SamusSoundRequest(SoundEffectLibrary1Sounds.PowerBombExplosion, 15),
-        powerBombFuse.SoundRequests!.Single(),
+        (powerBombFuse.SoundRequests ?? throw new InvalidOperationException("Verification requires powerBombFuse.SoundRequests.")).Single(),
         "power-bomb spawn queues cartridge library-one explosion sound");
     var detonatedPowerBombOam = new OamBuffer();
     detonatedPowerBombOam.BeginFrame();

@@ -27,7 +27,7 @@ internal static class GoldenTorizoAttackChoiceVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GoldenTorizo);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         RoomEnemySlot torizo = runtime.Enemies.SlotTable.Slots.Single(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
 
@@ -35,7 +35,7 @@ internal static class GoldenTorizoAttackChoiceVerification
         samus.Missiles = 187;
         torizo.CurrentInstruction = landedFacingLeft;
         torizo.InstructionTimer = NativeCountdown.Start(1);
-        runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Room.Camera!.PixelPosition.X, runtime.Room.Camera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, Level = runtime.Room.LevelData, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, NmiFrameCounter8 = 0x2d, NmiFrameCounter = 0xefd8 });
+        runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, Level = runtime.Room.LevelData, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, NmiFrameCounter8 = 0x2d, NmiFrameCounter = 0xefd8 });
         AssertTrue(torizo.CurrentInstruction is > sonicBoomsFacingLeft and
                 < 0xcc57,
             $"NMI_FrameCounter selects the sonic-boom list, not chozo orbs (${chozoOrbsFacingLeft:X4}); " +

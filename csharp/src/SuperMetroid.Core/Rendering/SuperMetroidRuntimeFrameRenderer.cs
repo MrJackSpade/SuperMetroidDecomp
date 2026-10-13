@@ -27,7 +27,7 @@ public static class SuperMetroidRuntimeFrameRenderer
         // Both retained GPU packets and immediate software rendering consume that
         // capture; a post-composition tint cannot implement its native windows.
         if (runtime.Enemies.PhantoonBehavior.Phantoon is not null || runtime.Enemies.MotherBrainEncounter.MotherBrain is not null || runtime.RoomLayer3Fx.Type is RoomFxType.Fireflea or RoomFxType.Spores || runtime.Player.Samus?.Xray.IsActive == true || runtime.Player.LastXrayBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish })
-            return SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+            return SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.CaptureFrame(runtime));
 
         GameplayPpuRenderSnapshot displayedPpu = runtime.Display.DisplayedGameplayPpu;
         RoomShakeFrameResult shake = displayedPpu.RoomShake;
@@ -73,6 +73,7 @@ public static class SuperMetroidRuntimeFrameRenderer
             bool crocomireOwnsBg2 = runtime.Enemies.CrocomireBehavior.Crocomire is not null;
             KraidEnemyState? kraid = runtime.Enemies.KraidBehavior.Kraid;
             bool kraidOwnsBg2 = kraid is { OwnsBg2Tilemap: true };
+            Position16<Bg2Pixels> kraidBg2Scroll = kraid is { OwnsBg2Tilemap: true } owner ? owner.Bg2Scroll : default;
             ScrollingSkyState? scrollingSky = runtime.Room.ScrollingSky;
             ushort[]? skyHorizontalScrolls = scrollingSky is { HorizontalHdmaConfigured: true } ? scrollingSky.BuildGameplayHorizontalScrolls(
                 runtime.Room.Camera?.PixelPosition.Y
@@ -110,12 +111,12 @@ public static class SuperMetroidRuntimeFrameRenderer
                 bg1Scroll,
                 new Position16<Bg2Pixels>(
                     kraidOwnsBg2
-                        ? AddShake(kraid!.Bg2Scroll.X, shake.Bg2.X)
+                        ? AddShake(kraidBg2Scroll.X, shake.Bg2.X)
                         : crocomireOwnsBg2
                         ? AddShake(runtime.Enemies.CrocomireBehavior.CrocomireBg2Scroll.X, shake.Bg2.X)
                         : bg2Scroll.X,
                     kraidOwnsBg2
-                        ? AddShake(kraid!.Bg2Scroll.Y, shake.Bg2.Y)
+                        ? AddShake(kraidBg2Scroll.Y, shake.Bg2.Y)
                         : crocomireOwnsBg2
                         ? AddShake(runtime.Enemies.CrocomireBehavior.CrocomireBg2Scroll.Y, shake.Bg2.Y)
                         : scrollingSky is not null

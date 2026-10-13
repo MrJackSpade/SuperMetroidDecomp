@@ -36,12 +36,12 @@ internal static class XraySetupVerification
                 type == RoomCollisionType.Air ? (ushort)0x00fe : definition.TopLeft,
                 definition.TopRight, definition.BottomLeft, definition.BottomRight)));
         }
-        runtime.Xray.XrayRevealVisuals = new XrayRevealVisualCatalog(visualEntries, runtime.Xray.XrayRevealVisuals!.Overlays);
+        runtime.Xray.XrayRevealVisuals = new XrayRevealVisualCatalog(visualEntries, (runtime.Xray.XrayRevealVisuals ?? throw new InvalidOperationException("Verification requires runtime.Xray.XrayRevealVisuals.")).Overlays);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         var support = runtime.Enemies.SlotTable.Slots[1];
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -78,17 +78,17 @@ internal static class XraySetupVerification
         var captured = new SnesVram();
         captured.ExecuteWordTransfer(first.Concat(second).ToArray(), GameplayVramLayout.Bg1TilemapWord, 1);
         var scroll = runtime.BackgroundScroll;
-        var room = runtime.Room.ActiveRoom!;
-        var original = XrayRevealTilemap.Build(runtime.Room.LevelData!, captured,
+        var room = runtime.Room.LoadedRoom;
+        var original = XrayRevealTilemap.Build(runtime.Room.LoadedLevelData, captured,
             scroll.Layer1Position + scroll.Bg1Offset,
             scroll.Layer1Position, (byte)room.AreaIndex);
-        var expected = XrayRevealTilemap.Build(runtime.Room.LevelData!, captured,
+        var expected = XrayRevealTilemap.Build(runtime.Room.LoadedLevelData, captured,
             scroll.Layer1Position + scroll.Bg1Offset,
             scroll.Layer1Position, (byte)room.AreaIndex,
             runtime.Xray.XrayRevealVisuals);
         AssertTrue(!original.SequenceEqual(expected),
             "installed X-ray visual selection changes the actual room reveal map");
-        XrayRevealOverlays.Apply(runtime.Room.LevelData!, expected, runtime.Plms.CollectiblePlms.Collectibles, runtime.System,
+        XrayRevealOverlays.Apply(runtime.Room.LoadedLevelData, expected, runtime.Plms.CollectiblePlms.Collectibles, runtime.System,
             room.State.XrayPointer, scroll.Layer1Position, runtime.Xray.XrayRevealVisuals);
         runtime.StepFrame(held);
         Suite(nameof(VerifySaved), () => VerifySaved(0, first, "stage-three read completes before stage-four build"));

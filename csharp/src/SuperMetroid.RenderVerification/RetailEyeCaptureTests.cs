@@ -19,7 +19,7 @@ internal static class RetailEyeCaptureTests
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.MorphBallRoom,
             new Position16<RoomPixels>(EyeCaptureFixture.CameraX, EyeCaptureFixture.CameraY));
         var body = runtime.Enemies.SlotTable.Slots[1];
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.CollectedItems = (ushort)SamusEquipmentFlags.MorphBall;
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + 64)), body.Position.Y.Whole));
         samus.InputLocked = true;
@@ -30,7 +30,7 @@ internal static class RetailEyeCaptureTests
             firstBeam |= runtime.Display.DisplayedMorphBallEyeBeam is { Phase: MorphBallEyeBeamPhase.Widening, AngularWidth: 0 };
             fullBeam |= runtime.Display.DisplayedMorphBallEyeBeam is { Phase: MorphBallEyeBeamPhase.Full };
             var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-            var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+            var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), GameplayDisplayCapture.CaptureFrame(runtime));
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: retail eye frame {tick}");
         }

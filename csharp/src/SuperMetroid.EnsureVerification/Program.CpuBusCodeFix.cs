@@ -83,7 +83,7 @@ internal static class CpuBusCodeFixTests
             throw new InvalidOperationException($"Expected one SME6290 fix, got {actions.Count} for: {source}");
         ImmutableArray<CodeActionOperation> operations = actions[0].GetOperationsAsync(CancellationToken.None).GetAwaiter().GetResult();
         Solution changed = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
-        string text = changed.GetDocument(document.Id)!.GetTextAsync().GetAwaiter().GetResult().ToString();
+        string text = (changed.GetDocument(document.Id) ?? throw new InvalidOperationException("The code fix removed the edited document.")).GetTextAsync().GetAwaiter().GetResult().ToString();
         string game = text[text.IndexOf("class Game", StringComparison.Ordinal)..];
         if (game != expectedGame)
             throw new InvalidOperationException($"SME6290 fix produced '{game}', expected '{expectedGame}'.");

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -31,11 +31,11 @@ internal sealed class RoomPlmRuntimeServices(
 
     /// <summary>Spawns a Noob Tube projectile with the active room width for placement.</summary>
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>
-        enemies.NoobTubeBehavior.SpawnNoobTubeProjectile(request, room.LevelData.Size.X);
+        enemies.NoobTubeBehavior.SpawnNoobTubeProjectile(request, room.LoadedLevelData.Size.X);
 
     /// <summary>Spawns an eye-door projectile using the active room width and system state.</summary>
     public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request) =>
-        enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(request, room.LevelData.Size.X, system);
+        enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(request, room.LoadedLevelData.Size.X, system);
 
     /// <summary>Delegates the old Tourian escape shaft wall blast to its resident enemy behavior.</summary>
     public void SpawnOldTourianEscapeShaftWallExplosion() =>

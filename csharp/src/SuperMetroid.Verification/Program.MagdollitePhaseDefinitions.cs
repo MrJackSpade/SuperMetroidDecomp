@@ -46,14 +46,14 @@ internal static class MagdollitePhaseDefinitionsVerification
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         RoomEnemySlot body = enemies.SlotTable.Slots[1];
         RoomEnemySlot overlay = enemies.SlotTable.Slots[2];
-        MagdolliteEnemyState headState = enemies.MagdolliteStates[0]!;
-        MagdolliteEnemyState bodyState = enemies.MagdolliteStates[1]!;
-        MagdolliteEnemyState overlayState = enemies.MagdolliteStates[2]!;
-        headState.PositiveSpeedWhole = headState.PositiveSpeedFraction = 0;
+        MagdolliteEnemyState headState = (enemies.MagdolliteStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[0]."));
+        MagdolliteEnemyState bodyState = (enemies.MagdolliteStates[1] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[1]."));
+        MagdolliteEnemyState overlayState = (enemies.MagdolliteStates[2] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[2]."));
+        (headState ?? throw new InvalidOperationException("Verification requires headState.")).PositiveSpeedWhole = headState.PositiveSpeedFraction = 0;
         headState.NegativeSpeedWhole = headState.NegativeSpeedFraction = 0;
 
         AssertEqual(MagdollitePhaseDefinitions.Phase(0).BodyInstructionList,
-            bodyState.DesiredInstructionList, "Magdollite production initial body list");
+            (bodyState ?? throw new InvalidOperationException("Verification requires bodyState.")).DesiredInstructionList, "Magdollite production initial body list");
 
         for (int phaseIndex = 0; phaseIndex < 9; phaseIndex++)
         {
@@ -61,7 +61,7 @@ internal static class MagdollitePhaseDefinitionsVerification
             bodyState.BodyReachedApex = false;
             bodyState.BodyPhaseOffset = (ushort)(phaseIndex * 2);
             body.Position = body.Position.WithWholeY(0x0300);
-            trackRise(overlay, overlayState, null);
+            trackRise(overlay, (overlayState ?? throw new InvalidOperationException("Verification requires overlayState.")), null);
             AssertEqual(unchecked((ushort)(0x0300 - phase.OverlayYOffset)), overlay.Position.Y.Whole,
                 $"Magdollite production overlay Y {phaseIndex}");
 

@@ -32,9 +32,9 @@ internal static class RuntimeOverlayTests
         for (int tick = 0; tick < 50; tick++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
         runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int tick = 0; tick < 13; tick++) runtime.MessageBox.Step(0);
-        runtime.SuitPickup.Begin(bus, runtime.Player.Samus!, new(0, 0), SamusSuitPickupKind.Varia);
-        runtime.SuitPickup.Step(bus, runtime.Player.Samus!, runtime.Cgram);
-        var initial = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+        runtime.SuitPickup.Begin(bus, runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Step(bus, runtime.Player.IntroducedSamus, runtime.Cgram);
+        var initial = GameplayDisplayCapture.CaptureFrame(runtime);
         if (initial.Layers.Length != 4 || initial.Layers[0] is not OrdinaryGameplayRenderLayer
             || initial.Layers[1] is not ScanlineColorAddRenderLayer
             || initial.Layers[2] is not MessageBoxRenderLayer
@@ -46,7 +46,7 @@ internal static class RuntimeOverlayTests
             var retained = Check($"combined overlay tick {tick}");
             runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
             runtime.MessageBox.Step(0);
-            runtime.SuitPickup.Step(bus, runtime.Player.Samus!, runtime.Cgram);
+            runtime.SuitPickup.Step(bus, runtime.Player.IntroducedSamus, runtime.Cgram);
             // Force GPU resources to contain the next frame before replaying the old
             // packet. A cached output or borrowed live palette cannot satisfy this.
             Check($"updated overlay tick {tick}");
@@ -58,7 +58,7 @@ internal static class RuntimeOverlayTests
         (RenderFrameSnapshot Packet, Rgba32[] Pixels) Check(string context)
         {
             Rgba32[] expected = SuperMetroidRuntimeFrameRenderer.Render(runtime).ToArray();
-            var packet = new RenderFrameSnapshot(new(++sequence, 1, 0), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+            var packet = new RenderFrameSnapshot(new(++sequence, 1, 0), GameplayDisplayCapture.CaptureFrame(runtime));
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, SoftwareFrameSnapshotRenderer.Render(packet), $"software: {context}");
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: {context}");

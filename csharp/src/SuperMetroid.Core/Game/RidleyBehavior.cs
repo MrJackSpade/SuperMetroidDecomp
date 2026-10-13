@@ -277,7 +277,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         // ranges that the reveal gradually fills; color zero remains transparent.
         (_room.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley requires installed colors."))
-            .ApplyInitial(_presentation._cgram!);
+            .ApplyInitial(_presentation.Cgram);
         _presentation.BossPalettes.NorfairRidleyBody.Fill(Bgr555.Black);
         _presentation.BossPalettes.NorfairRidleyTail.Fill(Bgr555.Black);
     }
@@ -606,7 +606,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             throw new InvalidDataException($"Norfair Ridley reveal row {row} escaped its native terminator.");
         hasPalette = row < NorfairRidleyPaletteRomData.RevealRowCount;
         if (hasPalette)
-            colors.ApplyReveal(_presentation._cgram!, row);
+            colors.ApplyReveal(_presentation.Cgram, row);
         state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset + 1));
         if (hasPalette)
             return;
@@ -632,7 +632,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RoomLevelData? level)
     {
         RidleyAttackSituation situation;
-        if (samus?.PoseMetadata.ReadMovementType(_room.Bus!) == SamusMovementType.SpinJumping)
+        if (samus?.PoseMetadata.ReadMovementType(_room.LoadedBus) == SamusMovementType.SpinJumping)
         {
             situation = RidleyAttackSituation.SpinJumping;
         }
@@ -740,7 +740,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             ReadRidleyHealthMovementDivisorIndex(state));
         state.TailWhipRequest = 1;
 
-        if (samus?.PoseMetadata.ReadMovementType(_room.Bus!) != SamusMovementType.SpinJumping)
+        if (samus?.PoseMetadata.ReadMovementType(_room.LoadedBus) != SamusMovementType.SpinJumping)
         {
             BeginNorfairRidleyGroundAttack(state);
             return;
@@ -987,7 +987,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         // $A6:BC8F-BC93 leaves the timer untouched once death owns the fight.
         if (state.FightMode != RidleyFightMode.Dying)
         {
-            SamusMovementType movement = samus?.PoseMetadata.ReadMovementType(_room.Bus!) ?? SamusMovementType.Standing;
+            SamusMovementType movement = samus?.PoseMetadata.ReadMovementType(_room.LoadedBus) ?? SamusMovementType.Standing;
             state.IntangibilityTimer = NativeCountdown.FromRaw(RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement));
         }
     }
@@ -1070,7 +1070,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     {
         if (samus is null)
             return false;
-        SamusMovementType movement = samus.PoseMetadata.ReadMovementType(_room.Bus!);
+        SamusMovementType movement = samus.PoseMetadata.ReadMovementType(_room.LoadedBus);
         return RidleySamusInteractionDefinitions.CanGrab(movement);
     }
 
@@ -1175,7 +1175,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         int row = state.HealthStage - 1;
         (_presentation.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ridley damage requires installed health colors."))
-            .ApplyHealth(_presentation._cgram!, row);
+            .ApplyHealth(_presentation.Cgram, row);
     }
 
     /// <summary>Registers room-load setup for Ridley's body and breakup explosion actors.</summary>
@@ -1506,7 +1506,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         state.DeathBreakupSpawned = true;
 
         RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(
-            _room.Bus!,
+            _room.LoadedBus,
             EnemyDefinitionId.RidleyExplosion);
         RidleyExplosionDefinitions.SpawnInNativeOrder(SpawnPart);
 

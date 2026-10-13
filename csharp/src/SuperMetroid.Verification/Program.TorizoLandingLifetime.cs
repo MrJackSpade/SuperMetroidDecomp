@@ -16,8 +16,8 @@ internal static class TorizoLandingLifetimeVerification
     internal static int VerifyTorizoLandingLifetime()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
-        var installation=GameAssetInstaller.EnsureInstalled(Path.GetFullPath("out/workbook-investigation/crocomire-install"))!;
-        var bus=installation.OpenRuntimeAddressSpace();
+        var installation=GameAssetInstaller.EnsureInstalled(Path.GetFullPath("out/workbook-investigation/crocomire-install"));
+        var bus=(installation ?? throw new InvalidOperationException("Verification requires installation.")).OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
         InstalledFixtures.BindGame(game);
         game.CreateGameplayRuntime(false);
@@ -27,8 +27,8 @@ internal static class TorizoLandingLifetimeVerification
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(0x9804);
         var body=runtime.Enemies.SlotTable.Slots.First(e=>e.EnemyDefinitionPointer==EnemyDefinitionId.BombTorizo);
-        var state=(TorizoEnemyState)runtime.Enemies.BombTorizoBehavior._torizoState;
-        state.Function=TorizoFunction.Active;state.PreInstruction=TorizoPreInstruction.Jump;state.ReturnInstruction=0xbc88;
+        var state=(TorizoEnemyState)(runtime.Enemies.BombTorizoBehavior._torizoState ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BombTorizoBehavior._torizoState."));
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Function=TorizoFunction.Active;state.PreInstruction=TorizoPreInstruction.Jump;state.ReturnInstruction=0xbc88;
         state.Velocity=new EightEightVector<RoomPixels>(0,0x400);state.VerticalAcceleration=40;
         body.Health=body.Definition.Health;body.Parameter1=body.Parameter2=0;
         body.Properties=0x2000;body.CurrentInstruction=0xbc80;body.InstructionTimer=NativeCountdown.Start(5);
@@ -36,11 +36,11 @@ internal static class TorizoLandingLifetimeVerification
         var words=new ushort[256];for(int i=12*16;i<13*16;i++)words[i]=0x8000;
         var level=new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]), new byte[8]);
         runtime.Room.LevelData = level;
-        var samus=runtime.Player.Samus!;samus.Pose=SamusPoseId.FacingRightNormalPose;
+        var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;
         samus.PoseMetadata.RefreshCollisionRadii(bus);samus.Presentation.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
         samus.Position = samus.Position.WithWhole(new(240, (ushort)(192-samus.Kinematics.Radius.Y)));samus.InputLocked=false;
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 0));
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 0));
         game.GameState = SuperMetroidGameState.MainGameplay;
         int shaken=0;
         for(int frame=0;frame<40;frame++)

@@ -32,7 +32,7 @@ internal static class RetailCeresQuakeTests
                 var shake = runtime.Enemies.Earthquake.LastRoomShake;
                 if (shake != default) { shaking++; offsets.Add(shake); }
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+                var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), GameplayDisplayCapture.CaptureFrame(runtime));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: Ceres quake room={room:X4}, tick={tick}, shake={shake}");

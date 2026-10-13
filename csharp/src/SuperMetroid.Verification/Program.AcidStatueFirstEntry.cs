@@ -31,7 +31,7 @@ internal static class AcidStatueFirstEntryVerification
         runtime.System.SetEvent(EventNumber.LowerNorfairChozoLoweredAcid);
         runtime.LoadCartridgeRoomForDebug(sourceRoom);
 
-        RoomLevelData level = runtime.Room.LevelData!;
+        RoomLevelData level = runtime.Room.LoadedLevelData;
         int doorX = -1;
         int doorY = -1;
         byte behavior = 0;
@@ -54,14 +54,14 @@ internal static class AcidStatueFirstEntryVerification
         runtime.LoadCartridgeRoomForDebug(
             sourceRoom,
             camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
         runtime.NmiHandler.RunNmi(0, true);
-        runtime.Room.LevelData!.ResolveDoorCollision(bus, behavior, samus.Pose, true);
+        runtime.Room.LoadedLevelData.ResolveDoorCollision(bus, behavior, samus.Pose, true);
 
         var transition = new DoorTransitionState();
         var audio = new CartridgeAudioState();
@@ -76,18 +76,18 @@ internal static class AcidStatueFirstEntryVerification
         {
             DoorTransitionPhase phase = transition.Phase;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
-            ushort activeRoom = runtime.Room.ActiveRoom!.Pointer;
+            ushort activeRoom = runtime.Room.LoadedRoom.Pointer;
             RoomLayer3FxRenderSnapshot? displayed = runtime.Display.DisplayedRoomLayer3Fx;
             if (activeRoom != destinationRoom)
                 continue;
-            LayeredRenderSnapshot? snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime);
+            LayeredRenderSnapshot? snapshot = GameplayDisplayCapture.CaptureFrame(runtime);
             if (snapshot is null)
                 continue;
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
             if (phase is DoorTransitionPhase.HandleTransition or DoorTransitionPhase.FadeInDestinationPalette)
             {
                 sawDestinationFade = true;
-                AssertEqual(RoomFxType.Acid, displayed!.Value.Type,
+                AssertEqual(RoomFxType.Acid, (displayed ?? throw new InvalidOperationException("Verification requires displayed.")).Type,
                     "destination fade retains the room's acid FX type");
                 AssertEqual(drainedAcidY, displayed.Value.CurrentYPosition,
                     "destination fade presents the event-restored acid height");
@@ -99,13 +99,13 @@ internal static class AcidStatueFirstEntryVerification
         }
 
         AssertTrue(!transition.IsActive, "Acid Statue room transition completes");
-        AssertEqual(destinationRoom, runtime.Room.ActiveRoom!.Pointer, "transition reaches the reported room");
+        AssertEqual(destinationRoom, runtime.Room.LoadedRoom.Pointer, "transition reaches the reported room");
         AssertTrue(sawDestinationFade, "transition captures the presented destination fade");
         // High acid ($00C8) would cover this whole screen. Just above the drained surface
         // the room's dark background must show; just below it the drained acid is drawn.
         AssertTrue(lastDestinationFadeSurfaceRow is > 8 and < 216, $"drained acid surface lies on the captured screen (row {lastDestinationFadeSurfaceRow})");
         Rgba32 background = new(66, 0, 24);
-        AssertEqual(background, lastDestinationFadePixels![(lastDestinationFadeSurfaceRow - 8) * 256 + 16],
+        AssertEqual(background, (lastDestinationFadePixels ?? throw new InvalidOperationException("Verification requires lastDestinationFadePixels."))[(lastDestinationFadeSurfaceRow - 8) * 256 + 16],
             "first-entry fade shows the dark room above the drained surface, not the high-acid flash");
         AssertTrue(lastDestinationFadePixels[(lastDestinationFadeSurfaceRow + 8) * 256 + 16] != background,
             "first-entry fade draws the drained acid below its surface");
@@ -114,7 +114,7 @@ internal static class AcidStatueFirstEntryVerification
         {
             runtime.StepFrame(0);
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(
-                GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+                GameplayDisplayCapture.CaptureFrame(runtime));
 
         }
         AssertEqual(drainedAcidY, runtime.RoomLayer3Fx.CurrentYPosition,

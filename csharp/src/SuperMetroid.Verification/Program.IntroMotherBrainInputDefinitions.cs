@@ -69,7 +69,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
         nativeFirst.Enable();
         nativeFirst.LoadObject(bus, IntroMotherBrainInputDefinitions.HeaderStart, definitionWord: ReferenceWord);
         nativeFirst.Step(bus, new DemoInputListProgram(ReferenceWord));
-        AssertEqual(nativeFirst.PreInstructionPointer, live.PreInstructionPointer,
+        AssertEqual(nativeFirst.PreInstructionPointer, (live ?? throw new InvalidOperationException("Verification requires live.")).PreInstructionPointer,
             "production flashback owns the compiled demo header");
         AssertEqual(nativeFirst.InstructionPointer, live.InstructionPointer,
             "production flashback selects the native first record");

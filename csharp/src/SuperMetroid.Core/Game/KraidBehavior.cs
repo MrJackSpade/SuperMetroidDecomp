@@ -627,7 +627,7 @@ internal sealed class KraidBehavior : IEnemySpecies
     /// <summary>Uploads the upper 32x32 page exactly as <c>$A7:C874</c> requests.</summary>
     internal void TransferKraidTopTilemap(KraidEnemyState state)
     {
-        new EnemyVram(_presentation._vram!).KraidTopPage.Write(
+        new EnemyVram(_presentation.Vram).KraidTopPage.Write(
             state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords));
         state.TopTilemapUploadCount++;
     }
@@ -635,7 +635,7 @@ internal sealed class KraidBehavior : IEnemySpecies
     /// <summary>Uploads the lower 32x32 page exactly as <c>$A7:C8B6</c> requests.</summary>
     internal void TransferKraidBottomTilemap(KraidEnemyState state)
     {
-        new EnemyVram(_presentation._vram!).KraidBottomPage.Write(
+        new EnemyVram(_presentation.Vram).KraidBottomPage.Write(
             state.BackgroundTilemapWords.AsSpan(
                 KraidBackgroundRomData.WorkingLowerHalfWord,
                 KraidBackgroundRomData.VisiblePageWords));
@@ -660,14 +660,14 @@ internal sealed class KraidBehavior : IEnemySpecies
             // Supported native low-half pointers alias live WRAM, not immutable
             // head art. Preserve that exceptional cartridge behavior exactly.
             var alias = new ushort[KraidBackgroundRomData.HeadTilemapWords];
-            var lowBank = new KraidLowBankAliasMemory(_room.Bus!);
+            var lowBank = new KraidLowBankAliasMemory(_room.LoadedBus);
             for (int word = 0; word < KraidBackgroundRomData.HeadTilemapWords; word++)
                 alias[word] = lowBank.HeadTilemapWord(sourcePointer, word);
             source = alias;
         }
         // $A7:AF5D queues this source directly to VRAM. Mirroring it into the
         // body's WRAM map changes later growth/sink uploads and is not native behavior.
-        new EnemyVram(_presentation._vram!).KraidTopPage.Write(source);
+        new EnemyVram(_presentation.Vram).KraidTopPage.Write(source);
         state.HeadTilemapUploadCount++;
     }
 
@@ -676,7 +676,7 @@ internal sealed class KraidBehavior : IEnemySpecies
     {
         KraidBackgroundArtwork art = _room.Artwork?.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters.");
-        art.RoomBackgroundTiles.LoadTo(new EnemyVram(_presentation._vram!).KraidRoomBackgroundTiles);
+        art.RoomBackgroundTiles.LoadTo(new EnemyVram(_presentation.Vram).KraidRoomBackgroundTiles);
     }
 
     /// <summary>Ports <c>$A7:AD3A</c>'s priority-bit pass before second phase.</summary>
@@ -696,7 +696,7 @@ internal sealed class KraidBehavior : IEnemySpecies
     {
         state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords)
             .Fill(KraidBackgroundRomData.BlankTile);
-        new GameplayVram(_presentation._vram!).Bg2Tilemap.Write(
+        new GameplayVram(_presentation.Vram).Bg2Tilemap.Write(
             state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords / 2));
         state.OwnsBg2Tilemap = false;
         state.TopTilemapUploadCount++;
@@ -705,7 +705,7 @@ internal sealed class KraidBehavior : IEnemySpecies
     /// <summary>Clears the second half of the restored ordinary 32x32 BG2 map.</summary>
     private void ClearKraidBottomTilemapForDeath(KraidEnemyState state)
     {
-        new GameplayVram(_presentation._vram!).Bg2Tilemap.Write(
+        new GameplayVram(_presentation.Vram).Bg2Tilemap.Write(
             state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords / 2),
             KraidBackgroundRomData.VisiblePageWords / 2);
         state.BottomTilemapUploadCount++;
@@ -810,7 +810,7 @@ internal sealed class KraidBehavior : IEnemySpecies
         int lastSlot = shots.LastSlot;
         int mouthHits = 0;
         ushort innerMouth = lastSlot == 0 ? ushort.MaxValue :
-            KraidHeadInstructionDefinitions.ReadCollisionHitbox(_room.Bus!, body.VariableB, innerMouth: true);
+            KraidHeadInstructionDefinitions.ReadCollisionHitbox(_room.LoadedBus, body.VariableB, innerMouth: true);
         if (lastSlot != 0 && innerMouth != ushort.MaxValue)
         {
             KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, innerMouth);
@@ -895,7 +895,7 @@ internal sealed class KraidBehavior : IEnemySpecies
         int bodyHits = 0;
         if (lastSlot != 0)
         {
-            ushort outerMouth = KraidHeadInstructionDefinitions.ReadCollisionHitbox(_room.Bus!, body.VariableB, innerMouth: false);
+            ushort outerMouth = KraidHeadInstructionDefinitions.ReadCollisionHitbox(_room.LoadedBus, body.VariableB, innerMouth: false);
             KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, outerMouth);
             for (int index = lastSlot; index >= 0; index--)
             {
@@ -924,7 +924,7 @@ internal sealed class KraidBehavior : IEnemySpecies
     /// <summary>Converts a mouth hitbox pointer into wrapped world-space collision bounds.</summary>
     internal KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, ushort pointer)
     {
-        (short left, short top, short bottom) = KraidMouthHitboxDefinitions.ResolveCollision(_room.Bus!, pointer);
+        (short left, short top, short bottom) = KraidMouthHitboxDefinitions.ResolveCollision(_room.LoadedBus, pointer);
         return new()
         {
             Left = unchecked((ushort)(body.Position.X.Whole + left)),
@@ -1598,7 +1598,7 @@ internal sealed class KraidBehavior : IEnemySpecies
                 KraidBackgroundRomData.StandardBg3AssetForQuarter(transferIndex),
                 KraidBackgroundRomData.StandardBg3TransferBytes, EnemyVram.KraidBg3RestoreDma(destinationWord));
         else
-            new EnemyVram(_presentation._vram!).KraidBg3Restore.Load(hud.KraidRestoreQuarter(transferIndex).Span,
+            new EnemyVram(_presentation.Vram).KraidBg3Restore.Load(hud.KraidRestoreQuarter(transferIndex).Span,
                 destinationWord * sizeof(ushort));
 
         state.DeathBg3TransferCount++;
@@ -1615,7 +1615,7 @@ internal sealed class KraidBehavior : IEnemySpecies
         state.Parts[0].NextFunction = KraidAiFunction.GrowReleaseCamera;
 
         ushort selectionWord = KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(
-            _room.Bus!, body.VariableB);
+            _room.LoadedBus, body.VariableB);
         KraidHeadResumeDefinition resume =
             KraidHeadInstructionDefinitions.GrowthResume(selectionWord);
         body.VariableB = resume.Pointer;

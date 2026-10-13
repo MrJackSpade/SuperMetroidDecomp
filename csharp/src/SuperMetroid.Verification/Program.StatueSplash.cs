@@ -42,7 +42,7 @@ internal static class StatueSplashVerification
             AssertTrue(particle is not null, "retail eye instruction spawned a particle");
             int angle = unchecked((byte)(random - 32));
             ushort nativeX = ReadNativeStatueParticleWord(bus, angle + 64);
-            AssertEqual(nativeX, particle!.Velocity.X.RawValue, $"native launch velocity for random {random}");
+            AssertEqual(nativeX, (particle ?? throw new InvalidOperationException("Verification requires particle.")).Velocity.X.RawValue, $"native launch velocity for random {random}");
             ushort nativeY = unchecked((ushort)(4 * ReadNativeStatueParticleWord(bus, angle) + 16));
             AssertEqual(nativeY, particle.Velocity.Y.RawValue, $"native launch gravity for random {random}");
             // Children run later in the same descending pool pass, so seed the
@@ -62,7 +62,7 @@ internal static class StatueSplashVerification
                 {
                     var splash = enemies.Projectiles.EnemyProjectiles.FirstOrDefault(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.TourianStatueSplash);
                     AssertTrue(splash is not null, "surface crossing spawned splash");
-                    AssertEqual(SnesFixedPosition.WholeOf(x), splash!.Position.X.Whole, "splash X follows native particle trajectory");
+                    AssertEqual(SnesFixedPosition.WholeOf(x), (splash ?? throw new InvalidOperationException("Verification requires splash.")).Position.X.Whole, "splash X follows native particle trajectory");
                     AssertEqual(212, splash.Position.Y.Whole, "splash is four pixels above water surface");
                     // Isolate the spawned actor after the real crossing so every
                     // emitted sprite can be compared against its native screen origin.

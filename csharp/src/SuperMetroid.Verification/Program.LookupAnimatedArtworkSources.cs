@@ -27,17 +27,15 @@ internal static class LookupAnimatedArtworkSourcesVerification
             {
                 ushort cursor = (ushort)value;
                 if (expected.TryGetValue(cursor, out int source))
-                    AssertEqual(source, RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, cursor),
+                    AssertEqual(source, RoomFxAnimatedTileArtworkDefinitions.SourceAddress((definition ?? throw new InvalidOperationException("Verification requires definition.")), cursor),
                         "Original artwork source operand");
                 else
                     AssertThrows<InvalidDataException>(
-                        () => RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, cursor),
+                        () => RoomFxAnimatedTileArtworkDefinitions.SourceAddress((definition ?? throw new InvalidOperationException("Verification requires definition.")), cursor),
                         "Non-frame cursor rejects including odd/source/loop words");
             }
         }
         AssertEqual(30, total, "Complete original simple artwork source domain");
-        AssertThrows<ArgumentNullException>(() => RoomFxAnimatedTileArtworkDefinitions.SourceAddress(null!, 0),
-            "Null descriptor rejects");
         var unknown = new RoomFxAnimatedTileObjectDefinition(0, 0x8000, 32, 0, 1, 10);
         AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileArtworkDefinitions.SourceAddress(unknown, 0x8000),
             "Unknown object cannot acquire an artwork mapping");

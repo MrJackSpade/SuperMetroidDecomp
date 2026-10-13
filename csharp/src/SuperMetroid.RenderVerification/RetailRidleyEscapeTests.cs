@@ -19,23 +19,23 @@ internal static class RetailRidleyEscapeTests
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
             runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, new Position16<RoomPixels>(0, 0));
-            var samus = runtime.Player.Samus!;
+            var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
-            var ridley = runtime.Enemies.RidleyEncounter.CeresRidley!;
+            var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
             bool triggered = false, finished = false;
             int samples = 0, mixedFrames = 0;
             var matrices = new HashSet<(ushort, ushort, ushort, ushort)>();
             var phases = new HashSet<RidleyAiFunction>();
             for (int tick = 0; tick < 6000; tick++)
             {
-                if (!triggered && ridley.Function == RidleyAiFunction.CeresHovering)
+                if (!triggered && (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function == RidleyAiFunction.CeresHovering)
                 {
                     if (hitThreshold) ridley.HitCounter = RidleyEscapeFixtureDefinitions.HitThreshold;
                     else samus.Health = RidleyEscapeFixtureDefinitions.LowEnergy;
                     triggered = true;
                 }
                 runtime.StepFrame(0);
-                bool newPhase = phases.Add(ridley.Function);
+                bool newPhase = phases.Add((ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function);
                 if (ridley.Mode7Active)
                 {
                     mixedFrames++;
@@ -48,7 +48,7 @@ internal static class RetailRidleyEscapeTests
                 if (tick % 8 == 0 || newPhase || ridley.Mode7Active || finished)
                 {
                     var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                    var scene = GameplayDisplayCapture.TryCaptureFrame(runtime)
+                    var scene = GameplayDisplayCapture.CaptureFrame(runtime)
                         ?? throw new InvalidOperationException("Ridley escape omitted capture.");
                     if (ridley.Mode7Active && scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null })
                         throw new InvalidOperationException("Native Mode-7 escape omitted its preserved floor layer.");
@@ -61,7 +61,7 @@ internal static class RetailRidleyEscapeTests
             }
             if (!finished || mixedFrames == 0 || matrices.Count < 2 || runtime.EscapeTimer.State == EscapeTimerState.Inactive)
                 throw new InvalidOperationException($"Native escape coverage incomplete: triggered={triggered}, finished={finished}, " +
-                    $"phase={ridley.Function}, mode7={mixedFrames}, matrices={matrices.Count}.");
+                    $"phase={(ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function}, mode7={mixedFrames}, matrices={matrices.Count}.");
             Console.WriteLine($"{device.Kind}: native Ridley escape hits={hitThreshold}: {samples} exact samples, " +
                 $"{mixedFrames} Mode-7 frames, {matrices.Count} matrices, {phases.Count} phases; timer/ejection handoff complete.");
         }

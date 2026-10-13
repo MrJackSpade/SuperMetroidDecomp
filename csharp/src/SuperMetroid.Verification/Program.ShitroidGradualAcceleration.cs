@@ -60,7 +60,7 @@ internal static class ShitroidGradualAccelerationVerification
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.BigBoy);
         RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         foreach ((ushort ySpeed, ushort expectedX, ushort expectedSpeed) in new (ushort, ushort, ushort)[]
             { (5, 0x01c4, 2), (1, 0x01c3, 1) })
         {

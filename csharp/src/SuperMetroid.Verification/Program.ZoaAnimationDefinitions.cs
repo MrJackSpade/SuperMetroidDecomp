@@ -68,13 +68,13 @@ internal static class ZoaAnimationDefinitionsVerification
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
         enemies.ZoaBehavior.InitializeZoa(slot);
-        ZoaEnemyState state = enemies.ZoaStates[0]!;
+        ZoaEnemyState state = (enemies.ZoaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ZoaStates[0]."));
 
         var samus = new SamusState
         {
             Position = new(new(unchecked((ushort)(slot.Position.X.Whole + (facingRight ? 0x10 : -0x10))), 0), new(slot.Position.Y.Whole, 0)),
         };
-        ZoaBehavior.RunZoaWait(slot, state, samus);
+        ZoaBehavior.RunZoaWait(slot, (state ?? throw new InvalidOperationException("Verification requires state.")), samus);
         ZoaAnimationSelector direction = facingRight
             ? ZoaAnimationSelector.FacingRight
             : ZoaAnimationSelector.None;

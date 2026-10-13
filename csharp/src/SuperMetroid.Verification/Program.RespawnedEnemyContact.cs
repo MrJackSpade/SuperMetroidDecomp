@@ -31,7 +31,7 @@ internal static class RespawnedEnemyContactVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Hellway);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
 
         RoomEnemySlot enemy = runtime.Enemies.SlotTable.Slots.Single(slot =>
@@ -53,7 +53,7 @@ internal static class RespawnedEnemyContactVerification
         // placeholder; only the next frame's prologue admits the respawned actor.
         AssertTrue(runtime.Enemies.GrappleBehavior.ResolveGrappleEndpoint(enemy.Position.Whole).Reaction == GrappleEnemyReaction.None,
             "the respawn frame's interactive list does not yet contain the respawned actor");
-        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new(runtime.Room.Camera!.PixelPosition.X, runtime.Room.Camera.PixelPosition.Y));
+        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y));
         AssertTrue(runtime.Enemies.GrappleBehavior.ResolveGrappleEndpoint(enemy.Position.Whole).Reaction != GrappleEnemyReaction.None,
             "the next frame's prologue list lets the grapple reach the respawned actor");
         enemy.AiHandlerBits = 0;

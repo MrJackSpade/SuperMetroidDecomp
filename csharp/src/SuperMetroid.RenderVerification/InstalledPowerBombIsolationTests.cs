@@ -309,10 +309,10 @@ internal static class InstalledPowerBombIsolationTests
         writer.Write(fields.Length);
         foreach (FieldInfo field in fields)
         {
-            writer.Write(DebuggerStateTypeIdentity.GetSerializedName(field.DeclaringType!));
+            writer.Write(DebuggerStateTypeIdentity.GetSerializedName((field.DeclaringType ?? throw new InvalidOperationException("Verification requires field.DeclaringType."))));
             writer.Write(field.Name);
             writer.Flush();
-            DebuggerObjectGraphSerializer.Serialize(destination, field.GetValue(state)!);
+            DebuggerObjectGraphSerializer.Serialize(destination, (field.GetValue(state) ?? throw new InvalidOperationException("Verification requires field.GetValue(state).")));
         }
     }
 }

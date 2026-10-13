@@ -51,7 +51,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
             guarded,
             RinkaInstructionProgramDefinitions.OrdinaryInitial,
             special: false);
-        AssertEqual(RinkaEnemyFunction.AimDelay, ordinarySystem.RinkaStates[0]!.Function,
+        AssertEqual(RinkaEnemyFunction.AimDelay, (ordinarySystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires ordinarySystem.RinkaStates[0].")).Function,
             "ordinary Rinka fire callback selects aim-delay AI");
         AssertTrue(!ordinary.Properties.HasAny(EnemyProperties.Invisible),
             "ordinary Rinka fire callback makes the actor visible");
@@ -62,7 +62,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
             guarded,
             RinkaInstructionProgramDefinitions.SpecialInitial,
             special: true);
-        AssertEqual(RinkaEnemyFunction.AimDelay, specialSystem.RinkaStates[0]!.Function,
+        AssertEqual(RinkaEnemyFunction.AimDelay, (specialSystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires specialSystem.RinkaStates[0].")).Function,
             "special Rinka fire callback selects aim-delay AI");
         AssertTrue(!special.Properties.HasAny(EnemyProperties.Invisible),
             "special Rinka fire callback makes the actor visible");

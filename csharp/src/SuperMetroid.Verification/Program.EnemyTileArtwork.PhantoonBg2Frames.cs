@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
@@ -25,7 +26,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         {
             AssertTrue(identities.Add(frame.Pointer),
                 $"Phantoon frame {frame.Name} has a distinct physical selector");
-            AssertTrue(stock.PhantoonBg2Frames!.TryGet(frame.Pointer,
+            AssertTrue((stock.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.PhantoonBg2Frames.")).TryGet(frame.Pointer,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"installed Phantoon BG2 frame {frame.Name} exists");
             var native = new List<(ushort Destination, ushort[] Tiles)>();
@@ -71,8 +72,8 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         File.WriteAllBytes(stockPath, original);
 
         EnemyBg2FrameDocument document =
-            JsonSerializer.Deserialize<EnemyBg2FrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyBg2FrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string frameName = "body_invulnerable";
         EnemyBg2WriteDocument first = document.Frames[frameName][0];
         int originalTile = first.Tiles[0];
@@ -88,14 +89,14 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue(edited.PhantoonBg2Frames!.TryGet(
+        AssertTrue((edited.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.PhantoonBg2Frames.")).TryGet(
             PhantoonBg2FrameDefinitions.Frames[0].Pointer,
             out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
             "Phantoon BG2 edited frame is installed");
         AssertEqual((ushort)(originalTile ^ 1), editedFrame.Span[0].Tiles.Span[0],
             "Phantoon BG2 override changes the selected tile reference");
         AssertEqual((ushort)originalTile,
-            stock.PhantoonBg2Frames!.TryGet(
+            (stock.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.PhantoonBg2Frames.")).TryGet(
                 PhantoonBg2FrameDefinitions.Frames[0].Pointer,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> stockFrame)
                 ? stockFrame.Span[0].Tiles.Span[0] : (ushort)0,
@@ -121,7 +122,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         Suite(nameof(VerifyPhantoonCollisionDefinitions), () => VerifyPhantoonCollisionDefinitions(rom, noCartridge, stock, edited));
         EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue(reloaded.PhantoonBg2Frames!.TryGet(
+        AssertTrue((reloaded.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.PhantoonBg2Frames.")).TryGet(
                 PhantoonBg2FrameDefinitions.Frames[0].Pointer,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
             reloadedFrame.Span[0].Tiles.Span[0] == (ushort)(originalTile ^ 1),
@@ -212,7 +213,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 
     /// <summary>Invokes the production extended-hitbox walker for a selected Phantoon frame and returns its touch or shot callback.</summary>
     internal static ushort FindPhantoonHitboxCallback(
-        EnemyTileArtworkCatalog art, ISnesAddressSpace bus,
+        EnemyTileArtworkCatalog? art, ISnesAddressSpace bus,
         ushort pointer, Position16<RoomPixels> target, bool selectShot)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -229,7 +230,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         object?[] arguments =
             [slot, target, new Extent16<RoomPixels>((ushort)2, (ushort)2), selectShot, null];
         bool found = ExtendedHitboxWalker.Find(enemies, arguments);
-        return found ? (ushort)arguments[4]! : (ushort)0;
+        return found ? (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4].")) : (ushort)0;
     }
 
     /// <summary>Draws a Phantoon BG2 frame into fresh VRAM, optionally setting the native new-instruction-frame upload bit.</summary>

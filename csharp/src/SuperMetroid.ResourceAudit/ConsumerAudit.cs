@@ -146,7 +146,7 @@ internal static class ConsumerAudit
             if (argument.Parameter?.RefKind is not RefKind.None) continue;
             Optional<object?> value = argument.Value.ConstantValue;
             if (!value.HasValue || value.Value is null) continue;
-            try { numbers[argument.Parameter!.Ordinal] = Convert.ToInt32(value.Value); }
+            try { numbers[argument.Parameter.Ordinal] = Convert.ToInt32(value.Value); }
             catch (Exception exception) when (exception is InvalidCastException or FormatException or OverflowException) { }
         }
         if (!numbers.TryGetValue(0, out int first)) return null;

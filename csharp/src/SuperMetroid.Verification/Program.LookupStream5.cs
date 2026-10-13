@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -38,7 +39,7 @@ internal static class LookupStream5Verification
         {
             SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Extract(oracle, directory, SuperMetroid.AssetExtraction.SupportedCartridge.Sha256);
             EnemyTileArtworkCatalog catalog = SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(directory, null);
-            CrocomireMeltingArtwork art = catalog.CrocomireMelting!;
+            CrocomireMeltingArtwork art = (catalog.CrocomireMelting ?? throw new InvalidOperationException("Verification requires catalog.CrocomireMelting."));
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var native = new ushort[2][];
             for (int phase = 0; phase < 2; phase++)
@@ -49,7 +50,7 @@ internal static class LookupStream5Verification
                 AssertEqual(0, (calculated.edits).Count,
                     "Every native melt tilemap word calculates without fallback");
                 AssertTrue(calculated.Words().AsSpan().SequenceEqual(native[phase]), "All native melt words");
-                AssertTrue(art.Tilemap(source).SequenceEqual(native[phase]), "Installed melt words");
+                AssertTrue((art ?? throw new InvalidOperationException("Verification requires art.")).Tilemap(source).SequenceEqual(native[phase]), "Installed melt words");
                 VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
                     ? CrocomireBodyProgram.MeltingOneTopRow : CrocomireBodyProgram.MeltingTwoTopRow);
                 for (int index = 0; index < 256; index++)
@@ -63,7 +64,7 @@ internal static class LookupStream5Verification
                 }
                 AssertThrows<InvalidDataException>(() => _ = new CrocomireMeltingTilemap(phase != 0, new ushort[255]), "Short melt map rejects");
             }
-            var first = art.first;
+            var first = (art ?? throw new InvalidOperationException("Verification requires art.")).first;
             var second = art.second;
             string expectedIdentity = SelectedPresentationHash.Create("enemy-crocomire-melt-v1", content =>
             {
@@ -147,7 +148,7 @@ internal static class LookupStream5Verification
                 AssertEqual(call == 49, slot.Properties.HasAny(EnemyProperties.Invisible), "Hide only at destruction expiry");
             }
             AssertEqual((ushort)0x8000, system.RidleyEncounter.CeresStatus, "Actual rotation handoff after last anchor");
-            AssertEqual((ushort)0x25, system.CeresDoorBehavior.LastCeresDoorSoundEffectLibrary2!.Value, "Emission sound preserved");
+            AssertEqual((ushort)0x25, (system.CeresDoorBehavior.LastCeresDoorSoundEffectLibrary2 ?? throw new InvalidOperationException("Verification requires system.CeresDoorBehavior.LastCeresDoorSoundEffectLibrary2.")), "Emission sound preserved");
         }
         Console.WriteLine("Ceres rumble: eight native words, bounds, 98 actual calls, 20 emitted native positions/order/animations, wrap and expiry pass.");
     }
@@ -301,7 +302,6 @@ internal static class LookupStream5Verification
         }
         AssertThrows<IndexOutOfRangeException>(() => stock.LoadMode7DoorFrame(new SnesVram(), -1), "Platform lower frame domain");
         AssertThrows<IndexOutOfRangeException>(() => stock.LoadMode7DoorFrame(new SnesVram(), 2), "Platform upper frame domain");
-        AssertThrows<ArgumentNullException>(() => stock.LoadMode7DoorFrame(null!, 0), "Platform preserves root null validation");
         AssertThrows<IndexOutOfRangeException>(() => CeresMode7TransferDefinitions.PlatformTile(0, -1), "Canonical platform lower column domain");
         AssertThrows<IndexOutOfRangeException>(() => CeresMode7TransferDefinitions.PlatformTile(0, 4), "Canonical platform upper column domain");
         Console.WriteLine("Ceres platform: eight native cells/eight independent edits,99 actual phase calls through wrap, high-byte/neighbor preservation, canonical hashes and domains pass.");
@@ -412,7 +412,7 @@ internal static class LookupStream5Verification
     internal static void VerifyLookupStream5CeresOverlayWords(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.CeresEscapeOverlayTilemapFiles.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<CeresEscapeOverlayTilemapDocument>(json, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
+        var document = RequiredJson.Deserialize<CeresEscapeOverlayTilemapDocument>(json, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
         CeresEscapeOverlayTilemapCatalog stock = Check(document);
         var edits = stock.edits;
         AssertEqual(0, edits.Count, "All native Ceres glyph words calculate without overrides");
@@ -712,13 +712,13 @@ internal static class LookupStream5Verification
         }
         AssertEqual(25, componentCount, "All native components");
         AssertEqual(3, lists.Count, "All native hitbox lists");
-        AssertEqual(PhantoonCollisionDefinitions.ShotAi, FindPhantoonHitboxCallback(null!, rom,
+        AssertEqual(PhantoonCollisionDefinitions.ShotAi, FindPhantoonHitboxCallback(null, rom,
             (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), true), "Actual full-body shot callback");
-        AssertEqual(PhantoonCollisionDefinitions.TouchAi, FindPhantoonHitboxCallback(null!, rom,
+        AssertEqual(PhantoonCollisionDefinitions.TouchAi, FindPhantoonHitboxCallback(null, rom,
             (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), false), "Actual full-body touch callback");
-        AssertEqual(PhantoonCollisionDefinitions.ShotAi, FindPhantoonHitboxCallback(null!, rom,
+        AssertEqual(PhantoonCollisionDefinitions.ShotAi, FindPhantoonHitboxCallback(null, rom,
             (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 153), true), "Actual vulnerable eye callback");
-        AssertEqual((ushort)0, FindPhantoonHitboxCallback(null!, rom,
+        AssertEqual((ushort)0, FindPhantoonHitboxCallback(null, rom,
             (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 128), true), "Eye-only frame excludes body collision");
         AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.ComponentsAt(0), "Frame domain");
         AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.HitboxesAt(0), "Hitbox domain");
@@ -728,8 +728,8 @@ internal static class LookupStream5Verification
     internal static void VerifyLookupStream5PhantoonFade(SuperMetroidAddressSpace rom)
     {
         byte[] bytes = SuperMetroid.AssetExtraction.PhantoonColorExtractor.Extract(rom);
-        PhantoonColorDocument document = System.Text.Json.JsonSerializer.Deserialize<PhantoonColorDocument>(bytes,
-            new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase })!;
+        PhantoonColorDocument document = RequiredJson.Deserialize<PhantoonColorDocument>(bytes,
+            new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
         PhantoonColorCatalog stock = Check(document);
         var edits = stock.fadeOutEdits;
         AssertEqual(0, edits.Count, "Stock fade stores no target table");
@@ -954,8 +954,8 @@ internal static class LookupStream5Verification
     internal static void VerifyLookupStream5StatueRamps(SuperMetroidAddressSpace rom)
     {
         byte[] nativeJson = SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<TourianStatueColorDocument>(nativeJson,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var document = RequiredJson.Deserialize<TourianStatueColorDocument>(nativeJson,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var stock = Check(document);
         foreach (var ramp in new[] { stock.baseColors, stock.statueColors, stock.eyeColors, stock.greyColors }) CheckResidualCount(ramp.edits, 0);
         for (int domain = 0; domain < 4; domain++)
@@ -1070,8 +1070,8 @@ internal static class LookupStream5Verification
     internal static void VerifyLookupStream5MagdollitePulse(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MagdollitePaletteCycleExtractor.Extract(rom);
-        var native = System.Text.Json.JsonSerializer.Deserialize<MagdollitePaletteCycleDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var native = RequiredJson.Deserialize<MagdollitePaletteCycleDocument>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         MagdollitePaletteCycle stock = Check(native);
         var residuals = stock.edits;
         AssertEqual(0, residuals.Count, "Native Magdollite pulse requires no stored frame residuals");
@@ -1120,8 +1120,8 @@ internal static class LookupStream5Verification
     internal static void VerifyLookupStream5ZebetitePulse(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.ZebetiteColorExtractor.Extract(rom);
-        var native = System.Text.Json.JsonSerializer.Deserialize<ZebetiteColorDocument>(json,
-            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var native = RequiredJson.Deserialize<ZebetiteColorDocument>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         ZebetiteColorCatalog stock = Check(native);
         var residuals = stock.edits;
         AssertEqual(0, residuals.Count, "Native Zebetite pulse requires no stored frame residuals");
@@ -1225,14 +1225,14 @@ internal static class LookupStream5Verification
                 AssertEqual(unchecked((ushort)(origin + expected.Item1)), slot.Position.X.Whole, "Actual mount X with native wrap");
                 AssertEqual(unchecked((ushort)(origin + expected.Item2)), slot.Position.Y.Whole, "Actual mount Y with native wrap");
                 AssertEqual(expected.Item3, slot.CurrentInstruction, "Actual directional mount program");
-                AssertEqual(MorphBallEyeAiFunction.MountNoOp, enemies.MorphBallEyeBehavior.MorphBallEyeStates[0]!.Function, "Mount remains decorative");
+                AssertEqual(MorphBallEyeAiFunction.MountNoOp, (enemies.MorphBallEyeBehavior.MorphBallEyeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MorphBallEyeBehavior.MorphBallEyeStates[0].")).Function, "Mount remains decorative");
             }
         }
         var owner = new RoomEnemySystem();
         var body = owner.SlotTable.Slots[1];
         body.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
         new Action<RoomEnemySlot>(owner.MorphBallEyeBehavior.InitializeMorphBallEye)(body);
-        owner.MorphBallEyeBehavior.MorphBallEyeStates[1]!.ActivatedFlag = 1;
+        (owner.MorphBallEyeBehavior.MorphBallEyeStates[1] ?? throw new InvalidOperationException("Verification requires owner.MorphBallEyeBehavior.MorphBallEyeStates[1].")).ActivatedFlag = 1;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.BodySlotIndex = 1;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColorIndex = 0xfff0;

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -131,9 +132,9 @@ internal static class CeresBabyInstructionProgramDefinitionsVerification
             "production Ceres Baby interpreter avoids compiled mechanics and palette/pose bytes");
 
         CeresRidleyColorDocument colorDocument =
-            JsonSerializer.Deserialize<CeresRidleyColorDocument>(colorJson,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        PaletteRgb5 priorBabyColor = colorDocument.Baby![1][0];
+            RequiredJson.Deserialize<CeresRidleyColorDocument>(colorJson,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        PaletteRgb5 priorBabyColor = (colorDocument.Baby ?? throw new InvalidOperationException("Verification requires colorDocument.Baby."))[1][0];
         colorDocument.Baby[1][0] = priorBabyColor with
         {
             Blue = priorBabyColor.Blue == 31 ? 30 : priorBabyColor.Blue + 1,
@@ -192,8 +193,8 @@ internal static class CeresBabyInstructionProgramDefinitionsVerification
         AssertEqual((ushort)1, baby.BabyInstructionTimer,
             "installed art retains Baby's native instruction timing");
 
-        EnemySpritemapDocument visual = JsonSerializer.Deserialize<EnemySpritemapDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        EnemySpritemapDocument visual = RequiredJson.Deserialize<EnemySpritemapDocument>(
+            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         SpriteVisualPart first = visual.Frames["ceres_baby_horizontal"][0];
         visual.Frames["ceres_baby_horizontal"][0] = first with
         {

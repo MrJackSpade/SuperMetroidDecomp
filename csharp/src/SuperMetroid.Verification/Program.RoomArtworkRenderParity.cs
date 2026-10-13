@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -45,7 +46,7 @@ internal static class RoomArtworkRenderParityVerification
                     "Landing Site frame contains its real door-selected sky page");
             }
             else
-                AssertTrue(native.Room.ActiveRoomAssets!.RoomCharacters.Length >
+                AssertTrue((native.Room.ActiveRoomAssets ?? throw new InvalidOperationException("Verification requires native.Room.ActiveRoomAssets.")).RoomCharacters.Length >
                     RoomGraphicsLayout.CommonRoomElementCharacters.Offset * sizeof(ushort),
                     "Ceres parity exercises room characters overlapping the CRE VRAM region");
             AssertTrue(native.Vram.ImageEquals(installed.Vram),
@@ -62,7 +63,7 @@ internal static class RoomArtworkRenderParityVerification
 
             void VerifyVisibleOverrides()
             {
-                int characterSource = native.Room.ActiveRoomAssets!.Tileset.CharacterAddress;
+                int characterSource = (native.Room.ActiveRoomAssets ?? throw new InvalidOperationException("Verification requires native.Room.ActiveRoomAssets.")).Tileset.CharacterAddress;
                 string characterName = RoomCharacterAtlasFormat.SourceFileName(characterSource);
                 string stockCharacterPath = Path.Combine(installation.RoomCharacterDirectory,
                     characterName);
@@ -97,10 +98,10 @@ internal static class RoomArtworkRenderParityVerification
                 string stockBlockPath = Path.Combine(installation.RoomMetatileDirectory, blockName);
                 JsonNode blocks = JsonNode.Parse(File.ReadAllText(stockBlockPath))
                     ?? throw new InvalidDataException("Installed CRE visual block JSON is empty.");
-                foreach (JsonNode? block in blocks["blocks"]!.AsArray())
+                foreach (JsonNode? block in blocks.Required("blocks").AsArray().RequiredElements())
                 {
-                    JsonNode cell = block!["topLeft"]!;
-                    cell["tileColumn"] = (cell["tileColumn"]!.GetValue<int>() + 1)
+                    JsonNode cell = block.Required("topLeft");
+                    cell["tileColumn"] = (cell.Required("tileColumn").GetValue<int>() + 1)
                         % RoomMetatileFormat.TileColumns;
                 }
                 Directory.CreateDirectory(installation.RoomMetatileOverrideDirectory);
@@ -124,10 +125,10 @@ internal static class RoomArtworkRenderParityVerification
 
             void AssertGameplayPlanesUnchanged(SuperMetroidRuntime changed, string artwork)
             {
-                AssertTrue(native.Room.LevelData!.ForegroundEntries.Span.SequenceEqual(
-                        changed.Room.LevelData!.ForegroundEntries.Span) &&
-                    native.Room.LevelData.BehaviorBytes.Span.SequenceEqual(
-                        changed.Room.LevelData.BehaviorBytes.Span),
+                AssertTrue(native.Room.LoadedLevelData.ForegroundEntries.Span.SequenceEqual(
+                        changed.Room.LoadedLevelData.ForegroundEntries.Span) &&
+                    native.Room.LoadedLevelData.BehaviorBytes.Span.SequenceEqual(
+                        changed.Room.LoadedLevelData.BehaviorBytes.Span),
                     $"{artwork} override does not change placement or collision BTS");
             }
 

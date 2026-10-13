@@ -126,7 +126,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
                 $"walking Pirate {(movingRight ? "right" : "left")} attack loops");
             AssertEqual(3, state.SpawnedLaserCount,
                 $"walking Pirate {(movingRight ? "right" : "left")} laser count");
-            AssertEqual((ushort)0x0067, enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect!.Value,
+            AssertEqual((ushort)0x0067, (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
                 $"walking Pirate {(movingRight ? "right" : "left")} laser sound");
         }
 
@@ -161,7 +161,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
             };
-            return (enemies, slot, enemies.WalkingSpacePirateStates[0]!, samus);
+            return (enemies, slot, (enemies.WalkingSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized WalkingSpacePirate state.")), samus);
         }
 
         static void RunFrames(

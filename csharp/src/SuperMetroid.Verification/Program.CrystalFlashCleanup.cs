@@ -40,8 +40,8 @@ internal static class CrystalFlashCleanupVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite, camera: new Position16<RoomPixels>(384, 384));
         for (ushort y = 1; y <= 2; y++)
         for (ushort x = 1; x <= 2; x++)
-            runtime.Room.Camera!.Scrolls.SetLogicalState(new(x, y), RoomScrollState.Green);
-        var level = runtime.Room.LevelData!;
+            runtime.Room.LoadedCamera.Scrolls.SetLogicalState(new(x, y), RoomScrollState.Green);
+        var level = runtime.Room.LoadedLevelData;
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)
         {
@@ -50,7 +50,7 @@ internal static class CrystalFlashCleanupVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
             level.SetBehavior(index, 0);
         }
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
@@ -103,7 +103,7 @@ internal static class CrystalFlashCleanupVerification
             ushort beforeHealth = samus.Health;
             // Later projectile processing can delete the actor and clear its header.
             // Read the contact damage before stepping, not from a recycled slot.
-            ushort contactDamage = testContact ? contactEnemy!.Definition.Damage : (ushort)0;
+            ushort contactDamage = testContact ? (contactEnemy ?? throw new InvalidOperationException("Verification requires contactEnemy.")).Definition.Damage : (ushort)0;
             // Once activated, challenge the inert input handler with movement/jump.
             ushort input = active ? (ushort)(SnesButton.Right | SnesButton.A) : chord;
             runtime.StepFrame(input);
@@ -116,7 +116,7 @@ internal static class CrystalFlashCleanupVerification
                 AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash clears immunity after actual contact");
                 AssertEqual(0, samus.KnockbackTimer.RawValue, "Crystal Flash suppresses the contact knockback request");
                 AssertTrue(!samus.KnockbackActive, "contact does not install ordinary knockback during ammo drain");
-                contactEnemy!.Position = contactEnemy!.Position.WithWholeX(unchecked((ushort)(contactEnemy!.Position.X.Whole + (128))));
+                (contactEnemy ?? throw new InvalidOperationException("Verification requires contactEnemy.")).Position = contactEnemy.Position.WithWholeX(unchecked((ushort)(contactEnemy.Position.X.Whole + (128))));
                 contactVerified = true;
                 Console.WriteLine($"Runtime Crystal Flash contact: health {beforeHealth}->{samus.Health}, retail damage={contactDamage}; no retained immunity or knockback.");
             }

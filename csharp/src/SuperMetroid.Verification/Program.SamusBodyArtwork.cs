@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Rom;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -93,7 +94,7 @@ internal static class SamusBodyArtworkVerification
                 continue;
             }
             nonzeroSpritemaps++;
-            AssertEqual(pointer, record!.Pointer, $"Samus OAM index {index} record identity");
+            AssertEqual(pointer, record.Pointer, $"Samus OAM index {index} record identity");
             int address = 0x920000 | pointer;
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(address),
                 (ushort)record.Parts.Length, $"Samus OAM record ${pointer:X4} part count");
@@ -358,44 +359,44 @@ internal static class SamusBodyArtworkVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), pixels, image.Palette);
         string selectedManifest = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusBodyArtworkFiles.ManifestFileName);
-        JsonNode document = JsonNode.Parse(File.ReadAllText(Path.Combine(
-            installation.SamusBodyDirectory, SamusBodyArtworkFiles.ManifestFileName)))!;
-        byte originalPosition = (byte)document["frames"]![0]!["topPosition"]!.GetValue<int>();
-        document["frames"]![0]!["topPosition"] = originalPosition == 0 ? 1 : 0;
-        sbyte originalYOffset = (sbyte)document["graphicsYOffsets"]![1]!.GetValue<int>();
-        document["graphicsYOffsets"]![1] = originalYOffset + 1;
+        JsonNode document = RequiredJson.Parse(File.ReadAllText(Path.Combine(
+            installation.SamusBodyDirectory, SamusBodyArtworkFiles.ManifestFileName)));
+        byte originalPosition = (byte)document.Required("frames").Required(0).Required("topPosition").GetValue<int>();
+        document.Required("frames").Required(0)["topPosition"] = originalPosition == 0 ? 1 : 0;
+        sbyte originalYOffset = (sbyte)document.Required("graphicsYOffsets").Required(1).GetValue<int>();
+        document.Required("graphicsYOffsets")[1] = originalYOffset + 1;
         ushort poseOnePointer = stock.Spritemaps.Pointers[stock.Spritemaps.TopBase(SamusPoseId.FacingRightNormalPose)];
-        JsonNode poseOneRecord = document["spritemaps"]!.AsArray().First(entry =>
-            entry!["pointer"]!.GetValue<int>() == poseOnePointer)!;
-        int originalPartX = poseOneRecord["parts"]![0]!["x"]!.GetValue<int>();
-        poseOneRecord["parts"]![0]!["x"] = originalPartX + 1;
+        JsonNode poseOneRecord = document.Required("spritemaps").AsArray().RequiredElements().First(entry =>
+            entry.Required("pointer").GetValue<int>() == poseOnePointer);
+        int originalPartX = poseOneRecord.Required("parts").Required(0).Required("x").GetValue<int>();
+        poseOneRecord.Required("parts").Required(0)["x"] = originalPartX + 1;
         foreach (ushort ownerPointer in new ushort[]
         {
             stock.Spritemaps.Pointers[0x018F],
-            stock.Spritemaps.Pointers[deathSamus.DeathSequence.ExplosionSpritemapIndex!.Value],
+            stock.Spritemaps.Pointers[(deathSamus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires deathSamus.DeathSequence.ExplosionSpritemapIndex."))],
         })
         {
-            JsonNode ownerRecord = document["spritemaps"]!.AsArray().First(entry =>
-                entry!["pointer"]!.GetValue<int>() == ownerPointer)!;
-            ownerRecord["parts"]![0]!["x"] =
-                ownerRecord["parts"]![0]!["x"]!.GetValue<int>() + 1;
+            JsonNode ownerRecord = document.Required("spritemaps").AsArray().RequiredElements().First(entry =>
+                entry.Required("pointer").GetValue<int>() == ownerPointer);
+            ownerRecord.Required("parts").Required(0)["x"] =
+                ownerRecord.Required("parts").Required(0).Required("x").GetValue<int>() + 1;
         }
-        byte originalLandingYOffset = (byte)document["landingYOffsets"]![0]!.GetValue<int>();
-        document["landingYOffsets"]![0] = originalLandingYOffset + 1;
+        byte originalLandingYOffset = (byte)document.Required("landingYOffsets").Required(0).GetValue<int>();
+        document.Required("landingYOffsets")[0] = originalLandingYOffset + 1;
         File.WriteAllText(selectedManifest, document.ToJsonString());
         string atmosphereOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusAtmosphericArtworkFiles.ArtworkFileName);
-        JsonNode atmosphereDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(
-            installation.SamusBodyDirectory, SamusAtmosphericArtworkFiles.ArtworkFileName)))!;
-        int originalAttribute = atmosphereDocument["typeOne"]![0]!.GetValue<int>();
-        atmosphereDocument["typeOne"]![0] = originalAttribute + 1;
+        JsonNode atmosphereDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
+            installation.SamusBodyDirectory, SamusAtmosphericArtworkFiles.ArtworkFileName)));
+        int originalAttribute = atmosphereDocument.Required("typeOne").Required(0).GetValue<int>();
+        atmosphereDocument.Required("typeOne")[0] = originalAttribute + 1;
         File.WriteAllText(atmosphereOverride, atmosphereDocument.ToJsonString());
         string deathOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusDeathPaletteArtworkFiles.ArtworkFileName);
-        JsonNode deathDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(
-            installation.SamusBodyDirectory, SamusDeathPaletteArtworkFiles.ArtworkFileName)))!;
-        int originalDeathColor = deathDocument["suited"]![0]![0]![0]!.GetValue<int>();
-        deathDocument["suited"]![0]![0]![0] = originalDeathColor + 1;
+        JsonNode deathDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
+            installation.SamusBodyDirectory, SamusDeathPaletteArtworkFiles.ArtworkFileName)));
+        int originalDeathColor = deathDocument.Required("suited").Required(0).Required(0).Required(0).GetValue<int>();
+        deathDocument.Required("suited").Required(0).Required(0)[0] = originalDeathColor + 1;
         File.WriteAllText(deathOverride, deathDocument.ToJsonString());
         string deathTileOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusDeathTileAtlasFormat.ArtworkFileName);
@@ -410,15 +411,15 @@ internal static class SamusBodyArtworkVerification
                 editedDeathPixels, deathTileImage.Palette);
         string armJsonOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusArmCannonArtworkFormat.JsonFileName);
-        JsonNode armDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(
-            installation.SamusBodyDirectory, SamusArmCannonArtworkFormat.JsonFileName)))!;
+        JsonNode armDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
+            installation.SamusBodyDirectory, SamusArmCannonArtworkFormat.JsonFileName)));
         ushort armPosePointer = stock.ArmCannon.PoseDrawingData((int)SamusPoseId.FacingRightNormalPose);
         byte armSelector = stock.ArmCannon.ReadDrawingByte(armPosePointer);
         ushort armXAddress = unchecked((ushort)(armPosePointer +
             ((armSelector & 0x80) != 0 ? 4 : 2)));
         int armXIndex = armXAddress - SamusArmCannonArtworkFormat.DrawingDataStart;
-        int stockArmX = armDocument["drawingData"]![armXIndex]!.GetValue<int>();
-        armDocument["drawingData"]![armXIndex] = unchecked((byte)(stockArmX + 1));
+        int stockArmX = armDocument.Required("drawingData").Required(armXIndex).GetValue<int>();
+        armDocument.Required("drawingData")[armXIndex] = unchecked((byte)(stockArmX + 1));
         File.WriteAllText(armJsonOverride, armDocument.ToJsonString());
         string armPngOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusArmCannonArtworkFormat.TileFileName);
@@ -632,11 +633,11 @@ internal static class SamusBodyArtworkVerification
         editedTransfer.TransferToVram(guardedBus, editedPixels);
         AssertTrue(!stockPixels.ImageEquals(editedPixels),
             "edited Samus body PNG changes the production VRAM transfer for pose $09");
-        document["topPointers"]![0] = 0x8000;
+        document.Required("topPointers")[0] = 0x8000;
         File.WriteAllText(selectedManifest, document.ToJsonString());
         AssertThrows<InvalidDataException>(() => installation.LoadSamusBodyArt(),
             "Samus body override cannot change native set-pointer identity");
-        document["topPointers"]![0] = stock.TopSetPointers[0];
+        document.Required("topPointers")[0] = stock.TopSetPointers[0];
         File.WriteAllText(selectedManifest, document.ToJsonString());
         // Installation repair must replace only the damaged stock copy. Player artwork
         // lives outside the atomically replaced content directory and must remain selected.

@@ -52,8 +52,8 @@ internal static class EyeWindowSnapshotTestsVerification
                 SnesAngle.FromTableIndex((byte)angle), width, 0x3f, 0x4c, 0x81);
             Rgba32[] expected = baseline.ToArray();
             SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(expected, bus, beam, new Position16<RoomPixels>(512, 768));
-            ScanlineColorAddRenderLayer layer = SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, new Position16<RoomPixels>(512, 768))!;
-            var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, [layer], 3, 15));
+            ScanlineColorAddRenderLayer layer = (SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, new Position16<RoomPixels>(512, 768)) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, new Position16<RoomPixels>...."));
+            var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, [(layer ?? throw new InvalidOperationException("Verification requires layer."))], 3, 15));
             Rgba32[] actual = SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(packet));
             AssertTrue(expected.AsSpan().SequenceEqual(actual), $"eye capture origin {x},{y}; angle {angle}; width {width}");
         }
@@ -79,7 +79,7 @@ internal static class EyeWindowSnapshotTestsVerification
         {
             var beam = new MorphBallEyeBeamRenderSnapshot(MorphBallEyeBeamPhase.Full,
                 new(552, 616), SnesAngle.FromTableIndex(sample.Angle), sample.Width, 31, 31, 0);
-            ColorAddWindow row = SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, new Position16<RoomPixels>(384, 512))!.Windows[sample.Y];
+            ColorAddWindow row = (SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, new Position16<RoomPixels>(384, 512)) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, new Position16<RoomPixels>....")).Windows[sample.Y];
             for (int x = 0; x < 256; x++)
                 AssertEqual(x >= sample.Left && x <= sample.Right, x >= row.Left && x <= row.Right,
                     $"native reported-eye angle {sample.Angle}, width {sample.Width}, pixel {x},{sample.Y}");

@@ -1561,7 +1561,7 @@ csharp/src/SuperMetroid.Verification/Program.LookupRetailDoorHeaders.cs	SME6340	
 csharp/src/SuperMetroid.Verification/Program.LookupRetailDoorLists.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Program.LookupRetailPlmHeaders.cs	SME6340	73
 csharp/src/SuperMetroid.Verification/Program.LookupRetailPlmHeaders.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Program.LookupRetailPopulations.cs	SME6340	286
+csharp/src/SuperMetroid.Verification/Program.LookupRetailPopulations.cs	SME6340	285
 csharp/src/SuperMetroid.Verification/Program.LookupRetailPopulations.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.LookupRomOracles.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Program.LookupRomOracles.cs	SME6342	1
@@ -1999,7 +1999,7 @@ csharp/src/SuperMetroid.Verification/Program.WaterfallRooms.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Program.WindowPixels.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Program.WindowRegisterCache.cs	SME6340	50
 csharp/src/SuperMetroid.Verification/Program.WindowRegisterCache.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Program.WordReads.cs	SME6340	95
+csharp/src/SuperMetroid.Verification/Program.WordReads.cs	SME6340	93
 csharp/src/SuperMetroid.Verification/Program.WordSamples.cs	SME6340	18
 csharp/src/SuperMetroid.Verification/Program.WordSamples.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.WorkRobotLaserInstructionProgramDefinitions.cs	SME6341	1

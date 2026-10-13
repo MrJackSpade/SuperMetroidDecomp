@@ -24,10 +24,10 @@ internal static class XrayRevealVerification
         AssertEqual(817, matches, "retail reveal lookup matches all wildcard and explicit entries");
         AssertEqual(7, commands.Count, "all seven reveal commands are decoded");
         AssertEqual(new XrayRevealDefinition(XrayRevealCommand.CopyTall, 0x98, 0, 0xb8, 0),
-            XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 2)!.Value,
+            (XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 2) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 2).")),
             "tall shot-block reveal advances to a distinct lower operand at $91:CF67");
         AssertEqual(new XrayRevealDefinition(XrayRevealCommand.CopySquare, 0x99, 0x9a, 0xb9, 0xba),
-            XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 3)!.Value,
+            (XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 3) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 3).")),
             "square shot-block reveal preserves all four row-major metatiles");
         Console.WriteLine("  X-ray reveal tables: all 4096 type/BTS definitions and operands match the cartridge; production lookup is ROM-independent.");
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -98,7 +99,7 @@ internal static class PaletteJsonContractsFixturesVerification
         // and the imported bytes encode colors, not runtime-readable cartridge data.
         var synthetic = new CartridgeImportAddressSpace(Enumerable.Range(0, CartridgeImportAddressSpace.RetailRomByteCount)
             .Select(index => (byte)(index * 13 + 7)).ToArray());
-        yield return new("room effects", (JsonObject)JsonNode.Parse(RoomPaletteFxPresentationExtractor.Extract(synthetic))!,
+        yield return new("room effects", (JsonObject)RequiredJson.Parse(RoomPaletteFxPresentationExtractor.Extract(synthetic)),
             json => _ = RoomPaletteFxPresentation.Load(json));
     }
 }

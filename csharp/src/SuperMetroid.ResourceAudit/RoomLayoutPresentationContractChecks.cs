@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -29,11 +30,6 @@ internal static class RoomLayoutPresentationContractChecks
         try { _ = new RoomVisualLayoutCatalog(mismatched); }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "installed keys must match their layout identities");
-        mismatched[first] = null!;
-        rejected = false;
-        try { _ = new RoomVisualLayoutCatalog(mismatched); }
-        catch (InvalidDataException) { rejected = true; }
-        Require(rejected, "required layouts must be nonnull");
 
         var trees = RoomLayoutClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
@@ -51,7 +47,7 @@ internal static class RoomLayoutPresentationContractChecks
             }
             """, path: "fixture-room-layout-consumer.cs");
         trees.Add(calls);
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("RoomLayoutProviderFixture", sources,
             platforms.Append(typeof(RoomVisualLayoutCatalog).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),

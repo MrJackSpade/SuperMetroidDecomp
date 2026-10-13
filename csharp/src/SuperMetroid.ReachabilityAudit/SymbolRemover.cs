@@ -70,7 +70,7 @@ internal static class SymbolRemover
                                 SyntaxFactory.Token(SyntaxKind.EqualsToken).WithLeadingTrivia(SyntaxFactory.Space).WithTrailingTrivia(SyntaxFactory.Space),
                                 SyntaxFactory.ParseExpression(value)).WithTrailingTrivia(((EnumMemberDeclarationSyntax)rewritten).Identifier.TrailingTrivia))
                         : rewritten.WithAdditionalAnnotations(Removal));
-                var edited = marked.RemoveNodes(marked.GetAnnotatedNodes(Removal), SyntaxRemoveOptions.KeepNoTrivia | SyntaxRemoveOptions.KeepDirectives)!;
+                var edited = marked.RemoveNodes(marked.GetAnnotatedNodes(Removal), SyntaxRemoveOptions.KeepNoTrivia | SyntaxRemoveOptions.KeepDirectives);
                 removedNodes += outermost.Count;
                 if (edited is CompilationUnitSyntax unit && !unit.DescendantNodes().OfType<MemberDeclarationSyntax>()
                         .Any(m => m is not BaseNamespaceDeclarationSyntax))
@@ -80,7 +80,8 @@ internal static class SymbolRemover
                     continue;
                 }
                 bool bom = File.ReadAllBytes(path) is [0xEF, 0xBB, 0xBF, ..];
-                string text = edited.ToFullString();
+                string text = (edited ?? throw new InvalidOperationException($"{path}: removing members deleted the whole syntax tree."))
+                    .ToFullString();
                 if (positional is not null)
                     text = RemoveParameterDocumentation(text, positional.DocumentedParameters);
                 File.WriteAllText(path, text, new UTF8Encoding(bom));
@@ -217,7 +218,7 @@ internal static class SymbolRemover
     private static Dictionary<SyntaxNode, string> ImplicitlyValuedSurvivors(SemanticModel model, List<SyntaxNode> removed)
     {
         var survivors = new Dictionary<SyntaxNode, string>();
-        foreach (var declaration in removed.OfType<EnumMemberDeclarationSyntax>().Select(m => (EnumDeclarationSyntax)m.Parent!).Distinct())
+        foreach (var declaration in removed.OfType<EnumMemberDeclarationSyntax>().Select(m => m.Parent).OfType<EnumDeclarationSyntax>().Distinct())
         {
             bool afterRemoved = false;
             foreach (var member in declaration.Members)
@@ -229,7 +230,8 @@ internal static class SymbolRemover
                 }
                 if (afterRemoved && member.EqualsValue is null &&
                     model.GetDeclaredSymbol(member) is IFieldSymbol { HasConstantValue: true } field)
-                    survivors[member] = Convert.ToString(field.ConstantValue, System.Globalization.CultureInfo.InvariantCulture)!;
+                    survivors[member] = Convert.ToString(field.ConstantValue, System.Globalization.CultureInfo.InvariantCulture) ??
+                        throw new InvalidOperationException($"Enum member {field.Name} has no constant text.");
             }
         }
         return survivors;

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Audio;
+using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -147,12 +148,12 @@ internal sealed class HoppersBehavior : IEnemySpecies
             case HopperEnemyFunction.JumpingUpsideUpBackward:
             case HopperEnemyFunction.JumpingUpsideUpForward:
                 RequireHopperLevel(level);
-                RunHopperMovement(slot, state, level!, upsideDown: false);
+                RunHopperMovement(slot, state, level, upsideDown: false);
                 return;
             case HopperEnemyFunction.JumpingUpsideDownBackward:
             case HopperEnemyFunction.JumpingUpsideDownForward:
                 RequireHopperLevel(level);
-                RunHopperMovement(slot, state, level!, upsideDown: true);
+                RunHopperMovement(slot, state, level, upsideDown: true);
                 return;
             case HopperEnemyFunction.WaitToHop:
                 if (state.ReadyToHop)
@@ -168,7 +169,7 @@ internal sealed class HoppersBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects movement dispatch before a room's collision plane is available.</summary>
-    private static void RequireHopperLevel(RoomLevelData? level)
+    private static void RequireHopperLevel([NotNull] RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Hopper movement requires room level data.");

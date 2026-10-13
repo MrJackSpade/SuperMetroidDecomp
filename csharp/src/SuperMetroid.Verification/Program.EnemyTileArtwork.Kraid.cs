@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -48,8 +49,8 @@ internal static class EnemyTileArtworkKraidVerification
         string overrides = Path.Combine(directory, "kraid-override");
         Directory.CreateDirectory(overrides);
         RoomBackgroundTilemapDocument document =
-            JsonSerializer.Deserialize<RoomBackgroundTilemapDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<RoomBackgroundTilemapDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         RoomBackgroundTilemapPage[] pages = (RoomBackgroundTilemapPage[])document.Pages.Clone();
         RoomBackgroundTilemapCell[] cells = (RoomBackgroundTilemapCell[])pages[0].Cells.Clone();
         cells[0] = cells[0] with { TileColumn = cells[0].TileColumn ^ 1 };
@@ -99,7 +100,7 @@ internal static class EnemyTileArtworkKraidVerification
             byte[] native = RomDataReader.ReadFixedBank(rom,
                 KraidBackgroundRomData.NativeBank | pointer,
                 KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort));
-            ReadOnlySpan<ushort> installed = stock.KraidBackground!.HeadWords(pointer);
+            ReadOnlySpan<ushort> installed = (stock.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(pointer);
             for (int word = 0; word < installed.Length; word++)
                 AssertEqual((ushort)(SnesLittleEndian.Word(native[word * 2], native[word * 2 + 1])),
                     installed[word], $"Kraid head ${pointer:X4} word {word}");
@@ -122,8 +123,8 @@ internal static class EnemyTileArtworkKraidVerification
         string overrides = Path.Combine(directory, "kraid-head-override");
         Directory.CreateDirectory(overrides);
         KraidHeadTilemapDocument document =
-            JsonSerializer.Deserialize<KraidHeadTilemapDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<KraidHeadTilemapDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         RoomBackgroundTilemapCell[] cells = (RoomBackgroundTilemapCell[])document.Cells.Clone();
         cells[0] = cells[0] with { TileColumn = cells[0].TileColumn ^ 1 };
         string overridePath = Path.Combine(overrides, fileName);
@@ -304,7 +305,7 @@ internal static class EnemyTileArtworkKraidVerification
         byte[] native = RomDataReader.ReadFixedBank(rom,
             KraidBackgroundRomData.RoomBackgroundTileAddress,
             KraidBackgroundRomData.RoomBackgroundTileBytes);
-        AssertTrue(stock.KraidBackground!.RoomBackgroundTiles.Transfer.Span.SequenceEqual(native),
+        AssertTrue((stock.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).RoomBackgroundTiles.Transfer.Span.SequenceEqual(native),
             "installed Kraid room-background PNG preserves native planar characters");
         var baseline = new SnesVram();
         baseline.LoadBytes(KraidBackgroundRomData.RoomBackgroundTileVramWord * 2, native);

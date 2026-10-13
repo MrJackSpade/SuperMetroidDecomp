@@ -176,15 +176,15 @@ public sealed class MotherBrainRoomColorPresentation
             Compile(document.PhaseTwoRearLeg, MotherBrainRoomColorRomData.PhaseTwoColors,
                 "phase-two rear leg"),
             inheritsRoomEntry
-                ? currentStock!.initialGlassShard
+                ? (currentStock ?? throw new InvalidDataException("A legacy Mother Brain room color override requires the current stock presentation.")).initialGlassShard
                 : new GlassPalette(Compile(document.InitialGlassShard, MotherBrainRoomColorRomData.InitialColors,
                     "room-entry glass shard"), finalRoom),
             inheritsRoomEntry
-                ? currentStock!.initialTubeProjectile
+                ? (currentStock ?? throw new InvalidDataException("A legacy Mother Brain room color override requires the current stock presentation.")).initialTubeProjectile
                 : new TubePalette(Compile(document.InitialTubeProjectile, MotherBrainRoomColorRomData.InitialColors,
                     "room-entry tube projectile"), finalRoom),
             inheritsRecoveryLights
-                ? currentStock!.recoveryLights
+                ? (currentStock ?? throw new InvalidDataException("A legacy Mother Brain room color override requires the current stock presentation.")).recoveryLights
                 : new RecoveryLightFade(CompileRecoveryLights(document.RecoveryLights), finalRoom));
     }
 

@@ -12,7 +12,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
         EnemyExtendedFrameDefinition[] definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();
         EnemyExtendedFrameDocument stockDocument = fixture.ExtendedDocument();
         EnemyExtendedFrameDefinition native = definitions[0], selected = definitions[1], inherited = definitions[2];
-        stockDocument.DisplayFrames![native.Name] = inherited.Name;
+        (stockDocument.DisplayFrames ?? throw new InvalidOperationException("Verification requires stockDocument.DisplayFrames."))[native.Name] = inherited.Name;
         stockDocument.Frames[inherited.Name][0] = stockDocument.Frames[inherited.Name][0] with { OffsetX = 19 };
         EnemyExtendedFrameCatalog stock = Load(stockDocument);
         string stockIdentity = stock.ContentIdentity;
@@ -38,7 +38,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
             // Spore Spawn name and each later generation's newly added family.
             string lastName = expectedNames[definitions[count - 1].Name];
             document.Frames[lastName][0] = document.Frames[lastName][0] with { OffsetY = 17 };
-            if (hasBindings) document.DisplayFrames![native.Name] = selected.Name;
+            if (hasBindings) (document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))[native.Name] = selected.Name;
             EnemyExtendedFrameCatalog merged = Load(document, stock);
             string prefix = $"extended enemy schema {version}: ";
             foreach (EnemyExtendedFrameDefinition frame in definitions)
@@ -47,7 +47,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
                 EnemyExtendedVisualComponent[] art = document.Frames.GetValueOrDefault(key) ?? stockDocument.Frames[frame.Name];
                 AssertTrue(merged.TryGet(frame.Bank, frame.Pointer, out var actualNative), prefix + frame.Name + " retains native identity");
                 AssertComponents(art, actualNative.Span, prefix + frame.Name + " authored/inherited art");
-                string displayedName = document.DisplayFrames?.GetValueOrDefault(key) ?? stockDocument.DisplayFrames![frame.Name];
+                string displayedName = document.DisplayFrames?.GetValueOrDefault(key) ?? stockDocument.DisplayFrames[frame.Name];
                 EnemyExtendedVisualComponent[] display = document.Frames.GetValueOrDefault(displayedName) ?? stockDocument.Frames[displayedName];
                 AssertTrue(merged.TryGetDisplay(frame.Bank, frame.Pointer, out var actualDisplay), prefix + frame.Name + " resolves display identity");
                 AssertComponents(display, actualDisplay.Span, prefix + frame.Name + " exact display selection");
@@ -62,14 +62,14 @@ internal static class EnemyExtendedLegacyOverridesVerification
             if (!hasBindings) continue;
             bindingSchemas++;
             AssertThrows<InvalidDataException>(() => Load(document with { DisplayFrames = null }, stock), prefix + "missing bindings reject");
-            var missing = new Dictionary<string, string>(document.DisplayFrames!, StringComparer.Ordinal);
+            var missing = new Dictionary<string, string>((document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames.")), StringComparer.Ordinal);
             missing.Remove(native.Name);
             AssertThrows<InvalidDataException>(() => Load(document with { DisplayFrames = missing }, stock), prefix + "incomplete bindings reject");
             var wrongKey = new Dictionary<string, string>(missing, StringComparer.Ordinal) { ["unknown-native"] = selected.Name };
             AssertThrows<InvalidDataException>(() => Load(document with { DisplayFrames = wrongKey }, stock), prefix + "same-count wrong keys reject");
-            var unknown = new Dictionary<string, string>(document.DisplayFrames!, StringComparer.Ordinal) { [native.Name] = "unknown-frame" };
+            var unknown = new Dictionary<string, string>(document.DisplayFrames, StringComparer.Ordinal) { [native.Name] = "unknown-frame" };
             AssertThrows<InvalidDataException>(() => Load(document with { DisplayFrames = unknown }, stock), prefix + "unknown targets reject");
-            var crossFamily = new Dictionary<string, string>(document.DisplayFrames!, StringComparer.Ordinal)
+            var crossFamily = new Dictionary<string, string>(document.DisplayFrames, StringComparer.Ordinal)
             {
                 [native.Name] = expectedNames.First(pair => pair.Key.StartsWith("wall_pirate_", StringComparison.Ordinal)).Value,
             };

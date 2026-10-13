@@ -31,14 +31,14 @@ internal static class ItemCancelClearsChargeVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.EquippedBeams = (ushort)SamusBeamFlags.Charge;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(512, 490));
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
         for (int frame = 0; frame < 64; frame++)
             runtime.StepFrame(0);
         AssertEqual((ushort)0, samus.SelectedHudItem, "nothing is selected");
@@ -46,7 +46,7 @@ internal static class ItemCancelClearsChargeVerification
         const ushort shoot = (ushort)SnesButton.X;
         for (int frame = 0; frame < 10; frame++)
             runtime.StepFrame(shoot);
-        AssertEqual((ushort)10, runtime.Projectiles!.Charge.FlareCounter, "ten held frames charge to ten");
+        AssertEqual((ushort)10, runtime.Projectiles.Charge.FlareCounter, "ten held frames charge to ten");
 
         runtime.StepFrame(unchecked((ushort)(shoot | (ushort)SnesButton.Y)));
         AssertEqual((ushort)0, samus.SelectedHudItem, "the cancel leaves nothing selected");

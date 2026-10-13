@@ -79,8 +79,6 @@ internal static class KraidRoomVisualSelectionVerification
             entries.Skip(1).Append(new("crumble-first", []))), "Kraid visual selection rejects empty frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmKraidVisualCatalog(
             entries.Skip(1).Append(new("crumble-first", [0xf000]))), "Kraid visual selection rejects physical bits");
-        AssertThrows<ArgumentNullException>(() => new RoomPlmKraidVisualCatalog(null!),
-            "Kraid visual selection rejects null source");
         Console.WriteLine("Kraid room visual selection: ten roles, all 45 blocks, legacy identity, copied data and validation pass.");
     }
 

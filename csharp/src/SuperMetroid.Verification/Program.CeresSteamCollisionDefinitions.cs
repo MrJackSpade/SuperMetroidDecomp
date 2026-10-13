@@ -45,7 +45,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
                 EnemyInstructionRunner.Process(enemies, arguments);
                 if ((slot.SpritemapPointer & 0x8000) == 0)
                     continue;
-                AssertTrue(stock.ExtendedFrames!.TryGetDisplay(
+                AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
                         CeresSteamCollisionDefinitions.Bank, slot.SpritemapPointer,
                         out _),
                     $"installed Ceres steam {variant} frame {frame} has editable art");
@@ -129,7 +129,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
                     AssertEqual(nativeHit, compiledHit,
                         $"Ceres steam $A6:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
                     AssertEqual(nativeCallback,
-                        (ushort)compiledArguments[^1]!,
+                        (ushort)(compiledArguments[^1] ?? throw new InvalidOperationException("Verification requires compiledArguments[^1].")),
                         $"Ceres steam $A6:{frame:X4} callback {x:X4},{y:X4}, shot={shot}");
                     probes++;
                 }

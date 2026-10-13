@@ -29,27 +29,27 @@ internal static void VerifySamusPoseTransitionMatching()
     // matching: Jump+Up outranks plain Up, which outranks Right because the matcher stops
     // at the first record whose complete required masks are present.
 
-    SamusPoseTransition jumpUp = SamusPoseTransitionTable.Find(
+    SamusPoseTransition jumpUp = (SamusPoseTransitionTable.Find(
         bus,
         currentPose: fixturePose,
         canonicalHeldInput: 0x0980,
-        canonicalNewInput: 0x0080)!.Value;
+        canonicalNewInput: 0x0080) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: 0x098...."));
     AssertEqual(0x55, (byte)jumpUp.ProspectivePose, "Samus transition required-new plus held chord");
     AssertTrue(SamusPoseInputDefinitions.TryGetPointer(fixturePose, out _),
         "Samus transition fixture pose has an authored table");
 
-    SamusPoseTransition up = SamusPoseTransitionTable.Find(
+    SamusPoseTransition up = (SamusPoseTransitionTable.Find(
         bus,
         currentPose: fixturePose,
         canonicalHeldInput: (ushort)(SnesButton.Up | SnesButton.Y),
-        canonicalNewInput: 0)!.Value;
+        canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: (usho...."));
     AssertEqual(0x03, (byte)up.ProspectivePose, "Samus transition permits extra held action");
 
-    SamusPoseTransition right = SamusPoseTransitionTable.Find(
+    SamusPoseTransition right = (SamusPoseTransitionTable.Find(
         bus,
         currentPose: fixturePose,
         canonicalHeldInput: 0x0100,
-        canonicalNewInput: 0)!.Value;
+        canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: 0x010...."));
     AssertEqual(0x09, (byte)right.ProspectivePose, "Samus standing Right proposes running pose");
 
     AssertEqual<SamusPoseTransition?>(null,

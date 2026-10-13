@@ -172,22 +172,22 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
             // The source register used bank $B0 with a 16-bit address that increments
             // independently of the bank byte. Materialize that exact DMA source slice,
             // then use SnesVram's range-checked consecutive transfer primitive.
-            SelectedCeresDoorVisual.LoadTiles(_presentation._vram!);
+            SelectedCeresDoorVisual.LoadTiles(_presentation.Vram);
         }
 
         if (_ridleyEncounter.CeresStatus == 0 && variant == 3)
         {
             // The native destination $142 is a byte offset into target_palettes: colors
             // 161..175. This runtime exposes the final fade target directly in CGRAM.
-            SelectedCeresDoorVisual.LoadNormalColors(_presentation._cgram!, CeresDoorVisualRomData.NormalTargetColor);
+            SelectedCeresDoorVisual.LoadNormalColors(_presentation.Cgram, CeresDoorVisualRomData.NormalTargetColor);
             return;
         }
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         if (_ridleyEncounter.CeresStatus != 0)
-            SelectedCeresDoorVisual.LoadEscapeColors(_presentation._cgram!, CeresDoorVisualRomData.ActiveTargetColor);
+            SelectedCeresDoorVisual.LoadEscapeColors(_presentation.Cgram, CeresDoorVisualRomData.ActiveTargetColor);
         else
-            SelectedCeresDoorVisual.LoadNormalColors(_presentation._cgram!, CeresDoorVisualRomData.ActiveTargetColor);
+            SelectedCeresDoorVisual.LoadNormalColors(_presentation.Cgram, CeresDoorVisualRomData.ActiveTargetColor);
     }
 
     /// <summary>Dispatches the function word stored in Ceres-door variable A ($0FA8).</summary>
@@ -323,10 +323,10 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         // actor keeps alternating these four Mode-7 tilemap bytes forever. Omitting this
         // queue made the moving OBJ pad flash correctly, then left the landed tile platform
         // frozen on whichever frame happened to be present at deletion.
-        SelectedCeresDoorVisual.LoadMode7DoorFrame(_presentation._vram!, (frame & 2) >> 1);
+        SelectedCeresDoorVisual.LoadMode7DoorFrame(_presentation.Vram, (frame & 2) >> 1);
 
         int colorRow = (frame & 0x0038) >> 3;
-        SelectedCeresDoorVisual.LoadAnimationColors(_presentation._cgram!, colorRow);
+        SelectedCeresDoorVisual.LoadAnimationColors(_presentation.Cgram, colorRow);
     }
 
     /// <summary>Registers initialization of each Ceres door population variant.</summary>

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Audio;
+using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -201,18 +202,18 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
             case MamaTurtleAiFunction.LeavingShell:
                 RequireTurtleLevel(level);
                 RunMamaTurtleLeavingShell(
-                    slot, state, samus, level!, nmiFrameCounter8);
+                    slot, state, samus, level, nmiFrameCounter8);
                 return;
             case MamaTurtleAiFunction.EnteringShell:
                 RunMamaTurtleEnteringShell(slot, state, samus);
                 return;
             case MamaTurtleAiFunction.RisingToHover:
                 RequireTurtleLevel(level);
-                RunMamaTurtleRisingToHover(slot, state, samus, level!);
+                RunMamaTurtleRisingToHover(slot, state, samus, level);
                 return;
             case MamaTurtleAiFunction.Hovering:
                 RequireTurtleLevel(level);
-                RunMamaTurtleHovering(slot, state, samus, level!);
+                RunMamaTurtleHovering(slot, state, samus, level);
                 return;
             case MamaTurtleAiFunction.RisingToPeak:
                 RunMamaTurtleRisingToPeak(slot, state, samus);
@@ -222,7 +223,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
                 return;
             case MamaTurtleAiFunction.Falling:
                 RequireTurtleLevel(level);
-                RunMamaTurtleFalling(slot, state, samus, level!);
+                RunMamaTurtleFalling(slot, state, samus, level);
                 return;
             default:
                 throw new InvalidDataException(
@@ -572,7 +573,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
                     InstallTurtleInstruction(
                         baby,
                         MamaTurtleInstructionProgramDefinitions.BabySpinning);
-                    bool facingRight = (samus.PoseMetadata.ReadPoseXDirection(_room.Bus!) & 0x0f) == (byte)SamusFacingDirection.Right; // magic-number-audit: allow(PoseOrMovement) - the native low-nibble mask isolating the pose X-direction byte.
+                    bool facingRight = (samus.PoseMetadata.ReadPoseXDirection(_room.LoadedBus) & 0x0f) == (byte)SamusFacingDirection.Right; // magic-number-audit: allow(PoseOrMovement) - the native low-nibble mask isolating the pose X-direction byte.
                     state.Velocity = new Offset16<RoomPixels>(facingRight ? (short)3 : (short)-3, 1);
                     return;
                 }
@@ -586,7 +587,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
 
             case BabyTurtleAiFunction.SpinningUnstoppable:
                 RequireTurtleLevel(level);
-                MoveSpinningBabyTurtle(baby, state, level!);
+                MoveSpinningBabyTurtle(baby, state, level);
                 return;
 
             case BabyTurtleAiFunction.SpinningStoppable:
@@ -597,7 +598,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
                     return;
                 }
                 RequireTurtleLevel(level);
-                MoveSpinningBabyTurtle(baby, state, level!);
+                MoveSpinningBabyTurtle(baby, state, level);
                 return;
 
             case BabyTurtleAiFunction.CrawlingCarryingSamus:
@@ -777,7 +778,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
             : unchecked((ushort)(samus.Position.X.Whole - samus.Kinematics.Radius.X - baby.Radius.X)));
         state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-            level!, baby, SnesSixteenSixteen.FromWhole(state.Velocity.X));
+            level, baby, SnesSixteenSixteen.FromWhole(state.Velocity.X));
         WakeMamaTurtle(state);
     }
 
@@ -870,7 +871,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects turtle movement without active room collision data.</summary>
-    private static void RequireTurtleLevel(RoomLevelData? level)
+    private static void RequireTurtleLevel([NotNull] RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Turtle movement requires active room collision data.");

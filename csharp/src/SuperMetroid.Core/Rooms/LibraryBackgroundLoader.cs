@@ -27,7 +27,7 @@ public static class LibraryBackgroundLoader
         }
 
         if (LibraryBackgroundProgramDefinitions.TryGet(listPointer,
-                out LibraryBackgroundProgram program))
+                out LibraryBackgroundProgram? program))
             return ExecuteProgram(bus, vram, program, activeDoorPointer, artwork);
 
         // All retail high-bank lists are compiled. Once the host has bound every

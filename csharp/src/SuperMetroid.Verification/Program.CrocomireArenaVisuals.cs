@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -47,8 +48,8 @@ internal static class CrocomireArenaVisualsVerification
                 RoomPlmCrocomireVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted Crocomire JSON is empty.");
-            Entry("clear-bridge")["blocks"]![9] = 0x0058;
-            Entry("create-invisible-wall")["blocks"]![23] = 0x0059;
+            Entry("clear-bridge").Required("blocks")[9] = 0x0058;
+            Entry("create-invisible-wall").Required("blocks")[23] = 0x0059;
             Directory.CreateDirectory(
                 installation.RoomPlmCrocomireVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -80,7 +81,7 @@ internal static class CrocomireArenaVisualsVerification
                         2, 7),
                 "Crocomire override survives stock replacement");
 
-            Entry("clear-bridge")["blocks"]![9] = 0xf058;
+            Entry("clear-bridge").Required("blocks")[9] = 0xf058;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmCrocomireVisuals(),
@@ -91,8 +92,8 @@ internal static class CrocomireArenaVisualsVerification
                     installation.RoomPlmCrocomireVisualDirectory),
                 "tampered Crocomire stock fails manifest validation");
 
-            JsonNode Entry(string id) => document["entries"]!.AsArray()
-                .Single(entry => entry!["id"]!.GetValue<string>() == id)!;
+            JsonNode Entry(string id) => document.Required("entries").AsArray().RequiredElements()
+                .Single(entry => entry.Required("id").GetValue<string>() == id);
         }
         finally
         {

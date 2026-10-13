@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -401,19 +401,19 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         }
         else
         {
-            SamusMovementType movement = samus.PoseMetadata.ReadMovementKind(_room.Bus!);
+            SamusMovementType movement = samus.PoseMetadata.ReadMovementKind(_room.LoadedBus);
             if (movement is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
             {
                 // CallSomeSamusCode(3) selects pose $01/$02 from the current direction,
                 // then runs the ordinary pose metadata and animation initialization path.
                 // Reusing those public ROM-backed helpers prevents a Yapping-Maw-only pose
                 // approximation from drifting away from every other Samus transition.
-                samus.Pose = samus.PoseMetadata.IsFacingLeft(_room.Bus!)
+                samus.Pose = samus.PoseMetadata.IsFacingLeft(_room.LoadedBus)
                     ? SamusPoseId.FacingLeftNormalPose
                     : SamusPoseId.FacingRightNormalPose;
-                samus.PoseMetadata.RefreshCollisionRadii(_room.Bus!);
-                samus.Presentation.InitializeAnimation(_room.Bus!, initialFrame: 0);
-                samus.CommitPoseHistory(_room.Bus!);
+                samus.PoseMetadata.RefreshCollisionRadii(_room.LoadedBus);
+                samus.Presentation.InitializeAnimation(_room.LoadedBus, initialFrame: 0);
+                samus.CommitPoseHistory(_room.LoadedBus);
             }
         }
 

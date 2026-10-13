@@ -78,7 +78,7 @@ internal sealed class NativeMovieCheckpoints : IDisposable
     /// <summary>Reads the converted updates after checking the manifest's format and source-movie identity.</summary>
     private static ConvertedMovieUpdate[] ReadUpdates(JsonElement root, byte[] movie)
     {
-        string format = root.GetProperty("format").GetString()!;
+        string format = (root.GetProperty("format").GetString() ?? throw new InvalidOperationException("Verification requires root.GetProperty(\"format\").GetString()."));
         // v6 records MessageBox_Routine's return frame, which separates a box's own
         // frames from lag its dispatch runs afterward. v7 splits a dispatch entered
         // straight out of CommonBootSection into its own update.
@@ -90,8 +90,8 @@ internal sealed class NativeMovieCheckpoints : IDisposable
             update.GetProperty("update").GetInt32(),
             update.GetProperty("sourceFrame").GetInt32(),
             (ushort)update.GetProperty("input").GetInt32(),
-            update.GetProperty("kind").GetString()!,
-            update.GetProperty("timingClass").GetString()!,
+            (update.GetProperty("kind").GetString() ?? throw new InvalidOperationException("Verification requires update.GetProperty(\"kind\").GetString().")),
+            (update.GetProperty("timingClass").GetString() ?? throw new InvalidOperationException("Verification requires update.GetProperty(\"timingClass\").GetString().")),
             update.GetProperty("expectedRecord") is { ValueKind: not JsonValueKind.Null } expectedRecord
                 ? expectedRecord.GetInt32() : null,
             update.GetProperty("excludedNmiAfter").GetInt32(),
@@ -119,7 +119,7 @@ internal sealed class NativeMovieCheckpoints : IDisposable
     {
         if (update != 0 && Updates[update - 1].ExpectedRecord is null)
             return null;
-        int wanted = update == 0 ? InitialRecord : Updates[update - 1].ExpectedRecord!.Value;
+        int wanted = update == 0 ? InitialRecord : (Updates[update - 1].ExpectedRecord ?? throw new InvalidOperationException("Verification requires Updates[update - 1].ExpectedRecord."));
         if (wanted <= lastRecord)
             throw new InvalidOperationException("Native checkpoints are forward-only.");
         NativeCheckpoint record = trace.Records.Read(wanted);

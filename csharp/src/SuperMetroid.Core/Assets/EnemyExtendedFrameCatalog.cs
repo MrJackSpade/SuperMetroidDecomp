@@ -190,7 +190,7 @@ public sealed class EnemyExtendedFrameCatalog
         bool legacyOverride = schema != EnemyExtendedFrameSchema.Current;
         if (document.Frames is null ||
             document.Frames.Count != expectedCount ||
-            (legacyOverride && stockForLegacyOverride!.frames.Count !=
+            (legacyOverride && (stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).frames.Count !=
                 EnemyExtendedFrameDefinitions.ExpectedFrameCount))
             throw new InvalidDataException(
                 "Extended enemy compositions require the current version and every named frame.");
@@ -260,10 +260,10 @@ public sealed class EnemyExtendedFrameCatalog
         if (!legacyOverride)
             return new EnemyExtendedFrameCatalog(frames, displayFrames);
         var merged = new Dictionary<int, EnemyExtendedDrawComponent[]>(
-            stockForLegacyOverride!.frames);
+            (stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).frames);
         foreach ((int identity, EnemyExtendedDrawComponent[] components) in frames)
             merged[identity] = components;
-        var mergedBindings = new Dictionary<int, int>(stockForLegacyOverride.displayFrames);
+        var mergedBindings = new Dictionary<int, int>((stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).displayFrames);
         if (schema is EnemyExtendedFrameSchema.PirateDisplayBindings
             or EnemyExtendedFrameSchema.PreDraygon
             or EnemyExtendedFrameSchema.PreSporeIdentity

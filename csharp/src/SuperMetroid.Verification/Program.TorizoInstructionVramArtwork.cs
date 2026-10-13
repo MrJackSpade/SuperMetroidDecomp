@@ -54,7 +54,7 @@ internal static class TorizoInstructionVramArtworkVerification
                     transfer.Instruction, out TorizoInstructionVramTransferDefinition selected) &&
                        selected == transfer,
                 $"Torizo transfer $AA:{transfer.Instruction:X4} lookup");
-            AssertTrue(stock.TorizoInstructionVram!.TryResolve(
+            AssertTrue((stock.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires stock.TorizoInstructionVram.")).TryResolve(
                     transfer.SourceAddress, transfer.ByteCount,
                     out ReadOnlyMemory<byte> installed),
                 $"Torizo transfer $AA:{transfer.Instruction:X4} installed tile source");
@@ -109,11 +109,11 @@ internal static class TorizoInstructionVramArtworkVerification
         }
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue(stock.TorizoInstructionVram!.TryResolve(
+        AssertTrue((stock.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires stock.TorizoInstructionVram.")).TryResolve(
                 golden.SourceAddress, golden.ByteCount,
                 out ReadOnlyMemory<byte> stockBytes),
             "stock Golden Torizo upload remains addressable");
-        AssertTrue(edited.TorizoInstructionVram!.TryResolve(
+        AssertTrue((edited.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires edited.TorizoInstructionVram.")).TryResolve(
                 golden.SourceAddress, golden.ByteCount,
                 out ReadOnlyMemory<byte> editedBytes),
             "edited Golden Torizo upload remains addressable");
@@ -131,8 +131,8 @@ internal static class TorizoInstructionVramArtworkVerification
         editedEnemies.Instructions.ApplyEnemyInstructionVramTransfer(editedSlot, GoldenTorizoInitialInstructionProgramDefinitions.Initial);
         AssertEqual(editedBytes.Span[0], editedVram.ReadByte(0x6d00 * 2),
             "edited Golden Torizo PNG changes production VRAM upload");
-        AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .TorizoInstructionVram!.TryResolve(golden.SourceAddress,
+        AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
+                .TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .TorizoInstructionVram.")).TryResolve(golden.SourceAddress,
                     golden.ByteCount, out ReadOnlyMemory<byte> reloaded) &&
                    reloaded.Span.SequenceEqual(editedBytes.Span),
             "Golden Torizo tile override survives catalog reload");

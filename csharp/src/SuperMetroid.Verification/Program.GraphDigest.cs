@@ -67,7 +67,7 @@ internal static class GraphDigestVerification
                 object? left = field.GetValue(actual), right = field.GetValue(expected);
                 if (left is Array leftArray && right is Array rightArray)
                 {
-                    if (leftArray.GetType() != rightArray.GetType() || !leftArray.GetType().GetElementType()!.IsPrimitive)
+                    if (leftArray.GetType() != rightArray.GetType() || !(leftArray.GetType().GetElementType() ?? throw new InvalidOperationException("Verification requires leftArray.GetType().GetElementType().")).IsPrimitive)
                         throw new InvalidOperationException($"{type.Name}.{field.Name} needs an element comparison.");
                     if (!System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(
                             ref System.Runtime.InteropServices.MemoryMarshal.GetArrayDataReference(leftArray), Buffer.ByteLength(leftArray))

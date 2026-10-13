@@ -131,12 +131,12 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     private static SporeSpawnProgramFrame CaptureSporeSpawnProgramFrame(
         RoomEnemySystem system, RoomEnemySlot slot)
     {
-        SporeSpawnEnemyState state = system.SporeSpawn!;
+        SporeSpawnEnemyState state = (system.SporeSpawn ?? throw new InvalidOperationException("Verification requires system.SporeSpawn."));
         return new SporeSpawnProgramFrame(
             slot.CurrentInstruction, slot.InstructionTimer.RawValue,
             slot.SpritemapPointer, slot.Position.Whole,
             slot.Health, slot.Properties, slot.ExtraProperties,
-            state.Function, state.Angle, state.MaximumXRadius,
+            (state ?? throw new InvalidOperationException("Verification requires state.")).Function, state.Angle, state.MaximumXRadius,
             state.DeathStarted, state.DeathDropRequested);
     }
 

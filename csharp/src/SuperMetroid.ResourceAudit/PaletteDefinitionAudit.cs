@@ -122,7 +122,7 @@ internal static class PaletteDefinitionAudit
         for (int frame = 0; frame < frames; frame++)
         for (int color = 0; color < colors; color++)
         {
-            ushort pointer = (ushort)method.Invoke(row, [frame, color])!;
+            ushort pointer = (ushort)(method.Invoke(row, [frame, color]) ?? throw new InvalidOperationException("Verification requires method.Invoke(row, [frame, color])."));
             report.Require(ResourceDomains.PaletteFx, catalog.Name + "." + method.Name,
                 ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, pointer), source, exports);
         }

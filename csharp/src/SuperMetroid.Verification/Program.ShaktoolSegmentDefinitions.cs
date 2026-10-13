@@ -40,10 +40,10 @@ internal static class ShaktoolSegmentDefinitionsVerification
             slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             initialize(slot);
 
-            ShaktoolSegmentState state = enemies.ShaktoolSegments[index]!;
+            ShaktoolSegmentState state = (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index]."));
             AssertEqual(unchecked((ushort)(0x0010 | definition.PropertyMask)),
                 slot.Properties, $"Shaktool production properties {index}");
-            AssertEqual((ushort)0, state.OwnerNativeIndex,
+            AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).OwnerNativeIndex,
                 $"Shaktool production owner {index}");
             AssertEqual(definition.PreInstruction, state.PreInstruction,
                 $"Shaktool production callback {index}");
@@ -59,8 +59,8 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production instruction timer {index}");
         }
 
-        foreach (ShaktoolSegmentState state in enemies.ShaktoolSegments.Take(7)!)
-            state.PreInstruction = ShaktoolPreInstruction.IdleAfterAttack;
+        foreach (ShaktoolSegmentState? state in enemies.ShaktoolSegments.Take(7))
+            (state ?? throw new InvalidOperationException("Verification requires state.")).PreInstruction = ShaktoolPreInstruction.IdleAfterAttack;
         ushort resetCursor = 0x1234;
         AssertTrue(enemies.ShaktoolBehavior.TryProcessShaktoolInstruction(
                 enemies.SlotTable.Slots[0], (ushort)ShaktoolInstruction.Instruction_Shaktool_ResetShaktoolFunctions, ref resetCursor),
@@ -70,7 +70,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
         for (int index = 0; index < definitions.Length; index++)
         {
             AssertEqual(definitions[index].PreInstruction,
-                enemies.ShaktoolSegments[index]!.PreInstruction,
+                (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index].")).PreInstruction,
                 $"Shaktool production reset callback {index}");
         }
 

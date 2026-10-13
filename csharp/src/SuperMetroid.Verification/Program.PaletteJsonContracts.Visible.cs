@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
@@ -77,7 +78,7 @@ internal static class PaletteJsonContractsVisibleVerification
         if (node is JsonObject obj)
         {
             if (obj.ContainsKey("red"))
-                foreach (string channel in new[] { "red", "green", "blue" }) obj[channel] = 31 - obj[channel]!.GetValue<int>();
+                foreach (string channel in new[] { "red", "green", "blue" }) obj[channel] = 31 - obj.Required(channel).GetValue<int>();
             else foreach (var pair in obj) InvertPaletteContractColors(pair.Value);
         }
         else if (node is JsonArray array) foreach (JsonNode? child in array) InvertPaletteContractColors(child);
@@ -93,9 +94,9 @@ internal static class PaletteJsonContractsVisibleVerification
         var editedSlots = (Array)edited.slots;
         for (int slot = 0; slot < stockSlots.Length; slot++)
         {
-            object stockSlot = stockSlots.GetValue(slot)!;
-            object editedSlot = editedSlots.GetValue(slot)!;
-            foreach (PropertyInfo property in stockSlot.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            object stockSlot = (stockSlots.GetValue(slot) ?? throw new InvalidOperationException("Verification requires stockSlots.GetValue(slot)."));
+            object editedSlot = (editedSlots.GetValue(slot) ?? throw new InvalidOperationException("Verification requires editedSlots.GetValue(slot)."));
+            foreach (PropertyInfo property in (stockSlot ?? throw new InvalidOperationException("Verification requires stockSlot.")).GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
                 AssertEqual(property.GetValue(stockSlot), property.GetValue(editedSlot),
                     "every native palette slot field unchanged: " + property.Name);
         }

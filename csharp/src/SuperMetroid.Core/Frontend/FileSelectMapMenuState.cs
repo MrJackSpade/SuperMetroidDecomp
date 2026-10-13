@@ -216,7 +216,7 @@ public sealed class FileSelectMapMenuState
         {
             FileSelectMapNavigationPhase.ExpandingWindow or FileSelectMapNavigationPhase.InitializingRoom =>
                 FileSelectMapWindowCompositor.Composite(areaGraphics.Render(usedStations, false),
-                    roomGraphics.RenderFrameOnly(), navigation.Window!, composed),
+                    roomGraphics.RenderFrameOnly(), navigation.ActiveWindow, composed),
             FileSelectMapNavigationPhase.Room when !markerDrawn => roomGraphics.RenderBackgrounds(scroll.Scroll),
             FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested =>
                 roomGraphics.Render(scroll.Scroll, marker, drawArrows ? animations : null),
@@ -261,7 +261,7 @@ public sealed class FileSelectMapMenuState
         LayeredRenderSnapshot scene = Phase switch
         {
             FileSelectMapNavigationPhase.ExpandingWindow or FileSelectMapNavigationPhase.InitializingRoom =>
-                Window(Area(false), Frame(), navigation.Window!),
+                Window(Area(false), Frame(), navigation.ActiveWindow),
             FileSelectMapNavigationPhase.Room when !markerDrawn => Room(false),
             FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested => Room(),
             FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == 0 => Room(),

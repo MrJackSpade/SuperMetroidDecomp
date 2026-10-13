@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Audio;
+using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -124,7 +125,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
         {
             case BeetomEnemyFunction.DecideAction:
                 RequireBeetomSamus(samus);
-                state.Function = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus!.Position.X.Whole - slot.Position.X.Whole))) < BeetomProximityDistance
+                state.Function = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole))) < BeetomProximityDistance
                     ? BeetomEnemyFunction.DecideActionSamusInProximity
                     : BeetomEnemyFunction.DecideActionSamusNotInProximity;
                 return;
@@ -155,7 +156,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
                 return;
             case BeetomEnemyFunction.DecideActionSamusInProximity:
                 RequireBeetomSamus(samus);
-                StartBeetomLunge(slot, state, samus!);
+                StartBeetomLunge(slot, state, samus);
                 return;
             case BeetomEnemyFunction.StartDrainingLeft:
                 StartBeetomDrain(slot, state, left: true);
@@ -178,53 +179,53 @@ internal sealed class BeetomBehavior : IEnemySpecies
                 return;
             case BeetomEnemyFunction.CrawlingLeft:
                 RequireBeetomLevel(level);
-                RunBeetomCrawl(slot, state, level!, left: true);
+                RunBeetomCrawl(slot, state, level, left: true);
                 return;
             case BeetomEnemyFunction.CrawlingRight:
                 RequireBeetomLevel(level);
-                RunBeetomCrawl(slot, state, level!, left: false);
+                RunBeetomCrawl(slot, state, level, left: false);
                 return;
             case BeetomEnemyFunction.ShortHopLeft:
                 RequireBeetomLevel(level);
-                RunBeetomArc(slot, state, level!, left: true, lunge: false, risingDelta: 4, fallingDelta: 4);
+                RunBeetomArc(slot, state, level, left: true, lunge: false, risingDelta: 4, fallingDelta: 4);
                 return;
             case BeetomEnemyFunction.ShortHopRight:
                 RequireBeetomLevel(level);
-                RunBeetomArc(slot, state, level!, left: false, lunge: false, risingDelta: 4, fallingDelta: 4);
+                RunBeetomArc(slot, state, level, left: false, lunge: false, risingDelta: 4, fallingDelta: 4);
                 return;
             case BeetomEnemyFunction.LongHopLeft:
                 RequireBeetomLevel(level);
-                RunBeetomArc(slot, state, level!, left: true, lunge: false, risingDelta: 5, fallingDelta: 5);
+                RunBeetomArc(slot, state, level, left: true, lunge: false, risingDelta: 5, fallingDelta: 5);
                 return;
             case BeetomEnemyFunction.LongHopRight:
                 RequireBeetomLevel(level);
-                RunBeetomArc(slot, state, level!, left: false, lunge: false, risingDelta: 5, fallingDelta: 5);
+                RunBeetomArc(slot, state, level, left: false, lunge: false, risingDelta: 5, fallingDelta: 5);
                 return;
             case BeetomEnemyFunction.LungeLeft:
                 RequireBeetomLevel(level);
-                RunBeetomArc(slot, state, level!, left: true, lunge: true, risingDelta: 5, fallingDelta: 3);
+                RunBeetomArc(slot, state, level, left: true, lunge: true, risingDelta: 5, fallingDelta: 3);
                 return;
             case BeetomEnemyFunction.LungeRight:
                 RequireBeetomLevel(level);
-                RunBeetomArc(slot, state, level!, left: false, lunge: true, risingDelta: 5, fallingDelta: 3);
+                RunBeetomArc(slot, state, level, left: false, lunge: true, risingDelta: 5, fallingDelta: 3);
                 return;
             case BeetomEnemyFunction.DrainingLeft:
                 RequireBeetomSamus(samus);
                 RequireBeetomLevel(level);
-                RunBeetomDrain(slot, state, samus!, level!, controllerInput, left: true);
+                RunBeetomDrain(slot, state, samus, level, controllerInput, left: true);
                 return;
             case BeetomEnemyFunction.DrainingRight:
                 RequireBeetomSamus(samus);
                 RequireBeetomLevel(level);
-                RunBeetomDrain(slot, state, samus!, level!, controllerInput, left: false);
+                RunBeetomDrain(slot, state, samus, level, controllerInput, left: false);
                 return;
             case BeetomEnemyFunction.Dropping:
                 RequireBeetomLevel(level);
-                RunBeetomDrop(slot, state, level!);
+                RunBeetomDrop(slot, state, level);
                 return;
             case BeetomEnemyFunction.BeingFlung:
                 RequireBeetomLevel(level);
-                RunFlungBeetom(slot, state, level!);
+                RunFlungBeetom(slot, state, level);
                 return;
             default:
                 throw new InvalidDataException($"Beetom function $A8:{(ushort)state.Function:X4} is not translated.");
@@ -563,14 +564,14 @@ internal sealed class BeetomBehavior : IEnemySpecies
     }
 
     /// <summary>Requires a live Samus actor for attachment and targeting phases.</summary>
-    private static void RequireBeetomSamus(SamusState? samus)
+    private static void RequireBeetomSamus([NotNull] SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Beetom AI requires the active Samus actor.");
     }
 
     /// <summary>Requires room collision data before moving Beetom through terrain.</summary>
-    private static void RequireBeetomLevel(RoomLevelData? level)
+    private static void RequireBeetomLevel([NotNull] RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Beetom movement requires room level data.");

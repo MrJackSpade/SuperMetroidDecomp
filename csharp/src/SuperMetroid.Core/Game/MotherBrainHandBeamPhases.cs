@@ -137,7 +137,7 @@ public sealed class MotherBrainEnemyState
     public RoomEnemySlot Body { get; }
 
     /// <summary>Physical slot one, enemy definition <c>$EC3F</c>.</summary>
-    public RoomEnemySlot? Head { get; internal set; }
+    public RoomEnemySlot Head { get => field ?? throw new InvalidOperationException("Mother Brain's head slot is not attached; head initialization attaches it."); internal set; }
 
     /// <summary>
     /// Exact <c>$7E:9000/$7E:9700</c> corpse graphics and rot-table producer initialized by

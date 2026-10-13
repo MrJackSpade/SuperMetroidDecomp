@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -41,7 +42,7 @@ internal static class MotherBrainBodyPresentationVerification
             .Select(frame => frame.Pointer)), "installed body inventory covers every compiled program selector, not only exercised paths");
         // Remap the whole mixed pose, not only its limbs. The native selector must not change.
         for (int index = 0; index < mixed.Length; index++)
-            editedOam.DisplayFrames![mixed[index].Name] = mixed[(index + 1) % mixed.Length].Name;
+            (editedOam.DisplayFrames ?? throw new InvalidOperationException("Verification requires editedOam.DisplayFrames."))[mixed[index].Name] = mixed[(index + 1) % mixed.Length].Name;
         var replacement = new MotherBrainPresentationFixture(Build(editedOam, editedBg2));
         foreach (EnemyExtendedFrameDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
         {
@@ -50,7 +51,7 @@ internal static class MotherBrainBodyPresentationVerification
             baseline.ClearBg2(); replacement.ClearBg2();
             OamBuffer original = baseline.Draw(), changed = replacement.Draw();
             AssertBodyOam(original, stockOam.Frames[frame.Name], baseline.Body);
-            string selected = editedOam.DisplayFrames![frame.Name];
+            string selected = (editedOam.DisplayFrames ?? throw new InvalidOperationException("Verification requires editedOam.DisplayFrames."))[frame.Name];
             AssertBodyOam(changed, editedOam.Frames[selected], replacement.Body);
             AssertBodyBg2(baseline.Inner.Vram, stockBg2, frame.Name);
             AssertBodyBg2(replacement.Inner.Vram, editedBg2, selected);
@@ -185,15 +186,15 @@ internal static class MotherBrainBodyPresentationVerification
         EnemyTileArtworkFiles.Extract(source, stockPath, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(stockPath);
         EnemyTileArtworkCatalog installed = EnemyTileArtworkFiles.Load(stockPath, null);
-        AssertEqual(bg2.ContentIdentity, installed.MotherBrainBodyBg2Frames!.ContentIdentity,
+        AssertEqual(bg2.ContentIdentity, (installed.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires installed.MotherBrainBodyBg2Frames.")).ContentIdentity,
             "manifest loads the exact imported Mother Brain body catalog");
-        AssertEqual(oam.ContentIdentity, installed.ExtendedFrames!.ContentIdentity,
+        AssertEqual(oam.ContentIdentity, (installed.ExtendedFrames ?? throw new InvalidOperationException("Verification requires installed.ExtendedFrames.")).ContentIdentity,
             "manifest loads the complete current multipart catalog");
         string file = Path.Combine(stockPath, MotherBrainBodyVisualDefinitions.Bg2FileName);
         var author = new EnemyIdentityFixture();
         using var parsed = System.Text.Json.JsonDocument.Parse(File.ReadAllBytes(file));
-        var document = System.Text.Json.JsonSerializer.Deserialize<EnemyBg2FrameDocument>(parsed,
-            new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase })!;
+        var document = RequiredJson.Deserialize<EnemyBg2FrameDocument>(parsed,
+            new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
         EnemyBg2WriteDocument[] first = document.Frames.Values.First();
         first[0].Tiles[0] ^= 1;
         Directory.CreateDirectory(overridePath);
@@ -201,7 +202,7 @@ internal static class MotherBrainBodyPresentationVerification
         using (var json = author.Json(document)) File.WriteAllBytes(selectedFile, json.ToArray());
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
         AssertTrue(installed.ContentIdentity != edited.ContentIdentity, "selected Mother Brain BG2 edit changes installed bundle identity");
-        AssertEqual(installed.ExtendedFrames.ContentIdentity, edited.ExtendedFrames!.ContentIdentity,
+        AssertEqual(installed.ExtendedFrames.ContentIdentity, (edited.ExtendedFrames ?? throw new InvalidOperationException("Verification requires edited.ExtendedFrames.")).ContentIdentity,
             "a BG2-only override does not alter limb compositions");
         using (var json = author.Json(document with { Version = document.Version + 1 }))
             File.WriteAllBytes(selectedFile, json.ToArray());

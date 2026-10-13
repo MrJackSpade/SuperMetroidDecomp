@@ -67,7 +67,7 @@ internal static class RoomFxRetailInventoryVerification
         RetailFxRoomState[] states = File.ReadLines(symbolPath)
             .Select(ParseRetailFxRoomState)
             .Where(state => state.HasValue)
-            .Select(state => state!.Value)
+            .Select(state => (state ?? throw new InvalidOperationException("Verification requires state.")))
             .Where(state => state.RoomPointer != RetailRoomFxDefinitions.DebugRoomHeader)
             .DistinctBy(state => state.StatePointer)
             .OrderBy(state => state.RoomPointer)
@@ -124,7 +124,7 @@ internal static class RoomFxRetailInventoryVerification
                 AssertTrue(doorByPointer.TryGetValue(recordDoor, out CartridgeDoorHeader? fxDoor),
                     $"room {room.Identity} state $8F:{room.State.Pointer:X4} FX-specific " +
                     $"door $83:{recordDoor:X4} is a physical retail door");
-                AssertEqual(room.Pointer, fxDoor!.DestinationRoomPointer,
+                AssertEqual(room.Pointer, (fxDoor ?? throw new InvalidOperationException("Verification requires fxDoor.")).DestinationRoomPointer,
                     $"FX-specific door $83:{recordDoor:X4} enters room {room.Identity}");
             }
 
@@ -451,7 +451,7 @@ internal static class RoomFxRetailInventoryVerification
         Rgba32[] second = RenderRoomFx(
             vram,
             cgram,
-            fx.CaptureForDisplay()!.Value);
+            (fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")));
         Rgba32[] secondSurface = ReadRows(
             second,
             surfaceFirstRow,
@@ -620,7 +620,7 @@ internal static class RoomFxRetailInventoryVerification
 
         ushort cameraY = door.DestinationScreen.ToRoomPixels().Y;
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
-        AssertTrue(fx.CaptureForDisplay()!.Value.WaterSurfaceScreenY >=
+        AssertTrue((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")).WaterSurfaceScreenY >=
                 SnesGameplayFrameRenderer.Height,
             $"room {definition.Room} entry lava begins below the viewport");
 
@@ -866,7 +866,7 @@ internal static class RoomFxRetailInventoryVerification
             frame,
             vram,
             cgram,
-            fx.CaptureForDisplay()!.Value);
+            (fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")));
         AssertTrue(frame.All(pixel => pixel == default),
             "transition to $FFFF heat FX cannot carry visible lava from the source room");
     }

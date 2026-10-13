@@ -64,16 +64,16 @@ internal static class GrappleEndpointGeometryVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.NmiHandler.RunNmi(0, true);
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose })
         {
             samus.Pose = pose;
-            samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
+            samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             samus.Presentation.InitializeAnimation(bus); samus.Presentation.PrimeGraphics(bus);
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.RopeLength = 8;
             samus.Grapple.Anchor = samus.Grapple.Anchor.WithX(samus.Position.X.Whole);
-            samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(unchecked((ushort)(runtime.Room.Camera.PixelPosition.Y - 1)));
+            samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(unchecked((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y - 1)));
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole);
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
             samus.Grapple.SegmentAnimationTimers[15] = NativeCountdown.Start(1);

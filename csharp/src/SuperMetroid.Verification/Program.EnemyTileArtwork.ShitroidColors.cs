@@ -61,8 +61,8 @@ internal static class EnemyTileArtworkShitroidColorsVerification
                 $"Shitroid {target} adjacent target color remains native");
         }
         AssertEqual(colors.NormalColor(7, 2),
-            EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .ShitroidColors!.NormalColor(7, 2),
+            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
+                .ShitroidColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .ShitroidColors.")).NormalColor(7, 2),
             "Shitroid color override survives catalog reload");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(

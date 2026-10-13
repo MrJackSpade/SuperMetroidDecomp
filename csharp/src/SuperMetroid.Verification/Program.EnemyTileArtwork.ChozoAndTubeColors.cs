@@ -47,8 +47,8 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         CheckEditedBand(native.ResolveLowerNorfair, colors.ResolveLowerNorfair,
             "Lower Norfair Chozo");
         AssertEqual(colors.ResolveWreckedShip(5),
-            EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .ChozoAndTubeColors!.ResolveWreckedShip(5),
+            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
+                .ChozoAndTubeColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .ChozoAndTubeColors.")).ResolveWreckedShip(5),
             "Chozo/tube override survives catalog reload");
 
         // Every live initializer must use the installed data, while variant selection,

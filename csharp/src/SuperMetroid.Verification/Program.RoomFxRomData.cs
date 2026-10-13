@@ -133,8 +133,8 @@ internal static class RoomFxRomDataVerification
             {
                 var error = AssertThrows<ArgumentOutOfRangeException>(
                     () => LayerBlendingConfigurations.Validate(configuration, "blend"), "Undefined host blend rejected");
-                AssertEqual("blend", error.ParamName!, "Host blend failure retains parameter name");
-                AssertEqual(configuration, (LayerBlendingConfiguration)error.ActualValue!, "Host blend failure retains value");
+                AssertEqual("blend", error.ParamName, "Host blend failure retains parameter name");
+                AssertEqual(configuration, (LayerBlendingConfiguration)(error.ActualValue ?? throw new InvalidOperationException("Verification requires error.ActualValue.")), "Host blend failure retains value");
             }
             if (value > byte.MaxValue) continue;
             if (accepted)
@@ -236,7 +236,7 @@ internal static class RoomFxRomDataVerification
         }
         AssertEqual(type, state.Type, $"{type} layer-three type");
         AssertTrue(state.IsRenderable, $"{type} owns a translated layer-three plane");
-        RoomLayer3FxRenderSnapshot snapshot = state.CaptureForDisplay()!.Value;
+        RoomLayer3FxRenderSnapshot snapshot = (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay()."));
         AssertEqual(
             layerBlend,
             snapshot.LayerBlendConfiguration,
@@ -358,11 +358,11 @@ internal static class RoomFxRomDataVerification
                      frameNumber++)
                 {
                     state.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
-                    AssertEqual(0, state.CaptureForDisplay()!.Value.LavaAcidBg2WavePhase,
+                    AssertEqual(0, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBg2WavePhase,
                         $"{type} heat wave retains phase before frame four");
                 }
                 state.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
-                AssertEqual(15, state.CaptureForDisplay()!.Value.LavaAcidBg2WavePhase,
+                AssertEqual(15, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBg2WavePhase,
                     $"{type} heat wave rotates backward on frame four");
             }
         }

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Tooling;
+using SuperMetroid.Tooling;
 using System.Reflection;
 
 namespace SuperMetroid.Core.Game;
@@ -91,8 +91,9 @@ internal sealed record InstructionProgramCatalog(
     [ReflectionAudit("catalog discovery: static abstract contract members are reached for types found by assembly scan")]
     private static T? Bind<T>(string helper, Type contract, Type type) =>
         contract.IsAssignableFrom(type)
-            ? (T)typeof(InstructionProgramCatalog).GetMethod(helper, BindingFlags.NonPublic | BindingFlags.Static)!
-                .MakeGenericMethod(type).Invoke(null, null)!
+            ? (T?)(typeof(InstructionProgramCatalog).GetMethod(helper, BindingFlags.NonPublic | BindingFlags.Static) ??
+                throw new MissingMethodException(nameof(InstructionProgramCatalog), helper))
+                .MakeGenericMethod(type).Invoke(null, null)
             : default;
 
     /// <summary>Copies a catalog's compiled mechanics words into an audit-friendly list.</summary>

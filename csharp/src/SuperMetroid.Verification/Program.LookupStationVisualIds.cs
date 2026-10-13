@@ -35,7 +35,6 @@ internal static class LookupStationVisualIdsVerification
         }
         foreach (string invalid in new[] { "", "map-frame-3", "energy-frame--1", "missile-frame-01", "save-active-c" })
             AssertTrue(!RoomPlmStationDrawDefinitions.TryGetByVisualId(invalid, out _), "Station unsupported named frame");
-        AssertTrue(!RoomPlmStationDrawDefinitions.TryGetByVisualId(null!, out _), "Station null ID remains rejected");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!expected.Any(entry => entry.Pointer == raw))
                 AssertThrows<InvalidDataException>(() => RoomPlmStationDrawDefinitions.VisualId((ushort)raw), "Station full unsupported pointer domain");

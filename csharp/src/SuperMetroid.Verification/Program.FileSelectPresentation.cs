@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
@@ -72,8 +73,8 @@ internal static class FileSelectPresentationVerification
         AssertEqual(native.SelectedHelmetFrame, installed.SelectedHelmetFrame,
             "installed file-select helmet animation retains native frame");
 
-        var document = JsonSerializer.Deserialize<FileSelectPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<FileSelectPresentationDocument>(
+            extracted, MapPresentationFormat.JsonOptions);
         document.MainCursorAnchors[0] = document.MainCursorAnchors[0] with
             { X = (ushort)(document.MainCursorAnchors[0].X + 8) };
         document.HelmetAnchors[0] = document.HelmetAnchors[0] with
@@ -125,13 +126,13 @@ internal static class FileSelectPresentationVerification
         AssertThrows<InvalidDataException>(() => FileSelectPresentation.Write(Stream.Null,
             document with { ObjectPalette = 8 }),
             "file-select rejects invalid object palette");
-        var missingPage = JsonSerializer.Deserialize<FileSelectPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions)!;
+        var missingPage = RequiredJson.Deserialize<FileSelectPresentationDocument>(
+            extracted, MapPresentationFormat.JsonOptions);
         missingPage.Pages.Remove(FileSelectPresentationDefinitions.CopyCompletedPage);
         AssertThrows<InvalidDataException>(() => FileSelectPresentation.Write(Stream.Null, missingPage),
             "file-select rejects a missing named page");
-        var duplicatePatch = JsonSerializer.Deserialize<FileSelectPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions)!;
+        var duplicatePatch = RequiredJson.Deserialize<FileSelectPresentationDocument>(
+            extracted, MapPresentationFormat.JsonOptions);
         FileSelectPatchCellDocument duplicate = duplicatePatch.Patches[
             FileSelectPresentationDefinitions.NoDataPatch].Cells[0];
         duplicatePatch.Patches[FileSelectPresentationDefinitions.NoDataPatch] = new()

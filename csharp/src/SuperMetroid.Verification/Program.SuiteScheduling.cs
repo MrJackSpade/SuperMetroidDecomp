@@ -189,7 +189,7 @@ internal static class SuiteSchedulingVerification
     /// <summary>Persists per-suite elapsed time hints for the next parallel run.</summary>
     private static void WriteSuiteDurations(string[] keys, double[] durations)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(SuiteDurationsPath))!);
+        Directory.CreateDirectory((Path.GetDirectoryName(Path.GetFullPath(SuiteDurationsPath)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(Path.GetFullPath(SuiteDurationsPath)).")));
         File.WriteAllText(SuiteDurationsPath, JsonSerializer.Serialize(
             keys.Zip(durations).ToDictionary(pair => pair.First, pair => pair.Second),
             new JsonSerializerOptions { WriteIndented = true }));

@@ -101,13 +101,13 @@ public sealed class TourianStatueSequence
         {
             descent = SnesSixteenSixteen.FromWhole(TourianStatueRomData.DescentDistance);
             _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueVerticalOffset = VerticalOffset;
-            _plms.Tourian.TrySpawnTourianAccess(_room.LevelData!, clear: true);
+            _plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, clear: true);
             EnableScrolling();
         }
         else
         {
-            _room.Camera!.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
-            _room.Camera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
+            _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
+            _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
         }
     }
 
@@ -127,7 +127,7 @@ public sealed class TourianStatueSequence
         void Spawn(AnimatedTileObject objectPointer)
         {
             if (!TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(
-                    objectPointer, out TourianStatueAnimatedTileProgramDefinition definition))
+                    objectPointer, out TourianStatueAnimatedTileProgramDefinition? definition))
                 throw new InvalidDataException(
                     $"Tourian statue animated-tile object $87:{(int)objectPointer:X4} is not cataloged.");
 
@@ -211,7 +211,7 @@ public sealed class TourianStatueSequence
                         break;
                     case AnimatedTileInstruction.SpawnPaletteFxObject:
                         _roomPaletteFx.SpawnDefinition(
-                            bus, MechanicsWord(tile, operand), _player.Samus!.EquippedItems);
+                            bus, MechanicsWord(tile, operand), _player.IntroducedSamus.EquippedItems);
                         break;
                     case AnimatedTileInstruction.SpawnTourianStatueEyeGlow:
                     case AnimatedTileInstruction.SpawnTourianStatueSoul:
@@ -259,7 +259,7 @@ public sealed class TourianStatueSequence
         // three quarter-steps before a full 240 pixels.
         if (VerticalOffset == -TourianStatueRomData.DescentDistance)
         {
-            _plms.Tourian.TrySpawnTourianAccess(_room.LevelData!, clear: false);
+            _plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, clear: false);
             _system.SetEvent(EventNumber.TourianUnlocked);
         }
     }
@@ -268,8 +268,8 @@ public sealed class TourianStatueSequence
     private void EnableScrolling()
     {
         _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueFinished = true;
-        _room.Camera!.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Green);
-        _room.Camera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Green);
+        _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Green);
+        _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Green);
     }
     /// <summary>Reads an owned bank-$87 control word from the object's compiled program and rejects uncataloged addresses.</summary>
     private static ushort MechanicsWord(TileObject tile, int pointer)

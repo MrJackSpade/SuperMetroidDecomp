@@ -17,7 +17,7 @@ internal static class GameplayAudioPublicationVerification
         runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.LiquidPhysics.CinematicFunctionActive = false;
         samus.LiquidPhysics.BeginFrameSoundRequests();
         var audio = new CartridgeAudioState();

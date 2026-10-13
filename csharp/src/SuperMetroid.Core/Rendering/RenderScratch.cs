@@ -82,9 +82,9 @@ internal sealed class RenderScratch : IDisposable
     {
         if (disposed) return;
         disposed = true;
-        foreach (Rgba32[] plane in colors) Give(freeColors!, plane);
-        foreach (byte[] plane in bytes) Give(freeBytes!, plane);
-        foreach (SoftwarePpuSnapshotMemory memory in memories) freeMemory!.Push(memory);
+        foreach (Rgba32[] plane in colors) Give(freeColors ??= [], plane);
+        foreach (byte[] plane in bytes) Give(freeBytes ??= [], plane);
+        foreach (SoftwarePpuSnapshotMemory memory in memories) (freeMemory ??= new()).Push(memory);
         colors.Clear();
         bytes.Clear();
         memories.Clear();

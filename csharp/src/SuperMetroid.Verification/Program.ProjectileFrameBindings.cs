@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -91,8 +92,8 @@ internal static class ProjectileFrameBindingsVerification
                 "bomb Y radius is independent of sprite binding");
         }
 
-        var document = JsonSerializer.Deserialize<ProjectileFrameBindingDocument>(stockJson,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var document = RequiredJson.Deserialize<ProjectileFrameBindingDocument>(stockJson,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         ushort editedPointer = SamusProjectileRadiusDefinitions.TimedRecordPointers[0];
         string frameName = ProjectileFrameBindingFormat.FrameName(editedPointer);
         ushort originalSprite = stock.Resolve(editedPointer);

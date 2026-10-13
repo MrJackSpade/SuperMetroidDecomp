@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
@@ -116,9 +117,9 @@ internal static class DownwardGateVisualsVerification
                 RoomPlmDownwardGateVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted gate JSON is empty.");
-            JsonNode column = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "column-frame-5")!;
-            column["runs"]![0]![1] = 0x0053;
+            JsonNode column = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "column-frame-5");
+            column.Required("runs").Required(0)[1] = 0x0053;
             Directory.CreateDirectory(installation.RoomPlmDownwardGateVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmDownwardGateVisualOverrideDirectory,
@@ -135,7 +136,7 @@ internal static class DownwardGateVisualsVerification
                     installation.RoomPlmDownwardGateVisualOverrideDirectory).GetWord(0xa55d, 0, 1),
                 "gate visual override survives stock replacement");
 
-            column["runs"]![0]![1] = 0xf053;
+            column.Required("runs").Required(0)[1] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmDownwardGateVisuals(),

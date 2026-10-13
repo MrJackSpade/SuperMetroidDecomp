@@ -41,10 +41,11 @@ internal sealed class DeclarationCollector(SymbolIdentity identity, Reachability
                     existing.Projects.Add(project.Name);
                     continue;
                 }
-                var location = symbol.Locations.First(l => l.IsInSource && identity.IsRepositorySource(l.SourceTree!));
+                var location = symbol.Locations.First(l => l.IsInSource && identity.IsRepositorySource(l.SourceTree));
                 Declarations[key] = new Declaration(key, Kind(symbol),
                     symbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat),
-                    identity.Relative(location.SourceTree!.FilePath), location.GetLineSpan().StartLinePosition.Line + 1,
+                    identity.Relative((location.SourceTree ?? throw new InvalidOperationException(
+                        $"{symbol.Name}: a repository source location has a syntax tree.")).FilePath), location.GetLineSpan().StartLinePosition.Line + 1,
                     identity.Key(symbol.ContainingType) ?? "", Shape(symbol), [project.Name]);
                 // A reachable member keeps its containing type reachable.
                 graph.Edge(key, identity.Key(symbol.ContainingType));

@@ -95,6 +95,6 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             [slot, new Position16<RoomPixels>((ushort)0x0080, (ushort)0x0080), new Extent16<RoomPixels>((ushort)2, (ushort)2), selectShot, null];
         bool found = ExtendedHitboxWalker.Find(enemies, arguments);
         AssertTrue(found, "shared empty extended point overlaps its origin");
-        return (ushort)arguments[4]!;
+        return (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4]."));
     }
 }

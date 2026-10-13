@@ -83,7 +83,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
                 program.Namihe
                     ? FuneNamiheEnemyFunction.NamiheWaitForSamus
                     : FuneNamiheEnemyFunction.FuneWaitForCooldown,
-                enemies.FuneNamiheStates[slot.SlotIndex]!.Function,
+                (enemies.FuneNamiheStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires enemies.FuneNamiheStates[slot.SlotIndex].")).Function,
                 $"Fune/Namihe program $A8:{program.Entry:X4} returns main-AI ownership");
         }
 

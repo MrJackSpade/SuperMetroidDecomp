@@ -25,7 +25,7 @@ internal static class SpikeShinesparkSuitVerification
         })
         {
             SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(bus, underwater: false);
-            SamusState samus = runtime.Player.Samus!;
+            SamusState samus = runtime.Player.IntroducedSamus;
             for (int frame = 0; frame < 15; frame++)
             {
                 runtime.StepFrame(frame is 1 || frame == expected.LaunchFrame
@@ -45,7 +45,7 @@ internal static class SpikeShinesparkSuitVerification
         // coordinates, animation cursor, movement owner, and stored-shine palette
         // while automatic Reserve recovery advances only global hurt timers.
         SuperMetroidRuntime frozenRuntime = CreateSpikeSuitRuntime(bus, underwater: true);
-        SamusState frozenSamus = frozenRuntime.Player.Samus!;
+        SamusState frozenSamus = frozenRuntime.Player.IntroducedSamus;
         for (int frame = 0; frame < 8; frame++)
             frozenRuntime.StepFrame(frame == 1 ? (ushort)SnesButton.A : (ushort)0);
         frozenSamus.Health = 0;
@@ -112,7 +112,7 @@ internal static class SpikeShinesparkSuitVerification
         int launchAfter)
     {
         SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(bus, underwater: true);
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         for (int frame = 0; frame < freezeAfter; frame++)
             runtime.StepFrame(frame == 1 ? (ushort)SnesButton.A : (ushort)0);
 
@@ -150,8 +150,8 @@ internal static class SpikeShinesparkSuitVerification
         runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(runtime.Room.ActiveRoom!.Pointer, new Position16<RoomPixels>(0, 0));
-        RoomLevelData level = runtime.Room.LevelData!;
+        runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Pointer, new Position16<RoomPixels>(0, 0));
+        RoomLevelData level = runtime.Room.LoadedLevelData;
         runtime.InitializeDebugGroundedSamus(200, 166, 16);
         foreach (RoomEnemySlot enemy in runtime.Enemies.SlotTable.Slots)
             enemy.Clear();
@@ -163,7 +163,7 @@ internal static class SpikeShinesparkSuitVerification
             level.SetBehavior(block, 0);
         }
 
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = samus.CollectedItems = (ushort)(

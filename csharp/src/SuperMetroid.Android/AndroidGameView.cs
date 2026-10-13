@@ -16,7 +16,8 @@ namespace SuperMetroid.Android;
 internal sealed class AndroidGameView : View
 {
     /// <summary>Reusable Android bitmap containing the latest software frame.</summary>
-    private readonly Bitmap bitmap = Bitmap.CreateBitmap(FrontendFrame.Width, FrontendFrame.Height, Bitmap.Config.Argb8888!)!;
+    private readonly Bitmap bitmap = Bitmap.CreateBitmap(FrontendFrame.Width, FrontendFrame.Height,
+        Bitmap.Config.Argb8888 ?? throw new InvalidOperationException("Android has no ARGB_8888 bitmap configuration."));
     /// <summary>Nearest-neighbor paint preserving source game pixels.</summary>
     private readonly Paint pixels = new() { FilterBitmap = false, AntiAlias = false };
     /// <summary>Paint for diagnostic status and room text over the game viewport.</summary>

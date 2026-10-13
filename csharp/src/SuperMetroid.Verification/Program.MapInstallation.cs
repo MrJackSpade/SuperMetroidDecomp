@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -40,9 +41,9 @@ internal static class MapInstallationVerification
         var projectileStock = installation.LoadProjectiles();
         Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
         string projectileOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileSpriteDefinitions.FileName);
-        var projectileDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileSpriteDefinitions.FileName)))!;
-        var part = projectileDocument["frames"]!.AsObject().First(pair => pair.Value!.AsArray().Count > 0).Value![0]!;
-        int offset = part["offsetX"]!.GetValue<int>();
+        var projectileDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileSpriteDefinitions.FileName)));
+        var part = (projectileDocument.Required("frames").AsObject().First(pair => (pair.Value ?? throw new InvalidOperationException("Verification requires pair.Value.")).AsArray().Count > 0).Value ?? throw new InvalidOperationException("Verification requires a non-empty frame.")).Required(0);
+        int offset = part.Required("offsetX").GetValue<int>();
         part["offsetX"] = offset == 255 ? 254 : offset + 1;
         File.WriteAllText(projectileOverride, projectileDocument.ToJsonString());
         string beamName = BeamTileAtlasDefinitions.FileName(0);
@@ -54,12 +55,12 @@ internal static class MapInstallationVerification
         using (var output = File.Create(beamOverride))
             IndexedPng.Write(output, new(beamImage.Size.X, beamImage.Size.Y), beamImage.Pixels, beamImage.Palette);
         string beamPaletteOverride = Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteDefinitions.FileName);
-        var beamColors = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName)))!;
-        beamColors["palettes"]![BeamPaletteDefinitions.Key(0)]![0]!["red"] = 17;
+        var beamColors = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName)));
+        beamColors.Required("palettes").Required(BeamPaletteDefinitions.Key(0)).Required(0)["red"] = 17;
         File.WriteAllText(beamPaletteOverride, beamColors.ToJsonString());
         string trailOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailVisualDefinitions.FileName);
-        var trailDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName)))!;
-        trailDocument["frames"]![ProjectileTrailVisualDefinitions.Name(ProjectileTrailVisualDefinitions.Frames[0])]!["flipX"] = true;
+        var trailDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName)));
+        trailDocument.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(ProjectileTrailVisualDefinitions.Frames[0]))["flipX"] = true;
         File.WriteAllText(trailOverride, trailDocument.ToJsonString());
         string trailPngOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName);
         using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, ProjectileTrailAtlasDefinitions.FileName)))
@@ -71,12 +72,12 @@ internal static class MapInstallationVerification
         }
         var projectileEdited = installation.LoadProjectiles();
         string flareOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementDefinitions.FileName);
-        var flareDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName)))!;
-        flareDocument["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
+        var flareDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName)));
+        flareDocument.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 17;
         File.WriteAllText(flareOverride, flareDocument.ToJsonString());
         string flareCompositionOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteDefinitions.FileName);
-        var flareComposition = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName)))!;
-        flareComposition["frames"]![ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0])]![0]!["offsetX"] = 17;
+        var flareComposition = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName)));
+        flareComposition.Required("frames").Required(ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0])).Required(0)["offsetX"] = 17;
         File.WriteAllText(flareCompositionOverride, flareComposition.ToJsonString());
         string grappleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName);
         using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName)))
@@ -87,22 +88,22 @@ internal static class MapInstallationVerification
             IndexedPng.Write(output, new(grappleImage.Size.X, grappleImage.Size.Y), grappleImage.Pixels, grappleImage.Palette);
         }
         string grappleStyleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleSpriteDefinitions.FileName);
-        var grappleStyle = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSpriteDefinitions.FileName)))!;
-        grappleStyle["endpoint"]!["palette"] = 4;
+        var grappleStyle = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSpriteDefinitions.FileName)));
+        grappleStyle.Required("endpoint")["palette"] = 4;
         File.WriteAllText(grappleStyleOverride, grappleStyle.ToJsonString());
-        var grappleFlare = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName)))!;
-        grappleFlare["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
+        var grappleFlare = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName)));
+        grappleFlare.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName), grappleFlare.ToJsonString());
-        var grappleSwing = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameDefinitions.FileName)))!;
-        grappleSwing["frames"]![0] = 17;
+        var grappleSwing = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameDefinitions.FileName)));
+        grappleSwing.Required("frames")[0] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameDefinitions.FileName), grappleSwing.ToJsonString());
         projectileEdited = installation.LoadProjectiles();
         AssertTrue(projectileStock.SelectedSha256 != projectileEdited.SelectedSha256, "installed projectile override selected");
         Directory.CreateDirectory(installation.MapOverrideDirectory);
         string paletteOverride = Path.Combine(installation.MapOverrideDirectory, MapStaticPalettesFormat.FileName);
-        var colors = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStaticPalettesFormat.FileName)))!;
-        int oldRed = colors["pause"]![0]!["red"]!.GetValue<int>();
-        colors["pause"]![0]!["red"] = (oldRed + 1) % 32;
+        var colors = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStaticPalettesFormat.FileName)));
+        int oldRed = colors.Required("pause").Required(0).Required("red").GetValue<int>();
+        colors.Required("pause").Required(0)["red"] = (oldRed + 1) % 32;
         File.WriteAllText(paletteOverride, colors.ToJsonString());
         string roomFxArtworkOverride = Path.Combine(installation.MapOverrideDirectory,
             RoomFxAnimatedTileAtlasFormat.FileName);
@@ -117,100 +118,100 @@ internal static class MapInstallationVerification
         }
         string roomFxTilemapOverride = Path.Combine(installation.MapOverrideDirectory,
             RoomFxLayer3TilemapFormat.FileName);
-        var roomFxTilemaps = JsonNode.Parse(File.ReadAllText(Path.Combine(
-            installation.MapDirectory, RoomFxLayer3TilemapFormat.FileName)))!;
-        int lavaTileColumn = roomFxTilemaps["pages"]!["Lava"]![0]!["tileColumn"]!.GetValue<int>();
-        roomFxTilemaps["pages"]!["Lava"]![0]!["tileColumn"] =
+        var roomFxTilemaps = RequiredJson.Parse(File.ReadAllText(Path.Combine(
+            installation.MapDirectory, RoomFxLayer3TilemapFormat.FileName)));
+        int lavaTileColumn = roomFxTilemaps.Required("pages").Required("Lava").Required(0).Required("tileColumn").GetValue<int>();
+        roomFxTilemaps.Required("pages").Required("Lava").Required(0)["tileColumn"] =
             (lavaTileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns;
         File.WriteAllText(roomFxTilemapOverride, roomFxTilemaps.ToJsonString());
         string roomFxBlendOverride = Path.Combine(installation.MapOverrideDirectory,
             RoomFxPaletteBlendDefinitions.FileName);
-        var roomFxBlends = JsonNode.Parse(File.ReadAllText(Path.Combine(
-            installation.MapDirectory, RoomFxPaletteBlendDefinitions.FileName)))!;
+        var roomFxBlends = RequiredJson.Parse(File.ReadAllText(Path.Combine(
+            installation.MapDirectory, RoomFxPaletteBlendDefinitions.FileName)));
         string lavaBlendKey = RoomFxPaletteBlendDefinitions.Key(RoomFxPaletteBlend.Lava);
-        int lavaBlendRed = roomFxBlends["blends"]![lavaBlendKey]![0]!["red"]!.GetValue<int>();
-        roomFxBlends["blends"]![lavaBlendKey]![0]!["red"] = (lavaBlendRed + 1) % 32;
+        int lavaBlendRed = roomFxBlends.Required("blends").Required(lavaBlendKey).Required(0).Required("red").GetValue<int>();
+        roomFxBlends.Required("blends").Required(lavaBlendKey).Required(0)["red"] = (lavaBlendRed + 1) % 32;
         File.WriteAllText(roomFxBlendOverride, roomFxBlends.ToJsonString());
         string powerBombColorOverride = Path.Combine(installation.MapOverrideDirectory,
             PowerBombFixedColorFormat.FileName);
-        var powerBombColors = JsonNode.Parse(File.ReadAllText(Path.Combine(
-            installation.MapDirectory, PowerBombFixedColorFormat.FileName)))!;
-        int powerBombRed = powerBombColors["preExplosion"]![0]!["red"]!.GetValue<int>();
-        powerBombColors["preExplosion"]![0]!["red"] = (powerBombRed + 1) % 32;
+        var powerBombColors = RequiredJson.Parse(File.ReadAllText(Path.Combine(
+            installation.MapDirectory, PowerBombFixedColorFormat.FileName)));
+        int powerBombRed = powerBombColors.Required("preExplosion").Required(0).Required("red").GetValue<int>();
+        powerBombColors.Required("preExplosion").Required(0)["red"] = (powerBombRed + 1) % 32;
         File.WriteAllText(powerBombColorOverride, powerBombColors.ToJsonString());
         string samusVisorColorOverride = Path.Combine(installation.MapOverrideDirectory,
             SamusVisorColorFormat.FileName);
-        var samusVisorColors = JsonNode.Parse(File.ReadAllText(Path.Combine(
-            installation.MapDirectory, SamusVisorColorFormat.FileName)))!;
-        int visorRed = samusVisorColors["colors"]![3]!["red"]!.GetValue<int>();
-        samusVisorColors["colors"]![3]!["red"] = (visorRed + 1) % 32;
+        var samusVisorColors = RequiredJson.Parse(File.ReadAllText(Path.Combine(
+            installation.MapDirectory, SamusVisorColorFormat.FileName)));
+        int visorRed = samusVisorColors.Required("colors").Required(3).Required("red").GetValue<int>();
+        samusVisorColors.Required("colors").Required(3)["red"] = (visorRed + 1) % 32;
         File.WriteAllText(samusVisorColorOverride, samusVisorColors.ToJsonString());
         string samusHurtColorOverride = Path.Combine(installation.MapOverrideDirectory,
             SamusHurtColorFormat.FileName);
-        var samusHurtColors = JsonNode.Parse(File.ReadAllText(Path.Combine(
-            installation.MapDirectory, SamusHurtColorFormat.FileName)))!;
-        int hurtRed = samusHurtColors["hurt"]![5]!["red"]!.GetValue<int>();
-        samusHurtColors["hurt"]![5]!["red"] = (hurtRed + 1) % 32;
+        var samusHurtColors = RequiredJson.Parse(File.ReadAllText(Path.Combine(
+            installation.MapDirectory, SamusHurtColorFormat.FileName)));
+        int hurtRed = samusHurtColors.Required("hurt").Required(5).Required("red").GetValue<int>();
+        samusHurtColors.Required("hurt").Required(5)["red"] = (hurtRed + 1) % 32;
         File.WriteAllText(samusHurtColorOverride, samusHurtColors.ToJsonString());
         string samusHyperBeamColorOverride = Path.Combine(installation.MapOverrideDirectory,
             SamusHyperBeamColorFormat.FileName);
-        var samusHyperBeamColors = JsonNode.Parse(File.ReadAllText(Path.Combine(
-            installation.MapDirectory, SamusHyperBeamColorFormat.FileName)))!;
-        int hyperRed = samusHyperBeamColors["frames"]![4]![7]!["red"]!.GetValue<int>();
-        samusHyperBeamColors["frames"]![4]![7]!["red"] = (hyperRed + 1) % 32;
+        var samusHyperBeamColors = RequiredJson.Parse(File.ReadAllText(Path.Combine(
+            installation.MapDirectory, SamusHyperBeamColorFormat.FileName)));
+        int hyperRed = samusHyperBeamColors.Required("frames").Required(4).Required(7).Required("red").GetValue<int>();
+        samusHyperBeamColors.Required("frames").Required(4).Required(7)["red"] = (hyperRed + 1) % 32;
         File.WriteAllText(samusHyperBeamColorOverride, samusHyperBeamColors.ToJsonString());
         string stationOverride = Path.Combine(installation.MapOverrideDirectory, MapStationLayoutFormat.FileName);
-        var stations = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStationLayoutFormat.FileName)))!;
-        stations["markers"]!["Brinstar.Missile.0"]!["x"] = 80;
+        var stations = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStationLayoutFormat.FileName)));
+        stations.Required("markers").Required("Brinstar.Missile.0")["x"] = 80;
         File.WriteAllText(stationOverride, stations.ToJsonString());
         string landmarkOverride = Path.Combine(installation.MapOverrideDirectory, MapLandmarkFormat.FileName);
-        var landmarks = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapLandmarkFormat.FileName)))!;
-        landmarks["markers"]!["Boss.Phantoon"]!["x"] = 160;
+        var landmarks = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapLandmarkFormat.FileName)));
+        landmarks.Required("markers").Required("Boss.Phantoon")["x"] = 160;
         File.WriteAllText(landmarkOverride, landmarks.ToJsonString());
         string saveMarkerOverride = Path.Combine(installation.MapOverrideDirectory, MapSaveMarkerFormat.FileName);
-        var saveMarkers = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapSaveMarkerFormat.FileName)))!;
-        saveMarkers["markers"]!["Maridia.Save.0"]!["x"] = 104;
+        var saveMarkers = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapSaveMarkerFormat.FileName)));
+        saveMarkers.Required("markers").Required("Maridia.Save.0")["x"] = 104;
         File.WriteAllText(saveMarkerOverride, saveMarkers.ToJsonString());
         string arrowOverride = Path.Combine(installation.MapOverrideDirectory, MapArrowFormat.FileName);
-        var arrows = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapArrowFormat.FileName)))!;
-        arrows["arrows"]!["Left"]!["x"] = 24;
+        var arrows = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapArrowFormat.FileName)));
+        arrows.Required("arrows").Required("Left")["x"] = 24;
         File.WriteAllText(arrowOverride, arrows.ToJsonString());
         string screenOverride = Path.Combine(installation.MapOverrideDirectory, MapScreenDefinitions.FileName);
-        var screens = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapScreenDefinitions.FileName)))!;
-        screens["pages"]![MapScreenDefinitions.WorldForeground]![0]!["flipX"] = true;
+        var screens = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapScreenDefinitions.FileName)));
+        screens.Required("pages").Required(MapScreenDefinitions.WorldForeground).Required(0)["flipX"] = true;
         File.WriteAllText(screenOverride, screens.ToJsonString());
         string backdropOverride = Path.Combine(installation.MapOverrideDirectory, PauseBackdropDefinitions.FileName);
-        var backdrops = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseBackdropDefinitions.FileName)))!;
-        backdrops["areas"]!["Maridia"]![170]!["flipX"] = true;
-        backdrops["buttons"]![300]!["flipX"] = true;
+        var backdrops = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseBackdropDefinitions.FileName)));
+        backdrops.Required("areas").Required("Maridia").Required(170)["flipX"] = true;
+        backdrops.Required("buttons").Required(300)["flipX"] = true;
         File.WriteAllText(backdropOverride, backdrops.ToJsonString());
         string wireframeOverride = Path.Combine(installation.MapOverrideDirectory, PauseWireframeDefinitions.FileName);
-        var wireframes = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseWireframeDefinitions.FileName)))!;
-        wireframes["frames"]!["PowerSuit"]![0]!["flipX"] = true;
+        var wireframes = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseWireframeDefinitions.FileName)));
+        wireframes.Required("frames").Required("PowerSuit").Required(0)["flipX"] = true;
         File.WriteAllText(wireframeOverride, wireframes.ToJsonString());
         string selectorOverride = Path.Combine(installation.MapOverrideDirectory, PauseSelectorDefinitions.FileName);
-        var selectors = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseSelectorDefinitions.FileName)))!;
-        selectors["anchors"]!["Beam.Charge"]!["x"] = 48;
+        var selectors = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseSelectorDefinitions.FileName)));
+        selectors.Required("anchors").Required("Beam.Charge")["x"] = 48;
         File.WriteAllText(selectorOverride, selectors.ToJsonString());
         string reserveOverride = Path.Combine(installation.MapOverrideDirectory, PauseReserveTankDefinitions.FileName);
-        var reserve = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseReserveTankDefinitions.FileName)))!;
-        reserve["anchors"]![0]!["x"] = 40;
+        var reserve = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseReserveTankDefinitions.FileName)));
+        reserve.Required("anchors").Required(0)["x"] = 40;
         File.WriteAllText(reserveOverride, reserve.ToJsonString());
         string reserveUiOverride = Path.Combine(installation.MapOverrideDirectory, PauseReserveUiDefinitions.FileName);
-        var reserveUi = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseReserveUiDefinitions.FileName)))!;
-        reserveUi["digits"]!["cells"]![5]!["flipX"] = true;
+        var reserveUi = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseReserveUiDefinitions.FileName)));
+        reserveUi.Required("digits").Required("cells").Required(5)["flipX"] = true;
         File.WriteAllText(reserveUiOverride, reserveUi.ToJsonString());
         string equipmentBaseOverride = Path.Combine(installation.MapOverrideDirectory, PauseEquipmentBaseDefinitions.FileName);
-        var equipmentBase = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseEquipmentBaseDefinitions.FileName)))!;
-        equipmentBase["cells"]![194]!["flipX"] = true;
+        var equipmentBase = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseEquipmentBaseDefinitions.FileName)));
+        equipmentBase.Required("cells").Required(194)["flipX"] = true;
         File.WriteAllText(equipmentBaseOverride, equipmentBase.ToJsonString());
         string equipmentLabelOverride = Path.Combine(installation.MapOverrideDirectory, PauseEquipmentLabelDefinitions.FileName);
-        var equipmentLabels = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseEquipmentLabelDefinitions.FileName)))!;
-        equipmentLabels["labels"]!["Beam.Charge"]!["cells"]![0]!["flipX"] = true;
+        var equipmentLabels = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseEquipmentLabelDefinitions.FileName)));
+        equipmentLabels.Required("labels").Required("Beam.Charge").Required("cells").Required(0)["flipX"] = true;
         File.WriteAllText(equipmentLabelOverride, equipmentLabels.ToJsonString());
         string escapeTimerOverride = Path.Combine(installation.MapOverrideDirectory, EscapeTimerPresentationDefinitions.FileName);
-        var escapeTimer = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, EscapeTimerPresentationDefinitions.FileName)))!;
-        escapeTimer["anchors"]!["Minutes"]!["x"] = -27;
+        var escapeTimer = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, EscapeTimerPresentationDefinitions.FileName)));
+        escapeTimer.Required("anchors").Required("Minutes")["x"] = -27;
         File.WriteAllText(escapeTimerOverride, escapeTimer.ToJsonString());
         string escapeTimerTileOverride = Path.Combine(
             installation.MapOverrideDirectory, EscapeTimerTileAtlasFormat.FileName);
@@ -225,24 +226,24 @@ internal static class MapInstallationVerification
                 timerImage.Pixels, timerImage.Palette);
         }
         string gameplayHudOverride = Path.Combine(installation.MapOverrideDirectory, GameplayHudDefinitions.FileName);
-        var gameplayHud = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameplayHudDefinitions.FileName)))!;
-        gameplayHud["digits"]!["healthAnchor"]!["x"] = 4;
+        var gameplayHud = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameplayHudDefinitions.FileName)));
+        gameplayHud.Required("digits").Required("healthAnchor")["x"] = 4;
         File.WriteAllText(gameplayHudOverride, gameplayHud.ToJsonString());
         string gameOverOverride = Path.Combine(installation.MapOverrideDirectory, GameOverPresentationDefinitions.FileName);
-        var gameOver = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameOverPresentationDefinitions.FileName)))!;
-        gameOver["babyAnchor"]!["x"] = 132;
+        var gameOver = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameOverPresentationDefinitions.FileName)));
+        gameOver.Required("babyAnchor")["x"] = 132;
         File.WriteAllText(gameOverOverride, gameOver.ToJsonString());
         string gameOptionsOverride = Path.Combine(installation.MapOverrideDirectory, GameOptionsPresentationDefinitions.FileName);
-        var gameOptions = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameOptionsPresentationDefinitions.FileName)))!;
-        gameOptions["cursorAnchors"]![GameOptionsPresentationDefinitions.PrimaryMenu]![0]!["x"] = 32;
+        var gameOptions = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameOptionsPresentationDefinitions.FileName)));
+        gameOptions.Required("cursorAnchors").Required(GameOptionsPresentationDefinitions.PrimaryMenu).Required(0)["x"] = 32;
         File.WriteAllText(gameOptionsOverride, gameOptions.ToJsonString());
         string fileSelectOverride = Path.Combine(installation.MapOverrideDirectory, FileSelectPresentationDefinitions.FileName);
-        var fileSelect = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, FileSelectPresentationDefinitions.FileName)))!;
-        fileSelect["mainCursorAnchors"]![0]!["x"] = 22;
+        var fileSelect = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, FileSelectPresentationDefinitions.FileName)));
+        fileSelect.Required("mainCursorAnchors").Required(0)["x"] = 22;
         File.WriteAllText(fileSelectOverride, fileSelect.ToJsonString());
         string spriteOverride = Path.Combine(installation.MapOverrideDirectory, MapSpriteFormat.JsonFile);
-        var sprites = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapSpriteFormat.JsonFile)))!;
-        sprites["frames"]!["Marker.Boss"]![0]!["offsetX"] = 12;
+        var sprites = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapSpriteFormat.JsonFile)));
+        sprites.Required("frames").Required("Marker.Boss").Required(0)["offsetX"] = 12;
         File.WriteAllText(spriteOverride, sprites.ToJsonString());
         var artworkOverrides = new List<string> { escapeTimerTileOverride };
         foreach (var atlas in new[] { (WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.ForegroundHeight, 16, WorldMapArtworkFormat.Width),
@@ -342,11 +343,11 @@ internal static class MapInstallationVerification
         foreach (string path in artworkOverrides) preserved.Add(path, File.ReadAllBytes(path));
         foreach (var pair in preserved)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(pair.Key)!);
+            Directory.CreateDirectory((Path.GetDirectoryName(pair.Key) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(pair.Key).")));
             File.WriteAllBytes(pair.Key, pair.Value);
         }
         string manifestPath = Path.Combine(installation.MapDirectory, AreaMapCatalogFormat.ManifestFile);
-        var manifest = JsonNode.Parse(File.ReadAllText(manifestPath))!;
+        var manifest = RequiredJson.Parse(File.ReadAllText(manifestPath));
         manifest["version"] = AreaMapCatalogFormat.Version - 1;
         File.WriteAllText(manifestPath, manifest.ToJsonString());
         byte[] outdatedManifest = File.ReadAllBytes(manifestPath);
@@ -367,11 +368,11 @@ internal static class MapInstallationVerification
             ?? throw new InvalidOperationException("Installation vanished during map upgrade.");
         AssertEqual(edited.ContentIdentity, repaired.LoadMaps().ContentIdentity, "full installer upgrade retains selected override identity");
         AssertEqual(projectileEdited.SelectedSha256, repaired.LoadProjectiles().SelectedSha256, "full installer replacement preserves projectile override");
-        AssertEqual(AreaMapCatalogFormat.Version, JsonNode.Parse(File.ReadAllText(manifestPath))!["version"]!.GetValue<int>(), "upgrade publishes current catalog version");
+        AssertEqual(AreaMapCatalogFormat.Version, RequiredJson.Parse(File.ReadAllText(manifestPath)).Required("version").GetValue<int>(), "upgrade publishes current catalog version");
         CheckPreserved();
         // A composition-only installation must upgrade even if its map manifest is current.
         string projectileManifestPath = Path.Combine(installation.ProjectileDirectory, ProjectilePresentationFiles.ManifestFileName);
-        var oldProjectileManifest = JsonNode.Parse(File.ReadAllText(projectileManifestPath))!;
+        var oldProjectileManifest = RequiredJson.Parse(File.ReadAllText(projectileManifestPath));
         oldProjectileManifest["version"] = 1;
         oldProjectileManifest.AsObject().Remove("beamHashes");
         File.WriteAllText(projectileManifestPath, oldProjectileManifest.ToJsonString());

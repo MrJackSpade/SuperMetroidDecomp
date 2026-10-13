@@ -55,7 +55,7 @@ internal static class NuclearWaffleProjectileInstructionProgramDefinitionsVerifi
         owner.Position = owner.Position.WithWhole(new(0x0180, 0x0200));
         initialize(owner);
 
-        RoomEnemyProjectileSlot[] projectiles = enemies.NuclearWaffleStates[0]!
+        RoomEnemyProjectileSlot[] projectiles = (enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NuclearWaffleStates[0]."))
             .ProjectileSegments
             .OfType<RoomEnemyProjectileSlot>()
             .ToArray();

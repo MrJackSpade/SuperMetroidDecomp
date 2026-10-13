@@ -106,7 +106,7 @@ internal static class DeadTorizoArtworkVerification
             "Dead Torizo stationary visual selector is installed");
         AssertEqual(nativePointer, compiledPointer,
             "installed stationary selector preserves the physical frame identity");
-        AssertTrue(stock.Spritemaps!.TryGetDisplay(
+        AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
                 DeadTorizoArtworkDefinitions.SpritemapBank, nativePointer,
                 out EnemySpritemapParts installedParts),
             "Dead Torizo stationary OAM has editable installed parts");
@@ -174,7 +174,7 @@ internal static class DeadTorizoArtworkVerification
                     (int)new SnesAddress(SnesLittleEndian.HighByte(rom.ReadCartridgeWord(address + 2)), rom.ReadCartridgeWord(address + 4)),
                     rom.ReadCartridgeWord((address + 6))));
             AssertEqual((ushort)0, rom.ReadCartridgeWord(address), "native corpse queue terminates after seven entries");
-            buildInstalled(installed.DeadTorizo!);
+            buildInstalled((installed.DeadTorizo ?? throw new InvalidOperationException("Verification requires installed.DeadTorizo.")));
             AssertTrue(nativeTransfers.SequenceEqual(
                     installed.LastDeadTorizoVramTransfers),
                 $"Dead Torizo phase {phase} installed queue matches live native descriptors");

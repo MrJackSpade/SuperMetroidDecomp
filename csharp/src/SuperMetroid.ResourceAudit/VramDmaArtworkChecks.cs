@@ -12,7 +12,7 @@ internal static class VramDmaArtworkChecks
     internal static void Run(string mapDirectory)
     {
         var maps = AreaMapPresentationCatalog.Load(mapDirectory, null);
-        using var paletteStream = File.OpenRead(Path.Combine(Path.GetDirectoryName(Path.GetFullPath(mapDirectory))!,
+        using var paletteStream = File.OpenRead(Path.Combine((Path.GetDirectoryName(Path.GetFullPath(mapDirectory)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(Path.GetFullPath(mapDirectory)).")),
             "gameplay-palettes", GameplayBasePaletteFormat.ArtworkFileName));
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var runtime = new SuperMetroidRuntime(memory, HostGameplayOverrides.None, initialPaletteArt: GameplayBasePaletteCatalog.Load(paletteStream))

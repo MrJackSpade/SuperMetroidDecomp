@@ -269,7 +269,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             address => $"Production read compiled Alcoon mechanics byte ${address:X6}.");
         return forbidPresentation
             ? guard.Forbid(address => PresentationWord(address) is not null,
-                address => $"Installed Alcoon read cartridge visual selector $A8:{PresentationWord(address)!.Value:X4}.")
+                address => $"Installed Alcoon read cartridge visual selector $A8:{(PresentationWord(address) ?? throw new InvalidOperationException("Verification requires PresentationWord(address).")):X4}.")
             : guard.ObserveWords(0xa80000, AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount,
                 AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress);
 

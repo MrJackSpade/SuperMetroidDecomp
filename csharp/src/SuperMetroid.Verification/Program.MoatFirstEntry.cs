@@ -34,7 +34,7 @@ internal static class MoatFirstEntryVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(source);
-            var level = runtime.Room.LevelData!;
+            var level = runtime.Room.LoadedLevelData;
             int doorX = -1, doorY = -1;
             byte behavior = 0;
             for (int y = 0; y < level.Size.Y && doorX < 0; y++)
@@ -50,7 +50,7 @@ internal static class MoatFirstEntryVerification
             AssertTrue(doorX >= 0, "retail neighbor has a reciprocal Moat door");
             runtime.LoadCartridgeRoomForDebug(source,
                 camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
-            var samus = runtime.Player.Samus!;
+            var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
@@ -60,7 +60,7 @@ internal static class MoatFirstEntryVerification
             if (pauseBeforeEntry)
             {
                 byte[] gameplayBeforePause = runtime.Vram.Bytes.ToArray();
-                var room = runtime.Room.ActiveRoom!;
+                var room = runtime.Room.LoadedRoom;
                 var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, GameplayVram = runtime.Vram });
                 // Use the real menu owner, including a map -> equipment transition.
                 // This isolates VRAM ownership rather than claiming a complete host
@@ -75,7 +75,7 @@ internal static class MoatFirstEntryVerification
                 runtime.SamusPhases.QueueGameplayBeamTilesAndLoadPalette(samus.EquippedBeams);
                 runtime.NmiHandler.RunNmi(0, true);
             }
-            runtime.Room.LevelData!.ResolveDoorCollision(bus, behavior, samus.Pose, true);
+            runtime.Room.LoadedLevelData.ResolveDoorCollision(bus, behavior, samus.Pose, true);
             var transition = new DoorTransitionState();
             var audio = new CartridgeAudioState();
             transition.Begin(runtime);
@@ -87,7 +87,7 @@ internal static class MoatFirstEntryVerification
                 // SuperMetroidGame publishes gameplay immediately after this same
                 // transition step. Capture the IRQ scroll and palette fade too,
                 // not just the already-completed destination used by older probes.
-                var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+                var snapshot = GameplayDisplayCapture.CaptureFrame(runtime);
                 var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
                 if (!pauseBeforeEntry) unpausedTransitionFrames[(source, frame)] = pixels;
                 else AssertTrue(pixels.SequenceEqual(unpausedTransitionFrames[(source, frame)]),
@@ -96,18 +96,18 @@ internal static class MoatFirstEntryVerification
                 transitionFrames++;
             }
             AssertTrue(!transition.IsActive, "staged first-entry door transition completes");
-            AssertEqual((ushort)0x95ff, runtime.Room.ActiveRoom!.Pointer, "first entry reached reported room");
+            AssertEqual((ushort)0x95ff, runtime.Room.LoadedRoom.Pointer, "first entry reached reported room");
             for (int frame = 0; frame < 4; frame++)
             {
                 runtime.StepFrame(0);
-                var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+                var snapshot = GameplayDisplayCapture.CaptureFrame(runtime);
                 var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
                 if (!pauseBeforeEntry) unpausedFrames[(source, frame)] = pixels;
                 else AssertTrue(pixels.SequenceEqual(unpausedFrames[(source, frame)]),
                     "pause/equipment history leaves identical first-entry water and scene pixels");
 
             }
-            Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.Display.GameplayHudCharacterBaseWord:X4}, camera={runtime.Room.Camera!.PixelPosition.X}/{runtime.Room.Camera.PixelPosition.Y}. Captured {transitionFrames} transition frames and four gameplay frames; visual diagnosis remains required.");
+            Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.Display.GameplayHudCharacterBaseWord:X4}, camera={runtime.Room.LoadedCamera.PixelPosition.X}/{runtime.Room.LoadedCamera.PixelPosition.Y}. Captured {transitionFrames} transition frames and four gameplay frames; visual diagnosis remains required.");
         }
     }
 

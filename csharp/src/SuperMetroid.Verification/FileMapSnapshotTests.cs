@@ -42,8 +42,8 @@ internal static class FileMapSnapshotTestsVerification
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
             saves.SaveSlot(0, save);
-            var legacy = new FileSelectMapMenuState(bus, new CartridgeAudioState(), saves.ReadSlot(0)!, 0, RetailPresentationFixture());
-            var capture = new FileSelectMapMenuState(bus, new CartridgeAudioState(), saves.ReadSlot(0)!, 0, RetailPresentationFixture());
+            var legacy = new FileSelectMapMenuState(bus, new CartridgeAudioState(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture());
+            var capture = new FileSelectMapMenuState(bus, new CartridgeAudioState(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture());
             var phases = new HashSet<FileSelectMapNavigationPhase>();
             LayeredRenderSnapshot? previous = null;
             Rgba32[]? previousPixels = null;
@@ -93,7 +93,7 @@ internal static class FileMapSnapshotTestsVerification
             var reference = game.Step(input); var actual = capturedGame.StepCaptured(input, tick + 1, 1);
             sawMap |= game.GameState == SuperMetroidGameState.FileSelectMap;
             AssertTrue(!actual.UsedLegacyRaster, "saved-file frontend never falls back to raster");
-            AssertTrue(reference.Pixels.AsSpan().SequenceEqual(RenderForComparison(actual.Snapshot!)), "saved-file frontend pixels");
+            AssertTrue(reference.Pixels.AsSpan().SequenceEqual(RenderForComparison((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")))), "saved-file frontend pixels");
             AssertEqual(reference.GameState, actual.Frame.GameState, "saved-file frontend state");
             AssertEqual(reference.Phase, actual.Frame.Phase, "saved-file frontend phase");
             AssertSequenceEqual(reference.AudioCommands, actual.Frame.AudioCommands, "saved-file frontend audio order");

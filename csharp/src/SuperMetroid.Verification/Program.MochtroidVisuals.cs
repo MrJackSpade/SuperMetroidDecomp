@@ -31,7 +31,7 @@ internal static class MochtroidVisualsVerification
             AssertEqual(nativePointer, installedPointer,
                 $"Mochtroid selector {index} preserves native frame identity");
             selectedFrames.Add(installedPointer);
-            AssertTrue(stock.Spritemaps!.TryGetDisplay(
+            AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
                     MochtroidVisualDefinitions.Bank, installedPointer,
                     out EnemySpritemapParts installedParts),
                 $"Mochtroid selector {index} has editable OAM");

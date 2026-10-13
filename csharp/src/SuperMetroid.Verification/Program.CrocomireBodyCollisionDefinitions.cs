@@ -88,8 +88,8 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                 bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                 AssertEqual(nativeHit, compiledHit,
                     $"Crocomire $A4:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
-                AssertEqual((ushort)nativeArguments[^1]!,
-                    (ushort)compiledArguments[^1]!,
+                AssertEqual((ushort)(nativeArguments[^1] ?? throw new InvalidOperationException("Verification requires nativeArguments[^1].")),
+                    (ushort)(compiledArguments[^1] ?? throw new InvalidOperationException("Verification requires compiledArguments[^1].")),
                     $"Crocomire $A4:{frame:X4} selected callback");
                 probes++;
             }

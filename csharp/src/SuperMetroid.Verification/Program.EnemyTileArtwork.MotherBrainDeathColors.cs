@@ -90,8 +90,8 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         AssertTrue(native.ExplodedDoorColor(5) != colors.ExplodedDoorColor(5),
             "Mother Brain exploded-door edit takes effect");
         AssertEqual(colors.CorpseColor(7, 5),
-            EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .MotherBrainDeathColors!.CorpseColor(7, 5),
+            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
+                .MotherBrainDeathColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .MotherBrainDeathColors.")).CorpseColor(7, 5),
             "Mother Brain death color override survives catalog reload");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(

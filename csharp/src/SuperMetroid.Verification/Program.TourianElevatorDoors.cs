@@ -78,7 +78,7 @@ internal static class TourianElevatorDoorsVerification
             if (elevator)
                 AssertTrue(level.PendingDoorTransition is null, "sentinel must not start a room transition");
             else
-                AssertEqual((ushort)0xa99c, level.PendingDoorTransition!.Pointer, "correct Tourian save-room door");
+                AssertEqual((ushort)0xa99c, (level.PendingDoorTransition ?? throw new InvalidOperationException("Verification requires level.PendingDoorTransition.")).Pointer, "correct Tourian save-room door");
         }
     }
 

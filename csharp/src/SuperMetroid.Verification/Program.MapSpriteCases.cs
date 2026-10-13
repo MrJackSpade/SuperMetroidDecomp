@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -17,7 +18,7 @@ internal static class MapSpriteCasesVerification
     {
         var files = MapSpriteExtractor.Extract(rom);
         byte[] png = files[MapSpriteFormat.PngFile];
-        var document = JsonSerializer.Deserialize<MapSpriteDocument>(files[MapSpriteFormat.JsonFile], MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<MapSpriteDocument>(files[MapSpriteFormat.JsonFile], MapPresentationFormat.JsonOptions);
         var stock = MapSpriteCatalog.Load(new MemoryStream(files[MapSpriteFormat.JsonFile]), new MemoryStream(png));
         Suite(nameof(VerifyMapSpriteNativeCompositions), () => VerifyMapSpriteNativeCompositions(rom, stock));
         foreach (var role in MapSpriteRoleOracle())

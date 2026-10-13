@@ -54,7 +54,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
         parent.Position = parent.Position.WithWhole(new(0x0100, 0x01e0));
         initialize(parent);
         NorfairLavaJumpingEnemyState parentState =
-            enemies.NorfairLavaJumpingEnemyStates[0]!;
+            (enemies.NorfairLavaJumpingEnemyStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumpingEnemyStates[0]."));
         object?[] processArguments =
             [parent, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
@@ -64,7 +64,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
             NorfairLavaJumperInstructionProgramDefinitions.HiddenSleep,
             timedFrames: 1);
 
-        runMain(parent, parentState);
+        runMain(parent, (parentState ?? throw new InvalidOperationException("Verification requires parentState.")));
         parentState.YVelocity = 0xfbc8;
         runMain(parent, parentState);
         AssertEqual(NorfairLavaJumperInstructionProgramDefinitions.Jump,

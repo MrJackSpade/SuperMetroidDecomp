@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -48,7 +49,7 @@ internal static class SamusSuitColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve(offset, invalid), "Normal color index bounds");
         foreach (bool powerOnly in new[] { false, true })
         {
-            var document = JsonSerializer.Deserialize<SamusSuitColorDocument>(extracted, MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<SamusSuitColorDocument>(extracted, MapPresentationFormat.JsonOptions);
             int ordinal = 1000;
             foreach (var palette in new[] { document.Power, document.Varia, document.Gravity })
             for (int color = 0; color < 16; color++, ordinal++)

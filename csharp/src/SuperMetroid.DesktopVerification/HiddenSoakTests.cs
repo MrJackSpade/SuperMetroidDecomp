@@ -71,7 +71,7 @@ internal static class HiddenSoakTests
                     Check(frame.Snapshot is not null && frame.Frame.Pixels.Length == 0, "soak raster fallback");
                     // The real producer order: capture and synthesize inside Step, copy and queue PCM, publish.
                     MixAndSubmit(audio, output, game, ref nonzero, ref pcmSamples);
-                    worker.Publish(frame.Snapshot!);
+                    worker.Publish((frame.Snapshot ?? throw new InvalidOperationException("Verification requires frame.Snapshot.")));
                     producerMs[tick] = Stopwatch.GetElapsedTime(began).TotalMilliseconds;
                     allocation += GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
                     worker.ThrowIfFaulted();

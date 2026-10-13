@@ -51,7 +51,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         slot.Position = slot.Position.WithWholeX(0x0200);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0)) };
         initialize(slot, samus, 0);
-        BeetomEnemyState state = enemies.BeetomStates[0]!;
+        BeetomEnemyState state = (enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires enemies.BeetomStates[0]."));
         object?[] processArguments =
             [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
@@ -68,7 +68,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
             "left-crawl program disables off-screen processing");
 
-        startCrawling(slot, state, false);
+        startCrawling(slot, (state ?? throw new InvalidOperationException("Verification requires state.")), false);
         RunBeetomLoop(
             enemies,
             processArguments,
@@ -194,7 +194,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Beetom;
         initialize(slot, new SamusState(), 0);
         Action<BeetomEnemyState> choose = enemies.BeetomBehavior.ChooseDistantBeetomAction;
-        return (enemies, enemies.BeetomStates[0]!, choose);
+        return (enemies, (enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires the initialized Beetom state.")), choose);
     }
 
     /// <summary>Checks every RNG word against the native eight-pointer action table and verifies one random consumption per choice.</summary>

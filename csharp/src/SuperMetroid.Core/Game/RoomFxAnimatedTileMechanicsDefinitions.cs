@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -66,25 +67,29 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
         _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {objectPointer}."),
     };
 
+    /// <summary>The definition of an object this catalog supports.</summary>
+    internal static RoomFxAnimatedTileObjectDefinition Require(AnimatedTileObject objectPointer) => SelectObject(objectPointer) ??
+        throw new InvalidOperationException($"{objectPointer} has no definition in this catalog.");
+
     /// <summary>Enumerates the seven supported objects without stored headers.</summary>
     public static IEnumerable<RoomFxAnimatedTileObjectDefinition> All
     {
         get
         {
-            yield return SelectObject(AnimatedTileObject.HorizontalSpikes)!;
-            yield return SelectObject(AnimatedTileObject.MaridiaSandCeiling)!;
-            yield return SelectObject(AnimatedTileObject.MaridiaSandFalling)!;
-            yield return SelectObject(AnimatedTileObject.Lava)!;
-            yield return SelectObject(AnimatedTileObject.Acid)!;
-            yield return SelectObject(AnimatedTileObject.Rain)!;
-            yield return SelectObject(AnimatedTileObject.Spores)!;
+            yield return Require(AnimatedTileObject.HorizontalSpikes);
+            yield return Require(AnimatedTileObject.MaridiaSandCeiling);
+            yield return Require(AnimatedTileObject.MaridiaSandFalling);
+            yield return Require(AnimatedTileObject.Lava);
+            yield return Require(AnimatedTileObject.Acid);
+            yield return Require(AnimatedTileObject.Rain);
+            yield return Require(AnimatedTileObject.Spores);
         }
     }
 
     /// <summary>Resolves a supported header; unknown identities preserve false and null output.</summary>
-    public static bool TryResolve(AnimatedTileObject objectPointer, out RoomFxAnimatedTileObjectDefinition definition)
+    public static bool TryResolve(AnimatedTileObject objectPointer, [NotNullWhen(true)] out RoomFxAnimatedTileObjectDefinition? definition)
     {
-        definition = SelectObject(objectPointer)!;
+        definition = SelectObject(objectPointer);
         return definition is not null;
     }
 }

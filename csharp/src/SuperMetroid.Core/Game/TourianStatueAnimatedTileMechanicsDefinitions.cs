@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -43,24 +44,28 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {objectPointer}."),
     };
 
+    /// <summary>The definition of an object this catalog supports.</summary>
+    private static TourianStatueAnimatedTileProgramDefinition Require(AnimatedTileObject objectPointer) => SelectObject(objectPointer) ??
+        throw new InvalidOperationException($"{objectPointer} has no definition in this catalog.");
+
     /// <summary>The four boss-statue programs in cartridge header order, without a stored roster.</summary>
     public static IEnumerable<TourianStatueAnimatedTileProgramDefinition> All
     {
         get
         {
-            yield return SelectObject(AnimatedTileObject.TourianStatuePhantoon)!;
-            yield return SelectObject(AnimatedTileObject.TourianStatueRidley)!;
-            yield return SelectObject(AnimatedTileObject.TourianStatueKraid)!;
-            yield return SelectObject(AnimatedTileObject.TourianStatueDraygon)!;
+            yield return Require(AnimatedTileObject.TourianStatuePhantoon);
+            yield return Require(AnimatedTileObject.TourianStatueRidley);
+            yield return Require(AnimatedTileObject.TourianStatueKraid);
+            yield return Require(AnimatedTileObject.TourianStatueDraygon);
         }
     }
 
     /// <summary>Resolves one stock bank-$87 statue animated-tile object header.</summary>
     public static bool TryResolveObjectHeader(
         AnimatedTileObject objectPointer,
-        out TourianStatueAnimatedTileProgramDefinition definition)
+        [NotNullWhen(true)] out TourianStatueAnimatedTileProgramDefinition? definition)
     {
-        definition = SelectObject(objectPointer)!;
+        definition = SelectObject(objectPointer);
         return definition is not null;
     }
 }

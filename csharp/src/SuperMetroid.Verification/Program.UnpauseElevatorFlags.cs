@@ -34,7 +34,7 @@ internal static class UnpauseElevatorFlagsVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
 
         runtime.Enemies.ElevatorBehavior.PublishElevatorDoorContact();
         AssertEqual((ushort)1, runtime.Enemies.ElevatorBehavior.ElevatorFlags, "the elevator is armed before the pause");

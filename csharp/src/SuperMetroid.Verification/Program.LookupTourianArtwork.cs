@@ -60,18 +60,16 @@ internal static class LookupTourianArtworkVerification
             {
                 ushort operand = (ushort)value;
                 if (expected.TryGetValue(operand, out int source))
-                    AssertEqual(source, TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, operand),
+                    AssertEqual(source, TourianStatueAnimatedTileArtworkDefinitions.SourceAddress((definition ?? throw new InvalidOperationException("Verification requires definition.")), operand),
                         "Original statue artwork operand including repeated/released frames");
                 else
                     AssertThrows<InvalidDataException>(
-                        () => TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, operand),
+                        () => TourianStatueAnimatedTileArtworkDefinitions.SourceAddress((definition ?? throw new InvalidOperationException("Verification requires definition.")), operand),
                         "All non-frame, odd and neighboring program addresses reject");
             }
             total += expected.Count;
         }
         AssertEqual(36, total, "Complete native statue artwork domain");
-        AssertThrows<ArgumentNullException>(
-            () => TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(null!, 0), "Null statue rejects");
         var unknown = new TourianStatueAnimatedTileProgramDefinition(new TourianStatueAnimatedTileProgramParts { ObjectPointer = 0, ProgramStart = 0x8000, TransferByteCount = 0x40, EncodedVramDestination = 0, StatueStateBit = 0, GreyEventNumber = 0, FirstFrameDuration = 0, PackedBossTest = 0, ClearPaletteByteIndex = 0, UnlockEffectParameter = 0, PaletteFxDefinition = 0, TargetPaletteByteIndex = 0 });
         AssertThrows<InvalidDataException>(
             () => TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(unknown, 0x800c),

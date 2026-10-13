@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
@@ -68,12 +69,12 @@ internal static class EnemyExtendedFrameArtworkVerification
         foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
         {
             guardBlockFrame(frame.Bank, frame.Pointer);
-            AssertTrue(stock.ExtendedFrames!.TryGet(frame.Bank, frame.Pointer, out _),
+            AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGet(frame.Bank, frame.Pointer, out _),
                 $"installed extended frame {frame.Name} exists");
         }
         ushort emptyPointer = EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap;
         guardBlockFrame(EnemyExtendedFrameDefinitions.Bank, emptyPointer);
-        AssertTrue(stock.ExtendedFrames!.TryGet(EnemyExtendedFrameDefinitions.Bank,
+        AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGet(EnemyExtendedFrameDefinitions.Bank,
                 emptyPointer, out ReadOnlyMemory<EnemyExtendedDrawComponent> empty) &&
                    empty.IsEmpty,
             "walking Pirate initial empty frame is a compiled draw identity");
@@ -210,8 +211,8 @@ internal static class EnemyExtendedFrameArtworkVerification
         File.WriteAllBytes(stockPath, original);
 
         EnemyExtendedFrameDocument document =
-            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string ridleyName = "ridley_body_E983";
         EnemyExtendedVisualComponent ridleyFirst = document.Frames[ridleyName][0];
         document.Frames[ridleyName][0] = ridleyFirst with
@@ -304,7 +305,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         EnemyExtendedFrameCatalog LoadExtendedFrameOverride()
         {
             using FileStream json = File.OpenRead(overridePath);
-            return EnemyExtendedFrameCatalog.Load(json, stock.ExtendedFrames!);
+            return EnemyExtendedFrameCatalog.Load(json, stock.ExtendedFrames);
         }
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             document, new JsonSerializerOptions
@@ -327,8 +328,8 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertEqual(GetTouchCallback(stock, guard, editedPointer),
             GetTouchCallback(edited, guard, editedPointer),
             "editable walking Pirate component does not move the compiled hitbox");
-        AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .ExtendedFrames!.TryGet(EnemyExtendedFrameDefinitions.Bank,
+        AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
+                .ExtendedFrames ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .ExtendedFrames.")).TryGet(EnemyExtendedFrameDefinitions.Bank,
                     editedPointer, out _),
             "extended composition override survives catalog reload");
 
@@ -472,7 +473,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PirateDisplayBindings,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PirateFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PirateFrameCount),
+            DisplayFrames = HistoricalExtendedEntries((document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames.")), EnemyExtendedFrameDefinitions.PirateFrameCount),
         };
         const string sourceNameForLegacyBinding = "walking_pirate_walk_left_0";
         const string targetNameForLegacyBinding = "walking_pirate_walk_left_1";
@@ -489,7 +490,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                 new(0x0040, 0x0080)).LowTable.SequenceEqual(DrawExtended(stock, guard,
                 legacyTargetPointer, new(0x0040, 0x0080)).LowTable),
             "version-four visual binding survives Ridley-frame migration");
-        AssertTrue(upgradedVersionFour.ExtendedFrames!.TryGet(0xa6, 0xe983, out _),
+        AssertTrue((upgradedVersionFour.ExtendedFrames ?? throw new InvalidOperationException("Verification requires upgradedVersionFour.ExtendedFrames.")).TryGet(0xa6, 0xe983, out _),
             "version-four override inherits stock Ridley body art");
 
         // The immediately preceding schema includes Ridley but not Draygon.
@@ -499,7 +500,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreDraygon,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreDraygonFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreDraygonFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreDraygonFrameCount),
         };
         versionFive.DisplayFrames[sourceNameForLegacyBinding] = targetNameForLegacyBinding;
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -510,20 +511,20 @@ internal static class EnemyExtendedFrameArtworkVerification
                 new(0x0040, 0x0080)).LowTable.SequenceEqual(DrawExtended(stock, guard,
                 legacyTargetPointer, new(0x0040, 0x0080)).LowTable),
             "version-five override retains its authored Pirate display binding");
-        AssertTrue(upgradedVersionFive.ExtendedFrames!.TryGet(0xa5, 0xa2df, out _),
+        AssertTrue((upgradedVersionFive.ExtendedFrames ?? throw new InvalidOperationException("Verification requires upgradedVersionFive.ExtendedFrames.")).TryGet(0xa5, 0xa2df, out _),
             "version-five override inherits stock Draygon OAM art");
 
         // V6 published the Spore Spawn roots with Draygon-prefixed author keys.
         // Migrate the keys by unchanged bank/pointer identity so old artwork
         // and display bindings remain effective after the family correction.
         EnemyExtendedFrameDocument beforeSporeIdentity =
-            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string currentSporeName = "spore_spawn_oam_EE6F";
         const string legacySporeName = "draygon_oam_EE6F";
         var versionSixFrames = HistoricalExtendedEntries(beforeSporeIdentity.Frames, EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount).ToDictionary(entry => LegacyExtendedFrameName(entry.Key),
                 entry => entry.Value, StringComparer.Ordinal);
-        var versionSixBindings = HistoricalExtendedEntries(beforeSporeIdentity.DisplayFrames!, EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount).ToDictionary(entry => LegacyExtendedFrameName(entry.Key),
+        var versionSixBindings = HistoricalExtendedEntries((beforeSporeIdentity.DisplayFrames ?? throw new InvalidOperationException("Verification requires beforeSporeIdentity.DisplayFrames.")), EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount).ToDictionary(entry => LegacyExtendedFrameName(entry.Key),
                 entry => LegacyExtendedFrameName(entry.Value),
                 StringComparer.Ordinal);
         EnemyExtendedVisualComponent legacySporeFirst =
@@ -562,7 +563,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreCeresSteam,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionSeven, new JsonSerializerOptions
@@ -580,7 +581,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreOum,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreOumFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreOumFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreOumFrameCount),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionEight, new JsonSerializerOptions
@@ -598,7 +599,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreCrocomire,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreCrocomireFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreCrocomireFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreCrocomireFrameCount),
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionNine, new JsonSerializerOptions
@@ -616,7 +617,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreCrocomireBody,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreCrocomireBodyFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreCrocomireBodyFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreCrocomireBodyFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreCrocomireBodyFrameCount,
             versionTen.Frames.Count, "version-ten extended-frame schema count");
@@ -631,7 +632,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreBombTorizo,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreBombTorizoFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreBombTorizoFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreBombTorizoFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreBombTorizoFrameCount,
             versionEleven.Frames.Count, "version-eleven extended-frame schema count");
@@ -657,7 +658,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizo,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreGoldenTorizoFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreGoldenTorizoFrameCount,
             versionTwelve.Frames.Count, "version-twelve extended-frame schema count");
@@ -683,7 +684,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreKraidArm,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreKraidArmFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreKraidArmFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreKraidArmFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreKraidArmFrameCount,
             versionThirteen.Frames.Count, "version-thirteen extended-frame schema count");
@@ -706,7 +707,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoAwakening,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreGoldenTorizoAwakeningFrameCount,
             versionFourteen.Frames.Count,
@@ -733,7 +734,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoWalking,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoWalkingFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoWalkingFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreGoldenTorizoWalkingFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreGoldenTorizoWalkingFrameCount,
             versionFifteen.Frames.Count,
@@ -760,7 +761,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoRightward,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightwardFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightwardFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightwardFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreGoldenTorizoRightwardFrameCount,
             versionSixteen.Frames.Count,
@@ -787,7 +788,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreTorizoJumpBack,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreTorizoJumpBackFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreTorizoJumpBackFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreTorizoJumpBackFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreTorizoJumpBackFrameCount,
             versionSeventeen.Frames.Count,
@@ -814,7 +815,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoRightOrb,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreGoldenTorizoRightOrbFrameCount,
             versionEighteen.Frames.Count,
@@ -841,7 +842,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoRightSonic,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreGoldenTorizoRightSonicFrameCount,
             versionNineteen.Frames.Count,
@@ -868,7 +869,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreTorizoFallingLeft,
             Frames = HistoricalExtendedEntries(document.Frames, EnemyExtendedFrameDefinitions.PreTorizoFallingLeftFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames!, EnemyExtendedFrameDefinitions.PreTorizoFallingLeftFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(document.DisplayFrames, EnemyExtendedFrameDefinitions.PreTorizoFallingLeftFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreTorizoFallingLeftFrameCount,
             versionTwenty.Frames.Count,
@@ -888,8 +889,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "version-twenty migration retains an edited Pirate frame");
 
         EnemyExtendedFrameDocument fallingLeftOverride =
-            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string fallingLeftName = "torizo_falling_left_B014";
         EnemyExtendedVisualComponent originalFallingLeftComponent =
             fallingLeftOverride.Frames[fallingLeftName][0];
@@ -918,7 +919,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoLeftFootOrb,
             Frames = HistoricalExtendedEntries(fallingLeftOverride.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftFootOrbFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(fallingLeftOverride.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftFootOrbFrameCount),
+            DisplayFrames = HistoricalExtendedEntries((fallingLeftOverride.DisplayFrames ?? throw new InvalidOperationException("Verification requires fallingLeftOverride.DisplayFrames.")), EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftFootOrbFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftFootOrbFrameCount,
             versionTwentyOne.Frames.Count,
@@ -942,7 +943,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreTorizoJumpBackLeft,
             Frames = HistoricalExtendedEntries(fallingLeftOverride.Frames, EnemyExtendedFrameDefinitions.PreTorizoJumpBackLeftFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(fallingLeftOverride.DisplayFrames!, EnemyExtendedFrameDefinitions.PreTorizoJumpBackLeftFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(fallingLeftOverride.DisplayFrames, EnemyExtendedFrameDefinitions.PreTorizoJumpBackLeftFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreTorizoJumpBackLeftFrameCount,
             versionTwentyTwo.Frames.Count,
@@ -966,7 +967,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         {
             Version = (int)EnemyExtendedFrameSchema.PreGoldenTorizoLeftOrb,
             Frames = HistoricalExtendedEntries(fallingLeftOverride.Frames, EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbFrameCount),
-            DisplayFrames = HistoricalExtendedEntries(fallingLeftOverride.DisplayFrames!, EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbFrameCount),
+            DisplayFrames = HistoricalExtendedEntries(fallingLeftOverride.DisplayFrames, EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbFrameCount),
         };
         AssertEqual(EnemyExtendedFrameDefinitions.PreGoldenTorizoLeftOrbFrameCount,
             versionTwentyThree.Frames.Count,
@@ -987,8 +988,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "version-twenty-three migration retains the edited falling-left frame");
 
         EnemyExtendedFrameDocument leftFootOrbOverride =
-            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string leftFootOrbName = "golden_torizo_left_foot_orb_AC06";
         EnemyExtendedVisualComponent originalLeftFootOrbComponent =
             leftFootOrbOverride.Frames[leftFootOrbName][0];
@@ -1013,8 +1014,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "Golden Torizo left-foot orb cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument rightSonicOverride =
-            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string rightSonicName = "golden_torizo_right_sonic_ABEC";
         EnemyExtendedVisualComponent originalRightSonicComponent =
             rightSonicOverride.Frames[rightSonicName][0];
@@ -1039,8 +1040,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "Golden Torizo right-sonic cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument rightOrbOverride =
-            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string rightOrbName = "golden_torizo_right_orb_AC88";
         EnemyExtendedVisualComponent originalRightOrbComponent =
             rightOrbOverride.Frames[rightOrbName][0];
@@ -1065,8 +1066,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "Golden Torizo right-orb cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument jumpBackOverride =
-            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string jumpBackName = "torizo_jump_back_B048";
         EnemyExtendedVisualComponent originalJumpBackComponent =
             jumpBackOverride.Frames[jumpBackName][0];
@@ -1091,8 +1092,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "Torizo jump-back cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument goldenRightwardOverride =
-            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string goldenRightwardName = "golden_torizo_rightward_A4F0";
         EnemyExtendedVisualComponent originalRightwardComponent =
             goldenRightwardOverride.Frames[goldenRightwardName][0];
@@ -1117,8 +1118,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "Golden Torizo rightward cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument goldenWalkingOverride =
-            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string goldenWalkingName = "golden_torizo_walk_left_A4FA";
         EnemyExtendedVisualComponent originalWalkingComponent =
             goldenWalkingOverride.Frames[goldenWalkingName][0];
@@ -1143,8 +1144,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "Golden Torizo walking cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument goldenAwakeningOverride =
-            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string goldenAwakeningName = "golden_torizo_awake_AA5E";
         EnemyExtendedVisualComponent originalGoldenComponent =
             goldenAwakeningOverride.Frames[goldenAwakeningName][0];
@@ -1169,8 +1170,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "Golden Torizo cosmetic edit cannot move the engine-owned physical component");
 
         EnemyExtendedFrameDocument kraidArmOverride =
-            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string kraidArmName = "kraid_arm_oam_90FD";
         EnemyExtendedVisualComponent originalArm = kraidArmOverride.Frames[kraidArmName][0];
         kraidArmOverride.Frames[kraidArmName][0] = originalArm with
@@ -1188,8 +1189,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "editable Kraid arm component changes live OAM without ROM reads");
 
         EnemyExtendedFrameDocument sporeVisualRemap =
-            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         OamBuffer closedSpore = DrawExtendedForBank(stock, guard,
             0xa5, 0xee65, new(0x0040, 0x0080));
         EnemyExtendedFrameDefinition[] visiblyDifferentSporeFrames =
@@ -1206,7 +1207,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(visiblyDifferentSporeFrames.Length > 0,
             "Spore Spawn visual remap fixture has a visibly different frame");
         EnemyExtendedFrameDefinition targetSporeFrame = visiblyDifferentSporeFrames[0];
-        sporeVisualRemap.DisplayFrames!["spore_spawn_oam_EE65"] =
+        (sporeVisualRemap.DisplayFrames ?? throw new InvalidOperationException("Verification requires sporeVisualRemap.DisplayFrames."))["spore_spawn_oam_EE65"] =
             targetSporeFrame.Name;
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             sporeVisualRemap, new JsonSerializerOptions
@@ -1226,11 +1227,11 @@ internal static class EnemyExtendedFrameArtworkVerification
         Suite(nameof(VerifySporeSpawnVisualRemapKeepsMechanics), () => VerifySporeSpawnVisualRemapKeepsMechanics(rom, stock, swappedSpore));
 
         EnemyExtendedFrameDocument remapped =
-            JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            RequiredJson.Deserialize<EnemyExtendedFrameDocument>(original,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string sourceName = "walking_pirate_walk_left_0";
         const string targetName = "walking_pirate_walk_left_1";
-        remapped.DisplayFrames![sourceName] = targetName;
+        (remapped.DisplayFrames ?? throw new InvalidOperationException("Verification requires remapped.DisplayFrames."))[sourceName] = targetName;
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             remapped, new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
@@ -1488,7 +1489,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             [slot, new Position16<RoomPixels>(sampleX, sampleY), new Extent16<RoomPixels>((ushort)0, (ushort)0), false, (ushort)0];
         AssertTrue(ExtendedHitboxWalker.Find(enemies, arguments),
             "Space Pirate stock hitbox contains its sampled point");
-        return (ushort)arguments[4]!;
+        return (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4]."));
     }
 
     /// <summary>Selects walking, ninja, or wall Pirate ownership from a compiled extended-frame identity.</summary>

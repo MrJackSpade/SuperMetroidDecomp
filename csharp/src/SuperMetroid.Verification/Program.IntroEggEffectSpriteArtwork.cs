@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -52,9 +53,9 @@ internal static class IntroEggEffectSpriteArtworkVerification
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         string name = IntroEggEffectSpriteFormat.FileName;
         IntroEggEffectSpriteDocument document =
-            JsonSerializer.Deserialize<IntroEggEffectSpriteDocument>(
+            RequiredJson.Deserialize<IntroEggEffectSpriteDocument>(
                 File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         document.Frames["fragment-0"] = document.Frames["fragment-0"]
             .Select(part => part with { Palette = 0 }).ToArray();
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
@@ -102,7 +103,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
             state.SetupMotherBrainFlashback();
             state.SetupBabyDiscoveryCrossfade();
             var discovery = state.babyDiscovery;
-            var particles = discovery.eggParticles;
+            var particles = (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).eggParticles;
             particles.Add(fragment);
         }
         Rgba32[] stockPixels = stockState.RenderBabyDiscovery();

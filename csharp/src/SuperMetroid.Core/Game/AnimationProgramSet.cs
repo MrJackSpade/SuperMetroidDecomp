@@ -38,47 +38,52 @@ internal enum AnimationProgramStepKind
 /// <param name="Cue">The cue a <see cref="AnimationProgramStepKind.Cue"/> step publishes.</param>
 /// <param name="Target">The program a goto, fall-through or repeat continues at.</param>
 internal readonly record struct AnimationProgramStep<TProgram, TFrame, TCue>(
-    AnimationProgramStepKind Kind, TFrame Frame, int Duration, TCue Cue, TProgram Target)
+    AnimationProgramStepKind Kind, TFrame Frame, int Duration, TCue? Cue, TProgram Target)
     where TProgram : struct, Enum
+    where TFrame : struct
+    where TCue : notnull
 {
+    /// <summary>The cue this <see cref="AnimationProgramStepKind.Cue"/> step publishes; every cue step is built with one.</summary>
+    internal TCue PublishedCue => Cue ?? throw new InvalidOperationException("A cue step has no cue to publish.");
+
     /// <summary>
     /// Shows <paramref name="frame"/> for <paramref name="duration"/> processing updates. A zero duration is the
     /// cartridge's own: the native timer wraps, so the frame stays for 65536 updates.
     /// </summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> Show(TFrame frame, int duration) =>
-        new(AnimationProgramStepKind.Show, frame, Ensure.BetweenInclusive(0, ushort.MaxValue, duration), default!, default);
+        new(AnimationProgramStepKind.Show, frame, Ensure.BetweenInclusive(0, ushort.MaxValue, duration), default, default);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> Publish(TCue cue) =>
-        new(AnimationProgramStepKind.Cue, default!, 0, cue, default);
+        new(AnimationProgramStepKind.Cue, default, 0, cue, default);
 
     /// <summary>Holds the current frame for good.</summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> Hold { get; } =
-        new(AnimationProgramStepKind.Hold, default!, 0, default!, default);
+        new(AnimationProgramStepKind.Hold, default, 0, default, default);
 
     /// <summary>Continues at the start of <paramref name="program"/>.</summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> GoTo(TProgram program) =>
-        new(AnimationProgramStepKind.GoTo, default!, 0, default!, program);
+        new(AnimationProgramStepKind.GoTo, default, 0, default, program);
 
     /// <summary>Runs on into <paramref name="program"/>, the program authored next.</summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> FallInto(TProgram program) =>
-        new(AnimationProgramStepKind.FallInto, default!, 0, default!, program);
+        new(AnimationProgramStepKind.FallInto, default, 0, default, program);
 
     /// <summary>Keeps the current frame for <paramref name="duration"/> updates.</summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> Wait(int duration) =>
-        new(AnimationProgramStepKind.Wait, default!, Ensure.BetweenInclusive(0, ushort.MaxValue, duration), default!, default);
+        new(AnimationProgramStepKind.Wait, default, Ensure.BetweenInclusive(0, ushort.MaxValue, duration), default, default);
 
     /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> SetCounter(int count) =>
-        new(AnimationProgramStepKind.SetCounter, default!, Ensure.BetweenInclusive(0, ushort.MaxValue, count), default!, default);
+        new(AnimationProgramStepKind.SetCounter, default, Ensure.BetweenInclusive(0, ushort.MaxValue, count), default, default);
 
     /// <summary>Counts the loop counter down and repeats <paramref name="program"/> while it is not zero.</summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> RepeatWhileCounting(TProgram program) =>
-        new(AnimationProgramStepKind.RepeatWhileCounting, default!, 0, default!, program);
+        new(AnimationProgramStepKind.RepeatWhileCounting, default, 0, default, program);
 
     /// <summary>Stops the program and deletes its actor.</summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> Stop { get; } =
-        new(AnimationProgramStepKind.Stop, default!, 0, default!, default);
+        new(AnimationProgramStepKind.Stop, default, 0, default, default);
 }
 
 /// <summary>Where a program in an <see cref="AnimationProgramSet{TProgram, TFrame, TCue}"/> resumes.</summary>
@@ -108,7 +113,8 @@ internal enum AnimationProgramAdvanceKind
 /// <param name="Kind">How the advance ended.</param>
 /// <param name="Frame">The frame shown, for <see cref="AnimationProgramAdvanceKind.Show"/>.</param>
 /// <param name="Duration">The updates until the next advance, for a show or a wait.</param>
-internal readonly record struct AnimationProgramAdvance<TFrame>(AnimationProgramAdvanceKind Kind, TFrame Frame, int Duration);
+internal readonly record struct AnimationProgramAdvance<TFrame>(AnimationProgramAdvanceKind Kind, TFrame Frame, int Duration)
+    where TFrame : struct;
 
 /// <summary>
 /// A family of typed animation programs that jump into one another (#641): frames with durations, cues whose
@@ -118,6 +124,8 @@ internal readonly record struct AnimationProgramAdvance<TFrame>(AnimationProgram
 /// </summary>
 internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
     where TProgram : struct, Enum
+    where TFrame : struct
+    where TCue : notnull
 {
     /// <summary>Every program's validated steps.</summary>
     private readonly Dictionary<TProgram, AnimationProgramStep<TProgram, TFrame, TCue>[]> programs;
@@ -185,10 +193,10 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
                     return new(AnimationProgramAdvanceKind.Show, step.Frame, step.Duration);
                 case AnimationProgramStepKind.Wait:
                     cursor = cursor with { Position = cursor.Position + 1 };
-                    return new(AnimationProgramAdvanceKind.Wait, default!, step.Duration);
+                    return new(AnimationProgramAdvanceKind.Wait, default, step.Duration);
                 case AnimationProgramStepKind.Cue:
                     cursor = cursor with { Position = cursor.Position + 1 };
-                    if (publish(step.Cue, cursor) is { } redirect)
+                    if (publish(step.PublishedCue, cursor) is { } redirect)
                         cursor = AnimationProgramCursor<TProgram>.Start(redirect);
                     break;
                 case AnimationProgramStepKind.SetCounter:
@@ -202,9 +210,9 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
                         : cursor with { Position = cursor.Position + 1 };
                     break;
                 case AnimationProgramStepKind.Hold:
-                    return new(AnimationProgramAdvanceKind.Hold, default!, 0);
+                    return new(AnimationProgramAdvanceKind.Hold, default, 0);
                 case AnimationProgramStepKind.Stop:
-                    return new(AnimationProgramAdvanceKind.Stop, default!, 0);
+                    return new(AnimationProgramAdvanceKind.Stop, default, 0);
                 case AnimationProgramStepKind.GoTo:
                 case AnimationProgramStepKind.FallInto:
                     cursor = AnimationProgramCursor<TProgram>.Start(step.Target);

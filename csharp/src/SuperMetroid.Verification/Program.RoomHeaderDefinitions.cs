@@ -24,7 +24,7 @@ internal static class RoomHeaderDefinitionsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Room header oracle revision");
         ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))
             .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)
-            .Select(pointer => pointer!.Value).Distinct().Order().ToArray();
+            .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer."))).Distinct().Order().ToArray();
         Suite(nameof(VerifyRoomHeaderIdentities), () => VerifyRoomHeaderIdentities(rooms));
         Suite(nameof(VerifyRoomHeaderRoomIndex), () => VerifyRoomHeaderRoomIndex(rom, rooms));
         Suite(nameof(VerifyRoomHeaderAreaIndex), () => VerifyRoomHeaderAreaIndex(rom, rooms));

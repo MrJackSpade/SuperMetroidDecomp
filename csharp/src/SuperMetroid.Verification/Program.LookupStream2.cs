@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -388,8 +389,8 @@ internal static class LookupStream2Verification
             if (((SpriteComposition)composition).parts is ProjectileSpriteDefinitions.HorizontalPlasmaWaveShortParts)
                 calculatedPlasmaShort++;
         AssertEqual(5, calculatedPlasmaShort, "Five horizontal PlasmaWave Short poses calculate cell and lobe geometry");
-        var firstCharged = (SpriteComposition)frames[(ushort)0xec3e]!;
-        AssertTrue(firstCharged.parts is CompiledSpritePart[], "Distinct initial charged-Power ordering stays explicitly supplied/pending");
+        var firstCharged = (SpriteComposition)(frames[(ushort)0xec3e] ?? throw new InvalidOperationException("Verification requires frames[(ushort)0xec3e]."));
+        AssertTrue((firstCharged ?? throw new InvalidOperationException("Verification requires firstCharged.")).parts is CompiledSpritePart[], "Distinct initial charged-Power ordering stays explicitly supplied/pending");
         foreach (ushort pointer in expected)
         {
             var native = new OamBuffer();
@@ -399,7 +400,7 @@ internal static class LookupStream2Verification
             AssertTrue(native.ImageEquals(actual), "All417 calculated/remaining identities extract and draw exact native OAM");
         }
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
-        var document = System.Text.Json.JsonSerializer.Deserialize<ProjectileSpriteDocument>(json, options)!;
+        var document = RequiredJson.Deserialize<ProjectileSpriteDocument>(json, options);
         const ushort superMissilePointer = 0xadd5;
         string superMissileName = ProjectileSpriteDefinitions.Name(superMissilePointer);
         var originalMissilePart = document.Frames[superMissileName][1];
@@ -506,7 +507,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2BackdropGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseBackdropExtractor.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<PauseBackdropDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseBackdropDocument>(json, MapPresentationFormat.JsonOptions);
         var stock = PauseBackdropPresentation.Load(new MemoryStream(json));
         const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
         var areaResiduals = stock.areas;
@@ -581,7 +582,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2EquipmentBaseGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseEquipmentBaseExtractor.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<PauseEquipmentBaseDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseEquipmentBaseDocument>(json, MapPresentationFormat.JsonOptions);
         var stock = PauseEquipmentBasePresentation.Load(new MemoryStream(json));
         byte[] native = new byte[2048];
         for (int cell = 0; cell < 1024; cell++)
@@ -656,8 +657,8 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2WireframeMirrors(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseWireframeExtractor.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<PauseWireframeDocument>(json,
-            MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseWireframeDocument>(json,
+            MapPresentationFormat.JsonOptions);
         var stock = PauseWireframePresentation.Load(new MemoryStream(json));
         int pieceCells = 0, stockOverrides = 0;
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
@@ -722,8 +723,8 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2ReserveLabels(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseReserveUiExtractor.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<PauseReserveUiDocument>(json,
-            MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseReserveUiDocument>(json,
+            MapPresentationFormat.JsonOptions);
         int words = 0;
         foreach ((string name, PauseReserveLabelVisual label) in document.Labels)
         {
@@ -783,8 +784,8 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2EquipmentLabels(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseEquipmentLabelExtractor.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<PauseEquipmentLabelDocument>(json,
-            MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseEquipmentLabelDocument>(json,
+            MapPresentationFormat.JsonOptions);
         var stock = PauseEquipmentLabelPresentation.Load(new MemoryStream(json));
         int words = 0;
         foreach ((string key, PauseEquipmentLabel label) in document.Labels)
@@ -886,8 +887,8 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2EquipmentBlank(SuperMetroidAddressSpace rom)
     {
         byte[] nativeJson = PauseEquipmentLabelExtractor.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<PauseEquipmentLabelDocument>(
-            nativeJson, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseEquipmentLabelDocument>(
+            nativeJson, MapPresentationFormat.JsonOptions);
         for (int cell = 0; cell < PauseEquipmentLabelDefinitions.EquipmentWords; cell++)
         {
             int address = 0x820000 | (PauseEquipmentLabelDefinitions.BlankSource + cell * 2);
@@ -1386,11 +1387,11 @@ internal static class LookupStream2Verification
                 slot.Timer = NativeCountdown.FromRaw((ushort)(member + 8));
             }
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
-            enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.SlotTable.Slots[0], enemies.PipeBugStates[0]!, samus);
+            enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.SlotTable.Slots[0], (enemies.PipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PipeBugStates[0].")), samus);
             for (int member = 0; member < 5; member++)
             {
-                var state = enemies.PipeBugStates[member]!;
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), state.StaggerTarget,
+                var state = enemies.PipeBugStates[member];
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), (state ?? throw new InvalidOperationException("Verification requires state.")).StaggerTarget,
                     "Actual formation writes native release counter");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), (ushort)state.NorfairPostRiseFunction,
                     "Actual formation writes native role function");
@@ -1450,7 +1451,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2TrailAppearance(ISnesAddressSpace rom)
     {
         byte[] json = ProjectileTrailExtractor.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<ProjectileTrailDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<ProjectileTrailDocument>(json, MapPresentationFormat.JsonOptions);
         var stock = ProjectileTrailCatalog.Load(new MemoryStream(json));
         var edits = stock.suppliedAttributes;
         AssertEqual(0, edits.Count, "Stock trail appearance stores no repeated frame attributes");
@@ -1782,7 +1783,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2ReserveArrowColors(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<PauseReserveUiDocument>(source, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, MapPresentationFormat.JsonOptions);
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
         var edits = stock.arrowColorEdits;
         AssertEqual(0, edits.Count, "Native channel choices plus calculated ramps need no unexplained color overrides");
@@ -1846,7 +1847,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2ReserveGeometry(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<PauseReserveUiDocument>(source, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, MapPresentationFormat.JsonOptions);
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         AssertTrue(stock.digits is null, "Stock digits discard stored lookup");
@@ -2053,8 +2054,8 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2CrystalBody(ISnesAddressSpace rom)
     {
         byte[] source = CrystalFlashColorExtractor.Extract(rom);
-        var document = System.Text.Json.JsonSerializer.Deserialize<CrystalFlashColorDocument>(
-            source, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<CrystalFlashColorDocument>(
+            source, MapPresentationFormat.JsonOptions);
         var stock = CrystalFlashColorCatalog.Load(new MemoryStream(source));
         AssertTrue(stock.body is null, "Original Crystal Flash body selects calculation without stored rows");
         var cgram = new SnesCgram();
@@ -2226,7 +2227,7 @@ internal static class LookupStream2Verification
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), stock.Resolve(pointer), "Every installed selector retains its exact native target");
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
-        var document = System.Text.Json.JsonSerializer.Deserialize<ProjectileFrameBindingDocument>(json, options)!;
+        var document = RequiredJson.Deserialize<ProjectileFrameBindingDocument>(json, options);
         for (int direction = 0; direction < 8; direction++)
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
@@ -2363,7 +2364,7 @@ internal static class LookupStream2Verification
             foreach (var frame in selected)
             {
                 AssertTrue(catalog.TryGetDisplay(frame.Bank, frame.Pointer, out var actual), "Golden Torizo installed display binding");
-                var expected = document.Frames[document.DisplayFrames![frame.Name]];
+                var expected = document.Frames[(document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))[frame.Name]];
                 AssertEqual(expected.Length, actual.Length, "Golden Torizo component order/extent");
                 var expectedOam = new OamBuffer(); expectedOam.BeginFrame();
                 var actualOam = new OamBuffer(); actualOam.BeginFrame();
@@ -2400,7 +2401,7 @@ internal static class LookupStream2Verification
                 foreach (var frame in definitions.OrderBy(frame => ((int)new SnesAddress(frame.Bank, frame.Pointer))))
                 {
                     content.Append("native-binding", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
-                    content.Append("selected-binding", identities[document.DisplayFrames![frame.Name]]);
+                    content.Append("selected-binding", identities[(document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))[frame.Name]]);
                 }
             });
             AssertEqual(expectedHash, catalog.ContentIdentity, "Golden Torizo calculated extended-part hash remains canonical");
@@ -2425,7 +2426,7 @@ internal static class LookupStream2Verification
             }
         }
         AssertEqual(36, edits, "Golden Torizo all independent calculated foot-X fields edited");
-        document.DisplayFrames![selected[0].Name] = selected[1].Name;
+        (document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))[selected[0].Name] = selected[1].Name;
         Check(Load());
         Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
         AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoStrideGeometryDefinitions.HorizontalAdvance(10), "Golden Torizo phase upper bound");

@@ -27,9 +27,9 @@ internal static class ShutterRidingVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom, camera: new Position16<RoomPixels>(0x100, 0));
-            var samus = runtime.Player.Samus!;
+            var samus = runtime.Player.IntroducedSamus;
             var platform = runtime.Enemies.SlotTable.Slots[slot];
-            var state = runtime.Enemies.VerticalShutterStates[slot]!;
+            var state = runtime.Enemies.VerticalShutterStates[slot];
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;
             samus.InputLocked = false;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
@@ -41,7 +41,7 @@ internal static class ShutterRidingVerification
             // and launches Samus; no diagnostic phase write substitutes for that path.
             for (int frame = 0; frame < 220; frame++)
                 runtime.StepFrame(frame == 0 ? runtime.Options.ControllerBindings.Shoot : (ushort)0);
-            AssertEqual(VerticalShutterFunction.PermanentNoOp, state.Function,
+            AssertEqual(VerticalShutterFunction.PermanentNoOp, (state ?? throw new InvalidOperationException("Verification requires state.")).Function,
                 "bomb-raised shutter remains at native permanent upper stop without a second hit");
             AssertEqual(state.MinimumYPosition, platform.Position.Y.Whole, "shutter reaches the authored upper Y");
             AssertEqual(0, platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y,

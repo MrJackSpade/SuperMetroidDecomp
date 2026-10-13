@@ -23,9 +23,9 @@ public static class UnhandledExceptionConsoleSmokeTest
                 waited = true;
                 string reportAtWait = output.ToString();
                 reportWasCompleteBeforeWait =
-                    reportAtWait.Contains(typeof(InvalidOperationException).FullName!, StringComparison.Ordinal) &&
+                    reportAtWait.Contains((typeof(InvalidOperationException).FullName ?? throw new InvalidOperationException("Verification requires typeof(InvalidOperationException).FullName.")), StringComparison.Ordinal) &&
                     reportAtWait.Contains("outer frame failure", StringComparison.Ordinal) &&
-                    reportAtWait.Contains(typeof(InvalidDataException).FullName!, StringComparison.Ordinal) &&
+                    reportAtWait.Contains((typeof(InvalidDataException).FullName ?? throw new InvalidOperationException("Verification requires typeof(InvalidDataException).FullName.")), StringComparison.Ordinal) &&
                     reportAtWait.Contains("inner cartridge diagnostic", StringComparison.Ordinal) &&
                     reportAtWait.Contains("Press Enter to exit.", StringComparison.Ordinal);
             });

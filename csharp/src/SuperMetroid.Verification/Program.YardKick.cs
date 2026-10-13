@@ -19,14 +19,14 @@ internal static class YardKickVerification
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
             var actor = enemies.SlotTable.Slots[0];
-            var state = enemies.YardStates[0]!;
+            var state = enemies.YardStates[0];
             var samus = new SamusState { Pose = pose, Health = 999, MaxHealth = 999,
                 Position = FixedPosition<RoomPixels>.FromWhole(actor.Position.Whole) };
             samus.PoseMetadata.RefreshCollisionRadii(bus);
             enemies.StepFrame(new RoomEnemyFrame { Camera = new((ushort)(actor.Position.X.Whole - 128), (ushort)(actor.Position.Y.Whole - 112)), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
             // Seed the airborne touch-admission case. The real contact dispatcher
             // must install the kick and consume the published distance words.
-            state.MovementFunction = YardMovementFunction.Airborne;
+            (state ?? throw new InvalidOperationException("Verification requires state.")).MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = YardBehavior.NormalCrawling;
             samus.Position = samus.Position.WithWhole(actor.Position.Whole);
             samus.InvincibilityTimer = NativeCountdown.Start(0);

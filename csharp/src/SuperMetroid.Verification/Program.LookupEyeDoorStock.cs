@@ -61,11 +61,10 @@ internal static class LookupEyeDoorStockVerification
         entries[11].Blocks[2] = 0x5a;
         entries[12].Blocks[0] = 0x5b;
         Compare(mixed,expected);
-        AssertThrows<ArgumentNullException>(() => new RoomPlmEyeDoorVisualCatalog(null!),"Eye door null import");
         AssertThrows<InvalidDataException>(() => new RoomPlmEyeDoorVisualCatalog(entries[..1]),"Eye door missing import");
         AssertThrows<InvalidDataException>(() => new RoomPlmEyeDoorVisualCatalog(entries.Append(entries[0])),"Eye door duplicate import");
         foreach (RoomPlmEyeDoorVisualEntry bad in new RoomPlmEyeDoorVisualEntry[]
-            {null!,new("LEFT-EYE-FRAME-0",[0,0]),new("unknown",[0,0]),new(entries[0].Id,null!),
+            {new("LEFT-EYE-FRAME-0",[0,0]),new("unknown",[0,0]),
              new(entries[0].Id,[0]),new(entries[0].Id,[0xf055,0])})
         {
             var invalid = entries.ToArray();

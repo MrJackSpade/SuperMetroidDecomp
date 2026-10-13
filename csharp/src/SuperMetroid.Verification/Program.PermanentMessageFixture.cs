@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
@@ -10,7 +11,7 @@ internal static class PermanentMessageFixtureVerification
     internal static GameplayMessageBoxState CreatePermanentMessageFixture()
     {
         string directory = RepositoryInstallation.Installation.MapDirectory;
-        JsonNode Read(string name) => JsonNode.Parse(File.ReadAllText(Path.Combine(directory, name)))!;
+        JsonNode Read(string name) => RequiredJson.Parse(File.ReadAllText(Path.Combine(directory, name)));
         static JsonObject Cell(int word) => new() { ["raw"] = word };
         static void SetBorder(JsonNode document)
         {
@@ -22,7 +23,7 @@ internal static class PermanentMessageFixtureVerification
 
         var titles = Read(GameplayMessageTitleDefinitions.FileName);
         SetBorder(titles);
-        var energy = titles["titles"]![GameplayMessageIds.EnergyTank.ToString()]!;
+        var energy = titles.Required("titles").Required(GameplayMessageIds.EnergyTank.ToString());
         energy["text"] = "TEST";
         energy["palette"] = 6;
 
@@ -35,13 +36,13 @@ internal static class PermanentMessageFixtureVerification
                 >= (32 - GameplayMessagePanelDefinitions.OuterRightColumns));
             template.Add(Cell(transparent ? GameplayMessageTitleDefinitions.TransparentWord : 0x3801));
         }
-        panels["panels"]![GameplayMessageIds.MissileTank.ToString()]!["template"] = template;
+        panels.Required("panels").Required(GameplayMessageIds.MissileTank.ToString())["template"] = template;
 
         var notices = Read(GameplayMessageNoticeDefinitions.FileName);
         SetBorder(notices);
         var noticeTemplate = new JsonArray();
         for (int cell = 0; cell < 96; cell++) noticeTemplate.Add(Cell(0x3820 + cell / 32));
-        notices["notices"]![GameplayMessageIds.MapDataAccessCompleted.ToString()]!["template"] = noticeTemplate;
+        notices.Required("notices").Required(GameplayMessageIds.MapDataAccessCompleted.ToString())["template"] = noticeTemplate;
 
         var message = new GameplayMessageBoxState();
         message.BindPresentation(GameplayMessageTitlePresentation.Load(Stream(titles)),

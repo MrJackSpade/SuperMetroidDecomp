@@ -50,7 +50,7 @@ internal static class RoomAssetRomDataVerification
         ushort[] roomPointers = File.ReadLines(symbolPath)
             .Select(TryParseRoomHeaderPointer)
             .Where(pointer => pointer.HasValue)
-            .Select(pointer => pointer!.Value)
+            .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer.")))
             .Distinct()
             .ToArray();
         var graphicsSets = new HashSet<byte>();
@@ -195,7 +195,7 @@ internal static class RoomAssetRomDataVerification
             AssertTrue(vram.Bytes[..native.Length].SequenceEqual(native),
                 $"room atlas {name} uploads exactly the native character range");
         }
-        var catalog = new RoomCharacterAtlasCatalog(compiledCre!, compiledBySource);
+        var catalog = new RoomCharacterAtlasCatalog((compiledCre ?? throw new InvalidOperationException("Verification requires compiledCre.")), compiledBySource);
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
@@ -233,7 +233,7 @@ internal static class RoomAssetRomDataVerification
             landingImage.Palette);
         compiledBySource[landingSource] = RoomCharacterAtlas.Load(
             new MemoryStream(paintedPng.ToArray()), landingNative.Length);
-        var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre!, compiledBySource);
+        var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre, compiledBySource);
         CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(
             NewRoomCharacterReadGuard(bus, landingSource), landing, editedCatalog);
         AssertTrue(!editedRoom.RoomCharacters.AsSpan().SequenceEqual(landingNative),

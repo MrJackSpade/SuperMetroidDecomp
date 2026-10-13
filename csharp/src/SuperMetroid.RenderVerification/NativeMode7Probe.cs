@@ -9,7 +9,7 @@ internal static class NativeMode7Probe
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     internal static Rgba32[] Render(Mode7ObjRenderSnapshot snapshot, int scanlineBias)
     {
-        var bg = snapshot.Background!.Value;
+        var bg = (snapshot.Background ?? throw new InvalidOperationException("Verification requires snapshot.Background."));
         int Sign13(int value) => (value << 19) >> 19;
         int Clip(int value) => (value & 0x2000) != 0 ? value | ~1023 : value & 1023;
         int cx = Sign13(bg.Center.X), cy = Sign13(bg.Center.Y);

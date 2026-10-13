@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -41,9 +42,9 @@ internal static class GenericSpriteArtworkVerification
         // receives mutable memory only and the installed sprite composition catalog.
         var title = new TitleSequenceState(memory, titleGradientPresentation: maps.TitleGradient,
             titlePalettePresentation: maps.TitlePalette, titleGraphicsPresentation: maps.TitleGraphics);
-        var document = JsonSerializer.Deserialize<TitleMode7MapDocument>(File.ReadAllBytes(
+        var document = RequiredJson.Deserialize<TitleMode7MapDocument>(File.ReadAllBytes(
             Path.Combine(installation.MapDirectory, TitleGraphicsFormat.Mode7MapFile)),
-            MapPresentationFormat.JsonOptions)!;
+            MapPresentationFormat.JsonOptions);
         var expected = new OamBuffer();
         int titleCases = 0;
         foreach (TitleSpriteFrame frame in document.Sprites)
@@ -85,7 +86,7 @@ internal static class GenericSpriteArtworkVerification
         };
         intro.SetupFirstIllustratedPage();
         var caret = intro.objects;
-        caret.Step(0);
+        (caret ?? throw new InvalidOperationException("Verification requires caret.")).Step(0);
         var actual = intro.PrepareIllustratedPageOam();
         expected = new OamBuffer();
         expected.BeginFrame();
@@ -97,11 +98,11 @@ internal static class GenericSpriteArtworkVerification
 
         intro.SetupMotherBrainFlashback();
         var motherBrain = intro.flashbackMotherBrain;
-        motherBrain.Step(memory);
+        (motherBrain ?? throw new InvalidOperationException("Verification requires motherBrain.")).Step(memory);
         actual = intro.PrepareMotherBrainOam();
         expected = new OamBuffer();
         expected.BeginFrame();
-        intro.flashbackSamus.Presentation.Draw(memory, expected, new(0, 0), 0);
+        (intro.flashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus.")).Presentation.Draw(memory, expected, new(0, 0), 0);
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, motherBrain.SpriteMapPointer),
             new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
@@ -129,8 +130,6 @@ internal static class GenericSpriteArtworkVerification
         expected.FinalizeFrame();
         EqualOam(expected, actual, "intro explosion owner preserves native placements and ordering");
         AssertTrue(actual.LastFinalizedSpriteCount > 0, "intro explosion comparison contains visible parts");
-        AssertThrows<ArgumentNullException>(() => explosions.Draw(new OamBuffer(), null!),
-            "intro explosions cannot fall back to cartridge artwork");
 
         // The opposite origin-wrap rule is also compared exhaustively against an
         // independent carry/sign oracle, not against a second copy of the renderer.

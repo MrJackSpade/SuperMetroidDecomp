@@ -53,8 +53,8 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         AssertTrue(cycle.Resolve(1, 0) != native.Resolve(1, 0),
             "Magdollite color override changes the selected RGB5 word");
         AssertEqual(cycle.Resolve(1, 0),
-            EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .MagdollitePaletteCycle!.Resolve(1, 0),
+            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
+                .MagdollitePaletteCycle ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .MagdollitePaletteCycle.")).Resolve(1, 0),
             "Magdollite color override persists across catalog reload");
         for (int frame = 0; frame < MagdollitePaletteRomData.FrameCount; frame++)
         for (int color = 0; color < MagdollitePaletteRomData.AnimatedColorCount; color++)

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
@@ -43,13 +44,13 @@ internal static class TilemapJsonContractsVerification
                 "room map preserves every tile/palette/priority/flip bit and page order");
             Load(json);
             Load(TilemapContractHistoricalCasing(json));
-            JsonObject Cell(JsonObject root) => (JsonObject)root["pages"]![0]!["cells"]![0]!;
+            JsonObject Cell(JsonObject root) => (JsonObject)root.Required("pages").Required(0).Required("cells").Required(0);
             foreach (string corrupt in TilemapContractCorruptions(json, Cell).Concat(new[]
             {
-                TilemapContractMutate(json, root => ((JsonObject)root["pages"]![0]!)["duration"] = 7),
+                TilemapContractMutate(json, root => ((JsonObject)root.Required("pages").Required(0))["duration"] = 7),
                 json.Replace("\"cells\":", "\"Cells\":[],\"cells\":", StringComparison.Ordinal),
                 TilemapContractMutate(json, root => root["pages"] = new JsonArray()),
-                TilemapContractMutate(json, root => ((JsonObject)root["pages"]![0]!)["cells"] = new JsonArray()),
+                TilemapContractMutate(json, root => ((JsonObject)root.Required("pages").Required(0))["cells"] = new JsonArray()),
             }))
             {
                 AssertThrows<InvalidDataException>(() => RoomBackgroundTilemapAtlas.Load(
@@ -69,7 +70,7 @@ internal static class TilemapJsonContractsVerification
         }
         LoadHead(headJson);
         LoadHead(TilemapContractHistoricalCasing(headJson));
-        JsonObject HeadCell(JsonObject root) => (JsonObject)root["cells"]![0]!;
+        JsonObject HeadCell(JsonObject root) => (JsonObject)root.Required("cells").Required(0);
         foreach (string corrupt in TilemapContractCorruptions(headJson, HeadCell).Concat(new[]
         {
             TilemapContractMutate(headJson, root => root["width"] = KraidHeadTilemapFormat.Width - 1),
@@ -126,7 +127,7 @@ internal static class TilemapJsonContractsVerification
     /// <summary>Applies one JSON mutation to a parsed tilemap document.</summary>
     internal static string TilemapContractMutate(string json, Action<JsonObject> mutate)
     {
-        var root = (JsonObject)JsonNode.Parse(json)!;
+        var root = (JsonObject)RequiredJson.Parse(json);
         mutate(root);
         return root.ToJsonString();
     }

@@ -35,7 +35,7 @@ internal static class EvirVisualsVerification
             AssertEqual(nativePointer, installedPointer,
                 $"Evir selector {index} preserves native frame identity");
             selectedFrames.Add(installedPointer);
-            AssertTrue(stock.Spritemaps!.TryGetDisplay(
+            AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
                     EvirVisualDefinitions.Bank, installedPointer,
                     out EnemySpritemapParts installedParts),
                 $"Evir selector {index} has editable OAM");

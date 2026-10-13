@@ -34,9 +34,9 @@ internal static class SandAnimatedTilesVerification
         for (int slot = 0; slot < 2; slot++)
         {
             AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
-                    (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition definition),
+                    (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition? definition),
                 $"sand object {slot} resolves compiled mechanics");
-            for (int frame = 0; frame < definition.Frames.Count; frame++)
+            for (int frame = 0; frame < (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count; frame++)
             {
                 int source = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
                     definition, definition.Frames[frame].InstructionPointer);
@@ -62,10 +62,10 @@ internal static class SandAnimatedTilesVerification
                 for (int slot = 0; slot < 2; slot++)
                 {
                     AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
-                            (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition definition),
+                            (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition? definition),
                         $"sand object {slot} remains catalogued at transfer");
                     int expectedSource = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
-                        definition, definition.Frames[tick / 10 % 4].InstructionPointer);
+                        (definition ?? throw new InvalidOperationException("Verification requires definition.")), (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames[tick / 10 % 4].InstructionPointer);
                     AssertEqual(expectedSource, queue.Entries[slot].SourceAddress,
                         "sand NMI transfer uses the compiled artwork source identity");
                 }
@@ -73,9 +73,9 @@ internal static class SandAnimatedTilesVerification
             for (int slot = 0; slot < 2; slot++)
             {
                 AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
-                        (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition definition),
+                        (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition? definition),
                     $"sand object {slot} remains catalogued");
-                int destination = definition.EncodedVramDestination * 2;
+                int destination = (definition ?? throw new InvalidOperationException("Verification requires definition.")).EncodedVramDestination * 2;
                 for (int i = 0; i < definition.TransferByteCount; i++)
                 {
                     AssertEqual((byte)(1 + slot * 4 + tick / 10 % 4),

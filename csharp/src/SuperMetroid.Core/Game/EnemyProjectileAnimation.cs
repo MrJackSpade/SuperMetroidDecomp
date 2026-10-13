@@ -50,6 +50,8 @@ internal abstract class EnemyProjectileAnimation
 /// <typeparam name="TFrame">The family's frame identity.</typeparam>
 /// <typeparam name="TCue">The family's cue type.</typeparam>
 internal abstract class EnemyProjectileTimelineAnimation<TFrame, TCue> : EnemyProjectileAnimation
+    where TFrame : struct
+    where TCue : notnull
 {
     /// <summary>The next step of the timeline.</summary>
     internal int Position { get; private set; }
@@ -83,6 +85,8 @@ internal abstract class EnemyProjectileTimelineAnimation<TFrame, TCue> : EnemyPr
 /// <typeparam name="TCue">The family's cue type.</typeparam>
 internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> : EnemyProjectileAnimation
     where TProgram : struct, Enum
+    where TFrame : struct
+    where TCue : notnull
 {
     /// <summary>Starts <paramref name="program"/>.</summary>
     private protected EnemyProjectileProgramAnimation(TProgram program) => Cursor = AnimationProgramCursor<TProgram>.Start(program);

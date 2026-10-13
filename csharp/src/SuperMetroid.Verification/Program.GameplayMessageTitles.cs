@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -46,8 +47,8 @@ internal static class GameplayMessageTitlesVerification
             comparedWords += width;
         }
 
-        JsonObject document = JsonNode.Parse(extracted)!.AsObject();
-        JsonObject energy = document["titles"]![GameplayMessageId.EnergyTank.ToString()]!.AsObject();
+        JsonObject document = RequiredJson.Parse(extracted).AsObject();
+        JsonObject energy = document.Required("titles").Required(GameplayMessageId.EnergyTank.ToString()).AsObject();
         energy["text"] = "ENERGY TEST";
         byte[] editedBytes = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
             MapPresentationFormat.JsonOptions));

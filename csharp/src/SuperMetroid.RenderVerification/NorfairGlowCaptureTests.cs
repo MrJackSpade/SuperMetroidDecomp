@@ -16,14 +16,14 @@ internal static class NorfairGlowCaptureTests
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NorfairGlowFixture.Cathedral, new Position16<RoomPixels>(0, 0));
-        runtime.Player.Samus!.InputLocked = true;
+        runtime.Player.IntroducedSamus.InputLocked = true;
         LayeredRenderSnapshot? original = null;
         SuperMetroid.Core.Assets.Rgba32[]? initialPixels = null;
         int maximumChanged = 0;
         for (int tick = 0; tick < 232; tick++)
         {
             runtime.StepFrame(0);
-            var scene = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+            var scene = GameplayDisplayCapture.CaptureFrame(runtime);
             original ??= scene;
             var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), scene);
             PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime),

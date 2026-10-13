@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -131,7 +132,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
             return;
         var statement = (IfStatementSyntax)context.Node;
         if (statement.Else is not null || !TryGetThrownArgumentException(statement.Statement, context.SemanticModel,
-                out string exceptionType, out ArgumentListSyntax arguments))
+                out string exceptionType, out ArgumentListSyntax? arguments))
             return;
 
         if (!HasParameterName(arguments, exceptionType))
@@ -235,10 +236,10 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
     /// <summary>Extracts a supported argument exception from a single throw statement or block.</summary>
     private static bool TryGetThrownArgumentException(
         StatementSyntax statement, SemanticModel model,
-        out string exceptionType, out ArgumentListSyntax arguments)
+        out string exceptionType, [NotNullWhen(true)] out ArgumentListSyntax? arguments)
     {
         exceptionType = "";
-        arguments = null!;
+        arguments = null;
         if (statement is BlockSyntax block)
         {
             if (block.Statements.Count != 1)

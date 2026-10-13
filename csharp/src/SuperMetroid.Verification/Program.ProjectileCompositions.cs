@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -54,7 +55,7 @@ internal static class ProjectileCompositionsVerification
             draws++;
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = JsonSerializer.Deserialize<ProjectileSpriteDocument>(json, options)!;
+        var document = RequiredJson.Deserialize<ProjectileSpriteDocument>(json, options);
         ushort editedId = ProjectileSpriteDefinitions.NativePointers.ToArray().First(id => document.Frames[ProjectileSpriteDefinitions.Name(id)].Length > 0);
         string name = ProjectileSpriteDefinitions.Name(editedId);
         var original = document.Frames[name][0];
@@ -196,13 +197,13 @@ internal static class ProjectileCompositionsVerification
             {
                 var slot = runtime.BombProjectiles.Slots[0];
                 slot.Type = family; slot.InstructionPointer = 1; slot.SpritemapPointer = sprite;
-                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
+                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             }
             else
             {
                 var slot = runtime.Projectiles.Slots[0];
                 slot.Type = family; slot.InstructionPointer = 1; slot.SpritemapPointer = sprite;
-                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
+                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             }
             // Actor drawing also updates mutable visual state. Compare identical
             // captured states rather than two sequential draws of one runtime.
@@ -213,13 +214,13 @@ internal static class ProjectileCompositionsVerification
             {
                 ProjectileCompositions = stock,
             });
-            AssertTrue(baseline.SequenceEqual(Draw(stockCopy.runtime)),
+            AssertTrue(baseline.SequenceEqual(Draw(stockCopy.GameplayRuntime)),
                 "Restored stock projectile actor matches the same initial state");
             editedCopy.BindArtwork(editedCopy.Artwork with
             {
                 ProjectileCompositions = edited,
             });
-            AssertTrue(!baseline.SequenceEqual(Draw(editedCopy.runtime)),
+            AssertTrue(!baseline.SequenceEqual(Draw(editedCopy.GameplayRuntime)),
                 "Edited composition reaches runtime actor drawing");
         }
         game.BindArtwork(game.Artwork with
@@ -237,12 +238,12 @@ internal static class ProjectileCompositionsVerification
         AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Projectile content excluded from frontend and runtime state graph");
         with.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
-        var restoredRuntime = restored.runtime;
+        var restoredRuntime = restored.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.ProjectileCompositions is null, "Restored runtime requires external composition rebind");
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;
-        restoredRuntime.Player.Samus!.Presentation.TileTransfers.BindArtwork(roomAssets.SamusBody);
-        restoredRuntime.Player.Samus.ArmCannon.Artwork = roomAssets.SamusBody.ArmCannon;
+        restoredRuntime.Player.IntroducedSamus.Presentation.TileTransfers.BindArtwork(roomAssets.SamusBody);
+        restoredRuntime.Player.IntroducedSamus.ArmCannon.Artwork = roomAssets.SamusBody.ArmCannon;
         restored.BindArtwork(restored.Artwork with
         {
             ProjectileCompositions = edited,
@@ -261,11 +262,11 @@ internal static class ProjectileCompositionsVerification
             snapshot.Position = 0;
             var clone = SuperMetroid.Desktop.DebuggerObjectGraphSerializer
                 .Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(snapshot);
-            var cloneRuntime = clone.runtime;
+            var cloneRuntime = clone.GameplayRuntime;
             roomAssets.Bind(cloneRuntime);
             cloneRuntime.Artwork.MapPresentation = maps;
-            cloneRuntime.Player.Samus!.Presentation.TileTransfers.BindArtwork(roomAssets.SamusBody);
-            cloneRuntime.Player.Samus.ArmCannon.Artwork = roomAssets.SamusBody.ArmCannon;
+            cloneRuntime.Player.IntroducedSamus.Presentation.TileTransfers.BindArtwork(roomAssets.SamusBody);
+            cloneRuntime.Player.IntroducedSamus.ArmCannon.Artwork = roomAssets.SamusBody.ArmCannon;
             return clone;
         }
     }
@@ -331,9 +332,9 @@ internal static class ProjectileCompositionsVerification
         ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
         string paletteStock = Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName);
         string paletteOverride = Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteDefinitions.FileName);
-        var paletteDocument = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(paletteStock))!;
-        var red = paletteDocument["palettes"]![BeamPaletteDefinitions.Key(0)]![0]!;
-        red["red"] = red["red"]!.GetValue<int>() ^ 1;
+        var paletteDocument = RequiredJson.Parse(File.ReadAllText(paletteStock));
+        var red = paletteDocument.Required("palettes").Required(BeamPaletteDefinitions.Key(0)).Required(0);
+        red["red"] = red.Required("red").GetValue<int>() ^ 1;
         File.WriteAllText(paletteOverride, paletteDocument.ToJsonString());
         var paletteEdited = installation.LoadProjectiles();
         AssertTrue(paletteEdited.SelectedSha256 != beamEdited.SelectedSha256, "Palette-only override changes content identity");
@@ -346,17 +347,17 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllText(paletteOverride, paletteDocument.ToJsonString());
         string hyperStock = Path.Combine(installation.ProjectileDirectory, HyperBeamFxColorFormat.FileName);
         string hyperOverride = Path.Combine(installation.ProjectileOverrideDirectory, HyperBeamFxColorFormat.FileName);
-        var hyperDocument = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(hyperStock))!;
-        var hyperRed = hyperDocument["frames"]![3]![2]!["red"]!;
-        hyperDocument["frames"]![3]![2]!["red"] = hyperRed.GetValue<int>() ^ 1;
+        var hyperDocument = RequiredJson.Parse(File.ReadAllText(hyperStock));
+        var hyperRed = hyperDocument.Required("frames").Required(3).Required(2).Required("red");
+        hyperDocument.Required("frames").Required(3).Required(2)["red"] = hyperRed.GetValue<int>() ^ 1;
         File.WriteAllText(hyperOverride, hyperDocument.ToJsonString());
         var hyperEdited = installation.LoadProjectiles();
         AssertTrue(hyperEdited.SelectedSha256 != paletteEdited.SelectedSha256,
             "Hyper Beam FX override changes selected identity");
         var hyperNative = new SnesCgram();
         var hyperSelected = new SnesCgram();
-        stock.BeamTiles.HyperBeamFxColors!.Apply(hyperNative, 3, 225);
-        hyperEdited.BeamTiles.HyperBeamFxColors!.Apply(hyperSelected, 3, 225);
+        (stock.BeamTiles.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires stock.BeamTiles.HyperBeamFxColors.")).Apply(hyperNative, 3, 225);
+        (hyperEdited.BeamTiles.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires hyperEdited.BeamTiles.HyperBeamFxColors.")).Apply(hyperSelected, 3, 225);
         AssertEqual((ushort)(hyperNative.Colors[227].ToWord() ^ 1), hyperSelected.Colors[227],
             "Installed Hyper Beam FX override changes its selected color");
         ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
@@ -372,8 +373,8 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllText(hyperOverride, hyperDocument.ToJsonString());
         string trailStock = Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName);
         string trailOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailVisualDefinitions.FileName);
-        var trailDocument = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(trailStock))!;
-        trailDocument["frames"]![ProjectileTrailVisualDefinitions.Name(ProjectileTrailVisualDefinitions.Frames[0])]!["flipX"] = true;
+        var trailDocument = RequiredJson.Parse(File.ReadAllText(trailStock));
+        trailDocument.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(ProjectileTrailVisualDefinitions.Frames[0]))["flipX"] = true;
         File.WriteAllText(trailOverride, trailDocument.ToJsonString());
         var trailEdited = installation.LoadProjectiles();
         AssertTrue(trailEdited.SelectedSha256 != paletteEdited.SelectedSha256, "Trail-only edit changes content identity");
@@ -395,7 +396,7 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllBytes(trailPngOverride, trailPng.ToArray());
         var pngEdited = installation.LoadProjectiles();
         AssertTrue(pngEdited.SelectedSha256 != trailEdited.SelectedSha256, "Trail PNG-only edit changes identity");
-        AssertTrue(!pngEdited.Trails.Tiles!.IceAndWave.Span.SequenceEqual(trailEdited.Trails.Tiles!.IceAndWave.Span), "Installed trail PNG edit reaches selected catalog");
+        AssertTrue(!(pngEdited.Trails.Tiles ?? throw new InvalidOperationException("Verification requires pngEdited.Trails.Tiles.")).IceAndWave.Span.SequenceEqual((trailEdited.Trails.Tiles ?? throw new InvalidOperationException("Verification requires trailEdited.Trails.Tiles.")).IceAndWave.Span), "Installed trail PNG edit reaches selected catalog");
         File.WriteAllText(trailPngStock, "broken PNG");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Trail PNG override cannot hide broken stock");
         File.Move(trailPngStock, trailPngStock + ".invalid");
@@ -407,8 +408,8 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllBytes(trailPngOverride, trailPng.ToArray());
         string flareStock = Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName);
         string flareOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementDefinitions.FileName);
-        var flareDocument = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(flareStock))!;
-        flareDocument["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
+        var flareDocument = RequiredJson.Parse(File.ReadAllText(flareStock));
+        flareDocument.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 17;
         File.WriteAllText(flareOverride, flareDocument.ToJsonString());
         var flareEdited = installation.LoadProjectiles();
         AssertTrue(flareEdited.SelectedSha256 != pngEdited.SelectedSha256, "Flare-only edit changes content identity");
@@ -424,9 +425,9 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllText(flareOverride, flareDocument.ToJsonString());
         string compositionStock = Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName);
         string compositionOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteDefinitions.FileName);
-        var compositionDocument = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(compositionStock))!;
+        var compositionDocument = RequiredJson.Parse(File.ReadAllText(compositionStock));
         string firstFlare = ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0]);
-        compositionDocument["frames"]![firstFlare]![0]!["offsetX"] = 17;
+        compositionDocument.Required("frames").Required(firstFlare).Required(0)["offsetX"] = 17;
         File.WriteAllText(compositionOverride, compositionDocument.ToJsonString());
         var compositionEdited = installation.LoadProjectiles();
         AssertTrue(compositionEdited.SelectedSha256 != flareEdited.SelectedSha256, "Composition-only flare edit changes content identity");
@@ -464,12 +465,12 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllBytes(grappleOverride, grapplePng.ToArray());
         string grappleStyleStock = Path.Combine(installation.ProjectileDirectory, GrappleSpriteDefinitions.FileName);
         string grappleStyleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleSpriteDefinitions.FileName);
-        var grappleStyle = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(grappleStyleStock))!;
-        grappleStyle["endpoint"]!["palette"] = 4;
+        var grappleStyle = RequiredJson.Parse(File.ReadAllText(grappleStyleStock));
+        grappleStyle.Required("endpoint")["palette"] = 4;
         File.WriteAllText(grappleStyleOverride, grappleStyle.ToJsonString());
         var styleEdited = installation.LoadProjectiles();
         AssertTrue(styleEdited.SelectedSha256 != grappleEdited.SelectedSha256, "Grapple style-only edit changes content identity");
-        AssertEqual((ushort)(grappleEdited.GrappleTiles.Sprites!.Endpoint ^ 512), styleEdited.GrappleTiles.Sprites!.Endpoint, "Installed Grapple style selects edited palette");
+        AssertEqual((ushort)((grappleEdited.GrappleTiles.Sprites ?? throw new InvalidOperationException("Verification requires grappleEdited.GrappleTiles.Sprites.")).Endpoint ^ 512), (styleEdited.GrappleTiles.Sprites ?? throw new InvalidOperationException("Verification requires styleEdited.GrappleTiles.Sprites.")).Endpoint, "Installed Grapple style selects edited palette");
         File.WriteAllText(grappleStyleStock, "broken stock");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Grapple style override cannot hide corrupt stock");
         File.Move(grappleStyleStock, grappleStyleStock + ".invalid");
@@ -481,12 +482,12 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllText(grappleStyleOverride, grappleStyle.ToJsonString());
         string grappleFlareStock = Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName);
         string grappleFlareOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName);
-        var grappleFlare = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(grappleFlareStock))!;
-        grappleFlare["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
+        var grappleFlare = RequiredJson.Parse(File.ReadAllText(grappleFlareStock));
+        grappleFlare.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 17;
         File.WriteAllText(grappleFlareOverride, grappleFlare.ToJsonString());
         var grappleFlareEdited = installation.LoadProjectiles();
         AssertTrue(grappleFlareEdited.SelectedSha256 != styleEdited.SelectedSha256, "Grapple flare-only edit changes content identity");
-        AssertEqual((short)17, grappleFlareEdited.GrappleTiles.FlarePlacement!.Resolve(false, 0).X, "Installer selects Grapple flare offset");
+        AssertEqual((short)17, (grappleFlareEdited.GrappleTiles.FlarePlacement ?? throw new InvalidOperationException("Verification requires grappleFlareEdited.GrappleTiles.FlarePlacement.")).Resolve(false, 0).X, "Installer selects Grapple flare offset");
         File.WriteAllText(grappleFlareStock, "broken stock");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Grapple flare override cannot hide corrupt stock");
         File.Move(grappleFlareStock, grappleFlareStock + ".invalid");
@@ -498,12 +499,12 @@ internal static class ProjectileCompositionsVerification
         File.WriteAllText(grappleFlareOverride, grappleFlare.ToJsonString());
         string swingStock = Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameDefinitions.FileName);
         string swingOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameDefinitions.FileName);
-        var swing = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(swingStock))!;
-        swing["frames"]![0] = 17;
+        var swing = RequiredJson.Parse(File.ReadAllText(swingStock));
+        swing.Required("frames")[0] = 17;
         File.WriteAllText(swingOverride, swing.ToJsonString());
         var swingEdited = installation.LoadProjectiles();
         AssertTrue(swingEdited.SelectedSha256 != grappleFlareEdited.SelectedSha256, "Swing-only edit changes content identity");
-        AssertEqual((byte)17, swingEdited.GrappleTiles.SwingFrames!.Resolve(0), "Installer selects edited swing frame");
+        AssertEqual((byte)17, (swingEdited.GrappleTiles.SwingFrames ?? throw new InvalidOperationException("Verification requires swingEdited.GrappleTiles.SwingFrames.")).Resolve(0), "Installer selects edited swing frame");
         File.WriteAllText(swingStock, "broken stock");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Swing override cannot hide corrupt stock");
         File.Move(swingStock, swingStock + ".invalid");

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Audio;
@@ -59,9 +60,9 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Elapsed wall-clock updates waiting to be simulated.</summary>
     private double pendingPlaybackFrames;
     /// <summary>Mutable emulated memory for the current installed-content session.</summary>
-    internal SuperMetroidAddressSpace addressSpace = null!;
+    internal SuperMetroidAddressSpace addressSpace;
     /// <summary>Current frontend dispatcher and its retained display state.</summary>
-    internal SuperMetroidGame game = null!;
+    internal SuperMetroidGame game;
     /// <summary>Installed audio catalog the session binds for synthesis.</summary>
     private ExtractedAudioAssetCatalog? audioAssets;
     /// <summary>Host-owned PCM storage; the device copies each frame on submit.</summary>
@@ -77,7 +78,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Crash-reproduction controller recorder for the active session.</summary>
     private ControllerInputRecorder? inputRecorder;
     /// <summary>Persistent debugger snapshots bound to installed content identity.</summary>
-    private DebuggerSaveStateStore stateStore = null!;
+    private DebuggerSaveStateStore stateStore;
     /// <summary>Next controller word to read from an active replay.</summary>
     private int replayFrameIndex;
     /// <summary>Room pointer last shown in the status label.</summary>
@@ -230,6 +231,7 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>Starts a new display generation before resetting a software-rendered session.</summary>
+    [MemberNotNull(nameof(addressSpace), nameof(game), nameof(stateStore))]
     private void Restart()
     {
         if (gpuWorker is not null) throw new InvalidOperationException("Live restart must use the asynchronous generation boundary.");
@@ -238,6 +240,7 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>Recreates game, memory, audio, recorder, and artwork from installed content.</summary>
+    [MemberNotNull(nameof(addressSpace), nameof(game), nameof(stateStore))]
     private void RestartCore()
     {
         keyboard.Clear();

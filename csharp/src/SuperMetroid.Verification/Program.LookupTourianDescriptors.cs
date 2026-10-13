@@ -39,7 +39,7 @@ internal static class LookupTourianDescriptorsVerification
             ushort pointer = (ushort)header;
             bool found = TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(header, out var definition);
             AssertEqual(original.Contains(pointer), found, "Complete statue object identity domain");
-            if (found) AssertEqual(pointer, (ushort)definition.ObjectPointer, "Selected statue identity");
+            if (found) AssertEqual(pointer, (ushort)(definition ?? throw new InvalidOperationException("Verification requires definition.")).ObjectPointer, "Selected statue identity");
             else AssertTrue(definition is null, "Unknown statue preserves false/null contract");
         }
         foreach (ushort undefined in UndefinedAnimatedTileObjects)
@@ -93,7 +93,7 @@ internal static class LookupTourianDescriptorsVerification
                 "Native descriptor resolves");
             int origin = header ? pointer : ReadVerificationWord(rom, 0x870000 | pointer);
             ushort expected = ReadVerificationWord(rom, 0x870000 | (origin + offsets[0]));
-            AssertEqual(expected, field(definition), "Original descriptor field");
+            AssertEqual(expected, field((definition ?? throw new InvalidOperationException("Verification requires definition."))), "Original descriptor field");
             AssertEqual(expected, field(enumerated[(AnimatedTileObject)pointer]), "Original enumerated descriptor field");
             foreach (int offset in offsets)
             {

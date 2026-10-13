@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Audio;
+using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -88,12 +89,11 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
                 // The retail gate tests bits eight and zero of the newly-generated random
                 // word, then the strict modular X distance. Failure also consumes a pending
                 // animation signal and restores the idle list without starting an attack.
-                bool canAttack = samus is not null && (random & 0x0101) != 0 &&
-                    EnemyMath.IsWithinStrictModularDistance(
+                if (samus is null || (random & 0x0101) == 0 ||
+                    !EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         slot.Position.X.Whole,
-                        NorfairRioHorizontalTriggerDistance);
-                if (!canAttack)
+                        NorfairRioHorizontalTriggerDistance))
                 {
                     if (state.AnimationSignal)
                     {
@@ -111,7 +111,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
                 state.Velocity = new EightEightVector<RoomPixels>(
                     new SnesSignedEightEight(RioLaunchDefinitions.NorfairXVelocity),
                     new SnesSignedEightEight(RioLaunchDefinitions.NorfairYVelocity(random)));
-                if (unchecked((short)(samus!.Position.X.Whole - slot.Position.X.Whole)) < 0)
+                if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0)
                     state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
                 InstallNorfairRioInstructionList(
                     slot,
@@ -134,9 +134,9 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
 
             case NorfairRioEnemyFunction.Dive:
                 RequireNorfairRioLevel(level);
-                MoveNorfairRioHorizontally(level!, slot, state);
+                MoveNorfairRioHorizontally(level, slot, state);
                 if (_terrain.MoveEnemyVertically(
-                        level!,
+                        level,
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
                 {
@@ -151,9 +151,9 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
 
             case NorfairRioEnemyFunction.ReturnToPerch:
                 RequireNorfairRioLevel(level);
-                MoveNorfairRioHorizontally(level!, slot, state);
+                MoveNorfairRioHorizontally(level, slot, state);
                 if (_terrain.MoveEnemyVertically(
-                        level!,
+                        level,
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
                 {
@@ -334,7 +334,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects a movement update without the room terrain data it needs.</summary>
-    private static void RequireNorfairRioLevel(RoomLevelData? level)
+    private static void RequireNorfairRioLevel([NotNull] RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Norfair Rio movement requires room level data.");

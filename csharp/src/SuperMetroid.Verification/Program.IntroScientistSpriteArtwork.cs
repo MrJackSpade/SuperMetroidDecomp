@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -49,9 +50,9 @@ internal static class IntroScientistSpriteArtworkVerification
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         string name = IntroScientistSpriteFormat.FileName;
         IntroScientistSpriteDocument document =
-            JsonSerializer.Deserialize<IntroScientistSpriteDocument>(
+            RequiredJson.Deserialize<IntroScientistSpriteDocument>(
                 File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         document.Frames["delivered-baby-1"] = document.Frames["delivered-baby-1"]
             .Select(part => part with { OffsetX = part.OffsetX + 1 }).ToArray();
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
@@ -75,7 +76,7 @@ internal static class IntroScientistSpriteArtworkVerification
             AssertEqual(IntroCinematicPhase.BabyMetroidDelivery, state.Phase,
                 "scientist sprite probe reached the lit delivery scene");
             var scientist = state.scientistCutscene;
-            scientist.Step(0, introCrossfadeTimer: 0x007f);
+            (scientist ?? throw new InvalidOperationException("Verification requires scientist.")).Step(0, introCrossfadeTimer: 0x007f);
         }
         Rgba32[] stockPixels = stockState.RenderScientistCutscene();
         Rgba32[] editedPixels = editedState.RenderScientistCutscene();

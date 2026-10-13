@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -132,10 +133,10 @@ internal static class RoomVisualLayoutsVerification
         string stockPath = Path.Combine(installed.RoomVisualLayoutDirectory, name);
         JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
             ?? throw new InvalidDataException("Installed Landing Site layout is empty.");
-        JsonArray foregroundWords = document["foregroundVisualWords"]!.AsArray();
-        JsonArray backgroundWords = document["backgroundVisualWords"]!.AsArray();
-        foregroundWords[0] = foregroundWords[0]!.GetValue<int>() ^ 0x0400;
-        backgroundWords[0] = backgroundWords[0]!.GetValue<int>() ^ 0x0400;
+        JsonArray foregroundWords = document.Required("foregroundVisualWords").AsArray();
+        JsonArray backgroundWords = document.Required("backgroundVisualWords").AsArray();
+        foregroundWords[0] = foregroundWords.Required(0).GetValue<int>() ^ 0x0400;
+        backgroundWords[0] = backgroundWords.Required(0).GetValue<int>() ^ 0x0400;
         Directory.CreateDirectory(installed.RoomVisualLayoutOverrideDirectory);
         string overridePath = Path.Combine(installed.RoomVisualLayoutOverrideDirectory, name);
         File.WriteAllText(overridePath, document.ToJsonString());
@@ -170,11 +171,11 @@ internal static class RoomVisualLayoutsVerification
 
         var bg2Request = new BackgroundUpdateRequest(BackgroundLayer.Background,
             BackgroundUpdateAxis.Row, SourceBlock: new(0, 0), VramBlock: new(0, 0));
-        TilemapStreamUpdate nativeBg2 = nativeStream.Build(bg2Request)!
+        TilemapStreamUpdate nativeBg2 = nativeStream.Build(bg2Request)
             ?? throw new InvalidOperationException("Native BG2 row was suppressed.");
-        TilemapStreamUpdate stockBg2 = stockStream.Build(bg2Request)!
+        TilemapStreamUpdate stockBg2 = stockStream.Build(bg2Request)
             ?? throw new InvalidOperationException("Stock BG2 row was suppressed.");
-        TilemapStreamUpdate editedBg2 = editedStream.Build(bg2Request)!
+        TilemapStreamUpdate editedBg2 = editedStream.Build(bg2Request)
             ?? throw new InvalidOperationException("Edited BG2 row was suppressed.");
         // A row update's first DMA segment sources the complete staged top-half tile row.
         AssertTrue(nativeBg2.Segments[0].SourceWords.AsSpan().SequenceEqual(stockBg2.Segments[0].SourceWords),
@@ -205,11 +206,11 @@ internal static class RoomVisualLayoutsVerification
         // must retain the selected visual word while native collision remains unchanged.
         _ = GameAssetInstaller.EnsureInstalled(installed.Root)
             ?? throw new InvalidOperationException("Room-layout repair lost the installation.");
-        AssertEqual(foregroundWords[0]!.GetValue<int>(),
+        AssertEqual(foregroundWords.Required(0).GetValue<int>(),
             installed.LoadRoomVisualLayouts().Get(landingSource).ForegroundVisualWords.Span[0],
             "room-layout override survives stock installation validation");
 
-        int editedForegroundWord = foregroundWords[0]!.GetValue<int>();
+        int editedForegroundWord = foregroundWords.Required(0).GetValue<int>();
         foregroundWords[0] = 0x8000;
         File.WriteAllText(overridePath, document.ToJsonString());
         try
@@ -263,7 +264,7 @@ internal static class RoomVisualLayoutsVerification
         static void EditManifest(string directory, Action<JsonObject> edit)
         {
             string path = Path.Combine(directory, RoomLevelStreamFiles.ManifestFileName);
-            JsonObject manifest = JsonNode.Parse(File.ReadAllText(path))!.AsObject();
+            JsonObject manifest = RequiredJson.Parse(File.ReadAllText(path)).AsObject();
             edit(manifest);
             File.WriteAllText(path, manifest.ToJsonString());
         }
@@ -289,7 +290,7 @@ internal static class RoomVisualLayoutsVerification
         {
             byte[] stream = [0, 0];
             File.WriteAllBytes(Path.Combine(directory, unknownName), stream);
-            EditManifest(directory, manifest => manifest["entries"]!.AsObject()[unknownName] = new JsonObject
+            EditManifest(directory, manifest => manifest.Required("entries").AsObject()[unknownName] = new JsonObject
             {
                 ["sourceAddress"] = 0,
                 ["byteCount"] = stream.Length,
@@ -297,7 +298,7 @@ internal static class RoomVisualLayoutsVerification
             });
         });
         Expect("missing-source", firstName,
-            directory => EditManifest(directory, manifest => manifest["entries"]!.AsObject().Remove(firstName)));
+            directory => EditManifest(directory, manifest => manifest.Required("entries").AsObject().Remove(firstName)));
     }
 
     /// <summary>Rejects a runtime read of the compressed level source already supplied by the installed corpus.</summary>

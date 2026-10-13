@@ -50,7 +50,7 @@ internal static class RidleyPlayerOpeningVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xb32e, camera: new Position16<RoomPixels>(0, 0));
         var enemies = runtime.Enemies;
-        var body = enemies.SlotTable.Slots[0]; var state = enemies.RidleyEncounter.Ridley!; var samus = runtime.Player.Samus!;
+        var body = enemies.SlotTable.Slots[0]; var state = enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         var seed = Read(375);
         body.CurrentInstruction = W(seed, 0xf92); body.InstructionTimer = NativeCountdown.FromRaw(W(seed, 0xf94));
         body.Timer = NativeCountdown.FromRaw(W(seed, 0xf90)); body.FrameCounter = W(seed, 0xfa4);
@@ -67,7 +67,7 @@ internal static class RidleyPlayerOpeningVerification
             samus.Pose = (SamusPoseId)W(expected, 0xa1c); samus.PoseMetadata.RefreshCollisionRadii(bus);
             random = W(expected, 0x5e5);
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, Level = runtime.Room.LevelData, ControllerInput = W(expected, 0x8b) });
-            string actual = $"{(ushort)state.Function:X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Velocity.X.RawValue:X4},{state.Velocity.Y.RawValue:X4}";
+            string actual = $"{(ushort)(state ?? throw new InvalidOperationException("Verification requires state.")).Function:X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Velocity.X.RawValue:X4},{state.Velocity.Y.RawValue:X4}";
             string native = string.Join(",", new[] {0xfa8,0xf7a,0xf7c,0xf7e,0xf80,0xfaa,0xfac}.Select(a => W(expected,a).ToString("X4")));
             if (actual != native)
                 throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={body.CurrentInstruction:X4}/{body.InstructionTimer.RawValue}; timer={state.FunctionTimer.RawValue} native={W(expected,0xfb2)}");

@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -20,7 +21,7 @@ internal static class PauseWireframesVerification
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseWireframeDefinitions.FileName), path = Path.Combine(overrides, PauseWireframeDefinitions.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        var document = JsonSerializer.Deserialize<PauseWireframeDocument>(stockBytes, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<PauseWireframeDocument>(stockBytes, MapPresentationFormat.JsonOptions);
         var guard = NewPauseWireframeReadGuard(bus);
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {

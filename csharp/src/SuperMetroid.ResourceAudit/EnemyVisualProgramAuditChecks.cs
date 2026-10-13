@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using SuperMetroid.Core.Assets;
@@ -19,7 +20,7 @@ internal static class EnemyVisualProgramAuditChecks
                 ushort ReadEnemyInstructionMechanicsWord(ushort p) => RenamedCatalog.ReadWord(p);
             }
             """);
-        string[] platforms = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("VisualAuditFixture", [syntax],
             platforms.Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));

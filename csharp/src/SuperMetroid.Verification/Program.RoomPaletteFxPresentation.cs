@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -219,8 +220,8 @@ internal static class RoomPaletteFxPresentationVerification
         ushort[] identities = presentation.ColorPointers.Where(original.ContainsKey).ToArray();
         AssertEqual(256, identities.Length, "gunship auditor identities include calculated colors");
         AssertEqual(256, identities.Distinct().Count(), "gunship auditor identities are unique");
-        var document = JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(
-            SuperMetroid.AssetExtraction.RoomPaletteFxPresentationExtractor.Extract(bus), MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(
+            SuperMetroid.AssetExtraction.RoomPaletteFxPresentationExtractor.Extract(bus), MapPresentationFormat.JsonOptions);
         // White, both dim boundaries, the special boundary color, each interpolation
         // stage and the bright base all remain independently editable.
         foreach (var edit in new[] { (0, 1), (7, 2), (7, 15), (8, 3), (3, 4), (11, 5), (15, 6) })
@@ -288,8 +289,8 @@ internal static class RoomPaletteFxPresentationVerification
         ushort[] identities = presentation.ColorPointers.Where(original.ContainsKey).ToArray();
         AssertEqual(224, identities.Length, "glare computed and supplied identities remain enumerable");
         AssertEqual(224, identities.Distinct().Count(), "glare identities have no duplicates");
-        var document = JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(
-            SuperMetroid.AssetExtraction.RoomPaletteFxPresentationExtractor.Extract(bus), MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(
+            SuperMetroid.AssetExtraction.RoomPaletteFxPresentationExtractor.Extract(bus), MapPresentationFormat.JsonOptions);
         // An intermediate, its return-side counterpart, white peak and base can be
         // edited independently. Unchanged rows must not inherit a changed base value.
         foreach (var edit in new[] { (0, 1), (12, 2), (6, 0), (13, 3) })
@@ -387,11 +388,11 @@ internal static class RoomPaletteFxPresentationVerification
                 {
                     ushort pointer = (ushort)(row.Pointer + 2 * color);
                     ushort canonical = (ushort)(original.Pointer + 2 * color);
-                    var power = powerRows![rows.IndexOf(original)];
+                    var power = (powerRows ?? throw new InvalidOperationException("Verification requires powerRows."))[rows.IndexOf(original)];
                     if (power.Colors[color] == row.Colors[color]) canonical = (ushort)(power.Pointer + 2 * color);
                     if (start == 0xdcc8 && color == 0 && rows.IndexOf(original) == 0)
                     {
-                        AssertEqual(row.Colors[0], powerRows![1].Colors[0], "Varia normal and Power bright transparent words match natively");
+                        AssertEqual(row.Colors[0], powerRows[1].Colors[0], "Varia normal and Power bright transparent words match natively");
                         canonical = (ushort)powerRows[1].Pointer;
                     }
                     aliases.Add(pointer, canonical);
@@ -893,14 +894,14 @@ internal static class RoomPaletteFxPresentationVerification
         document = document with { SamusHeatPowerSuit = powerHeat };
 
         PaletteRgb5[][]? variaHeat = document.SamusHeatVariaSuit;
-        document = document with { SamusHeatVariaSuit = variaHeat![..^1] };
+        document = document with { SamusHeatVariaSuit = (variaHeat ?? throw new InvalidOperationException("Verification requires variaHeat."))[..^1] };
         Reject("room palette-FX rejects incomplete Varia Suit heat cycle");
         document = document with { SamusHeatVariaSuit = variaHeat };
 
-        PaletteRgb5? gravityColor = document.SamusHeatGravitySuit![0][0];
-        document.SamusHeatGravitySuit[0][0] = gravityColor! with { Blue = 32 };
+        PaletteRgb5? gravityColor = (document.SamusHeatGravitySuit ?? throw new InvalidOperationException("Verification requires document.SamusHeatGravitySuit."))[0][0];
+        document.SamusHeatGravitySuit[0][0] = gravityColor with { Blue = 32 };
         Reject("room palette-FX rejects invalid Gravity Suit heat color");
-        document.SamusHeatGravitySuit[0][0] = gravityColor!;
+        document.SamusHeatGravitySuit[0][0] = gravityColor;
 
         // Current stock supplies only the new heat family to a version-seventeen
         // override. Its existing environmental edit must survive unchanged.
@@ -945,7 +946,7 @@ internal static class RoomPaletteFxPresentationVerification
             "old override inherits exact current stock heat color");
         document.NorfairForegroundPalette4[0][0] = legacyOriginal;
 
-        PaletteRgb5 heatOriginal = document.SamusHeatPowerSuit![0][0];
+        PaletteRgb5 heatOriginal = (document.SamusHeatPowerSuit ?? throw new InvalidOperationException("Verification requires document.SamusHeatPowerSuit."))[0][0];
         document.SamusHeatPowerSuit[0][0] = heatOriginal with
         {
             Red = (heatOriginal.Red + 1) & 31,

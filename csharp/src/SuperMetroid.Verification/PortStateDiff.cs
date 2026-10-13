@@ -81,8 +81,8 @@ internal sealed class PortStateDiff
                 differences.Add($"{path}: expected length {expectedArray.Length}, actual {actualArray.Length}");
                 return;
             }
-            Type element = type.GetElementType()!;
-            if (element.IsPrimitive)
+            Type element = (type.GetElementType() ?? throw new InvalidOperationException("Verification requires type.GetElementType()."));
+            if ((element ?? throw new InvalidOperationException("Verification requires element.")).IsPrimitive)
             {
                 // Large primitive buffers (WRAM-like images) are summarized, not listed.
                 int count = 0, first = -1;

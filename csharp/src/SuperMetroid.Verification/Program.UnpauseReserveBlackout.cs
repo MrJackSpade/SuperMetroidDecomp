@@ -35,15 +35,15 @@ internal static class UnpauseReserveBlackoutVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-            runtime.Player.Samus!.InputLocked = false;
+            runtime.Player.IntroducedSamus.InputLocked = false;
             var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
             game.runtime = runtime;
-            game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+            game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
             return (game, runtime);
         }
 
         var (unpausing, unpausingRuntime) = Create();
-        SamusState samus = unpausingRuntime.Player.Samus!;
+        SamusState samus = unpausingRuntime.Player.IntroducedSamus;
         samus.Health = 0;
         samus.MaxReserveEnergy = samus.ReserveEnergy = 100;
         samus.ReserveTankMode = 1;

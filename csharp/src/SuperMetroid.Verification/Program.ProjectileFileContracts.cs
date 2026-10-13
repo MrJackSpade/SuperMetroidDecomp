@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -42,12 +43,12 @@ internal static class ProjectileFileContractsVerification
                 File.Copy(source, Path.Combine(stock, Path.GetFileName(source)));
             string manifestPath = Path.Combine(stock, ProjectilePresentationFiles.ManifestFileName);
             byte[] manifestBytes = File.ReadAllBytes(manifestPath);
-            JsonObject manifest = JsonNode.Parse(manifestBytes)!.AsObject();
+            JsonObject manifest = RequiredJson.Parse(manifestBytes).AsObject();
             string baseline = ProjectilePresentationFiles.Load(stock, null).SelectedSha256;
             Dictionary<string, string> originalHashes = SnapshotRoomJsonFiles(stock);
-            string[] names = Directory.GetFiles(stock).Select(Path.GetFileName)
+            string[] names = Directory.GetFiles(stock).Select(path => Path.GetFileName(path.AsSpan()).ToString())
                 .Where(name => name != ProjectilePresentationFiles.ManifestFileName)
-                .Select(name => name!).Order(StringComparer.Ordinal).ToArray();
+                .Select(name => name).Order(StringComparer.Ordinal).ToArray();
             var expectedBeams = BeamTileCatalog.Load(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount).Select(BeamTileAtlasDefinitions.SelectionAt)
                 .ToDictionary(BeamTileAtlasDefinitions.FileName, index => File.ReadAllBytes(
                     Path.Combine(stock, BeamTileAtlasDefinitions.FileName(index)))));
@@ -61,14 +62,12 @@ internal static class ProjectileFileContractsVerification
                 using var png = File.OpenRead(Path.Combine(stock, BeamTileAtlasDefinitions.FileName(index)));
                 return BeamTileAtlas.Load(png, index);
             }).ToArray();
-            var ownedBeams = BeamTileCatalog.FromAtlases(sheets, compiledBeams.Palettes!, compiledBeams.HyperBeamFxColors!);
-            sheets[0] = null!;
+            var ownedBeams = BeamTileCatalog.FromAtlases(sheets, (compiledBeams.Palettes ?? throw new InvalidOperationException("Verification requires compiledBeams.Palettes.")), (compiledBeams.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires compiledBeams.HyperBeamFxColors.")));
+            sheets[0] = sheets[1];
             AssertTrue(ownedBeams.Resolve(BeamTileCatalog.AssetFor(0)).Span.SequenceEqual(
                 expectedBeams.Resolve(BeamTileCatalog.AssetFor(0)).Span), "beam assembler owns the input array");
-            AssertThrows<ArgumentException>(() => BeamTileCatalog.FromAtlases(sheets, compiledBeams.Palettes!,
-                compiledBeams.HyperBeamFxColors!), "beam assembler rejects a missing atlas");
-            AssertThrows<ArgumentException>(() => BeamTileCatalog.FromAtlases([], compiledBeams.Palettes!,
-                compiledBeams.HyperBeamFxColors!), "beam assembler rejects an incomplete selection set");
+            AssertThrows<ArgumentException>(() => BeamTileCatalog.FromAtlases([], compiledBeams.Palettes,
+                compiledBeams.HyperBeamFxColors), "beam assembler rejects an incomplete selection set");
 
             foreach (string name in names)
             {
@@ -133,7 +132,7 @@ internal static class ProjectileFileContractsVerification
                     File.WriteAllText(manifestPath, bad);
                     Reject("manifest", manifestPath, () => ProjectilePresentationFiles.Load(stock, overrides));
                 }
-                File.WriteAllText(manifestPath, Mutate(root => root["beamHashes"]![firstBeam] = new string('0', 64)));
+                File.WriteAllText(manifestPath, Mutate(root => root.Required("beamHashes")[firstBeam] = new string('0', 64)));
                 Reject("manifest beam hash", Path.Combine(stock, firstBeam),
                     () => ProjectilePresentationFiles.Load(stock, overrides));
             }
@@ -177,9 +176,9 @@ internal static class ProjectileFileContractsVerification
     private static void SetProjectileTestManifestHash(JsonObject manifest, string name, byte[] bytes)
     {
         string hash = Convert.ToHexString(SHA256.HashData(bytes));
-        if (manifest["beamHashes"]!.AsObject().ContainsKey(name))
+        if (manifest.Required("beamHashes").AsObject().ContainsKey(name))
         {
-            manifest["beamHashes"]![name] = hash;
+            manifest.Required("beamHashes")[name] = hash;
             return;
         }
         string field = name switch

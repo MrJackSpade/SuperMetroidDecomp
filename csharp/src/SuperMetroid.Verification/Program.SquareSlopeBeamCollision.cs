@@ -45,7 +45,7 @@ internal static class SquareSlopeBeamCollisionVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        RoomLevelData level = runtime.Room.LevelData!;
+        RoomLevelData level = runtime.Room.LoadedLevelData;
         const int SlopeColumn = 40, BeamRow = 30, WallColumn = 44;
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 64; x++)
@@ -57,13 +57,13 @@ internal static class SquareSlopeBeamCollisionVerification
             level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0, type).Raw);
             level.SetBehavior(index, type == RoomCollisionType.Slope ? slopeBts : (byte)0);
         }
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(512, 490));
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
         for (int frame = 0; frame < 64; frame++)
             runtime.StepFrame(0);
 
@@ -71,7 +71,7 @@ internal static class SquareSlopeBeamCollisionVerification
         for (int frame = 0; frame < 120; frame++)
         {
             runtime.StepFrame(0);
-            SamusProjectileSlot shot = runtime.Projectiles!.Slots[0];
+            SamusProjectileSlot shot = runtime.Projectiles.Slots[0];
             if (shot.PackedType.IsFamily(SamusProjectileFamily.BeamExplosion))
             {
                 // The explosion is anchored at the beam's leading edge: the slope column

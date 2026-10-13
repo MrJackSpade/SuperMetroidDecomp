@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
@@ -31,9 +32,9 @@ internal static class DraygonCannonVisualsVerification
                 RoomPlmDraygonCannonVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted cannon JSON is empty.");
-            JsonNode rightShield = document["entries"]!.AsArray().Single(entry =>
-                entry!["id"]!.GetValue<string>() == "right-shield-a")!;
-            rightShield["blocks"]![0] = 0x0053;
+            JsonNode rightShield = document.Required("entries").AsArray().RequiredElements().Single(entry =>
+                entry.Required("id").GetValue<string>() == "right-shield-a");
+            rightShield.Required("blocks")[0] = 0x0053;
             Directory.CreateDirectory(
                 installation.RoomPlmDraygonCannonVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -54,7 +55,7 @@ internal static class DraygonCannonVisualsVerification
                     .GetWord((ushort)DraygonCannonDraw.RightShieldA, 0, 0),
                 "cannon override survives stock replacement");
 
-            rightShield["blocks"]![0] = 0xf053;
+            rightShield.Required("blocks")[0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmDraygonCannonVisuals(),

@@ -19,7 +19,7 @@ internal static class KraidReportedCollisionsVerification
             try { action(); Console.WriteLine(name + ": PASS"); }
             catch (Exception error) { failures.Add(error); Console.WriteLine(name + ": " + error.Message); }
         }
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.SelectedHudItem = 0;
         samus.EquippedBeams = samus.CollectedBeams = (ushort)SamusBeamFlags.Spazer;
         runtime.SamusPhases.QueueGameplayBeamTilesAndLoadPalette(samus.EquippedBeams);

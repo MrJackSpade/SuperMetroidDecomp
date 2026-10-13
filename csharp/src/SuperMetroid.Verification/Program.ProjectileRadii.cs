@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -118,8 +119,8 @@ internal static class ProjectileRadiiVerification
 
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(stockJson));
-        var editedDocument = JsonSerializer.Deserialize<ProjectileFrameBindingDocument>(stockJson,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var editedDocument = RequiredJson.Deserialize<ProjectileFrameBindingDocument>(stockJson,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         ushort[] replacementSprites = ProjectileSpriteDefinitions.NativePointers.ToArray();
         foreach (ushort frame in SamusProjectileRadiusDefinitions.TimedRecordPointers)
             editedDocument.Frames[ProjectileFrameBindingFormat.FrameName(frame)] =

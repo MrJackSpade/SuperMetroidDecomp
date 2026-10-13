@@ -25,7 +25,7 @@ internal static class YappingMawGrappleReleaseVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xa293, camera: new Position16<RoomPixels>(768, 0));
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.GrappleSwingLeftPose;
         samus.Position = samus.Position.WithWhole(new(936, 172));
         samus.PoseMetadata.RefreshCollisionRadii(bus);
@@ -38,8 +38,8 @@ internal static class YappingMawGrappleReleaseVerification
         samus.InputLocked = true;
         // Stage the last two frames of the actual Maw's held delay. The report's
         // (936,172) is this population mouth (936,192) plus native held offset (0,-20).
-        var maw = runtime.Enemies.YappingMawStates.Single(state => state?.Origin.X == 936)!;
-        maw.Function = YappingMawAiFunction.RetractedDelay;
+        var maw = runtime.Enemies.YappingMawStates.Single(state => state?.Origin.X == 936);
+        (maw ?? throw new InvalidOperationException("Verification requires maw.")).Function = YappingMawAiFunction.RetractedDelay;
         maw.HasGrabbedSamus = true;
         maw.RetractedDelayTimer = NativeCountdown.Start(1);
         maw.HeldSamusOffset = new Offset16<RoomPixels>(0, -20);

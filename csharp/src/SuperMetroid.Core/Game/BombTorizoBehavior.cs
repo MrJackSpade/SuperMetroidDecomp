@@ -924,7 +924,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                 return true;
 
             case TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange:
-                GetTorizoPaletteTransition(state).Step(_presentation._cgram!, TorizoPaletteDefinitions.BodyPaletteMask);
+                GetTorizoPaletteTransition(state).Step(_presentation.Cgram, TorizoPaletteDefinitions.BodyPaletteMask);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -2177,7 +2177,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         }
         EnemyDefinitionId header = expectedHeader;
 
-        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.Bus!, header);
+        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, header);
         _torizoOrbDropRequests.Add(new TorizoOrbDropRequest());
         _deathsAndDrops.SpawnEnemyDropFromChanceTable(
             projectile.Position.Whole,

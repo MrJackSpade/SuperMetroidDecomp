@@ -39,7 +39,7 @@ internal static class PauseReserveArrowVerification
             if (frame == 15)
             {
                 var pixels = pause.Render();
-                AssertTrue(Enumerable.Range(32, 64).Any(y => Enumerable.Range(8, 8).Any(x => pixels[y * 256 + x] != first![y * 256 + x])),
+                AssertTrue(Enumerable.Range(32, 64).Any(y => Enumerable.Range(8, 8).Any(x => pixels[y * 256 + x] != (first ?? throw new InvalidOperationException("Verification requires first."))[y * 256 + x])),
                     "arrow itself visibly changes color, not only a palette entry");
 
             }

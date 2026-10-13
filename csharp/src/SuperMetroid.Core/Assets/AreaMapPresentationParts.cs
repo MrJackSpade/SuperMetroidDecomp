@@ -139,6 +139,9 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Mother Brain rainbow, drain, revival, normal-restoration, and fake-death colors; older overrides inherit newly introduced rows from stock.</summary>
     public required MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; init; }
 
+    /// <summary>Mother Brain arena color presentation, separate from boss health and rainbow palettes.</summary>
+    public required MotherBrainRoomColorPresentation MotherBrainRoomColors { get; init; }
+
     /// <summary>Selected animated room-FX character artwork, separate from layer-3 tilemaps and palette blending.</summary>
     public required RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; init; }
 

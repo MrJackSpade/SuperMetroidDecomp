@@ -55,7 +55,7 @@ internal static class HibashiDefinitionsVerification
                 $"Hibashi production Y position {frameIndex}");
             AssertEqual(frame.YRadius, hitbox.Radius.Y,
                 $"Hibashi production Y radius {frameIndex}");
-            AssertEqual(frameIndex, enemies.HibashiBehavior.LastHibashiActivityFrameIndex!.Value,
+            AssertEqual(frameIndex, (enemies.HibashiBehavior.LastHibashiActivityFrameIndex ?? throw new InvalidOperationException("Verification requires enemies.HibashiBehavior.LastHibashiActivityFrameIndex.")),
                 $"Hibashi production frame publication {frameIndex}");
             AssertEqual(frameIndex == 0 ? (ushort)8 : (ushort)0, hitbox.Radius.X,
                 $"Hibashi production X radius {frameIndex}");
@@ -138,11 +138,11 @@ internal static class HibashiDefinitionsVerification
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
             "production execution avoids every compiled Hibashi mechanics byte");
         AssertEqual(HibashiDefinitions.EruptionSoundEffect,
-            programSystem.HibashiBehavior.LastHibashiSoundEffect!.Value,
+            (programSystem.HibashiBehavior.LastHibashiSoundEffect ?? throw new InvalidOperationException("Verification requires programSystem.HibashiBehavior.LastHibashiSoundEffect.")),
             "Hibashi graphics program queues eruption sound");
-        AssertEqual(21, programSystem.HibashiBehavior.LastHibashiActivityFrameIndex!.Value,
+        AssertEqual(21, (programSystem.HibashiBehavior.LastHibashiActivityFrameIndex ?? throw new InvalidOperationException("Verification requires programSystem.HibashiBehavior.LastHibashiActivityFrameIndex.")),
             "Hibashi graphics program executes final activity callback");
-        AssertEqual((ushort)1, programSystem.HibashiStates[0]!.FinishedActivityFlag,
+        AssertEqual((ushort)1, (programSystem.HibashiStates[0] ?? throw new InvalidOperationException("Verification requires programSystem.HibashiStates[0].")).FinishedActivityFlag,
             "Hibashi graphics program publishes finished activity");
         AssertEqual((ushort)0, programHitbox.Radius.X,
             "Hibashi finished program clears hitbox X radius");

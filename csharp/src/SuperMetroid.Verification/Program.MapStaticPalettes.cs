@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -34,7 +35,7 @@ internal static class MapStaticPalettesVerification
             AssertTrue(nativeWorld.RenderBackgrounds().AsSpan().SequenceEqual(world.RenderBackgrounds()), "all six stock world selections render identical pixels");
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = JsonSerializer.Deserialize<MapStaticPalettesDocument>(File.ReadAllBytes(Path.Combine(stock, MapStaticPalettesFormat.FileName)), options)!;
+        var document = RequiredJson.Deserialize<MapStaticPalettesDocument>(File.ReadAllBytes(Path.Combine(stock, MapStaticPalettesFormat.FileName)), options);
         PaletteRgb5[] Invert(PaletteRgb5[] colors) => colors.Select(c => new PaletteRgb5 { Red = 31 - c.Red, Green = 31 - c.Green, Blue = 31 - c.Blue }).ToArray();
         var replacementDocument = document with { Pause = Invert(document.Pause), FileSelect = Invert(document.FileSelect),
             World = document.World.ToDictionary(pair => pair.Key, pair => Invert(pair.Value)) };

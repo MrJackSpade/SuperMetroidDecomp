@@ -31,20 +31,20 @@ internal static class TourianStatueXrayFreezeVerification
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(0xa66a);
         AssertTrue(runtime.TourianStatues.Enabled, "the statue room runs the statue sequence");
-        runtime.Player.Samus!.InputLocked = true;
+        runtime.Player.IntroducedSamus.InputLocked = true;
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var objects = runtime.TourianStatues.objects;
         string Snapshot() => string.Join(" ", objects.Select(o => $"{o.Pointer}/{o.Timer.RawValue}"));
 
         runtime.StepFrame(0);
-        runtime.Player.Samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.All;
+        runtime.Player.IntroducedSamus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.All;
         string frozen = Snapshot();
         for (int frame = 0; frame < 20; frame++)
             runtime.StepFrame(0);
         AssertEqual(frozen, Snapshot(), "the X-ray scope freezes every statue program");
 
-        runtime.Player.Samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.None;
+        runtime.Player.IntroducedSamus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.None;
         runtime.StepFrame(0);
         AssertTrue(frozen != Snapshot(), "the statues resume once the scope re-enables animated tiles");
         Console.WriteLine("Tourian statue X-ray freeze: the scope suspends the statues' animated-tile programs.");

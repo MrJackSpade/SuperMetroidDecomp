@@ -47,7 +47,7 @@ internal sealed class MotherBrainEncounter
             MotherBrainSpecialSpriteArtworkCatalog artwork = _room.Artwork.MotherBrainSpecialSprites ??
                 throw new InvalidDataException(
                     $"Installed enemy artwork is missing {sheet.FileName}.");
-            _presentation._vram!.LoadBytes(transfer.VramDestination * 2,
+            _presentation.Vram.LoadBytes(transfer.VramDestination * 2,
                 artwork.Get(sheet.SourceAddress).Transfer.Span.Slice(
                     page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
                     transfer.Size));
@@ -79,7 +79,7 @@ internal sealed class MotherBrainEncounter
                     "Installed enemy artwork is missing mother-brain-escape-text-tiles.png.");
             int offset = checked((int)transfer.SourceAddress -
                 MotherBrainEscapeTextArtworkDefinitions.SourceAddress);
-            _presentation._vram!.LoadBytes(transfer.VramDestination * 2,
+            _presentation.Vram.LoadBytes(transfer.VramDestination * 2,
                 artwork.Transfer.Span.Slice(offset, transfer.Size));
             return;
         }
@@ -110,12 +110,12 @@ internal sealed class MotherBrainEncounter
             RoomCharacterAtlas artwork = _room.MotherBrainCorpseArtwork;
             int offset = checked((int)transfer.SourceAddress -
                 MotherBrainCorpseArtworkDefinitions.SourceAddress);
-            _presentation._vram!.LoadBytes(transfer.VramDestination * 2,
+            _presentation.Vram.LoadBytes(transfer.VramDestination * 2,
                 artwork.Transfer.Span.Slice(offset, transfer.Size));
             return;
         }
         if (_presentation.EscapeTimerArtwork?.TryLoadNativeTransfer(
-            _presentation._vram!, unchecked((int)transfer.SourceAddress), transfer.Size, transfer.VramDestination) == true)
+            _presentation.Vram, unchecked((int)transfer.SourceAddress), transfer.Size, transfer.VramDestination) == true)
             return;
         if (SnesAddressMath.BankNumber(unchecked((int)transfer.SourceAddress)) is not (126 or 127)) // Banks $7E/$7F: WRAM.
         {
@@ -127,8 +127,8 @@ internal sealed class MotherBrainEncounter
                 $"Mother Brain sprite transfer {transfer} has no installed artwork binding.");
         }
         // The live $7E:9000 corpse buffer reaches VRAM through the ordinary mode-1 DMA.
-        _presentation._vram!.ExecuteQueuedMemoryWrite(
-            SnesMemoryBusRequirement.Require(_room.Bus!, "Mother Brain's mutable sprite transfer requires WRAM."),
+        _presentation.Vram.ExecuteQueuedMemoryWrite(
+            SnesMemoryBusRequirement.Require(_room.LoadedBus, "Mother Brain's mutable sprite transfer requires WRAM."),
             unchecked((int)transfer.SourceAddress), transfer.Size, transfer.VramDestination);
     }
 

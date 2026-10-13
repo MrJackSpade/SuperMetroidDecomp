@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -43,7 +44,7 @@ internal static class MapSpritesVerification
         Directory.CreateDirectory(overrides);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         byte[] json = File.ReadAllBytes(Path.Combine(stock, MapSpriteFormat.JsonFile));
-        var document = JsonSerializer.Deserialize<MapSpriteDocument>(json, options)!;
+        var document = RequiredJson.Deserialize<MapSpriteDocument>(json, options);
         string path = Path.Combine(overrides, MapSpriteFormat.JsonFile);
         var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames);
         frames["Marker.Boss"] = [new SpriteVisualPart { OffsetX = 12, OffsetY = -4, TileColumn = 2, TileRow = 3,

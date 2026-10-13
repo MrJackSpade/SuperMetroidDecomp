@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 
 namespace SuperMetroid.ReachabilityAudit;
@@ -17,8 +18,10 @@ internal sealed class SymbolIdentity(string repositoryRoot)
     private static readonly string BinSegment = $"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}";
 
     /// <summary>Hand-written repository source; generated files under obj/ and bin/ are excluded.</summary>
-    public bool IsRepositorySource(SyntaxTree tree)
+    public bool IsRepositorySource([NotNullWhen(true)] SyntaxTree? tree)
     {
+        if (tree is null)
+            return false;
         string path = Path.GetFullPath(tree.FilePath);
         return path.StartsWith(repositoryRoot, StringComparison.OrdinalIgnoreCase)
             && !path.Contains(ObjSegment, StringComparison.OrdinalIgnoreCase)
@@ -69,8 +72,8 @@ internal sealed class SymbolIdentity(string repositoryRoot)
         // A compiler-generated constructor carries its type's location; it stands for "instantiated".
         if (symbol is IMethodSymbol { MethodKind: MethodKind.Constructor, IsImplicitlyDeclared: true } constructor)
             return Key(constructor.ContainingType) is { } typeKey ? typeKey + ImplicitConstructorSuffix : null;
-        string? file = symbol.Locations.Where(l => l.IsInSource && IsRepositorySource(l.SourceTree!))
-            .Select(l => Relative(l.SourceTree!.FilePath)).Order(StringComparer.Ordinal).FirstOrDefault();
+        string? file = symbol.Locations.Where(l => l.IsInSource).Select(l => l.SourceTree).OfType<SyntaxTree>()
+            .Where(IsRepositorySource).Select(tree => Relative(tree.FilePath)).Order(StringComparer.Ordinal).FirstOrDefault();
         return file is not null && symbol.GetDocumentationCommentId() is { } id ? $"{id}@{file}" : null;
     }
 }

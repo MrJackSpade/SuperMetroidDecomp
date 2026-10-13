@@ -169,7 +169,11 @@ public sealed class IntroNarrationPresentation
         }
 
         /// <summary>Number of independently supplied or calculated two-row-spaced lines.</summary>
-        public int Count => supplied?.Length ?? CalculateLines(text!).Count();
+        public int Count => supplied?.Length ?? CalculateLines(CalculatedText).Count();
+
+        /// <summary>The page text whose native wrapping supplies the lines when no lines were supplied.</summary>
+        private string CalculatedText => text ??
+            throw new InvalidOperationException("A narration page has neither supplied lines nor wrapped text.");
         /// <summary>Line at a page position, calculated on demand when native wrapping matches.</summary>
         public IntroNarrationLine this[int index]
         {
@@ -177,7 +181,7 @@ public sealed class IntroNarrationPresentation
             {
                 if (index < 0) throw new IndexOutOfRangeException();
                 if (supplied is not null) return supplied[index];
-                foreach (IntroNarrationLine line in CalculateLines(text!))
+                foreach (IntroNarrationLine line in CalculateLines(CalculatedText))
                     if (index-- == 0) return line;
                 throw new IndexOutOfRangeException();
             }
@@ -206,7 +210,7 @@ public sealed class IntroNarrationPresentation
         /// <summary>Visits selected page lines in ascending tilemap-row order.</summary>
         public IEnumerator<IntroNarrationLine> GetEnumerator() => supplied is not null
             ? ((IEnumerable<IntroNarrationLine>)supplied).GetEnumerator()
-            : CalculateLines(text!).GetEnumerator();
+            : CalculateLines(CalculatedText).GetEnumerator();
         /// <summary>Exposes the same row order to non-generic enumeration.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

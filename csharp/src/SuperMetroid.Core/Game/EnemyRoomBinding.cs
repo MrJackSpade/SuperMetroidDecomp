@@ -40,6 +40,10 @@ internal sealed class EnemyRoomBinding
     [field: NonSerialized]
     internal EnemyTileArtworkCatalog? Artwork { get; set; }
 
+    /// <summary>The installed enemy presentation; drawing and named artwork transfers require it.</summary>
+    internal EnemyTileArtworkCatalog InstalledArtwork => Artwork ??
+        throw new InvalidDataException("Enemy artwork is not installed; the host installs it with the room.");
+
     /// <summary>The installed Mother Brain corpse tiles; the bound artwork must provide them.</summary>
     internal RoomCharacterAtlas MotherBrainCorpseArtwork =>
         Artwork?.MotherBrainCorpse ?? throw new InvalidDataException(
@@ -47,15 +51,15 @@ internal sealed class EnemyRoomBinding
 
     /// <summary>The room's live WRAM, required for enemy staging.</summary>
     internal ISnesMemoryBus MemoryBus =>
-        SnesMemoryBusRequirement.Require(Bus!, "Enemy staging requires live WRAM.");
+        SnesMemoryBusRequirement.Require(LoadedBus, "Enemy staging requires live WRAM.");
 
     /// <summary>The enemy staging surfaces in live WRAM.</summary>
     internal EnemyScratchMemory Scratch => new(MemoryBus);
 
+    /// <summary>The bound address space; enemy work requires a loaded room population.</summary>
+    internal ISnesAddressSpace LoadedBus =>
+        Bus ?? throw new InvalidOperationException("A room enemy population must be loaded first.");
+
     /// <summary>Rejects enemy work before a population is bound.</summary>
-    internal void EnsureLoaded()
-    {
-        if (Bus is null)
-            throw new InvalidOperationException("A room enemy population must be loaded first.");
-    }
+    internal void EnsureLoaded() => _ = LoadedBus;
 }

@@ -124,7 +124,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             state.ThrowOrigin = slot.Position.Whole;
             Install(slot, program);
             RunFrames(enemies, slot, 80);
-            AssertEqual((ushort)0x0061, enemies.MagdolliteBehavior.LastMagdolliteSoundEffect!.Value,
+            AssertEqual((ushort)0x0061, (enemies.MagdolliteBehavior.LastMagdolliteSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteBehavior.LastMagdolliteSoundEffect.")),
                 $"Magdollite {direction} throw sound");
             AssertEqual(3,
                 enemies.Projectiles.EnemyProjectiles.Count(projectile =>
@@ -193,7 +193,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             }
 
             RoomEnemySlot selected = enemies.SlotTable.Slots[(int)selectedPart];
-            return (enemies, selected, enemies.MagdolliteStates[(int)selectedPart]!);
+            return (enemies, selected, (enemies.MagdolliteStates[(int)selectedPart] ?? throw new InvalidOperationException("Verification requires the initialized Magdollite state.")));
         }
 
         static void Install(RoomEnemySlot slot, ushort program)

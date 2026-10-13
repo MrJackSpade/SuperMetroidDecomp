@@ -81,13 +81,13 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
         enemies.MetareeBehavior.InitializeMetaree(slot);
-        MetareeEnemyState state = enemies.MetareeStates[0]!;
+        MetareeEnemyState state = (enemies.MetareeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MetareeStates[0]."));
         var samus = new SamusState
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + 0x60)))),
         };
 
-        MetareeBehavior.RunMetareeIdle(slot, state, samus);
+        MetareeBehavior.RunMetareeIdle(slot, (state ?? throw new InvalidOperationException("Verification requires state.")), samus);
         AssertSkreeMetareeHandoff(
             slot,
             state.InstalledInstructionListIndex,
@@ -115,7 +115,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
         enemies.SkreeBehavior.InitializeSkree(slot);
-        SkreeEnemyState state = enemies.SkreeStates[0]!;
+        SkreeEnemyState state = (enemies.SkreeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SkreeStates[0]."));
         var samus = new SamusState
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + 0x60)))),
@@ -124,7 +124,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         enemies.SkreeBehavior.RunSkreeMain(slot, samus, null);
         AssertSkreeMetareeHandoff(
             slot,
-            state.InstalledInstructionIndex,
+            (state ?? throw new InvalidOperationException("Verification requires state.")).InstalledInstructionIndex,
             SkreeMetareeAnimationPhase.PreparingAttack,
             SkreeMetareeAnimationDefinitions.SkreeInstructionList(
                 SkreeMetareeAnimationPhase.PreparingAttack),

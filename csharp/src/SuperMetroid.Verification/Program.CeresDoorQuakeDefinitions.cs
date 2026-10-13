@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -85,8 +86,8 @@ internal static class CeresDoorQuakeDefinitionsVerification
         AssertTrue(nativeOverlay.ImageEquals(installedOverlay),
             "Ceres private overlay matches native OAM with ROM frame reads forbidden");
 
-        EnemySpritemapDocument visual = JsonSerializer.Deserialize<EnemySpritemapDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        EnemySpritemapDocument visual = RequiredJson.Deserialize<EnemySpritemapDocument>(
+            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         SpriteVisualPart first = visual.Frames["ceres_door_ridley_private_overlay"][0];
         visual.Frames["ceres_door_ridley_private_overlay"][0] = first with
         {

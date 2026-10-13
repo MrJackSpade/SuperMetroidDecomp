@@ -25,7 +25,7 @@ internal static class ShaktoolSamusContactVerification
         AssertEqual(EnemyInteractionCallback.ShaktoolTouch, EnemyCollision.TouchAi(segment), "Shaktool's header touch callback");
         AssertTrue(segment.SpritemapPointer != 0, "the loaded segment publishes a sprite map");
 
-        SamusState samus = runtime.Player.Samus!;
+        SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(segment.Position.Whole);
         samus.Kinematics.Radius = new(5, 19);
         samus.InvincibilityTimer = NativeCountdown.Start(0);

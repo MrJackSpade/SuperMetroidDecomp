@@ -59,11 +59,11 @@ internal static class MagdolliteApexThresholdVerification
                 member.Position = member.Position.WithWhole(new(0x01d8, 0x02a0));
                 initialize(member, null);
             }
-            MagdolliteEnemyState head = enemies.MagdolliteStates[headSlot]!;
-            head.NegativeSpeedWhole = head.NegativeSpeedFraction = 0;
+            MagdolliteEnemyState head = (enemies.MagdolliteStates[headSlot] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot]."));
+            (head ?? throw new InvalidOperationException("Verification requires head.")).NegativeSpeedWhole = head.NegativeSpeedFraction = 0;
             RoomEnemySlot body = enemies.SlotTable.Slots[headSlot + 1];
-            MagdolliteEnemyState state = enemies.MagdolliteStates[headSlot + 1]!;
-            state.Function = MagdolliteEnemyFunction.BodyRising;
+            MagdolliteEnemyState state = (enemies.MagdolliteStates[headSlot + 1] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot + 1]."));
+            (state ?? throw new InvalidOperationException("Verification requires state.")).Function = MagdolliteEnemyFunction.BodyRising;
             state.BodyPhaseOffset = 14;
             body.Position = body.Position.WithWholeY(0x02a0);
             state.VerticalWholeDisplacement = unchecked((ushort)-MagdollitePhaseDefinitions.MaximumRise);

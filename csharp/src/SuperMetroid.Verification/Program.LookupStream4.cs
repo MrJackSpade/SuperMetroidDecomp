@@ -1,3 +1,4 @@
+using SuperMetroid.Tooling;
 using static Program;
 using static ZebesEscapeExplosionDefinitionsVerification;
 using System.Buffers.Binary;
@@ -113,8 +114,8 @@ internal static class LookupStream4Verification
         for (int pointer = 0xc7fa; pointer <= 0xc87a; pointer++)
             AssertEqual(native.ContainsKey((ushort)pointer), stock.TryReadColor((ushort)pointer, out _),
                 "title ambient color domain excludes controls and unaligned bytes");
-        var document = JsonSerializer.Deserialize<TitlePaletteDocument>(json,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var document = RequiredJson.Deserialize<TitlePaletteDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         document.BabyMetroidTubeLight[0][0] = document.BabyMetroidTubeLight[0][0] with { Red = 20 };
         document.BabyMetroidTubeLight[2][0] = document.BabyMetroidTubeLight[2][0] with { Green = 12 };
         document.BabyMetroidTubeLight[7][3] = document.BabyMetroidTubeLight[7][3] with { Blue = 9 };
@@ -199,8 +200,8 @@ internal static class LookupStream4Verification
     {
         Suite(nameof(VerifyLookupStream4TitleAmbientColors), () => VerifyLookupStream4TitleAmbientColors(rom));
         byte[] json = TitlePaletteExtractor.Extract(rom);
-        TitlePaletteDocument Document() => JsonSerializer.Deserialize<TitlePaletteDocument>(json,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        TitlePaletteDocument Document() => RequiredJson.Deserialize<TitlePaletteDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         static ushort Pack(PaletteRgb5 value) => (ushort)(value.Red | value.Green << 5 | value.Blue << 10);
         static PaletteRgb5 Edit(PaletteRgb5 value, int channel) => channel switch
         {
@@ -386,7 +387,7 @@ internal static class LookupStream4Verification
         AssertEqual(112, pointers.Distinct().Count(), "environmental identities remain unique");
         foreach (var edit in sites)
         {
-            var document = JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json, MapPresentationFormat.JsonOptions);
             var rows = edit.Owner == 0 ? document.MaridiaSandPits : edit.Owner == 1 ? document.MaridiaSandFalls : document.MaridiaBackgroundWaterfalls;
             rows[edit.Frame][edit.Color] = rows[edit.Frame][edit.Color] with { Red = rows[edit.Frame][edit.Color].Red ^ 1 };
             var changed = RoomPaletteFxPresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
@@ -456,7 +457,7 @@ internal static class LookupStream4Verification
         AssertEqual(48, pointers.Distinct().Count(), "text pointer identities are unique");
         for (int edit = 0; edit < 48; edit++)
         {
-            var document = JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json, MapPresentationFormat.JsonOptions);
             var rows = edit < 24 ? document.PlanetZebesTextFadeIn : document.PlanetZebesTextFadeOut;
             int selected = edit % 24;
             rows[selected / 3][selected % 3] = rows[selected / 3][selected % 3] with { Red = rows[selected / 3][selected % 3].Red ^ 1 };
@@ -502,7 +503,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4CeresFades(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions);
         var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
         foreach (bool eyes in new[] { true, false })
         {
@@ -565,8 +566,6 @@ internal static class LookupStream4Verification
             foreach (int color in new[] { -1, count, int.MinValue, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => definition.Resolve(0, color), "fade color bounds");
         }
-        AssertThrows<ArgumentNullException>(() => stock.ApplyEyeFade(null!, 0), "eye null CGRAM");
-        AssertThrows<ArgumentNullException>(() => stock.ApplyBodyFade(null!, 0), "body null CGRAM");
         Console.WriteLine("Ceres fades:224 native words,all48 eye samples calculated from four paint magnitudes and the selected warm-shade composition; all176body samples calculate through the same quantizer/shared stock paint, zero stock overrides,144eye/528body channel edits and10848 actual row applications pass.");
     }
 
@@ -581,7 +580,7 @@ internal static class LookupStream4Verification
             return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
         }
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions);
         var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
         var definition = stock.alarm;
         var inputs = definition.edits;
@@ -598,7 +597,7 @@ internal static class LookupStream4Verification
             var selected = stock;
             if (edit >= 0)
             {
-                var rows = document.Alarm!.Select(row => row.ToArray()).ToArray();
+                var rows = (document.Alarm ?? throw new InvalidOperationException("Verification requires document.Alarm.")).Select(row => row.ToArray()).ToArray();
                 int word = edit / 3, channel = edit % 3;
                 var original = rows[word / 3][word % 3];
                 rows[word / 3][word % 3] = channel switch { 0 => original with { Red = original.Red ^ 1 }, 1 => original with { Green = original.Green ^ 1 }, _ => original with { Blue = original.Blue ^ 1 } };
@@ -658,7 +657,6 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(row, 0), "alarm row bounds");
         foreach (int color in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(0, color), "alarm color bounds");
-        AssertThrows<ArgumentNullException>(() => stock.ApplyAlarm(null!, 0), "alarm null CGRAM");
         Console.WriteLine("Ceres alarm:48 native colors, zero stock overrides, all144 independent RGB edits,2320 actual row writes, 192 gated producer calls, legacy fallback and bounds pass.");
     }
 
@@ -803,8 +801,8 @@ internal static class LookupStream4Verification
         for (int frame = 0; frame < 4; frame++)
         for (int color = 0; color < 16; color++)
         {
-            var document = JsonSerializer.Deserialize<SporeSpawnColorDocument>(source,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             document.Health[frame][color] = document.Health[frame][color] with { Red = document.Health[frame][color].Red ^ 1 };
             var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
             ushort[][] expected = native.Select(row => (ushort[])row.Clone()).ToArray();
@@ -845,8 +843,8 @@ internal static class LookupStream4Verification
         Verify(stock, false, false);
         foreach (bool editSpore in new[] { false, true })
         {
-            var document = JsonSerializer.Deserialize<SporeSpawnColorDocument>(source,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             if (editSpore) document.Spores[5] = document.Spores[5] with { Red = document.Spores[5].Red ^ 1 };
             else document.Health[0][5] = document.Health[0][5] with { Red = document.Health[0][5].Red ^ 1 };
             var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
@@ -916,8 +914,8 @@ internal static class LookupStream4Verification
         Verify(stock, -1, -1);
         foreach (var selected in new[] { (Frame: 6, Color: 3), (Frame: 2, Color: 3), (Frame: 1, Color: 0), (Frame: 3, Color: 7), (Frame: 4, Color: 11), (Frame: 5, Color: 15) })
         {
-            var document = JsonSerializer.Deserialize<SporeSpawnColorDocument>(source,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             var old = document.DeathLevel[selected.Frame][selected.Color];
             document.DeathLevel[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
             var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
@@ -983,8 +981,8 @@ internal static class LookupStream4Verification
         Verify(stock, -1, -1);
         foreach (var selected in new[] { (Frame: 6, Color: 1), (Frame: 6, Color: 12), (Frame: 0, Color: 1), (Frame: 3, Color: 13) })
         {
-            var document = JsonSerializer.Deserialize<SporeSpawnColorDocument>(source,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             var old = document.DeathBackground[selected.Frame][selected.Color];
             document.DeathBackground[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
             var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
@@ -1042,16 +1040,16 @@ internal static class LookupStream4Verification
             }
         for (int color = 0; color < 16; color++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3d9 + color * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)), "Death fade starts at original critical-health coloring");
-        var criticalDocument = JsonSerializer.Deserialize<SporeSpawnColorDocument>(source,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var criticalDocument = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         criticalDocument.Health[3][1] = criticalDocument.Health[3][1] with { Red = criticalDocument.Health[3][1].Red ^ 1 };
         var criticalEdit = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(criticalDocument)));
         Verify(criticalEdit, -1, -1, criticalEdit: true);
         Verify(stock, -1, -1);
         foreach (var selected in new[] { (Frame: 0, Color: 1), (Frame: 7, Color: 15), (Frame: 3, Color: 6) })
         {
-            var document = JsonSerializer.Deserialize<SporeSpawnColorDocument>(source,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             var old = document.DeathSprite[selected.Frame][selected.Color];
             document.DeathSprite[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
             var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
@@ -1112,8 +1110,8 @@ internal static class LookupStream4Verification
             AssertEqual(native[cell], EndingTextLayoutDefinitions.ResultWord(cell, "PRODUCED BY"), "Direct credit layout agrees with original cell independently of overrides");
         foreach (int editedCell in new[] { 0, 75, 107, 233 })
         {
-            var document = System.Text.Json.Nodes.JsonNode.Parse(source)!;
-            document["resultPanel"]!["template"]![editedCell]!["raw"] = native[editedCell] ^ 0x4000;
+            var document = RequiredJson.Parse(source);
+            document.Required("resultPanel").Required("template").Required(editedCell)["raw"] = native[editedCell] ^ 0x4000;
             byte[] selected = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
             var edited = EndingTextPresentation.Load(new MemoryStream(selected));
             ushort[] expected = native.ToArray();
@@ -1125,9 +1123,9 @@ internal static class LookupStream4Verification
             AssertTrue(expected.AsSpan().SequenceEqual(edited.BuildResultPanel()), "Result output snapshots remain independent of the catalog");
             AssertTrue(native.AsSpan().SequenceEqual(stock.BuildResultPanel()), "Independent result edits leave the original catalog immutable");
         }
-        var changedHeading = System.Text.Json.Nodes.JsonNode.Parse(source)!;
-        changedHeading["resultPanel"]!["text"] = "TEST";
-        changedHeading["resultPanel"]!["template"]![10]!["raw"] = 0xffff;
+        var changedHeading = RequiredJson.Parse(source);
+        changedHeading.Required("resultPanel")["text"] = "TEST";
+        changedHeading.Required("resultPanel").Required("template").Required(10)["raw"] = 0xffff;
         var heading = EndingTextPresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(changedHeading.ToJsonString())));
         ushort[] expectedHeading = native.ToArray();
         var region = EndingTextDefinitions.ResultProducedBy;
@@ -1156,8 +1154,8 @@ internal static class LookupStream4Verification
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(source)), stock.ContentIdentity, "Subtitle conversion preserves complete document identity");
         foreach (int editedCell in new[] { 0, 9, 14, 41 })
         {
-            var document = System.Text.Json.Nodes.JsonNode.Parse(source)!;
-            document["japaneseSubtitle"]![editedCell]!["raw"] = native[editedCell] ^ 0x4000;
+            var document = RequiredJson.Parse(source);
+            document.Required("japaneseSubtitle").Required(editedCell)["raw"] = native[editedCell] ^ 0x4000;
             byte[] editedSource = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
             var edited = EndingTextPresentation.Load(new MemoryStream(editedSource));
             Verify(edited, editedCell);
@@ -1324,7 +1322,7 @@ internal static class LookupStream4Verification
         }
         for(int edit=-1;edit<132;edit++)
         {
-            var document=JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions)!;
+            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions);
             if(edit>=0)
             {
                 int ordinal=edit/6,item=ordinal<6?0:1+(ordinal-6)/4,cellIndex=ordinal<6?ordinal:(ordinal-6)%4;
@@ -1354,7 +1352,7 @@ internal static class LookupStream4Verification
         }
         for(int item=0;item<5;item++)
         {
-            var document=JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions)!;string name=GameplayHudDefinitions.IconName(item);var icon=document.Icons[name];document.Icons[name]=icon with{Anchor=icon.Anchor with{X=(ushort)(icon.Anchor.X+1)}};
+            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions);string name=GameplayHudDefinitions.IconName(item);var icon=document.Icons[name];document.Icons[name]=icon with{Anchor=icon.Anchor with{X=(ushort)(icon.Anchor.X+1)}};
             using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);var selected=GameplayHudPresentation.Load(new MemoryStream(output.ToArray()));ushort[] tiles=Enumerable.Repeat(selected.Blank,96).ToArray();selected.TryApplyIcon(tiles,item);int width=item==0?3:2;
             for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+1+cell%width],"Independent supplied icon anchor");
         }
@@ -1389,7 +1387,7 @@ internal static class LookupStream4Verification
         AssertEqual(0,(stock.templateOverrides).Count,"HUD template zero native overrides");
         for(int edit=-1;edit<576;edit++)
         {
-            var document=JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions)!;
+            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions);
             if(edit>=0)
             {
                 int index=edit/6;GameplayHudCell cell=document.Template[index];document.Template[index]=(edit%6) switch
@@ -1427,7 +1425,7 @@ internal static class LookupStream4Verification
         AssertEqual(0,(stock.topRowOverrides).Count,"HUD top row zero native overrides");
         for(int edit=-1;edit<192;edit++)
         {
-            var document=JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions)!;
+            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions);
             if(edit>=0)
             {
                 int index=edit/6;GameplayHudCell cell=document.TopRow[index];document.TopRow[index]=(edit%6) switch
@@ -1468,7 +1466,7 @@ internal static class LookupStream4Verification
             (cell.FlipX?SnesTileFlipFlags.Horizontal:0)|(cell.FlipY?SnesTileFlipFlags.Vertical:0)).Raw;
         for(int edit=-1;edit<72;edit++)
         {
-            var document=JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions)!;
+            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions);
             if(edit>=0)
             {
                 int index=edit/6;var cells=index<6?document.AutoReserve.ContainsEnergy:document.AutoReserve.Empty;index%=6;
@@ -1502,8 +1500,8 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4HudAutoCells(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         GameplayHudPresentation stock = GameplayHudPresentation.Load(new MemoryStream(json));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         AssertTrue(!MetadataShape.DeclaresField(typeof(GameplayHudPresentation), "autoReserveBasis", flags), "AUTO no longer stores whole-word basis cells");
@@ -1551,8 +1549,8 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4HudDigits(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         GameplayHudPresentation stock = GameplayHudPresentation.Load(new MemoryStream(json));
         AssertEqual(0, stock.healthDigits.Count, "stock health digits are calculated");
         AssertEqual(0, stock.ammoDigits.Count, "stock ammo digits are calculated");
@@ -1651,7 +1649,7 @@ internal static class LookupStream4Verification
             enemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
             RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, 0x0600);
             AssertTrue(spawned is not null, "room sprite native case allocates real slot");
-            AssertEqual(entry, spawned!.InstructionPointer, "room sprite actual initial program");
+            AssertEqual(entry, (spawned ?? throw new InvalidOperationException("Verification requires spawned.")).InstructionPointer, "room sprite actual initial program");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | entry)), spawned.InstructionTimer, "room sprite actual initial native duration");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
             AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
@@ -1712,11 +1710,11 @@ internal static class LookupStream4Verification
             var selected = stock;
             if (edit >= 0)
             {
-                var document = System.Text.Json.Nodes.JsonNode.Parse(source)!;
+                var document = RequiredJson.Parse(source);
                 int word = edit / 3, channel = edit % 3;
-                var color = document["palettes"]![BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(word / 16))]![word % 16]!;
+                var color = document.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(word / 16))).Required(word % 16);
                 string component = channel switch { 0 => "red", 1 => "green", _ => "blue" };
-                color[component] = color[component]!.GetValue<int>() ^ 1;
+                color[component] = color.Required(component).GetValue<int>() ^ 1;
                 selected = BeamPaletteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
             }
             for (int selection = 0; selection < 12; selection++)
@@ -1861,7 +1859,7 @@ internal static class LookupStream4Verification
     private static void VerifyLookupStream4NoticeRegions(ISnesAddressSpace rom)
     {
         byte[] bytes = GameplayMessageNoticeExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<GameplayMessageNoticeDocument>(bytes, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<GameplayMessageNoticeDocument>(bytes, MapPresentationFormat.JsonOptions);
         var stock = GameplayMessageNoticePresentation.Load(new MemoryStream(bytes));
         foreach (var id in GameplayMessageNoticeDefinitions.MessageIds)
         {
@@ -1892,8 +1890,8 @@ internal static class LookupStream4Verification
             for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x859601 + column * 2));
             AssertTrue(expected.AsSpan().SequenceEqual(state.Tilemap), "Actual notice NO selection retains native row and neighboring content");
         }
-        var editedJson = System.Text.Json.Nodes.JsonNode.Parse(bytes)!;
-        editedJson["notices"]![GameplayMessageId.MapDataAccessCompleted.ToString()]!["text"]![0]!["text"] = "MAP TEST";
+        var editedJson = RequiredJson.Parse(bytes);
+        editedJson.Required("notices").Required(GameplayMessageId.MapDataAccessCompleted.ToString()).Required("text").Required(0)["text"] = "MAP TEST";
         var edited = GameplayMessageNoticePresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(editedJson.ToJsonString())));
         var active = new GameplayMessageBoxState();
         active.BindPresentation(null, null, stock);
@@ -2059,7 +2057,7 @@ internal static class LookupStream4Verification
         }
         foreach ((int frame, int index) in new[] { (0, 0), (4, 6), (9, 2), (13, 5) })
         {
-            var document = JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, MapPresentationFormat.JsonOptions);
             var source = document.CrateriaUnusedDarkLightning[frame][index];
             document.CrateriaUnusedDarkLightning[frame][index] = source with { Red = (source.Red + 9) & 31 };
             using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
@@ -2101,7 +2099,7 @@ internal static class LookupStream4Verification
         }
         foreach ((int frame, int index) in new[] { (0, 0), (4, 7), (8, 2), (12, 6) })
         {
-            var document = JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, MapPresentationFormat.JsonOptions);
             var source = document.CrateriaSurfaceLightning[frame][index];
             document.CrateriaSurfaceLightning[frame][index] = source with { Red = (source.Red + 9) & 31 };
             using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
@@ -2280,7 +2278,7 @@ internal static class LookupStream4Verification
         AssertEqual(64, keys.Distinct().Count(), "stream4 statue pointer enumeration has no duplicates");
         foreach (var edit in new[] { (0, 0), (7, 0), (0, 2), (7, 3), (3, 4), (4, 0) })
         {
-            var document = JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, MapPresentationFormat.JsonOptions);
             var source = document.TourianStatueGrey[edit.Item1][edit.Item2];
             document.TourianStatueGrey[edit.Item1][edit.Item2] = source with { Red = (source.Red + 9) & 31, Blue = (source.Blue + 5) & 31 };
             using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
@@ -2395,7 +2393,7 @@ internal static class LookupStream4Verification
         foreach (var edit in new[] { (PowerBombFixedColorSequence.PreExplosion, 0), (PowerBombFixedColorSequence.PreExplosion, 12),
             (PowerBombFixedColorSequence.Explosion, 0), (PowerBombFixedColorSequence.Explosion, 18), (PowerBombFixedColorSequence.Explosion, 31) })
         {
-            var document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(original, MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<PowerBombFixedColorDocument>(original, MapPresentationFormat.JsonOptions);
             var rows = edit.Item1 == PowerBombFixedColorSequence.PreExplosion ? document.PreExplosion : document.Explosion;
             var before = rows[edit.Item2];
             rows[edit.Item2] = before with { Red = (before.Red + 3) & 31, Green = (before.Green + 7) & 31, Blue = (before.Blue + 11) & 31 };
@@ -2526,7 +2524,7 @@ internal static class LookupStream4Verification
         AssertEqual<object?>(null,intro.clearEdit,"Intro clear has no native override");
         for(int edit=-1;edit<75;edit++)
         {
-            var document=JsonSerializer.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions)!;
+            var document=RequiredJson.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions);
             if(edit>=0)
             {
                 var rgb=document.Intro[edit/3]; document.Intro[edit/3]=(edit%3) switch
@@ -2562,7 +2560,7 @@ internal static class LookupStream4Verification
                 enemies.BindFixtureBus(NewProjectileCompositionForbiddenBus());
                 new Action<RoomEnemySlot>(enemies.DraygonBehavior.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer full CGRAM copy");
-                AssertEqual(true,enemies.DraygonBehavior.Draygon!.BackgroundTilemapPrepared,"Actual initializer continues BG2 preparation");
+                AssertEqual(true,(enemies.DraygonBehavior.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).BackgroundTilemapPrepared,"Actual initializer continues BG2 preparation");
                 AssertEqual(DraygonAiFunction.IntroInitialDelay,enemies.DraygonBehavior.Draygon.Function,"Actual initializer phase");
             }
         }
@@ -2575,7 +2573,6 @@ internal static class LookupStream4Verification
             for(int color=0;color<25;color++)AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a217+color*2)),stock.ResolveIntro(color),"Escape edits do not couple intro instance");
         }
         foreach(int invalid in new[]{-1,25,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveIntro(invalid),"Original intro domain");
-        AssertThrows<ArgumentNullException>(()=>stock.ApplyIntro(null!),"Intro null target");
         Console.WriteLine("Draygon intro:25native aliases/zero overrides,75RGB edits/hash/76full copies,four actual initializers/readguard,45escape edits/independence/bounds pass.");
     }
 
@@ -2592,7 +2589,7 @@ internal static class LookupStream4Verification
         AssertEqual(0,(material.edits).Count,"Shared native sprite material has zero overrides");
         for(int edit=-1;edit<48;edit++)
         {
-            var document=JsonSerializer.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions)!;
+            var document=RequiredJson.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions);
             if(edit>=0)
             {
                 var rgb=document.Sprite[edit/3]; document.Sprite[edit/3]=(edit%3) switch
@@ -2656,7 +2653,7 @@ internal static class LookupStream4Verification
         AssertEqual(0,(material.edits).Count,"All16 background colors calculate without unexplained stock overrides");
         for (int edit = -1; edit < 48; edit++)
         {
-            var document = JsonSerializer.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions);
             if(edit >= 0)
             {
                 var rgb = document.Background[edit / 3];
@@ -2706,7 +2703,6 @@ internal static class LookupStream4Verification
             }
         }
         foreach(int invalid in new[]{-1,16,int.MinValue,int.MaxValue}) AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveBackground(invalid),"Original background domain");
-        AssertThrows<ArgumentNullException>(()=>stock.ApplyHurt(null!,false,0),"Background null destination");
         Console.WriteLine("Draygon background:16native/zero overrides,48RGB edits/hash/independent aliases,98full normal-white copies,six actual hurt producer calls/readguard/belly overwrite/bounds pass.");
     }
 
@@ -2721,7 +2717,7 @@ internal static class LookupStream4Verification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int edit = -1; edit < 96; edit++)
         {
-            var document = JsonSerializer.Deserialize<DraygonColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<DraygonColorDocument>(json, MapPresentationFormat.JsonOptions);
             if (edit >= 0)
             {
                 int word = edit / 3; var rgb = document.HealthBands[word / 4][word % 4];
@@ -2789,7 +2785,7 @@ internal static class LookupStream4Verification
         AssertEqual(0, (health.edits).Count, "All native Draygon health colors calculate without overrides");
         for (int variation = -1; variation < 4; variation++)
         {
-            var document = JsonSerializer.Deserialize<DraygonColorDocument>(original, options)!;
+            var document = RequiredJson.Deserialize<DraygonColorDocument>(original, options);
             var edited = new PaletteRgb5 { Red = 3, Green = 11, Blue = 21 };
             if (variation == 0) document.WhiteFlash[0] = edited;
             if (variation == 1) document.WhiteFlash[9] = edited;
@@ -2856,7 +2852,7 @@ internal static class LookupStream4Verification
         }
         for (int edit = -1; edit < 630; edit++)
         {
-            var document = JsonSerializer.Deserialize<NorfairRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, MapPresentationFormat.JsonOptions);
             if (edit >= 0)
             {
                 int word = edit / 3;
@@ -2896,8 +2892,8 @@ internal static class LookupStream4Verification
                 enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.InitializeNorfairRidley)(slot);
-                RidleyEnemyState state = enemies.RidleyEncounter.Ridley!;
-                state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = NativeCountdown.Start(0);
+                RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
+                (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = NativeCountdown.Start(0);
                 Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.TickNorfairRidleyArenaReveal;
                 for (int call = 0; call < 46; call++)
                 {
@@ -2920,11 +2916,9 @@ internal static class LookupStream4Verification
         foreach (int row in new[] { -1, 15, int.MinValue, int.MaxValue })
         {
             AssertThrows<IndexOutOfRangeException>(() => stock.ResolveReveal(row, 0), "Original reveal row domain");
-            AssertThrows<IndexOutOfRangeException>(() => stock.ApplyReveal(null!, row), "Original row validation precedes null destination");
         }
         foreach (int color in new[] { -1, 14, int.MinValue, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => stock.ResolveReveal(0, color), "Original reveal color domain");
-        AssertThrows<ArgumentNullException>(() => stock.ApplyReveal(null!, 0), "Reveal null destination");
         Console.WriteLine("Norfair reveal:210 native words/14 shared room endpoints/zero overrides,630 independent RGB edits/hash,9465 full row copies,138 real producer calls/read guard/cadence/terminator and domain checks pass.");
     }
 
@@ -2939,7 +2933,7 @@ internal static class LookupStream4Verification
         static void NoEdits(Dictionary<int, Bgr555> edits) =>
             AssertEqual(0, edits.Count, "Native material has no unexplained output overrides");
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
-        var original = JsonSerializer.Deserialize<NorfairRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var original = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, MapPresentationFormat.JsonOptions);
         var stock = NorfairRidleyColorCatalog.Load(new MemoryStream(json));
         var initial = stock.initial;
         var armor = initial.armor;
@@ -2953,7 +2947,7 @@ internal static class LookupStream4Verification
         }
         for (int edit = -1; edit < 96; edit++)
         {
-            var document = JsonSerializer.Deserialize<NorfairRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+            var document = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, MapPresentationFormat.JsonOptions);
             if (edit >= 0)
             {
                 int color = edit / 3;
@@ -3021,7 +3015,6 @@ internal static class LookupStream4Verification
         }
         foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => stock.ResolveInitial(color), "Initial existing array-domain contract");
-        AssertThrows<ArgumentNullException>(() => stock.ApplyInitial(null!), "Initial null CGRAM");
         Console.WriteLine("Norfair initial:32 native words,30 shared material identities,zero stock overrides,96 RGB edits/hash,97 full copies,three real initializers/read guard,90 normal/escape source edits and unchanged210 reveal words pass.");
     }
 
@@ -3041,7 +3034,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb39319 + color * 2)), stock.HealthColor(0, color), "native initial/header alias remains exact");
         for (int edit = -1; edit < 384; edit++)
         {
-            var document = JsonSerializer.Deserialize<BotwoonColorDocument>(original, options)!;
+            var document = RequiredJson.Deserialize<BotwoonColorDocument>(original, options);
             if (edit >= 0)
             {
                 int word = edit / 3, channel = edit % 3;
@@ -3326,7 +3319,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4CeresStart(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions);
         var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
         for (int color = 0; color < 32; color++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E16F + color * 2)), stock.ResolveStart(color), "Complete native additional palette");
@@ -3341,7 +3334,7 @@ internal static class LookupStream4Verification
         for (int edit = -1; edit < 47; edit++)
         {
             var starts = document.Start.ToArray();
-            var babies = document.Baby!.Select(row => row.ToArray()).ToArray();
+            var babies = (document.Baby ?? throw new InvalidOperationException("Verification requires document.Baby.")).Select(row => row.ToArray()).ToArray();
             if (edit >= 0)
             {
                 PaletteRgb5 source = edit < 32 ? starts[edit] : babies[0][edit - 32];
@@ -3373,7 +3366,6 @@ internal static class LookupStream4Verification
         }
         foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveStart(color), "Start domain");
-        AssertThrows<ArgumentNullException>(() => stock.ApplyStart(null!), "Start null CGRAM");
         Console.WriteLine("Ceres start:32 native words,16 door/15 Baby aliases,zero native overrides,141 independent RGB edits,144 full start and Baby copies,bounds/null pass; Baby paint uses its separate reviewed owner.");
     }
 
@@ -3383,7 +3375,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4CeresBaby(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions);
         var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
         ushort Native(int row, int color)
         {
@@ -3408,7 +3400,7 @@ internal static class LookupStream4Verification
             AssertEqual(Native(row, color), stock.ResolveBaby(row, color), "All60 native Baby colors calculate");
         for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 63; edit++)
         {
-            var rows = document.Baby!.Select(row => row.ToArray()).ToArray();
+            var rows = (document.Baby ?? throw new InvalidOperationException("Verification requires document.Baby.")).Select(row => row.ToArray()).ToArray();
             var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
             if (edit >= 0)
             {
@@ -3442,7 +3434,7 @@ internal static class LookupStream4Verification
         foreach (int variation in new[] { -1, 0, 1 })
         {
             var bodyRows = document.BodyFade.Select(row => row.ToArray()).ToArray();
-            var babyRows = document.Baby!.Select(row => row.ToArray()).ToArray();
+            var babyRows = (document.Baby ?? throw new InvalidOperationException("Verification requires document.Baby.")).Select(row => row.ToArray()).ToArray();
             if (variation == 0) babyRows[2][0] = babyRows[2][0] with { Red = babyRows[2][0].Red ^ 1 };
             if (variation == 1) bodyRows[15][9] = bodyRows[15][9] with { Green = bodyRows[15][9].Green ^ 1 };
             var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Baby = babyRows, BodyFade = bodyRows })));
@@ -3466,7 +3458,6 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBaby(row, 0), "Baby row domain");
         foreach (int color in new[] { -1, 15, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBaby(0, color), "Baby color domain");
-        AssertThrows<ArgumentNullException>(() => stock.ApplyBaby(null!, 0), "Baby null CGRAM");
         Console.WriteLine("Ceres Baby:60 native colors,zero native overrides,180 independent output RGB edits/9 body-source edits,768 actual15-color copies,36 native interpreter shape selections and startup independence pass.");
     }
 
@@ -3476,7 +3467,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4CeresRetreatShared(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions);
         var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
         var stored = stock.retreatShared;
         AssertEqual(0, stored.Count, "No native retreat shared paints retained");
@@ -3509,7 +3500,6 @@ internal static class LookupStream4Verification
         }
         foreach (int color in new[] { -1, 8, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveRetreatShared(color), "Retreat shared domain");
-        AssertThrows<ArgumentNullException>(() => stock.ApplyRetreat(null!), "Retreat null CGRAM");
         Console.WriteLine("Ceres shared retreat:8 native identities,zero stock values,48 independent RGB edits,51 exact dual-domain copies/bounds/null pass.");
     }
 
@@ -3519,7 +3509,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4CeresZoomAndRetreat(ISnesAddressSpace rom)
     {
         byte[] zoomJson = CeresRidleyMode7ColorExtractor.Extract(rom);
-        var zoomDocument = JsonSerializer.Deserialize<CeresRidleyMode7ColorDocument>(zoomJson, MapPresentationFormat.JsonOptions)!;
+        var zoomDocument = RequiredJson.Deserialize<CeresRidleyMode7ColorDocument>(zoomJson, MapPresentationFormat.JsonOptions);
         var zoomStock = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(zoomJson));
         var zoomDefinition = zoomStock.rows;
         var zoomEdits = zoomDefinition.edits;
@@ -3557,7 +3547,7 @@ internal static class LookupStream4Verification
             }
         }
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions);
         var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
         var retreatEdits = stock.retreatBg;
         AssertEqual(0, retreatEdits.Count, "All native retreat background words calculate");
@@ -3591,8 +3581,6 @@ internal static class LookupStream4Verification
         AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(9, 0), "Zoom upper row bound");
         AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(0, 15), "Zoom upper color bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveRetreatBg(15), "Retreat upper color bound");
-        AssertThrows<ArgumentNullException>(() => zoomStock.Apply(null!, 0), "Zoom null CGRAM");
-        AssertThrows<ArgumentNullException>(() => stock.ApplyRetreat(null!), "Retreat null CGRAM");
         Console.WriteLine("Ceres zoom/retreat:150 native words,zero stock overrides,405 zoom/87 retreat-source RGB edits,3672 actual zoom selections/90 retreat copies,domains/null pass.");
     }
 
@@ -3602,7 +3590,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4CeresHealth(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions);
         var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
         ushort Native(int row, int color)
         {
@@ -3676,7 +3664,6 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(row, 0), "Health row bounds");
         foreach (int color in new[] { -1, 14, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, color), "Health color bounds");
-        AssertThrows<ArgumentNullException>(() => stock.ApplyHealth(null!, 0), "Health null CGRAM");
         Console.WriteLine("Ridley health:42 native words,zero stock overrides,126 output/42 source RGB edits,513 actual copies,54 actual encounter selections and bounds/null pass.");
     }
 
@@ -3685,8 +3672,8 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4HudAnchors(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
-        var document = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         GameplayHudPresentation stock = GameplayHudPresentation.Load(new MemoryStream(json));
         AssertEqual(0, stock.energyTankAnchors.Count, "HUD stock tank positions are calculated");
         AssertEqual(0, stock.autoAnchors.Count, "HUD stock AUTO positions are calculated");

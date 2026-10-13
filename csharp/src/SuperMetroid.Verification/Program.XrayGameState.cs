@@ -27,7 +27,7 @@ internal static class XrayGameStateVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
-            SamusState samus = runtime.Player.Samus!;
+            SamusState samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.PoseMetadata.RefreshCollisionRadii(bus);
@@ -38,7 +38,7 @@ internal static class XrayGameStateVerification
             samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
             var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
             game.runtime = runtime;
-            game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
+            game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
             game.GameState = SuperMetroidGameState.MainGameplay;
             game.Step(0);
             game.Step((ushort)SnesButton.Select);

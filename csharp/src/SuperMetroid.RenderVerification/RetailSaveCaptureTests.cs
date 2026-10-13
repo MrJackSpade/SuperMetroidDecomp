@@ -20,8 +20,8 @@ internal static class RetailSaveCaptureTests
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.CrateriaSaveStation, new Position16<RoomPixels>(0, 0));
         var station = runtime.Plms.StationSnapshots.Single(s => s.Kind == StationKind.Save);
-        var level = runtime.Room.LevelData!;
-        var samus = runtime.Player.Samus!;
+        var level = runtime.Room.LoadedLevelData;
+        var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.AnimationFrame = 0;
         samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
@@ -47,13 +47,13 @@ internal static class RetailSaveCaptureTests
                 if (runtime.Enemies.Projectiles.EnemyProjectiles.Any(p => p.IsActive && p.Kind != RoomEnemyProjectileKind.SaveStationElectricity))
                     throw new InvalidOperationException("Unrelated projectile contaminates electricity visibility assertion.");
                 var oam = new OamBuffer(); oam.BeginFrame();
-                runtime.Enemies.DrawEnemyProjectiles(oam, runtime.Room.Camera!.PixelPosition);
+                runtime.Enemies.DrawEnemyProjectiles(oam, runtime.Room.LoadedCamera.PixelPosition);
                 oam.FinalizeFrame();
                 electricity = SnesObjRenderer.RenderResolved(oam, runtime.Vram, runtime.Cgram,
                     GameplayRenderDefinitions.ObjectSelection).Pixels.Any(p => p.A != 0 && (p.R != 0 || p.G != 0 || p.B != 0));
             }
             var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-            var packet = new RenderFrameSnapshot(new(frames + 1, 1, (ushort)frames), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+            var packet = new RenderFrameSnapshot(new(frames + 1, 1, (ushort)frames), GameplayDisplayCapture.CaptureFrame(runtime));
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: save animation frame {frames}");
             var current = runtime.Plms.StationSnapshots.Single(s => s.Kind == StationKind.Save);

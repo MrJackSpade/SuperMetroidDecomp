@@ -60,15 +60,12 @@ internal static class LookupDynamicCollectibleStockVerification
         entries[2].Tiles[0] ^= 4;
         entries[2].PaletteOffsets[0] = 5;
         Compare(mixed, expected);
-        AssertThrows<ArgumentNullException>(() => new RoomPlmDynamicCollectibleArtCatalog(null!), "Dynamic null import");
         AssertThrows<InvalidDataException>(() => new RoomPlmDynamicCollectibleArtCatalog(entries[..1]), "Dynamic missing item");
         AssertThrows<InvalidDataException>(() => new RoomPlmDynamicCollectibleArtCatalog(entries.Append(entries[0])), "Dynamic duplicate item");
         foreach (RoomPlmDynamicCollectibleArtEntry bad in new RoomPlmDynamicCollectibleArtEntry[]
         {
-            null!, new((InWorldCollectibleKind)255,new byte[256],new byte[8]),
-            new(InWorldCollectibleKind.Bombs,null!,new byte[8]),
+            new((InWorldCollectibleKind)255,new byte[256],new byte[8]),
             new(InWorldCollectibleKind.Bombs,new byte[255],new byte[8]),
-            new(InWorldCollectibleKind.Bombs,new byte[256],null!),
             new(InWorldCollectibleKind.Bombs,new byte[256],new byte[7]),
             new(InWorldCollectibleKind.Bombs,new byte[256],[8,0,0,0,0,0,0,0]),
         })

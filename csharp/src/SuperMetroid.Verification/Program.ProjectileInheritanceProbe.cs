@@ -127,7 +127,7 @@ internal static class ProjectileInheritanceProbeVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        var level = runtime.Room.LevelData!;
+        var level = runtime.Room.LoadedLevelData;
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)
         {
@@ -136,14 +136,14 @@ internal static class ProjectileInheritanceProbeVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
             level.SetBehavior(index, 0);
         }
-        var samus = runtime.Player.Samus!;
+        var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.SelectedHudItem = weapon;
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(512, 490));
-        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
+        runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
         for (int frame = 0; frame < 20; frame++) runtime.StepFrame((ushort)SnesButton.Right);
@@ -160,12 +160,12 @@ internal static class ProjectileInheritanceProbeVerification
         BindRetailRuntimeFixture(restored);
         runtime.StepFrame((ushort)((ushort)SnesButton.Right | runtime.Options.ControllerBindings.Shoot));
         restored.StepFrame((ushort)((ushort)SnesButton.Right | restored.Options.ControllerBindings.Shoot));
-        var shot = runtime.Projectiles!.Slots.First(slot => slot.IsActive);
+        var shot = runtime.Projectiles.Slots.First(slot => slot.IsActive);
         AssertEqual(expected, shot.Velocity.X.SignedRawValue,
             "Next alpha fires using prior beta displacement before reset and this-frame movement");
-        AssertEqual(expected, restored.Projectiles!.Slots.First(slot => slot.IsActive).Velocity.X.SignedRawValue,
+        AssertEqual(expected, restored.Projectiles.Slots.First(slot => slot.IsActive).Velocity.X.SignedRawValue,
             "Debugger graph round trip retains native WRAM inheritance for resumed launch");
-        AssertEqual(runtime.Room.Camera!.Speed.Y.Fraction, records.CameraYSubspeed,
+        AssertEqual(runtime.Room.LoadedCamera.Speed.Y.Fraction, records.CameraYSubspeed,
             "Runtime publishes camera Y subspeed into the native shared record");
         byte[] beforeFreeze = records.CaptureDistanceRecords();
         runtime.Freeze.GameplayTimeFrozen = true;

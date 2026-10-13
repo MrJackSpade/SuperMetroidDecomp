@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Hardware;
+using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -69,7 +70,7 @@ internal sealed class RipperBehavior : IEnemySpecies
         RequireRipperTerrain(level, "GRipper");
         int displacement = unchecked((SnesSixteenSixteen.FromWhole((short)state.XVelocity)) | state.XSubvelocity);
         bool reverse = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-            level!,
+            level,
             slot,
             displacement);
         if (!reverse && unchecked((short)state.XVelocity) < 0)
@@ -112,7 +113,7 @@ internal sealed class RipperBehavior : IEnemySpecies
     {
         RequireRipperTerrain(level, "Ripper II");
         int displacement = unchecked((int)SnesSixteenSixteen.Compose(slot.VariableD, slot.VariableC));
-        if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level!, slot, displacement))
+        if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
         ReverseRipperVariant(
@@ -149,7 +150,7 @@ internal sealed class RipperBehavior : IEnemySpecies
         // in Variables D/C. On collision the native helper aligns the actor flush with the
         // wall before Ripper swaps direction and animation.
         int displacement = unchecked((int)SnesSixteenSixteen.Compose(slot.VariableD, slot.VariableC));
-        if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level!, slot, displacement))
+        if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
         bool wasMovingLeft = (short)slot.VariableD < 0;
@@ -196,7 +197,7 @@ internal sealed class RipperBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects movement outside a loaded collision allocation.</summary>
-    private static void RequireRipperTerrain(RoomLevelData? level, string species)
+    private static void RequireRipperTerrain([NotNull] RoomLevelData? level, string species)
     {
         if (level is null)
         {

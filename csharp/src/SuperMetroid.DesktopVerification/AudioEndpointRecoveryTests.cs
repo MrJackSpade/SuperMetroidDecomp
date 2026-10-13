@@ -58,11 +58,11 @@ internal static class AudioEndpointRecoveryTests
         using (var live = new RecoveringAudioOutput(() => native = new WaveOutAudioDevice(48000, 2, 1600, volumePercent: 0)))
         {
             live.Submit(new short[1600]);
-            native!.WaitForPendingSubmissions();
+            (native ?? throw new InvalidOperationException("Verification requires native.")).WaitForPendingSubmissions();
             live.Reset();
             live.Submit(new short[1600]);
-            native!.WaitForPendingSubmissions();
-            Check(native!.PreparedBufferCountForVerification == WaveOutAudioPolicy.PrerollSilenceBufferCount + 1,
+            native.WaitForPendingSubmissions();
+            Check(native.PreparedBufferCountForVerification == WaveOutAudioPolicy.PrerollSilenceBufferCount + 1,
                 "recovery wrapper must preserve native startup and pause-reset preroll");
         }
         Console.WriteLine("Audio endpoint recovery: reported driver loss, cleanup failure, bounded retry, current PCM on reconnect, queue pacing and pause loss pass.");
@@ -110,7 +110,7 @@ internal static class AudioEndpointRecoveryTests
         public void Dispose()
         {
             Disposals++;
-            if (DisposeFailure) throw new AggregateException("Previously reported worker failure", Failure!);
+            if (DisposeFailure) throw new AggregateException("Previously reported worker failure", (Failure ?? throw new InvalidOperationException("Verification requires Failure.")));
         }
     }
 }

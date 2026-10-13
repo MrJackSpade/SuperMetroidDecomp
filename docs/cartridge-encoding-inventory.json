@@ -23,18 +23,18 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 33024,
+    "RawHexLiteral": 33022,
     "PointerDispatch": 1292,
     "OpaqueWordArray": 1150,
     "CatalogHexLiteral": 101621,
     "JustifiedHexLiteral": 76,
     "OwnedWidthOperation": 122,
     "JustifiedWidthOperation": 3,
-    "CountdownSignTest": 8,
-    "CountdownSelfDecrement": 118,
-    "class:NumericQuantity": 56309,
+    "CountdownSignTest": 1,
+    "CountdownSelfDecrement": 53,
+    "class:NumericQuantity": 56244,
     "class:DomainIdentity": 6974,
-    "class:ComposableBits": 1827,
+    "class:ComposableBits": 1818,
     "class:StructuredInstruction": 44536,
     "class:CartridgeAddress": 26739,
     "class:Unknown": 1029,
@@ -1903,8 +1903,7 @@
         "PointerDispatch": 15,
         "OpaqueWordArray": 1,
         "CatalogHexLiteral": 839,
-        "CountdownSelfDecrement": 5,
-        "class:NumericQuantity": 759,
+        "class:NumericQuantity": 754,
         "class:DomainIdentity": 178,
         "class:ComposableBits": 48,
         "class:StructuredInstruction": 50,
@@ -1983,8 +1982,7 @@
           "totals": {
             "RawHexLiteral": 153,
             "PointerDispatch": 4,
-            "CountdownSelfDecrement": 5,
-            "class:NumericQuantity": 109,
+            "class:NumericQuantity": 104,
             "class:DomainIdentity": 1,
             "class:ComposableBits": 46,
             "class:CartridgeAddress": 4,
@@ -2194,8 +2192,8 @@
         "RawHexLiteral": 159,
         "PointerDispatch": 17,
         "CatalogHexLiteral": 269,
-        "CountdownSelfDecrement": 2,
-        "class:NumericQuantity": 235,
+        "CountdownSelfDecrement": 1,
+        "class:NumericQuantity": 234,
         "class:DomainIdentity": 4,
         "class:ComposableBits": 21,
         "class:CartridgeAddress": 171,
@@ -2228,8 +2226,8 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 115,
-            "CountdownSelfDecrement": 2,
-            "class:NumericQuantity": 83,
+            "CountdownSelfDecrement": 1,
+            "class:NumericQuantity": 82,
             "class:DomainIdentity": 4,
             "class:ComposableBits": 16,
             "class:Unknown": 14
@@ -2403,8 +2401,8 @@
         "RawHexLiteral": 140,
         "PointerDispatch": 28,
         "CatalogHexLiteral": 171,
-        "CountdownSelfDecrement": 8,
-        "class:NumericQuantity": 143,
+        "CountdownSelfDecrement": 6,
+        "class:NumericQuantity": 141,
         "class:DomainIdentity": 42,
         "class:ComposableBits": 16,
         "class:CartridgeAddress": 131,
@@ -2483,8 +2481,8 @@
           "totals": {
             "RawHexLiteral": 46,
             "PointerDispatch": 5,
-            "CountdownSelfDecrement": 8,
-            "class:NumericQuantity": 35,
+            "CountdownSelfDecrement": 6,
+            "class:NumericQuantity": 33,
             "class:ComposableBits": 14,
             "class:CartridgeAddress": 7,
             "class:Unknown": 3,
@@ -2698,8 +2696,8 @@
         "OpaqueWordArray": 14,
         "CatalogHexLiteral": 1012,
         "OwnedWidthOperation": 1,
-        "CountdownSelfDecrement": 7,
-        "class:NumericQuantity": 781,
+        "CountdownSelfDecrement": 4,
+        "class:NumericQuantity": 778,
         "class:DomainIdentity": 91,
         "class:ComposableBits": 57,
         "class:StructuredInstruction": 192,
@@ -2907,8 +2905,8 @@
             "RawHexLiteral": 222,
             "PointerDispatch": 2,
             "OpaqueWordArray": 1,
-            "CountdownSelfDecrement": 5,
-            "class:NumericQuantity": 141,
+            "CountdownSelfDecrement": 4,
+            "class:NumericQuantity": 140,
             "class:DomainIdentity": 5,
             "class:ComposableBits": 32,
             "class:StructuredInstruction": 15,
@@ -3230,8 +3228,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 4,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 3,
+            "class:NumericQuantity": 2,
             "class:ComposableBits": 2
           }
         },
@@ -3277,8 +3274,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 34,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 29,
+            "class:NumericQuantity": 28,
             "class:ComposableBits": 3,
             "class:CartridgeAddress": 1,
             "class:Unknown": 2
@@ -3997,8 +3993,8 @@
         "PointerDispatch": 36,
         "CatalogHexLiteral": 1476,
         "OwnedWidthOperation": 1,
-        "CountdownSelfDecrement": 2,
-        "class:NumericQuantity": 996,
+        "CountdownSelfDecrement": 1,
+        "class:NumericQuantity": 995,
         "class:DomainIdentity": 75,
         "class:ComposableBits": 90,
         "class:CartridgeAddress": 490,
@@ -4117,8 +4113,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 5,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 4,
+            "class:NumericQuantity": 3,
             "class:ComposableBits": 2
           }
         },
@@ -8038,17 +8033,16 @@
     {
       "name": "Gameplay core",
       "totals": {
-        "RawHexLiteral": 790,
+        "RawHexLiteral": 789,
         "PointerDispatch": 20,
         "OpaqueWordArray": 6,
         "CatalogHexLiteral": 1738,
         "JustifiedHexLiteral": 1,
         "OwnedWidthOperation": 6,
-        "CountdownSignTest": 1,
-        "CountdownSelfDecrement": 9,
-        "class:NumericQuantity": 1071,
+        "CountdownSelfDecrement": 2,
+        "class:NumericQuantity": 1064,
         "class:DomainIdentity": 237,
-        "class:ComposableBits": 115,
+        "class:ComposableBits": 113,
         "class:StructuredInstruction": 521,
         "class:CartridgeAddress": 590,
         "class:Unknown": 37,
@@ -8206,8 +8200,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 3,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 2,
+            "class:NumericQuantity": 1,
             "class:ComposableBits": 1,
             "class:CartridgeAddress": 1
           }
@@ -8626,8 +8619,8 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 9,
-            "CountdownSelfDecrement": 2,
-            "class:NumericQuantity": 8,
+            "CountdownSelfDecrement": 1,
+            "class:NumericQuantity": 7,
             "class:ComposableBits": 3
           }
         },
@@ -8796,8 +8789,7 @@
           "totals": {
             "RawHexLiteral": 22,
             "PointerDispatch": 1,
-            "CountdownSelfDecrement": 3,
-            "class:NumericQuantity": 16,
+            "class:NumericQuantity": 13,
             "class:DomainIdentity": 4,
             "class:ComposableBits": 4,
             "class:CartridgeAddress": 2
@@ -8888,8 +8880,6 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 2,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 1,
             "class:ComposableBits": 2
           }
         },
@@ -8897,11 +8887,8 @@
           "path": "csharp/src/SuperMetroid.Core/Game/PipeBugsBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 5,
-            "CountdownSignTest": 1,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 1,
-            "class:ComposableBits": 6
+            "RawHexLiteral": 4,
+            "class:ComposableBits": 4
           }
         },
         {
@@ -9484,11 +9471,9 @@
         "OpaqueWordArray": 1011,
         "CatalogHexLiteral": 5424,
         "OwnedWidthOperation": 59,
-        "CountdownSignTest": 5,
-        "CountdownSelfDecrement": 16,
-        "class:NumericQuantity": 10400,
+        "class:NumericQuantity": 10384,
         "class:DomainIdentity": 618,
-        "class:ComposableBits": 574,
+        "class:ComposableBits": 569,
         "class:StructuredInstruction": 14285,
         "class:CartridgeAddress": 8154,
         "class:Unknown": 524,
@@ -12251,8 +12236,7 @@
           "totals": {
             "RawHexLiteral": 25,
             "PointerDispatch": 2,
-            "CountdownSelfDecrement": 2,
-            "class:NumericQuantity": 6,
+            "class:NumericQuantity": 4,
             "class:CartridgeAddress": 23,
             "storageWidthMembers": 3
           }
@@ -12777,11 +12761,8 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 3,
-            "CountdownSignTest": 1,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 2,
+            "class:NumericQuantity": 1,
             "class:DomainIdentity": 1,
-            "class:ComposableBits": 1,
             "class:Unknown": 1
           }
         },
@@ -12800,8 +12781,7 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 9,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 4,
+            "class:NumericQuantity": 3,
             "class:CartridgeAddress": 6
           }
         },
@@ -14233,8 +14213,6 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 22,
-            "CountdownSelfDecrement": 2,
-            "class:NumericQuantity": 2,
             "class:DomainIdentity": 17,
             "class:ComposableBits": 4,
             "class:CartridgeAddress": 1
@@ -15601,10 +15579,6 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 4,
-            "CountdownSignTest": 1,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 1,
-            "class:ComposableBits": 1,
             "class:CartridgeAddress": 4
           }
         },
@@ -15623,8 +15597,6 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 2,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 1,
             "class:DomainIdentity": 2
           }
         },
@@ -15633,10 +15605,6 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 2,
-            "CountdownSignTest": 2,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 1,
-            "class:ComposableBits": 2,
             "class:CartridgeAddress": 2
           }
         },
@@ -15811,8 +15779,7 @@
           "totals": {
             "RawHexLiteral": 293,
             "OpaqueWordArray": 8,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 201,
+            "class:NumericQuantity": 200,
             "class:StructuredInstruction": 74,
             "class:CartridgeAddress": 27
           }
@@ -17849,8 +17816,7 @@
             "RawHexLiteral": 582,
             "PointerDispatch": 3,
             "OpaqueWordArray": 5,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 125,
+            "class:NumericQuantity": 124,
             "class:DomainIdentity": 48,
             "class:ComposableBits": 27,
             "class:StructuredInstruction": 32,
@@ -19409,8 +19375,7 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 10,
-            "CountdownSelfDecrement": 2,
-            "class:NumericQuantity": 6,
+            "class:NumericQuantity": 4,
             "class:CartridgeAddress": 6
           }
         },
@@ -19839,8 +19804,7 @@
           "totals": {
             "RawHexLiteral": 924,
             "OpaqueWordArray": 2,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 5,
+            "class:NumericQuantity": 4,
             "class:DomainIdentity": 2,
             "class:StructuredInstruction": 916,
             "class:CartridgeAddress": 3,
@@ -20013,8 +19977,7 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 3,
-            "CountdownSelfDecrement": 2,
-            "class:NumericQuantity": 4,
+            "class:NumericQuantity": 2,
             "class:CartridgeAddress": 1
           }
         },
@@ -20814,9 +20777,7 @@
           "totals": {
             "RawHexLiteral": 1028,
             "OpaqueWordArray": 58,
-            "CountdownSignTest": 1,
             "class:NumericQuantity": 157,
-            "class:ComposableBits": 1,
             "class:StructuredInstruction": 885,
             "class:CartridgeAddress": 39,
             "class:Unknown": 5
@@ -22874,8 +22835,7 @@
         "PointerDispatch": 87,
         "OpaqueWordArray": 3,
         "CatalogHexLiteral": 1159,
-        "CountdownSelfDecrement": 6,
-        "class:NumericQuantity": 904,
+        "class:NumericQuantity": 898,
         "class:DomainIdentity": 112,
         "class:ComposableBits": 16,
         "class:StructuredInstruction": 43,
@@ -22928,8 +22888,6 @@
           "path": "csharp/src/SuperMetroid.Core/Frontend/CeresDepartureState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 1,
             "storageWidthMembers": 1
           }
         },
@@ -23172,8 +23130,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 1,
-            "CountdownSelfDecrement": 2,
-            "class:NumericQuantity": 3,
+            "class:NumericQuantity": 1,
             "storageWidthMembers": 12
           }
         },
@@ -23397,8 +23354,6 @@
           "path": "csharp/src/SuperMetroid.Core/Frontend/FileSelectMapMenuState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CountdownSelfDecrement": 2,
-            "class:NumericQuantity": 2,
             "storageWidthMembers": 2
           }
         },
@@ -23957,8 +23912,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 11,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 12,
+            "class:NumericQuantity": 11,
             "storageWidthMembers": 5
           }
         },
@@ -26037,18 +25991,16 @@
     {
       "name": "Samus: movement, poses and projectiles",
       "totals": {
-        "RawHexLiteral": 301,
+        "RawHexLiteral": 300,
         "PointerDispatch": 22,
         "OpaqueWordArray": 9,
         "CatalogHexLiteral": 30847,
         "JustifiedHexLiteral": 2,
         "OwnedWidthOperation": 9,
         "JustifiedWidthOperation": 3,
-        "CountdownSignTest": 1,
-        "CountdownSelfDecrement": 24,
-        "class:NumericQuantity": 1030,
+        "class:NumericQuantity": 1006,
         "class:DomainIdentity": 610,
-        "class:ComposableBits": 155,
+        "class:ComposableBits": 153,
         "class:StructuredInstruction": 28757,
         "class:CartridgeAddress": 617,
         "class:Unknown": 49,
@@ -26251,8 +26203,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 6,
-            "CountdownSelfDecrement": 6,
-            "class:NumericQuantity": 9,
+            "class:NumericQuantity": 3,
             "class:ComposableBits": 1,
             "class:Unknown": 2
           }
@@ -26497,11 +26448,9 @@
           "path": "csharp/src/SuperMetroid.Core/Game/SamusBombProjectileSystem.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 19,
-            "CountdownSignTest": 1,
-            "CountdownSelfDecrement": 2,
-            "class:NumericQuantity": 4,
-            "class:ComposableBits": 18,
+            "RawHexLiteral": 18,
+            "class:NumericQuantity": 2,
+            "class:ComposableBits": 16,
             "storageWidthMembers": 11
           }
         },
@@ -26545,8 +26494,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 2,
-            "CountdownSelfDecrement": 3,
-            "class:NumericQuantity": 5,
+            "class:NumericQuantity": 2,
             "storageWidthMembers": 5
           }
         },
@@ -26653,8 +26601,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 13,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 4,
+            "class:NumericQuantity": 3,
             "class:DomainIdentity": 3,
             "class:ComposableBits": 7,
             "storageWidthMembers": 16
@@ -26869,8 +26816,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 9,
-            "CountdownSelfDecrement": 6,
-            "class:NumericQuantity": 11,
+            "class:NumericQuantity": 5,
             "class:ComposableBits": 4,
             "storageWidthMembers": 13
           }
@@ -26998,8 +26944,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 6,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 3,
+            "class:NumericQuantity": 2,
             "class:ComposableBits": 4
           }
         },
@@ -27028,8 +26973,6 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 1,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 1,
             "class:ComposableBits": 1
           }
         },
@@ -27067,8 +27010,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 6,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 7,
+            "class:NumericQuantity": 6,
             "storageWidthMembers": 8
           }
         },
@@ -27121,8 +27063,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 1,
-            "CountdownSelfDecrement": 3,
-            "class:NumericQuantity": 4,
+            "class:NumericQuantity": 1,
             "storageWidthMembers": 6
           }
         },

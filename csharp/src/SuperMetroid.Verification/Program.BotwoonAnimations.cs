@@ -246,7 +246,7 @@ internal static class BotwoonAnimationsVerification
         {
             pass(projectile);
             ushort old = timer;
-            timer = unchecked((ushort)(timer - 1));
+            timer = NativeWordCounter.Decrement(timer).Value;
             if (old == 1)
             {
                 for (int command = 0; command < 8; command++)
@@ -296,7 +296,7 @@ internal static class BotwoonAnimationsVerification
         internal bool Step(SuperMetroidAddressSpace rom)
         {
             ushort old = Timer;
-            Timer = unchecked((ushort)(Timer - 1));
+            Timer = NativeWordCounter.Decrement(Timer).Value;
             if (old != 1)
             {
                 NewFrame = false;

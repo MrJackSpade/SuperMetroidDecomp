@@ -95,8 +95,9 @@ internal static class GrappleFlarePresentationVerification
             if (SamusGrappleMovement.UsesBeamSpecificDrawingPath(native.Grapple.Phase) && native.Grapple.FlareCounter != 0)
             {
                 if (native.Grapple.FlareCounter == 1) { expectedFrame = 16; expectedTimer = 3; }
-                expectedTimer = unchecked((ushort)(expectedTimer - 1));
-                if ((short)expectedTimer < 0)
+                NativeWordCounterStep expectedStep = NativeWordCounter.Decrement(expectedTimer);
+                expectedTimer = expectedStep.Value;
+                if (expectedStep.IsNegative)
                 {
                     expectedFrame = unchecked((ushort)(expectedFrame + 1));
                     byte delay = GrappleFlarePresentationRomByte(bus, SamusGrappleRomData.Firing.MainFlareAnimationDelays + expectedFrame);

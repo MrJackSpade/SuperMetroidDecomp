@@ -1324,7 +1324,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         RoomEnemyProjectileSlot bomb,
         MotherBrainEnemyState state)
     {
-        state.BombCounter = unchecked((ushort)(state.BombCounter - 1));
+        state.BombCounter = NativeWordCounter.Decrement(state.BombCounter).Value;
         bomb.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         bomb.Clear();
     }

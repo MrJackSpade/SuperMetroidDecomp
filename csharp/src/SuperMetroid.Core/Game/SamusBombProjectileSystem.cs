@@ -402,7 +402,7 @@ public sealed class SamusBombProjectileSystem
 
         if (placingPowerBomb)
         {
-            samus.PowerBombs = unchecked((ushort)(samus.PowerBombs - 1));
+            samus.PowerBombs = NativeWordCounter.Decrement(samus.PowerBombs).Value;
             PowerBombExplosion.Arm();
         }
 
@@ -1195,9 +1195,8 @@ public sealed class SamusBombProjectileSystem
 
         // ClearProjectile decrements the aggregate for byte indices >= $0A and clamps a
         // signed underflow to zero. Consistent state cannot underflow, but the clamp is real.
-        BombCounter = unchecked((ushort)(BombCounter - 1));
-        if ((BombCounter & 0x8000) != 0)
-            BombCounter = 0;
+        NativeWordCounterStep remaining = NativeWordCounter.Decrement(BombCounter);
+        BombCounter = remaining.IsNegative ? (ushort)0 : remaining.Value;
     }
 
 }

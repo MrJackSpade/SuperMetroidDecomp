@@ -18,8 +18,9 @@ internal static class GrapplePointAnimationVerification
         ushort expectedTimer = 5, expectedPointer = begin;
         for (int tick = 0; tick < 48; tick++)
         {
-            expectedTimer = unchecked((ushort)(expectedTimer - 1));
-            if ((short)expectedTimer < 0)
+            NativeWordCounterStep expectedStep = NativeWordCounter.Decrement(expectedTimer);
+            expectedTimer = expectedStep.Value;
+            if (expectedStep.IsNegative)
             {
                 expectedTimer = 5;
                 expectedPointer = unchecked((ushort)(expectedPointer + 512));
@@ -36,8 +37,9 @@ internal static class GrapplePointAnimationVerification
         {
             grapple.PointAnimationFrame = (byte)frame; grapple.PointAnimationTimer = NativeCountdown.FromRaw(timer);
             expectedPointer = unchecked((ushort)(begin + frame * 512));
-            expectedTimer = unchecked((ushort)(timer - 1));
-            if ((short)expectedTimer < 0)
+            NativeWordCounterStep expectedStep = NativeWordCounter.Decrement(timer);
+            expectedTimer = expectedStep.Value;
+            if (expectedStep.IsNegative)
             {
                 expectedTimer = 5; expectedPointer = unchecked((ushort)(expectedPointer + 512));
                 if (unchecked((short)(expectedPointer - end)) >= 0) expectedPointer = begin;

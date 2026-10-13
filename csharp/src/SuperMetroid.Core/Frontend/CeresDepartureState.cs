@@ -73,7 +73,7 @@ public sealed class CeresDepartureState
         // rather than a representable brightness zero, which is exposed here as Complete.
         if (Brightness > 1)
         {
-            Brightness--;
+            Brightness = NativeWordCounter.DecrementByte(Brightness);
             return false;
         }
 

@@ -311,11 +311,11 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         }
 
         if (MorphBallEyeBeam.Red != 0x20)
-            MorphBallEyeBeam.Red--;
+            MorphBallEyeBeam.Red = NativeWordCounter.DecrementByte(MorphBallEyeBeam.Red);
         if (MorphBallEyeBeam.Green != 0x40)
-            MorphBallEyeBeam.Green--;
+            MorphBallEyeBeam.Green = NativeWordCounter.DecrementByte(MorphBallEyeBeam.Green);
         if (MorphBallEyeBeam.Blue != 0x80)
-            MorphBallEyeBeam.Blue--;
+            MorphBallEyeBeam.Blue = NativeWordCounter.DecrementByte(MorphBallEyeBeam.Blue);
     }
 
     /// <summary>Rejects a beam whose saved body slot is missing, wrong species, or a mount rather than the eye body.</summary>

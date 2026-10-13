@@ -32,7 +32,7 @@ internal static class CeresSpawnerScheduleVerification
                     if (frame >= departure) disabled = true;
                     else
                     {
-                        countdown = unchecked((ushort)(countdown - 1));
+                        countdown = NativeWordCounter.Decrement(countdown).Value;
                         if ((short)countdown <= 0)
                         {
                             expected = expected with { Repeating = true };

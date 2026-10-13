@@ -458,7 +458,7 @@ false);
             ? samus.Health > 1
             : hasNativeEnergy;
         if (drained)
-            samus.Health = unchecked((ushort)(samus.Health - 1));
+            samus.Health = NativeWordCounter.Decrement(samus.Health).Value;
 
         return new ShinesparkMovementResult(
 false);

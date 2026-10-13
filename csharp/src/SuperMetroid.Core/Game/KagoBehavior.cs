@@ -269,8 +269,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         // of one therefore decrements to zero and remains idle until the following frame.
         if (projectile.CollidedProjectileType != 0)
         {
-            projectile.CollidedProjectileType = unchecked((ushort)(
-                projectile.CollidedProjectileType - 1));
+            projectile.CollidedProjectileType = NativeWordCounter.Decrement(projectile.CollidedProjectileType).Value;
             return;
         }
 

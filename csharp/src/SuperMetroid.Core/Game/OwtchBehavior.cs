@@ -137,7 +137,7 @@ internal sealed class OwtchBehavior : IEnemySpecies
 
             case OwtchBehaviorState.Rising:
                 slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 1)));
-                state.SinkYOffset = unchecked((ushort)(state.SinkYOffset - 1));
+                state.SinkYOffset = NativeWordCounter.Decrement(state.SinkYOffset).Value;
                 if (state.SinkYOffset == 0)
                 {
                     // $A2:A549 samples RandomNumberSeed+1 without advancing the RNG. The

@@ -181,13 +181,13 @@ public sealed class FileSelectMapMenuState
                 }
                 break;
             case FileSelectMapNavigationPhase.OptionsRequested:
-                if (brightness > 0) brightness--;
+                if (brightness > 0) brightness = NativeWordCounter.DecrementByte(brightness);
                 OptionsRequested = brightness == 0;
                 break;
             case FileSelectMapNavigationPhase.LoadRequested:
                 pendingFrames++;
                 if (pendingFrames <= FileSelectMapRomData.LoadPreludeFrames) break;
-                if (brightness > 0) { brightness--; break; }
+                if (brightness > 0) { brightness = NativeWordCounter.DecrementByte(brightness); break; }
                 LoadRequested = pendingFrames >= FileSelectMapRomData.LoadPreludeFrames + 15 + FileSelectMapRomData.LoadBlackFrames;
                 break;
             // Navigation itself advances these phases; no menu countdown runs.

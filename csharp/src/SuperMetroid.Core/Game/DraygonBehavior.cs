@@ -1652,7 +1652,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
             return;
         }
 
-        state.SpiralAngleDelta = unchecked((ushort)(state.SpiralAngleDelta - 1));
+        state.SpiralAngleDelta = NativeWordCounter.Decrement(state.SpiralAngleDelta).Value;
         state.SpiralAngle = unchecked((byte)(
             state.SpiralAngle + SnesUnsignedEightEight.Whole(state.SpiralAngleDelta)));
 

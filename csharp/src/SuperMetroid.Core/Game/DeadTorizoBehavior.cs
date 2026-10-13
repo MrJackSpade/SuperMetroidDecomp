@@ -132,7 +132,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
             if (state.SandLineCounter != 0)
             {
                 CopyDeadTorizoSandLine(state.SandLineCounter);
-                state.SandLineCounter = unchecked((ushort)(state.SandLineCounter - 1));
+                state.SandLineCounter = NativeWordCounter.Decrement(state.SandLineCounter).Value;
                 state.SandLineCopyCount++;
             }
         }

@@ -46,7 +46,7 @@ internal static class RechargeStationAdmissionVerification
             AssertTrue(!samus.InputLocked && plms.Stations.StationActivationEvents.Count == 0,
                 "rejected recharge starts no operation and leaves controller enabled");
 
-            if (missile) samus.Missiles--; else samus.Health--;
+            if (missile) samus.Missiles = NativeWordCounter.Decrement(samus.Missiles).Value; else samus.Health = NativeWordCounter.Decrement(samus.Health).Value;
             AssertTrue(Touch() && samus.InputLocked, "needed recharge takes control during collision setup");
             // The first access-list instruction rechecks fullness and explicitly
             // restores movement before deleting an access that no longer needs refill.

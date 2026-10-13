@@ -272,13 +272,13 @@ public sealed class SamusCrystalFlashState
         switch (AmmoDecrementIndex)
         {
             case 0:
-                samus.Missiles = unchecked((ushort)(samus.Missiles - 1));
+                samus.Missiles = NativeWordCounter.Decrement(samus.Missiles).Value;
                 break;
             case 1:
-                samus.SuperMissiles = unchecked((ushort)(samus.SuperMissiles - 1));
+                samus.SuperMissiles = NativeWordCounter.Decrement(samus.SuperMissiles).Value;
                 break;
             case 2:
-                samus.PowerBombs = unchecked((ushort)(samus.PowerBombs - 1));
+                samus.PowerBombs = NativeWordCounter.Decrement(samus.PowerBombs).Value;
                 break;
             default:
                 throw new InvalidOperationException(

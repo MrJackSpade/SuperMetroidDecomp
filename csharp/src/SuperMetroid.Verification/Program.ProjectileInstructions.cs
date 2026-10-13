@@ -138,7 +138,7 @@ internal static class ProjectileInstructionsVerification
             for (int frame = 0; frame < 64; frame++)
             {
                 bool deleted = false;
-                timer = unchecked((ushort)(timer - 1));
+                timer = NativeWordCounter.Decrement(timer).Value;
                 if (timer == 0)
                 {
                     int operations = 0;

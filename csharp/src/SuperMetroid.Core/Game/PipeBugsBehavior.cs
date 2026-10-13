@@ -554,8 +554,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         AddYellowPipeBugHorizontalVelocity(slot, state, movingLeft);
         if (state.ArcPhase != 0)
         {
-            state.ArcCounter = unchecked((ushort)(state.ArcCounter - 1));
-            if ((state.ArcCounter & 0x8000) != 0)
+            NativeWordCounterStep arc = NativeWordCounter.Decrement(state.ArcCounter);
+            state.ArcCounter = arc.Value;
+            if (arc.IsNegative)
             {
                 state.ArcCounter = 0;
                 state.ArcPhase = 0;

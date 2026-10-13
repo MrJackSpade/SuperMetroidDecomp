@@ -399,7 +399,7 @@ internal sealed class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.PostCreditsWhiteFlash:
-                if (whiteFlashColor > 0) whiteFlashColor--;
+                if (whiteFlashColor > 0) whiteFlashColor = NativeWordCounter.DecrementByte(whiteFlashColor);
                 rewardJump!.Step(objectArtwork is null
                     ? null : EndingRewardInstructionDefinitions.ReadWord);
                 if (--phaseTimer <= 0) FinishPostCreditsWhiteFlash();
@@ -1248,7 +1248,7 @@ internal sealed class EndingCreditsState
     private void StepFlyawayFade()
     {
         if (--flyawayFadeCountdown > 0) return;
-        if (flyawayWhite > 0) flyawayWhite--;
+        if (flyawayWhite > 0) flyawayWhite = NativeWordCounter.DecrementByte(flyawayWhite);
         flyawayFadeCountdown = EndingFlyawayFadeDefinitions.Interval;
     }
 

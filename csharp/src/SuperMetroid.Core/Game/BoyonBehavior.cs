@@ -184,7 +184,7 @@ internal sealed class BoyonBehavior : IEnemySpecies
     {
         state.Speed = MultiplyBoyonCurveEntry(state);
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (SnesEightEight.WholeOf(state.Speed)))));
-        state.SpeedTableIndex = unchecked((ushort)(state.SpeedTableIndex - 1));
+        state.SpeedTableIndex = NativeWordCounter.Decrement(state.SpeedTableIndex).Value;
         if ((state.SpeedTableIndex & 0x8000) != 0)
             state.BounceMovement = BoyonBounceMovement.Falling;
     }

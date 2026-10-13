@@ -46,7 +46,7 @@ internal static class MotherBrainShotReaction
         // DEC turns reaction one into zero, sending either missile kind directly to the
         // zero label. Reaction zero wraps to `$FFFF`; reaction two outside form four leaves
         // one. Both nonzero cases subtract `$0100` and clamp signed underflow to zero.
-        reactionType = unchecked((ushort)(reactionType - 1));
+        reactionType = NativeWordCounter.Decrement(reactionType).Value;
         if (reactionType == 0)
             return new MotherBrainShotReactionResult(0, HyperBeamRecoil: false);
 

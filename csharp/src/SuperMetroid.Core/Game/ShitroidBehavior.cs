@@ -613,8 +613,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         }
         else if (state.HorizontalLockAccumulator != 0)
         {
-            state.HorizontalLockAccumulator = unchecked((ushort)(
-                state.HorizontalLockAccumulator - 1));
+            state.HorizontalLockAccumulator = NativeWordCounter.Decrement(state.HorizontalLockAccumulator).Value;
         }
     }
 

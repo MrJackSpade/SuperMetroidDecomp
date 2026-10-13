@@ -121,6 +121,9 @@ internal static class CartridgeEncodingAnalyzerTests
         // A word compared with a byte's sign bit is a threshold, not a sign test, and a byte has no bit 15.
         ExpectEncoding("", [(functional, countdown + "bool M() => FunctionTimer >= 128; }")]);
         ExpectEncoding("", [(functional, countdown + "bool M() => (DelayFrames & 32768) != 0; }")]);
+        ExpectEncoding("", [(functional, countdown + "int ElapsedFrames; bool M() => ElapsedFrames < 128; }")]);
+        ExpectEncoding("", [(functional, countdown + "int WaitTimer; bool M() => WaitTimer >= 32768; }")],
+            (CartridgeEncodingAnalyzer.CountdownSignTestId, "'WaitTimer >= 32768'"));
         ExpectEncoding("", [(functional, countdown + "int WaitTimer; bool M() => (WaitTimer & 128) != 0; }")],
             (CartridgeEncodingAnalyzer.CountdownSignTestId, "'WaitTimer & 128'"));
         ExpectEncoding("", [(functional, countdown + "ushort[] SegmentTimers = new ushort[2]; bool M() => (SegmentTimers[0] & 32768) != 0; }")],

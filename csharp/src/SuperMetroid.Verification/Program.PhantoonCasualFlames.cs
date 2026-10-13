@@ -67,12 +67,12 @@ internal static class PhantoonCasualFlamesVerification
                 mouth.CurrentInstruction = 0;
                 mouth.InstructionTimer = NativeCountdown.Start(0);
                 bool draw = false;
-                timer = unchecked((ushort)(timer - 1));
+                timer = NativeWordCounter.Decrement(timer).Value;
                 if ((short)timer <= 0)
                 {
                     if ((short)count >= 0)
                     {
-                        count = unchecked((ushort)(count - 1));
+                        count = NativeWordCounter.Decrement(count).Value;
                         if ((short)count <= 0)
                         {
                             count = 0xffff;

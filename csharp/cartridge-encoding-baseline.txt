@@ -151,7 +151,6 @@ csharp/src/SuperMetroid.Core/Audio/SoundEffectId.cs	SME6340	7
 csharp/src/SuperMetroid.Core/Audio/SpcDriverData.cs	SME6340	34
 csharp/src/SuperMetroid.Core/Audio/SpcMusicEffect.cs	SME6340	31
 csharp/src/SuperMetroid.Core/Frontend/CartridgePaletteTransition.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Frontend/CeresDepartureState.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Frontend/CeresDestructionActorDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Frontend/CeresDestructionSpriteInstructionDefinitions.cs	SME6341	8
 csharp/src/SuperMetroid.Core/Frontend/CeresExplosionInstructionDefinitions.cs	SME6341	4
@@ -161,7 +160,6 @@ csharp/src/SuperMetroid.Core/Frontend/EndingAnimalEscapeDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Core/Frontend/EndingCloudInstructionDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Frontend/EndingCompletionTextInstructionDefinitions.cs	SME6341	10
 csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs	SME6349	2
 csharp/src/SuperMetroid.Core/Frontend/EndingExplosionInstructionDefinitions.cs	SME6341	13
 csharp/src/SuperMetroid.Core/Frontend/EndingLogoInstructionDefinitions.cs	SME6341	5
 csharp/src/SuperMetroid.Core/Frontend/EndingLogoPalettePointerDefinitions.cs	SME6341	2
@@ -171,7 +169,6 @@ csharp/src/SuperMetroid.Core/Frontend/EndingShootingStars.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Frontend/EndingSpritePreInstructions.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Frontend/FileSelectAreaMapGraphics.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Frontend/FileSelectHelmetAnimation.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Frontend/FileSelectMapMenuState.cs	SME6349	2
 csharp/src/SuperMetroid.Core/Frontend/FileSelectMenuState.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Frontend/FileSelectRoomMapGraphics.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Frontend/FileSelectTilemaps.cs	SME6340	21
@@ -200,7 +197,6 @@ csharp/src/SuperMetroid.Core/Frontend/ScreenFade.cs	SME6340	6
 csharp/src/SuperMetroid.Core/Frontend/SpaceColonyCaptionDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs	SME6340	70
 csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.cs	SME6340	11
-csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGameState.cs	SME6340	45
 csharp/src/SuperMetroid.Core/Frontend/TitleSequenceInstructionDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/AlcoonBehavior.cs	SME6340	9
@@ -217,7 +213,6 @@ csharp/src/SuperMetroid.Core/Game/Bank80SystemState.cs	SME6340	31
 csharp/src/SuperMetroid.Core/Game/BeaconPaletteFxProgramMechanicsDefinitions.cs	SME6341	4
 csharp/src/SuperMetroid.Core/Game/BeamCombos.cs	SME6340	14
 csharp/src/SuperMetroid.Core/Game/BeamFiring.cs	SME6340	6
-csharp/src/SuperMetroid.Core/Game/BeamFiring.cs	SME6349	6
 csharp/src/SuperMetroid.Core/Game/BeetomBehavior.cs	SME6340	20
 csharp/src/SuperMetroid.Core/Game/BeetomEnemyState.cs	SME6340	27
 csharp/src/SuperMetroid.Core/Game/BeetomInstructionProgramDefinitions.cs	SME6341	14
@@ -234,7 +229,6 @@ csharp/src/SuperMetroid.Core/Game/BoulderBehavior.cs	SME6340	14
 csharp/src/SuperMetroid.Core/Game/BoulderEnemyState.cs	SME6340	6
 csharp/src/SuperMetroid.Core/Game/BoulderInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/BoyonBehavior.cs	SME6340	3
-csharp/src/SuperMetroid.Core/Game/BoyonBehavior.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Game/BoyonInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/BrinstarPipeBugInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/BullBehavior.cs	SME6340	13
@@ -272,7 +266,6 @@ csharp/src/SuperMetroid.Core/Game/CrawlerEnemyState.cs	SME6340	7
 csharp/src/SuperMetroid.Core/Game/CrawlersBehavior.cs	SME6340	6
 csharp/src/SuperMetroid.Core/Game/CrocomireBehavior.cs	SME6340	153
 csharp/src/SuperMetroid.Core/Game/CrocomireBehavior.cs	SME6341	4
-csharp/src/SuperMetroid.Core/Game/CrocomireBehavior.cs	SME6349	5
 csharp/src/SuperMetroid.Core/Game/CrocomireDeathPhases.cs	SME6340	45
 csharp/src/SuperMetroid.Core/Game/CrocomireEnemyState.cs	SME6340	21
 csharp/src/SuperMetroid.Core/Game/CrocomireMeltingDefinitions.cs	SME6342	1
@@ -284,7 +277,6 @@ csharp/src/SuperMetroid.Core/Game/DachoraEnemyState.cs	SME6340	8
 csharp/src/SuperMetroid.Core/Game/DeadSidehopperBehavior.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Game/DeadSidehopperEnemyState.cs	SME6340	9
 csharp/src/SuperMetroid.Core/Game/DeadTorizoBehavior.cs	SME6340	5
-csharp/src/SuperMetroid.Core/Game/DeadTorizoBehavior.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Game/DeadTorizoEnemyState.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Game/DeadTourianBehavior.cs	SME6340	28
 csharp/src/SuperMetroid.Core/Game/DeadTourianCorpseInstructionProgramDefinitions.cs	SME6341	1
@@ -293,7 +285,7 @@ csharp/src/SuperMetroid.Core/Game/DragonBehavior.cs	SME6340	10
 csharp/src/SuperMetroid.Core/Game/DragonEnemyState.cs	SME6340	6
 csharp/src/SuperMetroid.Core/Game/DragonFireballInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Game/DraygonBehavior.cs	SME6340	115
-csharp/src/SuperMetroid.Core/Game/DraygonBehavior.cs	SME6349	2
+csharp/src/SuperMetroid.Core/Game/DraygonBehavior.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Game/DraygonCannonData.cs	SME6340	5
 csharp/src/SuperMetroid.Core/Game/DraygonCannonMemory.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Game/DraygonEnemyState.cs	SME6340	31
@@ -376,7 +368,7 @@ csharp/src/SuperMetroid.Core/Game/HudState.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Game/HyperBeamPaletteFxProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/HyperBeamPaletteFxState.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Game/KagoBehavior.cs	SME6340	9
-csharp/src/SuperMetroid.Core/Game/KagoBehavior.cs	SME6349	2
+csharp/src/SuperMetroid.Core/Game/KagoBehavior.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Game/KagoBugProjectileInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/KagoEnemyState.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Game/KagoInstructionProgramDefinitions.cs	SME6341	1
@@ -386,7 +378,7 @@ csharp/src/SuperMetroid.Core/Game/KiHunterEnemyState.cs	SME6340	13
 csharp/src/SuperMetroid.Core/Game/KraidArmInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Game/KraidBehavior.cs	SME6340	46
 csharp/src/SuperMetroid.Core/Game/KraidBehavior.cs	SME6341	5
-csharp/src/SuperMetroid.Core/Game/KraidBehavior.cs	SME6349	8
+csharp/src/SuperMetroid.Core/Game/KraidBehavior.cs	SME6349	6
 csharp/src/SuperMetroid.Core/Game/KraidBodyContour.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Game/KraidCeilingRockPositions.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Game/KraidHeadInstructionDefinitions.cs	SME6341	4
@@ -424,14 +416,13 @@ csharp/src/SuperMetroid.Core/Game/MochtroidBehavior.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/MorphBallEyeBehavior.cs	SME6340	22
 csharp/src/SuperMetroid.Core/Game/MorphBallEyeBehavior.cs	SME6341	1
-csharp/src/SuperMetroid.Core/Game/MorphBallEyeBehavior.cs	SME6349	3
 csharp/src/SuperMetroid.Core/Game/MorphBallEyeEnemyState.cs	SME6340	11
 csharp/src/SuperMetroid.Core/Game/MorphBallEyeInstructionProgramDefinitions.cs	SME6341	9
 csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs	SME6341	4
 csharp/src/SuperMetroid.Core/Game/MotherBrainBehavior.cs	SME6340	222
 csharp/src/SuperMetroid.Core/Game/MotherBrainBehavior.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/MotherBrainBehavior.cs	SME6342	1
-csharp/src/SuperMetroid.Core/Game/MotherBrainBehavior.cs	SME6349	5
+csharp/src/SuperMetroid.Core/Game/MotherBrainBehavior.cs	SME6349	4
 csharp/src/SuperMetroid.Core/Game/MotherBrainBodyInstructionProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs	SME6340	10
 csharp/src/SuperMetroid.Core/Game/MotherBrainDoorFragmentDefinitions.cs	SME6342	1
@@ -448,7 +439,6 @@ csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs	SME634
 csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamSamusMovement.cs	SME6340	19
 csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs	SME6341	4
 csharp/src/SuperMetroid.Core/Game/MotherBrainShotReaction.cs	SME6340	4
-csharp/src/SuperMetroid.Core/Game/MotherBrainShotReaction.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Game/MotherBrainSoundCommands.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Game/MotherBrainTurretInstructionProgramDefinitions.cs	SME6341	8
@@ -475,7 +465,6 @@ csharp/src/SuperMetroid.Core/Game/NuclearWaffleOrientation.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Game/NuclearWaffleProjectileInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Game/OwtchBehavior.cs	SME6340	2
-csharp/src/SuperMetroid.Core/Game/OwtchBehavior.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Game/OwtchEnemyState.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Game/OwtchInstructionProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Game/PhantoonBehavior.cs	SME6340	69
@@ -484,9 +473,7 @@ csharp/src/SuperMetroid.Core/Game/PhantoonEnemyState.cs	SME6340	32
 csharp/src/SuperMetroid.Core/Game/PhantoonInstructionProgramDefinitions.cs	SME6341	13
 csharp/src/SuperMetroid.Core/Game/PhantoonProjectileInstructionProgramDefinitions.cs	SME6341	12
 csharp/src/SuperMetroid.Core/Game/PipeBugEnemyState.cs	SME6340	22
-csharp/src/SuperMetroid.Core/Game/PipeBugsBehavior.cs	SME6340	5
-csharp/src/SuperMetroid.Core/Game/PipeBugsBehavior.cs	SME6348	1
-csharp/src/SuperMetroid.Core/Game/PipeBugsBehavior.cs	SME6349	1
+csharp/src/SuperMetroid.Core/Game/PipeBugsBehavior.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Game/PlanetZebesTextPaletteFxProgramMechanicsDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Game/PlatformInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/PolypBehavior.cs	SME6340	4
@@ -550,12 +537,9 @@ csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectsState.cs	SME6340	5
 csharp/src/SuperMetroid.Core/Game/SamusBeamCombination.cs	SME6340	17
 csharp/src/SuperMetroid.Core/Game/SamusBlockCollision.cs	SME6340	17
 csharp/src/SuperMetroid.Core/Game/SamusBombJumpMovement.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Game/SamusBombProjectileSystem.cs	SME6340	19
-csharp/src/SuperMetroid.Core/Game/SamusBombProjectileSystem.cs	SME6348	1
-csharp/src/SuperMetroid.Core/Game/SamusBombProjectileSystem.cs	SME6349	2
+csharp/src/SuperMetroid.Core/Game/SamusBombProjectileSystem.cs	SME6340	18
 csharp/src/SuperMetroid.Core/Game/SamusChargePalettePointerDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/SamusCrystalFlashState.cs	SME6340	2
-csharp/src/SuperMetroid.Core/Game/SamusCrystalFlashState.cs	SME6349	3
 csharp/src/SuperMetroid.Core/Game/SamusDeathExplosionTimingDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Core/Game/SamusDeathSequenceState.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Game/SamusDiscriminants.cs	SME6340	42
@@ -564,7 +548,6 @@ csharp/src/SuperMetroid.Core/Game/SamusDraygonGrabbedState.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Game/SamusExtraDisplacement.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Game/SamusGrappleMovement.cs	SME6340	26
 csharp/src/SuperMetroid.Core/Game/SamusHorizontalSpeedState.cs	SME6340	13
-csharp/src/SuperMetroid.Core/Game/SamusHorizontalSpeedState.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs	SME6342	2
 csharp/src/SuperMetroid.Core/Game/SamusHurtFlashPalette.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Game/SamusInsideBlockReactions.cs	SME6340	2
@@ -577,24 +560,19 @@ csharp/src/SuperMetroid.Core/Game/SamusPoseMetadata.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Game/SamusPoseTransitionTable.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Game/SamusPoseTransitions.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Game/SamusPowerBombExplosionState.cs	SME6340	9
-csharp/src/SuperMetroid.Core/Game/SamusPowerBombExplosionState.cs	SME6349	6
 csharp/src/SuperMetroid.Core/Game/SamusPowerBombFuseData.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Game/SamusPresentation.cs	SME6340	9
 csharp/src/SuperMetroid.Core/Game/SamusProjectileInheritance.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Game/SamusProjectileInstructionDefinitions.cs	SME6341	16
 csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.cs	SME6340	6
-csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Game/SamusReserveAutoRecoveryState.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Game/SamusReserveAutoRecoveryState.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Game/SamusScrollCap.cs	SME6340	5
 csharp/src/SuperMetroid.Core/Game/SamusShinesparkState.cs	SME6340	6
-csharp/src/SuperMetroid.Core/Game/SamusShinesparkState.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Game/SamusSlopePhysics.cs	SME6340	5
 csharp/src/SuperMetroid.Core/Game/SamusSolidEnemyCollision.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Game/SamusSpecialSuperPalette.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Game/SamusState.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Game/SamusSuitPickupState.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Game/SamusSuitPickupState.cs	SME6349	3
 csharp/src/SuperMetroid.Core/Game/SamusXrayState.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Game/SaveLoadingGameStates.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Game/SaveMirrorMemory.cs	SME6340	9
@@ -613,7 +591,6 @@ csharp/src/SuperMetroid.Core/Game/ShaktoolProjectileInstructionProgramDefinition
 csharp/src/SuperMetroid.Core/Game/ShaktoolSegmentState.cs	SME6340	8
 csharp/src/SuperMetroid.Core/Game/SharedCrawlerInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Game/ShitroidBehavior.cs	SME6340	34
-csharp/src/SuperMetroid.Core/Game/ShitroidBehavior.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Game/ShitroidInstructionProgramDefinitions.cs	SME6341	10
 csharp/src/SuperMetroid.Core/Game/ShitroidPlmRequest.cs	SME6340	23
 csharp/src/SuperMetroid.Core/Game/ShuttersBehavior.cs	SME6340	7
@@ -1117,7 +1094,6 @@ csharp/src/SuperMetroid.Verification/Program.BossResetOnLoad.cs	SME6340	24
 csharp/src/SuperMetroid.Verification/Program.BossResetOnLoad.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.BotwoonAnimations.cs	SME6340	25
 csharp/src/SuperMetroid.Verification/Program.BotwoonAnimations.cs	SME6341	2
-csharp/src/SuperMetroid.Verification/Program.BotwoonAnimations.cs	SME6349	2
 csharp/src/SuperMetroid.Verification/Program.BotwoonNavigationDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.BotwoonSpeeds.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Program.BotwoonWallPlms.cs	SME6340	35
@@ -1161,11 +1137,8 @@ csharp/src/SuperMetroid.Verification/Program.CeresReflectedStarParts.cs	SME6340	
 csharp/src/SuperMetroid.Verification/Program.CeresRidleyMode7Colors.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Program.CeresSaveStartup.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Program.CeresShaftRotation.cs	SME6340	3
-csharp/src/SuperMetroid.Verification/Program.CeresShaftRotation.cs	SME6348	1
-csharp/src/SuperMetroid.Verification/Program.CeresShaftRotation.cs	SME6349	1
 csharp/src/SuperMetroid.Verification/Program.CeresSmallAsteroidParts.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Program.CeresSpawnerSchedule.cs	SME6340	9
-csharp/src/SuperMetroid.Verification/Program.CeresSpawnerSchedule.cs	SME6349	1
 csharp/src/SuperMetroid.Verification/Program.CeresStarPointParts.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Program.CeresStationBlastParts.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Program.CeresStationParts.cs	SME6340	9
@@ -1314,7 +1287,6 @@ csharp/src/SuperMetroid.Verification/Program.EnemyEffectResources.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Program.EnemyEffects.Fixture.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Program.EnemyExtendedFrameArtwork.CommonEmpty.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Program.EnemyExtendedFrameArtwork.SporeSpawnSelectors.cs	SME6340	22
-csharp/src/SuperMetroid.Verification/Program.EnemyExtendedFrameArtwork.SporeSpawnSelectors.cs	SME6349	2
 csharp/src/SuperMetroid.Verification/Program.EnemyExtendedFrameArtwork.cs	SME6340	338
 csharp/src/SuperMetroid.Verification/Program.EnemyFireballLaunchDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.EnemyGameplayAcceptance.cs	SME6340	2
@@ -1459,14 +1431,9 @@ csharp/src/SuperMetroid.Verification/Program.GrappleEnemyDeath.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Program.GrappleFiringDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.GrappleFlarePlacement.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Program.GrappleFlarePresentation.cs	SME6340	4
-csharp/src/SuperMetroid.Verification/Program.GrappleFlarePresentation.cs	SME6348	1
-csharp/src/SuperMetroid.Verification/Program.GrappleFlarePresentation.cs	SME6349	1
 csharp/src/SuperMetroid.Verification/Program.GrappleGates.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Program.GrappleHurtFeedback.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Program.GrappleHurtFeedback.cs	SME6349	1
 csharp/src/SuperMetroid.Verification/Program.GrapplePointAnimation.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Program.GrapplePointAnimation.cs	SME6348	2
-csharp/src/SuperMetroid.Verification/Program.GrapplePointAnimation.cs	SME6349	1
 csharp/src/SuperMetroid.Verification/Program.GrappleRopeGeometry.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Program.GrappleSpin.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Program.GrappleSpriteArtwork.cs	SME6340	6
@@ -1482,7 +1449,6 @@ csharp/src/SuperMetroid.Verification/Program.GunshipEscapeTimer.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Program.GunshipLanding.cs	SME6340	59
 csharp/src/SuperMetroid.Verification/Program.Hardware.cs	SME6340	293
 csharp/src/SuperMetroid.Verification/Program.Hardware.cs	SME6342	8
-csharp/src/SuperMetroid.Verification/Program.Hardware.cs	SME6349	1
 csharp/src/SuperMetroid.Verification/Program.HeroShotRuntime.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Program.HeroShots.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Program.HighlightTilePixels.cs	SME6340	13
@@ -1733,7 +1699,6 @@ csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs	SME6342	19
 csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs	SME6340	582
 csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs	SME6341	3
 csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs	SME6342	5
-csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs	SME6349	1
 csharp/src/SuperMetroid.Verification/Program.LookupStream5.cs	SME6340	132
 csharp/src/SuperMetroid.Verification/Program.LookupStream5.cs	SME6342	6
 csharp/src/SuperMetroid.Verification/Program.LookupTorizoDoorProgram.cs	SME6340	42
@@ -1892,7 +1857,6 @@ csharp/src/SuperMetroid.Verification/Program.PauseSelectors.cs	SME6340	19
 csharp/src/SuperMetroid.Verification/Program.PauseWireframes.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Program.PermanentMessageFixture.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Program.PhantoonCasualFlames.cs	SME6340	10
-csharp/src/SuperMetroid.Verification/Program.PhantoonCasualFlames.cs	SME6349	2
 csharp/src/SuperMetroid.Verification/Program.PhantoonDeathExplosions.cs	SME6340	15
 csharp/src/SuperMetroid.Verification/Program.PhantoonFlameSound.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Program.PhantoonFlameSpawns.cs	SME6340	16
@@ -1935,7 +1899,6 @@ csharp/src/SuperMetroid.Verification/Program.ProjectileInheritanceProbe.cs	SME63
 csharp/src/SuperMetroid.Verification/Program.ProjectileInheritanceProbe.cs	SME6342	3
 csharp/src/SuperMetroid.Verification/Program.ProjectileInstructions.cs	SME6340	924
 csharp/src/SuperMetroid.Verification/Program.ProjectileInstructions.cs	SME6342	2
-csharp/src/SuperMetroid.Verification/Program.ProjectileInstructions.cs	SME6349	1
 csharp/src/SuperMetroid.Verification/Program.ProjectileNativeFixture.cs	SME6340	26
 csharp/src/SuperMetroid.Verification/Program.ProjectileOrigins.cs	SME6340	17
 csharp/src/SuperMetroid.Verification/Program.ProjectileOrigins.cs	SME6342	1
@@ -1956,7 +1919,6 @@ csharp/src/SuperMetroid.Verification/Program.Quicksand.cs	SME6340	82
 csharp/src/SuperMetroid.Verification/Program.Quicksand.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.RainbowReleaseKnockback.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Program.RechargeStationAdmission.cs	SME6340	3
-csharp/src/SuperMetroid.Verification/Program.RechargeStationAdmission.cs	SME6349	2
 csharp/src/SuperMetroid.Verification/Program.ReleasedSamusFallsOffDraygon.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Program.RenderingAndRooms.cs	SME6340	483
 csharp/src/SuperMetroid.Verification/Program.RenderingAndRooms.cs	SME6342	11
@@ -2035,7 +1997,6 @@ csharp/src/SuperMetroid.Verification/Program.SamusHyperBeamColors.cs	SME6340	52
 csharp/src/SuperMetroid.Verification/Program.SamusIndexedSpeeds.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Program.SamusMorphBall.cs	SME6340	1028
 csharp/src/SuperMetroid.Verification/Program.SamusMorphBall.cs	SME6342	58
-csharp/src/SuperMetroid.Verification/Program.SamusMorphBall.cs	SME6348	1
 csharp/src/SuperMetroid.Verification/Program.SamusMotionCore.cs	SME6340	121
 csharp/src/SuperMetroid.Verification/Program.SamusMotionCore.cs	SME6342	5
 csharp/src/SuperMetroid.Verification/Program.SamusPoseHistory.cs	SME6340	8

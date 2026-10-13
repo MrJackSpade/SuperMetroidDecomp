@@ -59,7 +59,7 @@ public sealed class SamusReserveAutoRecoveryState
             }
             else
             {
-                samus.ReserveEnergy = unchecked((ushort)(samus.ReserveEnergy - 1));
+                samus.ReserveEnergy = NativeWordCounter.Decrement(samus.ReserveEnergy).Value;
                 if (samus.ReserveEnergy == 0)
                 {
                     // This is the ordinary exhaustion branch. The signed-underflow repair

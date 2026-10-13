@@ -610,7 +610,7 @@ public sealed class SamusProjectileSystem
                 if (timer.IsZeroOrNegative)
                 {
                     bool finalFrame = Charge._flareFrames[component] == 1;
-                    Charge._flareFrames[component] = unchecked((ushort)(Charge._flareFrames[component] - 1));
+                    Charge._flareFrames[component] = NativeWordCounter.Decrement(Charge._flareFrames[component]).Value;
                     if (finalFrame)
                     {
                         // The fast-spark component at native offset four owns the global

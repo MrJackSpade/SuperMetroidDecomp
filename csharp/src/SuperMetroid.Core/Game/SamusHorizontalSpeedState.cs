@@ -280,7 +280,7 @@ public sealed class SamusHorizontalSpeedState
 
         // DEC is 16-bit, but native then changes A to eight-bit before BNE. A stage advances
         // only when the decremented low byte is zero; the high byte remains the stage index.
-        SpeedBoostCounter = unchecked((ushort)(SpeedBoostCounter - 1));
+        SpeedBoostCounter = NativeWordCounter.Decrement(SpeedBoostCounter).Value;
         if ((byte)SpeedBoostCounter != 0)
             return false;
 

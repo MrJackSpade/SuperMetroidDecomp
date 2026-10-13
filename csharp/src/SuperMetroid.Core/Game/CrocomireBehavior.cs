@@ -1621,7 +1621,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
 
             case CrocomireFightFunction.SteppingBack:
                 if (state.StepCounter != 0)
-                    state.StepCounter--;
+                    state.StepCounter = NativeWordCounter.Decrement(state.StepCounter).Value;
                 if (state.StepCounter != 0)
                     return CrocomireInstructionProgramDefinitions.SteppingBack;
                 state.FightFunction = CrocomireFightFunction.SteppingForward;
@@ -1654,7 +1654,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                     CrocomireFightFunction.SteppingBack);
 
             case CrocomireFightFunction.PowerBombCharge:
-                state.StepCounter--;
+                state.StepCounter = NativeWordCounter.Decrement(state.StepCounter).Value;
                 if (unchecked((short)(state.StepCounter - 2)) < 0)
                 {
                     state.StepCounter = 0;
@@ -1723,7 +1723,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 return CrocomireInstructionProgramDefinitions.MovingClaws;
 
             case CrocomireFightFunction.MoveClawsUnused:
-                if (state.StepCounter == 0 || --state.StepCounter == 0)
+                if (state.StepCounter == 0 || (state.StepCounter = NativeWordCounter.Decrement(state.StepCounter).Value) == 0)
                 {
                     state.FightFunction = CrocomireFightFunction.MovingClawsUnused;
                     state.FightFlags &= 0xfbff;
@@ -1751,7 +1751,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 }
                 if ((state.FightFlags & 0x4000) != 0)
                 {
-                    state.StepCounter--;
+                    state.StepCounter = NativeWordCounter.Decrement(state.StepCounter).Value;
                     LastCrocomireSoundEffect = 0x003b;
                     return CrocomireInstructionProgramDefinitions.MovingClaws;
                 }
@@ -1976,7 +1976,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     {
         SpawnCrocomireAcidSmoke(state, samus);
         CrocomireDeathState death = RequireCrocomireDeath();
-        death.RumbleYOffset--;
+        death.RumbleYOffset = NativeWordCounter.Decrement(death.RumbleYOffset).Value;
         state.Body.Position = state.Body.Position.WithWholeX(unchecked((ushort)(
             death.BodyXBeforeMelting + ((death.RumbleYOffset & 2) != 0 ? 4 : 0))));
 

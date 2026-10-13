@@ -788,7 +788,7 @@ public sealed class SuperMetroidGame
                     if (deathFadeBrightness == 1)
                         deathFadeBrightness = 0;
                     else if (deathFadeBrightness != 0)
-                        deathFadeBrightness--;
+                        deathFadeBrightness = NativeWordCounter.DecrementByte(deathFadeBrightness);
                 }
                 else
                 {

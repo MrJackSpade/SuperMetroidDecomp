@@ -423,11 +423,11 @@ public sealed class SamusPowerBombExplosionState
         }
 
         if (FixedColorRed != 0)
-            FixedColorRed--;
+            FixedColorRed = NativeWordCounter.DecrementByte(FixedColorRed);
         if (FixedColorGreen != 0)
-            FixedColorGreen--;
+            FixedColorGreen = NativeWordCounter.DecrementByte(FixedColorGreen);
         if (FixedColorBlue != 0)
-            FixedColorBlue--;
+            FixedColorBlue = NativeWordCounter.DecrementByte(FixedColorBlue);
 
         ReloadAfterglowTimerLowByte();
         return false;
@@ -474,11 +474,11 @@ public sealed class SamusPowerBombExplosionState
         {
             _crystalFlashAfterglowStepsRemaining--;
             if (FixedColorRed != 0)
-                FixedColorRed--;
+                FixedColorRed = NativeWordCounter.DecrementByte(FixedColorRed);
             if (FixedColorGreen != 0)
-                FixedColorGreen--;
+                FixedColorGreen = NativeWordCounter.DecrementByte(FixedColorGreen);
             if (FixedColorBlue != 0)
-                FixedColorBlue--;
+                FixedColorBlue = NativeWordCounter.DecrementByte(FixedColorBlue);
             ReloadAfterglowTimerLowByte();
             return false;
         }

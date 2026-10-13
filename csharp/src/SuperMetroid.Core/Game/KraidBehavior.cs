@@ -276,7 +276,7 @@ internal sealed class KraidBehavior : IEnemySpecies
         if (state.HurtFrameTimer.IsZero)
         {
             state.HurtFrameTimer = NativeCountdown.Start(2);
-            state.HurtFrame = unchecked((ushort)(state.HurtFrame - 1));
+            state.HurtFrame = NativeWordCounter.Decrement(state.HurtFrame).Value;
             UpdateKraidHealthPalettes(body, state);
         }
     }
@@ -1771,7 +1771,7 @@ internal sealed class KraidBehavior : IEnemySpecies
                 bool shouldMove = unchecked((short)(body.Position.X.Whole - 320)) < 0;
                 if (!shouldMove)
                 {
-                    state.TargetX = unchecked((ushort)(state.TargetX - 1));
+                    state.TargetX = NativeWordCounter.Decrement(state.TargetX).Value;
                     shouldMove = state.TargetX == 0;
                 }
                 if (shouldMove && _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(

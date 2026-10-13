@@ -329,13 +329,13 @@ internal static class CartridgeEncodingScanner
         switch (binary.Kind())
         {
             case SyntaxKind.BitwiseAndExpression:
-                return IsSignBitConstant(binary.Right, binary.Left, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
-                    IsSignBitConstant(binary.Left, binary.Right, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken);
+                return IsSignBitConstant(binary.Right, binary.Left, relational: false, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
+                    IsSignBitConstant(binary.Left, binary.Right, relational: false, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken);
             case SyntaxKind.LessThanExpression or SyntaxKind.GreaterThanOrEqualExpression:
-                return IsSignBitConstant(binary.Right, binary.Left, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
+                return IsSignBitConstant(binary.Right, binary.Left, relational: true, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
                     IsZero(binary.Right, model, cancellationToken) && IsSignedReinterpretation(binary.Left, model, cancellationToken);
             case SyntaxKind.GreaterThanExpression or SyntaxKind.LessThanOrEqualExpression:
-                return IsSignBitConstant(binary.Left, binary.Right, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken) ||
+                return IsSignBitConstant(binary.Left, binary.Right, relational: true, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken) ||
                     IsZero(binary.Left, model, cancellationToken) && IsSignedReinterpretation(binary.Right, model, cancellationToken);
             default:
                 return false;
@@ -414,9 +414,10 @@ internal static class CartridgeEncodingScanner
 
     /// <summary>
     /// A constant equal to the sign bit of <paramref name="operand"/>'s width: bit 7 of a byte, bit 15 of a word.
-    /// A wider operand may hold either width, so both bits count.
+    /// A wider operand may hold either width, so a mask may name either bit; compared by magnitude, a wider
+    /// value is a word's sign only at bit 15, since a byte held in it is already a byte-width comparison.
     /// </summary>
-    private static bool IsSignBitConstant(ExpressionSyntax expression, ExpressionSyntax operand, SemanticModel model, CancellationToken cancellationToken)
+    private static bool IsSignBitConstant(ExpressionSyntax expression, ExpressionSyntax operand, bool relational, SemanticModel model, CancellationToken cancellationToken)
     {
         if (IntegralConstant(expression, model, cancellationToken) is not { } value)
             return false;
@@ -424,7 +425,7 @@ internal static class CartridgeEncodingScanner
         {
             SpecialType.System_Byte or SpecialType.System_SByte => ByteSignBits,
             SpecialType.System_UInt16 or SpecialType.System_Int16 => WordSignBits,
-            _ => SignBits,
+            _ => relational ? WordSignBits : SignBits,
         };
         return operandSignBits.Contains(value);
     }

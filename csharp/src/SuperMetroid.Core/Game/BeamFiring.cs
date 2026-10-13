@@ -264,7 +264,7 @@ internal sealed class BeamFiring
         {
             // Consistent state cannot arrive here. Match the producer's defensive rollback
             // so a debugger mutation does not leave the count permanently above five.
-            _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter - 1));
+            _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
             return (null, 0);
         }
 
@@ -279,7 +279,7 @@ internal sealed class BeamFiring
 
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
-            _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter - 1));
+            _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
             return (null, 0);
         }
 
@@ -375,7 +375,7 @@ internal sealed class BeamFiring
         int slotIndex = Array.FindIndex(_slotTable._slots, candidate => candidate.Damage == 0);
         if (slotIndex < 0)
         {
-            _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter - 1));
+            _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
             return (null, 0);
         }
 
@@ -384,7 +384,7 @@ internal sealed class BeamFiring
         byte direction = samus.PoseMetadata.ReadShotDirection(bus);
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
-            _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter - 1));
+            _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
             return (null, 0);
         }
         slot.Direction = direction;
@@ -490,9 +490,9 @@ internal sealed class BeamFiring
         _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
         ProjectileInvincibilityTimer = NativeCountdown.Start(20);
         if (isSuperMissile)
-            samus.SuperMissiles = unchecked((ushort)(samus.SuperMissiles - 1));
+            samus.SuperMissiles = NativeWordCounter.Decrement(samus.SuperMissiles).Value;
         else
-            samus.Missiles = unchecked((ushort)(samus.Missiles - 1));
+            samus.Missiles = NativeWordCounter.Decrement(samus.Missiles).Value;
         slot.TrailTimer = NativeCountdown.Start(4);
         slot.Type = isSuperMissile ? (ushort)0x8200 : (ushort)0x8100;
         slot.Variable = 0;

@@ -22,8 +22,9 @@ internal static class CeresShaftRotationVerification
         // publication against independently read retail records and word arithmetic.
         while (updates < 548)
         {
-            timer = unchecked((ushort)(timer - 1));
-            bool changed = (short)timer < 0;
+            NativeWordCounterStep step = NativeWordCounter.Decrement(timer);
+            timer = step.Value;
+            bool changed = step.IsNegative;
             int offset = (ushort)(phaseWord * 6);
             if (changed)
                 timer = rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + offset);

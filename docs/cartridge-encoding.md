@@ -17,6 +17,9 @@ occurrences, and a file absent from the baseline may hold none.
 | SME6340 | A hexadecimal literal in functional code. Files named as definition catalogs (`*Definitions.cs`, `*Catalog.cs`, `*CodePointers.cs`, ... the same suffixes as the magic-number audit) own their data and are exempt. |
 | SME6341 | A primitive compared with, offset from or switched over an address-valued code or instruction constant: runtime interpretation of cartridge pointers, catalogs included. |
 | SME6342 | An integral array or collection literal of four or more elements holding hexadecimal words: opaque instruction or packed-table data, catalogs included. |
+| SME6345 | A shift by a byte, word or bank width, or a byte/word/bank mask, in functional code (#223). |
+| SME6348 | A hand-written sign-bit test on a countdown-named primitive (#1324): `& 0x8000`, `& 0x80`, a comparison with `0x8000` or `0x80`, or `(short)t < 0`/`(sbyte)t >= 0` where the operand is one member or local named as a timer, counter, delay, cooldown, countdown, ticks or frames. Signed comparisons of differences, velocities and packed flags are not timer idioms. |
+| SME6349 | A wrapping self-decrement of narrow storage (#1324): `x = unchecked((ushort)(x - 1))`, its `byte` form, or `--`/`-= 1` on a `ushort` or `byte` field, property or element. |
 | SME6343 | A file now holds fewer occurrences than its baseline: lower the count so the gain is kept. |
 | SME6344 | The baseline names a file the project no longer compiles: remove the entry. |
 
@@ -34,6 +37,25 @@ After a migration, regenerate the baseline and the inventory from the same scann
 ```
 dotnet run --project csharp/src/SuperMetroid.CartridgeEncodingAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --write
 ```
+
+## Countdowns (#1324)
+
+`Core/Hardware/NativeWordCounter.cs` owns the 65C816 timer idioms. A timer that gameplay starts,
+decrements and tests is stored as `NativeCountdown`, which keeps the exact native word: a timer that
+went negative holds `$FFFF` until something resets it, exactly as the cartridge leaves it. Each site
+keeps the branch the cartridge takes:
+
+| Native shape | Operation |
+| --- | --- |
+| `DEC` then `BPL` (expire on wrapping below zero) | `var step = t.Decrement(); t = step.Remaining; if (step.IsNegative) ...` |
+| `DEC` then `BNE`/`BEQ` (expire on reaching zero) | `step.IsZero` |
+| `DEC`, `BEQ`, `BMI` | `step.IsZeroOrNegative` |
+| `LDA`, `BEQ`, `DEC` (saturating) | `t = t.DecrementToZero()` |
+| 8-bit `DEC` of a low byte beside independent high-byte state | `NativeWordCounter.DecrementLowByte(word)` |
+
+A site that also reads the timer as a number (a table index, a threshold other than zero or the sign)
+reads `RawValue` explicitly. A timer view over an enemy slot word returns `NativeCountdown.FromRaw(...)`
+and stores `RawValue`; the slot word stays the storage.
 
 ## The inventory
 

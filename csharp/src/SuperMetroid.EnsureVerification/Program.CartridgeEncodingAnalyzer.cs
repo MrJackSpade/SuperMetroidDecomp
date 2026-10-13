@@ -96,6 +96,45 @@ internal static class CartridgeEncodingAnalyzerTests
         ExpectEncoding($"{functional}\tSME6345\t1\n", [(functional, "class C { int M(int value) => value >> 8; }")]);
         ExpectEncoding($"{functional}\tSME6345\t2\n", [(functional, "class C { int M(int value) => value >> 8; }")],
             (CartridgeEncodingAnalyzer.StaleCountId, "now holds 1 SME6345 occurrence(s) but the baseline allows 2"));
+
+        // SME6348 (#1324): a hand-written sign-bit test on a countdown-named member or local.
+        const string countdown = "class C { ushort FunctionTimer; byte DelayFrames; ";
+        ExpectEncoding("", [(functional, countdown + "bool M() => (FunctionTimer & 32768) != 0; }")],
+            (CartridgeEncodingAnalyzer.CountdownSignTestId, "tests a countdown's sign bit by hand"));
+        ExpectEncoding("", [(functional, countdown + "bool M() => (DelayFrames & 128) == 0; }")],
+            (CartridgeEncodingAnalyzer.CountdownSignTestId, "'DelayFrames & 128'"));
+        ExpectEncoding("", [(functional, countdown + "bool M() => FunctionTimer >= 32768; }")],
+            (CartridgeEncodingAnalyzer.CountdownSignTestId, "'FunctionTimer >= 32768'"));
+        ExpectEncoding("", [(functional, countdown + "bool M() => unchecked((short)FunctionTimer) < 0; }")],
+            (CartridgeEncodingAnalyzer.CountdownSignTestId, "tests a countdown's sign bit by hand"));
+        ExpectEncoding("", [(functional, countdown + "bool M() => 0 <= (sbyte)DelayFrames; }")],
+            (CartridgeEncodingAnalyzer.CountdownSignTestId, "tests a countdown's sign bit by hand"));
+        // Signed comparisons of quantities, velocities, packed flags and enums are other rules' work.
+        ExpectEncoding("", [(functional, countdown + "ushort VelocityX; bool M() => (short)VelocityX < 0; }")]);
+        ExpectEncoding("", [(functional, countdown + "ushort Left; bool M() => (short)(FunctionTimer - Left) < 0; }")]);
+        ExpectEncoding("", [(functional, countdown + "ushort Parameter1; bool M() => (Parameter1 & 32768) != 0; }")]);
+        ExpectEncoding("", [(functional, "enum TimerFlags : ushort { Sign = 32768 } " +
+            "class C { TimerFlags Timer; bool M() => (Timer & TimerFlags.Sign) != 0; }")]);
+        ExpectEncoding($"{functional}\tSME6348\t1\n", [(functional, countdown + "bool M() => (FunctionTimer & 32768) != 0; }")]);
+
+        // SME6349 (#1324): a hand-written wrapping self-decrement of narrow storage.
+        ExpectEncoding("", [(functional, countdown + "void M() => FunctionTimer = unchecked((ushort)(FunctionTimer - 1)); }")],
+            (CartridgeEncodingAnalyzer.CountdownSelfDecrementId, "decrements narrow storage with native wraparound"));
+        ExpectEncoding("", [(functional, countdown + "void M() => DelayFrames = unchecked((byte)(DelayFrames - 1)); }")],
+            (CartridgeEncodingAnalyzer.CountdownSelfDecrementId, "decrements narrow storage with native wraparound"));
+        ExpectEncoding("", [(functional, countdown + "void M() { FunctionTimer--; --DelayFrames; DelayFrames -= 1; } }")],
+            (CartridgeEncodingAnalyzer.CountdownSelfDecrementId, "'FunctionTimer--'"),
+            (CartridgeEncodingAnalyzer.CountdownSelfDecrementId, "'--DelayFrames'"),
+            (CartridgeEncodingAnalyzer.CountdownSelfDecrementId, "'DelayFrames -= 1'"));
+        // Locals, wide integers and a decrement into a different member are not the DEC idiom.
+        ExpectEncoding("", [(functional, countdown + "int Wide; ushort Next; " +
+            "void M(ushort count) { count--; Wide--; Next = unchecked((ushort)(FunctionTimer - 1)); } }")]);
+        // An encoding owner documents the idiom itself.
+        ExpectEncoding("", [(functional,
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SnesEncodingOwnerAttribute : System.Attribute { } " +
+            "[SnesEncodingOwner] struct Countdown { ushort timer; bool M() { timer--; return (timer & 32768) != 0; } }")]);
+        ExpectEncoding($"{functional}\tSME6349\t2\n", [(functional, countdown + "void M() => FunctionTimer--; }")],
+            (CartridgeEncodingAnalyzer.StaleCountId, "now holds 1 SME6349 occurrence(s) but the baseline allows 2"));
     }
 
     /// <summary>

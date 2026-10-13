@@ -35,6 +35,18 @@ internal enum CartridgeEncodingRule
     OwnedWidthOperation,
     /// <summary>A functional width operation carrying a reviewed same-line allowance. Inventoried, not ratcheted.</summary>
     JustifiedWidthOperation,
+    /// <summary>
+    /// A hand-written sign-bit test on a countdown-named primitive in functional code (#1324): <c>&amp; 0x8000</c>,
+    /// <c>&amp; 0x80</c>, a comparison with <c>0x8000</c> or <c>0x80</c>, or <c>(short)x &lt; 0</c> and its
+    /// <c>(sbyte)</c> and <c>&gt;= 0</c> forms. Ratcheted by SME6348.
+    /// </summary>
+    CountdownSignTest,
+    /// <summary>
+    /// A wrapping self-decrement of 16-bit or 8-bit storage in functional code (#1324):
+    /// <c>x = unchecked((ushort)(x - 1))</c>, its <c>byte</c> form, or <c>--</c>/<c>-= 1</c> on a <c>ushort</c> or
+    /// <c>byte</c> field, property or element. Ratcheted by SME6349.
+    /// </summary>
+    CountdownSelfDecrement,
 }
 
 /// <summary>The six #641 audit classes. The scanner proposes one per occurrence and names its basis.</summary>
@@ -83,7 +95,16 @@ internal static class CartridgeEncodingScanner
     ];
 
     /// <summary>The ratcheted diagnostic ids, in rule order.</summary>
-    internal static readonly string[] RatchetedRuleIds = ["SME6340", "SME6341", "SME6342", "SME6345"];
+    internal static readonly string[] RatchetedRuleIds = ["SME6340", "SME6341", "SME6342", "SME6345", "SME6348", "SME6349"];
+
+    /// <summary>
+    /// Name fragments that mark a primitive as a countdown for SME6348. A sign test is a timer idiom when its
+    /// operand is named as one; signed comparisons of quantities, velocities and packed flags are other rules' work.
+    /// </summary>
+    private static readonly string[] CountdownNameFragments = ["timer", "countdown", "counter", "delay", "cooldown", "ticks", "frames"];
+
+    /// <summary>Constants whose bit is a word's or a byte's sign: bit 15 and bit 7.</summary>
+    private static readonly long[] SignBits = [0x8000, 0x80];
 
     /// <summary>
     /// The attribute (#223) marking a type that owns and documents an encoding: its literals and width
@@ -104,6 +125,8 @@ internal static class CartridgeEncodingScanner
         CartridgeEncodingRule.PointerDispatch => "SME6341",
         CartridgeEncodingRule.OpaqueWordArray => "SME6342",
         CartridgeEncodingRule.RawWidthOperation => "SME6345",
+        CartridgeEncodingRule.CountdownSignTest => "SME6348",
+        CartridgeEncodingRule.CountdownSelfDecrement => "SME6349",
         CartridgeEncodingRule.CatalogHexLiteral or CartridgeEncodingRule.JustifiedHexLiteral or
             CartridgeEncodingRule.OwnedWidthOperation or CartridgeEncodingRule.JustifiedWidthOperation => null,
         _ => throw new InvalidOperationException($"Undefined {nameof(CartridgeEncodingRule)} {rule}."),
@@ -185,6 +208,27 @@ internal static class CartridgeEncodingScanner
                     occurrences.Add(new(rule, CartridgeEncodingClass.ComposableBits, WidthBasis(width), width.OperatorToken.GetLocation()));
                     break;
                 }
+                // Sign tests precede pointer dispatch: '(short)timer < 0' is a relational expression too.
+                case BinaryExpressionSyntax sign when !catalog && IsCountdownSignTest(sign, model, cancellationToken) &&
+                    !IsInEncodingOwner(sign, model, cancellationToken):
+                    occurrences.Add(new(CartridgeEncodingRule.CountdownSignTest, CartridgeEncodingClass.ComposableBits,
+                        $"'{sign}' tests a countdown's sign bit by hand", sign.OperatorToken.GetLocation()));
+                    break;
+                case AssignmentExpressionSyntax assignment when !catalog && IsSelfDecrement(assignment, model, cancellationToken) &&
+                    !IsInEncodingOwner(assignment, model, cancellationToken):
+                    occurrences.Add(new(CartridgeEncodingRule.CountdownSelfDecrement, CartridgeEncodingClass.NumericQuantity,
+                        $"'{assignment}' decrements narrow storage with native wraparound", assignment.OperatorToken.GetLocation()));
+                    break;
+                case PostfixUnaryExpressionSyntax postfix when !catalog && postfix.IsKind(SyntaxKind.PostDecrementExpression) &&
+                    IsNarrowStorage(postfix.Operand, model, cancellationToken) && !IsInEncodingOwner(postfix, model, cancellationToken):
+                    occurrences.Add(new(CartridgeEncodingRule.CountdownSelfDecrement, CartridgeEncodingClass.NumericQuantity,
+                        $"'{postfix}' decrements narrow storage with native wraparound", postfix.OperatorToken.GetLocation()));
+                    break;
+                case PrefixUnaryExpressionSyntax prefix when !catalog && prefix.IsKind(SyntaxKind.PreDecrementExpression) &&
+                    IsNarrowStorage(prefix.Operand, model, cancellationToken) && !IsInEncodingOwner(prefix, model, cancellationToken):
+                    occurrences.Add(new(CartridgeEncodingRule.CountdownSelfDecrement, CartridgeEncodingClass.NumericQuantity,
+                        $"'{prefix}' decrements narrow storage with native wraparound", prefix.OperatorToken.GetLocation()));
+                    break;
                 case BinaryExpressionSyntax binary when IsDispatchOperator(binary.Kind()):
                     if (IsPointerDispatch(binary.Left, binary.Right, model, cancellationToken) ||
                         IsPointerDispatch(binary.Right, binary.Left, model, cancellationToken))
@@ -253,6 +297,120 @@ internal static class CartridgeEncodingScanner
             return false;
         long constant = Convert.ToInt64(value, CultureInfo.InvariantCulture);
         return mask ? StorageWidthMasks.Contains(constant) : StorageWidthShifts.Contains(constant);
+    }
+
+    /// <summary>
+    /// A hand-written sign-bit test whose operand is a single countdown-named member or local (#1324):
+    /// <c>t &amp; 0x8000</c>, <c>t &amp; 0x80</c>, <c>t &gt;= 0x8000</c>, <c>t &lt; 0x80</c>, <c>(short)t &lt; 0</c>,
+    /// <c>(sbyte)t &gt;= 0</c> and their mirrored forms. A difference such as <c>(short)(a - b) &lt; 0</c> is a
+    /// signed comparison of quantities, not a timer idiom.
+    /// </summary>
+    internal static bool IsCountdownSignTest(BinaryExpressionSyntax binary, SemanticModel model, CancellationToken cancellationToken)
+    {
+        if (model.GetConstantValue(binary, cancellationToken).HasValue)
+            return false;
+        switch (binary.Kind())
+        {
+            case SyntaxKind.BitwiseAndExpression:
+                return IsSignBitConstant(binary.Right, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
+                    IsSignBitConstant(binary.Left, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken);
+            case SyntaxKind.LessThanExpression or SyntaxKind.GreaterThanOrEqualExpression:
+                return IsSignBitConstant(binary.Right, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
+                    IsZero(binary.Right, model, cancellationToken) && IsSignedReinterpretation(binary.Left, model, cancellationToken);
+            case SyntaxKind.GreaterThanExpression or SyntaxKind.LessThanOrEqualExpression:
+                return IsSignBitConstant(binary.Left, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken) ||
+                    IsZero(binary.Left, model, cancellationToken) && IsSignedReinterpretation(binary.Right, model, cancellationToken);
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>
+    /// <c>x = unchecked((ushort)(x - 1))</c> or its <c>byte</c> form, or <c>x -= 1</c> on narrow storage: the
+    /// 65C816 <c>DEC</c> written by hand.
+    /// </summary>
+    internal static bool IsSelfDecrement(AssignmentExpressionSyntax assignment, SemanticModel model, CancellationToken cancellationToken)
+    {
+        if (assignment.IsKind(SyntaxKind.SubtractAssignmentExpression))
+            return IsOne(assignment.Right, model, cancellationToken) && IsNarrowStorage(assignment.Left, model, cancellationToken);
+        if (!assignment.IsKind(SyntaxKind.SimpleAssignmentExpression))
+            return false;
+        if (StripWrappers(assignment.Right, stripCasts: false) is not CastExpressionSyntax
+            {
+                Type: PredefinedTypeSyntax { Keyword.RawKind: (int)SyntaxKind.UShortKeyword or (int)SyntaxKind.ByteKeyword },
+            } cast)
+        {
+            return false;
+        }
+        return StripWrappers(cast.Expression, stripCasts: false) is BinaryExpressionSyntax { RawKind: (int)SyntaxKind.SubtractExpression } difference &&
+            IsOne(difference.Right, model, cancellationToken) &&
+            SyntaxFactory.AreEquivalent(StripWrappers(difference.Left, stripCasts: false), StripWrappers(assignment.Left, stripCasts: false));
+    }
+
+    // A ushort or byte field, property or element: storage the decrement persists into, not a local or parameter.
+    private static bool IsNarrowStorage(ExpressionSyntax operand, SemanticModel model, CancellationToken cancellationToken)
+    {
+        if (model.GetTypeInfo(operand, cancellationToken).Type?.SpecialType is not (SpecialType.System_UInt16 or SpecialType.System_Byte))
+            return false;
+        return operand is ElementAccessExpressionSyntax ||
+            model.GetSymbolInfo(operand, cancellationToken).Symbol is IFieldSymbol or IPropertySymbol;
+    }
+
+    // (short)t or (sbyte)t over a single countdown-named operand, compared with zero.
+    private static bool IsSignedReinterpretation(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken) =>
+        StripWrappers(expression, stripCasts: false) is CastExpressionSyntax
+        {
+            Type: PredefinedTypeSyntax { Keyword.RawKind: (int)SyntaxKind.ShortKeyword or (int)SyntaxKind.SByteKeyword },
+        } cast && IsCountdownOperand(cast.Expression, model, cancellationToken);
+
+    private static bool IsCountdownOperand(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken)
+    {
+        ExpressionSyntax operand = StripWrappers(expression, stripCasts: true);
+        if (operand is not (IdentifierNameSyntax or MemberAccessExpressionSyntax or ElementAccessExpressionSyntax))
+            return false;
+        ITypeSymbol? type = model.GetTypeInfo(operand, cancellationToken).Type;
+        if (type is null || type.TypeKind == TypeKind.Enum || !IsIntegralPrimitive(type))
+            return false;
+        string name = operand.ToString();
+        return CountdownNameFragments.Any(fragment => name.IndexOf(fragment, StringComparison.OrdinalIgnoreCase) >= 0);
+    }
+
+    private static bool IsSignBitConstant(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken) =>
+        IntegralConstant(expression, model, cancellationToken) is { } value && SignBits.Contains(value);
+
+    private static bool IsZero(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken) =>
+        IntegralConstant(expression, model, cancellationToken) == 0;
+
+    private static bool IsOne(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken) =>
+        IntegralConstant(expression, model, cancellationToken) == 1;
+
+    private static long? IntegralConstant(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken)
+    {
+        object? value = model.GetConstantValue(expression, cancellationToken).Value;
+        return value is null or bool or string or char or float or double or decimal or ulong and > long.MaxValue
+            ? null
+            : Convert.ToInt64(value, CultureInfo.InvariantCulture);
+    }
+
+    private static ExpressionSyntax StripWrappers(ExpressionSyntax expression, bool stripCasts)
+    {
+        while (true)
+        {
+            switch (expression)
+            {
+                case ParenthesizedExpressionSyntax parenthesized:
+                    expression = parenthesized.Expression;
+                    break;
+                case CheckedExpressionSyntax wrapped:
+                    expression = wrapped.Expression;
+                    break;
+                case CastExpressionSyntax cast when stripCasts:
+                    expression = cast.Expression;
+                    break;
+                default:
+                    return expression;
+            }
+        }
     }
 
     // A numeric literal, or a primitive type's MaxValue, which names a storage width rather than a domain fact.

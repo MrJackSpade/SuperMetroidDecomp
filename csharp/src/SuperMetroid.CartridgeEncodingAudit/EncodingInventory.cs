@@ -76,6 +76,10 @@ internal static class EncodingInventory
                     "width operation inside a catalog or [SnesEncodingOwner] type that documents it (inventoried)",
                 [nameof(CartridgeEncodingRule.JustifiedWidthOperation)] =
                     "functional width operation with a reviewed same-line allowance (inventoried)",
+                [nameof(CartridgeEncodingRule.CountdownSignTest)] =
+                    "SME6348: hand-written sign-bit test on a countdown-named primitive in functional code (ratcheted, #1324)",
+                [nameof(CartridgeEncodingRule.CountdownSelfDecrement)] =
+                    "SME6349: wrapping self-decrement or '--' of ushort/byte storage in functional code (ratcheted, #1324)",
             },
             classes = new Dictionary<string, string>
             {

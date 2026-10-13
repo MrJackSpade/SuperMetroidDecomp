@@ -30,6 +30,12 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
     /// <summary>A raw storage-width or layout shift or mask in functional code (#223).</summary>
     public const string RawWidthId = "SME6345";
 
+    /// <summary>A hand-written sign-bit test on a countdown (#1324).</summary>
+    public const string CountdownSignTestId = "SME6348";
+
+    /// <summary>A hand-written wrapping self-decrement of narrow storage (#1324).</summary>
+    public const string CountdownSelfDecrementId = "SME6349";
+
     /// <summary>A file holds fewer occurrences than its baseline: lower the reviewed count.</summary>
     public const string StaleCountId = "SME6343";
 
@@ -82,6 +88,28 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
             "operation on the type that owns the encoding ([SnesEncodingOwner]) instead; an intrinsic exception carries a " +
             "same-line '// cartridge-encoding: allow(Class) - reason' review.");
 
+    private static readonly DiagnosticDescriptor CountdownSignTestRule = new(
+        CountdownSignTestId,
+        "Hand-written countdown sign test",
+        "{0}; store the timer as NativeCountdown and test the NativeWordCounterStep its Decrement returns " +
+            "(IsNegative, IsNonNegative, IsZeroOrNegative) or the countdown's IsNegative ({1})",
+        "Design",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "A countdown's '& 0x8000', '& 0x80', comparison with $8000 or $80, or '(short)t < 0' restates the " +
+            "65C816 N flag by hand. NativeCountdown and NativeWordCounterStep name the native branch instead.");
+
+    private static readonly DiagnosticDescriptor CountdownSelfDecrementRule = new(
+        CountdownSelfDecrementId,
+        "Hand-written wrapping decrement",
+        "{0}; use NativeCountdown.Decrement (DEC then BPL/BEQ/BMI), DecrementToZero (LDA, BEQ, DEC) or " +
+            "NativeWordCounter.DecrementLowByte (8-bit DEC of a packed low byte) ({1})",
+        "Design",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "'x = unchecked((ushort)(x - 1))', its byte form and '--' on ushort or byte storage hide the native " +
+            "wraparound and leave the branch to a hand-written sign or zero test. The countdown type keeps the exact word.");
+
     private static readonly DiagnosticDescriptor StaleCountRule = new(
         StaleCountId,
         "Cartridge-encoding baseline is stale",
@@ -101,7 +129,8 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [RawHexRule, PointerDispatchRule, OpaqueWordArrayRule, RawWidthRule, StaleCountRule, StaleFileRule];
+        [RawHexRule, PointerDispatchRule, OpaqueWordArrayRule, RawWidthRule, CountdownSignTestRule, CountdownSelfDecrementRule,
+            StaleCountRule, StaleFileRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -155,6 +184,8 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
                 PointerDispatchId => PointerDispatchRule,
                 OpaqueWordArrayId => OpaqueWordArrayRule,
                 RawWidthId => RawWidthRule,
+                CountdownSignTestId => CountdownSignTestRule,
+                CountdownSelfDecrementId => CountdownSelfDecrementRule,
                 null => null,
                 var id => throw new InvalidOperationException($"Unmapped cartridge-encoding rule id {id}."),
             };

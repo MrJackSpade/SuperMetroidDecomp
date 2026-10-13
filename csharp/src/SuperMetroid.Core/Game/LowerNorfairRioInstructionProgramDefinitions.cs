@@ -48,6 +48,7 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitions
         _ => null,
     };
 
+    /// <summary>Counts timed poses before each parent or flame list's terminal control words.</summary>
     private static int FrameCount(LowerNorfairRioProgram program) => program switch
     {
         LowerNorfairRioProgram.Idle => 4,
@@ -57,6 +58,7 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(LowerNorfairRioProgram)} {(int)program:X4}."),
     };
 
+    /// <summary>Identifies interleaved spritemap operands so they remain outside compiled mechanics.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         if (ProgramAt(address) is not { } program)
@@ -94,6 +96,7 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitions
             $"Lower Norfair Rio instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
+    /// <summary>Resolves authored idle, swoop, cooldown, or flame hold time for one native pose.</summary>
     private static ushort Duration(LowerNorfairRioProgram program, int frame) => program switch
     {
         LowerNorfairRioProgram.Idle => 11,

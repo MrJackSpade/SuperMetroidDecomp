@@ -15,11 +15,17 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class CinematicPaletteFader
 {
+    /// <summary>Current red 8.8 component for each of 256 CGRAM colors.</summary>
     private readonly ushort[] currentRed = new ushort[CgramPalettes.ColorCount];
+    /// <summary>Current green 8.8 component for each CGRAM color.</summary>
     private readonly ushort[] currentGreen = new ushort[CgramPalettes.ColorCount];
+    /// <summary>Current blue 8.8 component for each CGRAM color.</summary>
     private readonly ushort[] currentBlue = new ushort[CgramPalettes.ColorCount];
+    /// <summary>One thirty-second of each red target component in 8.8 form.</summary>
     private readonly ushort[] redStep = new ushort[CgramPalettes.ColorCount];
+    /// <summary>One thirty-second of each green target component in 8.8 form.</summary>
     private readonly ushort[] greenStep = new ushort[CgramPalettes.ColorCount];
+    /// <summary>One thirty-second of each blue target component in 8.8 form.</summary>
     private readonly ushort[] blueStep = new ushort[CgramPalettes.ColorCount];
 
     /// <summary>Ports <c>DecomposePaletteDataForFading</c> at $8B:8C09.</summary>
@@ -106,6 +112,7 @@ public sealed class CinematicPaletteFader
         new CgramPalettes(cgram).LoadImage(image);
     }
 
+    /// <summary>Converts an aligned palette byte offset and nonempty count to a bounded CGRAM color interval.</summary>
     private static (int FirstColor, int ExclusiveEnd) ValidateRange(
         ushort paletteByteOffset,
         ushort colorCount)

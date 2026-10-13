@@ -62,9 +62,12 @@ public sealed class ControllerInputState
         return restore;
     }
 
+    /// <summary>Restores the real NMI controller sample after a scoped demo input override.</summary>
     private sealed class DemoInputRestore(ControllerInputState owner, ushort held, ushort newlyPressed) : IDisposable
     {
+        /// <summary>Prevents a repeated dispose from replacing a later controller sample.</summary>
         private bool disposed;
+        /// <summary>Restores the held and edge words captured before the demo override.</summary>
         public void Dispose()
         {
             if (disposed) return;

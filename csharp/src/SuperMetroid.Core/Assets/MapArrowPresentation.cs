@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable map-arrow anchors and cosmetic phase durations; no controller bindings.</summary>
 public sealed class MapArrowPresentation
 {
+    /// <summary>Four validated direction entries, with no neutral arrow selection.</summary>
     private readonly MapArrowVisual left, right, up, down;
+    /// <summary>Retains the directional visuals after JSON validation.</summary>
     private MapArrowPresentation(MapArrowVisual left, MapArrowVisual right, MapArrowVisual up, MapArrowVisual down)
     { this.left = left; this.right = right; this.up = up; this.down = down; }
 
@@ -50,7 +52,9 @@ public sealed class MapArrowPresentation
 /// <summary>Provides one map arrow's screen anchor and cyclic cosmetic phase timing.</summary>
 public sealed class MapArrowVisual
 {
+    /// <summary>Only edited durations are stored; stock phases use native timing.</summary>
     private readonly Dictionary<int, byte>? durationOverrides;
+    /// <summary>Captures the authored phase count and stores deviations from cartridge timing.</summary>
     internal MapArrowVisual(Position16<OamPixels> position, int[] durations)
     {
         Position = position;
@@ -59,9 +63,9 @@ public sealed class MapArrowVisual
             if (durations[phase] != MenuSelectorTiming.Duration(phase))
                 (durationOverrides ??= new()).Add(phase, (byte)durations[phase]);
     }
-    /// <summary>Gets the arrow's screen-pixel anchor.</summary>
+    /// <summary>Screen-pixel anchor used when composing this direction's OAM sprite.</summary>
     public Position16<OamPixels> Position { get; }
-    /// <summary>Gets the number of authored animation phases.</summary>
+    /// <summary>Bounds the cyclic phase index supplied to <see cref="Duration"/>.</summary>
     public int PhaseCount { get; }
 
     /// <summary>Calculates native arrow timing, with independent authored phase edits.</summary>

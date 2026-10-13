@@ -6,8 +6,10 @@ using SuperMetroid.Rendering.Direct3D11;
 
 using static DesktopVerificationSupport;
 
+/// <summary>Checks GameForm shutdown ordering around the GPU render worker and canvas handle.</summary>
 internal static class FormCloseTests
 {
+    /// <summary>Closes during or after renderer startup and requires the worker to stop before HWND destruction.</summary>
     internal static async Task VerifyFormClose(RendererSelection renderer, bool duringStartup)
     {
         using var directoryScratch = new TestScratchDirectory("desktop-renderer");

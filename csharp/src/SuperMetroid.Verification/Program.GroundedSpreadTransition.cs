@@ -14,8 +14,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks charged bomb-spread input through grounded morph and unmorph transitions.</summary>
 internal static class GroundedSpreadTransitionVerification
 {
+    /// <summary>Exercises both facings and four release scenarios, optionally comparing each frame to a native trace.</summary>
     internal static void VerifyGroundedSpreadTransition(string? tracePath = null)
     {
         using var trace = tracePath is null ? null : File.OpenText(tracePath);
@@ -27,6 +29,7 @@ internal static class GroundedSpreadTransitionVerification
         Console.WriteLine("Grounded spread runtime: earned charge, hold, unmorph and release boundaries pass in both directions (960 frames).");
     }
 
+    /// <summary>Runs one 120-frame input path through the retail runtime in an isolated flat clearing.</summary>
     private static void VerifyGroundedSpreadTransitionCase(bool left, int scenario, StreamReader? trace)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -92,6 +95,7 @@ internal static class GroundedSpreadTransitionVerification
         }
     }
 
+    /// <summary>Runs the grounded spread check without a native frame trace.</summary>
     [VerificationCommand("--grounded-spread-transition")]
     internal static int GroundedSpreadTransitionCommand()
     {
@@ -99,6 +103,7 @@ internal static class GroundedSpreadTransitionVerification
         return 0;
     }
 
+    /// <summary>Runs the grounded spread check with per-frame native transition comparisons.</summary>
     [VerificationCommand("--grounded-spread-transition", "transitionTrace")]
     internal static int GroundedSpreadTransitionCommand2(string transitionTrace)
     {

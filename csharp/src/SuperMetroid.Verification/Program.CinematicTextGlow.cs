@@ -2,8 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
 
+/// <summary>Checks cinematic glyph glow timing, slot reuse, and debugger restoration.</summary>
 internal static class CinematicTextGlowVerification
 {
+    /// <summary>Tracks palette steps at five-frame intervals, rectangular coverage, and the eight-slot limit.</summary>
     internal static void VerifyCinematicTextGlow()
     {
         var glow = new CinematicTextGlowSystem();

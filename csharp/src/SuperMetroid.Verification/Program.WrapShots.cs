@@ -27,8 +27,10 @@ using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks projectile wrapping at both room edges against a preserved native trace.</summary>
 internal static class WrapShotsVerification
 {
+    /// <summary>Compares 240 shot frames, including remote block writes and non-Wave controls.</summary>
     internal static void VerifyWrapShotTrace(string nativeTrace)
     {
         var native = File.ReadLines(nativeTrace).Skip(1).ToArray();
@@ -82,6 +84,7 @@ internal static class WrapShotsVerification
         Console.WriteLine("PASS wrap-shot addressing: 240 original-cartridge frames, both edges and non-Wave negatives.");
     }
 
+    /// <summary>Runs the grouped projectile collision, speed, input, and camera fixtures.</summary>
     [VerificationCommand("--projectile-fixtures")]
     internal static int ProjectileFixturesCommand()
     {
@@ -102,6 +105,7 @@ internal static class WrapShotsVerification
     return 0; 
     }
 
+    /// <summary>Runs the focused two-edge wrap-shot trace comparison.</summary>
     [VerificationCommand("--wrap-shots")]
     internal static int WrapShotsCommand()
     {

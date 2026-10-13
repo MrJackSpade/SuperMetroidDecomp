@@ -4,13 +4,17 @@ using static KraidArmInstructionProgramDefinitionsVerification;
 using static KraidArmPhysicalFrameMappingsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks native callback fields across Kraid's physical arm hitboxes.</summary>
 internal static class KraidArmCallbackMappingsVerification
 {
+    /// <summary>Checks the touch callback selected for every native arm rectangle.</summary>
     internal static void VerifyKraidArmTouchCallbacks(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, false, KraidArmCollisionDefinitions.TouchCallback));
+    /// <summary>Checks the shot callback selected for every native arm rectangle.</summary>
     internal static void VerifyKraidArmShotCallbacks(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, true, KraidArmCollisionDefinitions.ShotCallback));
 
+    /// <summary>Compares 24 compiled callback records with the corresponding ROM hitbox fields and bounds.</summary>
     private static void VerifyKraidArmCallbackField(SuperMetroidAddressSpace rom, bool shot, Func<int, ushort> calculate)
     {
         var selectedLists = new SortedSet<ushort>();

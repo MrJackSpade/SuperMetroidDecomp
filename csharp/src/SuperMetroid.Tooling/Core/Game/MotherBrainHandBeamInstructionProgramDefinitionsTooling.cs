@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(MotherBrainHandBeamInstructionProgramDefinitions))]
 internal abstract class MotherBrainHandBeamInstructionProgramDefinitionsTooling : IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Bounds visual frame operands across all hand-beam stages.</summary>
     public static int PresentationWordCount => MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates a stage's visual frame operand in the native projectile program.</summary>
     public static ushort PresentationWordAddress(int index) => MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Counts each stage's frame words plus its callback or setup word.</summary>
     internal const int WordsPerStage = MotherBrainHandBeamInstructionProgramDefinitions.FramesPerStage + 1;
+    /// <summary>Adds the terminal delete command after all stage mechanic words.</summary>
     internal static int NativeWordCount => MotherBrainHandBeamInstructionProgramDefinitions.StageCount * WordsPerStage + 1;
+    /// <summary>Walks a stage's mechanic positions, ending with the final projectile delete.</summary>
     internal static InstructionMechanicsWord NativeWord(int index)
     {
         if ((uint)index >= NativeWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -20,6 +25,7 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitionsTooling 
             (record == 1 ? MotherBrainHandBeamInstructionProgramDefinitions.FrameBytes : MotherBrainHandBeamInstructionProgramDefinitions.FrameOffset(record == 0 ? 0 : record - 1)));
         return new(address, MotherBrainHandBeamInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Excludes frame presentation bytes while recognizing stage commands and terminal delete.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;

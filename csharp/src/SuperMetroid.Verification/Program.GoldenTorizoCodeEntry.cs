@@ -12,8 +12,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static FrontendRomFreeVerification;
 
+/// <summary>Checks the Golden Torizo room-entry code and its queued beam artwork.</summary>
 internal static class GoldenTorizoCodeEntryVerification
 {
+    /// <summary>Confirms the native item grant while the entering Wave artwork survives the next NMI.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyGoldenTorizoCodeEntry()
     {
@@ -41,6 +43,7 @@ internal static class GoldenTorizoCodeEntryVerification
         Console.WriteLine("Golden Torizo code: real room initialization and three continuation frames succeed with the native grant.");
     }
 
+    /// <summary>Runs the focused room-entry and artwork-continuation check.</summary>
     [VerificationCommand("--golden-torizo-code-entry")]
     internal static int GoldenTorizoCodeEntryCommand()
     {

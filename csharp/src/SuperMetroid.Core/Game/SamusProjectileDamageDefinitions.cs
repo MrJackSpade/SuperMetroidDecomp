@@ -45,7 +45,9 @@ internal static class SamusProjectileDamageDefinitions
     /// <summary>Each beam header occupies one damage word and ten direction-pointer words.</summary>
     internal const int BeamHeaderStride = 22;
 
-
+    /// <summary>
+    /// Resolves damage at an exact beam or non-beam header address; adjacent animation words remain outside this compiled table.
+    /// </summary>
     internal static ushort Read(int address)
     {
         int offset = address - BeamHeaderStart;
@@ -103,6 +105,7 @@ internal static class SamusProjectileDamageDefinitions
         return (charged, beam);
     }
 
+    /// <summary>Maps a beam header to its native base damage and triples charged shots.</summary>
     private static ushort BeamDamage(int header)
     {
         var (charged, beam) = BeamIdentity(header);

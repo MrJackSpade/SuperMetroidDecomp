@@ -20,10 +20,13 @@ public sealed class BotwoonColorCatalog
             }
         });
 
+    /// <summary>Compiled palette rows selected by Botwoon's health band.</summary>
     private readonly BotwoonHealthPaintDefinitions health;
 
+    /// <summary>Retains the validated color rows as runtime paint definitions.</summary>
     private BotwoonColorCatalog(Bgr555[][] rows) => health = new(rows);
 
+    /// <summary>Rejects unknown document fields while preserving readable editable JSON.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -83,6 +86,7 @@ public sealed class BotwoonColorCatalog
         return bytes;
     }
 
+    /// <summary>Checks a health row's sixteen five-bit RGB values before packing its SNES colors.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int band)
     {
         if (source is null ||
@@ -102,6 +106,7 @@ public sealed class BotwoonColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects repeated JSON property names before deserialization can silently replace a color row.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Botwoon color property {name}."));

@@ -13,14 +13,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Crocomire tongue control words while keeping spritemap operands separate.</summary>
 internal static class CrocomireTongueInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail oracle and runs the full tongue mechanics comparison.</summary>
     internal static void VerifyCrocomireTongueInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCrocomireTongueInstructionProgramDefinitions), () => VerifyCrocomireTongueInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks fourteen native mechanics words, nine visual operand positions, and allocation-free lookup.</summary>
     internal static void VerifyCrocomireTongueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -40,6 +43,7 @@ internal static class CrocomireTongueInstructionProgramDefinitionsVerification
             "presentation data.");
     }
 
+    /// <summary>Compares mechanics values and the complete bank-$A4 byte ownership domain.</summary>
     internal static void VerifyCrocomireTongueMechanicsDispatch(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
@@ -72,6 +76,7 @@ internal static class CrocomireTongueInstructionProgramDefinitionsVerification
         AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueInstructionProgramDefinitionsTooling.MechanicsWord(14), "tongue mechanics index past end");
     }
 
+    /// <summary>Checks spritemap operand addresses and excludes them from mechanics dispatch.</summary>
     internal static void VerifyCrocomireTonguePresentationPositions(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xbe58, 0xbe5c, 0xbe60, 0xbe64, 0xbf9a, 0xbf9e, 0xbfa2, 0xbfa6, 0xbfaa];
@@ -87,6 +92,7 @@ internal static class CrocomireTongueInstructionProgramDefinitionsVerification
         AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueInstructionProgramDefinitionsTooling.PresentationWordAddress(-1), "tongue negative presentation index");
         AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueInstructionProgramDefinitionsTooling.PresentationWordAddress(9), "tongue presentation index past end");
     }
+    /// <summary>Consumes repeated fight-list lookups to measure warmed per-frame allocation.</summary>
     private static int ProbeCrocomireTongueInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -98,6 +104,7 @@ internal static class CrocomireTongueInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Runs the Crocomire tongue program comparison with the retail cartridge.</summary>
     [VerificationCommand("--crocomire-tongue-instruction-mechanics")]
     internal static int CrocomireTongueInstructionMechanicsCommand()
     {

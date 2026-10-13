@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using static AssertionsVerification;
 
+/// <summary>Checks how drained Samus poses advance prior-pose metadata.</summary>
 internal static class DrainedPoseHistoryVerification
 {
+    /// <summary>Exercises both crouch facings and confirms Hyper Beam enablement preserves pose history.</summary>
     internal static void VerifyDrainedPoseHistory(TestAddressSpace bus)
     {
         foreach (SamusPoseId source in new[] { SamusPoseId.CrouchingRightPose, SamusPoseId.CrouchingLeftPose })

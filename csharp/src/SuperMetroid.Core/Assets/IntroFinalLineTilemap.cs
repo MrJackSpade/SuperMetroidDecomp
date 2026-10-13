@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>The four-row Japanese subtitle staging map, as ordered editable BG tile references.</summary>
 public sealed class IntroFinalLineTilemap
 {
+    /// <summary>Edited map words when any cell differs from the native formula; null keeps stock generation.</summary>
     private readonly ushort[]? suppliedWords;
 
+    /// <summary>Keeps edited words only when the supplied map differs from the stock subtitle layout.</summary>
     private IntroFinalLineTilemap(ushort[] words)
     {
         for (int index = 0; index < words.Length; index++)
@@ -31,6 +33,7 @@ public sealed class IntroFinalLineTilemap
         }
     }
 
+    /// <summary>Calculates the native margin or subtitle glyph tile for one of the 128 BG3 cells.</summary>
     private static ushort CalculateWord(int index)
     {
         int column = index % IntroFinalLineTilemapFormat.Columns;

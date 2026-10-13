@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 using static WindowRegisterCacheVerification;
 
+/// <summary>Checks SNES window masks and packed target registers against an independent truth table.</summary>
 internal static class HardwareWindowsVerification
 {
+    /// <summary>Compares enable, invert, logic, interval edge, and empty-window behavior across all pixel columns.</summary>
     internal static void VerifyHardwareWindows()
     {
         Suite(nameof(VerifyWindowRegisterCache), () => VerifyWindowRegisterCache());
@@ -54,6 +56,7 @@ internal static class HardwareWindowsVerification
         Console.WriteLine($"Hardware windows: {cases} membership comparisons cover enable/invert, logic, inclusive edges and empty intervals.");
     }
 
+    /// <summary>Checks each packed window target selects only its own layer and leaves disabled layers alone.</summary>
     private static void VerifyPackedWindowRegisters()
     {
         for (int selected = 0; selected < 6; selected++)
@@ -80,6 +83,7 @@ internal static class HardwareWindowsVerification
         }
     }
 
+    /// <summary>Runs window-register checks and the production magic-number audit.</summary>
     [VerificationCommand("--hardware-windows")]
     internal static int HardwareWindowsCommand()
     {

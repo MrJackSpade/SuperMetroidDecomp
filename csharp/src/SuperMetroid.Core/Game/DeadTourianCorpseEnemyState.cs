@@ -17,6 +17,7 @@ public enum DeadTourianCorpseSpecies
 /// <summary>Typed extended state for one dead Zoomer, Ripper, or Skree.</summary>
 public sealed class DeadTourianCorpseEnemyState
 {
+    /// <summary>Captures the selected corpse variant's native rotting schedule and callback identities for one slot.</summary>
     internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianCorpseSpecies species, int variantIndex, ushort configurationPointer, CorpseRottingProgram rotting, DeadTourianBehavior.DeadTourianCorpseProfile profile, DeadTourianBehavior.DeadTourianCorpseVariant variant)
     {
         Slot = slot;
@@ -80,8 +81,8 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>Zero-based index of the most recently completed rotting-table entry, or $FFFF before any entry finishes.</summary>
     public ushort LastFinishedEntryIndex { get; internal set; } = ushort.MaxValue;
 
-    // Callback profiles remain assembly-internal. Public debugger state exposes only the
-    // stable ROM-derived words above; actor code keeps typed access without parallel maps.
+    /// <summary>Assembly-internal callback profile; debugger state exposes the stable ROM-derived words instead.</summary>
     internal DeadTourianBehavior.DeadTourianCorpseProfile Profile { get; }
+    /// <summary>Assembly-internal variant artwork and behavior paired with this corpse's native configuration.</summary>
     internal DeadTourianBehavior.DeadTourianCorpseVariant Variant { get; }
 }

@@ -6,8 +6,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Compares Ceres escape-room quake snapshots with direct frame rendering.</summary>
 internal static class RetailCeresQuakeTests
 {
+    /// <summary>Advances two retail rooms through 240 frames each, requiring changing quake displacement.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         foreach (ushort room in new[] { RoomHeaderPointers.CeresDeadScientistRoom, RoomHeaderPointers.CeresFinalHallway })
@@ -42,6 +44,7 @@ internal static class RetailCeresQuakeTests
     }
 }
 
+/// <summary>Holds the Ridley departure state that activates Ceres door earthquake producers.</summary>
 internal static class CeresQuakeFixture
 {
     /// <summary>Native Ceres status word after Ridley's departure enables door earthquake producers.</summary>

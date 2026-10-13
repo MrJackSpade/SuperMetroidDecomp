@@ -7,11 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable SR388 egg and baby OAM art; animation and motion remain compiled.</summary>
 public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Validated egg, remnant, and baby compositions keyed by native bank-$8C pointers.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroDiscoveryActorSpritePresentation), frames);
 
+    /// <summary>Retains the compiled twenty-frame selection after JSON validation.</summary>
     private IntroDiscoveryActorSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -91,7 +93,7 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
 /// <summary>Editable JSON schema for the SR388 egg, remnants, and baby Metroid compositions.</summary>
 public sealed record IntroDiscoveryActorSpriteDocument
 {
-    /// <summary>Gets the discovery-actor sprite schema version.</summary>
+    /// <summary>Must match <see cref="IntroDiscoveryActorSpriteFormat.Version"/> before any frame is accepted.</summary>
     public required int Version { get; init; }
 
     /// <summary>Gets all twenty required named visual compositions in the compiled actor set.</summary>

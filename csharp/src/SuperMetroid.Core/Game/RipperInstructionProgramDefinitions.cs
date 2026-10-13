@@ -33,6 +33,7 @@ internal abstract class RipperInstructionProgramDefinitions
     /// grapple/freeze behavior or the one-tick list reset on direction reversal.</summary>
     private const ushort AlternateVisualHoldTicks = 7;
 
+    /// <summary>Returns the eight-tick neutral or seven-tick alternate pose hold for a loop phase.</summary>
     internal static ushort VisualHold(int phase) =>
         (phase & 1) == 0 ? NeutralVisualHoldTicks : AlternateVisualHoldTicks;
 
@@ -45,6 +46,7 @@ internal abstract class RipperInstructionProgramDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(program)),
     });
 
+    /// <summary>Reads a compiled Ripper-family timing or loop-control word and rejects unknown addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -53,6 +55,7 @@ internal abstract class RipperInstructionProgramDefinitions
             $"Ripper-family instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
+    /// <summary>Recognizes timing and Goto words in the six 20-byte loops, leaving spritemap operands to visual art.</summary>
     internal static bool TryRead(ushort address, out ushort value)
     {
         for (int program = 0; program < 6; program++)

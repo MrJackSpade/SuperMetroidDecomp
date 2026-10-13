@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(SkreeMetareeParticleInstructionProgramDefinitions))]
 internal abstract class SkreeMetareeParticleInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Accounts for duration, goto command, and target in each of two particle loops.</summary>
     public static int MechanicsWordCount => 6;
+    /// <summary>Accounts for one sprite word in each Skree and Metaree particle loop.</summary>
     public static int PresentationWordCount => 2;
     /// <summary>Each eight-byte loop is a sixteen-frame drawing followed by goto-self.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
@@ -22,11 +24,13 @@ internal abstract class SkreeMetareeParticleInstructionProgramDefinitionsTooling
             _ => new((ushort)(start + 6), start),
         };
     }
+    /// <summary>Locates the drawing operand between the duration and goto words.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)((index == 0 ? SkreeMetareeParticleInstructionProgramDefinitions.Skree : SkreeMetareeParticleInstructionProgramDefinitions.Metaree) + 2);
     }
+    /// <summary>Checks both bytes of the six mechanic words in the projectile bank.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

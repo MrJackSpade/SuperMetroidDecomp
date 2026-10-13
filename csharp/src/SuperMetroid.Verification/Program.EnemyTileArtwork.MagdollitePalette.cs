@@ -6,8 +6,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>
+/// Checks that Magdollite's extracted color cycle can be edited without changing its draw-hook cadence or reading cartridge data at runtime.
+/// </summary>
 internal static class EnemyTileArtworkMagdollitePaletteVerification
 {
+    /// <summary>
+    /// Compares installed RGB5 colors with the cartridge, then exercises an override through the room enemy draw hook and CGRAM.
+    /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Magdollite palette cycle")]
     internal static void VerifyInstalledMagdollitePaletteCycle(

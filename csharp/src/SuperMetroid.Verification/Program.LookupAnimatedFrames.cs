@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks seven room-FX animation loops against native frame cursors and durations.</summary>
 internal static class LookupAnimatedFramesVerification
 {
+    /// <summary>Enumerates each retail timed-frame span up to its terminal control instruction.</summary>
     internal static IEnumerable<(ushort Object, ushort First, ushort End)> OriginalSimpleAnimationLoops(SuperMetroidAddressSpace rom)
     {
         foreach (ushort header in new ushort[] { 0x8257, 0x8287, 0x828d, 0x82ab, 0x82c9, 0x82e7, 0x82fd })
@@ -20,6 +22,7 @@ internal static class LookupAnimatedFramesVerification
         }
     }
 
+    /// <summary>Checks frame pointer enumeration, artwork operand offsets, Goto words, and index bounds.</summary>
     internal static void VerifySimpleAnimationFrameCursors(SuperMetroidAddressSpace rom)
     {
         int total = 0;
@@ -51,6 +54,7 @@ internal static class LookupAnimatedFramesVerification
         AssertEqual(30, total, "Complete original timed-frame domain");
     }
 
+    /// <summary>Compares indexed and enumerated frame durations with native bank-$87 words.</summary>
     internal static void VerifySimpleAnimationFrameDurations(SuperMetroidAddressSpace rom)
     {
         foreach (var original in OriginalSimpleAnimationLoops(rom))

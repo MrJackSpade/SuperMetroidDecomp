@@ -31,6 +31,7 @@ public abstract class LayoutBoundaryAnalyzer(
         context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
     }
 
+    /// <summary>Reports a raw layout API call or reference when its enclosing declaration lacks the matching boundary.</summary>
     private void AnalyzeOperation(OperationAnalysisContext context)
     {
         ISymbol? target = context.Operation switch
@@ -50,6 +51,7 @@ public abstract class LayoutBoundaryAnalyzer(
             $"{target.ContainingType?.Name}.{(target is IMethodSymbol { MethodKind: MethodKind.Constructor } ? "ctor" : target.Name)}"));
     }
 
+    /// <summary>Rejects implementing a raw layout interface outside an attributed boundary.</summary>
     private void AnalyzeType(SymbolAnalysisContext context)
     {
         var type = (INamedTypeSymbol)context.Symbol;
@@ -102,6 +104,7 @@ public abstract class LayoutBoundaryAnalyzer(
         return false;
     }
 
+    /// <summary>Matches an analyzer marker by its short attribute type name.</summary>
     private static bool HasAttribute(ISymbol symbol, string name) =>
         symbol.GetAttributes().Any(attribute => attribute.AttributeClass?.Name == name);
 }

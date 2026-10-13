@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Game;
 [CpuBusBoundary("domain view: Samus table over-reads that reach live memory")]
 internal readonly struct SamusOverreadMemory(ISnesAddressSpace bus)
 {
+    /// <summary>Requires mutable console memory for a bank-low-half access, naming the native reader on failure.</summary>
     private ISnesMutableMemory WorkRam(string reader) =>
         bus as ISnesMutableMemory ?? throw new InvalidOperationException($"{reader} requires WRAM access.");
 

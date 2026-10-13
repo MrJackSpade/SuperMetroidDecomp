@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(BrinstarPipeBugInstructionProgramDefinitions))]
 internal abstract class BrinstarPipeBugInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Accounts for timed frames and two trailer words across eight pipe-bug programs.</summary>
     public static int MechanicsWordCount => 60;
+    /// <summary>Accounts for the 44 frames interleaved across eight pipe-bug programs.</summary>
     public static int PresentationWordCount => 44;
+    /// <summary>Walks each program's frame durations before its two control words.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -25,6 +28,7 @@ internal abstract class BrinstarPipeBugInstructionProgramDefinitionsTooling : II
         }
         throw new IndexOutOfRangeException();
     }
+    /// <summary>Locates the sprite word following a frame duration in one of eight programs.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -38,6 +42,7 @@ internal abstract class BrinstarPipeBugInstructionProgramDefinitionsTooling : II
         }
         throw new IndexOutOfRangeException();
     }
+    /// <summary>Recognizes compiled mechanic bytes in bank B3, including second bytes of words.</summary>
     public static bool IsCompiledMechanicsByte(int address) =>
         (SnesAddressMath.BankBase(address)) == 0xb30000 &&
         (BrinstarPipeBugInstructionProgramDefinitions.TryRead((ushort)address, out _) || BrinstarPipeBugInstructionProgramDefinitions.TryRead((ushort)address - 1, out _));

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using static BossDisplayBindingsDocumentsVerification;
 using static BossDisplayBindingsFixtureVerification;
 
+/// <summary>Checks authored BG2-only boss OAM against native coordinate wrap and clipping behavior.</summary>
 internal static class BossDisplayBindingsClippingVerification
 {
     /// <summary>Newly authored OAM on BG2-only roots must use the common native wrap/clipping path.</summary>

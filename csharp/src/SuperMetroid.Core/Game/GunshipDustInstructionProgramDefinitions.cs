@@ -10,6 +10,7 @@ internal readonly record struct GunshipDustInstructionProgramDefinition(
 /// <summary>Each dust pair adds one tick per two poses, reaching its terminal hold after four poses.</summary>
 internal readonly record struct GunshipDustDurations(int Length, ushort Initial)
 {
+    /// <summary>Advances the cloud's hold by one tick after each pair of poses, capped at the terminal hold.</summary>
     internal ushort this[int frame] => (uint)frame < Length
         ? (ushort)(Initial + Math.Min(frame / 2, 2)) : throw new IndexOutOfRangeException();
 }
@@ -38,10 +39,14 @@ internal abstract class GunshipDustInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_GunshipLiftoffDustClouds_IndexA_0</c> at $86:A265.</summary>
     internal const ushort IndexA = 0xa265;
 
+    /// <summary>Three dust shapes each have two authored liftoff programs.</summary>
     internal static int ProgramCount => 6;
+    /// <summary>Counts timer, frame-duration, loop, and delete controls across all six lists.</summary>
     public static int MechanicsWordCount => 76;
+    /// <summary>Counts sprite operands interleaved with dust frame durations.</summary>
     public static int PresentationWordCount => 46;
 
+    /// <summary>Calculates one program's start, first frame, terminal address, and shape-specific holds.</summary>
     internal static GunshipDustInstructionProgramDefinition Program(int index)
     {
         if ((uint)index >= ProgramCount) throw new IndexOutOfRangeException();
@@ -53,6 +58,7 @@ internal abstract class GunshipDustInstructionProgramDefinitions
             new(count, initialDuration));
     }
 
+    /// <summary>Reconstructs an ordered bank-$86 dust control word while skipping editable sprite operands.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         Ensure.AtLeastZero(index);
@@ -95,6 +101,7 @@ internal abstract class GunshipDustInstructionProgramDefinitions
         throw new ArgumentOutOfRangeException(nameof(index));
     }
 
+    /// <summary>Locates an editable sprite operand in program and frame order.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         Ensure.AtLeastZero(index);
@@ -111,6 +118,7 @@ internal abstract class GunshipDustInstructionProgramDefinitions
         throw new ArgumentOutOfRangeException(nameof(index));
     }
 
+    /// <summary>Looks up a compiled dust control address and rejects other bank-$86 words.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

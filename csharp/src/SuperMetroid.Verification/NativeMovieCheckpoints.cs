@@ -20,14 +20,21 @@ internal readonly record struct ConvertedMovieUpdate(
 /// </summary>
 internal sealed class NativeMovieCheckpoints : IDisposable
 {
+    /// <summary>The complete SNES work RAM image stored after each native update boundary.</summary>
     public const int WorkRamByteCount = 0x20000;
+    /// <summary>Each checkpoint starts with its source frame and native program counter.</summary>
     private const int RecordHeaderBytes = 8;
 
+    /// <summary>Owns the compressed checkpoint file beneath the forward-only reader.</summary>
     private readonly FileStream file;
+    /// <summary>Decompresses consecutive native WRAM records as replay advances.</summary>
     private readonly GZipStream trace;
+    /// <summary>Reused storage for a checkpoint header and its complete WRAM image.</summary>
     private readonly byte[] record = new byte[RecordHeaderBytes + WorkRamByteCount];
+    /// <summary>Index of the last checkpoint consumed from the compressed stream.</summary>
     private int lastRecord = -1;
 
+    /// <summary>Verifies the checkpoint stream against the manifest before opening it for sequential reads.</summary>
     private NativeMovieCheckpoints(string directory, JsonElement root, ConvertedMovieUpdate[] updates)
     {
         Updates = updates;
@@ -42,8 +49,11 @@ internal sealed class NativeMovieCheckpoints : IDisposable
         trace = new GZipStream(file, CompressionMode.Decompress);
     }
 
+    /// <summary>Input dispatches and their native checkpoint mapping in replay order.</summary>
     public IReadOnlyList<ConvertedMovieUpdate> Updates { get; }
+    /// <summary>Original SMV frame count used to identify the terminal checkpoint.</summary>
     public int SourceFrameCount { get; }
+    /// <summary>Controller value already sampled before the first converted gameplay update.</summary>
     public ushort InitialInput { get; }
     /// <summary>Record preceding the first port update; nonzero after a folded power-on prelude.</summary>
     public int InitialRecord { get; }
@@ -119,6 +129,7 @@ internal sealed class NativeMovieCheckpoints : IDisposable
             throw new InvalidDataException("Native checkpoint stream continues after the movie's terminal state.");
     }
 
+    /// <summary>Closes the decompressor and its underlying checkpoint file.</summary>
     public void Dispose()
     {
         trace.Dispose();

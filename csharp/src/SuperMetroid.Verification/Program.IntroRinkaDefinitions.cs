@@ -15,8 +15,10 @@ using System.Reflection;
 using static IntroRinkaProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks intro Rinka actor and motion tables through their two-wave spawn sequence.</summary>
 internal static class IntroRinkaDefinitionsVerification
 {
+    /// <summary>Compares native definitions, animation, four spawns, and explosion cleanup without source rereads.</summary>
     internal static void VerifyIntroRinkaDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -97,6 +99,7 @@ internal static class IntroRinkaDefinitionsVerification
             "  Intro Rinka definitions: six actor, twelve physical and 48 instruction bytes match; both timed spawn waves, animation and cleanup are ROM-table independent.");
     }
 
+    /// <summary>Forbids runtime access to migrated actor, instruction, and physical tables.</summary>
     private static CartridgeReadGuard NewIntroRinkaDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => address is >= 0x8bcf21 and < 0x8bcf2d or
@@ -105,6 +108,7 @@ internal static class IntroRinkaDefinitionsVerification
                 >= 0x8bb985 and < 0x8bb98d,
             address => $"Intro Rinka reread compiled byte ${address:X6}.");
 
+    /// <summary>Runs the intro Rinka definition and two-wave behavior comparison.</summary>
     [VerificationCommand("--intro-rinka-definitions")]
     internal static int IntroRinkaDefinitionsCommand()
     {

@@ -16,8 +16,10 @@ using static KraidRoomProgramMappingVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Kraid ceiling, platform, and spike PLMs against native programs and draw words.</summary>
 internal static class KraidRoomPlmsVerification
 {
+    /// <summary>Compares eight reachable programs and ten draws, then checks live mutation timing and collision.</summary>
     internal static void VerifyCompiledKraidRoomPlms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -50,6 +52,7 @@ internal static class KraidRoomPlmsVerification
             "Kraid room PLMs: eight reachable programs and ten physical draws match ROM; all live ceiling/spike paths, timing and collision run without source reads.");
     }
 
+    /// <summary>Runs one ceiling or spike PLM to deletion and checks every final room block without converted ROM reads.</summary>
     private static void VerifyKraidMutation(
         PlmHeaderId header, int expectedDeletionFrame, ushort firstFinalWord,
         int changedBlockCount)
@@ -104,6 +107,7 @@ internal static class KraidRoomPlmsVerification
             $"Kraid mutation ${(int)header:X4} reads no migrated source bytes");
     }
 
+    /// <summary>Forbids bank-$84 Kraid program and draw bytes after their conversion to compiled definitions.</summary>
     internal static CartridgeReadGuard NewKraidRoomSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => (SnesAddressMath.BankNumber(address)) == 0x84 &&
@@ -115,6 +119,7 @@ internal static class KraidRoomPlmsVerification
                   (SnesAddressMath.OffsetInBank(address)) < KraidRoomPlmDrawDefinitions.EndExclusive)),
             address => $"Kraid mutation reread migrated source ${address:X6}.");
 
+    /// <summary>Runs the compiled Kraid room-PLM verification suite.</summary>
     [VerificationCommand("--kraid-room-plms")]
     internal static int KraidRoomPlmsCommand()
     {

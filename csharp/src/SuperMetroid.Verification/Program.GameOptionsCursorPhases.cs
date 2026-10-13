@@ -14,8 +14,10 @@ using SuperMetroid.AssetExtraction;
 using static DoorDefinitionsVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks the options cursor's native phase selection and visible OAM transitions.</summary>
 internal static class GameOptionsCursorPhasesVerification
 {
+    /// <summary>Compares all thirteen phase entries and exercises dissolve and intro fade transitions.</summary>
     internal static void VerifyGameOptionsCursorPhases()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -87,8 +89,7 @@ internal static class GameOptionsCursorPhasesVerification
 
     }
 
-    // The cursor spritemap is appended after the heading; its final OAM entry
-    // suffices to check that the native X=$0180 anchor is outside the viewport.
+    /// <summary>Reads the final OAM entry because the cursor follows the heading; native X=$0180 hides it.</summary>
     internal static int LastSpriteX(LayeredRenderSnapshot frame)
     {
         int sprite = frame.Memory.ModeledSpriteCount - 1;
@@ -98,6 +99,7 @@ internal static class GameOptionsCursorPhasesVerification
         return SnesLittleEndian.Word(oam[sprite * 4], (byte)(highBits & 1));
     }
 
+    /// <summary>Runs the native cursor-phase and rendered OAM check.</summary>
     [VerificationCommand("--game-options-cursor-phases")]
     internal static int GameOptionsCursorPhasesCommand()
     {

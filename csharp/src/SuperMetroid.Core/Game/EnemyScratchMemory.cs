@@ -93,9 +93,12 @@ public readonly struct CorpseRotTable
     /// <summary>Bytes in one (signed Y, delay) entry.</summary>
     public const int EntryByteCount = 4;
 
+    /// <summary>Byte-addressed view of the shared corpse-rotting heap.</summary>
     private readonly WorkRamByteTable bytes;
+    /// <summary>Start of this enemy's rot entries within the heap view.</summary>
     private readonly int firstByte;
 
+    /// <summary>Creates a nonempty table view at the caller's validated heap offset.</summary>
     internal CorpseRotTable(WorkRamByteTable bytes, int firstByte, ushort entryCount)
     {
         if (entryCount == 0)
@@ -120,6 +123,7 @@ public readonly struct CorpseRotTable
     /// <summary>Stores entry <paramref name="entry"/>'s delay word, low byte first.</summary>
     public void SetDelay(int entry, ushort value) => bytes.WriteWord(EntryOffset(entry) + 2, value);
 
+    /// <summary>Bounds-checks an entry and locates its four-byte row-and-delay pair.</summary>
     private int EntryOffset(int entry)
     {
         if ((uint)entry >= EntryCount)

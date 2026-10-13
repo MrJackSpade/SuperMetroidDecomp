@@ -5,6 +5,7 @@ using static EnemyContentIdentityFixtureVerification;
 using static EnemyTileArtworkKraidVerification;
 using static TilemapJsonContractsVerification;
 
+/// <summary>Checks how installed Kraid background pages populate the working tilemap.</summary>
 internal static class KraidInstalledPresentationTailVerification
 {
     /// <summary>Constructed authored pages expose priority loss even when stock tail words lack that bit.</summary>

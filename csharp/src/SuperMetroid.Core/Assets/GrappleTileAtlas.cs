@@ -8,11 +8,17 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     /// <summary>$9A:8220-829F/8A20-8A9F: eight reviewed drawn electric-stroke masks (64 binary rows)
     /// or independently supplied multicolor pixels. Their spur layout is visual content, not beam collision geometry.</summary>
     private readonly byte[] independentTiles;
+    /// <summary>Whether rope rows can be retained as compact binary ink coverage.</summary>
     private readonly bool singleInk;
+    /// <summary>Custom first endpoint tile when it differs from the calculated filled diamond.</summary>
     private readonly byte[]? firstPoint;
+    /// <summary>Custom second endpoint tile when it differs from the calculated hollow diamond.</summary>
     private readonly byte[]? secondPoint;
+    /// <summary>Custom third endpoint tile when it differs from the calculated tipped square.</summary>
     private readonly byte[]? thirdPoint;
+    /// <summary>Custom fourth endpoint tile when it differs from the calculated clipped diamond.</summary>
     private readonly byte[]? fourthPoint;
+    /// <summary>Custom vertical rope tiles when the native reflection of horizontal rows does not match.</summary>
     private readonly byte[]? verticalSegments;
 
     /// <summary>Gets the optional installed Grapple endpoint and beam sprite compositions.</summary>
@@ -23,6 +29,7 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
 
     /// <summary>Gets the optional installed angle-to-displayed-frame mapping for Samus's swing pose.</summary>
     public GrappleSwingFrameCatalog? SwingFrames { get; }
+    /// <summary>Retains only independently supplied tile differences and associated optional visual catalogs.</summary>
     private GrappleTileAtlas(byte[] tiles, GrappleSpriteCatalog? sprites, ChargeFlarePlacementCatalog? flarePlacement, GrappleSwingFrameCatalog? swingFrames)
     {
         Sprites = sprites; FlarePlacement = flarePlacement; SwingFrames = swingFrames;
@@ -70,6 +77,7 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
             _ => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
         };
     }
+    /// <summary>Expands compact rope ink rows or slices the independently colored segment bytes.</summary>
     private ReadOnlyMemory<byte> SegmentBytes(int offset) => singleInk
         ? GrappleBeamTilePatterns.EncodeInk(independentTiles.AsSpan(offset / 4, 32))
         : independentTiles.AsMemory(offset, 128);

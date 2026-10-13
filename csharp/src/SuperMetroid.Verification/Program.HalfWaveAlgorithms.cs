@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Compares generated half-wave tables with the retail ROM's byte and word samples.</summary>
 internal static class HalfWaveAlgorithmsVerification
 {
+    /// <summary>Checks all 128 byte samples, precise rounding bounds, and out-of-range indices.</summary>
     internal static void VerifyEightBitHalfWaveAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 128; index++)
@@ -20,9 +22,11 @@ internal static class HalfWaveAlgorithmsVerification
                 $"Byte sine invalid index {invalid}");
     }
 
+    /// <summary>Reads the original byte sine table only for this retail oracle check.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for eight bit half wave algorithm")]
     private static byte EightBitHalfWaveAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks all 128 unsigned word samples, precise rounding bounds, and invalid indices.</summary>
     internal static void VerifyUnsignedHalfWaveAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 128; index++)
@@ -41,6 +45,7 @@ internal static class HalfWaveAlgorithmsVerification
                 $"Unsigned sine invalid index {invalid}");
     }
 
+    /// <summary>Reads bytes of the original unsigned sine table for this retail oracle check.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for unsigned half wave algorithm")]
     private static byte UnsignedHalfWaveAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

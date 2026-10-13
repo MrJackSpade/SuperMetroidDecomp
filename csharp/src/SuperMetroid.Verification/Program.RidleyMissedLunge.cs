@@ -14,8 +14,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Checks Norfair Ridley's missed grab-lunge exits and recovery paths.</summary>
 internal static class RidleyMissedLungeVerification
 {
+    /// <summary>Checks native height and pass thresholds, room-boundary handoff, tenth death miss, and Power Bomb dodge.</summary>
     internal static void VerifyRidleyMissedLunge()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -115,6 +117,7 @@ internal static class RidleyMissedLungeVerification
         Console.WriteLine("Native pass/height thresholds, movement boundary handoff, tenth death lunge and bomb recovery confirmed.");
     }
 
+    /// <summary>Runs the missed-lunge and retreat verification.</summary>
     [VerificationCommand("--ridley-missed-lunge")]
     internal static int RidleyMissedLungeCommand()
     {

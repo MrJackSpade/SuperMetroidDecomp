@@ -2020,8 +2020,6 @@ csharp/src/SuperMetroid.Verification/Program.SpaceColonyCaption.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Program.SpacetimeBeam.cs	SME6340	35
 csharp/src/SuperMetroid.Verification/Program.SparkCrashAlignment.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Program.SparkMovementDefinitions.cs	SME6341	3
-csharp/src/SuperMetroid.Verification/Program.SpatialDebuggerMigrations.cs	SME6340	168
-csharp/src/SuperMetroid.Verification/Program.SpatialDebuggerMigrations.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.SpcDspPublication.cs	SME6340	24
 csharp/src/SuperMetroid.Verification/Program.SpcFirAddressing.cs	SME6340	20
 csharp/src/SuperMetroid.Verification/Program.SpcMemoryBoundary.cs	SME6340	49

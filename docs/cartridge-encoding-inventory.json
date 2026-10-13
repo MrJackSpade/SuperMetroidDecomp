@@ -21,19 +21,19 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 33279,
+    "RawHexLiteral": 33111,
     "PointerDispatch": 1292,
-    "OpaqueWordArray": 1151,
+    "OpaqueWordArray": 1150,
     "CatalogHexLiteral": 101607,
     "JustifiedHexLiteral": 76,
     "OwnedWidthOperation": 122,
     "JustifiedWidthOperation": 3,
-    "class:NumericQuantity": 56343,
+    "class:NumericQuantity": 56182,
     "class:DomainIdentity": 6974,
     "class:ComposableBits": 1902,
-    "class:StructuredInstruction": 44541,
+    "class:StructuredInstruction": 44536,
     "class:CartridgeAddress": 26739,
-    "class:Unknown": 1033,
+    "class:Unknown": 1030,
     "storageWidthMembers": 1949
   },
   "subsystems": [
@@ -9436,17 +9436,17 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 27780,
+        "RawHexLiteral": 27612,
         "PointerDispatch": 432,
-        "OpaqueWordArray": 1012,
+        "OpaqueWordArray": 1011,
         "CatalogHexLiteral": 5416,
         "OwnedWidthOperation": 59,
-        "class:NumericQuantity": 10539,
+        "class:NumericQuantity": 10378,
         "class:DomainIdentity": 618,
         "class:ComposableBits": 572,
-        "class:StructuredInstruction": 14290,
+        "class:StructuredInstruction": 14285,
         "class:CartridgeAddress": 8155,
-        "class:Unknown": 527,
+        "class:Unknown": 524,
         "storageWidthMembers": 317
       },
       "addressInterpretingTypes": [
@@ -21207,17 +21207,6 @@
             "class:NumericQuantity": 1,
             "class:StructuredInstruction": 2,
             "class:CartridgeAddress": 13
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Program.SpatialDebuggerMigrations.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 168,
-            "OpaqueWordArray": 1,
-            "class:NumericQuantity": 161,
-            "class:StructuredInstruction": 5,
-            "class:Unknown": 3
           }
         },
         {

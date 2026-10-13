@@ -6709,19 +6709,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "DebuggerLegacyShinesparkVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Program.DebuggerLegacyShinespark.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "DebuggerStateLayoutVerification",
       "kind": "static class",
       "scope": "test",
@@ -35137,45 +35124,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SpatialDebuggerMigrationsVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Program.SpatialDebuggerMigrations.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SpatialDebuggerMigrationsVerification.RetiredLineScrolls",
-      "kind": "record",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Program.SpatialDebuggerMigrations.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SpatialDebuggerMigrationsVerification.RetiredNeckPoint",
-      "kind": "record",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Program.SpatialDebuggerMigrations.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SpatialValuesVerification",

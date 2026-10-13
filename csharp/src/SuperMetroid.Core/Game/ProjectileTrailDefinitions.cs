@@ -17,8 +17,10 @@ public static class ProjectileTrailDefinitions
     /// <summary>The five trail instruction lists, in address order.</summary>
     private enum TrailList { Empty, LeftIce, RightIce, Wave, Missile }
 
+    /// <summary>All five defined trail lists used to recognize a first-record cursor.</summary>
     private static readonly TrailList[] TrailLists = Enum.GetValues<TrailList>();
 
+    /// <summary>Returns the native entry pointer for one defined trail list.</summary>
     private static ushort StartOf(TrailList list) => list switch
     {
         TrailList.Empty => Empty,
@@ -84,6 +86,7 @@ public static class ProjectileTrailDefinitions
         return Select(index % 39, right: index >= 39);
     }
 
+    /// <summary>Chooses a left or right trail list from beam effects and special projectile selectors.</summary>
     private static ushort Select(int selection, bool right)
     {
         if (selection >= (int)SpecialSelection.Missile)

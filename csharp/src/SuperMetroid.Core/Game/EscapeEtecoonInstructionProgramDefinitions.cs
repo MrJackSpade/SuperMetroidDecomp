@@ -21,9 +21,12 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
     /// <summary><c>InstList_EtecoonEscape_ExpressGratitudeThenEscape_0</c> at $B3:E5DA.</summary>
     internal const ushort ExpressGratitudeThenEscape = 0xe5da;
 
+    /// <summary>Compiled opcodes and durations across tide, stationary, gratitude, and departure lists.</summary>
     public static int MechanicsWordCount => 63;
+    /// <summary>Interleaved spritemap operands resolved from installed artwork.</summary>
     public static int PresentationWordCount => 30;
 
+    /// <summary>Calculates one bank-$B3 control or hold word without reading visual operands.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -90,10 +93,12 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
         return new((ushort)(ExpressGratitudeThenEscape + offset), value);
     }
 
+    /// <summary>Builds four timed poses followed by a goto back to their loop start.</summary>
     private static InstructionMechanicsWord FourPoseLoop(ushort start, int word, ushort duration) =>
         new((ushort)(start + (word < 5 ? 4 * word : 18)),
             word < 4 ? duration : word == 4 ? (ushort)CommonEnemyInstruction.Goto : start);
 
+    /// <summary>Locates one tide, escape-run, stationary, or gratitude spritemap operand.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -111,6 +116,7 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
         return (ushort)(ExpressGratitudeThenEscape + (index < 28 ? 8 + 8 * (index - 24) : 44 + 4 * (index - 28)));
     }
 
+    /// <summary>Resolves a compiled Etecoon instruction by native address and rejects visual words.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

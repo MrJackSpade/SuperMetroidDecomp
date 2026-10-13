@@ -3,8 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
+/// <summary>Checks calculated Ceres large-asteroid parts against two imported cinematic frames.</summary>
 internal static class CeresLargeAsteroidPartsVerification
 {
+    /// <summary>Preserves three group anchors, independent edits, and native visible or wrapped OAM.</summary>
     internal static void VerifyCeresLargeAsteroidParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresLargeAsteroid", value.AppendIdentity);

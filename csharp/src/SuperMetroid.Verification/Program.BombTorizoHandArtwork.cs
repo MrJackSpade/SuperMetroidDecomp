@@ -13,6 +13,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
 using static BombTorizoHandVerification;
 
+/// <summary>Checks Bomb Torizo hand debris art from extraction through queued VRAM transfer.</summary>
 internal static class BombTorizoHandArtworkVerification
 {
     /// <summary>Confirm #1162's exact PLM-to-installed-art-to-NMI handoff, not a room sweep.</summary>
@@ -43,6 +44,7 @@ internal static class BombTorizoHandArtworkVerification
         }
     }
 
+    /// <summary>Checks a PNG override reaches an already queued DMA request and preserves other tile bytes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyBombTorizoDebrisOverride(string directory,
         EnemyTileArtworkCatalog stock, TorizoInstructionTileSheetDefinition page)
@@ -84,6 +86,7 @@ internal static class BombTorizoHandArtworkVerification
             "a missing required debris page is rejected at installation loading, not during play");
     }
 
+    /// <summary>Creates the minimal valid palette catalog for a ROM-free hand artwork fixture.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static GameplayBasePaletteCatalog BombTorizoHandFixturePalette() =>
         GameplayBasePaletteCatalog.Load(new MemoryStream(GameplayBasePaletteCatalog.Write(
@@ -92,6 +95,7 @@ internal static class BombTorizoHandArtworkVerification
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount)
                     .Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray()))));
 
+    /// <summary>Runs the Bomb Torizo hand artwork extraction and override checks.</summary>
     [VerificationCommand("--bomb-torizo-hand-artwork")]
     internal static int BombTorizoHandArtworkCommand()
     {

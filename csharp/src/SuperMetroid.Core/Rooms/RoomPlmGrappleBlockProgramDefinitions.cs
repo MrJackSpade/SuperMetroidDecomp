@@ -10,14 +10,19 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
     /// <summary>Library-two sound operand at $84:CD70 and $84:CDAF.</summary>
     internal const byte BreakSoundId = 0x0a;
 
+    /// <summary>One breakable-block list's start and whether it rebuilds the block after breakup.</summary>
     private readonly record struct Program(ushort Start, bool Respawns)
     {
+        /// <summary>Seven poses for the respawning reversal or four for permanent breakup.</summary>
         internal int FrameCount => Respawns ? 7 : 4;
+        /// <summary>First terminal opcode after the timed breakup poses.</summary>
         internal ushort TerminalAddress => checked((ushort)(Start + 7 + 4 * FrameCount));
     }
 
+    /// <summary>The two native lists share initial Grapple art but differ in restoration behavior.</summary>
     private const int ProgramCount = 2;
 
+    /// <summary>Maps an ordinal to the respawning or permanent native breakable-block list.</summary>
     private static Program ProgramAt(int index) => index switch
     {
         0 => new(RoomPlmInstructionLists.RespawningBreakableGrappleBlock, true),
@@ -25,6 +30,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
         _ => throw new IndexOutOfRangeException(),
     };
 
+    /// <summary>Resolves interleaved visual operands, including the reverse-order respawn poses.</summary>
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -54,6 +60,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves hold times and terminal block mutation opcodes outside the draw domain.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -107,6 +114,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves the packed library-two break sound operand in either program.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         for (int index = 0; index < ProgramCount; index++)

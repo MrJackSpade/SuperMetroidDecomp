@@ -18,6 +18,7 @@ using static BossDisplayBindingsVerification;
 using static EnemyContentIdentityFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks stock boss display roots and installed BG2 bindings against cartridge artwork.</summary>
 internal static class BossDisplayBindingsStockVerification
 {
     /// <summary>
@@ -79,6 +80,7 @@ internal static class BossDisplayBindingsStockVerification
             $"{nativeLists.Count} compiled collision lists; exact RAM-only packed drawing and installation acceptance.");
     }
 
+    /// <summary>Resolves one Crocomire, Phantoon, or Draygon frame's installed BG2 writes.</summary>
     private static ReadOnlyMemory<EnemyBg2TilemapWrite> StockBossWrites(EnemyTileArtworkCatalog catalog, EnemyExtendedFrameDefinition frame)
     {
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
@@ -92,6 +94,7 @@ internal static class BossDisplayBindingsStockVerification
         return exists ? writes : ReadOnlyMemory<EnemyBg2TilemapWrite>.Empty;
     }
 
+    /// <summary>Checks edited root remaps persist and malformed or missing stock resources fail loading.</summary>
     private static void VerifyBossDisplayInstallation(string stock, string overrides, EnemyTileArtworkCatalog baseline)
     {
         var json = new EnemyIdentityFixture();
@@ -118,6 +121,7 @@ internal static class BossDisplayBindingsStockVerification
         Console.WriteLine("PASS boss installation: validated stock manifest, selected remaps/identity/reload and malformed/missing-resource rejection.");
     }
 
+    /// <summary>Runs the stock boss OAM, BG2, and installation checks.</summary>
     [VerificationCommand("--boss-display-stock")]
     internal static int BossDisplayStockCommand()
     {

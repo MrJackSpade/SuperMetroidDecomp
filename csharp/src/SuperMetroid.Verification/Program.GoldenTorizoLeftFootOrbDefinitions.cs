@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static class GoldenTorizoLeftFootOrbDefinitionsVerification
 {
+    /// <summary>Matches the left-foot orb's compiled control words, visual selectors, collision frames, and hitbox lists to bank $AA.</summary>
     internal static void VerifyGoldenTorizoLeftFootOrbDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
@@ -123,6 +124,7 @@ internal static class GoldenTorizoLeftFootOrbDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>Reads one retail byte for the left-foot orb definition oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo left foot orb definitions")]
     private static byte GoldenTorizoLeftFootOrbDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Lower Norfair Fireflea darkness around a retail Fune eye sprite.</summary>
 internal static class FirefleaEyeVerification
 {
+    /// <summary>Confirms native color math excludes OBJ across seven fixed-color darkness shades.</summary>
     internal static void VerifyFirefleaEye()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -58,6 +60,7 @@ internal static class FirefleaEyeVerification
         Console.WriteLine("Lower Norfair Fireflea eye: native sprite colors remain unchanged across seven darkness shades.");
     }
 
+    /// <summary>Runs the focused retail eye and darkness-rendering check.</summary>
     [VerificationCommand("--fireflea-eye")]
     internal static int FirefleaEyeCommand()
     {

@@ -2,16 +2,24 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks colored-door PLM instruction fields against independent bank $84 locations.</summary>
 internal static class LookupColoredProgramVerification
 {
+    /// <summary>Checks command bytes and complete colored-door program ownership.</summary>
     internal static void VerifyColoredProgramControls(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 0);
+    /// <summary>Checks drawing operands through the colored-door animation states.</summary>
     internal static void VerifyColoredProgramDraws(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 1);
+    /// <summary>Checks instruction branch targets within the door programs.</summary>
     internal static void VerifyColoredProgramTargets(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 2);
+    /// <summary>Checks sound operands within the door programs.</summary>
     internal static void VerifyColoredProgramSounds(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 3);
+    /// <summary>Checks each door program's hit counter byte.</summary>
     internal static void VerifyColoredProgramHitCount(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 4);
 
+    /// <summary>Checks the door program's callback operands.</summary>
     internal static void VerifyColoredProgramCallback(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 5);
 
+    /// <summary>Checks declared field bytes and overlapping words across the full colored-door range.</summary>
     private static void VerifyColoredProgramField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent native operand locations, not outputs of the proposed decoder.
@@ -64,6 +72,7 @@ internal static class LookupColoredProgramVerification
             "Colored program independent field byte count");
     }
 
+    /// <summary>Reads an original colored-door program byte for field comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for colored program field")]
     private static byte ColoredProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

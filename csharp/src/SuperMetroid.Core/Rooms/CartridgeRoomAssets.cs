@@ -16,6 +16,7 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed class CartridgeRoomAssets
 {
+    /// <summary>Retains the selected header, physical level allocation, scroll grid, and installed graphics.</summary>
     private CartridgeRoomAssets(
         CartridgeRoomHeader header,
         RoomLevelData levelData,
@@ -125,6 +126,7 @@ public sealed class CartridgeRoomAssets
             PaletteBytes.AsSpan(0, RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount));
     }
 
+    /// <summary>Parses BG1, BTS, and BG2 while retaining native allocation tails beyond visible room screens.</summary>
     private static RoomLevelData ParseLevelData(
         CartridgeRoomHeader header,
         byte[] levelStream,
@@ -210,12 +212,14 @@ public sealed class CartridgeRoomAssets
         return new RoomLevelData(new Extent16<RoomBlocks>(unchecked((ushort)widthInBlocks), unchecked((ushort)allocationHeightInBlocks)), new RoomLevelPlanes(foreground, behavior, background), blockDefinitions, new RoomLevelStreaming(streamingAllocation, streamingBackground), doorListPointer: header.DoorListPointer, visualLayout: visualLayout);
     }
 
+    /// <summary>Creates the room's screen-indexed scroll grid from its selected state.</summary>
     private static RoomScrollGrid LoadScrolls(ISnesAddressSpace bus, CartridgeRoomHeader header)
         => RoomScrollDefinitions.CreateGrid(
             bus,
             header.State.ScrollPointer,
             header.Size);
 
+    /// <summary>Decodes little-endian level words from a byte-aligned room stream span.</summary>
     private static ushort[] ReadWords(ReadOnlySpan<byte> bytes)
     {
         var words = new ushort[bytes.Length / 2];

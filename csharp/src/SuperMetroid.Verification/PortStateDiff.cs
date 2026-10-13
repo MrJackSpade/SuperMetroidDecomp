@@ -10,13 +10,18 @@ using System.Runtime.CompilerServices;
 /// </summary>
 internal sealed class PortStateDiff
 {
+    /// <summary>Reflects each declaring type's instance fields, including private state, without duplicate inherited fields.</summary>
     private const BindingFlags InstanceFields =
         BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
+    /// <summary>Reference-paired graph nodes already compared, preventing cycles and repeated diagnostics.</summary>
     private readonly HashSet<(object, object)> visited = new(PairComparer.Instance);
+    /// <summary>Leaf differences accumulated with their object-graph paths.</summary>
     private readonly List<string> differences = [];
+    /// <summary>Caller-selected subtrees omitted from the snapshot-import audit.</summary>
     private readonly Func<string, bool> excludePath;
 
+    /// <summary>Starts one graph comparison with the caller's subtree filter.</summary>
     private PortStateDiff(Func<string, bool> excludePath) => this.excludePath = excludePath;
 
     /// <summary>Lists every differing leaf between <paramref name="expected"/> and <paramref name="actual"/>.</summary>
@@ -31,6 +36,7 @@ internal sealed class PortStateDiff
         return diff.differences;
     }
 
+    /// <summary>Traverses matching graph nodes, summarizing primitive arrays and reporting differing leaves.</summary>
     private void Visit(string path, object? expected, object? actual)
     {
         if (excludePath(path))
@@ -110,14 +116,17 @@ internal sealed class PortStateDiff
             }
     }
 
+    /// <summary>Stops reflection at scalar values whose equality is meaningful for this audit.</summary>
     private static bool IsLeaf(Type type) =>
         type.IsPrimitive || type.IsEnum || type == typeof(string) || type == typeof(decimal);
 
+    /// <summary>Reports auto-property backing fields under their source property names.</summary>
     private static string MemberName(FieldInfo field) =>
         field.Name.StartsWith('<') && field.Name.EndsWith(">k__BackingField", StringComparison.Ordinal)
             ? field.Name[1..field.Name.IndexOf('>')]
             : field.Name;
 
+    /// <summary>Formats byte and word values in cartridge-style hexadecimal for readable differences.</summary>
     private static string Describe(object? value) => value switch
     {
         null => "null",
@@ -126,13 +135,17 @@ internal sealed class PortStateDiff
         _ => value.ToString() ?? value.GetType().Name,
     };
 
+    /// <summary>Uses reference identity for both nodes of each visited graph pair.</summary>
     private sealed class PairComparer : IEqualityComparer<(object, object)>
     {
+        /// <summary>Shared comparer for detecting graph cycles by object identity.</summary>
         public static readonly PairComparer Instance = new();
 
+        /// <summary>Matches two graph pairs only when both object references are the same.</summary>
         public bool Equals((object, object) x, (object, object) y) =>
             ReferenceEquals(x.Item1, y.Item1) && ReferenceEquals(x.Item2, y.Item2);
 
+        /// <summary>Combines identity hashes without invoking value equality on graph nodes.</summary>
         public int GetHashCode((object, object) pair) =>
             HashCode.Combine(RuntimeHelpers.GetHashCode(pair.Item1), RuntimeHelpers.GetHashCode(pair.Item2));
     }

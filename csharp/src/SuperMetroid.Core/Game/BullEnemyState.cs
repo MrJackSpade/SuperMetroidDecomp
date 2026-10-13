@@ -21,16 +21,26 @@ public enum BullEnemyFunction : ushort
 /// </summary>
 public sealed class BullEnemyState
 {
+    /// <summary>Common slot words carrying Bull's dispatcher, flight speed, acceleration, and timers.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot speed thresholds selected by Bull's population parameter.</summary>
     private readonly ushort[] _maxSpeeds;
+    /// <summary>Latest measured angles toward Samus, used to decide when a flight has gone off target.</summary>
     private readonly ushort[] _anglesToSamus;
+    /// <summary>Captured flight angles used to project speed into X and Y movement.</summary>
     private readonly ushort[] _angles;
+    /// <summary>Per-slot flags suppressing repeated immune-shot kicks during cooldown.</summary>
     private readonly ushort[] _shotReactionDisableFlags;
+    /// <summary>Configured acceleration countdown reload values.</summary>
     private readonly ushort[] _accelerationTimerResets;
+    /// <summary>Configured deceleration countdown reload values.</summary>
     private readonly ushort[] _decelerationTimerResets;
+    /// <summary>Remaining immune-shot cooldown ticks for each slot.</summary>
     private readonly ushort[] _shotReactionDisableTimers;
+    /// <summary>Health captured before projectile contact to distinguish a no-damage hit.</summary>
     private readonly ushort[] _previousHealth;
 
+    /// <summary>Exposes one Bull slot's common words and shared parallel extension arrays without copying state.</summary>
     internal BullEnemyState(RoomEnemySlot slot, BullSharedTables tables)
     {
         _slot = slot;

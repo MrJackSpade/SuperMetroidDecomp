@@ -21,12 +21,14 @@ internal abstract class NorfairRioInstructionProgramDefinitions
     /// <summary><c>InstList_Geruta_Flames_Descending</c> at $A2:C1A3.</summary>
     internal const ushort FlamesDescending = 0xc1a3;
 
-    // Pose holds are authored animation cadence (reviewed under #1165); program geometry and the
-    // callback dispatch below are calculated.
+    /// <summary>Authored idle pose holds that preserve the native animation cadence reviewed under #1165.</summary>
     private static readonly ushort[] IdleHolds = [13, 18];
+    /// <summary>Authored flight pose holds; program geometry and callback dispatch are calculated separately.</summary>
     private static readonly ushort[] FlightHolds = [6, 5, 8, 6];
 
+    /// <summary>Number of compiled words across the parent and flame instruction programs.</summary>
     public static int MechanicsWordCount => 65;
+    /// <summary>Number of interleaved spritemap operands supplied by extracted presentation art.</summary>
     public static int PresentationWordCount => 34;
 
     /// <summary>
@@ -46,6 +48,7 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         return LoopWord(index - 59, FlamesDescending, 0, false);
     }
 
+    /// <summary>Builds a loop's setup callback, timed poses, and final goto or sleep word.</summary>
     private static InstructionMechanicsWord LoopWord(int index, ushort start, ushort setup, bool idle)
     {
         int frameStart = start;
@@ -59,6 +62,7 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         return new((ushort)(frameStart + 16 + (index - 4) * 2), index == 4 ? (ushort)CommonEnemyInstruction.Goto : start);
     }
 
+    /// <summary>Builds the ascending or descending pose callbacks and completion word.</summary>
     private static InstructionMechanicsWord TransitionWord(int index, ushort start, bool ascending)
     {
         int poses = ascending ? 8 : 6;
@@ -91,6 +95,7 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         _ => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_negative10,
     };
 
+    /// <summary>Maps a spritemap operand index to its address in the seven interleaved programs.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -103,6 +108,7 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         return (ushort)(FlamesDescending + 2 + (index - 30) * 4);
     }
 
+    /// <summary>Checks whether an address belongs to a compiled spritemap operand.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         for (int index = 0; index < PresentationWordCount; index++)
@@ -110,6 +116,7 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         return false;
     }
 
+    /// <summary>Finds an instruction mechanics word by its $A2 address; unknown words are rejected.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

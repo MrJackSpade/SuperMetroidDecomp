@@ -9,6 +9,7 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Production capture and legacy composition agree through combined effect updates.</summary>
 internal static class RuntimeOverlayTests
 {
+    /// <summary>Combines Power Bomb, message, and suit layers, then replays retained packets after updates.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -66,6 +67,7 @@ internal static class RuntimeOverlayTests
     }
 }
 
+/// <summary>Identifies a retail room used to compose several runtime overlays.</summary>
 internal static class OverlayFixtureRooms
 {
     /// <summary>Retail Alpha Power Bomb room $01/$26, header $8F:A3AE.</summary>

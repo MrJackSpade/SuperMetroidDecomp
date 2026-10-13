@@ -28,11 +28,15 @@ internal sealed class EvidencedSoundAcknowledgements
         ClearAcknowledgement = 3,
     }
 
+    /// <summary>The three sound-effect libraries occupy adjacent handler-state bytes.</summary>
     private const int LibraryCount = 3;
 
+    /// <summary>Last captured APU_SoundStateLib values used to detect waiting-state exits.</summary>
     private readonly byte[] states = new byte[LibraryCount];
+    /// <summary>Last captured APU_CurrentSoundLib values compared with port echoes.</summary>
     private readonly byte[] currents = new byte[LibraryCount];
 
+    /// <summary>Seeds sound-handler states from the native memory before replay starts.</summary>
     public EvidencedSoundAcknowledgements(byte[] nativeMemory) => Capture(nativeMemory);
 
     /// <summary>

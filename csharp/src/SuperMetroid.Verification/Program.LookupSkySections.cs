@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks scrolling-sky section boundaries, speeds, and HDMA data slots.</summary>
 internal static class LookupSkySectionsVerification
 {
+    /// <summary>Compares all 23 native bands and every camera Y's rendered band selection.</summary>
     internal static void VerifySkySectionTopPositions(SuperMetroidAddressSpace rom)
     {
         int originalCount = ReadVerificationWord(rom, 0x88adef) / 8;
@@ -50,6 +52,7 @@ internal static class LookupSkySectionsVerification
         }
     }
 
+    /// <summary>Compares all 23 fractional section speeds, including band 17.</summary>
     internal static void VerifySkySectionSubspeeds(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 23; index++)
@@ -57,6 +60,7 @@ internal static class LookupSkySectionsVerification
                 RoomFxRomData.ScrollingSky.GetSection(index).Subspeed, "Sky fractional speed including band17");
     }
 
+    /// <summary>Compares each native section's whole-pixel speed word.</summary>
     internal static void VerifySkySectionSpeeds(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 23; index++)
@@ -64,6 +68,7 @@ internal static class LookupSkySectionsVerification
                 RoomFxRomData.ScrollingSky.GetSection(index).Speed, "Sky integer speed");
     }
 
+    /// <summary>Checks the HDMA slot mapping, including the duplicate slot at band 8.</summary>
     internal static void VerifySkySectionDataSlots(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 23; index++)

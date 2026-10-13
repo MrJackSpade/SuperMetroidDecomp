@@ -32,7 +32,9 @@ internal abstract class MotherBrainGlassInstructionProgramDefinitions
 
     /// <summary>Finite glass-sparkle animation at $86:CDB3.</summary>
     internal const ushort Sparkle = 0xcdb3;
+    /// <summary>Sixty-four shard-frame and four sparkle-frame visual operands.</summary>
     public static int PresentationWordCount => 68;
+    /// <summary>Eight angular shard animation groups selected from sixteen angle bins.</summary>
     internal static int ShardProgramCount => 8;
 
     /// <summary>Sixty-four shard and four sparkle art operands, each two bytes after its duration.</summary>
@@ -50,6 +52,7 @@ internal abstract class MotherBrainGlassInstructionProgramDefinitions
         return (ushort)(ShardGroup0 + index * 36);
     }
 
+    /// <summary>Maps one of sixteen RNG angle bins to its asymmetric shard animation group.</summary>
     internal static ushort SelectShardProgram(ushort animationIndex)
     {
         if (animationIndex >= 16)
@@ -74,6 +77,7 @@ internal abstract class MotherBrainGlassInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Identifies the shard and sparkle projectile kinds that use these lists.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainGlassShard or
         RoomEnemyProjectileKind.MotherBrainGlassSparkle;

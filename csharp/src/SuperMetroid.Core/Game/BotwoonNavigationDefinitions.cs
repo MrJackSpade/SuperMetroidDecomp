@@ -86,10 +86,11 @@ internal static class BotwoonNavigationDefinitions
             backwards ? (short)-1 : (short)0, (ushort)(8 * destination));
     }
 
-    // The stream corpus uses (-128, 0) separators. The second visible stream
-    // also has an earlier (-128, -16) terminator followed by padding; it does
-    // not start a new stream. Reverse descriptors point to the end separator;
-    // the existing consumer applies its native four-byte rewind.
+    /// <summary>
+    /// Finds the ordinal (-128, 0) stream separator; the earlier (-128, -16) terminator
+    /// in the second visible stream is followed by padding and does not start another stream.
+    /// Reverse descriptors point at the separator for the consumer's native four-byte rewind.
+    /// </summary>
     private static ushort PathBoundary(int ordinal, bool afterSeparator)
     {
         for (int pointer = MovementDataStart; pointer < MovementDataEndExclusive; pointer += 2)
@@ -129,6 +130,7 @@ internal static class BotwoonNavigationDefinitions
             DecodeMovementComponent(packed & 0x0f));
     }
 
+    /// <summary>Expands one packed movement nibble to an authored step or stream separator.</summary>
     private static sbyte DecodeMovementComponent(int code) => code switch
     {
         0 => sbyte.MinValue,

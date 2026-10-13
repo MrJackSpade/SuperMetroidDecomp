@@ -8,8 +8,11 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 public sealed class FileSelectMapWindow
 {
+    /// <summary>Native 16.16 expansion or contraction velocity for each window edge.</summary>
     private readonly uint[] velocities = new uint[4];
+    /// <summary>Current 16.16 left, right, top, and bottom clipping positions.</summary>
     private readonly uint[] edges = new uint[4];
+    /// <summary>Signed-underflow countdown controlling the final moving frame.</summary>
     private ushort timer;
 
     /// <summary>Creates the area-to-room expanding window at the installed label anchor, with collapsed edges and native area-specific 16.16 velocities/timer; editable anchors do not change compiled motion.</summary>
@@ -92,6 +95,7 @@ public sealed class FileSelectMapWindow
         return IsComplete;
     }
 
+    /// <summary>Clamps one edge's whole-pixel word while retaining its fractional position.</summary>
     private void ClampWholeWord(int edge, ushort limit, bool lowerBound)
     {
         short position = unchecked((short)SnesSixteenSixteen.WholeOf(edges[edge]));

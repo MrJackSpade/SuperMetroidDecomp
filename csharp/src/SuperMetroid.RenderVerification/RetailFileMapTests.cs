@@ -7,8 +7,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Compares translated file-map scenes with direct rendering throughout map navigation.</summary>
 internal static class RetailFileMapTests
 {
+    /// <summary>Covers all areas, backdrop and scroll variants, then both load and cancel routes.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

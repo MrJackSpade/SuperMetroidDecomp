@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled Ceres actor placements against immediate operands in bank $8B.</summary>
 internal static class CeresPlacementSelectorsVerification
 {
+    /// <summary>Checks the five rear-view actors and their X and Y native placement words.</summary>
     internal static void VerifyCeresRearPlacementSelector(ISnesAddressSpace rom)
     {
         // Original maintained extraction table at d12fa8fa; IDs are asset-format identities,
@@ -29,6 +31,7 @@ internal static class CeresPlacementSelectorsVerification
             AssertThrows<IndexOutOfRangeException>(() => CeresFlightActorDefinitions.RearViewPlacementSource(i), "rear selector bounds");
     }
 
+    /// <summary>Checks six Zebes reveal actors and their X and Y native placement words.</summary>
     internal static void VerifyCeresRevealPlacementSelector(ISnesAddressSpace rom)
     {
         (string Id, ushort XAddress, ushort YAddress)[] original =
@@ -53,6 +56,7 @@ internal static class CeresPlacementSelectorsVerification
             AssertThrows<IndexOutOfRangeException>(() => CeresDestructionActorDefinitions.ZebesPlacementSource(i), "reveal selector bounds");
     }
 
+    /// <summary>Checks the three initial destruction actors before the reveal phase.</summary>
     internal static void VerifyCeresInitialPlacementSelector()
     {
         string[] original = ["large-asteroid", "small-asteroid", "vortex"];
@@ -63,6 +67,7 @@ internal static class CeresPlacementSelectorsVerification
             AssertThrows<IndexOutOfRangeException>(() => CeresDestructionActorDefinitions.InitialPlacementId(i), "initial selector bounds");
     }
 
+    /// <summary>Requires an immediate LDA before the coordinate and compares its retail word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres placement operands")]
     private static void VerifyPlacementOperand(ISnesAddressSpace rom, ushort operand, ushort coordinate)
     {

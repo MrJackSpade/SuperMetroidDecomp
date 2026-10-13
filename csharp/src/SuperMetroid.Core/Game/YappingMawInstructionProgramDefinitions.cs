@@ -24,7 +24,9 @@ internal abstract class YappingMawInstructionProgramDefinitions
     /// <summary><c>InstList_YappingMaw_Cooldown_FacingDownLeft</c> at $A8:A079.</summary>
     internal const ushort CooldownFacingDownLeft = 0xa079;
 
+    /// <summary>Attack and cooldown timing, callbacks, and branch words in native address order.</summary>
     public static int MechanicsWordCount => 96;
+    /// <summary>Interleaved attack and cooldown spritemap operand addresses.</summary>
     public static int PresentationWordCount => 52;
 
     /// <summary>Yapping Maw animation holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
@@ -81,6 +83,7 @@ internal abstract class YappingMawInstructionProgramDefinitions
         return CooldownWord((ushort)(entry + 8), local - 3);
     }
 
+    /// <summary>Builds one cooldown hold, sound callback, or loop-control word.</summary>
     private static InstructionMechanicsWord CooldownWord(ushort entry, int field)
     {
         int offset = field < 5 ? field * 4 : 16 + 2 * (field - 4);
@@ -111,6 +114,7 @@ internal abstract class YappingMawInstructionProgramDefinitions
         return (ushort)(entry + (poseInGroup == 0 ? 4 : 10 + 4 * (poseInGroup - 1)));
     }
 
+    /// <summary>Binary-searches the compiled control words and rejects presentation or foreign addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0, high = MechanicsWordCount - 1;

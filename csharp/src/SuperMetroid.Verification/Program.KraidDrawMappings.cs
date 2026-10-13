@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kraid room PLM ownership, draw records, native words, and editable visual identities.</summary>
 internal static class KraidDrawMappingsVerification
 {
+    /// <summary>Compares the eight owner headers with bank-$84 programs and checks classification across all header values.</summary>
     internal static void VerifyKraidDrawOwnerClassification(SuperMetroidAddressSpace rom)
     {
         // Independent native header/list identities from bank_84.asm B7A3..B7C1.
@@ -26,6 +28,7 @@ internal static class KraidDrawMappingsVerification
                 "Kraid visual owner classification across full header domain");
     }
 
+    /// <summary>Independent native record positions, run lengths, and visual names for Kraid's ten draw lists.</summary>
     private static (ushort Pointer, int Count, string Id)[] KraidDrawOracle() =>
     [
         (0x9367, 1, "crumble-first"), (0x936d, 1, "crumble-second"),
@@ -35,6 +38,7 @@ internal static class KraidDrawMappingsVerification
         (0x939d, 15, "clear-ceiling"), (0x93bf, 22, "clear-spikes"),
     ];
 
+    /// <summary>Checks ordered draw addresses, exact pointer membership, and ordinal bounds.</summary>
     internal static void VerifyKraidDrawAddresses()
     {
         var expected = KraidDrawOracle();
@@ -58,6 +62,7 @@ internal static class KraidDrawMappingsVerification
                 "Kraid draw ordinal bounds");
     }
 
+    /// <summary>Checks each native horizontal run count, exported run extent, and zero-displacement terminator.</summary>
     internal static void VerifyKraidDrawShapes(SuperMetroidAddressSpace rom)
     {
         var exported = KraidRoomPlmDrawDefinitions.All.ToDictionary(draw => draw.Pointer);
@@ -78,6 +83,7 @@ internal static class KraidDrawMappingsVerification
         }
     }
 
+    /// <summary>Checks single-block records and both long clearing runs against their native level words.</summary>
     internal static void VerifyKraidDrawWords(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidSingleDrawWords), () => VerifyKraidSingleDrawWords(rom));
@@ -85,15 +91,19 @@ internal static class KraidDrawMappingsVerification
         Suite(nameof(VerifyKraidSpikeClearWords), () => VerifyKraidSpikeClearWords(rom));
     }
 
+    /// <summary>Checks the first eight one-block Kraid draw records.</summary>
     private static void VerifyKraidSingleDrawWords(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDrawWordSet), () => VerifyKraidDrawWordSet(rom, KraidDrawOracle().Take(8)));
 
+    /// <summary>Checks the fifteen-block ceiling clearing record.</summary>
     private static void VerifyKraidCeilingClearWords(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDrawWordSet), () => VerifyKraidDrawWordSet(rom, KraidDrawOracle().Where(draw => draw.Pointer == 0x939d)));
 
+    /// <summary>Checks the twenty-two-block spike clearing record.</summary>
     private static void VerifyKraidSpikeClearWords(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDrawWordSet), () => VerifyKraidDrawWordSet(rom, KraidDrawOracle().Where(draw => draw.Pointer == 0x93bf)));
 
+    /// <summary>Compares physical and visual level words in the compiled and exported forms of selected records.</summary>
     private static void VerifyKraidDrawWordSet(SuperMetroidAddressSpace rom,
         IEnumerable<(ushort Pointer, int Count, string Id)> definitions)
     {
@@ -113,6 +123,7 @@ internal static class KraidDrawMappingsVerification
         }
     }
 
+    /// <summary>Checks forward and reverse visual-ID lookup, including case-sensitive rejection and unknown pointers.</summary>
     internal static void VerifyKraidDrawVisualIds()
     {
         var expected = KraidDrawOracle();

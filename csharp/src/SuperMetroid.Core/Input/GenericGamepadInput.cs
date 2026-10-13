@@ -141,6 +141,7 @@ public static class GenericGamepadInput
         return result;
     }
 
+    /// <summary>Tests a host button number against the snapshot's zero-based bit mask.</summary>
     private static bool IsPressed(uint buttons, int zeroBasedButtonIndex) =>
         (buttons & (1u << zeroBasedButtonIndex)) != 0;
 }

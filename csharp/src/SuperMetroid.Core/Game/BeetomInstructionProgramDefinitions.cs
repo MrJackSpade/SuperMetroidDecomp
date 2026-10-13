@@ -31,8 +31,10 @@ internal abstract class BeetomInstructionProgramDefinitions
     /// <summary>The repeating left-drain frame list at $A8:B6DE.</summary>
     internal const ushort DrainingLeftLoop = 0xb6de;
 
+    /// <summary>Byte distance between the matching left- and right-facing Beetom program groups.</summary>
     internal const int FacingStride = CrawlingRight - CrawlingLeft;
 
+    /// <summary>Recognizes interleaved spritemap operands across crawl, hop, and drain programs.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - CrawlingLeft;
@@ -45,6 +47,7 @@ internal abstract class BeetomInstructionProgramDefinitions
         return (local <= 14 && local % 4 == 2) || (local >= 20 && local <= 32 && local % 4 == 0);
     }
 
+    /// <summary>Returns the native timing or control word at a Beetom instruction address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - CrawlingLeft;
@@ -78,6 +81,7 @@ internal abstract class BeetomInstructionProgramDefinitions
         throw new InvalidDataException($"Beetom instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
+    /// <summary>Recognizes timing and control offsets within one facing's program group.</summary>
     internal static bool IsMechanicsPosition(int local)
     {
         if (local < HopLeft - CrawlingLeft)

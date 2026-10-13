@@ -20,11 +20,17 @@ public enum D3D11PresentationResult
 /// <summary>Render-owner flip-model swapchain; window creation and simulation remain host responsibilities.</summary>
 public sealed class D3D11SwapchainPresenter : IDisposable
 {
+    /// <summary>Device owner whose thread must create, resize, present, and dispose this swapchain.</summary>
     private readonly D3D11RenderDevice owner;
+    /// <summary>Two-buffer flip-discard DXGI swapchain attached to the host HWND.</summary>
     private readonly IDXGISwapChain2 swapchain;
+    /// <summary>Owned DXGI waitable handle enforcing one pending frame of latency.</summary>
     private readonly LatencyWaitHandle latency;
+    /// <summary>Current back-buffer render target, recreated after resize.</summary>
     private ID3D11RenderTargetView? target;
+    /// <summary>Positive client dimensions used for display composition.</summary>
     private Extent16<DisplayPixels> size;
+    /// <summary>Prevents repeated release of native swapchain resources.</summary>
     private bool disposed;
 
     /// <summary>Creates a two-buffer BGRA flip-discard swapchain for an existing HWND on its device-owner thread, with a frame-latency waitable object and maximum latency one; owns the swapchain, not the window or device.</summary>
@@ -62,6 +68,7 @@ public sealed class D3D11SwapchainPresenter : IDisposable
     /// <summary>Nonblocking readiness query. The host waits outside simulation and the generation gate.</summary>
     public bool TryAcquireFrameOpportunity() { Verify(); return latency.WaitOne(0); }
 
+    /// <summary>Draws the submitted display and presents only if the frame still belongs to the current generation.</summary>
     internal D3D11PresentationResult Present(D3D11FrameRenderer renderer, RenderFrameIdentity identity,
         RenderPresentationGate gate, D3D11GpuTimer? timer)
     {
@@ -97,17 +104,20 @@ public sealed class D3D11SwapchainPresenter : IDisposable
         CreateTarget();
     }
 
+    /// <summary>Rejects minimized dimensions before creating or resizing a DXGI surface.</summary>
     private static void RequirePositive(Extent16<DisplayPixels> client)
     {
         if (client.X == 0 || client.Y == 0)
             throw new ArgumentOutOfRangeException(nameof(client), client, "A swapchain needs positive client dimensions.");
     }
 
+    /// <summary>Creates the target view for the swapchain's current first back buffer.</summary>
     private void CreateTarget()
     {
         using var buffer = swapchain.GetBuffer<ID3D11Texture2D>(0);
         target = owner.Device.CreateRenderTargetView(buffer);
     }
+    /// <summary>Enforces owner-thread access and rejects use after release.</summary>
     private void Verify() { owner.VerifyOwner(); ObjectDisposedException.ThrowIf(disposed, this); }
     /// <summary>Releases the render target, owned latency wait handle, and swapchain on the device-owner thread; leaves the HWND/device to their owners and ignores repeated disposal.</summary>
     /// <exception cref="InvalidOperationException">First disposal is attempted from a different thread.</exception>
@@ -116,8 +126,10 @@ public sealed class D3D11SwapchainPresenter : IDisposable
         if (disposed) return;
         owner.VerifyOwner(); target?.Dispose(); latency.Dispose(); swapchain.Dispose(); disposed = true;
     }
+    /// <summary>Owns the frame-latency handle returned by DXGI.</summary>
     private sealed class LatencyWaitHandle : WaitHandle
     {
+        /// <summary>Wraps a nonzero DXGI latency handle for bounded wait operations.</summary>
         internal LatencyWaitHandle(nint handle)
         {
             if (handle == 0) throw new InvalidOperationException("DXGI returned no frame-latency handle.");

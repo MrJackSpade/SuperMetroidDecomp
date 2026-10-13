@@ -43,8 +43,10 @@ internal static class ChozoStatuePlmProgramDefinitions
         BlockSlope,
     }
 
+    /// <summary>All four closed instruction-list ranges considered by native address lookup.</summary>
     private static readonly ProgramList[] ProgramLists = Enum.GetValues<ProgramList>();
 
+    /// <summary>First byte of one Chozo statue PLM instruction list.</summary>
     private static ushort StartOf(ProgramList list) => list switch
     {
         ProgramList.CrumblePlug => CrumblePlugStart,
@@ -54,6 +56,7 @@ internal static class ChozoStatuePlmProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(ProgramList)} {(int)list}."),
     };
 
+    /// <summary>Last byte before the adjacent native routine following one list.</summary>
     private static ushort EndOf(ProgramList list) => list switch
     {
         ProgramList.CrumblePlug => CrumblePlugEnd,
@@ -63,6 +66,7 @@ internal static class ChozoStatuePlmProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(ProgramList)} {(int)list}."),
     };
 
+    /// <summary>Reads a little-endian instruction word only when both bytes belong to the same compiled list.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
@@ -71,6 +75,7 @@ internal static class ChozoStatuePlmProgramDefinitions
         value = (ushort)(SnesLittleEndian.Word(ByteAt(list, offset), ByteAt(list, offset + 1)));
         return true;
     }
+    /// <summary>Projects one bank-$84 byte from a compiled Chozo statue instruction list.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
@@ -78,6 +83,7 @@ internal static class ChozoStatuePlmProgramDefinitions
         value = ByteAt(list, address - StartOf(list));
         return true;
     }
+    /// <summary>Finds which bounded instruction list owns a native bank-$84 address.</summary>
     private static bool TryLocate(ushort address, out ProgramList list)
     {
         foreach (ProgramList candidate in ProgramLists)
@@ -91,6 +97,7 @@ internal static class ChozoStatuePlmProgramDefinitions
         list = default;
         return false;
     }
+    /// <summary>Selects the low or high byte of a calculated instruction word.</summary>
     private static byte ByteAt(ProgramList list, int offset) =>
         (byte)(WordAt(list, offset & ~1) >> ((offset & 1) * 8));
 

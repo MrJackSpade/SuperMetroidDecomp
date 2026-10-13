@@ -99,6 +99,7 @@ internal static class MotherBrainContactHitboxesVerification
             $"{collisionCases} production collision probes pass without a ROM bus.");
     }
 
+    /// <summary>Computes expected contact and minimum horizontal shove from the compiled part rectangles.</summary>
     private static (bool Collides, ushort XDisplacement) ExpectedMotherBrainContact(
         MotherBrainContactPart part,
         Offset16<RoomPixels> delta,
@@ -119,6 +120,7 @@ internal static class MotherBrainContactHitboxesVerification
         return (false, 0);
     }
 
+    /// <summary>Runs the catalog comparison and production collision probes for Mother Brain's body, brain, and neck.</summary>
     [VerificationCommand("--mother-brain-contact-hitboxes")]
     internal static int MotherBrainContactHitboxesCommand()
     {

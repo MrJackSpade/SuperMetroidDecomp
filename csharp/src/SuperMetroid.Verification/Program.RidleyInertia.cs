@@ -17,6 +17,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static class RidleyInertiaVerification
 {
+    /// <summary>Compares Ceres and Norfair inertia bytes to the cartridge and probes production acceleration across signed distances.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley inertia")]
     internal static void VerifyCompiledRidleyInertia(SuperMetroidAddressSpace rom)
     {
@@ -53,8 +54,10 @@ internal static class RidleyInertiaVerification
         Console.WriteLine("Ridley inertia: 32 native bytes and 2,097,152 real two-axis calls match without a bus.");
     }
 
-    // $A6:D62F/$D6A6: the carry left by `position - target` feeds the first ADC/SBC of
-    // the velocity step, and each reversal step chains its own carry into the next.
+    /// <summary>
+    /// Computes Ceres Ridley's expected velocity from $A6:D62F/$D6A6. The carry left by
+    /// position minus target feeds the first ADC/SBC, and reversal steps chain their carry.
+    /// </summary>
     private static ushort ExpectedCeresNativeAcceleration(ushort initial, ushort position, ushort target, int divisor)
     {
         short distance = unchecked((short)(position - target));
@@ -85,9 +88,10 @@ internal static class RidleyInertiaVerification
         ushort result = unchecked((ushort)value);
         return unchecked((short)(result - 0x0500)) >= 0 ? (ushort)0x0500 : result;
     }
-    // Model the native word arithmetic independently as wide intermediate values
-    // and explicit carry terms. The movie-derived regression supplies independent
-    // expected motion; this existing numeric contract covers wrapped inputs too.
+    /// <summary>
+    /// Models Norfair Ridley's native word arithmetic with wide intermediates and explicit
+    /// carry terms. The movie regression supplies expected motion; this covers wrapped inputs.
+    /// </summary>
     internal static ushort ExpectedRidleyNativeAcceleration(ushort initial, ushort position, ushort target, int divisor, int boost)
     {
         short distance = unchecked((short)(position - target));
@@ -117,6 +121,7 @@ internal static class RidleyInertiaVerification
         return unchecked((short)(result - 0x0500)) >= 0 ? (ushort)0x0500 : result;
     }
 
+    /// <summary>Runs the inertia carry and Ridley death acceleration suites against retail data.</summary>
     [VerificationCommand("--ridley-acceleration-carry")]
     internal static int RidleyAccelerationCarryCommand()
     {

@@ -52,6 +52,7 @@ internal abstract class EtecoonInstructionProgramDefinitions
     /// <summary>Native program bank $A7.</summary>
     internal const byte Bank = 0xa7;
 
+    /// <summary>Compiled Etecoon program segments, timers, sleeps, loops, and visual-selector slots in bank-$A7 order.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe81e),
         Entry(LookRightAtSamusAndRunLeft),
@@ -135,9 +136,12 @@ internal abstract class EtecoonInstructionProgramDefinitions
         Frame(32),
         Frame(32),
         Op((ushort)CommonEnemyInstruction.Sleep));
+    /// <summary>Number of spritemap-selector operands retained as editable presentation identities.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Native address of one presentation operand, separate from compiled control words.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads a bounded Etecoon control word and rejects spritemap operands or adjacent native data.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

@@ -13,6 +13,7 @@ internal static class RoomFxRecordCatalogSource
     internal static readonly string GeneratedPath = Path.GetFullPath(Path.Combine(
         "csharp", "src", "SuperMetroid.Core", "Game", "RoomFxRecordDefinitions.Generated.cs"));
 
+    /// <summary>Imports all room-state FX lists plus Mother Brain's directly selected records.</summary>
     [CpuBusBoundary("codec: ROM bank-$83 room FX record lists → RoomFxRecordDefinition catalog source")]
     internal static SortedDictionary<ushort, RoomFxRecordDefinition> CaptureRetailRoomFxRecords(
         ISnesAddressSpace bus)
@@ -98,6 +99,7 @@ internal static class RoomFxRecordCatalogSource
         return records;
     }
 
+    /// <summary>Renders a pointer switch over captured records for the generated Core catalog.</summary>
     internal static string RenderRoomFxDefinitions(
         IEnumerable<RoomFxRecordDefinition> records)
     {

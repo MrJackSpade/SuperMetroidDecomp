@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks remote blue-door caps hit by wrapped shots in three retail rooms.</summary>
 internal static class WrapShotRoomsVerification
 {
+    /// <summary>Confirms room-specific beam reach, hit frame, four-cell clear, and opening sound.</summary>
     internal static void VerifyRetailWrapShotDoors()
     {
         foreach (var setup in new[] {
@@ -63,6 +65,7 @@ internal static class WrapShotRoomsVerification
         }
     }
 
+    /// <summary>Runs the focused retail remote-door shot check.</summary>
     [VerificationCommand("--wrap-shot-rooms")]
     internal static int WrapShotRoomsCommand()
     {

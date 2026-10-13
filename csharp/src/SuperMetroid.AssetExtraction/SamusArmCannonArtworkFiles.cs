@@ -14,7 +14,9 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM arm-cannon pose/OAM selectors and character tiles → arm cannon artwork files")]
 public static class SamusArmCannonArtworkFiles
 {
+    /// <summary>Companion file recording cartridge provenance and hashes of the stock placement and tile assets.</summary>
     private const string ManifestFileName = "samus-arm-cannon-manifest.json";
+    /// <summary>Strict camel-case JSON options shared by the arm-cannon manifest reader and writer.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -134,6 +136,7 @@ public static class SamusArmCannonArtworkFiles
         }
     }
 
+    /// <summary>Expected schema, cartridge revision, placement JSON hash, and indexed PNG hash for stock art.</summary>
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
         string JsonSha256, string PngSha256);
 }

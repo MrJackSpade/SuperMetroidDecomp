@@ -2,16 +2,25 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks Bomb Torizo hand PLM instruction fields against bank $84 source bytes.</summary>
 internal static class LookupBombTorizoHandProgramVerification
 {
+    /// <summary>Checks control words and the complete hand-program ownership domain.</summary>
     internal static void VerifyHandProgramControls(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 0);
+    /// <summary>Checks interleaved hand drawing operands at their native positions.</summary>
     internal static void VerifyHandProgramDraws(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 1);
+    /// <summary>Checks the hand-program callback operand.</summary>
     internal static void VerifyHandProgramCallback(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 2);
+    /// <summary>Checks the debris argument words following the drawing commands.</summary>
     internal static void VerifyHandProgramDebrisArguments(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 3);
+    /// <summary>Checks the native VRAM transfer size word.</summary>
     internal static void VerifyHandProgramTransferSize(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 4);
+    /// <summary>Checks all three bytes of the native transfer source pointer.</summary>
     internal static void VerifyHandProgramTransferSource(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 5);
+    /// <summary>Checks the native transfer destination word.</summary>
     internal static void VerifyHandProgramTransferDestination(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 6);
 
+    /// <summary>Partitions the 95-byte program and compares selected bytes plus overlapping reads.</summary>
     private static void VerifyHandProgramField(SuperMetroidAddressSpace rom, int field)
     {
         // Actual supported-ROM boundaries, including the alignment change after
@@ -62,6 +71,7 @@ internal static class LookupBombTorizoHandProgramVerification
         }
     }
 
+    /// <summary>Reads one native byte for the selected hand-program field.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for hand program field")]
     private static byte HandProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

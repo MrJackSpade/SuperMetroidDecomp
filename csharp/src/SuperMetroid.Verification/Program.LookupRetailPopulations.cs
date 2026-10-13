@@ -3,11 +3,10 @@ using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks all compiled retail PLM populations against their bank-$8F records.</summary>
 internal static class LookupRetailPopulationsVerification
 {
-    // Independent population identities captured from the original Sources in
-    // 80cc06ebb64ec54caabbd686a9a286fda0d16b3a, before replacing that storage.
-    // Placement field values and terminating words are read from the pinned ROM.
+    /// <summary>Original identities from 80cc06ebb64ec54caabbd686a9a286fda0d16b3a; placement words use the pinned-ROM oracle.</summary>
     private static readonly ushort[] OriginalRetailPopulationPointers =
     [
         0x8000, 0x8026, 0x8058, 0x805A, 0x8104, 0x81CC, 0x81D4, 0x81DC, 0x81FC, 0x81FE, 0x8230, 0x8238,
@@ -36,6 +35,7 @@ internal static class LookupRetailPopulationsVerification
         0xC8A5, 0xC8B3, 0xC8BB, 0xC8BD, 0xC8BF, 0xC8C1, 0xC8C3, 0xC8C5,
     ];
 
+    /// <summary>Checks 284 population identities and all 941 placement records field by field.</summary>
     internal static void VerifyRetailPopulationMappings(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRetailPopulationIdentities), () => VerifyRetailPopulationIdentities());
@@ -46,6 +46,7 @@ internal static class LookupRetailPopulationsVerification
         Suite(nameof(VerifyRetailPopulationTermination), () => VerifyRetailPopulationTermination(rom));
     }
 
+    /// <summary>Compares sorted pointer ownership and rejects every non-population ushort identity.</summary>
     private static void VerifyRetailPopulationIdentities()
     {
         var original = OriginalRetailPopulationPointers.ToHashSet();
@@ -76,12 +77,18 @@ internal static class LookupRetailPopulationsVerification
             "population dispatch requires a placement consumer");
     }
 
+    /// <summary>Checks the PLM header selected by each native placement.</summary>
     private static void VerifyRetailPopulationHeaders(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 0);
+    /// <summary>Checks each placement's room-block X coordinate.</summary>
     private static void VerifyRetailPopulationX(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 1);
+    /// <summary>Checks each placement's room-block Y coordinate.</summary>
     private static void VerifyRetailPopulationY(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 2);
+    /// <summary>Checks each placement's native room argument word.</summary>
     private static void VerifyRetailPopulationArguments(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 3);
+    /// <summary>Checks that every compiled population ends at its native zero header.</summary>
     private static void VerifyRetailPopulationTermination(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 4);
 
+    /// <summary>Walks each native list and compares one selected field or terminator length.</summary>
     private static void VerifyRetailPopulationField(SuperMetroidAddressSpace rom, int field)
     {
         int total = 0;
@@ -122,6 +129,7 @@ internal static class LookupRetailPopulationsVerification
         AssertEqual(941, total, $"complete original placement domain for field {field}");
     }
 
+    /// <summary>Reads native placement coordinate bytes for the independent oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for retail population field")]
     private static byte RetailPopulationFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -610,7 +610,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         SetRinkaCamera(frame.Camera);
     }
     /// <summary>Room-graphics dust definition parameter used by special Rinka deaths.</summary>
-    private const ushort RinkaDustAnimationIndex = 3;
+    private const MiscDustAnimation RinkaDustAnimationIndex = MiscDustAnimation.SmallExplosion;
     /// <summary>Allocates <c>SpawnEprojWithRoomGfx($E509, 3)</c>.</summary>
     internal void SpawnRinkaDustExplosion(Position16<RoomPixels> position)
         => _projectiles.SpawnRoomGraphicsDustExplosion(position, RinkaDustAnimationIndex);

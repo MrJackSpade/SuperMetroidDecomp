@@ -100,7 +100,7 @@ public sealed class MotherBrainCorpseRottingState
                     Position: brainPosition + new Offset16<RoomPixels>(
                         unchecked((short)((randomNumberSeed & 0x001f) - 0x0010)),
                         0x0010),
-                    ProjectileParameter: 0x000a,
+                    Animation: MiscDustAnimation.CorpseDustCloud,
                     SoundEffectQueued: (mainEnemyExecutionCounter & 7) == 0,
                     SoundEffect: 0x0010));
             });
@@ -172,7 +172,7 @@ public sealed class MotherBrainCorpseRottingState
 /// <summary>One MiscDust projectile emitted by Mother Brain's row-finished hook.</summary>
 public readonly record struct MotherBrainCorpseDustRequest(
     Position16<RoomPixels> Position,
-    ushort ProjectileParameter,
+    MiscDustAnimation Animation,
     bool SoundEffectQueued,
     ushort SoundEffect);
 

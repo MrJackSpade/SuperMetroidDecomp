@@ -500,7 +500,7 @@ internal sealed class RidleyTail
 
             // Missile family one gets the tiny dud and library-one sound $3D. Beams and
             // supers use the larger smoke variant $0C, exactly as $A6:E126 selects it.
-            ushort dustVariant = typeNibble == 1 ? (ushort)6 : (ushort)12;
+            MiscDustAnimation dustVariant = typeNibble == 1 ? MiscDustAnimation.DudShotTinyExplosion : MiscDustAnimation.Smoke;
             _projectiles.SpawnRoomGraphicsDustExplosion(joint.Position, dustVariant);
             if (typeNibble == 1)
                 _projectiles.LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot.Value;

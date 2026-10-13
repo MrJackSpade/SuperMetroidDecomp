@@ -643,9 +643,9 @@ internal sealed class KraidBehavior : IEnemySpecies
         ushort projectileType,
         Position16<RoomPixels> position)
     {
-        ushort animationIndex = (projectileType & 0x0200) != 0
-            ? (ushort)0x001d
-            : (ushort)0x0006;
+        MiscDustAnimation animationIndex = (projectileType & 0x0200) != 0
+            ? MiscDustAnimation.BigExplosion
+            : MiscDustAnimation.DudShotTinyExplosion;
         _projectiles.SpawnRoomGraphicsDustExplosion(position, animationIndex);
         _audio.QueueEnemySound(SoundEffectLibrary1Sounds.DudShot, maximumQueued: 6);
     }

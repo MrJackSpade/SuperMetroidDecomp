@@ -1332,7 +1332,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             graphicsIndex: 0);
         dust.Position = dust.Position.WithWhole(position);
         dust.InstructionPointer = MiscDustProjectileDefinitions.InstructionList(
-            Math.Min(variant, (ushort)0x001d));
+            (MiscDustAnimation)Math.Min(variant, (ushort)MiscDustAnimation.BigExplosion));
         dust.InstructionTimer = NativeCountdown.Start(1);
     }
     /// <summary>Last item-drop request published by Ridley's terminal routine.</summary>

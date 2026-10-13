@@ -356,49 +356,42 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         RoomEnemyProjectileKind.EyeDoorSmoke or
         RoomEnemyProjectileKind.MiscDustExplosion;
 
-    /// <summary>Maps native misc-dust selectors $00 through $1D to their bank-$86 programs.</summary>
-    internal static ushort MiscDustInitialPointer(ushort animationIndex)
+    /// <summary>Maps the thirty misc-dust animations to their bank-$86 programs.</summary>
+    internal static ushort MiscDustInitialPointer(MiscDustAnimation animation)
     {
-        if (animationIndex >= 30)
+        return animation switch
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(animationIndex), animationIndex,
-                "Bank-$86 misc-dust animation index must be in the native $00..$1D range.");
-        }
-
-        return animationIndex switch
-        {
-            0 => MiscDustBeamCharge,
-            1 => MiscDustElbowChargeParticle,
-            2 => MiscDustElbowChargeEnergy,
-            3 => MotherBrainSmallDeathExplosionInitial,
-            4 => MotherBrainRainbowExplosionInitial,
-            5 => MiscDustBeamTrail,
-            6 => MiscDustDudShot,
-            7 => MiscDustPowerBomb,
-            8 => MiscDustElevatorPad,
-            9 => MiscDustSmallDustCloud,
-            10 => MiscDustCorpseDustCloud,
-            11 => MiscDustEyeDoorSweat,
-            12 => MotherBrainDeathSmokeInitial,
-            13 => MiscDustSmallHealthDrop,
-            14 => MiscDustBigHealthDrop,
-            15 => MiscDustBomb,
-            16 => MiscDustWeirdHealthDrop,
-            17 => MiscDustRockParticles,
-            18 => MiscDustShortBigDustCloud,
-            19 => MiscDustShortBeamCloud,
-            20 => MiscDustMediumBeamCloud,
-            21 => MiscDustBigDustCloud,
-            22 => MiscDustLongBeam,
-            23 => MiscDustFlickeringBeam,
-            24 => MiscDustDraygonBubbles,
-            25 => MiscDustSaveStationLaser,
-            26 => MiscDustExpandingGate,
-            27 => MiscDustContractingGate,
-            28 => MiscDustLoopingElevatorPad,
-            29 => MotherBrainBigDeathExplosionInitial,
-            _ => throw new ArgumentOutOfRangeException(nameof(animationIndex)),
+            MiscDustAnimation.UnusedBeamCharge => MiscDustBeamCharge,
+            MiscDustAnimation.MotherBrainElbowChargeParticle => MiscDustElbowChargeParticle,
+            MiscDustAnimation.MotherBrainElbowChargeEnergy => MiscDustElbowChargeEnergy,
+            MiscDustAnimation.SmallExplosion => MotherBrainSmallDeathExplosionInitial,
+            MiscDustAnimation.MotherBrainRainbowBeamExplosion => MotherBrainRainbowExplosionInitial,
+            MiscDustAnimation.UnusedBeamTrail => MiscDustBeamTrail,
+            MiscDustAnimation.DudShotTinyExplosion => MiscDustDudShot,
+            MiscDustAnimation.UnusedPowerBomb => MiscDustPowerBomb,
+            MiscDustAnimation.UnusedElevatorPad => MiscDustElevatorPad,
+            MiscDustAnimation.SmallDustCloud => MiscDustSmallDustCloud,
+            MiscDustAnimation.CorpseDustCloud => MiscDustCorpseDustCloud,
+            MiscDustAnimation.EyeDoorSweatDrop => MiscDustEyeDoorSweat,
+            MiscDustAnimation.Smoke => MotherBrainDeathSmokeInitial,
+            MiscDustAnimation.UnusedSmallEnergyDrop => MiscDustSmallHealthDrop,
+            MiscDustAnimation.UnusedBigEnergyDrop => MiscDustBigHealthDrop,
+            MiscDustAnimation.UnusedBomb => MiscDustBomb,
+            MiscDustAnimation.UnusedWeirdEnergyDrop => MiscDustWeirdHealthDrop,
+            MiscDustAnimation.RockParticles => MiscDustRockParticles,
+            MiscDustAnimation.ShortBigDustCloud => MiscDustShortBigDustCloud,
+            MiscDustAnimation.UnusedCloudShortBeam => MiscDustShortBeamCloud,
+            MiscDustAnimation.UnusedCloudMediumBeam => MiscDustMediumBeamCloud,
+            MiscDustAnimation.BigDustCloud => MiscDustBigDustCloud,
+            MiscDustAnimation.UnusedLongBeam => MiscDustLongBeam,
+            MiscDustAnimation.UnusedFlickerLongBeam => MiscDustFlickeringBeam,
+            MiscDustAnimation.LongDraygonBreathBubbles => MiscDustDraygonBubbles,
+            MiscDustAnimation.UnusedSaveStationElectricity => MiscDustSaveStationLaser,
+            MiscDustAnimation.UnusedExpandVerticalGate => MiscDustExpandingGate,
+            MiscDustAnimation.UnusedContractVerticalGate => MiscDustContractingGate,
+            MiscDustAnimation.UnusedLoopingElevatorPad => MiscDustLoopingElevatorPad,
+            MiscDustAnimation.BigExplosion => MotherBrainBigDeathExplosionInitial,
+            _ => throw new ArgumentOutOfRangeException(nameof(animation), animation, "Undefined misc-dust animation."),
         };
     }
 

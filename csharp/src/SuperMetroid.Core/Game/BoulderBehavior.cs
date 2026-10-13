@@ -24,7 +24,7 @@ internal sealed class BoulderBehavior : IEnemySpecies
     /// <summary>Library-two cue replacing the impact cue when the boulder breaks into dust.</summary>
     private const ushort BoulderBreakSound = 0x0043;
     /// <summary>Room-graphics dust animation selected by terminal impacts.</summary>
-    private const ushort BoulderDustAnimationIndex = 0x0011;
+    private const MiscDustAnimation BoulderDustAnimationIndex = MiscDustAnimation.RockParticles;
 
     /// <summary>Per-slot trigger, bounce, speed, and last-position state.</summary>
     internal readonly BoulderEnemyState?[] _boulderStates =

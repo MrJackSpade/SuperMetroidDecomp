@@ -99,6 +99,9 @@ public readonly record struct Bgr555
             combine(ColorChannel.Blue, Blue, other.Blue));
     }
 
+    /// <summary>Whether <paramref name="word"/> is a stored color: bit 15, which is not a color bit, is clear.</summary>
+    public static bool IsColorWord(ushort word) => (word & ~ColorBits) == 0;
+
     /// <summary>
     /// Decodes a stored 15-bit color word. A set bit 15 is rejected: it is not part of any
     /// color, and only the CGRAM data port (<see cref="FromCgramPortWord"/>) defines a result for it.

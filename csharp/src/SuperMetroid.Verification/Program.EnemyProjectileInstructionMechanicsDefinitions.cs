@@ -146,7 +146,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
              animation++)
         {
             RoomEnemySystem enemies = CreateRoomEnemySystem();
-            enemies.Projectiles.SpawnRoomGraphicsDustExplosion(new Position16<RoomPixels>((ushort)128, (ushort)96), animation);
+            enemies.Projectiles.SpawnRoomGraphicsDustExplosion(new Position16<RoomPixels>((ushort)128, (ushort)96), (MiscDustAnimation)animation);
             RoomEnemyProjectileSlot dust = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
 

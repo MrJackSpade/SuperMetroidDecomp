@@ -126,7 +126,7 @@ internal sealed class EyeDoorBehavior
         Position16<RoomBlocks> block)
     {
         byte listOffset = unchecked((byte)parameter);
-        ushort instructionList = MiscDustProjectileDefinitions.InstructionList(listOffset);
+        ushort instructionList = MiscDustProjectileDefinitions.InstructionList((MiscDustAnimation)listOffset);
         MiscDustPlacementDefinition placement =
             MiscDustProjectileDefinitions.SmokePlacement((ushort)(SnesLittleEndian.HighByte(parameter)));
 

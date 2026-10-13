@@ -219,7 +219,7 @@ public readonly record struct MotherBrainDeathExplosionRequest(
 /// <summary>One periodic misc-dust projectile emitted around the escape door by `$A9:B346`.</summary>
 public readonly record struct MotherBrainEscapeDoorExplosionRequest(
     Position16<RoomPixels> Position,
-    ushort ProjectileParameter,
+    MiscDustAnimation Animation,
     ushort SoundEffect);
 
 /// <summary>One of eight `$86:CB21` door-fragment allocation attempts from `$A9:B3A3`.</summary>

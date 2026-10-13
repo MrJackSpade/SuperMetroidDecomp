@@ -234,11 +234,11 @@ internal sealed class BabyMetroidCutsceneBehavior
             state.LastSoundEffect = 0x0052;
 
         foreach (BabyMetroidReleaseDustRequest dust in step.ReleaseDustClouds)
-            _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.ProjectileParameter);
+            _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.Animation);
 
         if (step.DeathExplosion is { } explosion)
         {
-            _projectiles.SpawnRoomGraphicsDustExplosion(explosion.Position, explosion.ProjectileParameter);
+            _projectiles.SpawnRoomGraphicsDustExplosion(explosion.Position, explosion.Animation);
             // $A9:CDF4 queues the explosion through QueueSound_Lib3_Max3.
             state.LastSoundEffectLibrary3 = explosion.SoundEffect;
         }

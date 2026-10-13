@@ -26,15 +26,10 @@ public static class BotwoonColorExtractor
                     (band * BotwoonHealthPaletteDefinitions.ColorsPerPalette + color) *
                     sizeof(ushort);
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-                if ((native & 0x8000) != 0)
+                if (!Bgr555.IsColorWord(native))
                     throw new InvalidDataException(
                         $"Botwoon color ${address:X6} has an unrepresentable high bit.");
-                bands[band][color] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                bands[band][color] = PaletteRgb5.From(Bgr555.FromWord(native));
             }
         }
         return BotwoonColorCatalog.Write(new BotwoonColorDocument

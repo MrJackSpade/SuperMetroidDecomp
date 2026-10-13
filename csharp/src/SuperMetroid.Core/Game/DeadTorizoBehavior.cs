@@ -293,7 +293,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         ushort random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)((random & 0x001f) + 272)), 188),
-            animationIndex: 10);
+            MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext._randomEnemyCounter & 7) == 0)
             LastDeadTorizoSoundEffect = 0x0010;

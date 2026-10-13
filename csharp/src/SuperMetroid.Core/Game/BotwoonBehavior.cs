@@ -185,7 +185,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
 
             default:
                 throw new InvalidDataException(
-                    $"Botwoon function $B3:{(ushort)state.Function:X4} is not translated.");
+                    $"Botwoon function {state.Function} is not translated.");
         }
 
         UpdateBotwoonHealthPalette(head, state);
@@ -206,7 +206,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         state.PathComplete = false;
         ushort choice = 0;
         if (!state.InsideHole && !state.InitialAction && state.HealthPhase == 0)
-            choice = unchecked((ushort)(_room.Random.Generate() & 0x000e));
+            choice = unchecked((ushort)(_room.Random.Generate() & BotwoonNavigationDefinitions.ActionChoiceMask));
         state.InitialAction = false;
 
         if (choice is 0 or 2 or 4)
@@ -275,7 +275,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         else
         {
             state.HoleLatch = false;
-            state.SavedHoleRingByteOffset = 0xffff;
+            state.SavedHoleRingByteOffset = BotwoonNavigationDefinitions.NoPendingHoleCrossing;
         }
         ChooseBotwoonPath(head, state);
     }
@@ -292,7 +292,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         PositionBotwoonBody(state);
         RunBotwoonHeadFunction(head, state, samus);
         OrientBotwoonBody(head, state);
-        state.RingByteOffset = unchecked((ushort)((state.RingByteOffset + 4) & 0x03ff));
+        state.RingByteOffset = BotwoonNavigationDefinitions.WrapHistoryOffset(state.RingByteOffset + 4);
         if (detectHole)
             DetectBotwoonHole(head, state);
     }
@@ -314,7 +314,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Botwoon movement $B3:{(ushort)state.MovementFunction:X4} is not translated.");
+                    $"Botwoon movement {state.MovementFunction} is not translated.");
         }
     }
 
@@ -350,7 +350,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         UpdateBotwoonHealthPhase(head, state);
         ushort insideBase = state.InsideHole ? (ushort)128 : (ushort)0;
         state.PathChoiceOffset = unchecked((ushort)(
-            (_room.Random.Generate() & 0x0018) + insideBase + 4 * state.TargetHoleOffset));
+            (_room.Random.Generate() & BotwoonNavigationDefinitions.PathChoiceMask) + insideBase + 4 * state.TargetHoleOffset));
     }
 
     /// <summary>Changes traversal speed and body spacing at half and quarter health outside holes.</summary>
@@ -422,8 +422,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
     /// <summary>Spaces thirteen body projectiles along older head-history samples.</summary>
     private static void PositionBotwoonBody(BotwoonEnemyState state)
     {
-        ushort historyOffset = unchecked((ushort)(
-            (state.RingByteOffset - state.SegmentSpacingBytes) & 0x03ff));
+        ushort historyOffset = BotwoonNavigationDefinitions.WrapHistoryOffset(state.RingByteOffset - state.SegmentSpacingBytes);
         for (int argument = 24; argument >= 0; argument -= 2)
         {
             int segmentIndex = argument >> 1;
@@ -434,8 +433,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
             ToggleBotwoonSegmentAtHole(state, segmentIndex, historyOffset);
             int historyIndex = historyOffset >> 2;
             segment.Position = segment.Position.WithWhole(state.History[historyIndex]);
-            historyOffset = unchecked((ushort)(
-                (historyOffset - state.SegmentSpacingBytes) & 0x03ff));
+            historyOffset = BotwoonNavigationDefinitions.WrapHistoryOffset(historyOffset - state.SegmentSpacingBytes);
         }
     }
 
@@ -445,7 +443,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         int segmentIndex,
         ushort historyOffset)
     {
-        if (state.SavedHoleRingByteOffset == 0xffff ||
+        if (state.SavedHoleRingByteOffset == BotwoonNavigationDefinitions.NoPendingHoleCrossing ||
             state.SavedHoleRingByteOffset != historyOffset)
             return;
 
@@ -459,7 +457,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
             return;
         state.HoleLatch = false;
         state.ExitTransitionComplete = !state.InsideHole;
-        state.SavedHoleRingByteOffset = 0xffff;
+        state.SavedHoleRingByteOffset = BotwoonNavigationDefinitions.NoPendingHoleCrossing;
     }
 
     /// <summary>Faces each body sprite toward the preceding segment or head.</summary>
@@ -552,7 +550,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Botwoon head callback $B3:{(ushort)state.HeadFunction:X4} is not translated.");
+                    $"Botwoon head callback {state.HeadFunction} is not translated.");
         }
     }
 
@@ -727,7 +725,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
 
         head.Position = head.Position.WithWholeY(200);
         state.Function = BotwoonEnemyFunction.WaitForBody;
-        _projectiles.SpawnRoomGraphicsDustExplosion(head.Position.Whole, animationIndex: 0x001d);
+        _projectiles.SpawnRoomGraphicsDustExplosion(head.Position.Whole, MiscDustAnimation.BigExplosion);
         LastBotwoonSoundEffect = BotwoonSoundDefinitions.Explosion;
         head.Properties = head.Properties.With(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
@@ -749,8 +747,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies
             ushort random = _room.Random.Generate();
             var request = new BotwoonDropRequest(
                 Position: new Position16<RoomPixels>(
-                    unchecked((ushort)((random & 0x007f) + 64)),
-                    unchecked((ushort)(((SnesLittleEndian.HighByte(random) & 0x3f)) + 128))),
+                    unchecked((ushort)((random & 127) + 64)),
+                    unchecked((ushort)((SnesLittleEndian.HighByte(random) & 63) + 128))),
                 ItemDropChancesPointer: head.Definition.ItemDropChancesPointer);
             _botwoonDropRequests.Add(request);
             LastBotwoonDropRequest = request;
@@ -789,9 +787,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies
             {
                 state.LargeExplosionTimer = NativeCountdown.Start(12);
                 _spriteObjects.SpawnRoomSpriteObject(
-                    new(unchecked((ushort)((_room.Random.Generate() & 0x001f) + 232)), unchecked((ushort)(state.WallExplosionFrame + (_room.Random.Generate() & 0x001f) - 8))),
+                    new(unchecked((ushort)((_room.Random.Generate() & 31) + 232)), unchecked((ushort)(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8))),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
-                    graphicsIndex: 0x0a00);
+                    graphicsIndex: EnemyPaletteBits.Palette5);
                 LastBotwoonSoundEffect = BotwoonSoundDefinitions.Explosion;
             }
 
@@ -804,9 +802,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies
                 for (int explosion = 0; explosion < 2; explosion++)
                 {
                     _spriteObjects.SpawnRoomSpriteObject(
-                        new(unchecked((ushort)((_room.Random.Generate() & 0x003f) + 224)), unchecked((ushort)(state.WallExplosionFrame + (_room.Random.Generate() & 0x001f) - 8))),
+                        new(unchecked((ushort)((_room.Random.Generate() & 63) + 224)), unchecked((ushort)(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8))),
                         RoomSpriteObjectKind.BotwoonSmallExplosion,
-                        graphicsIndex: 0x0a00);
+                        graphicsIndex: EnemyPaletteBits.Palette5);
                 }
             }
         }
@@ -839,10 +837,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         byte angle,
         ushort magnitude)
     {
-        int xMagnitude = EnemyMath.ReadUnsignedSineMagnitudeProduct(angle, magnitude, 0x40);
-        int yMagnitude = EnemyMath.ReadUnsignedSineMagnitudeProduct(angle, magnitude, 0x80);
-        int xDisplacement = ((angle + 64) & 0x80) != 0 ? -xMagnitude : xMagnitude;
-        int yDisplacement = ((angle + 128) & 0x80) != 0 ? -yMagnitude : yMagnitude;
+        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, magnitude);
+        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, magnitude);
+        int xDisplacement = EnemyMath.CosineIsNegative(angle) ? -xMagnitude : xMagnitude;
+        int yDisplacement = EnemyMath.SineIsNegative(angle) ? -yMagnitude : yMagnitude;
         head.Position = head.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
         head.Position = head.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
     }
@@ -1097,8 +1095,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         // ConvertAngleToXy stores unsigned quarter-circle magnitudes; E73E applies signs
         // from the retained angle every frame. Keep both halves so shallow trajectories do
         // not lose their subpixel motion.
-        int xMagnitude = EnemyMath.ReadUnsignedSineMagnitudeProduct(angle, speed, 0x40);
-        int yMagnitude = EnemyMath.ReadUnsignedSineMagnitudeProduct(angle, speed, 0x80);
+        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, speed);
+        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, speed);
         spit.Velocity = spit.Velocity.WithX(new SnesSignedEightEight(SnesFixedPosition.WholeOf(xMagnitude)));
         spit.Variable0 = unchecked((ushort)xMagnitude);
         spit.Velocity = spit.Velocity.WithY(new SnesSignedEightEight(SnesFixedPosition.WholeOf(yMagnitude)));
@@ -1112,12 +1110,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies
     {
         int xMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(spit.Velocity.X.RawValue, spit.Variable0)));
         int yMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(spit.Velocity.Y.RawValue, spit.Variable1)));
-        int xDisplacement = ((spit.DirectionParameter + 64) & 0x80) != 0
-            ? -xMagnitude
-            : xMagnitude;
-        int yDisplacement = ((spit.DirectionParameter + 128) & 0x80) != 0
-            ? -yMagnitude
-            : yMagnitude;
+        int xDisplacement = EnemyMath.CosineIsNegative(spit.DirectionParameter) ? -xMagnitude : xMagnitude;
+        int yDisplacement = EnemyMath.SineIsNegative(spit.DirectionParameter) ? -yMagnitude : yMagnitude;
         spit.Position = spit.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
         spit.Position = spit.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
 

@@ -41,6 +41,24 @@ internal static class BotwoonNavigationDefinitions
     /// <summary>Exclusive end of the movement corpus at native address <c>$B3:E150</c>.</summary>
     internal const ushort MovementDataEndExclusive = 0xe150;
 
+    /// <summary>
+    /// <c>$B3:989D</c>: random bits 1-3 pick an even action offset 0-14 when Botwoon leaves a hole outside
+    /// its health phases; offsets 0, 2 and 4 follow an authored path and the rest spit from the hole.
+    /// </summary>
+    internal const ushort ActionChoiceMask = 0x000e;
+
+    /// <summary>Random bits 3-4 pick one of the target hole's four path descriptors (byte offsets 0, 8, 16, 24).</summary>
+    internal const ushort PathChoiceMask = 0x0018;
+
+    /// <summary>The head-position history ring: 256 four-byte X/Y samples.</summary>
+    internal const int HistoryRingBytes = 1024;
+
+    /// <summary>Wraps a history-ring byte offset, as the native <c>AND #$03FF</c> does.</summary>
+    internal static ushort WrapHistoryOffset(int byteOffset) => (ushort)(byteOffset & (HistoryRingBytes - 1));
+
+    /// <summary><c>$FFFF</c> in the saved crossing offset: no hole crossing is pending for the delayed body samples.</summary>
+    internal const ushort NoPendingHoleCrossing = 0xffff;
+
     /// <summary>Returns the named room hole selected by its native eight-byte offset.</summary>
     internal static BotwoonHoleDefinition HoleForByteOffset(ushort byteOffset) =>
         (BotwoonHoleLocation)byteOffset switch

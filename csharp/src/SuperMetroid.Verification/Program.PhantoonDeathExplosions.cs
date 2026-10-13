@@ -15,7 +15,7 @@ internal static class PhantoonDeathExplosionsVerification
             var entry = PhantoonDeathExplosionDefinitions.Read(i);
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7da1d + i * 4)), entry.X, "Native death explosion X offset");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7da1e + i * 4)), entry.Y, "Native death explosion Y offset");
-            AssertEqual(rom.ReadCartridgeByte(0xa7da1f + i * 4), entry.Type, "Native death explosion type");
+            AssertEqual((MiscDustAnimation)rom.ReadCartridgeByte(0xa7da1f + i * 4), entry.Type, "Native death explosion type");
             AssertEqual(rom.ReadCartridgeByte(0xa7da20 + i * 4), entry.Delay, "Native death explosion delay");
         }
         foreach (ushort origin in new ushort[] { 0, 128, 0xffff })

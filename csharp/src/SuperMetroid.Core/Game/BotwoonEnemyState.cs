@@ -6,53 +6,54 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Literal bank-$B3 function pointer stored in Botwoon's variable D. The values are kept as
-/// cartridge addresses so debugger watches can be compared directly with the native actor.
+/// Botwoon's main function, held in its variable D. Each member names the bank-$B3 routine it ports;
+/// the slot stores the member, not the routine's address. Members start at one so a cleared slot is
+/// never mistaken for a function.
 /// </summary>
 public enum BotwoonEnemyFunction : ushort
 {
     /// <summary><c>$B3:9878 Function_Botwoon_Initial</c>: decrements the 256-update opening delay and selects hole traversal when it reaches zero.</summary>
-    InitialDelay = 0x9878,
+    InitialDelay = 1,
     /// <summary><c>$B3:989D Function_Botwoon_GoThroughHole</c>: moves toward the target hole, detects crossing, and chooses an authored path or stationary spit action.</summary>
-    ChooseNextAction = 0x989d,
+    ChooseNextAction,
     /// <summary><c>$B3:99A4 Function_Botwoon_MovingAround</c>: advances an authored movement path and body history until its terminator selects direct hole movement.</summary>
-    FollowAuthoredPath = 0x99a4,
+    FollowAuthoredPath,
     /// <summary><c>$B3:99E4 Function_Botwoon_Spitting</c>: holds position for the aimed spit animation/cooldown, then chooses another path and inside-hole state.</summary>
-    SpitWhileHidden = 0x99e4,
+    SpitWhileHidden,
     /// <summary><c>$B3:9A46 Function_Botwoon_DeathSequence_PreDeathDelay</c>: increments the head's death timer from 240 to 256 while body actors begin their staggered death delays.</summary>
-    DeathDelay = 0x9a46,
+    DeathDelay,
     /// <summary><c>$B3:9A5E Function_Botwoon_DeathSequence_FallingToGround</c>: accelerates through the quadratic speed table until head Y reaches 200, then hides the landed head.</summary>
-    HeadFalling = 0x9a5e,
+    HeadFalling,
     /// <summary><c>$B3:9ACA Function_Botwoon_DeathSequence_WaitForBodyToFallToGround</c>: waits for the final body point's landing flag before requesting drops and wall crumbling.</summary>
-    WaitForBody = 0x9aca,
+    WaitForBody,
     /// <summary><c>$B3:9AF9 Function_Botwoon_DeathSequence_CrumblingWall</c>: runs the 192-update wall-explosion phase, then deletes the head, sets the miniboss bit, and queues track three.</summary>
-    WallExplosions = 0x9af9,
+    WallExplosions,
 }
 
-/// <summary>Literal movement callback stored in Botwoon's variable E.</summary>
+/// <summary>Botwoon's movement callback, held in its variable E. Members start at one, as for <see cref="BotwoonEnemyFunction"/>.</summary>
 public enum BotwoonMovementFunction : ushort
 {
     /// <summary><c>$B3:9BB7 Function_Botwoon_Movement_DirectlyTowardTargetHole</c>: computes a clamped target vector and moves until the inside-hole transition is observed.</summary>
-    MoveTowardHole = 0x9bb7,
+    MoveTowardHole = 1,
     /// <summary><c>$B3:E250 Function_Botwoon_Movement_StartMovingAccordingToMovementData</c>: loads the chosen descriptor's pointer, direction, and target hole, then follows its first samples on the same call.</summary>
-    LoadAuthoredPath = 0xe250,
+    LoadAuthoredPath,
     /// <summary><c>$B3:E28C Function_Botwoon_Movement_MoveAccordingToMovementData</c>: consumes speed-count signed X/Y byte pairs in the selected direction until a $80 terminator marks completion.</summary>
-    FollowAuthoredPath = 0xe28c,
+    FollowAuthoredPath,
 }
 
-/// <summary>Literal head/attack callback stored in Botwoon's variable F.</summary>
+/// <summary>Botwoon's head and attack callback, held in its variable F. Members start at one, as for <see cref="BotwoonEnemyFunction"/>.</summary>
 public enum BotwoonHeadFunction : ushort
 {
     /// <summary><c>$B3:9DC0 Function_Botwoon_Head_MovingAround</c>: derives orientation from delayed head positions and selects hidden/tangible drawing according to hole state.</summary>
-    AnimateFromMovement = 0x9dc0,
+    AnimateFromMovement = 1,
     /// <summary><c>$B3:9E7D Function_Botwoon_Head_Spitting_SetAngleAndShow</c>: aims at Samus, installs the spit list, and immediately selects the five-shot animation wait or three-shot volley.</summary>
-    AimAtSamus = 0x9e7d,
+    AimAtSamus,
     /// <summary><c>$B3:9EE0 Function_Botwoon_Head_Spitting_Spawn5SpitProjectiles</c>: waits for the head bytecode's spit-frame flag, then emits five projectiles spaced sixteen angle units apart.</summary>
-    WaitForSpitFrame = 0x9ee0,
+    WaitForSpitFrame,
     /// <summary><c>$B3:9F34 Function_Botwoon_Head_Spitting_Spawn3SpitProjectiles</c>: emits three aimed projectiles immediately and selects the attack cooldown.</summary>
-    SpawnImmediateVolley = 0x9f34,
+    SpawnImmediateVolley,
     /// <summary><c>$B3:9F7A Function_Botwoon_Head_Spitting_Cooldown</c>: decrements the attack timer through zero to signed underflow, pins it to zero, and restores movement-based animation.</summary>
-    AttackCooldown = 0x9f7a,
+    AttackCooldown,
 }
 
 /// <summary>
@@ -169,7 +170,7 @@ public sealed class BotwoonEnemyState
     /// <summary>Whether defeat persistence has been recognized or written; live death sets the area miniboss bit only after the complete wall-explosion phase.</summary>
     public bool BossBitSet { get; internal set; }
     /// <summary>Ring byte offset saved at a head hole crossing so delayed body samples toggle at the same position; $FFFF means no crossing remains pending.</summary>
-    public ushort SavedHoleRingByteOffset { get; internal set; } = 0xffff;
+    public ushort SavedHoleRingByteOffset { get; internal set; } = BotwoonNavigationDefinitions.NoPendingHoleCrossing;
 
     /// <summary>Thirteen actors, indexed by native spawn argument 0,2,...24 divided by two.</summary>
     public RoomEnemyProjectileSlot?[] BodySegments { get; } =

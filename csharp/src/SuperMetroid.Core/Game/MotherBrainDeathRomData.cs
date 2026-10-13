@@ -60,7 +60,7 @@ public static class MotherBrainDeathRomData
     /// <summary>$86:CA0D final dust is four pixels above the fragment.</summary>
     public const int DoorDustYOffset = 4;
     /// <summary>$86:CA1B dust-cloud spawn parameter on fragment expiry.</summary>
-    public const ushort DoorDustParameter = 9;
+    public const MiscDustAnimation DoorDustParameter = MiscDustAnimation.SmallDustCloud;
     /// <summary>$86:CBBB optional Japanese time-bomb subtitle.</summary>
     public const ushort SubtitleDefinition = 0xcbbb;
     /// <summary>$86:CB03/$CB09 subtitle screen anchor.</summary>

@@ -1378,16 +1378,16 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Allocates the shared room-graphics dust/explosion actor at <c>$86:E509</c>.
-    /// The caller supplies the native animation-table index exactly as the spawn parameter;
-    /// this is shared by special Rinka deaths, Boulder's impact clouds, and later families
-    /// that invoke the same engine primitive.
+    /// The caller selects the animation the native spawn parameter indexes; this is shared by
+    /// special Rinka deaths, Boulder's impact clouds, and later families that invoke the same
+    /// engine primitive.
     /// </summary>
     internal void SpawnRoomGraphicsDustExplosion(
         Position16<RoomPixels> position,
-        ushort animationIndex)
+        MiscDustAnimation animation)
     {
         ushort instructionList =
-            MiscDustProjectileDefinitions.InstructionList(animationIndex);
+            MiscDustProjectileDefinitions.InstructionList(animation);
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
@@ -1622,7 +1622,7 @@ internal sealed class EnemyProjectileEngine
                 ushort impactX = context.Projectile.Position.X.Whole;
                 ushort impactY = context.Projectile.Position.Y.Whole;
                 context.Projectile.Clear();
-                SpawnRoomGraphicsDustExplosion(new(impactX, impactY), animationIndex: 9);
+                SpawnRoomGraphicsDustExplosion(new(impactX, impactY), MiscDustAnimation.SmallDustCloud);
                 _audio.QueueEnemySound(SoundEffectLibrary2Sounds.CeresFallingTileImpact, maximumQueued: 6);
             }
         }, EnemyProjectilePreInstruction.CeresFallingTile);

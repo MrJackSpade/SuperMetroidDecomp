@@ -23,21 +23,21 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 33022,
+    "RawHexLiteral": 32954,
     "PointerDispatch": 1292,
     "OpaqueWordArray": 1150,
-    "CatalogHexLiteral": 101621,
+    "CatalogHexLiteral": 101624,
     "JustifiedHexLiteral": 76,
     "OwnedWidthOperation": 122,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 1,
     "CountdownSelfDecrement": 53,
-    "class:NumericQuantity": 56244,
-    "class:DomainIdentity": 6974,
-    "class:ComposableBits": 1818,
+    "class:NumericQuantity": 56218,
+    "class:DomainIdentity": 6972,
+    "class:ComposableBits": 1802,
     "class:StructuredInstruction": 44536,
-    "class:CartridgeAddress": 26739,
-    "class:Unknown": 1029,
+    "class:CartridgeAddress": 26723,
+    "class:Unknown": 1024,
     "storageWidthMembers": 1779
   },
   "subsystems": [
@@ -1145,13 +1145,13 @@
     {
       "name": "Asset extraction (encoded boundary)",
       "totals": {
-        "RawHexLiteral": 99,
+        "RawHexLiteral": 98,
         "PointerDispatch": 9,
         "CatalogHexLiteral": 16,
         "OwnedWidthOperation": 3,
         "class:NumericQuantity": 31,
         "class:DomainIdentity": 12,
-        "class:ComposableBits": 45,
+        "class:ComposableBits": 44,
         "class:CartridgeAddress": 37,
         "class:Unknown": 2,
         "storageWidthMembers": 1
@@ -1167,14 +1167,6 @@
       "files": [
         {
           "path": "csharp/src/SuperMetroid.AssetExtraction/BabyMetroidCutsceneColorExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/BotwoonColorExtractor.cs",
           "project": "SuperMetroid.AssetExtraction",
           "totals": {
             "RawHexLiteral": 1,
@@ -1791,13 +1783,12 @@
     {
       "name": "Boss: Botwoon",
       "totals": {
-        "RawHexLiteral": 42,
         "PointerDispatch": 4,
-        "CatalogHexLiteral": 37,
-        "class:NumericQuantity": 22,
-        "class:DomainIdentity": 17,
-        "class:ComposableBits": 17,
-        "class:CartridgeAddress": 27,
+        "CatalogHexLiteral": 40,
+        "class:NumericQuantity": 15,
+        "class:DomainIdentity": 16,
+        "class:ComposableBits": 2,
+        "class:CartridgeAddress": 11,
         "storageWidthMembers": 22
       },
       "addressInterpretingTypes": [
@@ -1822,22 +1813,9 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Game/BotwoonBehavior.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 25,
-            "class:NumericQuantity": 9,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 15
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Game/BotwoonEnemyState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 17,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 16,
             "storageWidthMembers": 22
           }
         },
@@ -1853,8 +1831,8 @@
           "path": "csharp/src/SuperMetroid.Core/Game/BotwoonNavigationDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 3,
-            "class:NumericQuantity": 2,
+            "CatalogHexLiteral": 6,
+            "class:NumericQuantity": 5,
             "class:ComposableBits": 1
           }
         },
@@ -1899,11 +1877,11 @@
     {
       "name": "Boss: Crocomire",
       "totals": {
-        "RawHexLiteral": 289,
+        "RawHexLiteral": 283,
         "PointerDispatch": 15,
         "OpaqueWordArray": 1,
         "CatalogHexLiteral": 839,
-        "class:NumericQuantity": 754,
+        "class:NumericQuantity": 748,
         "class:DomainIdentity": 178,
         "class:ComposableBits": 48,
         "class:StructuredInstruction": 50,
@@ -1980,9 +1958,9 @@
           "path": "csharp/src/SuperMetroid.Core/Game/CrocomireBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 153,
+            "RawHexLiteral": 147,
             "PointerDispatch": 4,
-            "class:NumericQuantity": 104,
+            "class:NumericQuantity": 98,
             "class:DomainIdentity": 1,
             "class:ComposableBits": 46,
             "class:CartridgeAddress": 4,
@@ -2189,11 +2167,11 @@
     {
       "name": "Boss: Draygon",
       "totals": {
-        "RawHexLiteral": 159,
+        "RawHexLiteral": 158,
         "PointerDispatch": 17,
         "CatalogHexLiteral": 269,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 234,
+        "class:NumericQuantity": 233,
         "class:DomainIdentity": 4,
         "class:ComposableBits": 21,
         "class:CartridgeAddress": 171,
@@ -2297,8 +2275,8 @@
           "path": "csharp/src/SuperMetroid.Core/Game/DraygonEyeEffects.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 2
+            "RawHexLiteral": 1,
+            "class:NumericQuantity": 1
           }
         },
         {
@@ -2398,7 +2376,7 @@
     {
       "name": "Boss: Kraid",
       "totals": {
-        "RawHexLiteral": 140,
+        "RawHexLiteral": 138,
         "PointerDispatch": 28,
         "CatalogHexLiteral": 171,
         "CountdownSelfDecrement": 6,
@@ -2406,7 +2384,7 @@
         "class:DomainIdentity": 42,
         "class:ComposableBits": 16,
         "class:CartridgeAddress": 131,
-        "class:Unknown": 15,
+        "class:Unknown": 13,
         "storageWidthMembers": 14
       },
       "addressInterpretingTypes": [
@@ -2479,13 +2457,13 @@
           "path": "csharp/src/SuperMetroid.Core/Game/KraidBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 46,
+            "RawHexLiteral": 44,
             "PointerDispatch": 5,
             "CountdownSelfDecrement": 6,
             "class:NumericQuantity": 33,
             "class:ComposableBits": 14,
             "class:CartridgeAddress": 7,
-            "class:Unknown": 3,
+            "class:Unknown": 1,
             "storageWidthMembers": 3
           }
         },
@@ -2691,18 +2669,18 @@
     {
       "name": "Boss: Mother Brain",
       "totals": {
-        "RawHexLiteral": 550,
+        "RawHexLiteral": 544,
         "PointerDispatch": 62,
         "OpaqueWordArray": 14,
         "CatalogHexLiteral": 1012,
         "OwnedWidthOperation": 1,
         "CountdownSelfDecrement": 4,
-        "class:NumericQuantity": 778,
+        "class:NumericQuantity": 775,
         "class:DomainIdentity": 91,
         "class:ComposableBits": 57,
         "class:StructuredInstruction": 192,
         "class:CartridgeAddress": 459,
-        "class:Unknown": 66,
+        "class:Unknown": 63,
         "storageWidthMembers": 96
       },
       "addressInterpretingTypes": [
@@ -2902,16 +2880,16 @@
           "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 222,
+            "RawHexLiteral": 219,
             "PointerDispatch": 2,
             "OpaqueWordArray": 1,
             "CountdownSelfDecrement": 4,
-            "class:NumericQuantity": 140,
+            "class:NumericQuantity": 138,
             "class:DomainIdentity": 5,
             "class:ComposableBits": 32,
             "class:StructuredInstruction": 15,
             "class:CartridgeAddress": 21,
-            "class:Unknown": 16
+            "class:Unknown": 15
           }
         },
         {
@@ -2976,8 +2954,8 @@
           "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 10,
-            "class:NumericQuantity": 9,
+            "RawHexLiteral": 9,
+            "class:NumericQuantity": 8,
             "class:ComposableBits": 1
           }
         },
@@ -3177,12 +3155,12 @@
           "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 174,
+            "RawHexLiteral": 172,
             "class:NumericQuantity": 124,
             "class:DomainIdentity": 11,
             "class:ComposableBits": 5,
             "class:CartridgeAddress": 29,
-            "class:Unknown": 5,
+            "class:Unknown": 3,
             "storageWidthMembers": 33
           }
         },
@@ -3426,13 +3404,13 @@
     {
       "name": "Boss: Phantoon",
       "totals": {
-        "RawHexLiteral": 101,
+        "RawHexLiteral": 100,
         "PointerDispatch": 27,
-        "CatalogHexLiteral": 77,
+        "CatalogHexLiteral": 69,
         "OwnedWidthOperation": 1,
         "CountdownSelfDecrement": 6,
-        "class:NumericQuantity": 104,
-        "class:DomainIdentity": 4,
+        "class:NumericQuantity": 96,
+        "class:DomainIdentity": 3,
         "class:ComposableBits": 21,
         "class:CartridgeAddress": 76,
         "class:Unknown": 7,
@@ -3456,10 +3434,10 @@
           "path": "csharp/src/SuperMetroid.Core/Game/PhantoonBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 69,
+            "RawHexLiteral": 68,
             "CountdownSelfDecrement": 6,
             "class:NumericQuantity": 43,
-            "class:DomainIdentity": 4,
+            "class:DomainIdentity": 3,
             "class:ComposableBits": 20,
             "class:CartridgeAddress": 1,
             "class:Unknown": 7
@@ -3495,14 +3473,6 @@
           "totals": {
             "CatalogHexLiteral": 3,
             "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/PhantoonDeathExplosionDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 8,
-            "class:NumericQuantity": 8
           }
         },
         {
@@ -3606,12 +3576,12 @@
     {
       "name": "Boss: Ridley",
       "totals": {
-        "RawHexLiteral": 198,
+        "RawHexLiteral": 197,
         "PointerDispatch": 6,
         "OpaqueWordArray": 3,
         "CatalogHexLiteral": 220,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 201,
+        "class:NumericQuantity": 200,
         "class:DomainIdentity": 32,
         "class:ComposableBits": 22,
         "class:StructuredInstruction": 22,
@@ -3710,9 +3680,9 @@
           "path": "csharp/src/SuperMetroid.Core/Game/RidleyBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 27,
+            "RawHexLiteral": 26,
             "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 12,
+            "class:NumericQuantity": 11,
             "class:ComposableBits": 6,
             "class:CartridgeAddress": 2,
             "class:Unknown": 8
@@ -3870,11 +3840,11 @@
     {
       "name": "Boss: Spore Spawn",
       "totals": {
-        "RawHexLiteral": 29,
+        "RawHexLiteral": 28,
         "PointerDispatch": 16,
         "CatalogHexLiteral": 121,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 81,
+        "class:NumericQuantity": 80,
         "class:DomainIdentity": 4,
         "class:ComposableBits": 17,
         "class:CartridgeAddress": 65,
@@ -3897,9 +3867,9 @@
           "path": "csharp/src/SuperMetroid.Core/Game/SporeSpawnBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 23,
+            "RawHexLiteral": 22,
             "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 7,
+            "class:NumericQuantity": 6,
             "class:ComposableBits": 17
           }
         },
@@ -4497,12 +4467,12 @@
     {
       "name": "Cinematics and scripted sequences",
       "totals": {
-        "RawHexLiteral": 383,
+        "RawHexLiteral": 382,
         "PointerDispatch": 62,
-        "CatalogHexLiteral": 1014,
+        "CatalogHexLiteral": 1018,
         "JustifiedHexLiteral": 11,
         "CountdownSelfDecrement": 7,
-        "class:NumericQuantity": 728,
+        "class:NumericQuantity": 731,
         "class:DomainIdentity": 266,
         "class:ComposableBits": 196,
         "class:StructuredInstruction": 5,
@@ -5167,9 +5137,9 @@
           "path": "csharp/src/SuperMetroid.Core/Game/CeresDoorBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 12,
+            "RawHexLiteral": 11,
             "CountdownSelfDecrement": 3,
-            "class:NumericQuantity": 13,
+            "class:NumericQuantity": 12,
             "class:ComposableBits": 2
           }
         },
@@ -5253,8 +5223,8 @@
           "path": "csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 36,
-            "class:NumericQuantity": 14,
+            "CatalogHexLiteral": 40,
+            "class:NumericQuantity": 18,
             "class:DomainIdentity": 8,
             "class:CartridgeAddress": 7,
             "class:Unknown": 7
@@ -8033,10 +8003,10 @@
     {
       "name": "Gameplay core",
       "totals": {
-        "RawHexLiteral": 789,
+        "RawHexLiteral": 785,
         "PointerDispatch": 20,
         "OpaqueWordArray": 6,
-        "CatalogHexLiteral": 1738,
+        "CatalogHexLiteral": 1742,
         "JustifiedHexLiteral": 1,
         "OwnedWidthOperation": 6,
         "CountdownSelfDecrement": 2,
@@ -8111,8 +8081,8 @@
           "path": "csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 105,
-            "class:NumericQuantity": 99,
+            "RawHexLiteral": 102,
+            "class:NumericQuantity": 96,
             "class:ComposableBits": 3,
             "class:CartridgeAddress": 1,
             "class:Unknown": 2,
@@ -8183,8 +8153,8 @@
           "path": "csharp/src/SuperMetroid.Core/Game/BoulderBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 14,
-            "class:NumericQuantity": 14
+            "RawHexLiteral": 13,
+            "class:NumericQuantity": 13
           }
         },
         {
@@ -8781,6 +8751,14 @@
           "totals": {
             "RawHexLiteral": 1,
             "class:NumericQuantity": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/Mode7TransferQueueLayout.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 4,
+            "class:NumericQuantity": 4
           }
         },
         {
@@ -9466,12 +9444,12 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 27608,
+        "RawHexLiteral": 27606,
         "PointerDispatch": 432,
         "OpaqueWordArray": 1011,
         "CatalogHexLiteral": 5424,
         "OwnedWidthOperation": 59,
-        "class:NumericQuantity": 10384,
+        "class:NumericQuantity": 10382,
         "class:DomainIdentity": 618,
         "class:ComposableBits": 569,
         "class:StructuredInstruction": 14285,
@@ -11924,8 +11902,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.BabyMetroidDeathExplosionSound.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 14,
-            "class:NumericQuantity": 14
+            "RawHexLiteral": 12,
+            "class:NumericQuantity": 12
           }
         },
         {

@@ -452,7 +452,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             if (!death.BridgeDustAt1536Spawned)
             {
                 death.BridgeDustAt1536Spawned = true;
-                _projectiles.SpawnRoomGraphicsDustExplosion(new(1536, 176), animationIndex: 0x0015);
+                _projectiles.SpawnRoomGraphicsDustExplosion(new(1536, 176), MiscDustAnimation.BigDustCloud);
             }
             return;
         }
@@ -467,7 +467,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 death.BridgeBlockAt1568Crumbling = true;
                 PublishCrocomirePlm(
                     new Position16<RoomBlocks>(0x61, 0x0b), PlmHeaderId.CrumbleCrocomireBridgeBlock);
-                _projectiles.SpawnRoomGraphicsDustExplosion(new(1568, 176), animationIndex: 0x0015);
+                _projectiles.SpawnRoomGraphicsDustExplosion(new(1568, 176), MiscDustAnimation.BigDustCloud);
             }
             return;
         }
@@ -481,7 +481,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 new Position16<RoomBlocks>(0x62, 0x0b), PlmHeaderId.CrumbleCrocomireBridgeBlock);
             PublishCrocomirePlm(
                 new Position16<RoomBlocks>(0x63, 0x0b), PlmHeaderId.CrumbleCrocomireBridgeBlock);
-            _projectiles.SpawnRoomGraphicsDustExplosion(new(1584, 176), animationIndex: 0x0015);
+            _projectiles.SpawnRoomGraphicsDustExplosion(new(1584, 176), MiscDustAnimation.BigDustCloud);
         }
     }
 
@@ -506,7 +506,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         for (int puff = 0; puff < CrocomireBridgeDustCount; puff++)
         {
             (ushort x, ushort y) = CrocomireBridgeDustPosition(puff);
-            _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 0x0015);
+            _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.BigDustCloud);
         }
 
         PublishCrocomirePlm(new Position16<RoomBlocks>(0x4e, 0x03), PlmHeaderId.CreateCrocomireInvisibleWall);
@@ -726,9 +726,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         SamusProjectileTypeWord projectileType,
         Position16<RoomPixels> projectile)
     {
-        ushort animationIndex = projectileType.Family != SamusProjectileFamily.SuperMissile
-            ? (ushort)6
-            : (ushort)29;
+        MiscDustAnimation animationIndex = projectileType.Family != SamusProjectileFamily.SuperMissile
+            ? MiscDustAnimation.DudShotTinyExplosion
+            : MiscDustAnimation.BigExplosion;
         _projectiles.SpawnRoomGraphicsDustExplosion(projectile, animationIndex);
     }
 
@@ -1809,7 +1809,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         ushort random = ReadCrocomireRandom();
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset + (random & 7))), unchecked((ushort)(state.Body.Position.Y.Whole + state.Body.Radius.Y - 16))),
-            animationIndex: 0x15);
+            MiscDustAnimation.BigDustCloud);
     }
 
     /// <summary>Rejects death and melting operations when the arena collision level is unavailable.</summary>
@@ -2302,7 +2302,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         projectile.Clear();
         if ((nativeIndex & 2) == 0)
             LastCrocomireSoundEffect = 0x0029;
-        _projectiles.SpawnRoomGraphicsDustExplosion(new(impactX, impactY), animationIndex: 0x0015);
+        _projectiles.SpawnRoomGraphicsDustExplosion(new(impactX, impactY), MiscDustAnimation.BigDustCloud);
         LastCrocomireSoundEffect = 0x0025;
     }
 

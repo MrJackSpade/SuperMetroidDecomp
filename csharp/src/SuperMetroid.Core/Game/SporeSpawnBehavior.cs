@@ -691,7 +691,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         ushort random = _room.Random.Generate();
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(state.Body.Position.X.Whole + (random & 0x007f) - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + ((SnesLittleEndian.HighByte(random) & 0x7f)) - 64))),
-            animationIndex: 0x0015);
+            MiscDustAnimation.BigDustCloud);
         LastSporeSpawnSoundEffectLibrary2 = 0x0029;
     }
 

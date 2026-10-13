@@ -125,9 +125,9 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
     /// <summary>Library-two effect queued for each destruction burst.</summary>
     private const ushort CeresDoorRumbleSoundEffect = 0x0025;
     /// <summary>Room graphics animation selected for the smoke outcome.</summary>
-    private const ushort CeresDoorSmokeAnimation = 3;
+    private const MiscDustAnimation CeresDoorSmokeAnimation = MiscDustAnimation.SmallExplosion;
     /// <summary>Room graphics animation selected for the explosion outcome.</summary>
-    private const ushort CeresDoorExplosionAnimation = 0x000c;
+    private const MiscDustAnimation CeresDoorExplosionAnimation = MiscDustAnimation.Smoke;
     /// <summary>Status published when the door has finished Ridley's escape transition.</summary>
     private const ushort CeresDoorEscapedStatus = 0x8000;
 
@@ -297,7 +297,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         // GenerateRandomNumber is called exactly once per explosion. Values below $4000
         // select animation $0C; all other values select animation three (smoke).
         ushort randomNumber = _room.Random.Generate();
-        ushort animation = randomNumber < 0x4000
+        MiscDustAnimation animation = randomNumber < 0x4000
             ? CeresDoorExplosionAnimation
             : CeresDoorSmokeAnimation;
         _projectiles.SpawnRoomGraphicsDustExplosion(new(explosionX, explosionY), animation);

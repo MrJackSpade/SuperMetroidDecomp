@@ -1611,7 +1611,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), explosionType);
         if (_projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive) > before)
             state.DeathExplosionsSpawned++;
-        state.LastCombatSoundEffect = explosionType == 0x001d ? (ushort)0x0024 : (ushort)0x002b;
+        state.LastCombatSoundEffect = explosionType == MiscDustAnimation.BigExplosion ? (ushort)0x0024 : (ushort)0x002b;
 
         tentacles.VariableF = unchecked((ushort)(tentacles.VariableF + 1));
         if (tentacles.VariableF < PhantoonDeathExplosionDefinitions.Count)

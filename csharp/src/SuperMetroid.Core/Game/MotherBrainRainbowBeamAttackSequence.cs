@@ -1051,13 +1051,13 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         }
 
         // Native `$B377` advances the one shared RNG exactly once per emitted projectile.
-        // Values below `$4000` select the bright explosion parameter `$000C`; all remaining
-        // values retain the preloaded smoky-dust parameter `$0003`.
+        // Values below a quarter of the range select the smoke animation ($0C); all remaining
+        // values retain the preloaded small explosion ($03).
         ushort random = nextRandomNumber();
-        ushort projectileParameter = random < 0x4000 ? (ushort)0x000c : (ushort)0x0003;
+        MiscDustAnimation animation = random < 0x4000 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;
         return new MotherBrainEscapeDoorExplosionRequest(
             Position: position,
-            ProjectileParameter: projectileParameter,
+            Animation: animation,
             SoundEffect: 0x0024);
     }
 

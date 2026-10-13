@@ -538,7 +538,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         ushort random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(slot.Position.X.Whole + (random & 0x001a) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
-            animationIndex: 10);
+            MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext._randomEnemyCounter & 7) == 0)
             _deadMonsters.LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust.Value;

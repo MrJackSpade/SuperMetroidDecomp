@@ -339,8 +339,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 // MotherBrain_SealWall at `$AD:E396` creates both dust puffs before its
                 // two identical hardcoded PLMs. Requests remain ordered because the bank
                 // $84 allocator searches the same descending pool for each call.
-                _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 72), animationIndex: 9);
-                _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 152), animationIndex: 9);
+                _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 72), MiscDustAnimation.SmallDustCloud);
+                _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 152), MiscDustAnimation.SmallDustCloud);
                 state.RequestPlm(new(15, 4), PlmHeaderId.FillMotherBrainsWall);
                 state.RequestPlm(new(15, 9), PlmHeaderId.FillMotherBrainsWall);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentInitialPause;
@@ -772,7 +772,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
                 short yOffset = unchecked((short)
                     MotherBrainHandBeamBodyInstructionDefinitions.ReadMechanicsWord(
                         unchecked((ushort)(cursor + 4))));
-                ushort animationIndex =
+                var animationIndex = (MiscDustAnimation)
                     MotherBrainHandBeamBodyInstructionDefinitions.ReadMechanicsWord(
                         unchecked((ushort)(cursor + 6)));
                 _projectiles.SpawnRoomGraphicsDustExplosion(
@@ -1266,7 +1266,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             ushort x = bomb.Position.X.Whole;
             ushort y = bomb.Position.Y.Whole;
             DeleteMotherBrainBomb(bomb, state);
-            _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 9);
+            _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.SmallDustCloud);
             state.LastBombDropRequest = new MotherBrainBombDropRequest();
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
                 new(x, y),
@@ -1315,7 +1315,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter,
             impact,
             afterburnCount);
-        _projectiles.SpawnRoomGraphicsDustExplosion(impact, animationIndex: 3);
+        _projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallExplosion);
         state.LastSoundEffectLibrary3 = 0x0013;
     }
 
@@ -1697,7 +1697,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         foreach (var transfer in step.CorpseRottingVramTransfers) _motherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(transfer);
         foreach (var dust in step.CorpseDustRequests)
         {
-            _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.ProjectileParameter);
+            _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.Animation);
             // $A9:B252 queues the rot dust through QueueSound_Lib2_Max3.
             if (dust.SoundEffectQueued)
                 _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, dust.SoundEffect), maximumQueued: 3);
@@ -1719,7 +1719,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             LoadMotherBrainDeathDoorPalette();
         if (step.EscapeDoorExplosion is { } doorDust)
         {
-            _projectiles.SpawnRoomGraphicsDustExplosion(doorDust.Position, doorDust.ProjectileParameter);
+            _projectiles.SpawnRoomGraphicsDustExplosion(doorDust.Position, doorDust.Animation);
             // $A9:B346 queues the door explosion through QueueSound_Lib2_Max3.
             _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, doorDust.SoundEffect), maximumQueued: 3);
         }
@@ -2136,7 +2136,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         // `$A9:8904` samples the existing RNG word and never advances it. A host random
         // call here would desynchronize every later Rinka and phase-two attack decision.
         ushort sampledRandom = _room.Random.Read();
-        ushort animation = sampledRandom < 0x4000 ? (ushort)12 : (ushort)3;
+        MiscDustAnimation animation = sampledRandom < 0x4000 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;
         _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), animation);
         state.LastSoundEffect = 0x24;
     }
@@ -2299,7 +2299,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         {
             _projectiles.SpawnRoomGraphicsDustExplosion(
                 new(projectile.Position.X.Whole, unchecked((ushort)(projectile.Position.Y.Whole + 8))),
-                animationIndex: 9);
+                MiscDustAnimation.SmallDustCloud);
             projectile.Variable0 = 0xcc08;
         }
         else if (projectile.Variable0 != 0xcc08)
@@ -2316,7 +2316,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         ushort x = projectile.Position.X.Whole;
         ushort y = projectile.Position.Y.Whole;
         projectile.Clear();
-        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 12);
+        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.Smoke);
     }
 
     /// <summary>Creates a falling tube enemy from its population pointer.</summary>
@@ -2452,7 +2452,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         tube.VariableE = unchecked((ushort)((tube.VariableE + 1) & 3));
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(tube.Position.X.Whole + MotherBrainFallingTubeSmokeXOffsets[tube.VariableE])), 208),
-            animationIndex: 9);
+            MiscDustAnimation.SmallDustCloud);
     }
 
     /// <summary>Finishes a falling tube with its explosion and tile update.</summary>
@@ -2461,7 +2461,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         ushort x = tube.Position.X.Whole;
         ushort y = tube.Position.Y.Whole;
         tube.Properties = tube.Properties.With(EnemyProperties.Deleted);
-        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 3);
+        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.SmallExplosion);
         if (_motherBrainEncounter.MotherBrain is not null)
             _motherBrainEncounter.MotherBrain.LastSoundEffect = SoundEffectLibrary2Sounds.SmallExplosion.Value;
     }
@@ -2764,7 +2764,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             beam.Clear();
             _projectiles.SpawnRoomGraphicsDustExplosion(
                 new(impactX, impactY),
-                animationIndex: 0x001d);
+                MiscDustAnimation.BigExplosion);
             state.LastSoundEffectLibrary3 = 0x0013;
             _earthquake.EarthquakeTimer = NativeCountdown.Start(0x000a);
             _earthquake.EarthquakeType = 0x0005;
@@ -3126,7 +3126,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
 
         ushort x = MotherBrainAscentDustXPositions[state.BodySubFunctionTimer.RawValue];
         ushort random = _room.Random.Read();
-        ushort animation = (random & 0x0100) == 0 ? (ushort)9 : (ushort)0x12;
+        MiscDustAnimation animation = (random & 0x0100) == 0 ? MiscDustAnimation.SmallDustCloud : MiscDustAnimation.ShortBigDustCloud;
         _projectiles.SpawnRoomGraphicsDustExplosion(new(x, 0x00d4), animation);
         state.LastSoundEffect = 0x0029;
     }
@@ -3953,7 +3953,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         // allocator reuses this physical slot, the outer projectile scheduler will advance
         // the newborn dust list during the same pass, matching EprojRunOne's original X.
         ring.Clear();
-        _projectiles.SpawnRoomGraphicsDustExplosion(position, animationIndex: 3);
+        _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallExplosion);
         state.LastSoundEffectLibrary3 = 0x0013;
     }
     /// <summary>
@@ -4027,7 +4027,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             ushort x = turret.Position.X.Whole;
             ushort y = turret.Position.Y.Whole;
             turret.Clear();
-            _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 0x000c);
+            _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.Smoke);
             return;
         }
 

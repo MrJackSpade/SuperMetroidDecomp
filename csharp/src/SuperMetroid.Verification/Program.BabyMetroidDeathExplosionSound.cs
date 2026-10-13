@@ -37,7 +37,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             BabyMetroidCutscenePhase.TakeFinalBlow, BabyMetroidCutscenePhase.TakeFinalBlow,
             BodyStumbleRequested: false, LatchSoundQueued: false, ReleaseDustClouds: [],
             AmbientCrySoundQueued: false,
-            DeathExplosion: new BabyMetroidDeathExplosionRequest(new(0x0080, 0x0080), 3, 0x0013),
+            DeathExplosion: new BabyMetroidDeathExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, 0x0013),
             BabyPaletteTransfer: null, AttackTileTransfer: null, BackgroundPaletteTransfer: null);
 
         runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state, step);
@@ -50,8 +50,8 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         {
             DeathExplosions = [], CorpseRottingVramTransfers = [], EscapeSequenceTileTransfers = [],
             EscapePaletteFxRequests = [], EscapeDoorParticleSpawns = [],
-            CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), 0x000a, SoundEffectQueued: true, SoundEffect: 0x0010)],
-            EscapeDoorExplosion = new MotherBrainEscapeDoorExplosionRequest(new(0x0080, 0x0080), 0x0003, 0x0024),
+            CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), MiscDustAnimation.CorpseDustCloud, SoundEffectQueued: true, SoundEffect: 0x0010)],
+            EscapeDoorExplosion = new MotherBrainEscapeDoorExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, 0x0024),
         };
         state.LastSoundEffectLibrary3 = null;
         runtime.Enemies.MotherBrainBehavior.ApplyLiveMotherBrainDeath(state, new MotherBrainRainbowBeamAttackSequence(), death);

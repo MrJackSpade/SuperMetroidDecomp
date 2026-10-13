@@ -383,13 +383,13 @@ public sealed class BabyMetroidCutsceneState
                     // to the ordinary highest-free-slot allocator.
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
                         head + new Offset16<RoomPixels>(-0x0010, -0x0008),
-                        ProjectileParameter: 0x0009));
+                        Animation: MiscDustAnimation.SmallDustCloud));
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
                         head + new Offset16<RoomPixels>(0, -0x0010),
-                        ProjectileParameter: 0x0009));
+                        Animation: MiscDustAnimation.SmallDustCloud));
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
                         head + new Offset16<RoomPixels>(0x0010, -0x0008),
-                        ProjectileParameter: 0x0009));
+                        Animation: MiscDustAnimation.SmallDustCloud));
                     Phase = BabyMetroidCutscenePhase.MoveToTheCeiling;
                 }
                 goto case BabyMetroidCutscenePhase.MoveToTheCeiling;
@@ -905,7 +905,7 @@ public sealed class BabyMetroidCutsceneState
         // index before looking up a pair, so a freshly cleared counter begins at entry one.
         return new BabyMetroidDeathExplosionRequest(
             Position: Position.Whole + DeathExplosionScatterDefinitions.Offset(DeathExplosionPatternIndex),
-            ProjectileParameter: 3,
+            Animation: MiscDustAnimation.SmallExplosion,
             SoundEffect: 0x0013);
     }
 

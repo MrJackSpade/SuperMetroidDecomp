@@ -210,6 +210,23 @@ internal static class EnemyMath
         return unchecked((int)product);
     }
 
+    /// <summary>The absolute cosine half of the angle-to-vector routine: the sample a quarter turn ahead.</summary>
+    internal static int ReadAbsoluteCosineProduct(int angle, ushort magnitude) =>
+        ReadUnsignedSineMagnitudeProduct(unchecked((ushort)angle), magnitude, SnesAngle.QuarterTurn.TableIndex);
+
+    /// <summary>The absolute sine half of the angle-to-vector routine: the sample a half turn ahead.</summary>
+    internal static int ReadAbsoluteSineProduct(int angle, ushort magnitude) =>
+        ReadUnsignedSineMagnitudeProduct(unchecked((ushort)angle), magnitude, SnesAngle.HalfTurn.TableIndex);
+
+    /// <summary>Whether a table angle's cosine component is negative: the native tests bit 7 of the angle plus a quarter turn.</summary>
+    internal static bool CosineIsNegative(int angle) => IsInSecondHalfTurn(angle + SnesAngle.QuarterTurn.TableIndex);
+
+    /// <summary>Whether a table angle's sine component is negative: the native tests bit 7 of the angle plus a half turn.</summary>
+    internal static bool SineIsNegative(int angle) => IsInSecondHalfTurn(angle + SnesAngle.HalfTurn.TableIndex);
+
+    /// <summary>Whether a table angle lies in the second half turn (table bit 7).</summary>
+    private static bool IsInSecondHalfTurn(int tableAngle) => (tableAngle & SnesAngle.HalfTurn.TableIndex) != 0;
+
     /// <summary>Multiplies a signed sine-table sample by speed with the cartridge's fixed-point rounding.</summary>
     internal static ushort MultiplyCartridgeSinCos(ushort speed, byte angle)
     {

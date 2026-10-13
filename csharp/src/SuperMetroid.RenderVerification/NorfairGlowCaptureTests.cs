@@ -56,6 +56,7 @@ internal static class NorfairGlowCaptureTests
     }
 }
 
+/// <summary>Cathedral room and CGRAM destinations used to isolate Norfair's animated foreground glow.</summary>
 internal static class NorfairGlowFixture
 {
     /// <summary>$8F:A788 Cathedral, a heated Norfair room with glowing foreground rock.</summary>

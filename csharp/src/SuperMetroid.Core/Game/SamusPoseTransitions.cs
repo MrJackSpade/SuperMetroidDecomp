@@ -2286,6 +2286,10 @@ internal sealed class SamusPoseTransitions
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
+    /// <summary>
+    /// Keeps the gun raised on frame one when both standing poses aim straight up;
+    /// other standing transitions begin at frame zero.
+    /// </summary>
     private static ushort StandingPoseInitialFrame(ISnesAddressSpace bus, SamusPoseId sourcePose, SamusPoseId targetPose)
     {
         // $91:F4DC keeps the gun raised when both the old and new standing

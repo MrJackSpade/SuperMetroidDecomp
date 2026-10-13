@@ -402,6 +402,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     Console.WriteLine("  SRAM/file select: slots, COPY/CLEAR, checksums, NO DATA, ENERGY, and TIME agree.");
 }
 
+/// <summary>Advances the native startup and fade dispatches until file select reaches its main menu.</summary>
 static void AdvanceFileSelectToMain(FileSelectMenuState menu)
 {
     // Native indices 0-2 take five updates (two are NMI continuations), then index
@@ -413,6 +414,7 @@ static void AdvanceFileSelectToMain(FileSelectMenuState menu)
     AssertEqual(FileSelectPhase.Main, menu.Phase, "file-select fade reaches main menu on its 35th update");
 }
 
+/// <summary>Steps a data-management fade until the expected file-select phase becomes active.</summary>
 static void AdvanceFileSelectFade(FileSelectMenuState menu, FileSelectPhase expected)
 {
     // Delay-one native fades: thirty updates out, thirty back in. The data-management
@@ -422,6 +424,7 @@ static void AdvanceFileSelectFade(FileSelectMenuState menu, FileSelectPhase expe
     AssertEqual(expected, menu.Phase, "file-select data-management fade completes");
 }
 
+/// <summary>Sends one button edge followed by its release to the file-select state machine.</summary>
 static void PulseFileSelect(FileSelectMenuState menu, SnesButton button)
 {
     menu.Step((ushort)button);

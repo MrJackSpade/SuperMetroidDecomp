@@ -16,6 +16,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Yard turn lookahead and animation records against the cartridge and live branch behavior.</summary>
 internal static class YardTurnDefinitionsVerification
 {
     /// <summary>Matches Yard turn lookahead and animation lists to cartridge records, then exercises actual inside/outside branches.</summary>

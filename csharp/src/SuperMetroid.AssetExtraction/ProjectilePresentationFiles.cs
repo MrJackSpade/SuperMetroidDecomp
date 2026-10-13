@@ -68,7 +68,7 @@ public static class ProjectilePresentationFiles
             $"projectile manifest {manifestPath}");
         if (manifest.Version != Version || manifest.RomSha256 != SupportedCartridge.Sha256)
             throw new InvalidDataException($"Projectile manifest {manifestPath} does not match the supported cartridge/revision.");
-        /// <summary>Reads one named stock asset after verifying its recorded content hash.</summary>
+        // Read one named stock asset after verifying its recorded content hash.
         ProjectileFile Stock(string name, string? expectedHash) => ReadStock(stockDirectory, name, expectedHash);
         ProjectileFile stock = Stock(ProjectileSpriteDefinitions.FileName, manifest.ContentSha256);
         _ = stock.Compile(ProjectileSpriteCatalog.Load);
@@ -107,7 +107,7 @@ public static class ProjectilePresentationFiles
         ProjectileFile stockGrappleSwing = Stock(GrappleSwingFrameDefinitions.FileName, manifest.GrappleSwingSha256);
         _ = stockGrappleSwing.Compile(GrappleSwingFrameCatalog.Load);
         // Finish stock validation before opening any optional replacement.
-        /// <summary>Selects a persistent user replacement after all stock assets pass validation.</summary>
+        // Select a persistent user replacement after all stock assets pass validation.
         ProjectileFile Select(ProjectileFile baseline) => baseline.Select(overrideDirectory);
         ProjectileFile selected = Select(stock);
         ProjectileFile selectedFrameBindings = Select(stockFrameBindings);

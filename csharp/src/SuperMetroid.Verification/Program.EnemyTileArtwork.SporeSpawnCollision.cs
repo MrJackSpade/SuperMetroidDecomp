@@ -143,8 +143,9 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         AssertThrows<IndexOutOfRangeException>(() => _ = openSpore[2], "Spore open frame has exactly two components");
         Console.WriteLine($"  Spore Spawn collision: {frameCount} roots, {seenLists.Count} lists and {callbackComparisons} live touch/shot comparisons match the cartridge with installed ROM reads denied.");
 
-        /// <summary>Walks cartridge component and hitbox records to determine the first overlapping callback.</summary>
-        /// <remarks>Bank A0:9ADF..9B78 orders touch rectangles; 9C43..9D20 supplies the distinct shot boundaries and callback operand. Only this fixture reads original bytes; the installed walker remains guarded.</remarks>
+        // Walks cartridge component and hitbox records to determine the first overlapping callback.
+        // Bank A0:9ADF..9B78 orders touch rectangles; 9C43..9D20 supplies the distinct shot
+        // boundaries and callback operand. Only this fixture reads original bytes.
         bool NativeCallback(int root, ushort targetX, ushort targetY, bool shot, out ushort callback)
         {
             callback = 0;

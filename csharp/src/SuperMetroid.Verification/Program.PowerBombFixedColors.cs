@@ -16,6 +16,7 @@ using static AssertionsVerification;
 using static CeresExplosionVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks fixed RGB5 colors through Power Bomb and Crystal Flash lifecycles against retail data.</summary>
 internal static class PowerBombFixedColorsVerification
 {
     /// <summary>Compares every fixed-color RGB5 triplet and guarded Power Bomb/Crystal Flash lifecycle with cartridge data.</summary>

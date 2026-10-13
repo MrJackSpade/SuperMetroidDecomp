@@ -17,27 +17,49 @@ namespace SuperMetroid.Rendering.Direct3D11;
 /// <remarks>Unsupported operations fail explicitly. Readback is diagnostic, not the presentation path.</remarks>
 public sealed class D3D11FrameRenderer : IDisposable
 {
+    /// <summary>Thread-affine device shared with the output presenter and child scenes.</summary>
     internal readonly D3D11RenderDevice owner;
+    /// <summary>Loads embedded shader bytecode and supports missing-resource verification.</summary>
     private readonly Func<string, Stream?> openShaderResource;
+    /// <summary>Solid-color compute path used when no layer snapshot is supplied.</summary>
     private readonly ID3D11ComputeShader shader;
+    /// <summary>Integer RGBA output texture consumed directly by the display pass.</summary>
     internal readonly ID3D11Texture2D output;
+    /// <summary>Identity set only after a frame finishes GPU submission.</summary>
     internal RenderFrameIdentity? renderedIdentity;
+    /// <summary>Identity of the last successfully submitted frame.</summary>
     internal RenderFrameIdentity? SubmittedIdentity => renderedIdentity;
+    /// <summary>Owner device used by a presenter sharing this frame texture.</summary>
     internal D3D11RenderDevice DeviceOwner => owner;
+    /// <summary>Compute write view for the final integer frame.</summary>
     private readonly ID3D11UnorderedAccessView view;
+    /// <summary>Pixel-shader read view of the completed integer frame.</summary>
     private readonly ID3D11ShaderResourceView displaySource;
+    /// <summary>Full-screen triangle vertex shader for scaled display.</summary>
     private readonly ID3D11VertexShader displayVertexShader;
+    /// <summary>Converts integer frame texels for the swapchain target.</summary>
     private readonly ID3D11PixelShader displayPixelShader;
+    /// <summary>Per-dispatch tile, window, gradient, or display parameters.</summary>
     private readonly ID3D11Buffer constants;
+    /// <summary>Integer tile and OBJ composition compute program.</summary>
     private readonly ID3D11ComputeShader tileShader;
+    /// <summary>Scanline gradient compute program for the title screen.</summary>
     private readonly ID3D11ComputeShader titleGradientShader;
+    /// <summary>Uploaded VRAM, CGRAM, and OAM words for the current scene.</summary>
     private readonly ID3D11Buffer memoryBuffer;
+    /// <summary>Shader read view of the packed PPU memory upload.</summary>
     private readonly ID3D11ShaderResourceView memoryView;
+    /// <summary>Per-pixel resolved OBJ winner shared across priority passes.</summary>
     private readonly ID3D11Texture2D resolvedObjects;
+    /// <summary>Compute write view for resolved OBJ winners.</summary>
     private readonly ID3D11UnorderedAccessView objectView;
+    /// <summary>Owned GPU resources released in reverse creation order.</summary>
     private readonly List<IDisposable> resources = [];
+    /// <summary>Guards later render calls after owner-thread disposal.</summary>
     internal bool disposed;
+    /// <summary>Reusable CPU packing buffer for one scene's PPU memory.</summary>
     private readonly uint[] memoryUpload = new uint[D3D11ShaderLayout.PpuMemoryWords];
+    /// <summary>Reusable constant-buffer source cleared before each compute pass.</summary>
     private readonly uint[] constantUpload = new uint[D3D11ShaderLayout.SolidConstantWords];
 
     /// <summary>
@@ -96,6 +118,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         renderedIdentity = packet.Identity;
     }
 
+    /// <summary>Selects layered, Mode 7, or solid-color composition and submits its compute passes.</summary>
     private unsafe void RenderCore(RenderFrameSnapshot packet)
     {
         if (packet.Layers is { } layers) { DrawLayers(packet, layers); return; }
@@ -141,15 +164,19 @@ public sealed class D3D11FrameRenderer : IDisposable
         disposed = true;
     }
 
+    /// <summary>Tracks a newly created renderer resource for reverse-order disposal.</summary>
     internal T Own<T>(T value) where T : IDisposable { resources.Add(value); return value; }
+    /// <summary>Disposes all successfully created GPU objects, including partial constructor state.</summary>
     private void DisposeResources()
     {
         for (int i = resources.Count - 1; i >= 0; i--) resources[i].Dispose();
         resources.Clear();
     }
+    /// <summary>Creates a compute shader from the named embedded bytecode.</summary>
     private ID3D11ComputeShader LoadShader(string name)
         => owner.Device.CreateComputeShader(LoadShaderBytes(name));
 
+    /// <summary>Requires and reads one build-generated shader resource.</summary>
     private byte[] LoadShaderBytes(string name)
     {
         using Stream resource = openShaderResource(name)
@@ -158,6 +185,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         return bytes.ToArray();
     }
 
+    /// <summary>Uploads BG2 scanline scrolls for add/subtract color math.</summary>
     private unsafe void DispatchBackgroundMath(Bg2BppColorMathRenderLayer layer)
     {
         var data = ClearUploadConstants();
@@ -176,6 +204,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
+    /// <summary>Uploads each scanline's color window edges and fixed RGB channels.</summary>
     private unsafe void DispatchColorWindows(ScanlineColorAddRenderLayer layer)
     {
         var data = ClearUploadConstants();
@@ -223,6 +252,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.OMSetRenderTargets(Array.Empty<ID3D11RenderTargetView>());
     }
 
+    /// <summary>Combines gameplay BG2, captured BG3, windows, and HDMA layer enables for X-Ray color math.</summary>
     private unsafe void DispatchGameplayColorMath(LayeredRenderSnapshot scene, GameplayColorMathRenderLayer layer)
     {
         if (layer.Gameplay.Registers.MainScreenWindowMask != SuperMetroid.Core.Hardware.SnesMainScreenLayers.None)
@@ -274,6 +304,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
+    /// <summary>Uploads centered message tile rows and the expanding window's scanline bounds.</summary>
     private unsafe void DispatchMessage(MessageBoxRenderLayer layer)
     {
         var data = ClearUploadConstants();
@@ -293,6 +324,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
+    /// <summary>Composes Mode 7 floor, resolved OBJ ranks, and opaque HUD in physical scanline bands.</summary>
     private void DispatchMode7Gameplay(Mode7GameplayRenderLayer layer)
     {
         // Clipping is in physical scanlines. Never translate the projection origin
@@ -318,6 +350,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = layer.HudTilemapWord, Characters = layer.HudCharacterWord, TransparentZero = 0, EndScanline = (uint)layer.HudScanlines });
     }
 
+    /// <summary>Composes ordinary gameplay in Mode-1 priority order, splitting bands at layer-enable changes.</summary>
     [PpuLayoutBoundary("backend: Direct3D 11 PPU dispatch of the ordinary gameplay layers")]
     private void DispatchOrdinaryGameplay(OrdinaryGameplayRenderLayer layer)
     {
@@ -355,6 +388,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         }
     }
 
+    /// <summary>Draws one BG2 priority band with HDMA scroll, mosaic, and window masking.</summary>
     private unsafe void DispatchGameplayBg2(OrdinaryGameplayRenderLayer layer, bool high, int first, int end)
     {
         var r = layer.Registers;
@@ -379,6 +413,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
+    /// <summary>Uploads BG subscreen scroll and main-coverage data for color addition.</summary>
     private unsafe void DispatchSubscreen(BgSubscreenAddRenderLayer layer, uint objectCount, byte objectSelection)
     {
         var data = ClearUploadConstants();
@@ -414,6 +449,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
+    /// <summary>Rejects unsupported layers, uploads PPU memory once, then dispatches passes in scene order.</summary>
     private unsafe void DrawLayers(RenderFrameSnapshot packet, LayeredRenderSnapshot scene,
         ReadOnlySpan<Core.Frontend.TitleGradientLine> gradient = default)
     {
@@ -492,6 +528,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         foreach (byte level in packet.BrightnessPasses) DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = level });
     }
 
+    /// <summary>Packs one tile operation's full constant buffer and dispatches the native screen grid.</summary>
     private unsafe void DispatchTile(D3D11TileOperation operation, D3D11TileDispatch tile)
     {
         // Upload the complete allocated cbuffer, so UpdateSubresource cannot read past
@@ -510,8 +547,10 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
+    /// <summary>Encodes unspecified, low, or high tile priority for the compute shader.</summary>
     private static uint Priority(bool? priority) => priority is null ? 0u : priority.Value ? 2u : 1u;
 
+    /// <summary>Uploads signed Mode 7 matrix, center, scroll, overflow, and optional color math.</summary>
     private unsafe void DispatchMode7(Mode7RenderRegisters registers, int firstScanline = 0, int endScanline = 224,
         bool subtractObj = false, bool addBg1 = false, int objectCount = 0, byte objectSelection = 0)
     {
@@ -532,6 +571,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
+    /// <summary>Applies authored RGB/control values across title scanlines after tile composition.</summary>
     private unsafe void DispatchTitleGradient(ReadOnlySpan<Core.Frontend.TitleGradientLine> lines, int objects, byte selection)
     {
         var data = ClearUploadConstants();
@@ -548,6 +588,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetShader(tileShader);
     }
 
+    /// <summary>CPU-side byte, call, and timestamp totals for UpdateSubresource uploads.</summary>
     private long uploadBytes, uploadCalls, uploadTicks;
 
     /// <summary>Owner-thread cumulative CPU upload submission, including reusable child scenes.
@@ -563,6 +604,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         }
     }
 
+    /// <summary>Copies a packed CPU span to a GPU buffer and records submission cost.</summary>
     private void UploadBuffer(ID3D11Buffer buffer, nint source, int bytes)
     {
         long started = Stopwatch.GetTimestamp();
@@ -572,8 +614,10 @@ public sealed class D3D11FrameRenderer : IDisposable
         uploadCalls++;
     }
 
+    /// <summary>Reusable independent renderer for a single bounded child window.</summary>
     private D3D11FrameRenderer? childRenderer;
 
+    /// <summary>Renders a non-nested child scene and copies its selected rectangle into the parent output.</summary>
     private void DrawWindow(RenderFrameSnapshot packet, WindowedSceneRenderLayer window)
     {
         if (window.Left == window.Right || window.Top == window.Bottom) return;
@@ -595,6 +639,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetUnorderedAccessView(1, objectView);
     }
 
+    /// <summary>Packs the selected BG or OBJ window logic, edges, and enable bit when active.</summary>
     private static void SetWindowConstants(Span<uint> data, SnesWindowRegisters windows,
         SnesMainScreenLayers enabled, SnesWindowTarget target)
     {

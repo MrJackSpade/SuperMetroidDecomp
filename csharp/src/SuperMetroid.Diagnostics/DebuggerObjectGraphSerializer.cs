@@ -12,6 +12,7 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal static class DebuggerObjectGraphSerializer
 {
+    /// <summary>Writes a debugger snapshot while preserving cycles and private field layout.</summary>
     public static void Serialize(Stream destination, object root)
     {
         Ensure.NotNull(destination);
@@ -23,6 +24,7 @@ internal static class DebuggerObjectGraphSerializer
     /// <summary>The message prefix of every rejection of a state this build cannot restore exactly.</summary>
     internal const string UnsupportedVersion = "Unsupported debugger state version";
 
+    /// <summary>Restores a snapshot only when its root and serialized field identities match this build.</summary>
     public static T Deserialize<T>(Stream source) where T : class
     {
         Ensure.NotNull(source);
@@ -32,15 +34,43 @@ internal static class DebuggerObjectGraphSerializer
             $"Debugger state root is {root?.GetType().FullName ?? "null"}, expected {typeof(T).FullName}.");
     }
 
-    private enum ObjectMarker : byte { Null, Reference, New }
-    private enum PayloadKind : byte { Primitive, String, PrimitiveArray, Array, Delegate, Fields }
+    /// <summary>Distinguishes absent values, previous references, and newly defined objects.</summary>
+    private enum ObjectMarker : byte
+    {
+        /// <summary>No object or boxed value follows.</summary>
+        Null,
+        /// <summary>An earlier positive object ID follows.</summary>
+        Reference,
+        /// <summary>A new object ID, type identity, and payload follow.</summary>
+        New,
+    }
+    /// <summary>Selects the decoder for a newly defined debugger graph value.</summary>
+    private enum PayloadKind : byte
+    {
+        /// <summary>A scalar or enum encoded through its underlying primitive.</summary>
+        Primitive,
+        /// <summary>A UTF-8 string encoded by BinaryWriter.</summary>
+        String,
+        /// <summary>Raw element bytes after array shape metadata.</summary>
+        PrimitiveArray,
+        /// <summary>Recursively encoded elements after array shape metadata.</summary>
+        Array,
+        /// <summary>Invocation list with method identities and targets.</summary>
+        Delegate,
+        /// <summary>Ordered private and public instance fields.</summary>
+        Fields,
+    }
 
+    /// <summary>Serializes one graph with reference IDs and strict type/member identities.</summary>
     private sealed class GraphWriter(BinaryWriter writer)
     {
+        /// <summary>Preserves identity for shared objects and cycles.</summary>
         private readonly Dictionary<object, int> references =
             new(ReferenceEqualityComparer.Instance);
+        /// <summary>Next positive ID reserved for a reference object.</summary>
         private int nextReferenceId = 1;
 
+        /// <summary>Emits a marker, type identity, and payload for a new or previously seen value.</summary>
         public void Write(object? value)
         {
             if (value is null)
@@ -95,6 +125,7 @@ internal static class DebuggerObjectGraphSerializer
             }
         }
 
+        /// <summary>Encodes scalars and enums through their fixed primitive representation.</summary>
         private bool TryWritePrimitive(Type type, object value)
         {
             Type primitiveType = type.IsEnum ? Enum.GetUnderlyingType(type) : type;
@@ -112,6 +143,7 @@ internal static class DebuggerObjectGraphSerializer
             return true;
         }
 
+        /// <summary>Writes each supported primitive with a fixed binary width or representation.</summary>
         private void WritePrimitiveValue(Type type, object value)
         {
             if (type == typeof(bool)) writer.Write((bool)value);
@@ -133,6 +165,7 @@ internal static class DebuggerObjectGraphSerializer
             else throw new NotSupportedException($"Debugger state primitive {type.FullName} is unsupported.");
         }
 
+        /// <summary>Writes raw primitive storage or recursively encodes each array element.</summary>
         private void WriteArray(Array array, Type type)
         {
             Type elementType = type.GetElementType()
@@ -156,6 +189,7 @@ internal static class DebuggerObjectGraphSerializer
                     Write(array.GetValue(indices));
         }
 
+        /// <summary>Records rank, lengths, and lower bounds for exact array reconstruction.</summary>
         private void WriteArrayShape(Array array)
         {
             writer.Write(array.Rank);
@@ -166,6 +200,7 @@ internal static class DebuggerObjectGraphSerializer
             }
         }
 
+        /// <summary>Stores each invocation method identity and its graph-encoded target.</summary>
         private void WriteDelegate(Delegate callback)
         {
             writer.Write((byte)PayloadKind.Delegate);
@@ -182,12 +217,14 @@ internal static class DebuggerObjectGraphSerializer
         }
     }
 
+    /// <summary>Restores objects against this build's allowed types and exact field layout.</summary>
     private sealed class GraphReader(BinaryReader reader)
     {
+        /// <summary>Objects registered before child fields are decoded so cycles can close.</summary>
         private readonly Dictionary<int, object> references = [];
-        // Nesting depth inside struct elements of array storage (see ReadArray).
+        /// <summary>Depth in struct array storage, where zero enum fields can be unused capacity.</summary>
         private int structElementDepth;
-        // Every object repeats its type and field names; decode each distinct name once.
+        /// <summary>Interns repeated serialized type and field names during one restore.</summary>
         private readonly Dictionary<string, string> names = new(StringComparer.Ordinal);
 
         /// <summary>
@@ -228,6 +265,7 @@ internal static class DebuggerObjectGraphSerializer
             }
         }
 
+        /// <summary>Decodes one graph value, resolving references and rejecting unknown payload kinds.</summary>
         public object? Read()
         {
             ObjectMarker marker = (ObjectMarker)reader.ReadByte();
@@ -260,6 +298,7 @@ internal static class DebuggerObjectGraphSerializer
             };
         }
 
+        /// <summary>Decodes a fixed scalar and validates enum values in the current context.</summary>
         private object ReadPrimitive(Type serializedType)
         {
             Type type = serializedType.IsEnum ? Enum.GetUnderlyingType(serializedType) : serializedType;
@@ -284,6 +323,7 @@ internal static class DebuggerObjectGraphSerializer
             return serializedType.IsEnum ? DebuggerEnumValues.Decode(serializedType, value, structElementDepth > 0) : value;
         }
 
+        /// <summary>Fills raw array storage directly after validating its serialized byte count.</summary>
         private Array ReadPrimitiveArray(Type type, int referenceId)
         {
             Type elementType = type.GetElementType()
@@ -311,6 +351,7 @@ internal static class DebuggerObjectGraphSerializer
             return array;
         }
 
+        /// <summary>Registers a shaped array before recursively reading elements, including struct storage.</summary>
         private Array ReadArray(Type type, int referenceId)
         {
             Type elementType = type.GetElementType()
@@ -330,6 +371,7 @@ internal static class DebuggerObjectGraphSerializer
             return array;
         }
 
+        /// <summary>Recreates rank, lengths, and lower bounds while rejecting invalid dimensions.</summary>
         private Array CreateArray(Type elementType)
         {
             int rank = ReadNonnegativeLength("array rank");
@@ -345,6 +387,7 @@ internal static class DebuggerObjectGraphSerializer
             return Array.CreateInstance(elementType, lengths, lowerBounds);
         }
 
+        /// <summary>Rebuilds the invocation list from allowed method identities and restored targets.</summary>
         private object ReadDelegate(Type type, int referenceId)
         {
             int count = ReadNonnegativeLength("delegate invocation");
@@ -362,6 +405,7 @@ internal static class DebuggerObjectGraphSerializer
             return Register(referenceId, combined!);
         }
 
+        /// <summary>Restores each field only after matching its declaring type and name to this build.</summary>
         private object ReadFields(Type type, int referenceId)
         {
             object instance = RuntimeHelpers.GetUninitializedObject(type);
@@ -408,6 +452,7 @@ internal static class DebuggerObjectGraphSerializer
             return instance;
         }
 
+        /// <summary>Rejects negative serialized counts before allocating or iterating.</summary>
         private int ReadNonnegativeLength(string label)
         {
             int value = reader.ReadInt32();
@@ -416,6 +461,7 @@ internal static class DebuggerObjectGraphSerializer
                 : throw new InvalidDataException($"Debugger state has negative {label} length {value}.");
         }
 
+        /// <summary>Publishes a unique positive ID so later references can resolve cycles.</summary>
         private object Register(int id, object value)
         {
             if (id <= 0 || !references.TryAdd(id, value))
@@ -456,13 +502,14 @@ internal static class DebuggerObjectGraphSerializer
         }
     }
 
-    // A type's field layout is fixed for the process; graphs hold many objects of each type.
-    // Callers treat the returned array as read-only (migrations build filtered copies).
+    /// <summary>Cached reflection layouts reused across graph instances; callers treat arrays as read-only.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, FieldInfo[]> serializableFields = new();
 
+    /// <summary>Returns the cached ordered instance fields for a concrete type.</summary>
     private static FieldInfo[] GetSerializableFields(Type type) =>
         serializableFields.GetOrAdd(type, CollectSerializableFields);
 
+    /// <summary>Collects inherited instance fields in stable metadata order, excluding transient event state.</summary>
     private static FieldInfo[] CollectSerializableFields(Type type) =>
         EnumerateHierarchy(type)
             .SelectMany(level => level.GetFields(
@@ -475,16 +522,17 @@ internal static class DebuggerObjectGraphSerializer
             .ThenBy(field => field.MetadataToken)
             .ToArray();
 
+    /// <summary>Visits the concrete type followed by each base type for field discovery.</summary>
     private static IEnumerable<Type> EnumerateHierarchy(Type type)
     {
         for (Type? current = type; current is not null; current = current.BaseType)
             yield return current;
     }
 
-    // Resolution of a name is fixed for the process, and graphs repeat the same few type
-    // names for every object; only allowed results are cached, so rejections still throw.
+    /// <summary>Caches only successfully resolved allowed types; rejected names remain errors.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Type> allowedTypes = new(StringComparer.Ordinal);
 
+    /// <summary>Resolves a repeated serialized type name from the allowed-type cache.</summary>
     private static Type ResolveAllowedType(string assemblyQualifiedName)
     {
         if (allowedTypes.TryGetValue(assemblyQualifiedName, out Type? cached)) return cached;
@@ -493,6 +541,7 @@ internal static class DebuggerObjectGraphSerializer
         return allowed;
     }
 
+    /// <summary>Rejects missing types and assemblies outside the emulator and approved runtime set.</summary>
     private static Type ResolveAllowedTypeUncached(string assemblyQualifiedName)
     {
         Type type = DebuggerStateTypeIdentity.Resolve(assemblyQualifiedName)
@@ -517,12 +566,14 @@ internal static class DebuggerObjectGraphSerializer
 /// </summary>
 internal static class RawArrayElements
 {
+    /// <summary>Ensures packed RGBA pixels still occupy exactly four raw bytes.</summary>
     static RawArrayElements()
     {
         if (System.Runtime.CompilerServices.Unsafe.SizeOf<SuperMetroid.Core.Assets.Rgba32>() != 4)
             throw new InvalidOperationException("Rgba32 must remain four packed bytes to be serialized raw.");
     }
 
+    /// <summary>Uses direct array bytes for primitives and packed RGBA pixels.</summary>
     internal static bool IsRaw(Type elementType) =>
         elementType.IsPrimitive || elementType == typeof(SuperMetroid.Core.Assets.Rgba32);
 

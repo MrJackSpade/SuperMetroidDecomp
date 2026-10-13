@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Hardware;
 /// <summary>Development-tool instance members of <see cref="EnemySpritemapParts"/>.</summary>
 internal static class EnemySpritemapPartsToolingExtensions
 {
+    /// <summary>Adapts native spritemap parts to tooling sequence and empty-frame checks.</summary>
     extension(EnemySpritemapParts self)
     {
         /// <summary>Exposes the native part count to development-time sequence and bounds checks.</summary>

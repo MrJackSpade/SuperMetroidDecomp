@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
 using static LookupDynamicCollectibleStockVerification;
 
+/// <summary>Checks extracted collectible art, installed VRAM edits, stock integrity, and override failures.</summary>
 internal static class DynamicCollectibleArtVerification
 {
     /// <summary>Checks collectible art extraction, edits reaching production VRAM and block palettes, restoration, and malformed override failures.</summary>

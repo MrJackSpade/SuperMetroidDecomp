@@ -14,6 +14,7 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Ceres elevator arrival graphics indexing and projectile OAM against native definitions.</summary>
 internal static class CeresElevatorArrivalVerification
 {
     /// <summary>

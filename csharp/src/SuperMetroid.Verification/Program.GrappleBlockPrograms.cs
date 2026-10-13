@@ -199,7 +199,7 @@ internal static class GrappleBlockProgramsVerification
         entries[first] = entries[first] with { VisualWord = 0x00b8 };
         var edited = new RoomPlmGrappleBlockVisualCatalog(entries);
 
-        /// <summary>Runs the first PLM draw and captures collision, immediate tile upload, and later camera-streamed tile output.</summary>
+        // Run the first PLM draw and capture collision, immediate tile upload, and later camera-streamed tile output.
         (ushort physical, ushort immediate, ushort streamed) Render(
             RoomPlmGrappleBlockVisualCatalog visuals)
         {

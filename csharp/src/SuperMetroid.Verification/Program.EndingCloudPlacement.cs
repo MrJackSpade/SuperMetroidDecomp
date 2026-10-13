@@ -15,6 +15,7 @@ using SuperMetroid.Core.Rom;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Compares ending scene B's cloud placement and motion with independently stepped actors.</summary>
 internal static class EndingCloudPlacementVerification
 {
     /// <summary>Checks ending scene B's cloud origins and motion through fade-out against independently stepped actors.</summary>

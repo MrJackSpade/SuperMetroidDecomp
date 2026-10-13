@@ -179,7 +179,7 @@ internal static class MotherBrainRoomColorsVerification
             .ContentIdentity, "removing Mother Brain room override restores stock identity");
         Console.WriteLine("Mother Brain room colors: entry, 14 flash frames, final grey, phase-two and seven recovery-light palettes match native CGRAM; ROM-free production paths, isolated edits, legacy overrides and strict validation pass.");
 
-        /// <summary>Changes one red RGB5 channel while keeping it in the legal zero-to-31 range.</summary>
+        // Change one red RGB5 channel while keeping it within the legal zero-to-31 range.
         static PaletteRgb5 Change(PaletteRgb5 color) => color with
         {
             Red = color.Red == 31 ? 30 : color.Red + 1,

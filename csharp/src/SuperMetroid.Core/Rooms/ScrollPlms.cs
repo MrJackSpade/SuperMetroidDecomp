@@ -153,6 +153,7 @@ internal sealed class ScrollPlms
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
     }
 
+    /// <summary>Per-PLM scroll trigger latch and its bound retail or constructed write program.</summary>
     internal sealed class ScrollPlmState
     {
         /// <summary>Latched on first touch until ordered scroll writes finish.</summary>

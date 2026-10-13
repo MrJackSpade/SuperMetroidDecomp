@@ -10,6 +10,7 @@ using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks named save-schema translation, legacy precedence, rejection paths, and backup-preserving upgrade.</summary>
 internal static class SaveSchemaTranslationVerification
 {
     /// <summary>Checks named schema-two save state, legacy import precedence, strict failures, and backed-up file upgrade.</summary>

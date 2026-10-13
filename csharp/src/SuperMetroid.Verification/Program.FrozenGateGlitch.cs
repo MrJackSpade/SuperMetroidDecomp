@@ -14,6 +14,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Compares the Caterpillar frozen-Zero gate clip and nearby controls with native CPU collision results.</summary>
 internal static class FrozenGateGlitchVerification
 {
     /// <summary>Starting Samus X used by the Caterpillar frozen-enemy gate fixture.</summary>

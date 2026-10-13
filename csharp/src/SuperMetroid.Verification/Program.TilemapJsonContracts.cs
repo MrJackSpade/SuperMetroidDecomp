@@ -15,6 +15,7 @@ using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 using static TilemapJsonContractsEnvironmentVerification;
 
+/// <summary>Checks JSON tilemap shape through the production room and Kraid asset loaders.</summary>
 internal static class TilemapJsonContractsVerification
 {
     /// <summary>Exercises the actual shared room/Kraid loaders, not a parallel JSON validator.</summary>

@@ -22,14 +22,13 @@ using static SignedSineFixtureVerification;
 using static SyntheticEnemyCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>
+/// Focused room-enemy loading and actor verifications that use cartridge-shaped
+/// population, graphics-set, and enemy-definition fixtures.
+/// </summary>
 internal static class RoomEnemiesVerification
 {
 
-/// <summary>
-/// Exercises the finite room-enemy loading pipeline separately from actor-specific AI.
-/// The fixture mirrors the literal $A1 population, $B4 set, and 64-byte $A0 header formats,
-/// so a convenient host-side reinterpretation cannot accidentally replace cartridge layout.
-/// </summary>
 /// <summary>
 /// Seeds the two loading-fixture enemies' palettes and planar tiles at the bank-$A2/$A3
 /// addresses their definitions name, plus seven spawn-source words at $B4:9200. Word 5 is a
@@ -52,6 +51,10 @@ static void SeedRoomEnemyLoadingArtworkAndSpawnData(
         WriteTestWord(bus, 0xb49200 + word * 2, unchecked((ushort)(0x3100 + word)));
 }
 
+/// <summary>
+/// Checks room-enemy population, 64-byte headers, graphics staging, palettes, spawn
+/// snapshots, and the empty-population branch against a cartridge-shaped fixture.
+/// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 internal static void VerifyRoomEnemyLoading()
 {
@@ -224,39 +227,51 @@ internal static void VerifyRoomEnemyLoading()
         "boss state, placeholders, and empty-room behavior agree.");
 }
 
+/// <summary>
+/// Forwards fixture definitions and mutable memory while rejecting native tile and
+/// palette reads, proving the installed artwork path supplies those uploads.
+/// </summary>
 [CpuBusBoundary("exact bus test: enemy fixture source that forwards fixture tables and forbids the native enemy tile-upload ROM ranges")]
 internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     ISnesAddressSpace, IRoomEnemyFixtureSource, IImportCartridgeSource,
     ISnesMutableMemory
 {
+    /// <summary>Forwards a compiled enemy header from the fixture source.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
         source.ReadEnemyDefinition(pointer);
 
-
+    /// <summary>Forwards the fixture's terminated room population.</summary>
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer) =>
         source.ReadEnemyPopulation(pointer);
 
+    /// <summary>Forwards the fixture's enemy graphics-set definition.</summary>
     public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer) =>
         source.ReadEnemyGraphicsSet(pointer);
 
+    /// <summary>Rejects tile-source reads before forwarding other memory bytes.</summary>
     public byte ReadByte(int address)
     {
         RejectTileSource(address);
         return source.ReadByte(address);
     }
 
+    /// <summary>Rejects cartridge tile-source reads while allowing other fixture ROM data.</summary>
     public byte ReadCartridgeByte(int address)
     {
         RejectTileSource(address);
         return source.ReadCartridgeByte(address);
     }
 
+    /// <summary>Forwards WRAM reads; the tile guard applies only to cartridge art ranges.</summary>
     public byte ReadWorkRamByte(int address) => source.ReadWorkRamByte(address);
 
+    /// <summary>Forwards save RAM reads needed by the room fixture.</summary>
     public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);
 
+    /// <summary>Forwards fixture writes outside the guarded read path.</summary>
     public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
+    /// <summary>Fails when room loading attempts to upload enemy art from native ROM ranges.</summary>
     private static void RejectTileSource(int address)
     {
         if (address is >= 0xa29100 and < 0xa29140 or >= 0xa39320 and < 0xa39340 or
@@ -265,6 +280,7 @@ internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     }
 }
 
+/// <summary>Checks that enemy memory access uses explicit WRAM mapping instead of generic source readers.</summary>
 internal static void VerifyEnemyMappedSourceRouting()
 {
     const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
@@ -275,6 +291,7 @@ internal static void VerifyEnemyMappedSourceRouting()
     Console.WriteLine("Enemy memory boundary: generic source readers are absent; explicit WRAM wrap, mirror and region rejection pass.");
 }
 
+/// <summary>Checks fixed-bank WRAM word wrap, mirrors, and rejection of other address regions.</summary>
 [CpuBusBoundary("exact bus test: enemy WRAM word bank wrap, low-window mirror and ROM/SRAM/hardware rejection")]
 private static void VerifyEnemyWorkRamWordMapping(SuperMetroidAddressSpace memory)
 {
@@ -645,6 +662,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         "vulnerabilities, freeze, damage, and death agree.");
 }
 
+/// <summary>Extracts fixture Ceres-door tiles and colors into an installed enemy artwork catalog.</summary>
 private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddressSpace bus)
 {
     using var directoryScratch = new TestScratchDirectory("ceres-door-fixture");
@@ -1312,6 +1330,7 @@ static void WriteCeresEnglishEscapeWarning(TestAddressSpace bus)
     Word(0);
 }
 
+/// <summary>Writes the Zebes escape warning's control words and text into the fixture bus.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Zebes escape typewriter program")]
 static void WriteZebesEscapeWarning(TestAddressSpace bus)
 {
@@ -1676,6 +1695,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     WriteTestWord(bus, 0x90c28f, 0x000b);
 }
 
+    /// <summary>Runs the room-enemy population, graphics staging, and palette loading fixture.</summary>
     [VerificationCommand("--room-enemy-loading")]
     internal static int RoomEnemyLoadingCommand()
     {
@@ -1683,6 +1703,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
+    /// <summary>Runs the explicit enemy WRAM mapping and source-reader boundary checks.</summary>
     [VerificationCommand("--enemy-source-routing")]
     internal static int EnemySourceRoutingCommand()
     {
@@ -1690,6 +1711,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
+    /// <summary>Checks Ripper contact during the deferred enemy collision phase.</summary>
     [VerificationCommand("--enemy-contact-phase")]
     internal static int EnemyContactPhaseCommand()
     {
@@ -1697,6 +1719,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
+    /// <summary>Runs the Ripper animation, movement, damage, and death fixture.</summary>
     [VerificationCommand("--ripper-enemy")]
     internal static int RipperEnemyCommand()
     {
@@ -1704,6 +1727,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
+    /// <summary>Checks that the landed Ceres platform remains animated by its door actor.</summary>
     [VerificationCommand("--ceres-elevator-platform")]
     internal static int CeresElevatorPlatformCommand()
     {
@@ -1711,6 +1735,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
+    /// <summary>Checks the Ceres door's boss-state branch in the room-enemy fixture.</summary>
     [VerificationCommand("--ceres-door-boss")]
     internal static int CeresDoorBossCommand()
     {
@@ -1718,6 +1743,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
+    /// <summary>Checks Ripper X-Ray and Plasma interaction timers against the native fixture.</summary>
     [VerificationCommand("--x-plasma-timers")]
     internal static int XPlasmaTimersCommand()
     {
@@ -1725,6 +1751,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
+    /// <summary>Checks Ceres Ridley's state when its room is entered.</summary>
     [VerificationCommand("--ceres-ridley-room-entry")]
     internal static int CeresRidleyRoomEntryCommand()
     {

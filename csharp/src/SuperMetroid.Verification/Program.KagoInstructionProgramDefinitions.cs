@@ -14,6 +14,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kago slow and fast programs, post-hit spawning, and allocation-free compiled lookup.</summary>
 internal static class KagoInstructionProgramDefinitionsVerification
 {
     /// <summary>Loads retail data and runs the Kago instruction program verification suite.</summary>

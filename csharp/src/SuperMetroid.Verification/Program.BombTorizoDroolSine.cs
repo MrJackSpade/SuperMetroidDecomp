@@ -16,6 +16,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Bomb Torizo's drool velocity against native sine indexes for both facing modes and all random bytes.</summary>
 internal static class BombTorizoDroolSineVerification
 {
     /// <summary>Checks both facing modes and native velocity table indexes for every drool random value.</summary>

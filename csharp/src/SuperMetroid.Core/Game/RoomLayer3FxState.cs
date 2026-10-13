@@ -815,8 +815,11 @@ public sealed class RoomLayer3FxState
     /// <summary>The mutually exclusive callbacks installed in the native rise-function word.</summary>
     private enum LiquidRisePhase
     {
+        /// <summary>Waits until signed velocity points from the current base toward the target.</summary>
         Dormant,
+        /// <summary>Counts down the room FX timer while publishing rising-liquid sound and shake.</summary>
         Waiting,
+        /// <summary>Advances the liquid base each update until it reaches the target and clears velocity.</summary>
         Moving,
     }
 }

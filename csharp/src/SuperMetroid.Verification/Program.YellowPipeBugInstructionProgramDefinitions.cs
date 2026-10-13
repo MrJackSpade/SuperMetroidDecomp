@@ -14,6 +14,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Yellow Pipe Bug instruction words and animation loops while guarding production ROM reads.</summary>
 internal static class YellowPipeBugInstructionProgramDefinitionsVerification
 {
     /// <summary>Loads retail data and runs the Yellow Pipe Bug instruction suite.</summary>

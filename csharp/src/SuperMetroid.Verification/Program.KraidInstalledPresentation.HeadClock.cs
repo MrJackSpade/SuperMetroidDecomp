@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 using static EnemyAnimationIsolationFixtureVerification;
 using static EnemyTileArtworkKraidVerification;
 
+/// <summary>Checks that replacement Kraid head artwork retains native instruction timing and mouth behavior.</summary>
 internal static class KraidInstalledPresentationHeadClockVerification
 {
     /// <summary>Replacing every head image must not replace the compiled clock, callback or mouth window.</summary>
@@ -120,6 +121,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
             $"{callbacks} timed sound callbacks, {collisions} mouth samples; four installed replacements retain native control/VRAM cadence.");
     }
 
+    /// <summary>Owns a production Kraid enemy system and linked head slots for clock comparisons.</summary>
     internal sealed class KraidHeadClockFixture
     {
         /// <summary>Production enemy system executing head instructions.</summary>

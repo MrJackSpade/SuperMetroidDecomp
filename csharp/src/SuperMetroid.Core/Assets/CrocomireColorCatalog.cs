@@ -22,7 +22,19 @@ public sealed class CrocomireColorCatalog
     });
 
     /// <summary>Five native transfer roles whose overlapping stock sources stay independently editable.</summary>
-    private enum Band { FightBody, InitialWall, InitialProjectile, SkeletonArm, WallSpikes }
+    private enum Band
+    {
+        /// <summary>Eight body and head inks restored on nonwhite hurt-flash updates.</summary>
+        FightBody,
+        /// <summary>Seventeen wall colors loaded during fight initialization.</summary>
+        InitialWall,
+        /// <summary>Seventeen projectile colors loaded after the wall row, with independent overlap edits.</summary>
+        InitialProjectile,
+        /// <summary>Sixteen skeleton-arm colors installed when the wall break begins.</summary>
+        SkeletonArm,
+        /// <summary>Sixteen wall-spike colors installed at the rumble terminator.</summary>
+        WallSpikes,
+    }
     /// <summary>Independently supplied differences; every unedited stock ink is calculated.</summary>
     private readonly Dictionary<(Band Band, int Color), Bgr555> edits = [];
 

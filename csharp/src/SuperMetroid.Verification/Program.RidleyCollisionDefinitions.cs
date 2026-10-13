@@ -174,7 +174,7 @@ internal static class RidleyCollisionDefinitionsVerification
 
         // A0:9ADF..9B78 touch and 9C43..9D20 shot comparisons consume the original
         // component/list records in order; only this reference reads cartridge data.
-        /// <summary>Walks native components and hitboxes in order with the cartridge's distinct touch and shot edge comparisons.</summary>
+        // Walk native components and hitboxes in order with distinct touch and shot edge comparisons.
         bool NativeCallback(ushort frame, Position16<RoomPixels> origin, Position16<RoomPixels> target,
             Extent16<RoomPixels> radius, bool shot, out ushort callback)
         {
@@ -210,7 +210,7 @@ internal static class RidleyCollisionDefinitionsVerification
             }
             return false;
         }
-        /// <summary>Recreates the Ceres private projectile overlap using retail hitbox bounds and its inclusive/exclusive edge rules.</summary>
+        // Recreate the Ceres private projectile overlap with retail hitbox bounds and edge rules.
         bool NativeCeresOverlap(ushort frame, Position16<RoomPixels> origin, Position16<RoomPixels> target,
             Extent16<RoomPixels> radius)
         {

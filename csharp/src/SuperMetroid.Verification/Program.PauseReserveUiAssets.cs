@@ -7,6 +7,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using static PauseEquipmentRulesVerification;
 
+/// <summary>Compares installed pause reserve tiles, arrow color phases, and rendering with native source data.</summary>
 internal static class PauseReserveUiAssetsVerification
 {
     /// <summary>Checks reserve labels, digits, and arrow phases against native rendering, then verifies edits, rebinding, and invalid assets.</summary>

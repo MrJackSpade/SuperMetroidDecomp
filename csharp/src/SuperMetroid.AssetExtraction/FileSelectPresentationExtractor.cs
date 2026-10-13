@@ -24,7 +24,7 @@ public static class FileSelectPresentationExtractor
     {
         Ensure.NotNull(bus);
         var rawPatches = new Dictionary<ushort, RawPatch>();
-        /// <summary>Caches a decoded native text patch by its bank-local pointer across page variants.</summary>
+        // Cache a decoded native text patch by its bank-local pointer across page variants.
         RawPatch Patch(ushort pointer)
         {
             if (!rawPatches.TryGetValue(pointer, out RawPatch? patch))
@@ -37,7 +37,7 @@ public static class FileSelectPresentationExtractor
         ushort[] mainEmpty = BlankPage();
         AddMainStatic(mainEmpty, includeDataCommands: false);
 
-        /// <summary>Builds a copy-mode page with its prompt, optional YES/NO question, and optional completion text.</summary>
+        // Build a copy-mode page with its prompt, optional YES/NO question, and optional completion text.
         ushort[] CopyPage(ushort prompt, int promptDestination,
             bool confirmation = false, ushort? completion = null)
         {
@@ -50,7 +50,7 @@ public static class FileSelectPresentationExtractor
             return page;
         }
 
-        /// <summary>Builds a clear-mode page with its prompt, optional confirmation, and optional cleared-result text.</summary>
+        // Build a clear-mode page with its prompt, optional confirmation, and optional cleared-result text.
         ushort[] ClearPage(ushort prompt, int promptDestination,
             bool confirmation = false, bool completed = false)
         {
@@ -182,7 +182,7 @@ public static class FileSelectPresentationExtractor
         });
         return output.ToArray();
 
-        /// <summary>Overlays the title, three slot labels/time fields, Exit, and copy/clear commands only for occupied menus.</summary>
+        // Overlay the title, three slot labels/time fields, Exit, and copy/clear commands only for occupied menus.
         void AddMainStatic(ushort[] page, bool includeDataCommands)
         {
             Apply(page, Patch(FileSelectTilemaps.SamusData), FileSelectLayout.SamusDataDestination);
@@ -200,7 +200,7 @@ public static class FileSelectPresentationExtractor
             Apply(page, Patch(FileSelectTilemaps.Exit), FileSelectLayout.ExitDestination);
         }
 
-        /// <summary>Starts a copy/clear page with its mode title, prompt, Exit, and three data-slot label/time fields.</summary>
+        // Start a copy/clear page with its mode title, prompt, Exit, and three data-slot label/time fields.
         ushort[] DataBase(ushort mode, int modeDestination, ushort prompt,
             int promptDestination)
         {
@@ -217,7 +217,7 @@ public static class FileSelectPresentationExtractor
             return page;
         }
 
-        /// <summary>Overlays the shared question and YES/NO choices on a copy or clear page.</summary>
+        // Overlay the shared question and YES/NO choices on a copy or clear page.
         void AddConfirmation(ushort[] page)
         {
             Apply(page, Patch(FileSelectTilemaps.IsThisOkay),

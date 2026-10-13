@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable two-bit characters for simple room-FX and Wrecked Ship treadmill frames.</summary>
 public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
 {
+    /// <summary>Concatenated edited tile bytes in the native segment transfer order.</summary>
     private readonly byte[] transfer;
 
     /// <summary>Accepts the compiled transfer strip only when its length matches the ordered frame and statue segments.</summary>

@@ -129,9 +129,23 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
     internal const int BlueRingRadiusCount = 6;
 
     /// <summary>$8D:8276/827D/8284..82C6: mutually exclusive tiny seed, single ring and composite radial growth forms.</summary>
-    private enum RingGrowthPhase { Seed, Formation, RadialExpansion }
+    private enum RingGrowthPhase
+    {
+        /// <summary>Radius-one 8-by-8 seed tile $1AD, held for 16 ticks.</summary>
+        Seed,
+        /// <summary>Radius-two 16-by-16 ring tile $1A7, held for 10 ticks.</summary>
+        Formation,
+        /// <summary>Radii three through six use composite quadrants with decreasing 8/7/6/5-tick holds.</summary>
+        RadialExpansion,
+    }
     /// <summary>$8D:B098/B0AE versus B0C4/B0DA/B0F0: four small versus four large burst quadrants.</summary>
-    private enum RainbowBurstPhase { Compact, Expanded }
+    private enum RainbowBurstPhase
+    {
+        /// <summary>First two rainbow-impact frames combine four 8-by-8 quadrants for three ticks.</summary>
+        Compact,
+        /// <summary>Later rainbow-impact frames combine four 16-by-16 quadrants for four ticks.</summary>
+        Expanded,
+    }
     /// <summary>$86:C436 holds the single 8x8 seed tile $1AD selected by $8D:8276.</summary>
     private const ushort RingSeedFrames = 16;
     /// <summary>$86:C43E holds the single 16x16 ring tile $1A7 selected by $8D:827D.</summary>

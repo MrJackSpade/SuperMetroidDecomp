@@ -8,8 +8,7 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Retail and override checks for room-FX, treadmill, and Tourian statue animated-tile PNG frames.</summary>
 internal static class RoomFxAnimatedTileArtworkVerification
 {
-    /// <summary>Exercises every retail frame through both native transfer owners.</summary>
-    /// <summary>Checks edited simple, treadmill, and statue pixels reach their live VRAM destinations, then verifies both older atlas widths preserve edits.</summary>
+    /// <summary>Checks retail room-FX frames through both transfer owners, installed edits, and older atlas-width imports.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for room-FX animated tile transfer frames")]
     internal static void VerifyRoomFxAnimatedTileArtwork()
@@ -114,6 +113,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         Console.WriteLine("  Room-FX animation artwork: 30 simple and four treadmill PNG frames match native bytes and ROM-free NMI transfers.");
     }
 
+    /// <summary>Checks that installed animated-tile overrides change the intended VRAM frames without changing mechanics.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,
         string stock, string overrides, AreaMapPresentationCatalog baseline,

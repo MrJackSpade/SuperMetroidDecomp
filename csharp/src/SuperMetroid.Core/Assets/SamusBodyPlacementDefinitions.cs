@@ -235,7 +235,8 @@ internal static class SamusBodyPlacementDefinitions
         }
         return bottom != int.MinValue;
 
-        /// <summary>Copies both planar tile-transfer segments into their split VRAM positions and marks bytes available for opacity sampling.</summary>
+        // Copy both planar tile-transfer segments into split VRAM positions and mark
+        // their bytes available for opacity sampling in this local calculation.
         static void Upload(SamusBodyTileDefinition definition,
             Game.SamusRenderingRomData.TileTransfers.SplitVramDestinations destination,
             Span<byte> data, Span<bool> coverage)

@@ -14,6 +14,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Waver steady and spinning programs, completion callbacks, and compiled-only playback.</summary>
 internal static class WaverInstructionProgramDefinitionsVerification
 {
     /// <summary>Loads retail data and runs the Waver instruction program suite.</summary>

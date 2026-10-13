@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks colored door-cap draw geometry and tile collision/appearance across all colors and directions.</summary>
 internal static class LookupColoredCapVerification
 {
     /// <summary>Compares all 48 cap-frame pointers and their one-run geometry with the cartridge draw lists.</summary>

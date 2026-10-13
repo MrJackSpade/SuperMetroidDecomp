@@ -5,6 +5,7 @@ using System.Reflection;
 using static EnemyInstructionCodePointersVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks opening-cinematic ROM resource bounds, palette spans, and actor sound identities.</summary>
 internal static class IntroCinematicRomDataVerification
 {
     /// <summary>

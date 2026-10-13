@@ -61,7 +61,7 @@ public static class GameplayDisplayCapture
         AddLayer(SamusSuitPickupRenderer.Capture(runtime.SuitPickup));
         return new(basis.Memory, layers.ToArray(), basis.ObjectSelection, basis.Brightness);
 
-        /// <summary>Appends an active optional effect without introducing an empty render layer.</summary>
+        // Append active optional effects without introducing empty render layers.
         void AddLayer(RenderLayer? layer) { if (layer is not null) layers.Add(layer); }
     }
 

@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class TorizoInstructionProgramDefinitions
 {
+    /// <summary>Bank $AA holds the Bomb and Golden Torizo instruction programs cataloged here.</summary>
     internal const byte Bank = 0xaa;
 
     /// <summary><c>InstList_Torizo_SpecialCallable_BlowUpBombTorizosGut</c> at $AA:B0E5; native instruction-list identity.</summary>

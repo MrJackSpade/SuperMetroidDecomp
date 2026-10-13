@@ -118,7 +118,7 @@ internal static class SporeSpawnCeilingVisualsVerification
         var entries = frames.Select(frame => new RoomPlmSporeSpawnCeilingVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmSporeSpawnCeilingVisualCatalog.Stock();
         var imported = new RoomPlmSporeSpawnCeilingVisualCatalog(entries.Reverse());
-        /// <summary>Hashes flattened visual frames by native draw pointer for catalog identity comparison.</summary>
+        // Hash flattened visual frames by native draw pointer for catalog identity comparison.
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
             nameof(RoomPlmSporeSpawnCeilingVisualCatalog), words);
         foreach (var catalog in new[] {stock, imported, installed})

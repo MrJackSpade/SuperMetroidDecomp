@@ -15,6 +15,7 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Verifies Powamp's native instruction words and their compiled program layout.</summary>
 internal static class PowampInstructionProgramDefinitionsVerification
 {
     /// <summary>Loads retail data and runs the Powamp instruction program suite.</summary>

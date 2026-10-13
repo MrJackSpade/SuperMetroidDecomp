@@ -224,7 +224,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     internal static CartridgeReadGuard NewNorfairRioInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
-        /// <summary>Finds the visual-selector word containing either byte of a forbidden read.</summary>
+        // Find the visual-selector word containing either byte of a forbidden read.
         static ushort SelectorWord(int address) => Enumerable.Range(0, NorfairRioInstructionProgramDefinitions.PresentationWordCount)
             .Select(NorfairRioInstructionProgramDefinitions.PresentationWordAddress)
             .First(word => unchecked((ushort)address) == word || unchecked((ushort)address) == unchecked((ushort)(word + 1)));

@@ -141,7 +141,7 @@ internal static class SporeSpawnCeilingPlmsVerification
             AssertEqual(16, cursor - draw.Pointer,
                 $"Spore Spawn draw ${draw.Pointer:X4} covers its native 2x2 span");
 
-            /// <summary>Checks one compiled draw word at the current native cursor and advances past it.</summary>
+            // Checks one compiled draw word at the current native cursor and advances past it.
             void AssertDrawWord(ushort expected)
             {
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),

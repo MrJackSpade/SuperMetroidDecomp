@@ -14,6 +14,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Norfair Pipe Bug instruction words and live rising and flying loops against the cartridge.</summary>
 internal static class NorfairPipeBugInstructionProgramDefinitionsVerification
 {
     /// <summary>Loads retail data and runs the Norfair Pipe Bug instruction suite.</summary>

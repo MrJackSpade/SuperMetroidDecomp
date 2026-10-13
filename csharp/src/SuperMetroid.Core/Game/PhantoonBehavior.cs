@@ -7,16 +7,26 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Phantoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class PhantoonBehavior : IEnemySpecies
 {
+    /// <summary>Room services and tilemap state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Owns the starting, casual, rain, rage, and spiral flame actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Publishes screen shake during Phantoon's death sequence.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Queues encounter sounds in enemy update order.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Provides the body, eye, mouth, and tentacle slots.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Applies body palettes and BG2 tilemap changes.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Resolves Phantoon and flame contact bounds.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>Handles Phantoon's damage, death, and flame drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
+    /// <summary>Binds room and enemy services for the four-part boss actor.</summary>
     internal PhantoonBehavior(PhantoonBehaviorDependencies dependencies)
     {
         _room = dependencies.Room;
@@ -30,15 +40,23 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         _deathsAndDrops = dependencies.DeathsAndDrops;
     }
 
+    /// <summary>Native blank BG2 tile word <c>$0338</c> installed before the body maps.</summary>
     private const ushort PhantoonBlankBg2Tile = 0x0338;
+    /// <summary>Initial invulnerable body instruction list.</summary>
     private const ushort PhantoonInitialBodyInstruction =
         PhantoonInstructionProgramDefinitions.InvulnerableBody;
+    /// <summary>Initial closed-eye instruction list.</summary>
     private const ushort PhantoonInitialEyeInstruction = PhantoonInstructionProgramDefinitions.EyeClosed;
+    /// <summary>Initial tentacle instruction list.</summary>
     private const ushort PhantoonInitialTentacleInstruction =
         PhantoonInstructionProgramDefinitions.InitialTentacles;
+    /// <summary>Initial mouth instruction list.</summary>
     private const ushort PhantoonInitialMouthInstruction = PhantoonInstructionProgramDefinitions.InitialMouth;
+    /// <summary>Native per-update increase in introductory wave amplitude.</summary>
     private const ushort PhantoonIntroAmplitudeDelta = 0x0040;
+    /// <summary>Wave amplitude at which the intro advances to the next phase.</summary>
     private const ushort PhantoonIntroMaximumAmplitude = 0x0c00;
+    /// <summary>Per-update phase increment for the wavy BG2 distortion.</summary>
     private const ushort PhantoonWavyPhaseDelta = 0x0008;
 
     /// <summary>Ports <c>InitAI_PhantoonBody</c> at $A7:CDF3.</summary>
@@ -104,6 +122,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Copies body presentation state into a physical part and starts its chosen list.</summary>
     private void InitializePhantoonPart(RoomEnemySlot part, ushort instruction)
     {
         PhantoonEnemyState state = Phantoon ??
@@ -261,6 +280,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Emits the intro flames on the authored schedule before Phantoon materializes.</summary>
     internal void RunPhantoonStartingFlameSpawner(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -284,6 +304,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         state.BossDoorPlmRequest = PlmHeaderId.DrawPhantoonDoorDuringBossFight;
     }
 
+    /// <summary>Holds the body between intro flame spawns.</summary>
     private static void RunPhantoonStartingFlamePause(RoomEnemySlot body)
     {
         if (!TickPhantoonFunctionTimer(body))
@@ -293,6 +314,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         body.VariableF = (ushort)PhantoonAiFunction.WaitForStartingFlamesToDisappear;
     }
 
+    /// <summary>Waits for the initial flames to finish orbiting before the next phase.</summary>
     private static void RunPhantoonStartingFlameOrbitWait(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -314,6 +336,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         state.Wave.Begin(PhantoonWaveRomData.IntroMode);
     }
 
+    /// <summary>Raises intro wave amplitude and reveals the body palette.</summary>
     private void RunPhantoonWavyFadeIn(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -334,6 +357,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             state.Mouth!.VariableE = 1;
     }
 
+    /// <summary>Chooses the first-round movement and flame pattern from encounter state.</summary>
     internal void RunPhantoonPickFirstRoundPattern(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -361,6 +385,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Moves the body through its first-round figure-eight and schedules its next phase.</summary>
     internal void RunPhantoonFirstRoundFigureEight(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -381,6 +406,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         SpawnPhantoonSpiralFlames(body);
     }
 
+    /// <summary>Advances the body and eye on their native figure-eight path.</summary>
     internal static void StepPhantoonFigureEight(RoomEnemySlot body, RoomEnemySlot eye)
     {
         if (eye.VariableC != 0)
@@ -407,6 +433,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Changes horizontal velocity over the forward half of a figure-eight.</summary>
     internal static void AdjustPhantoonForwardFigureEightSpeed(RoomEnemySlot body)
     {
         if (body.VariableD == 0)
@@ -452,6 +479,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Changes horizontal velocity over the returning half of a figure-eight.</summary>
     internal static void AdjustPhantoonReverseFigureEightSpeed(RoomEnemySlot body)
     {
         if (body.VariableD == 0)
@@ -499,6 +527,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Adds a native two-word speed value to the body motion accumulator.</summary>
     private static void AddPhantoonSpeed(RoomEnemySlot body, ushort low, ushort high)
     {
         uint value = SnesSixteenSixteen.Compose(body.VariableC, body.VariableB);
@@ -507,6 +536,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         body.VariableC = SnesFixedPosition.WholeOf(unchecked((int)value));
     }
 
+    /// <summary>Subtracts a native two-word speed value from the body motion accumulator.</summary>
     private static void SubtractPhantoonSpeed(RoomEnemySlot body, ushort low, ushort high)
     {
         uint value = SnesSixteenSixteen.Compose(body.VariableC, body.VariableB);
@@ -515,6 +545,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         body.VariableC = SnesFixedPosition.WholeOf(unchecked((int)value));
     }
 
+    /// <summary>Advances the mouth's casual flame spawn timer during ordinary movement.</summary>
     internal void StepPhantoonCasualFlameSchedule(RoomEnemySlot mouth)
     {
         mouth.VariableB = unchecked((ushort)(mouth.VariableB - 1));
@@ -542,6 +573,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         mouth.VariableB = pattern[mouth.VariableC + 1];
     }
 
+    /// <summary>Blends the body palette toward its visible colors over the selected interval.</summary>
     internal void AdvancePhantoonFadeIn(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -572,6 +604,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         eye.VariableE = unchecked((ushort)(numerator + 1));
     }
 
+    /// <summary>Interpolates one RGB5 color during Phantoon's fade using native channel rounding.</summary>
     internal static Bgr555 CalculatePhantoonTransitionColor(
         ushort numerator,
         ushort denominator,
@@ -582,6 +615,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             CalculatePhantoonTransitionComponent(numerator, denominator, from, to));
     }
 
+    /// <summary>Interpolates one RGB5 channel during a palette transition.</summary>
     private static int CalculatePhantoonTransitionComponent(
         ushort numerator,
         ushort denominator,
@@ -602,6 +636,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         return SnesLittleEndian.HighByte((ushort)(SnesEightEight.FromWhole(current) + signedStep));
     }
 
+    /// <summary>Changes BG2 wave amplitude toward its current phase target.</summary>
     private static bool AdvancePhantoonWaveAmplitude(
         RoomEnemySlot mouth,
         ushort delta,
@@ -625,6 +660,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         return false;
     }
 
+    /// <summary>Counts the body function timer down and reports its expiry.</summary>
     private static bool TickPhantoonFunctionTimer(RoomEnemySlot body)
     {
         ushort oldTimer = body.VariableE;
@@ -632,6 +668,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         return oldTimer == 1 || unchecked((short)body.VariableE) < 0;
     }
 
+    /// <summary>Requires the initialized four-slot body, eye, mouth, and tentacle state.</summary>
     internal PhantoonEnemyState RequireCompletePhantoonState(RoomEnemySlot body)
     {
         PhantoonEnemyState state = RequirePhantoonState(body);
@@ -640,6 +677,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         return state;
     }
 
+    /// <summary>Requires a live Samus state for Phantoon movement and eye targeting.</summary>
     private static SamusState RequirePhantoonSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
             "Phantoon's eye and swoop programs require the active Samus actor.");
@@ -647,12 +685,14 @@ internal sealed class PhantoonBehavior : IEnemySpecies
     // The spiral fireballs are the first ordinary combat attack. Their exact bank-$86
     // translation belongs to the next combat slice; retaining the explicit call boundary
     // prevents the eye-opening instruction from being mistaken for completed behavior.
+    /// <summary>Starts the spiral-flame pattern around the body.</summary>
     private void SpawnPhantoonSpiralFlames(RoomEnemySlot body)
     {
         for (int direction = 7; direction >= 0; direction--)
             SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Spiral, (byte)direction);
     }
 
+    /// <summary>Binds bomb hit responses for vulnerable Phantoon phases.</summary>
     internal void RegisterPhantoonBombReactions(EnemyAiTable table)
     {
         // Common bomb damage. Rinka, Skree, and Powamp deliberately call the no-death-animation form of common shot
@@ -679,6 +719,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Phantoon flame initializers, pre-instructions, and instructions.</summary>
     internal void RegisterPhantoonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -730,6 +771,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             });
     }
 
+    /// <summary>Binds body and part initializers to their native enemy definitions.</summary>
     internal void RegisterPhantoonInitializationAi(EnemyAiTable table)
     {
 
@@ -744,6 +786,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Binds the body frame update to its native AI routine.</summary>
     internal void RegisterPhantoonMainAi(EnemyAiTable table)
     {
 
@@ -753,11 +796,13 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Binds eye, mouth, and tentacle instruction words to Phantoon's handler.</summary>
     internal void RegisterPhantoonOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
             TryProcessPhantoonPartInstruction(slot, word, ref cursor, out yieldInterpreter));
     }
+    /// <summary>Accumulated damage required to alter Phantoon's vulnerable-eye phase.</summary>
     private const ushort PhantoonDamageThreshold = 300;
 
     /// <summary>
@@ -968,6 +1013,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         state.Tentacles!.Parameter2 = 2;
     }
 
+    /// <summary>Closes the eye and ends the vulnerable interval after a damaging hit.</summary>
     private static void ClosePhantoonAfterDamage(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -989,6 +1035,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         tentacles.Parameter2 = 2;
     }
 
+    /// <summary>Switches from combat to the fatal swoop and death phases.</summary>
     private static void BeginPhantoonDeathSequence(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1025,6 +1072,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         tentacles.Parameter2 |= 0x0100;
     }
 
+    /// <summary>Copies the selected health colors into the visible body palette.</summary>
     internal void CopyPhantoonHealthPalette(RoomEnemySlot body)
     {
         int healthBand = Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
@@ -1036,11 +1084,15 @@ internal sealed class PhantoonBehavior : IEnemySpecies
     private Bgr555 ReadPhantoonHealthColor(int healthBand, int color) =>
         (_room.Artwork?.PhantoonColors ?? throw new InvalidDataException(
             "Phantoon health palette requires installed artwork.")).ResolveHealth(healthBand, color);
+    /// <summary>Closed-eye body list that suppresses the vulnerable hitbox.</summary>
     private const ushort PhantoonInvulnerableBodyInstruction =
         PhantoonInstructionProgramDefinitions.InvulnerableBody;
+    /// <summary>Open body list with the full projectile contact hitbox.</summary>
     private const ushort PhantoonFullHitboxBodyInstruction =
         PhantoonInstructionProgramDefinitions.FullHitboxBody;
+    /// <summary>Eye-closing list selected when the vulnerable interval ends.</summary>
     private const ushort PhantoonEyeCloseInstruction = PhantoonInstructionProgramDefinitions.EyeClose;
+    /// <summary>Centered eyeball list selected for a visible tracking phase.</summary>
     private const ushort PhantoonEyeCenteredInstruction = PhantoonInstructionProgramDefinitions.EyeballCentered;
 
     /// <summary>Ports the eye-open vulnerable window at $A7:D60D.</summary>
@@ -1108,6 +1160,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         state.Tentacles!.VariableB = 0;
     }
 
+    /// <summary>Fades the body while continuing its swoop across the room.</summary>
     private void RunPhantoonFadeOutWhileSwooping(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -1122,6 +1175,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         body.VariableE = 120;
     }
 
+    /// <summary>Counts the hidden interval before reappearing.</summary>
     private static void RunPhantoonHiddenWait(RoomEnemySlot body)
     {
         if (TickPhantoonFunctionTimer(body))
@@ -1157,6 +1211,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         state.Eye.VariableF = 0;
     }
 
+    /// <summary>Reveals Phantoon before the next figure-eight pass.</summary>
     private void RunPhantoonFadeInBeforeFigureEight(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1178,6 +1233,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         body.VariableF = (ushort)PhantoonAiFunction.FadeInDuringFlameRain;
     }
 
+    /// <summary>Reveals the body while preparing the flame-rain attack.</summary>
     private void RunPhantoonFlameRainFadeIn(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1191,6 +1247,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         body.VariableE = 90;
     }
 
+    /// <summary>Counts the open-eye interval during flame rain.</summary>
     private static void RunPhantoonFlameRainVulnerableWindow(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1215,6 +1272,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         state.SemiTransparencyLayerFlags |= 0x4000;
     }
 
+    /// <summary>Hides the body after the vulnerable rain interval.</summary>
     internal void RunPhantoonFlameRainFadeOut(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1227,6 +1285,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         body.VariableE = PhantoonTimerDefinitions.RainHiding[_room.Random.Generate() & 7];
     }
 
+    /// <summary>Emits the scheduled rain pattern while Phantoon is hidden.</summary>
     internal void RunPhantoonHiddenFlameRain(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1243,6 +1302,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         SpawnPhantoonFlameRain(body, pattern);
     }
 
+    /// <summary>Starts the first rain pattern after the intro round.</summary>
     private void RunPhantoonInitialFlameRain(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1261,6 +1321,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         SpawnPhantoonFlameRain(body, body.Position.X.Whole < 128 ? (ushort)0 : (ushort)2);
     }
 
+    /// <summary>Hides the body before entering the enraged attack cycle.</summary>
     private void RunPhantoonFadeOutBeforeRage(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1272,6 +1333,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         body.VariableE = 120;
     }
 
+    /// <summary>Holds the hidden rage phase until its timer expires.</summary>
     private static void RunPhantoonRageHiddenWait(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1283,6 +1345,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         state.Eye!.VariableF = 0;
     }
 
+    /// <summary>Reveals the body at the start of the enraged swoop.</summary>
     private void RunPhantoonRageFadeIn(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1327,6 +1390,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         body.VariableF = (ushort)PhantoonAiFunction.FadeOutAfterRage;
     }
 
+    /// <summary>Hides the body after the enraged swoop.</summary>
     private void RunPhantoonRageFadeOut(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1338,6 +1402,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         body.VariableE = 120;
     }
 
+    /// <summary>Seeds swoop speed and direction from Samus's current position.</summary>
     private static void BeginPhantoonSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1410,6 +1475,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             body.Position = body.Position.WithWholeY(216);
     }
 
+    /// <summary>Selects the eye pose and angle that track Samus from the current body position.</summary>
     internal static void PointPhantoonEyeAtSamus(
         RoomEnemySlot body,
         RoomEnemySlot eye,
@@ -1432,6 +1498,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             PhantoonPatternDefinitions.EyeInstruction(direction));
     }
 
+    /// <summary>Blends the body palette toward hidden colors over the selected interval.</summary>
     internal void AdvancePhantoonFadeOut(
         PhantoonEnemyState state,
         ushort denominator)
@@ -1461,6 +1528,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         eye.VariableE = unchecked((ushort)(numerator + 1));
     }
 
+    /// <summary>Places eight delayed rain flames in rotating room columns.</summary>
     private void SpawnPhantoonFlameRain(RoomEnemySlot body, ushort pattern)
     {
         byte column = PhantoonPatternDefinitions.FirstRainColumns[pattern];
@@ -1475,6 +1543,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Restarts a part's instruction list with a one-tick timer.</summary>
     private static void InstallPhantoonInstruction(
         RoomEnemySlot slot,
         ushort instruction)
@@ -1482,9 +1551,12 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         slot.InstructionTimer = 1;
         slot.CurrentInstruction = instruction;
     }
+    /// <summary>Per-update wave increment during the wavy mosaic death animation.</summary>
     private const ushort PhantoonDeathWaveDelta = 0x0100;
+    /// <summary>Wave ceiling reached before the death animation advances.</summary>
     private const ushort PhantoonDeathWaveMaximum = 0xf000;
 
+    /// <summary>Tracks Samus during the fatal swoop and advances once the body reaches the center band.</summary>
     private static void RunPhantoonFatalSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -1551,6 +1623,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             body.VariableF = (ushort)PhantoonAiFunction.BeginFinalWavyDeath;
     }
 
+    /// <summary>Starts the distorted BG2 and mosaic stages after the fatal swoop.</summary>
     internal static void BeginPhantoonWavyMosaicDeath(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1576,6 +1649,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         state.LastCombatSoundEffect = 0x007e;
     }
 
+    /// <summary>Advances death-wave and mosaic counters before room activation.</summary>
     private void RunPhantoonWavyMosaicDeath(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1629,6 +1703,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         new EnemyVram(_presentation._vram!).EnemyBg2Tilemap.Write(clearedTilemap);
     }
 
+    /// <summary>Enables the cleared Wrecked Ship room and its post-boss state.</summary>
     private void ActivateWreckedShipAfterPhantoon(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -1768,6 +1843,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Starts the eye's Samus-tracking list for the current attack phase.</summary>
     internal void BeginPhantoonEyeTracking(PhantoonEnemyState state)
     {
         state.Tentacles!.VariableA = 0;
@@ -1781,6 +1857,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         state.Eye.CurrentInstruction = PhantoonInstructionProgramDefinitions.EyeballCentered;
     }
 
+    /// <summary>Selects a later-round flame and swoop pattern from encounter state.</summary>
     internal void PickPhantoonSecondRoundPattern(
         PhantoonEnemyState state)
     {
@@ -1814,15 +1891,19 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             eye.VariableF = 0;
     }
 
+    /// <summary>Requires the initialized four-slot encounter state for a part callback.</summary>
     private PhantoonEnemyState RequireCompletePhantoonStateForPart(RoomEnemySlot stateSlot) =>
         RequireCompletePhantoonState(stateSlot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody
             ? stateSlot
             : _slotTable._slots[0]);
+    /// <summary>Initial flame callback that holds position before orbit activation.</summary>
     private const ushort PhantoonStartingFlameWaitingPreInstruction =
         (ushort)EnemyProjectilePreInstruction.PhantoonStartingFlames;
+    /// <summary>Activated flame callback that advances its orbit around the body.</summary>
     private const ushort PhantoonStartingFlameOrbitPreInstruction =
         (ushort)EnemyProjectilePreInstruction.PhantoonStartingFlames_Activated;
 
+    /// <summary>Allocates one intro flame with its chosen orbit direction.</summary>
     internal bool SpawnPhantoonStartingFlame(RoomEnemySlot body, byte directionIndex)
     {
         RoomEnemyProjectileSlot? flame = _projectiles.AllocateEnemyProjectile();
@@ -1912,6 +1993,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Holds an intro flame until its delayed orbit begins.</summary>
     internal void RunPhantoonStartingFlameWaiting(RoomEnemyProjectileSlot flame)
     {
         PhantoonEnemyState? state = Phantoon;
@@ -1921,6 +2003,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         flame.Velocity = new(new SnesSignedEightEight(180), new SnesSignedEightEight(48));
     }
 
+    /// <summary>Advances an intro flame around Phantoon's body.</summary>
     internal void RunPhantoonStartingFlameOrbit(RoomEnemyProjectileSlot flame)
     {
         if (Phantoon is not { } state)
@@ -1955,6 +2038,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             unchecked((byte)flame.Velocity.Y.RawValue));
     }
 
+    /// <summary>Moves a casual flame downward before floor contact.</summary>
     internal static void RunPhantoonCasualFlameFalling(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
@@ -1974,6 +2058,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
     }
 
+    /// <summary>Holds the flame briefly at the floor after impact.</summary>
     internal static void RunPhantoonCasualFlameImpactPause(
         RoomEnemyProjectileSlot flame,
         ushort nmiFrameCounter)
@@ -1995,6 +2080,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         flame.Velocity = flame.Velocity.WithX(new SnesSignedEightEight((nmiFrameCounter & 1) == 0 ? (ushort)0x0080 : (ushort)0xff80));
     }
 
+    /// <summary>Advances the flame's post-impact bounce motion.</summary>
     internal static void RunPhantoonCasualFlameBouncing(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
@@ -2016,6 +2102,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             RestPhantoonCasualFlame(flame);
     }
 
+    /// <summary>Installs the resting phase after a flame's bounce ends.</summary>
     private static void RestPhantoonCasualFlame(RoomEnemyProjectileSlot flame)
     {
         flame.InstructionPointer =
@@ -2024,6 +2111,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         flame.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_869A44;
     }
 
+    /// <summary>Advances a rage-phase flame through its authored movement.</summary>
     internal void RunPhantoonEnragedFlame(RoomEnemyProjectileSlot flame)
     {
         if (Phantoon is not { } state)
@@ -2042,6 +2130,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         DeletePhantoonFlameOutsideRoom(flame);
     }
 
+    /// <summary>Updates a delayed rain flame as it enters and falls through the room.</summary>
     internal void RunPhantoonRainFlame(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
@@ -2066,6 +2155,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         _audio.QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
     }
 
+    /// <summary>Moves a spiral flame around Phantoon's body.</summary>
     internal void RunPhantoonSpiralFlame(RoomEnemyProjectileSlot flame)
     {
         if (Phantoon is not { } state)
@@ -2084,6 +2174,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         DeletePhantoonFlameOutsideRoom(flame);
     }
 
+    /// <summary>Converts an orbit phase into a world-space flame position around the body.</summary>
     private static void PositionPhantoonFlameAroundBody(
         RoomEnemyProjectileSlot flame,
         RoomEnemySlot body,
@@ -2106,6 +2197,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         return byteAngle < 128 ? magnitude : -magnitude;
     }
 
+    /// <summary>Switches a flame to its delete program after leaving the room bounds.</summary>
     private static void DeletePhantoonFlameOutsideRoom(RoomEnemyProjectileSlot flame)
     {
         if (unchecked((short)flame.Position.X.Whole) < 0 || flame.Position.X.Whole >= 256 ||
@@ -2136,17 +2228,20 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             flame.Position.Whole,
             eye.ItemDropChancesPointer);
     }
+    /// <summary>Flame-destruction drop requests published during the current room encounter.</summary>
     internal readonly List<PhantoonFlameDropRequest> _phantoonFlameDropRequests = new();
 
     /// <summary>Active four-slot encounter state when retail Phantoon occupies slot zero.</summary>
     public PhantoonEnemyState? Phantoon { get; internal set; }
 
+    /// <summary>Discards prior encounter state and pending flame-drop requests on room load.</summary>
     internal void ResetPhantoonRoomState()
     {
         Phantoon = null;
         _phantoonFlameDropRequests.Clear();
     }
 
+    /// <summary>Requires the native slot-zero body before handling another Phantoon part.</summary>
     private PhantoonEnemyState RequirePhantoonState(RoomEnemySlot slot)
     {
         if (Phantoon is null ||
@@ -2158,6 +2253,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         return Phantoon;
     }
 
+    /// <summary>Recognizes the four native enemy definitions that share Phantoon encounter state.</summary>
     internal static bool IsPhantoonPartDefinition(EnemyDefinitionId definition) => definition is
         EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or
         EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth;
@@ -2205,6 +2301,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Binds the eye slot's frame callback to its native AI routine.</summary>
     internal static void RegisterPhantoonEyeMainAi(EnemyAiTable table)
     {
         table.RegisterMain(EnemyAiRoutine.RTL_A7804C, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonEye, (slot, frame, nmiFrameCounter8) =>
@@ -2215,6 +2312,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Binds mouth and tentacle frame callbacks to their native AI routine.</summary>
     internal static void RegisterPhantoonMouthAndTentaclesMainAi(EnemyAiTable table)
     {
         table.RegisterMain(EnemyAiRoutine.RTL_A7E011, slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth, (slot, frame, nmiFrameCounter8) =>
@@ -2225,6 +2323,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Binds Phantoon body contact to the shared enemy collision path.</summary>
     internal void RegisterPhantoonBodyTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
@@ -2247,6 +2346,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
     // $A7:DD3F owns every Phantoon hurt frame. It alternates palette seven
     // between white and the new health band; body movement/main AI resumes
     // only after common flash timing clears handler bit two.
+    /// <summary>Binds the native hurt callback used after a vulnerable-eye hit.</summary>
     internal void RegisterPhantoonHurtAi(EnemyAiTable table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody,
             (slot, _) => ApplyPhantoonHurt(slot, RequireCompletePhantoonState(slot)));

@@ -208,6 +208,7 @@ private static void VerifyLibraryBackgroundBankEndWrap(byte[] rom)
         "bank-end command high byte comes from the WRAM mirror");
 }
 
+/// <summary>Counts cartridge and WRAM reads separately to verify library-background source routing.</summary>
 [CpuBusBoundary("exact bus test: counts cartridge and WRAM reads separately to witness that library backgrounds route each source byte through its typed bus read")]
 internal sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace source) :
     ISnesMemoryBus, IImportCartridgeSource

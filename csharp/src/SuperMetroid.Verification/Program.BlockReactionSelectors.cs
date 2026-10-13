@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 using static BabyMetroidRouteDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks native block-reaction selectors for bomb shapes, reveals, and their live dispatch paths.</summary>
 internal static class BlockReactionSelectorsVerification
 {
     /// <summary>Matches bomb-block break and reverse-reveal draw operands to the four native shape programs.</summary>

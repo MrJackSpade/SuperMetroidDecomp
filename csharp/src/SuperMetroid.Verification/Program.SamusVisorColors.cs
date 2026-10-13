@@ -118,7 +118,7 @@ internal static class SamusVisorColorsVerification
         var installedCgram = new SnesCgram();
         var guarded = NewForbiddenVisorColorBus(rom);
 
-        /// <summary>Checks one X-ray palette update and its resulting source offset and CGRAM color.</summary>
+        // Check one X-ray palette update and its resulting source offset and CGRAM color.
         void Compare(int call)
         {
             // This fixture enters the full-beam stage immediately before call 11;

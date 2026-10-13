@@ -190,6 +190,7 @@ internal static class SamusProjectileInstructionDefinitions
     private const int ChargedSpazerWavePhases = ChargedSpazerWaveLoopPhase + ChargedAlternateGlyphCount * SpazerWavePhases;
     /// <summary>$93:957B target94DB: Selected two startup poses, each paired, precede the repeating SpazerWave spread.</summary>
     private const int ChargedSpazerStartupPoses = 2;
+    /// <summary>Phase index where the repeating charged Spazer/Wave spread begins after two paired startup poses ($93:957B).</summary>
     private const int ChargedSpazerWaveLoopPhase = ChargedSpazerStartupPoses * ChargedAlternateGlyphCount;
     /// <summary>$93:9ADB: Selected four charged Plasma growth poses, each using the selected alternate-glyph pair.</summary>
     private const int ChargedPlasmaGrowthPoses = 4;

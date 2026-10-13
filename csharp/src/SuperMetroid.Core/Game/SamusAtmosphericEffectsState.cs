@@ -83,8 +83,7 @@ public sealed class SamusAtmosphericEffectsState
     /// </summary>
     /// <param name="bus">Address space providing mirrored WRAM for type two attributes and the Samus spritemap path.</param>
     /// <param name="oam">OAM buffer to which visible sprites are appended, with slot three processed first.</param>
-    /// <param name="camera.X">Room-space camera X origin in whole pixels.</param>
-    /// <param name="camera.Y">Room-space camera Y origin in whole pixels.</param>
+    /// <param name="camera">Room-space camera X and Y origin in whole pixels.</param>
     /// <param name="fxYPosition">Live liquid-surface Y in room pixels, used to anchor the diving splash on each update.</param>
     /// <param name="artwork">Installed Samus spritemaps required when visible diving splashes or bubbles use the spritemap draw path.</param>
     /// <param name="directArtwork">Installed small-sprite attributes required for visible direct effects other than type two's WRAM-backed attributes.</param>

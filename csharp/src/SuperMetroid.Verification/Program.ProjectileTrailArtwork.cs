@@ -131,7 +131,7 @@ internal static class ProjectileTrailArtworkVerification
         document["frames"]![ProjectileTrailVisualDefinitions.Name(first)]!["palette"] = 8;
         AssertThrows<InvalidDataException>(() => Load(document), "Invalid trail palette rejected");
         Console.WriteLine($"Trail artwork: {draws} native OAM comparisons, frozen-start preservation, live edit isolation and strict metadata rejection pass.");
-        /// <summary>Round-trips an edited frame node through the same JSON catalog validation as installed assets.</summary>
+        // Round-trip an edited frame node through the same JSON catalog validation as installed assets.
         static ProjectileTrailCatalog Load(JsonNode document) => ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
     }
 
@@ -192,7 +192,7 @@ internal static class ProjectileTrailArtworkVerification
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var runtimeField = game.GetType().GetField("runtime", flags)!;
         runtimeField.SetValue(game, runtime);
-        /// <summary>Runs the gameplay actor draw pass into a fresh OAM frame and captures its low table.</summary>
+        // Run the gameplay actor draw pass into a fresh OAM frame and capture its low table.
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();

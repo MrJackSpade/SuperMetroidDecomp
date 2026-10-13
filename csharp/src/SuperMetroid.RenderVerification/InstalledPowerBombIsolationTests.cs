@@ -37,7 +37,7 @@ internal static class InstalledPowerBombIsolationTests
             Directory.CreateDirectory(overrides);
             foreach (string edit in new[] { "black", "white", "red", "blue", "gradient" })
             {
-                /// <summary>Builds one complete fixed-color row for the selected black, white, primary, or gradient edit.</summary>
+                // Build one complete fixed-color row for the selected black, white, primary, or gradient edit.
                 PaletteRgb5[] Replace(PaletteRgb5[] source) => source.Select((_, index) => edit switch
                 {
                     "black" => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 },

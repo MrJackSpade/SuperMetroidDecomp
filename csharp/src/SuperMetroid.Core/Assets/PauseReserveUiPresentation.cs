@@ -202,7 +202,7 @@ public sealed class PauseReserveUiPresentation
             (Color(frame?.Color6, $"arrow frame {index} color 6"), Color(frame?.Color11, $"arrow frame {index} color 11"))).ToArray();
         return new(new PauseReserveUiParts { Labels = labels, DigitOffset = Offset(document.Digits.Anchor, "Digits"), Digits = digits, ArrowOffsets = arrowOffsets, EnabledPalette = document.Arrow.EnabledPalette, DisabledPalette = document.Arrow.DisabledPalette, SolidColor6 = Color(document.Arrow.SolidColor6, "solid color 6"), SolidColor11 = Color(document.Arrow.SolidColor11, "solid color 11"), ArrowFrames = frames });
 
-        /// <summary>Converts a bounded equipment-page cell coordinate to its little-endian byte offset.</summary>
+        // Converts a bounded equipment-page cell coordinate to its little-endian byte offset.
         static int Offset(PauseGridPoint? point, string name)
         {
             if (point is null || (uint)point.Column >= PauseReserveUiDefinitions.TilemapColumns ||
@@ -210,7 +210,7 @@ public sealed class PauseReserveUiPresentation
                 throw new InvalidDataException($"Pause reserve UI {name} anchor is outside the 32x32 tilemap.");
             return (point.Row * PauseReserveUiDefinitions.TilemapColumns + point.Column) * sizeof(ushort);
         }
-        /// <summary>Requires nonnull five-bit RGB components before packing an arrow color.</summary>
+        // Requires nonnull five-bit RGB components before packing an arrow color.
         static Bgr555 Color(PaletteRgb5? color, string name)
         {
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)

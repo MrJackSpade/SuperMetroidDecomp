@@ -18,6 +18,7 @@ using static LookupMotherBrainStockVerification;
 using static MotherBrainFakeDeathPlmsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks fake-death artwork replacement while retaining Mother Brain's native collision and draw state.</summary>
 internal static class MotherBrainFakeDeathVisualsVerification
 {
     /// <summary>Checks fake-death stock draws, live visual edits, collision isolation, override persistence, and failures.</summary>

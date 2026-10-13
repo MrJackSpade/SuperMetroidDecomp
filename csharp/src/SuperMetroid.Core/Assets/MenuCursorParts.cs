@@ -21,6 +21,7 @@ internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpriteP
     private const int FirstNativeSpritemap = 0x34;
     /// <summary>$82:CBCB: first missile pose left tileDF and right tileEF.</summary>
     private const int FirstLeftTile = SecondLeftTile + 1 - MapSpriteFormat.TileColumns;
+    /// <summary>$82:CBCB: right tile $EF of the first missile pose.</summary>
     private const int FirstRightTile = SecondLeftTile + 1;
     /// <summary>$82:CBD7: second missile pose left tileEE is the top-left of the EE/EF/FE/FF two-by-two atlas block.</summary>
     private const int SecondLeftTile = 0xee;
@@ -28,6 +29,7 @@ internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpriteP
     private const int SharedRightTile = SecondLeftTile + MapSpriteFormat.TileColumns + 1;
     /// <summary>$82:CBE3: third missile pose left tileFE and right tileCC.</summary>
     private const int ThirdLeftTile = SecondLeftTile + MapSpriteFormat.TileColumns;
+    /// <summary>$82:CBE3: right tile $CC of the third missile pose.</summary>
     private const int ThirdRightTile = 0xcc;
     /// <summary>$82:CBEF: final missile pose left tileC8; native part order is left then right.</summary>
     private const int FinalLeftTile = 0xc8;

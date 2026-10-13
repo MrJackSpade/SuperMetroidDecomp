@@ -2139,7 +2139,10 @@ internal static class LookupStream2Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, -1), "Calculated body lower color bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, 10), "Calculated body upper color bound");
         Console.WriteLine("Stream 2 Crystal Flash body: all100 body and36 bubble native colors, CGRAM application and every independent supplied edit pass; one bubble residual remains pending.");
-    }    internal static void VerifyLookupStream2KraidRamps(ISnesAddressSpace rom)
+    }
+
+    /// <summary>Checks Kraid palette ramp derivation and edited-color bounds against stock samples.</summary>
+    internal static void VerifyLookupStream2KraidRamps(ISnesAddressSpace rom)
     {
         PaletteRgb5[] ReadSource(KraidPaletteSource source) => Enumerable.Range(0, KraidPaletteRomData.ColorCount(source))
             .Select(index =>

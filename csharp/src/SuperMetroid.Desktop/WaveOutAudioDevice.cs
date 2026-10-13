@@ -14,27 +14,47 @@ namespace SuperMetroid.Desktop;
 /// </remarks>
 internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
 {
+    /// <summary>Windows mapper ID selecting the default wave output device.</summary>
     private const uint WaveMapper = uint.MaxValue;
+    /// <summary>Wave header flag set after Windows finishes playing a buffer.</summary>
     private const uint HeaderDone = 0x0000_0001;
+    /// <summary>WinMM result code indicating a completed device operation.</summary>
     private const uint MultimediaSuccess = 0;
+    /// <summary>Pinned hardware buffers submitted in a rotating sequence.</summary>
     private readonly BufferSlot[] slots = [];
+    /// <summary>Silent PCM submitted before resumed gameplay frames when preroll is required.</summary>
     private readonly short[] prerollSilence = [];
+    /// <summary>Requested output gain applied to submitted samples.</summary>
     private readonly int volumePercent;
+    /// <summary>Bounded producer-to-worker queue of copied PCM frames.</summary>
     private readonly PendingFrameQueue pendingFrames = new(
         WaveOutAudioPolicy.ManagedQueueCapacityFrames);
+    /// <summary>Serializes WinMM operations with reset and disposal.</summary>
     private readonly Lock deviceGate = new();
+    /// <summary>Background owner of blocking waveOut buffer submission.</summary>
     private readonly Thread submissionWorker = null!;
+    /// <summary>Open WinMM wave output handle, or zero after cleanup.</summary>
     private nint device;
+    /// <summary>Next pinned hardware slot to receive a PCM frame.</summary>
     private int nextSlot;
+    /// <summary>Changes on reset so queued frames from an earlier run can be discarded.</summary>
     private long queueGeneration;
+    /// <summary>Number of managed frames admitted to the submission queue.</summary>
     private long enqueuedFrames;
+    /// <summary>Number of frames completed by the submission worker.</summary>
     private long completedFrames;
+    /// <summary>Original worker exception rethrown on the UI submission thread.</summary>
     private ExceptionDispatchInfo? workerFailure;
+    /// <summary>Requests silent hardware-buffer preroll after startup or reset.</summary>
     private bool prerollRequired = true;
+    /// <summary>Marks the device closed after worker and hardware cleanup.</summary>
     private bool disposed;
+    /// <summary>Collects bounded-queue telemetry for diagnostics.</summary>
     private readonly WaveOutQueueHealth queueHealth = new();
+    /// <summary>Current queue occupancy and recorded submission health.</summary>
     public WaveOutQueueHealthSnapshot QueueHealth => queueHealth.Snapshot(pendingFrames.Count);
 
+    /// <summary>Opens the default stereo PCM device and starts its buffer submission worker.</summary>
     public WaveOutAudioDevice(
         int sampleRate,
         int channelCount,
@@ -101,6 +121,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     /// through the existing recoverable audio boundary instead of freezing gameplay.
     /// </summary>
     public bool CanAcceptFrame => Volatile.Read(ref workerFailure) is not null || pendingFrames.HasCapacity;
+    /// <summary>Copies one frame into the bounded queue, reporting backlog or worker failure to the caller.</summary>
     public void Submit(ReadOnlySpan<short> samples)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
@@ -271,6 +292,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
         return null;
     }
 
+    /// <summary>Flushes the device and pending frames, then marks the next submission for silent preroll.</summary>
     public void Reset()
     {
         ObjectDisposedException.ThrowIf(disposed, this);
@@ -301,6 +323,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
         nextSlot = 0;
     }
 
+    /// <summary>Stops the worker, releases pinned buffers, and closes the WinMM handle.</summary>
     public void Dispose()
     {
         if (disposed)
@@ -360,28 +383,35 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             ArrayPool<short>.Shared.Return(queued.Samples, clearArray: false);
     }
 
+    /// <summary>Rethrows a captured worker error on the caller's thread.</summary>
     private void ThrowWorkerFailure() =>
         Volatile.Read(ref workerFailure)?.Throw();
 
+    /// <summary>Raises a device exception when a WinMM call does not report success.</summary>
     private static void ThrowOnError(uint result, string operation)
     {
         if (result != MultimediaSuccess)
             throw CreateError(result, operation);
     }
 
+    /// <summary>Pairs a WinMM result code with the failed native operation.</summary>
     private static WaveOutDeviceException CreateError(uint result, string operation) =>
         new(result, operation);
 
+    /// <summary>Adds cleanup failures without hiding an earlier device error.</summary>
     private static void RecordFailure(List<Exception> failures, uint result, string operation)
     {
         if (result != MultimediaSuccess)
             failures.Add(CreateError(result, operation));
     }
 
+    /// <summary>Owns one pinned PCM array and the unmanaged wave header that references it.</summary>
     private sealed class BufferSlot : IDisposable
     {
+        /// <summary>Pin keeping the sample address stable while WinMM owns the header.</summary>
         private readonly GCHandle samplesHandle;
 
+        /// <summary>Allocates one sample buffer and initializes its native header.</summary>
         public BufferSlot(int sampleCount)
         {
             Samples = new short[sampleCount];
@@ -390,13 +420,19 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             ResetHeader();
         }
 
+        /// <summary>PCM storage copied into this hardware slot before submission.</summary>
         public short[] Samples { get; }
+        /// <summary>Unmanaged pointer passed to WinMM for this slot.</summary>
         public nint Header { get; }
+        /// <summary>Whether WinMM has prepared the header for writing.</summary>
         public bool Prepared { get; set; }
+        /// <summary>Current native completion flags from the unmanaged header.</summary>
         public uint Flags => Marshal.PtrToStructure<WaveHeader>(Header).Flags;
+        /// <summary>Whether the native completion flag permits this slot to be reused.</summary>
         public bool IsDone =>
             (Flags & HeaderDone) != 0;
 
+        /// <summary>Repoints the header at pinned PCM storage and clears prior native flags.</summary>
         public void ResetHeader()
         {
             var header = new WaveHeader
@@ -407,6 +443,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             Marshal.StructureToPtr(header, Header, fDeleteOld: false);
         }
 
+        /// <summary>Frees the unmanaged header and releases the sample pin.</summary>
         public void Dispose()
         {
             Marshal.FreeHGlobal(Header);
@@ -415,17 +452,21 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
         }
     }
 
-    // Keep capacity and removal in one lock. BlockingCollection.Count can decrease
-    // before its free-slot semaphore is released; a preflight based on that count
-    // can therefore pass immediately before TryAdd fails on the sole producer.
+    /// <summary>Uses one lock for capacity checks and removal so producer preflight agrees with admission.</summary>
     private sealed class PendingFrameQueue(int capacity)
     {
+        /// <summary>Protects queue count, completion state, and worker wakeups.</summary>
         private readonly object sync = new();
+        /// <summary>Copied PCM frames waiting for the submission worker.</summary>
         private readonly Queue<QueuedPcmFrame> frames = new();
+        /// <summary>Disallows new frames and lets the worker finish after draining.</summary>
         private bool completed;
+        /// <summary>Current queued frame count under the same lock as admission.</summary>
         internal int Count { get { lock (sync) return frames.Count; } }
+        /// <summary>Whether the sole producer can add a frame without exceeding capacity.</summary>
         internal bool HasCapacity { get { lock (sync) return !completed && frames.Count < capacity; } }
 
+        /// <summary>Admits one copied frame and wakes the worker, or reports a full queue.</summary>
         internal bool TryAdd(QueuedPcmFrame frame)
         {
             lock (sync)
@@ -438,11 +479,13 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             }
         }
 
+        /// <summary>Removes one queued frame without waiting, as used during reset and cleanup.</summary>
         internal bool TryTake(out QueuedPcmFrame frame)
         {
             lock (sync) return frames.TryDequeue(out frame);
         }
 
+        /// <summary>Waits for frames until the queue is both completed and empty.</summary>
         internal IEnumerable<QueuedPcmFrame> GetConsumingEnumerable()
         {
             while (true)
@@ -457,6 +500,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             }
         }
 
+        /// <summary>Closes admission and wakes a worker waiting for another frame.</summary>
         internal void CompleteAdding()
         {
             lock (sync)
@@ -467,40 +511,61 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
         }
     }
 
+    /// <summary>One pooled PCM copy tagged with its reset generation for stale-frame rejection.</summary>
     private readonly record struct QueuedPcmFrame(
         short[] Samples,
         int SampleCount,
         long Generation);
 
+    /// <summary>Native WAVEFORMATEX layout for the device's stereo PCM stream.</summary>
     [StructLayout(LayoutKind.Sequential)]
     private struct WaveFormat
     {
+        /// <summary>One selects uncompressed PCM.</summary>
         public ushort FormatTag;
+        /// <summary>Two interleaved channels for the SNES mixer.</summary>
         public ushort Channels;
+        /// <summary>Sample frames played per second.</summary>
         public uint SamplesPerSecond;
+        /// <summary>Average PCM bytes consumed per second.</summary>
         public uint AverageBytesPerSecond;
+        /// <summary>Bytes in one interleaved stereo sample frame.</summary>
         public ushort BlockAlign;
+        /// <summary>Bits in each channel sample.</summary>
         public ushort BitsPerSample;
+        /// <summary>Additional format bytes; zero for this PCM layout.</summary>
         public ushort ExtraSize;
     }
 
+    /// <summary>Native WAVEHDR layout retained until WinMM marks a submitted buffer done.</summary>
     [StructLayout(LayoutKind.Sequential)]
     private struct WaveHeader
     {
+        /// <summary>Pinned address of the PCM sample array.</summary>
         public nint Data;
+        /// <summary>Number of PCM bytes submitted in this buffer.</summary>
         public uint BufferLength;
+        /// <summary>Native recorded-byte count, unused for playback.</summary>
         public uint BytesRecorded;
+        /// <summary>Native user data field, unused by this device.</summary>
         public nuint User;
+        /// <summary>WinMM preparation and completion bits.</summary>
         public uint Flags;
+        /// <summary>Playback loop count, unused for one-frame submissions.</summary>
         public uint Loops;
+        /// <summary>Native linked-header pointer, unused by this device.</summary>
         public nint Next;
+        /// <summary>WinMM reserved header storage.</summary>
         public nuint Reserved;
 
+        /// <summary>Interop byte size passed with every header operation.</summary>
         public static readonly uint Size = unchecked((uint)Marshal.SizeOf<WaveHeader>());
     }
 
+    /// <summary>WinMM imports used for device opening, buffer submission, reset, and cleanup.</summary>
     private static partial class NativeMethods
     {
+        /// <summary>Opens the default wave output device in the requested PCM format.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "waveOutOpen")]
         internal static partial uint Open(
             out nint device,
@@ -510,18 +575,23 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             nint instance,
             uint flags);
 
+        /// <summary>Registers a pinned header before its first write.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "waveOutPrepareHeader")]
         internal static partial uint PrepareHeader(nint device, nint header, uint headerSize);
 
+        /// <summary>Releases a completed header from the device.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "waveOutUnprepareHeader")]
         internal static partial uint UnprepareHeader(nint device, nint header, uint headerSize);
 
+        /// <summary>Queues one prepared PCM header for playback.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "waveOutWrite")]
         internal static partial uint Write(nint device, nint header, uint headerSize);
 
+        /// <summary>Stops playback and returns all pending headers to the caller.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "waveOutReset")]
         internal static partial uint Reset(nint device);
 
+        /// <summary>Closes the device after pending headers are released.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "waveOutClose")]
         internal static partial uint Close(nint device);
     }

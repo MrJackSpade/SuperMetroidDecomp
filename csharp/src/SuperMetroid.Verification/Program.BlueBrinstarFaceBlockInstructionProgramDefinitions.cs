@@ -14,6 +14,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks face-block instruction mechanics and installed visual bindings against retail behavior.</summary>
 internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerification
 {
     /// <summary>Runs the retail-backed face-block mechanics and visual ownership checks as a named suite.</summary>
@@ -93,7 +94,7 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
             "three production programs, both activation sides, and seven compiled " +
             "spritemap selectors pass without instruction or presentation ROM reads.");
 
-        /// <summary>Initializes one face block, optionally activates it from a Samus side, and advances its program to the expected sleep instruction.</summary>
+        // Initialize one face block, optionally activate it from a Samus side, and advance to sleep.
         static void VerifyBlueBrinstarFaceBlockProgram(
             CartridgeReadGuard guard,
             ushort parameter2,

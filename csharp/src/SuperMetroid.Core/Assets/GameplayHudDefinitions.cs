@@ -124,6 +124,7 @@ public static class GameplayHudDefinitions
     /// shares the canonical blank's palette/priority; glyph pixels remain separate.
     /// </summary>
     private const int MinimapTopRightCapGlyph = 0x1c;
+    /// <summary>Five minimap columns fit at the HUD's right edge beside the border cap.</summary>
     private const int MinimapVisibleColumns = 5;
 
     /// <summary>Builds a static top-row word, leaving the HUD blank until the right-aligned minimap border.</summary>

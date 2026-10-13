@@ -15,6 +15,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Choot path sources, initializers, fall loops, and invalid pattern indexes.</summary>
 internal static class ChootPatternDefinitionsVerification
 {
     /// <summary>Checks five Choot path sources, initializers, complete fall loops, and invalid pattern indexes.</summary>

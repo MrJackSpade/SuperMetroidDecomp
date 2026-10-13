@@ -22,6 +22,7 @@ internal static class OldTourianEscapeShaftWallPlmDefinitions
 
     /// <summary>$84:B927-$B92F: Samus must be strictly right of X $F0 and below Y $820.</summary>
     internal const ushort WakeTargetX = 0x00f0;
+    /// <summary>$84:B927-$B92F: Samus must be below Y $820 as well as right of the X threshold.</summary>
     internal const ushort WakeTargetY = 0x0820;
 
     /// <summary>Returns only the compiled install, sleep, clear, draw, and delete words of the bank-$84 fake-wall program.</summary>

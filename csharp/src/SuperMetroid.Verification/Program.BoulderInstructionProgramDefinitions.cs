@@ -149,7 +149,7 @@ internal static class BoulderInstructionProgramDefinitionsVerification
             "production loops, and sixteen compiled visual selectors pass with source " +
             "bytes forbidden.");
 
-        /// <summary>Runs a selected mirrored Boulder loop past its terminal jump to confirm it restarts without cartridge reads.</summary>
+        // Runs a selected mirrored Boulder loop past its terminal jump to confirm it restarts without cartridge reads.
         static void VerifyBoulderInstructionProgram(
             CartridgeReadGuard guard,
             ushort parameter1,
@@ -199,7 +199,7 @@ internal static class BoulderInstructionProgramDefinitionsVerification
     /// <summary>Forbids reads from both compiled control bytes and the frame-selector words during production execution.</summary>
     private static CartridgeReadGuard NewBoulderInstructionProgramReadGuard(ISnesAddressSpace source)
     {
-        /// <summary>Reports the forbidden native address reached by a Boulder program read.</summary>
+        // Reports the forbidden native address reached by a Boulder program read.
         static string Message(int address) => $"Production read compiled Boulder instruction byte ${address:X6}.";
         return new CartridgeReadGuard(source)
             .Forbid(BoulderInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, Message)

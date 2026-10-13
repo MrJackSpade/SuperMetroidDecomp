@@ -5,6 +5,7 @@ using static ColorWordsVerification;
 using static GraphDigestVerification;
 using Hardware = SuperMetroid.Core.Hardware;
 
+/// <summary>Checks render-packet round trips, legacy compatibility, malformed inputs, and layered image fidelity.</summary>
 internal static class RenderPacketCodecTestsVerification
 {
     /// <summary>Checks packet round trips, legacy versions, malformed data rejection, and layered render compatibility.</summary>

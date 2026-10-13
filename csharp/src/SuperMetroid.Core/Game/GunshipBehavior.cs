@@ -12,11 +12,16 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class GunshipBehavior
 {
+    /// <summary>Queues engine and entrance-pad sounds at the native frame boundaries.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Creates gunship dust during takeoff.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Supplies room events and the bus used by Samus pose setup.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Holds the top, bottom, and entrance pad in consecutive physical slots.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Binds the frame, room, and slot owners used by the ship's three-part actor.</summary>
     internal GunshipBehavior(EnemyAudioQueue audio, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemySlotTable slotTable)
     {
         _audio = audio;
@@ -24,7 +29,9 @@ internal sealed class GunshipBehavior
         _room = room;
         _slotTable = slotTable;
     }
+    /// <summary>Selects ordinary Landing Site placement or the high-altitude post-Ceres descent.</summary>
     internal GunshipLoadScenario _gunshipLoadScenario;
+    /// <summary>Samus actor captured for the post-Ceres ship's initial placement.</summary>
     internal SamusState? _samusAtEnemyInitialization;
     /// <summary>Most recent gunship lifecycle event in the current enemy pass, cleared to None at the next pass; answering the save prompt also publishes an event immediately.</summary>
     public GunshipFrameEvent LastGunshipEvent { get; internal set; }
@@ -57,6 +64,7 @@ internal sealed class GunshipBehavior
         LastGunshipEvent = GunshipFrameEvent.SavePromptAnswered;
     }
 
+    /// <summary>Initializes the top hull and selects ordinary idle or post-Ceres descent.</summary>
     internal void InitializeGunshipTop(RoomEnemySlot slot)
     {
         slot.Properties = slot.Properties.With(
@@ -85,6 +93,7 @@ internal sealed class GunshipBehavior
         slot.VariableC = 0;
     }
 
+    /// <summary>Initializes bottom hull or pad from physical neighboring slot aliases.</summary>
     internal void InitializeGunshipBottom(RoomEnemySlot slot)
     {
         slot.Properties = slot.Properties.With(
@@ -130,6 +139,7 @@ internal sealed class GunshipBehavior
         slot.VariableF = (ushort)GunshipFunction.NoOperation;
     }
 
+    /// <summary>Runs the top hull's sound timer and landing, boarding, save, or takeoff state machine.</summary>
     internal void RunGunshipTopMain(
         RoomEnemySlot top,
         SamusState? samus,
@@ -243,6 +253,7 @@ internal sealed class GunshipBehavior
         }
     }
 
+    /// <summary>Carries Samus and all ship parts downward, slowing below Y=$0300 before the landing clamp.</summary>
     private void DescendPostCeresGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -266,6 +277,7 @@ internal sealed class GunshipBehavior
         top.VariableE = 0;
     }
 
+    /// <summary>Applies seventeen authored brake offsets, then opens the pad and aligns Samus.</summary>
     internal void BouncePostCeresGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -297,6 +309,7 @@ internal sealed class GunshipBehavior
         _audio.QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
     }
 
+    /// <summary>Raises Samus from the landed ship and closes its pad at the exit height.</summary>
     private void RaisePostCeresSamus(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -315,6 +328,7 @@ internal sealed class GunshipBehavior
         LastGunshipEvent = GunshipFrameEvent.LandingPadClosed;
     }
 
+    /// <summary>Adds the same 16.16 Y displacement to Samus and all three ship components.</summary>
     private void AddGunshipYFixed(SamusState samus, RoomEnemySlot top, uint delta)
     {
         uint samusFixed = new SnesFixedPosition(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue;
@@ -331,6 +345,7 @@ internal sealed class GunshipBehavior
         }
     }
 
+    /// <summary>Cycles the four native idle-bob entries while moving the hull and pad together.</summary>
     internal void StepGunshipBob(RoomEnemySlot top)
     {
         ushort oldTimer = top.VariableD;
@@ -350,6 +365,7 @@ internal sealed class GunshipBehavior
         top.VariableC = unchecked((ushort)((top.VariableC + 1) & 3));
     }
 
+    /// <summary>Accepts a new Down press inside the standing entrance box and opens the pad.</summary>
     private void HandleIdleGunshipEntrance(
         RoomEnemySlot top,
         SamusState? samus,
@@ -389,6 +405,7 @@ internal sealed class GunshipBehavior
         }
     }
 
+    /// <summary>Decrements the native function timer, treating one and signed underflow as expiry.</summary>
     private static bool TickGunshipFunctionTimer(RoomEnemySlot top)
     {
         ushort oldTimer = top.VariableA;
@@ -396,6 +413,7 @@ internal sealed class GunshipBehavior
         return oldTimer == 1 || (short)top.VariableA < 0;
     }
 
+    /// <summary>Lowers Samus two pixels per frame until the closing-pad threshold.</summary>
     private void LowerSamusIntoGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -412,6 +430,7 @@ internal sealed class GunshipBehavior
         LastGunshipEvent = GunshipFrameEvent.EntryPadClosing;
     }
 
+    /// <summary>Refills Samus in two-unit steps or skips directly to escape takeoff after Mother Brain.</summary>
     private void RestoreSamusInGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -446,6 +465,7 @@ internal sealed class GunshipBehavior
         top.VariableF = (ushort)GunshipFunction.HandleSaveConfirmation;
     }
 
+    /// <summary>Raises Samus two pixels per frame, then closes the pad and emits the exit event.</summary>
     private void RaiseSamusOutOfGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -564,6 +584,7 @@ internal sealed class GunshipBehavior
         MoveGunshipAndSamusToY(top, samus, samus.Position.Y.Whole);
     }
 
+    /// <summary>Positions hull and pad at fixed whole-pixel offsets from Samus during escape.</summary>
     private void MoveGunshipAndSamusToY(
         RoomEnemySlot top,
         SamusState samus,
@@ -577,6 +598,7 @@ internal sealed class GunshipBehavior
         bottom.Position = bottom.Position.WithWholeY(unchecked((ushort)(samusY + 23)));
     }
 
+    /// <summary>Restores a resource by two without exceeding its maximum.</summary>
     private static ushort RestoreTwo(ushort current, ushort maximum)
     {
         if ((short)(current - maximum) >= 0)
@@ -585,6 +607,7 @@ internal sealed class GunshipBehavior
     }
 
 
+    /// <summary>Routes top-hull initialization through the native ship entry point.</summary>
     internal void RegisterGunshipTopInitializationAi(EnemyAiTable table)
     {
         table.RegisterInitialization(EnemyAiRoutine.InitAI_ShipTop, null, (slot, level, samus, controllerInput, cameraX) =>
@@ -594,6 +617,7 @@ internal sealed class GunshipBehavior
     }
 
 
+    /// <summary>Routes bottom hull and entrance-pad initialization through their shared entry point.</summary>
     internal void RegisterGunshipBottomInitializationAi(EnemyAiTable table)
     {
         table.RegisterInitialization(EnemyAiRoutine.InitAI_ShipBottomEntrance, null, (slot, level, samus, controllerInput, cameraX) =>
@@ -603,6 +627,7 @@ internal sealed class GunshipBehavior
     }
 
 
+    /// <summary>Runs the top hull's lifecycle once per enemy frame.</summary>
     internal void RegisterGunshipMainAi(EnemyAiTable table)
     {
         table.RegisterMain(EnemyAiRoutine.MainAI_ShipTop, null, (slot, frame, nmiFrameCounter8) =>

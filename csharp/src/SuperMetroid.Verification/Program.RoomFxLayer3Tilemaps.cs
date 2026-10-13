@@ -20,6 +20,7 @@ using static LookupLiquidTilemapsVerification;
 using static LookupSporeTilemapVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks six installed room-FX BG3 tilemap pages against native VRAM output under read guards.</summary>
 internal static class RoomFxLayer3TilemapsVerification
 {
     /// <summary>Checks all six extracted BG3 pages and guarded installed FX loads against native VRAM words.</summary>

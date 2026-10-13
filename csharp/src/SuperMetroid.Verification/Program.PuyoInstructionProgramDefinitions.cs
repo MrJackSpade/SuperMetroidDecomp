@@ -14,6 +14,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Puyo grounded and airborne instruction timing and selected frames against bank $A2.</summary>
 internal static class PuyoInstructionProgramDefinitionsVerification
 {
     /// <summary>Grounded animation loops whose goto instructions must remain executable from compiled data.</summary>

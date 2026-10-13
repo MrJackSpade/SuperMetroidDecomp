@@ -15,6 +15,7 @@ using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Viola control words and surface-dependent projectile loops against retail instruction data.</summary>
 internal static class ViolaInstructionProgramDefinitionsVerification
 {
     /// <summary>Loads retail data and runs the Viola instruction program suite.</summary>

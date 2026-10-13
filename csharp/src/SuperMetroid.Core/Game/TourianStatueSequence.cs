@@ -121,7 +121,7 @@ public sealed class TourianStatueSequence
         Spawn(AnimatedTileObject.TourianStatueDraygon);
         Spawn(AnimatedTileObject.TourianStatueRidley);
 
-        /// <summary>Resolves one native object header and starts it at its compiled program entry.</summary>
+        // Resolve each native object header and start it at its compiled program entry.
         void Spawn(AnimatedTileObject objectPointer)
         {
             if (!TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(

@@ -105,6 +105,10 @@ internal sealed class FallingSparksBehavior
             projectile.Position.X.Whole + projectile.Variable1 + SnesCarry.OutOfWord(fraction))));
     }
 
+    /// <summary>
+    /// Switches a falling spark to its floor-impact program and scales its stored
+    /// horizontal delta by four with native carry propagation.
+    /// </summary>
     internal static void BeginFallingSparkFloorImpact(RoomEnemyProjectileSlot projectile)
     {
         projectile.InstructionPointer = FallingSparkInstructionProgramDefinitions.HitFloor;

@@ -24,7 +24,21 @@ public static class CeresFlightSpriteDefinitions
     public static IReadOnlyList<CeresFlightSpriteFrameDefinition> Frames { get; } = new FrameList();
 
     /// <summary>Stable ordinal positions of the six published Ceres flight compositions.</summary>
-    private enum Visual { Stars, LargeAsteroids, StationUnderAttack, SmallAsteroids, VortexEven, VortexOdd }
+    private enum Visual
+    {
+        /// <summary>Star field drawing selected by the flight background stream.</summary>
+        Stars,
+        /// <summary>Large asteroid composition selected during the explosion flight.</summary>
+        LargeAsteroids,
+        /// <summary>Damaged station drawing selected during the attack sequence.</summary>
+        StationUnderAttack,
+        /// <summary>Small asteroid composition selected beside the station.</summary>
+        SmallAsteroids,
+        /// <summary>First of the two alternating purple vortex drawings.</summary>
+        VortexEven,
+        /// <summary>Second of the two alternating purple vortex drawings.</summary>
+        VortexOdd,
+    }
 
     /// <summary>Projects stable visual ordinals to native pointers and stock OAM counts.</summary>
     private sealed class FrameList : IReadOnlyList<CeresFlightSpriteFrameDefinition>

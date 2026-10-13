@@ -60,7 +60,7 @@ internal static class EndingExplosionSpriteArtworkVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion calculated parts")]
     private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
     {
-        /// <summary>Applies the five calculation families only when the supplied sprite map still matches their supported basis.</summary>
+        // Applies the five calculation families only when the supplied sprite map still matches their supported basis.
         static SpriteComposition Calculate(ushort pointer, SpriteComposition supplied) =>
             EndingExplosionGridParts.CalculateIfMatching(pointer, EndingExplosionQuadrantParts.CalculateIfMatching(pointer, EndingExplosionStarfieldParts.CalculateIfMatching(pointer, EndingExplosionAfterglowParts.CalculateIfMatching(pointer, EndingExplosionSilhouetteParts.CalculateIfMatching(pointer, supplied)))));
         for (int pose = 0; pose < 16; pose++)
@@ -92,7 +92,7 @@ internal static class EndingExplosionSpriteArtworkVerification
             }
             SpriteComposition calculated = Calculate(pointer, original);
             AssertTrue(!ReferenceEquals(original, calculated), "original grid uses calculated parts");
-            /// <summary>Hashes every compiled visual field and part order to compare authored and calculated compositions.</summary>
+            // Hashes every compiled visual field and part order to compare authored and calculated compositions.
             string Identity(SpriteComposition composition) => SelectedPresentationHash.Create("grid", composition.AppendIdentity);
             AssertEqual(Identity(original), Identity(calculated), "calculated grid preserves every compiled visual field and order");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })

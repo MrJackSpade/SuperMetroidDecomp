@@ -15,7 +15,19 @@ public static class ProjectileTrailDefinitions
     public const ushort Missile = 0xb5a1;
 
     /// <summary>The five trail instruction lists, in address order.</summary>
-    private enum TrailList { Empty, LeftIce, RightIce, Wave, Missile }
+    private enum TrailList
+    {
+        /// <summary>$90:B4C9 ends a trail without drawing another frame.</summary>
+        Empty,
+        /// <summary>$90:B4CB draws the left ice or charged-power beam trail.</summary>
+        LeftIce,
+        /// <summary>$90:B52D draws the right-side ice sparkle trail.</summary>
+        RightIce,
+        /// <summary>$90:B58F supplies the wave-beam trail for either side.</summary>
+        Wave,
+        /// <summary>$90:B5A1 is shared by ordinary and super-missile trail selection.</summary>
+        Missile,
+    }
 
     /// <summary>All five defined trail lists used to recognize a first-record cursor.</summary>
     private static readonly TrailList[] TrailLists = Enum.GetValues<TrailList>();

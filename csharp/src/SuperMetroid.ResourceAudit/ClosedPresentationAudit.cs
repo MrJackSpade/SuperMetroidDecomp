@@ -151,7 +151,7 @@ internal sealed class ClosedPresentationAudit
         if (!contracts.TryGetValue((method.ContainingType.ToDisplayString(), method.Name), out var reviewed)) return false;
         ClosedPresentationContract contract = reviewed.Contract;
         string owner = method.ContainingType.Name + "." + method.Name;
-        /// <summary>Records why a recognized provider call cannot be classified under its closed contract.</summary>
+        // Record why a recognized provider call cannot be classified under its closed contract.
         void Gap(string reason)
         {
             report.Gap(method.ContainingType.Name, owner, location, reason);

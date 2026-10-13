@@ -41,7 +41,7 @@ internal static class PauseEquipmentRulesVerification
             CheckRejected(invalid, 0, "category");
             CheckRejected(invalid, -1, "category");
         }
-        /// <summary>Checks that an invalid mask lookup reports the offending selector parameter.</summary>
+        // Check that an invalid mask lookup reports the offending selector parameter.
         static void CheckRejected(PauseEquipmentCategory category, int item, string parameter)
         {
             try { _ = PauseEquipmentRules.Mask(category, item); }
@@ -151,9 +151,9 @@ internal static class PauseEquipmentRulesVerification
             }
         }
         Console.WriteLine("Compiled pause rules: 14 native masks, 104 subsets, actual toggles, 65,536 wireframe selectors/rendered patches and manual transfer frames pass with rule ROM reads blocked.");
-        /// <summary>Creates a pause menu backed by guarded ROM reads and the supplied Samus inventory.</summary>
+        // Create a pause menu backed by guarded ROM reads and the supplied Samus inventory.
         PauseMenuState Create(SamusState samus) => new(guard, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = catalog });
-        /// <summary>Equips exactly the collected bits in the beam or item field for a category fixture.</summary>
+        // Equip exactly the collected bits in the beam or item field for a category fixture.
         static SamusState Inventory(PauseEquipmentCategory category, ushort owned) => category == PauseEquipmentCategory.Beams
             ? new SamusState { CollectedBeams = owned, EquippedBeams = owned }
             : new SamusState { CollectedItems = owned, EquippedItems = owned };

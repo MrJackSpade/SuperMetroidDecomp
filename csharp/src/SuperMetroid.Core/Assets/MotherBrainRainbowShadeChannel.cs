@@ -110,7 +110,17 @@ internal sealed class MotherBrainRainbowShadeChannel
         profile is MotherBrainRainbowShadeProfile.FirstGreenRise or MotherBrainRainbowShadeProfile.MixedBlue or MotherBrainRainbowShadeProfile.MaximumBlue;
 
     /// <summary>Selected integer tie rule for a phase's material-shade interpolation.</summary>
-    private enum Rounding { Floor, Ceiling, NearestUp, NearestEven }
+    private enum Rounding
+    {
+        /// <summary>Discards a positive fractional shade remainder.</summary>
+        Floor,
+        /// <summary>Raises a positive shade when interpolation leaves any remainder.</summary>
+        Ceiling,
+        /// <summary>Rounds halfway shades upward to the next channel value.</summary>
+        NearestUp,
+        /// <summary>Rounds a halfway shade to the even channel value.</summary>
+        NearestEven,
+    }
     /// <summary>Interpolates between two supplied channel endpoints with the profile's integer tie rule.</summary>
     private static int Interpolate(int first, int last, int shade, int intervals, Rounding rounding)
     {

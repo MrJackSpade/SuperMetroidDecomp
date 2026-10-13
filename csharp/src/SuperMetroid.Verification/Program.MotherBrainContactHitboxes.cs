@@ -14,6 +14,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Mother Brain body, brain, and neck contact lists against native data and guarded runtime collision.</summary>
 internal static class MotherBrainContactHitboxesVerification
 {
     /// <summary>

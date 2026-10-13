@@ -351,8 +351,7 @@ public sealed class SamusProjectileSystem
     /// <param name="terrain">SamusTerrain</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
     /// <param name="buttons">The controller words Samus's projectile producer reads: held buttons, this frame's new presses, and the previous frame's new presses (#633).</param>
-    /// <param name="layer1.X">Horizontal camera origin in whole room pixels, used by projectile offscreen handling.</param>
-    /// <param name="layer1.Y">Vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
+    /// <param name="layer1">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">
     /// Bomb-slot owner carrying shared WRAM cooldown <c>$0CCC</c>. The runtime steps that
     /// clock once, immediately before calling this method; this method may replace it after
@@ -699,8 +698,7 @@ public sealed class SamusProjectileSystem
     /// </summary>
     /// <param name="bus">Address space passed to the trail instruction and draw helpers.</param>
     /// <param name="oam">Mutable OBJ destination appended in descending trail-slot order, left side before right.</param>
-    /// <param name="layer1.X">Whole-pixel room camera X origin subtracted from trail coordinates when drawing.</param>
-    /// <param name="layer1.Y">Whole-pixel room camera Y origin subtracted from trail coordinates when drawing.</param>
+    /// <param name="layer1">Whole-pixel room camera origin subtracted from trail coordinates when drawing.</param>
     /// <param name="timeIsFrozen">
     /// WRAM <c>$0A78</c>. Frozen trails retain their current record and are still drawn;
     /// their timers and embedded position commands do not advance.

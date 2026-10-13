@@ -145,7 +145,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             "production programs, claw/palette/sound/function callbacks, and 140 " +
             "compiled frame selectors pass with source bytes forbidden.");
 
-        /// <summary>Checks that a left or right claw attack spawns its first projectile at the correct horizontal offset.</summary>
+        // Checks that a left or right claw attack spawns its first projectile at the correct horizontal offset.
         void VerifyClawAttack(ushort program, int expectedFirstXOffset)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
@@ -162,7 +162,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 $"ninja Pirate claw program $B2:{program:X4} first spawn X");
         }
 
-        /// <summary>Checks the dive's function switch, shared gold palette, and attack sound.</summary>
+        // Checks the dive's function switch, shared gold palette, and attack sound.
         void VerifyDive(ushort program, NinjaSpacePirateFunction function)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
@@ -177,7 +177,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 $"ninja Pirate dive program $B2:{program:X4} sound");
         }
 
-        /// <summary>Initializes a ninja Pirate actor with installed shared palette and guarded instruction bytes.</summary>
+        // Initializes a ninja Pirate actor with installed shared palette and guarded instruction bytes.
         (RoomEnemySystem Enemies, RoomEnemySlot Slot, SamusState Samus) CreateSystem()
         {
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
@@ -194,7 +194,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             return (enemies, slot, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
         }
 
-        /// <summary>Advances production enemy instructions for the requested number of updates.</summary>
+        // Advances production enemy instructions for the requested number of updates.
         static void RunFrames(
             RoomEnemySystem enemies,
             RoomEnemySlot slot,

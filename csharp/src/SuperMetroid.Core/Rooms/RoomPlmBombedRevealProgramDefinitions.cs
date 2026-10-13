@@ -10,11 +10,17 @@ internal static class RoomPlmBombedRevealProgramDefinitions
     /// <summary>The six supported one-frame lists.</summary>
     private enum Reveal
     {
+        /// <summary>One-block crumble reveal at $84:C8EC using the single-cell draw command.</summary>
         Crumble1x1,
+        /// <summary>Two-column crumble reveal using the horizontal restore draw.</summary>
         Crumble2x1,
+        /// <summary>Two-row crumble reveal using the vertical restore draw.</summary>
         Crumble1x2,
+        /// <summary>Two-by-two crumble reveal using the square restore draw.</summary>
         Crumble2x2,
+        /// <summary>One-frame reveal of a power-bomb-gated parent without breaking it.</summary>
         PowerBomb,
+        /// <summary>One-frame reveal of a super-missile-gated parent without breaking it.</summary>
         SuperMissile,
     }
 

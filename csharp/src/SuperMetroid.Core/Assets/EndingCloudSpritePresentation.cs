@@ -108,9 +108,37 @@ public static class EndingCloudSpriteDefinitions
     /// <summary>Four horizontal cloud records plus two side-cloud records.</summary>
     private const int FrameCount = 6;
     /// <summary>Native storage order, which differs from cinematic actor/list order.</summary>
-    private enum Record { BottomPattern, TopPattern, BottomEdge, TopEdge, Right, Left }
+    private enum Record
+    {
+        /// <summary>First horizontal 16-part native record; selected for the actor's lower pattern.</summary>
+        BottomPattern,
+        /// <summary>Second horizontal 16-part native record; selected for the actor's upper pattern.</summary>
+        TopPattern,
+        /// <summary>Third horizontal 16-part native record; selected for the actor's lower edge.</summary>
+        BottomEdge,
+        /// <summary>Fourth horizontal 16-part native record; selected for the actor's upper edge.</summary>
+        TopEdge,
+        /// <summary>First 32-part side-cloud record in the cartridge's storage order.</summary>
+        Right,
+        /// <summary>Second 32-part side-cloud record in the cartridge's storage order.</summary>
+        Left,
+    }
     /// <summary>Cloud roles in the order used by the ending actors.</summary>
-    internal enum Role { UpperPattern, UpperEdge, LowerEdge, LowerPattern, Right, Left }
+    internal enum Role
+    {
+        /// <summary>Upper cloud pattern requested first by the ending actor lists.</summary>
+        UpperPattern,
+        /// <summary>Upper cloud edge paired with the first pattern.</summary>
+        UpperEdge,
+        /// <summary>Lower cloud edge drawn before its lower pattern.</summary>
+        LowerEdge,
+        /// <summary>Lower cloud pattern selected after the lower edge.</summary>
+        LowerPattern,
+        /// <summary>Right-hand side cloud, drawn from the first 32-part native record.</summary>
+        Right,
+        /// <summary>Left-hand side cloud, drawn from the second 32-part native record.</summary>
+        Left,
+    }
 
     /// <summary>Gets the ordered upper, lower, right, and left cloud roles used by the ending actors.</summary>
     public static IReadOnlyList<EndingCloudSpriteFrameDefinition> Frames { get; } = new FrameView();

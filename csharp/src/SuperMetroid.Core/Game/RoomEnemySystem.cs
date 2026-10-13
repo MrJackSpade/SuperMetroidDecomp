@@ -1488,8 +1488,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         Projectiles.RunPass(level, samus, camera, nmiFrameCounter8, samusBombs, nmiFrameCounter);
     }
 
-    // Each species owner registers its own projectile handlers. Pre-instructions are keyed, and instruction handlers
-    // and interceptors keep their established per-instruction and list order.
+    /// <summary>
+    /// Registers species projectile handlers before generic and cross-species handlers,
+    /// preserving the keyed pre-instruction and ordered instruction-interceptor dispatch.
+    /// </summary>
     void IEnemyProjectileHandlerSource.RegisterEnemyProjectileHandlers(EnemyProjectileHandlerTable table)
     {
         // Species register first; generic and cross-species registrations follow.

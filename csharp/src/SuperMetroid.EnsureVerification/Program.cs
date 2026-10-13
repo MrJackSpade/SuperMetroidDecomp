@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using SuperMetroid.Core;
 using static SuperMetroid.EnsureVerification.AnalyzerTests;
+using static SuperMetroid.EnsureVerification.MemberDocumentationAnalyzerTests;
 using static SuperMetroid.EnsureVerification.CartridgeEncodingAnalyzerTests;
 using static SuperMetroid.EnsureVerification.CpuBusCodeFixTests;
 using static SuperMetroid.EnsureVerification.EnsureCodeFixTests;
@@ -15,7 +16,7 @@ namespace SuperMetroid.EnsureVerification;
 /// <summary>Runs focused Ensure API, analyzer, code-fix, and palette FX contract checks.</summary>
 internal static class Program
 {
-    /// <summary>Installs the no-dialog process boundary and runs either the full suite or palette FX contract.</summary>
+    /// <summary>Installs the no-dialog process boundary and runs the requested focused verification.</summary>
     private static int Main(string[] args)
     {
         try
@@ -27,10 +28,16 @@ internal static class Program
                 VerifyPaletteFxDependencyContract();
                 return 0;
             }
+            if (args is ["--member-documentation"])
+            {
+                VerifyMemberDocumentationAnalyzer();
+                return 0;
+            }
             if (args.Length != 0)
                 throw new ArgumentException("Unknown verification arguments.", nameof(args));
             VerifyEnsure();
             VerifyAnalyzer();
+            VerifyMemberDocumentationAnalyzer();
             VerifyPrimitiveDomainAnalyzer();
             VerifySpatialClumpAnalyzer();
             VerifyCpuBusAccessAnalyzer();

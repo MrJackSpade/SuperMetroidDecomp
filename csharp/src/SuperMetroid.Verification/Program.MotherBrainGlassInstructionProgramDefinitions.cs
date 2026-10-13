@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using static LookupGlassProjectileProgramVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Mother Brain glass shard and sparkle cadence, control words, loop targets, and ROM-free playback.</summary>
 internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
 {
     /// <summary>Loads retail data and runs the Mother Brain glass projectile instruction suite.</summary>

@@ -92,6 +92,7 @@ internal static class AttractDemoRomDataConstants
 /// <summary>Cartridge values of <see cref="AudioRomData.Apu"/> that only verification reads.</summary>
 internal static class AudioRomDataApuConstants
 {
+    /// <summary>SPC I/O port used when the third uploaded audio library signals completion.</summary>
     public const byte LibraryThreePort = 3;
 
     extension(AudioRomData.Apu)
@@ -315,6 +316,7 @@ internal static class CeresCinematicLightPaletteFxProgramMechanicsDefinitionsCon
 /// <summary>Cartridge values of <see cref="CeresDestructionRomData.Assets"/> that only verification reads.</summary>
 internal static class CeresDestructionRomDataAssetsConstants
 {
+    /// <summary>Bank-$9A source of the shared cinematic object character tiles at $9A:D200.</summary>
     public const int SharedObjectCharacters = 0x9ad200;
 
     extension(CeresDestructionRomData.Assets)
@@ -472,12 +474,19 @@ internal static class ChargeFlareSpriteDefinitionsConstants
 /// <summary>Cartridge values of <see cref="CinematicCodePointers"/> that only verification reads.</summary>
 internal static class CinematicCodePointersConstants
 {
+    /// <summary>Bank-$8B credits-object command at $9A0D that decrements a timer and branches.</summary>
     public const ushort CreditsObject_Instruction_DecrementTimerAndGoto = 0x9a0d;
+    /// <summary>Bank-$8B credits-object command at $99FE that removes the object.</summary>
     public const ushort CreditsObject_Instruction_Delete = 0x99fe;
+    /// <summary>Bank-$8B credits-object command at $F6FE that terminates the credits sequence.</summary>
     public const ushort CreditsObject_Instruction_EndCredits = 0xf6fe;
+    /// <summary>Bank-$8B credits-object command at $9A17 that arms its countdown.</summary>
     public const ushort CreditsObject_Instruction_SetTimer = 0x9a17;
+    /// <summary>Bank-$8B ending command at $E780 that clears the item-percentage subtitle.</summary>
     public const ushort Ending_Instruction_ClearItemPercentageSubtitle = 0xe780;
+    /// <summary>Bank-$8B ending command at $E627 that renders the collected-item percentage.</summary>
     public const ushort Ending_Instruction_DrawItemPercentage = 0xe627;
+    /// <summary>Bank-$8B ending command at $E769 that draws the percentage subtitle.</summary>
     public const ushort Ending_Instruction_DrawItemPercentageSubtitle = 0xe769;
     /// <summary><c>IndirectInstructionFunction_DoNothing</c> at $8B:8849.</summary>
     public const ushort IndirectInstruction_DoNothing = 0x8849;
@@ -514,12 +523,19 @@ internal static class CinematicCodePointersConstants
 /// <summary>Cartridge values of <see cref="CinematicCodePointers.Lists"/> that only verification reads.</summary>
 internal static class CinematicCodePointersListsConstants
 {
+    /// <summary>Bank-$8B instruction list at $CE4B for the large Ceres explosion asteroids.</summary>
     public const ushort CeresExplosionLargeAsteroids = 0xce4b;
+    /// <summary>Bank-$8B instruction list at $CC57 for the purple vortex behind Ceres.</summary>
     public const ushort CeresPurpleSpaceVortex = 0xcc57;
+    /// <summary>Bank-$8B instruction list at $CC4F for the small Ceres asteroids.</summary>
     public const ushort CeresSmallAsteroids = 0xcc4f;
+    /// <summary>Bank-$8B instruction list at $CDA3 for the Ceres star field.</summary>
     public const ushort CeresStars = 0xcda3;
+    /// <summary>Bank-$8B instruction list at $CE0D that spawns intro Rinkas.</summary>
     public const ushort IntroRinkaSpawner = 0xce0d;
+    /// <summary>Byte stride between consecutive Metroid-egg particle records.</summary>
     public const ushort MetroidEggParticleStride = 8;
+    /// <summary>Bank-$8B instruction list at $CD69 for slime drops from the Metroid egg.</summary>
     public const ushort MetroidEggSlimeDrops = 0xcd69;
 
     extension(CinematicCodePointers.Lists)
@@ -750,8 +766,11 @@ internal static class DeadTourianCorpseInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="DeadTourianCorpseVisualDefinitions"/> that only verification reads.</summary>
 internal static class DeadTourianCorpseVisualDefinitionsConstants
 {
+    /// <summary>Eight corpse images precede the Sidehopper images in the extracted atlas.</summary>
     public const int CorpseFrameCount = 8;
+    /// <summary>Total images in the shared corpse and Sidehopper atlas.</summary>
     public const int FrameCount = CorpseFrameCount + SidehopperFrameCount;
+    /// <summary>Five Sidehopper images follow the corpse images in the extracted atlas.</summary>
     public const int SidehopperFrameCount = 5;
 
     extension(DeadTourianCorpseVisualDefinitions)
@@ -768,6 +787,7 @@ internal static class DeadTourianCorpseVisualDefinitionsConstants
 /// <summary>Cartridge values of <see cref="DemoInputRomData"/> that only verification reads.</summary>
 internal static class DemoInputRomDataConstants
 {
+    /// <summary>Bank-$91 base used to resolve native attract-demo input streams.</summary>
     public const int BankBase = 0x910000;
 
     extension(DemoInputRomData)
@@ -822,6 +842,7 @@ internal static class DoorHeaderRomDataConstants
 /// <summary>Cartridge values of <see cref="DownwardGateEnemyProjectileRomData"/> that only verification reads.</summary>
 internal static class DownwardGateEnemyProjectileRomDataConstants
 {
+    /// <summary>Instruction pointer that keeps the downward gate projectile closed and idle.</summary>
     public const ushort ClosedSleepInstruction = DownwardGateProjectileInstructionProgramDefinitions.ClosedSleep;
 
     extension(DownwardGateEnemyProjectileRomData)
@@ -1271,6 +1292,7 @@ internal static class EvirInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="EvirVisualDefinitions"/> that only verification reads.</summary>
 internal static class EvirVisualDefinitionsConstants
 {
+    /// <summary>Number of Evir animation images expected by the extracted visual sheet.</summary>
     public const int FrameCount = 24;
 
     extension(EvirVisualDefinitions)
@@ -1389,6 +1411,7 @@ internal static class GameOverBabyAnimationDefinitionsConstants
 /// <summary>Cartridge values of <see cref="GameOverRomData.BabyAnimation"/> that only verification reads.</summary>
 internal static class GameOverRomDataBabyAnimationConstants
 {
+    /// <summary>First bank-$8B instruction at $BC27 in the game-over Baby animation.</summary>
     public const ushort FirstInstruction = 0xbc27;
 
     extension(GameOverRomData.BabyAnimation)
@@ -1444,6 +1467,7 @@ internal static class GoldenTorizoInitialInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="GoldenTorizoJumpLandingInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class GoldenTorizoJumpLandingInstructionProgramDefinitionsConstants
 {
+    /// <summary>Instruction boundary at $CD D7 after Golden Torizo's jump-landing program.</summary>
     public const ushort End = 0xcdd7;
 
     extension(GoldenTorizoJumpLandingInstructionProgramDefinitions)
@@ -1469,6 +1493,7 @@ internal static class GoldenTorizoLeftFootOrbInstructionProgramDefinitionsConsta
 /// <summary>Cartridge values of <see cref="GoldenTorizoLeftOrbInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class GoldenTorizoLeftOrbInstructionProgramDefinitionsConstants
 {
+    /// <summary>Instruction boundary at $CB83 after the left-orb attack program.</summary>
     public const ushort End = 0xcb83;
 
     extension(GoldenTorizoLeftOrbInstructionProgramDefinitions)
@@ -1501,6 +1526,7 @@ internal static class GoldenTorizoLeftTurnInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="GoldenTorizoRightOrbInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class GoldenTorizoRightOrbInstructionProgramDefinitionsConstants
 {
+    /// <summary>Instruction boundary at $CCDB after the right-orb attack program.</summary>
     public const ushort End = 0xccdb;
 
     extension(GoldenTorizoRightOrbInstructionProgramDefinitions)
@@ -1513,6 +1539,7 @@ internal static class GoldenTorizoRightOrbInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="GoldenTorizoRightSonicInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class GoldenTorizoRightSonicInstructionProgramDefinitionsConstants
 {
+    /// <summary>Instruction boundary at $CDAF after the right sonic-boom program.</summary>
     public const ushort End = 0xcdaf;
 
     extension(GoldenTorizoRightSonicInstructionProgramDefinitions)
@@ -1525,7 +1552,9 @@ internal static class GoldenTorizoRightSonicInstructionProgramDefinitionsConstan
 /// <summary>Cartridge values of <see cref="GoldenTorizoRightwardInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class GoldenTorizoRightwardInstructionProgramDefinitionsConstants
 {
+    /// <summary>Instruction boundary at $D369 after the right-facing dodge program.</summary>
     public const ushort End = 0xd369;
+    /// <summary>First right-facing dodge instruction, shared with the combat pointer catalog.</summary>
     public const ushort Start = GoldenTorizoCombatInstructionPointers.DodgeTurningRight;
 
     extension(GoldenTorizoRightwardInstructionProgramDefinitions)
@@ -1540,7 +1569,9 @@ internal static class GoldenTorizoRightwardInstructionProgramDefinitionsConstant
 /// <summary>Cartridge values of <see cref="GoldenTorizoWalkingInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class GoldenTorizoWalkingInstructionProgramDefinitionsConstants
 {
+    /// <summary>Instruction boundary at $D2AD after the walking program.</summary>
     public const ushort End = 0xd2ad;
+    /// <summary>First left-right-leg walking instruction in the combat pointer catalog.</summary>
     public const ushort Start = GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
 
     extension(GoldenTorizoWalkingInstructionProgramDefinitions)
@@ -1715,7 +1746,9 @@ internal static class IntroBabyDiscoveryCollisionDefinitionsConstants
 /// <summary>Cartridge values of <see cref="IntroCinematicRomData.Assets"/> that only verification reads.</summary>
 internal static class IntroCinematicRomDataAssetsConstants
 {
+    /// <summary>Bank-$95 source at $D713 for the second Japanese intro font tile set.</summary>
     public const int JapaneseFontTwo = 0x95d713;
+    /// <summary>Bank-$8C source at $BEC3 for Mother Brain flashback room level data.</summary>
     public const int MotherBrainLevelData = 0x8cbec3;
 
     extension(IntroCinematicRomData.Assets)
@@ -1730,6 +1763,7 @@ internal static class IntroCinematicRomDataAssetsConstants
 /// <summary>Cartridge values of <see cref="IntroCinematicRomData.Banks"/> that only verification reads.</summary>
 internal static class IntroCinematicRomDataBanksConstants
 {
+    /// <summary>Bank-$8B base for executable intro cinematic instruction streams.</summary>
     public const int CinematicCode = 0x8b0000;
 
     extension(IntroCinematicRomData.Banks)
@@ -1742,6 +1776,7 @@ internal static class IntroCinematicRomDataBanksConstants
 /// <summary>Cartridge values of <see cref="IntroCinematicRomData.Flashback"/> that only verification reads.</summary>
 internal static class IntroCinematicRomDataFlashbackConstants
 {
+    /// <summary>Byte length of the Mother Brain flashback room's imported level data.</summary>
     public const int MotherBrainLevelByteCount = 448;
 
     extension(IntroCinematicRomData.Flashback)
@@ -1956,6 +1991,7 @@ internal static class IntroScientistSpriteDefinitionsConstants
 /// <summary>Cartridge values of <see cref="KraidArmCollisionDefinitions"/> that only verification reads.</summary>
 internal static class KraidArmCollisionDefinitionsConstants
 {
+    /// <summary>Number of arm collision frames in Kraid's extracted animation data.</summary>
     public const int FrameCount = 22;
 
     extension(KraidArmCollisionDefinitions)
@@ -2161,6 +2197,7 @@ internal static class MaridiaLargeSnailInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="MenuShoulderButtonArtwork"/> that only verification reads.</summary>
 internal static class MenuShoulderButtonArtworkConstants
 {
+    /// <summary>Two 16-bit tile words stored for each menu shoulder-button glyph.</summary>
     public const int StoredGlyphByteCount = 2 * sizeof(ushort);
 
     extension(MenuShoulderButtonArtwork)
@@ -2203,6 +2240,7 @@ internal static class MochtroidInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="MochtroidVisualDefinitions"/> that only verification reads.</summary>
 internal static class MochtroidVisualDefinitionsConstants
 {
+    /// <summary>Number of Mochtroid images in the extracted visual sheet.</summary>
     public const int FrameCount = 6;
 
     extension(MochtroidVisualDefinitions)
@@ -2364,6 +2402,7 @@ internal static class MotherBrainLegTileTransferDefinitionsConstants
 /// <summary>Cartridge values of <see cref="MotherBrainRoomPaletteProgramDefinitions"/> that only verification reads.</summary>
 internal static class MotherBrainRoomPaletteProgramDefinitionsConstants
 {
+    /// <summary>Presentation palette words plus the two mechanics words in each program record.</summary>
     public const int MechanicsWordCount = MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount + 2;
 
     extension(MotherBrainRoomPaletteProgramDefinitions)
@@ -2598,7 +2637,9 @@ internal static class PauseReserveTransferRomDataConstants
 /// <summary>Cartridge values of <see cref="PhantoonBg2FrameDefinitions"/> that only verification reads.</summary>
 internal static class PhantoonBg2FrameDefinitionsConstants
 {
+    /// <summary>VRAM destination base for Phantoon's BG2 frame tiles.</summary>
     public const ushort VramBase = EnemyBg2FrameLayout.VramBase;
+    /// <summary>WRAM staging base from which Phantoon's BG2 frame upload is copied.</summary>
     public const ushort WorkingRamBase = EnemyBg2FrameLayout.WorkingRamBase;
 
     extension(PhantoonBg2FrameDefinitions)
@@ -2613,6 +2654,7 @@ internal static class PhantoonBg2FrameDefinitionsConstants
 /// <summary>Cartridge values of <see cref="PhantoonColorRomData"/> that only verification reads.</summary>
 internal static class PhantoonColorRomDataConstants
 {
+    /// <summary>Palette destination used when Phantoon's colors are first powered on.</summary>
     public const int PowerOnDestination = 0;
 
     extension(PhantoonColorRomData)
@@ -2859,15 +2901,25 @@ internal static class RoomEnemyRomLayoutConstants
 /// <summary>Cartridge values of <see cref="RoomEnemySystem"/> that only verification reads.</summary>
 internal static class RoomEnemySystemConstants
 {
+    /// <summary>Bank-$A8 palette table at $E7CC for Blue Brinstar's face-block actor.</summary>
     public const int BlueBrinstarFaceBlockPaletteTable = 0xa8e7cc;
+    /// <summary>Bank-$AA instruction pointer at $B879 used on Bomb Torizo initialization.</summary>
     public const ushort BombTorizoInitialInstruction = 0xb879;
+    /// <summary>Pre-instruction selected for the Cacatac spike enemy projectile.</summary>
     public const ushort CacatacSpikePreInstruction = (ushort)EnemyProjectilePreInstruction.CacatacSpike;
+    /// <summary>Bank-$A0 no-op AI pointer installed by the growing shutter.</summary>
     public const ushort GrowingShutterNoOpAi = EnemyAiCodePointers.BankA0.NoOp;
+    /// <summary>Initial leftward Ki Hunter acid pre-instruction pointer.</summary>
     public const ushort KiHunterAcidInitialLeftPreInstruction = (ushort)EnemyProjectilePreInstruction.KiHunterAcid_Left;
+    /// <summary>Initial rightward Ki Hunter acid pre-instruction pointer.</summary>
     public const ushort KiHunterAcidInitialRightPreInstruction = (ushort)EnemyProjectilePreInstruction.KiHunterAcid_Right;
+    /// <summary>Normal Ninja Pirate OBJ palette slot value before its alternate coloring.</summary>
     public const ushort NinjaPiratePaletteNormal = 0x0200;
+    /// <summary>Sound effect queued for the Ninja Pirate's claw kick or dive.</summary>
     public const ushort NinjaPirateSoundClawKickOrDive = 0x0066;
+    /// <summary>Instruction pointer for Phantoon's body when its eye hitbox is active.</summary>
     public const ushort PhantoonEyeHitboxBodyInstruction = PhantoonInstructionProgramDefinitions.EyeHitboxBody;
+    /// <summary>Pre-instruction selected for Stoke's fireball projectile.</summary>
     public const ushort StokeProjectilePreInstruction = (ushort)EnemyProjectilePreInstruction.StokeFireball;
 
     extension(RoomEnemySystem)
@@ -2898,7 +2950,9 @@ internal static class RoomEnemySystemConstants
 /// <summary>Cartridge values of <see cref="RoomFxRomData.Earthquake"/> that only verification reads.</summary>
 internal static class RoomFxRomDataEarthquakeConstants
 {
+    /// <summary>Bank-$A0 table at $872D of BG displacement records for earthquake types.</summary>
     public const int BgDisplacementTableAddress = 0xa0872d;
+    /// <summary>Byte stride between consecutive earthquake displacement records.</summary>
     public const int BytesPerType = 8;
 
     extension(RoomFxRomData.Earthquake)
@@ -2934,6 +2988,7 @@ internal static class RoomFxRomDataLayer3AnimatedTilesConstants
 /// <summary>Cartridge values of <see cref="RoomFxRomData.Tables"/> that only verification reads.</summary>
 internal static class RoomFxRomDataTablesConstants
 {
+    /// <summary>Bank-$83 pointer table at $AC46 for each area's palette-FX object list.</summary>
     public const int AreaPaletteFxObjectListPointers = 0x83ac46;
 
     extension(RoomFxRomData.Tables)
@@ -3105,6 +3160,7 @@ internal static class RoomPaletteFxDefinitionsConstants
     public const ushort CinematicDefinitionsBegin = 0xe194;
     /// <summary>$8D:E200, final definition in the contiguous cinematic/Samus group.</summary>
     public const ushort CinematicDefinitionsEnd = 0xe200;
+    /// <summary>Each bank-$8D palette-FX definition stores a four-byte program header.</summary>
     public const int DefinitionByteCount = 4;
     /// <summary>$8D:F745, first definition in the contiguous room-effect group.</summary>
     public const ushort RoomDefinitionsBegin = 0xf745;
@@ -3141,6 +3197,7 @@ internal static class RoomPaletteFxDefinitionsConstants
 /// <summary>Cartridge values of <see cref="RoomPlmHeaderDefinitions"/> that only verification reads.</summary>
 internal static class RoomPlmHeaderDefinitionsConstants
 {
+    /// <summary>Number of retail PLM headers expected in the extracted header catalog.</summary>
     public const int RetailHeaderCount = 70;
 
     extension(RoomPlmHeaderDefinitions)
@@ -3166,6 +3223,7 @@ internal static class RoomPlmInstructionConstants
 /// <summary>Cartridge values of <see cref="RoomPlmPopulationDefinitions"/> that only verification reads.</summary>
 internal static class RoomPlmPopulationDefinitionsConstants
 {
+    /// <summary>Number of retail PLM population records expected in the extracted catalog.</summary>
     public const int RetailRecordCount = 941;
 
     extension(RoomPlmPopulationDefinitions)
@@ -3941,12 +3999,15 @@ internal static class SamusXrayRomDataWindowConstants
 /// <summary>Cartridge values of <see cref="SaveRamLayout"/> that only verification reads.</summary>
 internal static class SaveRamLayoutConstants
 {
+    /// <summary>Number of saved controller-button configuration words in each slot.</summary>
     public const int ButtonConfigWordCount = 11;
     /// <summary>Size of the unassigned $7E:D8F0-$7E:D8F7 allocation.</summary>
     public const int ProgressionPaddingByteCount = 8;
     /// <summary>Unassigned eight-byte SRAM-mirror allocation at $7E:D8F0-$7E:D8F7.</summary>
     public const int ProgressionPaddingWramAddress = OpenedDoorBitsWramAddress + Bank80SystemState.DoorBitByteCount;
+    /// <summary>Offset of the selected-slot complement immediately after its stored word.</summary>
     public const int SelectedSlotComplementOffset = SaveRamLayout.SelectedSlotOffset + WordByteCount;
+    /// <summary>Byte width of one little-endian SRAM layout word.</summary>
     public const int WordByteCount = 2;
     /// <summary>The SNES CPU-bus bank through which the cartridge exposes battery-backed SRAM.</summary>
     public const byte SramBank = 0x70;
@@ -4166,7 +4227,9 @@ internal static class SlopeHeightDefinitionsConstants
 /// <summary>Cartridge values of <see cref="SmCompressionFormat"/> that only verification reads.</summary>
 internal static class SmCompressionFormatConstants
 {
+    /// <summary>Maximum expanded byte count encoded by a long compression command.</summary>
     public const int MaximumLongLength = 1024;
+    /// <summary>Maximum expanded byte count encoded by a short compression command.</summary>
     public const int MaximumShortLength = 32;
 
     extension(SmCompressionFormat)
@@ -4220,6 +4283,7 @@ internal static class SpacetimeBeamCopyDefinitionsConstants
 /// <summary>Cartridge values of <see cref="SpcDriverData.Ram"/> that only verification reads.</summary>
 internal static class SpcDriverDataRamConstants
 {
+    /// <summary>SPC RAM pointer table at $5820 for uploaded music track starts.</summary>
     public const int MusicTrackPointerTable = 0x5820;
 
     extension(SpcDriverData.Ram)
@@ -4392,6 +4456,7 @@ internal static class TorizoFallingLeftInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="TorizoInstructionVramTransferDefinitions"/> that only verification reads.</summary>
 internal static class TorizoInstructionVramTransferDefinitionsConstants
 {
+    /// <summary>Bank $AA containing the Torizo instruction-controlled VRAM transfer records.</summary>
     public const byte Bank = 0xaa;
 
     extension(TorizoInstructionVramTransferDefinitions)
@@ -4404,6 +4469,7 @@ internal static class TorizoInstructionVramTransferDefinitionsConstants
 /// <summary>Cartridge values of <see cref="TorizoJumpBackInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class TorizoJumpBackInstructionProgramDefinitionsConstants
 {
+    /// <summary>First byte after the right-facing jump-back instruction list at $AA:C188.</summary>
     public const ushort End = 0xc188;
 
     extension(TorizoJumpBackInstructionProgramDefinitions)
@@ -4416,6 +4482,7 @@ internal static class TorizoJumpBackInstructionProgramDefinitionsConstants
 /// <summary>Cartridge values of <see cref="TorizoJumpBackLeftInstructionProgramDefinitions"/> that only verification reads.</summary>
 internal static class TorizoJumpBackLeftInstructionProgramDefinitionsConstants
 {
+    /// <summary>First byte after the left-facing jump-back instruction list at $AA:BD0E.</summary>
     public const ushort End = 0xbd0e;
 
     extension(TorizoJumpBackLeftInstructionProgramDefinitions)
@@ -4569,6 +4636,7 @@ internal static class WorkRobotPaletteTimingDefinitionsConstants
 /// <summary>Cartridge values of <see cref="WorkRobotVisualDefinitions"/> that only verification reads.</summary>
 internal static class WorkRobotVisualDefinitionsConstants
 {
+    /// <summary>Number of Work Robot animation images in its extracted visual sheet.</summary>
     public const int FrameCount = 27;
 
     extension(WorkRobotVisualDefinitions)

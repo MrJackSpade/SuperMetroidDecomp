@@ -154,7 +154,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
             "both real producers, four-stage close/open lifecycles, shared deletion, and " +
             "nine executed native sprite compositions pass with zero live operand reads.");
 
-        /// <summary>Creates an enemy system whose compiled gate and shared instruction bytes cannot be read from the cartridge.</summary>
+        // Create an enemy system whose compiled gate and shared instruction bytes cannot be read from the cartridge.
         RoomEnemySystem NewSystem()
         {
             var system = new RoomEnemySystem();
@@ -162,7 +162,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
             return system;
         }
 
-        /// <summary>Uses the real gate behavior producer to allocate a moving or already closed projectile.</summary>
+        // Use the real gate behavior producer to allocate a moving or already closed projectile.
         RoomEnemyProjectileSlot Spawn(
             RoomEnemySystem system,
             RoomEnemyProjectileKind kind)
@@ -176,14 +176,14 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
             return system.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
         }
 
-        /// <summary>Advances projectile instructions and checks the executed visual operand against installed artwork.</summary>
+        // Advance projectile instructions and check the executed visual operand against installed artwork.
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
             system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
 
-        /// <summary>Moves the gate one pixel per update and processes its instruction frame while it remains active.</summary>
+        // Move the gate one pixel per update and process its instruction frame while it remains active.
         void RunMovementFrames(
             RoomEnemySystem system,
             RoomEnemyProjectileSlot projectile,

@@ -130,6 +130,7 @@ public enum MotherBrainBrainFunction : ushort
 /// </summary>
 public sealed class MotherBrainEnemyState
 {
+    /// <summary>Starts the shared encounter state with the physical body slot before the head is attached.</summary>
     internal MotherBrainEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Physical slot zero, enemy definition <c>$EC7F</c>.</summary>
@@ -478,16 +479,21 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public ushort OnionRingsTargetAngle { get; internal set; }
 
+    /// <summary>Native parameter identities for the twelve turrets requested at room entry.</summary>
     private readonly ushort[] _initialTurretParameters = new ushort[12];
+    /// <summary>Music commands emitted during the current enemy frame.</summary>
     private readonly List<MotherBrainMusicRequest> _musicRequests = new();
+    /// <summary>Room block mutations requested during the current enemy frame.</summary>
     private readonly List<MotherBrainPlmRequest> _plmRequests = new();
 
+    /// <summary>Records all twelve turret parameter identities for encounter initialization.</summary>
     internal void RecordInitialTurretRequests()
     {
         for (ushort parameter = 0; parameter < _initialTurretParameters.Length; parameter++)
             _initialTurretParameters[parameter] = parameter;
     }
 
+    /// <summary>Clears one-frame encounter requests and diagnostic witnesses before AI advances.</summary>
     internal void BeginFrame()
     {
         _musicRequests.Clear();
@@ -502,9 +508,11 @@ public sealed class MotherBrainEnemyState
         LastRainbowBeamExplosion = null;
     }
 
+    /// <summary>Queues one typed music command with its authored delay for this frame.</summary>
     internal void RequestMusic(MusicCommand command, MusicCommandDelay delay) =>
         _musicRequests.Add(new MotherBrainMusicRequest(command, delay));
 
+    /// <summary>Queues a bank-$84 PLM spawn at a foreground room-block coordinate.</summary>
     internal void RequestPlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
         _plmRequests.Add(new MotherBrainPlmRequest(block, header));
 }

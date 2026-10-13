@@ -227,7 +227,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
             "both real producers, wall impact, and both floor branches pass with " +
             "mechanics bytes forbidden.");
 
-        /// <summary>Places a right-facing Golden Torizo at the fixture origin and returns its spawned eye beam.</summary>
+        // Place a right-facing Golden Torizo at the fixture origin and return its spawned eye beam.
         RoomEnemyProjectileSlot SpawnBeam(RoomEnemySystem enemies, Action<RoomEnemySystem, RoomEnemySlot, ushort> spawnMethod)
         {
             RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
@@ -237,7 +237,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
             return enemies.Projectiles.EnemyProjectiles[^1];
         }
 
-        /// <summary>Drives a downward beam into the fixture floor and checks its impact program and low-nibble alignment.</summary>
+        // Drive a downward beam into the fixture floor and check its impact program and low-nibble alignment.
         void CollideWithFloor(RoomEnemySystem enemies, RoomEnemyProjectileSlot beam)
         {
             beam.Position = beam.Position.WithWhole(new(128, 157));
@@ -254,13 +254,13 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
                 "Golden Torizo eye beam floor impact uses native low-nibble alignment");
         }
 
-        /// <summary>Advances one production projectile instruction frame and checks the selected sprite against retail art.</summary>
+        // Advance one production projectile instruction frame and check its sprite against retail art.
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile, SamusState? samus)
         {
             system.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
-        /// <summary>Creates a guarded Golden Torizo fixture with deterministic RNG and the selected floor-explosion attack flag.</summary>
+        // Create a guarded Golden Torizo fixture with deterministic RNG and the selected floor-explosion attack flag.
         RoomEnemySystem CreateSystem(
             ISnesAddressSpace bus,
             Queue<ushort> random,

@@ -553,6 +553,7 @@ public sealed class SamusHorizontalSpeedState
         SecondSpeedEchoPosition = second;
     }
 
+    /// <summary>Adds the native 16.16 extra-run increment while retaining separate WRAM whole and fractional words.</summary>
     private void AddExtraRunAcceleration()
     {
         uint accelerated = unchecked(SnesSixteenSixteen.Compose(ExtraRunSpeed, ExtraRunSubspeed) + SamusMovementRomData.HorizontalMotion.ExtraRunAcceleration);
@@ -560,6 +561,7 @@ public sealed class SamusHorizontalSpeedState
         ExtraRunSubspeed = unchecked((ushort)accelerated);
     }
 
+    /// <summary>Enables Speed Booster contact damage only at the fully charged counter's high-byte state.</summary>
     private void PublishBoostContactDamage()
     {
         if ((SnesLittleEndian.HighByteInPlace(SpeedBoostCounter)) == 0x0400)
@@ -763,6 +765,7 @@ public sealed class SamusHorizontalSpeedState
         return ReadEntryAtAddress(bus, address);
     }
 
+    /// <summary>Resolves authored speed records first, then permits only bank-$90 low-window mutable-memory aliases.</summary>
     private static SpeedTableEntry ReadEntryAtAddress(ISnesAddressSpace bus, int address)
     {
         if (SamusHorizontalMotionDefinitions.TryResolveIndexed(address, out SpeedTableEntry compiled) ||
@@ -804,6 +807,7 @@ public sealed class SamusHorizontalSpeedState
         return CalculateBaseSpeed(ReadEntryAtAddress(bus, address));
     }
 
+    /// <summary>Applies the table's acceleration or deceleration using native split-word arithmetic and updates base speed.</summary>
     private uint CalculateBaseSpeed(SpeedTableEntry entry)
     {
 
@@ -954,12 +958,14 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Current base speed as the native high-word/low-word unsigned 16.16 pair.</summary>
     public uint BaseFixed => SnesSixteenSixteen.Compose(BaseSpeed, BaseSubspeed);
 
+    /// <summary>Publishes a 16.16 result to the separate base-speed whole and fractional WRAM words.</summary>
     private void SetBaseFixed(uint value)
     {
         BaseSpeed = SnesFixedPosition.WholeOf(unchecked((int)value));
         BaseSubspeed = unchecked((ushort)value);
     }
 
+    /// <summary>Compares split words with the cartridge's signed subtraction and strict low-word tie rule.</summary>
     private static bool IsGreaterThanQuirked(
         ushort valueHigh,
         ushort valueLow,
@@ -973,6 +979,7 @@ public sealed class SamusHorizontalSpeedState
                (unchecked((short)(valueLow - comparisonLow)) >= 0 && valueLow != comparisonLow);
     }
 
+    /// <summary>Clamps the whole-pixel part to plus or minus fifteen while preserving fractional displacement.</summary>
     private static int ClampDisplacement(int displacement)
     {
         short high = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement)));

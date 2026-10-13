@@ -9,6 +9,7 @@ using SuperMetroid.Desktop;
 using static InstalledFileSelectMapVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed file-select map arrows against native timing and OAM, including editable art and overrides.</summary>
 internal static class MapArrowsVerification
 {
     /// <summary>Checks installed arrow timing and OAM against native output, then exercises edited art, serialization, and override validation.</summary>

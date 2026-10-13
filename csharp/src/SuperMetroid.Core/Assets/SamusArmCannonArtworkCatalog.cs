@@ -1024,6 +1024,7 @@ public static class SamusArmCannonArtworkFormat
         return selected >= 0;
     }
 
+    /// <summary>Selects the arm-cannon tile source for vertical, horizontal, or diagonal aim.</summary>
     private enum TileOrientation
     {
         /// <summary>$90:C7B9 selects vertical frames from $9A:9A00.</summary>

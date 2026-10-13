@@ -16,6 +16,7 @@ using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static LookupStream5Verification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks dead Tourian corpse control words and all eight initializer-to-sleep paths without live ROM reads.</summary>
 internal static class DeadTourianCorpseInstructionProgramDefinitionsVerification
 {
     /// <summary>Loads retail data and runs the dead Tourian corpse instruction suite.</summary>

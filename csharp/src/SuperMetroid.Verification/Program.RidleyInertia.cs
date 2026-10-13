@@ -15,6 +15,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Compares Ridley's Ceres and Norfair inertia tables with production acceleration.</summary>
 internal static class RidleyInertiaVerification
 {
     /// <summary>Compares Ceres and Norfair inertia bytes to the cartridge and probes production acceleration across signed distances.</summary>

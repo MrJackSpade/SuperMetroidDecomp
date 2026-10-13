@@ -210,6 +210,10 @@ public sealed class SamusXrayState
         return true;
     }
 
+    /// <summary>
+    /// Activates X-Ray's beam, frozen-time state, and subsystem suspensions during setup,
+    /// even if later pose arbitration denies X-Ray control of Samus.
+    /// </summary>
     private void BeginAdmittedBeam(bool facingLeft)
     {
         // `$91:E217-$E28A` runs inside XraySetup itself, before UpdateSamusPose
@@ -232,6 +236,10 @@ public sealed class SamusXrayState
         DeactivationSoundRequested = false;
     }
 
+    /// <summary>
+    /// Installs the X-Ray pose and animation, replaces competing movement and palette owners,
+    /// and requests the visor activation sound.
+    /// </summary>
     private void InstallSamusControl(ISnesAddressSpace bus, SamusState samus, SamusPoseId targetPose)
     {
         samus.Pose = targetPose;

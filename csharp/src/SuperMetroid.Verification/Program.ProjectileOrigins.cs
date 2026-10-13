@@ -61,6 +61,7 @@ internal static class ProjectileOriginsVerification
         Console.WriteLine("Projectile origins: forty native words and 343872 real position initializations cover all direction words, every pose, coordinate boundaries and adjacent cooldown reads with authored reads forbidden.");
     }
 
+    /// <summary>Forbids physical-origin table reads while substituting sprite presentation bytes to check their separation.</summary>
     [CpuBusBoundary("exact bus test: serves substitute presentation bytes ($90:C1A8-C203) while forbidding origin rows, proving physical origins ignore presentation data")]
     internal sealed class ProjectileOriginReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {

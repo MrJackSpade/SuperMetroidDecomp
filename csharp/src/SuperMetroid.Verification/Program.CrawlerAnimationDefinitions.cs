@@ -3,6 +3,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks crawler orientation tables and their live initialization and surface-switch selection.</summary>
 internal static class CrawlerAnimationDefinitionsVerification
 {
     /// <summary>Compares crawler orientation tables with cartridge words and production initial/surface instruction selection.</summary>

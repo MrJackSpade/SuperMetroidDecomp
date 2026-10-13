@@ -212,11 +212,11 @@ internal static class CrocomireBodyVisualsVerification
         Console.WriteLine(
             "  Crocomire body: 236 selectors, 50 mixed/pure OAM roots and 42 BG2 roots match native OAM and VRAM with visual ROM reads denied; BG2 edits obey the new-frame gate.");
 
-        /// <summary>Builds cartridge-based OAM and BG2 VRAM references for one selected body frame.</summary>
+        // Build cartridge-based OAM and BG2 VRAM references for one selected body frame.
         (OamBuffer Oam, byte[] Vram) DrawNative(ushort pointer, bool newFrame) =>
             (DrawReferenceExtendedFrame(rom, 0xa4, pointer, new(0x0080, 0x0080)),
                 ReadReferenceExtendedBg2Vram(rom, 0xa4, pointer, newFrame));
-        /// <summary>Draws one compiled Crocomire frame through production enemy presentation into fresh OAM and VRAM buffers.</summary>
+        // Draw one compiled Crocomire frame through production enemy presentation into fresh OAM and VRAM buffers.
         static (OamBuffer Oam, byte[] Vram) Draw(EnemyTileArtworkCatalog art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)
         {

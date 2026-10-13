@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Golden Torizo right-sonic control words, frame selectors, physical frames, and hitboxes in bank $AA.</summary>
 internal static class GoldenTorizoRightSonicDefinitionsVerification
 {
     /// <summary>Matches paired right-sonic control words, visual selectors, physical frames, and hitbox lists to bank $AA.</summary>

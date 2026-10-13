@@ -601,6 +601,7 @@ static TestAddressSpace CreateBreakableGrappleCartridge()
     return bus;
 }
 
+/// <summary>Seeds BTS-3 and BTS-6 bomb-block heads, shared bank-$84 tails, and draw records for collision checks.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for bomb-block PLM collision heads, tails and draw records")]
 static void SeedBombBlockPlmPrograms(TestAddressSpace bus)
 {
@@ -717,6 +718,7 @@ static void SeedAimedTransitionPoseDefinitions(
     ]);
 }
 
+/// <summary>Seeds native dry-air jump and gravity table-zero words for posture movement checks.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the dry-air jump and gravity table-zero words")]
 static void SeedDryAirJumpTableZero(TestAddressSpace bus)
 {

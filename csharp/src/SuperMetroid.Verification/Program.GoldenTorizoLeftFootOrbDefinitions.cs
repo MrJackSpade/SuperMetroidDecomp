@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Golden Torizo's left-foot orb control, visuals, collision frames, and hitbox lists against bank $AA.</summary>
 internal static class GoldenTorizoLeftFootOrbDefinitionsVerification
 {
     /// <summary>Matches the left-foot orb's compiled control words, visual selectors, collision frames, and hitbox lists to bank $AA.</summary>

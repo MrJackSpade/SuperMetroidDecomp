@@ -451,7 +451,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         }
     }
 
-    // `shake & 6` selects one of these four authored jitter offsets.
+    /// <summary>Four authored jitter offsets selected by the low shake-state bits.</summary>
     private static readonly Offset16<RoomPixels>[] MotherBrainShakeOffsets =
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
@@ -2800,6 +2800,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     /// <summary>Native laser-attack head list at <c>$A9:9F34</c>.</summary>
     private const ushort MotherBrainLaserHeadInstruction = 0x9f34;
 
+    /// <summary>Native X positions cycled when Mother Brain's ascent emits floor dust.</summary>
     private static readonly ushort[] MotherBrainAscentDustXPositions =
         [0x003d, 0x0054, 0x0020, 0x0035, 0x005a, 0x0043, 0x0067, 0x0029];
 
@@ -3704,7 +3705,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         state.HasBg2ScrollOverride = true;
         _room.Services.MotherBrain.SetBg2Scroll(scroll);
     }
-    // The six authored drool spawn offsets from the brain's centre.
+    /// <summary>Six authored drool spawn offsets from the brain's center.</summary>
     private static readonly Offset16<RoomPixels>[] MotherBrainDroolOffsets =
         [new(6, 20), new(14, 18), new(8, 23), new(10, 19), new(11, 25), new(12, 18)];
 

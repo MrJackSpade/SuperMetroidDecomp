@@ -10,6 +10,7 @@ using static IntroCinematicArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Checks installed intro Rinka sprites and flashback pixels against native artwork and palette overrides.</summary>
 internal static class IntroRinkaSpriteArtworkVerification
 {
     /// <summary>Draws a live intro actor from cartridge spritemap data with native origin clipping.</summary>

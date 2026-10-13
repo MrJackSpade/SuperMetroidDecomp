@@ -13,14 +13,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Baby Metroid's Mother Brain instruction mechanics against bank $A9 and presentation-code boundaries.</summary>
 internal static class MotherBrainBabyInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge and runs the Baby Metroid instruction mechanics checks.</summary>
     internal static void VerifyMotherBrainBabyInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMotherBrainBabyInstructionProgramDefinitions), () => VerifyMotherBrainBabyInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled words, rejects visual operands and adjacent callbacks, and probes allocation-free lookup.</summary>
     internal static void VerifyMotherBrainBabyInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -74,6 +77,7 @@ internal static class MotherBrainBabyInstructionProgramDefinitionsVerification
             "rejections, callback/adjacent-code rejection and allocation checks pass.");
     }
 
+    /// <summary>Repeatedly reads a live mechanics word to expose per-lookup allocation after warmup.</summary>
     private static int ProbeMotherBrainBabyInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -85,6 +89,7 @@ internal static class MotherBrainBabyInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Exposes the Mother Brain Baby mechanics check as a verification command.</summary>
     [VerificationCommand("--mother-brain-baby-instruction-mechanics")]
     internal static int MotherBrainBabyInstructionMechanicsCommand()
     {

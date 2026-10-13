@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(NorfairPipeBugInstructionProgramDefinitions))]
 internal abstract class NorfairPipeBugInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Counts Norfair pipe-bug instruction words compiled as mechanics.</summary>
     public static int MechanicsWordCount => NorfairPipeBugInstructionProgramDefinitions.MechanicsWordCount;
+    /// <summary>Returns a compiled pipe-bug word with its native address.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => NorfairPipeBugInstructionProgramDefinitions.MechanicsWord(index);
+    /// <summary>Counts eight rising and six flying visual records for each facing direction.</summary>
     public static int PresentationWordCount => 28;
     /// <summary>Each timed record interleaves its visual selector two bytes after duration.</summary>
     public static ushort PresentationWordAddress(int index)
@@ -22,6 +25,7 @@ internal abstract class NorfairPipeBugInstructionProgramDefinitionsTooling : IIn
             frame -= 8;
         return (ushort)((flying ? NorfairPipeBugInstructionProgramDefinitions.FlyingLeft : NorfairPipeBugInstructionProgramDefinitions.RisingLeft) + 64 * facing + 4 * frame + 2);
     }
+    /// <summary>Checks both bytes of compiled pipe-bug words in bank $B3.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xb30000)

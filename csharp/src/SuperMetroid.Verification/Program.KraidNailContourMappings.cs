@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Compares the bounded Kraid nail contour catalog with the original cartridge words.</summary>
 internal static class KraidNailContourMappingsVerification
 {
+    /// <summary>Checks all left-offset records and every relative Y selection against the native contour walk.</summary>
     internal static void VerifyKraidNailLeftOffsets(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(KraidNailLeftOffsetsRomByte(rom, address), KraidNailLeftOffsetsRomByte(rom, address + 1)));
@@ -26,9 +28,11 @@ internal static class KraidNailContourMappingsVerification
         }
     }
 
+    /// <summary>Reads a source byte for the independent Kraid nail left-offset oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail left offsets")]
     private static byte KraidNailLeftOffsetsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks the six compiled nail top boundaries and rejects out-of-range records.</summary>
     internal static void VerifyKraidNailTopBoundaries(SuperMetroidAddressSpace rom)
     {
         for (int record = 0; record < 6; record++)
@@ -41,6 +45,7 @@ internal static class KraidNailContourMappingsVerification
         AssertThrows<IndexOutOfRangeException>(() => KraidNailContour.TopAt(6), "Past nail top record");
     }
 
+    /// <summary>Reads a source byte for the independent Kraid nail top-boundary oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail top boundaries")]
     private static byte KraidNailTopBoundariesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

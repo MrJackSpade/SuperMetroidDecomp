@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(BombTorizoDroolInstructionProgramDefinitions))]
 internal abstract class BombTorizoDroolInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Counts the seven visual operand words excluded from the Bomb Torizo drool mechanics stream.</summary>
     public static int PresentationWordCount => BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates an indexed visual operand in the drool instruction stream.</summary>
     public static ushort PresentationWordAddress(int index) => BombTorizoDroolInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Counts the control words between drool stream start and floor impact, excluding visuals.</summary>
     public static int MechanicsWordCount => 19;
+    /// <summary>Walks the bounded drool stream to return an indexed control word and its native address.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -21,6 +25,7 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitionsTooling : II
         }
         throw new InvalidOperationException("Drool program word count does not match its layout.");
     }
+    /// <summary>Accepts control-word bytes within the drool stream while excluding seven presentation words.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;

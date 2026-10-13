@@ -5,11 +5,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Grapple species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class GrappleBehavior
 {
+    /// <summary>Provides interactive enemy order and wrapped main-AI dispatch.</summary>
     private readonly IEnemyDispatch _dispatch;
+    /// <summary>Guards endpoint checks until a room is loaded.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Resolves native enemy indexes to physical slots.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Starts the full generic death and drop sequence for grapple-killed enemies.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
+    /// <summary>Binds enemy ordering, room state, physical slots, and death handling.</summary>
     internal GrappleBehavior(IEnemyDispatch dispatch, EnemyRoomBinding room, EnemySlotTable slotTable, EnemyDeathsAndDrops deathsAndDrops)
     {
         _dispatch = dispatch;
@@ -143,14 +148,23 @@ internal sealed class GrappleBehavior
     /// </summary>
     internal sealed class GrappleWrappedAiFrame(IEnemyAiFrame frame) : IEnemyAiFrame
     {
+        /// <summary>Camera inherited from the current enemy update.</summary>
         public Position16<RoomPixels> Camera => frame.Camera;
+        /// <summary>Samus state visible to the wrapped main AI.</summary>
         public SamusState? Samus => frame.Samus;
+        /// <summary>New input edges inherited from the current update.</summary>
         public ushort NewlyPressedControllerInput => frame.NewlyPressedControllerInput;
+        /// <summary>Held controller word inherited from the current update.</summary>
         public ushort ControllerInput => frame.ControllerInput;
+        /// <summary>Current room collision data visible to wrapped main AI.</summary>
         public RoomLevelData? Level => frame.Level;
+        /// <summary>Unavailable projectile service in the common grapple wrapper.</summary>
         public SamusProjectileSystem? SamusProjectiles => null;
+        /// <summary>Unavailable Mode 7 transform in the common grapple wrapper.</summary>
         public SamusMode7Transform? Mode7Transform => null;
+        /// <summary>Unavailable shared bomb service in the common grapple wrapper.</summary>
         public SamusBombProjectileSystem? SharedProjectiles => null;
+        /// <summary>Unavailable VRAM queue in the common grapple wrapper.</summary>
         public VramWriteQueue? VramWriteQueue => null;
     }
 }

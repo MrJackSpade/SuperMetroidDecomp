@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 
+/// <summary>Checks installed X-ray block, item, and room overlay visuals against native records and live rendering.</summary>
 internal static class XrayRevealVisualInstallationVerification
 {
 

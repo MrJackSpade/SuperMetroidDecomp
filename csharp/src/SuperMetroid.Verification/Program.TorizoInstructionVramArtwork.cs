@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static class TorizoInstructionVramArtworkVerification
 {
+    /// <summary>Matches all Torizo transfer descriptors and bytes to cartridge data, then checks live PNG edits and rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo instruction VRAM artwork")]
     internal static void VerifyTorizoInstructionVramArtwork(
@@ -144,6 +145,7 @@ internal static class TorizoInstructionVramArtworkVerification
             "byte parity, live edit, reload, and invalid-asset rejection pass.");
     }
 
+    /// <summary>Rejects cartridge reads and CPU bus writes by installed Torizo tile transfers.</summary>
     private static CartridgeReadGuard NewForbiddenTorizoRomBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed Torizo transfer reread cartridge byte ${address:X6}.")

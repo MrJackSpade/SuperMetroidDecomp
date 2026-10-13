@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled room-shake vectors and the runtime's alternating background and projectile offsets.</summary>
 internal static class RoomShakeDefinitionsVerification
 {
+    /// <summary>Compares all rendered shake types, frozen behavior, and non-rendered timer preservation.</summary>
     internal static void VerifyRoomShakeDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRoomShakeBg1Algorithm), () => VerifyRoomShakeBg1Algorithm(rom));
@@ -73,18 +75,22 @@ internal static class RoomShakeDefinitionsVerification
             "Room shake definitions: all 216 native words and 144 real background/projectile phase selections pass with both source tables forbidden.");
     }
 
+    /// <summary>Compares BG1 displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeBg1Algorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg1ReferenceAddress, 8,
             definition => (definition.Bg1.X, definition.Bg1.Y), "BG1"));
 
+    /// <summary>Compares BG2 displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeBg2Algorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg2ReferenceAddress, 8,
             definition => (definition.Bg2.X, definition.Bg2.Y), "BG2"));
 
+    /// <summary>Compares enemy-projectile displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeProjectileAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.ProjectileReferenceAddress, 4,
             definition => (definition.Projectile.X, definition.Projectile.Y), "projectile"));
 
+    /// <summary>Checks one compiled vector field against all 36 native rows and rejects invalid type indices.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room shake vector")]
     private static void VerifyRoomShakeVector(SuperMetroidAddressSpace rom, int source, int stride,
         Func<RoomShakeDefinition, (short X, short Y)> select, string label)
@@ -97,6 +103,7 @@ internal static class RoomShakeDefinitionsVerification
         AssertThrows<InvalidDataException>(() => select(RoomShakeDefinitions.ForType(ushort.MaxValue)), $"Shake {label} invalid maximum");
     }
 
+    /// <summary>Forbids reads of the migrated background and projectile shake tables during runtime checks.</summary>
     private static CartridgeReadGuard NewRoomShakeReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa0872d and < 0xa0884d or
                 >= 0x86846b and < 0x8684fb,

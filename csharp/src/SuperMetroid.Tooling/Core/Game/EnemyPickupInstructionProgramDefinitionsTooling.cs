@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(EnemyPickupInstructionProgramDefinitions))]
 internal abstract class EnemyPickupInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Counts presentation operands across the enemy pickup instruction loops.</summary>
     public static int PresentationWordCount => EnemyPickupInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates an indexed pickup-loop presentation operand.</summary>
     public static ushort PresentationWordAddress(int index) => EnemyPickupInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Counts the compiled mechanics words across all five pickup loops.</summary>
     public static int MechanicsWordCount => 30;
+    /// <summary>Maps a flat mechanics index through the five pickup loops to its native word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -23,6 +27,7 @@ internal abstract class EnemyPickupInstructionProgramDefinitionsTooling : IInstr
         }
         throw new IndexOutOfRangeException();
     }
+    /// <summary>Checks either byte of a compiled pickup-loop word in the enemy-projectile bank.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

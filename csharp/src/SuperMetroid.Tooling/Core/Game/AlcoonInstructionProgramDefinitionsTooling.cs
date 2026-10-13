@@ -7,9 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(AlcoonInstructionProgramDefinitions))]
 internal abstract class AlcoonInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    // Each facing occupies112 bytes: walking28, three-shot volley72, two sleeping poses12.
+    /// <summary>Counts 34 compiled control words for each 112-byte facing program: walking, volley, and sleep.</summary>
     public static int MechanicsWordCount => 68;
+    /// <summary>Counts 22 visual operands for each of Alcoon's two facing programs.</summary>
     public static int PresentationWordCount => 44;
+    /// <summary>Maps a control word across walking, three-shot volley, and sleeping records for one facing.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -28,6 +30,7 @@ internal abstract class AlcoonInstructionProgramDefinitionsTooling : IInstructio
         ushort address = (ushort)(AlcoonInstructionProgramDefinitions.WalkingLeft + 112 * (index / 34) + offset);
         return new(address, AlcoonInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Locates a visual operand in an Alcoon walking, volley, or sleeping record.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -43,6 +46,7 @@ internal abstract class AlcoonInstructionProgramDefinitionsTooling : IInstructio
         else offset = frame == 19 ? 98 : 102 + 6 * (frame - 20);
         return (ushort)(AlcoonInstructionProgramDefinitions.WalkingLeft + 112 * (index / 22) + offset);
     }
+    /// <summary>Checks compiled control-word bytes across both bank-$A8 facing programs.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa80000) return false;

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Checks compiled X-ray block reveals against the native bank $91 lookup tables.</summary>
 internal static class XrayRevealVerification
 {
+    /// <summary>Compares all collision types and BTS bytes, including wildcard and explicit entries.</summary>
     internal static void VerifyXrayRevealTable()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -30,6 +32,7 @@ internal static class XrayRevealVerification
         Console.WriteLine("  X-ray reveal tables: all 4096 type/BTS definitions and operands match the cartridge; production lookup is ROM-independent.");
     }
 
+    /// <summary>Walks the original block-type, BTS, and command-pointer chains for one block.</summary>
     private static XrayRevealDefinition? ReadNativeXrayRevealDefinition(
         ISnesAddressSpace bus,
         RoomCollisionType type,
@@ -76,6 +79,7 @@ internal static class XrayRevealVerification
         }
     }
 
+    /// <summary>Reads a fixed-bank native table word, rejecting pointers outside bank $91's mapped range.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for native X-ray reveal words")]
     private static ushort ReadNativeXrayRevealWord(ISnesAddressSpace bus, int pointer)
     {

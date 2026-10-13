@@ -37,9 +37,13 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 internal sealed class GameOverBabyColorCatalog
 {
+    /// <summary>Independent Baby ink endpoints and otherwise unreferenced palette words.</summary>
     private readonly Dictionary<int, Bgr555> inputs = new();
+    /// <summary>Per-channel edits that differ from derived cry shades and ramps.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> differences = new();
+    /// <summary>Authored red endpoint for the closed-cry green ink.</summary>
     private readonly int greenCryRed;
+    /// <summary>Authored red endpoint for the closed-cry glass ink.</summary>
     private readonly int glassCryRed;
 
     /// <summary>Captures values from the four named palettes already validated by the presentation loader.</summary>
@@ -90,6 +94,7 @@ internal sealed class GameOverBabyColorCatalog
         }
     }
 
+    /// <summary>Reconstructs an ink from endpoints and phase relationships, then applies independent channel edits.</summary>
     internal Bgr555 Read(GameOverBabyPalette palette, int color)
     {
         _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
@@ -115,24 +120,31 @@ internal sealed class GameOverBabyColorCatalog
         return differences.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
 
+    /// <summary>Derives the brighter green ramp members from its darkest endpoint.</summary>
     private static Bgr555 GreenShade(Bgr555 darkest, int color) =>
         darkest.WithGreen(Math.Min(31, darkest.Green + (4 - color) * 5));
 
+    /// <summary>Adds warm red and reduces blue for a closed-cry organ or fang ink.</summary>
     private static Bgr555 WarmCry(Bgr555 idle) =>
         new(Math.Min(31, idle.Red + 5), idle.Green, Math.Max(0, idle.Blue - 5));
 
+    /// <summary>Raises cool glass inks while preserving the final highlight's red channel.</summary>
     private static Bgr555 CoolCry(Bgr555 idle, int ink) =>
         new(ink == 15 ? idle.Red : Math.Min(31, idle.Red + 5), Math.Min(31, idle.Green + 5), WarmCry(idle).Blue);
 
+    /// <summary>Uses the authored red endpoint for both red and blue of the bright green cry ink.</summary>
     private Bgr555 GreenCry(Bgr555 idle) =>
         new(greenCryRed, Math.Min(31, idle.Green + 5), greenCryRed);
 
+    /// <summary>Uses an independent red endpoint with Idle green shared into green and blue.</summary>
     private Bgr555 GlassCry(Bgr555 idle) =>
         new(glassCryRed, idle.Green, idle.Green);
 
+    /// <summary>Floors the componentwise midpoint between adjacent bright and dark inks.</summary>
     private static Bgr555 MiddleShade(Bgr555 bright, Bgr555 dark) =>
         bright.Zip(dark, (_, light, shadow) => (light + shadow) / 2);
 
+    /// <summary>Brightens a prior cry phase while preserving fang red and capping glass below its glint.</summary>
     private static Bgr555 CryShade(Bgr555 previous, GameOverBabyPalette palette, int ink, Bgr555 highlight)
     {
         Bgr555 bright = Brighten(previous, 3);

@@ -16,6 +16,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class PaletteDefinitionAudit
 {
+    /// <summary>Checks every recognized palette-FX color pointer against exported identities and records coverage gaps.</summary>
     public static void Run(string root, ResourceIndex exports, AuditReport report)
     {
         InstallColorIdentities(exports);
@@ -73,6 +74,7 @@ internal static class PaletteDefinitionAudit
             exports.Count(ResourceDomains.PaletteFx)));
     }
 
+    /// <summary>Imports palette colors through a recording source and installs all loader-selected pointer identities.</summary>
     internal static void InstallColorIdentities(ResourceIndex exports)
     {
         SyntheticCartridge recorder = ColorAddressRecorder();
@@ -91,11 +93,13 @@ internal static class PaletteDefinitionAudit
             exports.Add(ResourceDomains.PaletteFx, ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, pointer));
     }
 
+    /// <summary>Recognizes two-index color-pointer methods returning a bank-local word address.</summary>
     private static bool IsColorMethod(MethodInfo method) =>
         method.Name.EndsWith("ColorPointer", StringComparison.Ordinal) && method.ReturnType == typeof(ushort) &&
         method.GetParameters() is [{ ParameterType: var first }, { ParameterType: var second }] &&
         first == typeof(int) && second == typeof(int);
 
+    /// <summary>Enumerates finite frame and color bounds for one reflected palette catalog method.</summary>
     private static bool CheckColorMethod(Type rowType, object? row, MethodInfo method, string prefix,
         PaletteCatalogAudit audit)
     {
@@ -123,6 +127,7 @@ internal static class PaletteDefinitionAudit
         return true;
     }
 
+    /// <summary>Finds a reflected frame or color count on the row or its catalog type.</summary>
     private static int? ReadCount(Type type, object? row, string name)
     {
         const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
@@ -130,6 +135,7 @@ internal static class PaletteDefinitionAudit
         return value is int count ? count : null;
     }
 
+    /// <summary>Locates a palette catalog in Core or Tooling for audit findings.</summary>
     private static string FindSource(string root, string name)
     {
         string path = Path.Combine(root, "csharp/src/SuperMetroid.Core/Game", name + ".cs");

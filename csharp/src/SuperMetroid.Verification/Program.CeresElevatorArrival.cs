@@ -82,6 +82,7 @@ internal static class CeresElevatorArrivalVerification
             "  Ceres elevator: definitions/programs match cartridge data, run without bank-$86 reads, and retain native graphics/landing behavior.");
     }
 
+    /// <summary>Matches compiled arrival projectiles and their instruction words to the retail bank-$86 source.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres elevator arrival definitions")]
     private static void VerifyCompiledDefinitions(ISnesAddressSpace rom)
     {
@@ -127,11 +128,13 @@ internal static class CeresElevatorArrivalVerification
         }
     }
 
+    /// <summary>Forbids compiled Ceres arrival definition and instruction bytes during playback.</summary>
     private static CartridgeReadGuard NewCeresArrivalDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x86a28b and < 0x86a2a1 or >= 0x86a387 and < 0x86a3a3,
                 address => $"Ceres arrival read compiled bank-$86 byte ${address:X6}.");
 
+    /// <summary>Runs the Ceres elevator arrival graphics-index and landing checks.</summary>
     [VerificationCommand("--ceres-elevator-arrival-definitions")]
     internal static int CeresElevatorArrivalDefinitionsCommand()
     {

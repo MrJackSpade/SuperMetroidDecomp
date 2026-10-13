@@ -12,6 +12,7 @@ using static VerificationHelpersVerification;
 
 internal static class SaveSchemaTranslationVerification
 {
+    /// <summary>Checks named schema-two save state, legacy import precedence, strict failures, and backed-up file upgrade.</summary>
     internal static void VerifySaveSchemaTranslation()
     {
         // Isolated arrays only; no player save file is read or changed.
@@ -96,6 +97,7 @@ internal static class SaveSchemaTranslationVerification
         finally { Directory.Delete(fixtureDirectory, recursive: true); }
         Console.WriteLine("Schema two: named missing state, runtime restoration, legacy JSON conversion, precedence, padding removal, strict failures and backed-up upgrade pass.");
     }
+    /// <summary>Confirms translated completion and item-load fields are consumed by the live frontend.</summary>
     private static void VerifyNamedSaveRuntime(SuperMetroidAddressSpace bus, SuperMetroidSaveRam ram)
     {
         // Confirm the translated completion bit is consumed and produced by the frontend.

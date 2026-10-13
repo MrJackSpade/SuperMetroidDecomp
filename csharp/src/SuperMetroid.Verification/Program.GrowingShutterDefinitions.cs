@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks bank $A2 growing-shutter selectors and speed records through the actual enemy initializer.</summary>
 internal static class GrowingShutterDefinitionsVerification
 {
+    /// <summary>Compares native words and all valid initializer combinations, including wrapped section origins.</summary>
     internal static void VerifyCompiledGrowingShutters(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGrowingShutterInitialSelection), () => VerifyGrowingShutterInitialSelection(rom));
@@ -43,8 +45,10 @@ internal static class GrowingShutterDefinitionsVerification
         Console.WriteLine("Growing shutter definitions: 52 native words, 24576 real initializers and wrapped section origins match without a bus.");
     }
 
+    /// <summary>Reads cartridge bytes used as the compiled shutter comparison oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled growing shutters")]
     private static byte CompiledGrowingShuttersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    /// <summary>Checks all four native initial dispatch pointers and rejects out-of-range selectors.</summary>
     private static void VerifyGrowingShutterInitialSelection(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 4; index++)
@@ -59,15 +63,19 @@ internal static class GrowingShutterDefinitionsVerification
                 "growing shutter initial selector rejects invalid full-width inputs");
     }
 
+    /// <summary>Reads a native initial dispatch pointer byte for selector verification.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for growing shutter initial selection")]
     private static byte GrowingShutterInitialSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks signed whole-pixel shutter velocities across high-byte selector aliases.</summary>
     private static void VerifyGrowingShutterWholeSpeed(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrowingShutterSpeedField), () => VerifyGrowingShutterSpeedField(rom, fractional: false));
 
+    /// <summary>Checks unsigned fractional shutter velocities across high-byte selector aliases.</summary>
     private static void VerifyGrowingShutterFractionalSpeed(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrowingShutterSpeedField), () => VerifyGrowingShutterSpeedField(rom, fractional: true));
 
+    /// <summary>Compares one native speed word for each authored index and rejects invalid low bytes.</summary>
     private static void VerifyGrowingShutterSpeedField(SuperMetroidAddressSpace rom, bool fractional)
     {
         for (int index = 0; index < 24; index++)
@@ -89,6 +97,7 @@ internal static class GrowingShutterDefinitionsVerification
                     "growing shutter speed rejects out-of-domain low bytes regardless of high byte");
     }
 
+    /// <summary>Reads a native velocity byte for the shutter speed-field comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for growing shutter speed field")]
     private static byte GrowingShutterSpeedFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

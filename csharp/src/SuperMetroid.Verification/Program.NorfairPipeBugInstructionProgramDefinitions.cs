@@ -16,12 +16,14 @@ using static SuiteTimingVerification;
 
 internal static class NorfairPipeBugInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail data and runs the Norfair Pipe Bug instruction suite.</summary>
     internal static void VerifyNorfairPipeBugInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNorfairPipeBugInstructionProgramDefinitions), () => VerifyNorfairPipeBugInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Matches compiled words and four live rising/flying loops while guarding source mechanics and presentation reads.</summary>
     internal static void VerifyNorfairPipeBugInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -124,6 +126,7 @@ internal static class NorfairPipeBugInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeatedly resolves a live rising-list word to measure warmed lookup allocation.</summary>
     private static int ProbeNorfairPipeBugInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -135,6 +138,7 @@ internal static class NorfairPipeBugInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Runs the Norfair Pipe Bug instruction mechanics verification command.</summary>
     [VerificationCommand("--norfair-pipe-bug-instruction-mechanics")]
     internal static int NorfairPipeBugInstructionMechanicsCommand()
     {

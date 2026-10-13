@@ -22,8 +22,10 @@ internal abstract class GoldenTorizoLeftTurnInstructionProgramDefinitions : IIns
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
+    /// <summary>Exposes bank $AA to the tooling catalog interface.</summary>
     static int IDeclaredProgramBank.Bank => Bank;
 
+    /// <summary>Preserves both left-turn entry points, control operations, and visual slots in native order.</summary>
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd1f1),
         Entry(Dodge),
@@ -38,14 +40,19 @@ internal abstract class GoldenTorizoLeftTurnInstructionProgramDefinitions : IIns
         Op((ushort)TorizoInstruction.Instruction_Torizo_SetTorizoTurningAroundFlag),
         Frame(8));
 
+    /// <summary>Counts control words compiled from the dodge-turn and ordinary left-turn lists.</summary>
     public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    /// <summary>Returns a compiled left-turn control word with its bank address.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
+    /// <summary>Counts the two visual operands shared by the left-turn lists.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Locates an indexed left-turn visual operand in bank $AA.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Checks whether a native byte belongs to compiled left-turn mechanics.</summary>
     public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

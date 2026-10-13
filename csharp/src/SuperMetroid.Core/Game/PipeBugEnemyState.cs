@@ -65,8 +65,10 @@ public enum PipeBugEnemyFunction : ushort
 /// </summary>
 public sealed class PipeBugEnemyState
 {
+    /// <summary>Physical enemy record whose A-F words are shared by the three Pipe Bug variants.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Captures the original enemy identity before generic death can clear its live definition word.</summary>
     internal PipeBugEnemyState(RoomEnemySlot slot)
     {
         _slot = slot;

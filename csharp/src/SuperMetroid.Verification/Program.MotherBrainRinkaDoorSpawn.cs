@@ -14,13 +14,14 @@ using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Reproduces special Rinka placement during the door scroll into Mother Brain's room.</summary>
 internal static class MotherBrainRinkaDoorSpawnVerification
 {
-    // #1269: Mother Brain's room Rinkas choose spawn points against layer 1 ($A2:B69B). The
-    // door loader initializes them while the door IRQ is still scrolling; in the 100% movie
-    // it reaches them with layer 1 at X $38C, where only the $3E7 points are on screen, so
-    // the third Rinka falls back to the first free point. The port chose against the
-    // finished camera ($300), where every point is on screen.
+    /// <summary>
+    /// Confirms $A2:B69B chooses spawn points against layer 1 during door scrolling.
+    /// At camera X $38C, only the $3E7 points are visible and the third Rinka
+    /// falls back to the first free point; the finished X $300 view differs.
+    /// </summary>
     internal static void VerifyMotherBrainRinkaDoorSpawn()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -78,9 +79,11 @@ internal static class MotherBrainRinkaDoorSpawnVerification
     /// <summary>Reports every enemy initialized once the door scroll has reached a layer-1 X.</summary>
     internal sealed class CameraReachedLoaderProgress(SuperMetroidRuntime runtime, ushort cameraX) : IDoorLoaderProgressSource
     {
+        /// <summary>Allows enemy initialization once scrolling reaches the recorded layer-1 X.</summary>
         public bool HasInitializedEnemySlot(int slot) => runtime.Room.Camera!.PixelPosition.X <= cameraX;
     }
 
+    /// <summary>Runs the focused scrolling-camera Rinka spawn check.</summary>
     [VerificationCommand("--mother-brain-rinka-door-spawn")]
     internal static int MotherBrainRinkaDoorSpawnCommand()
     {

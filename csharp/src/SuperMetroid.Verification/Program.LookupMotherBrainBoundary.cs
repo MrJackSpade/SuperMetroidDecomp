@@ -3,8 +3,10 @@ using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Cross-checks Mother Brain fake-death wall and door draw records against bank $84.</summary>
 internal static class LookupMotherBrainBoundaryVerification
 {
+    /// <summary>Checks pointer ownership, two-run geometry, and bounds for the wall and door boundary records.</summary>
     internal static void VerifyMotherBrainBoundaryGeometry(SuperMetroidAddressSpace rom)
     {
         var exports = MotherBrainFakeDeathPlmDrawDefinitions.All.Take(2).ToArray();
@@ -53,18 +55,23 @@ internal static class LookupMotherBrainBoundaryVerification
         }
     }
 
+    /// <summary>Reads native boundary bytes for the geometry comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain boundary geometry")]
     private static byte MotherBrainBoundaryGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Compares collision bits in both boundary records with native block words.</summary>
     internal static void VerifyMotherBrainBoundaryCollision(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 0));
 
+    /// <summary>Compares visual bits of the fake-death wall record with native block words.</summary>
     internal static void VerifyMotherBrainWallVisuals(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 1));
 
+    /// <summary>Compares visual bits of the fake-death door record with native block words.</summary>
     internal static void VerifyMotherBrainDoorVisuals(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 2));
 
+    /// <summary>Checks the selected collision or visual field of each native boundary cell.</summary>
     private static void VerifyMotherBrainBoundaryCells(SuperMetroidAddressSpace rom, int field)
     {
         foreach (ushort pointer in new ushort[] {0x94a3,0x94b1})

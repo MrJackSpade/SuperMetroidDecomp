@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(RioInstructionProgramDefinitions))]
 internal abstract class RioInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Counts Rio instruction words compiled as enemy mechanics.</summary>
     public static int MechanicsWordCount => RioInstructionProgramDefinitions.MechanicsWordCount;
+    /// <summary>Returns a compiled Rio word with its cartridge address.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => RioInstructionProgramDefinitions.MechanicsWord(index);
+    /// <summary>Counts Rio presentation operands kept as visual data.</summary>
     public static int PresentationWordCount => RioInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates an indexed Rio presentation word in its native program.</summary>
     public static ushort PresentationWordAddress(int index) => RioInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Checks both bytes of each compiled Rio mechanics word in bank $A2.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000)

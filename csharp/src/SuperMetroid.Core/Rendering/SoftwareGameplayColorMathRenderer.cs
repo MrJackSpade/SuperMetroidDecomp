@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("backend: software PPU gameplay colour-math compositor")]
 public static class SoftwareGameplayColorMathRenderer
 {
+    /// <summary>Renders gameplay color math using pooled OBJ and priority scratch arrays.</summary>
     internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,
         byte objectSelection, Rgba32[]? outputBuffer)
     {
@@ -32,6 +33,7 @@ public static class SoftwareGameplayColorMathRenderer
         finally { ArrayPool<Rgba32>.Shared.Return(objects); }
     }
 
+    /// <summary>Resolves Mode-1 main layers, reveal windows, subscreen operands, and fixed-color arithmetic per pixel.</summary>
     private static Rgba32[] RenderWithScratch(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,
         byte objectSelection, Rgba32[] output, Rgba32[] objects, byte[] priorities, byte[] palettes)
     {

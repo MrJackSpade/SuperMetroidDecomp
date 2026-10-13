@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Shitroid's compiled animation controls, remorse branches, cry, and installed visual selections.</summary>
 internal static class ShitroidInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the Shitroid program comparison.</summary>
     internal static void VerifyShitroidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyShitroidInstructionProgramDefinitions), () => VerifyShitroidInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises drain fallthrough, normal and latched loops, and both random remorse paths without mechanics reads.</summary>
     internal static void VerifyShitroidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -122,6 +125,7 @@ internal static class ShitroidInstructionProgramDefinitionsVerification
             "bytes forbidden and zero live visual operand reads.");
     }
 
+    /// <summary>Forces one program through the live interpreter and records each selected native visual operand.</summary>
     private static void ExecuteShitroidProgram(SuperMetroidAddressSpace rom, HashSet<ushort> executedOperands, ShitroidInterpreter interpreter, RoomEnemySlot shitroid, ushort program, int callCount)
     {
         shitroid.CurrentInstruction = program;
@@ -139,6 +143,7 @@ internal static class ShitroidInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates normal and remorse control words to detect warmed lookup allocations.</summary>
     private static int ProbeShitroidInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -152,12 +157,14 @@ internal static class ShitroidInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Blocks migrated bank-$A9 mechanics and records visual operand reads.</summary>
     private static CartridgeReadGuard NewShitroidInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(ShitroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Shitroid mechanics byte ${address:X6}.")
             .ObserveWords(0xa90000, ShitroidInstructionProgramDefinitions.PresentationWordCount, ShitroidInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the focused Shitroid instruction check against the retail ROM.</summary>
     [VerificationCommand("--shitroid-instruction-mechanics")]
     internal static int ShitroidInstructionMechanicsCommand()
     {

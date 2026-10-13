@@ -23,8 +23,9 @@ public sealed class MagdollitePaletteCycle
             }
         });
 
-    // The four independent glow colors remain required artwork under issue1165.
+    /// <summary>Four independently authored glow colors underlying the native row rotations.</summary>
     private readonly Bgr555[] colors;
+    /// <summary>Later-row cells that differ from the native rotation of the first row.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
     /// <summary>
@@ -41,6 +42,7 @@ public sealed class MagdollitePaletteCycle
                 edits.Add(frame * colors.Length + color, frames[frame][color]);
     }
 
+    /// <summary>Strict camel-case options for the editable glow-cycle document.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -137,6 +139,7 @@ public sealed class MagdollitePaletteCycle
         return bytes;
     }
 
+    /// <summary>Rejects repeated properties before JSON deserialization can replace an authored color row.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Magdollite palette property {name}."));

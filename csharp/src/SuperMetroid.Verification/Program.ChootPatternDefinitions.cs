@@ -17,6 +17,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static class ChootPatternDefinitionsVerification
 {
+    /// <summary>Checks five Choot path sources, initializers, complete fall loops, and invalid pattern indexes.</summary>
     internal static void VerifyChootPatternDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
@@ -142,11 +143,13 @@ internal static class ChootPatternDefinitionsVerification
             "Choot pattern definitions: five selectors/distances, all 450 physical path frames, twenty initializers, and five complete fall loops pass with every source read forbidden.");
     }
 
+    /// <summary>Forbids Choot's bank-$A2 falling paths and pattern selector tables during live behavior.</summary>
     private static CartridgeReadGuard NewChootPatternReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa2d84c and < 0xa2df74,
                 address => $"Choot attempted migrated pattern-definition read ${address:X6}.");
 
+    /// <summary>Runs the Choot pattern definition verification suite.</summary>
     [VerificationCommand("--choot-pattern-definitions")]
     internal static int ChootPatternDefinitionsCommand()
     {

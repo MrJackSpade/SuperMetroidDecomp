@@ -12,9 +12,12 @@ namespace SuperMetroid.ResourceAudit;
 internal sealed class FinitePresentationNameFlow(Compilation compilation,
     Func<IOperation, string[]?> directConstants)
 {
+    /// <summary>Symbols currently being resolved; revisiting one marks recursive flow unknown.</summary>
     private readonly HashSet<ISymbol> active = new(SymbolEqualityComparer.Default);
+    /// <summary>Resolved finite names or an unknown result for each examined symbol.</summary>
     private readonly Dictionary<ISymbol, string[]?> known = new(SymbolEqualityComparer.Default);
 
+    /// <summary>Traces finite string choices through constants, branches, private symbols, and expression-bodied helpers.</summary>
     internal string[]? Resolve(IOperation operation)
     {
         if (directConstants(operation) is { } direct) return direct;
@@ -54,6 +57,7 @@ internal sealed class FinitePresentationNameFlow(Compilation compilation,
         return null;
     }
 
+    /// <summary>Combines a symbol's initializer and all closed writes or private call arguments.</summary>
     private string[]? SymbolValues(ISymbol symbol)
     {
         if (known.TryGetValue(symbol, out string[]? cached)) return cached;
@@ -119,17 +123,21 @@ internal sealed class FinitePresentationNameFlow(Compilation compilation,
         string[]? Cache(string[]? values) { known[symbol] = values; return values; }
     }
 
+    /// <summary>Finds semantically matching identifiers across the compilation's source trees.</summary>
     private IEnumerable<IdentifierNameSyntax> References(ISymbol symbol) => compilation.SyntaxTrees
         .SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
             .Where(name => name.Identifier.ValueText == symbol.Name)
             .Where(name => SymbolEqualityComparer.Default.Equals(
                 compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol?.OriginalDefinition, symbol.OriginalDefinition)));
 
+    /// <summary>Gets the bound operation for a source syntax node.</summary>
     private IOperation? Operation(SyntaxNode syntax) => compilation.GetSemanticModel(syntax.SyntaxTree).GetOperation(syntax);
 
+    /// <summary>Excludes throw-only switch arms from the finite value set.</summary>
     private static bool Throws(IOperation operation) => operation is IThrowOperation ||
         operation is IConversionOperation conversion && Throws(conversion.Operand);
 
+    /// <summary>Merges known nonempty name sets in stable order; any unknown branch makes the union unknown.</summary>
     private static string[]? Union(IEnumerable<string[]?> sets)
     {
         var values = new HashSet<string>(StringComparer.Ordinal);

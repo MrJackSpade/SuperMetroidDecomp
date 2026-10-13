@@ -211,6 +211,7 @@ public sealed class SamusDraygonGrabbedState
         return published;
     }
 
+    /// <summary>Rejects escape-handler calls before Draygon installs Samus's grab state.</summary>
     private void EnsureActiveGrabbedPose()
     {
         if (!IsActive)
@@ -223,6 +224,7 @@ public sealed class SamusDraygonGrabbedState
         // and movement handler. Crystal Flash can replace both while still held.
     }
 
+    /// <summary>Requires one of the native grabbed pose families before running movement type $1A.</summary>
     private static void EnsureGrabbedPose(SamusState samus)
     {
         if (!SamusPoseMetadata.IsDraygonGrabbedPose(samus.Pose))

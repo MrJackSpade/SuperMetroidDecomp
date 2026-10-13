@@ -21,10 +21,12 @@ public sealed class CrocomireColorCatalog
         Append(content, Band.WallSpikes, "wallSpikes");
     });
 
+    /// <summary>Five native transfer roles whose overlapping stock sources stay independently editable.</summary>
     private enum Band { FightBody, InitialWall, InitialProjectile, SkeletonArm, WallSpikes }
-    // Only independently supplied differences are stored; every stock ink calculates.
+    /// <summary>Independently supplied differences; every unedited stock ink is calculated.</summary>
     private readonly Dictionary<(Band Band, int Color), Bgr555> edits = [];
 
+    /// <summary>Retains only colors that differ from their calculated native material paint.</summary>
     private CrocomireColorCatalog(Bgr555[] fightBody, Bgr555[] initialWall,
         Bgr555[] initialProjectile, Bgr555[] skeletonArm, Bgr555[] wallSpikes)
     {
@@ -45,6 +47,7 @@ public sealed class CrocomireColorCatalog
         Band.WallSpikes => CrocomirePaintDefinitions.WallSpikes(color),
         _ => throw new ArgumentOutOfRangeException(nameof(band)),
     };
+    /// <summary>Chooses the native transfer length for one Crocomire material role.</summary>
     private static int Count(Band band) => band switch
     {
         Band.FightBody => CrocomirePaletteRomData.FightBodyCount,
@@ -55,12 +58,14 @@ public sealed class CrocomireColorCatalog
         _ => throw new ArgumentOutOfRangeException(nameof(band)),
     };
 
+    /// <summary>Hashes a complete resolved transfer in native color order.</summary>
     private void Append(SelectedPresentationHash content, Band band, string label)
     {
         Span<Bgr555> transfer = stackalloc Bgr555[Count(band)];
         for (int color = 0; color < transfer.Length; color++) transfer[color] = Get(band, color);
         content.AppendColors(label, transfer);
     }
+    /// <summary>Strict camel-case JSON options for the editable palette document.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -127,17 +132,20 @@ public sealed class CrocomireColorCatalog
         return bytes;
     }
 
+    /// <summary>Returns an edited color or calculates the corresponding native stock paint.</summary>
     private Bgr555 Get(Band band, int index)
     {
         if ((uint)index >= Count(band)) throw new ArgumentOutOfRangeException(nameof(index));
         return edits.TryGetValue((band, index), out Bgr555 edited) ? edited : Stock(band, index);
     }
 
+    /// <summary>Writes one complete material band to its selected CGRAM destination.</summary>
     private void Apply(CgramPalette destination, Band band)
     {
         for (int color = 0; color < Count(band); color++)
             destination.Write(color, Get(band, color));
     }
+    /// <summary>Validates a band's length and RGB5 range before packing its color words.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -155,6 +163,7 @@ public sealed class CrocomireColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects ambiguous property names before deserializing the palette document.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Crocomire color property {name}."));

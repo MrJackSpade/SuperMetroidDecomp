@@ -3,18 +3,24 @@
 /// <summary>The Polyp species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class PolypBehavior : IEnemySpecies
 {
+    /// <summary>Provides the shared room RNG and enemy state used by all Polyp actors.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Allocates rock projectile slots when a Polyp launches.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Binds the Polyp species to one room's enemies and projectile pool.</summary>
     internal PolypBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;
         _projectiles = projectiles;
     }
 
+    /// <summary>Samus must be within 64 pixels on each axis to trigger a launch.</summary>
     private const ushort PolypProximity = 0x0040;
+    /// <summary>Each Polyp initializer resets the shared enemy random seed to $0011.</summary>
     private const ushort PolypRandomSeed = 0x0011;
 
+    /// <summary>Slot-indexed function and cooldown state for the active room's Polyp actors.</summary>
     internal readonly PolypEnemyState?[] _polypStates =
         new PolypEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -105,10 +111,12 @@ internal sealed class PolypBehavior : IEnemySpecies
         return unchecked((short)(magnitude - PolypProximity)) < 0;
     }
 
+    /// <summary>Rejects a main-AI dispatch before its slot has received Polyp initialization.</summary>
     private PolypEnemyState RequirePolypState(RoomEnemySlot slot) =>
         _polypStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Polyp state.");
 
+    /// <summary>Routes Polyp rock projectiles through their rise, fall, and viewport-culling routine.</summary>
     internal static void RegisterPolypProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -118,6 +126,7 @@ internal sealed class PolypBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.PolypRock);
     }
 
+    /// <summary>Associates the lava-rock enemy definition with Polyp slot initialization.</summary>
     internal void RegisterPolypInitializationAi(EnemyAiTable table)
     {
 
@@ -127,6 +136,7 @@ internal sealed class PolypBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Dispatches lava-rock enemy frames to the slot's current Polyp function.</summary>
     internal void RegisterPolypMainAi(EnemyAiTable table)
     {
 
@@ -135,9 +145,12 @@ internal sealed class PolypBehavior : IEnemySpecies
             RunPolypMain(slot, RequirePolypState(slot), frame.Samus);
         });
     }
+    /// <summary>Native projectile pre-instruction installed on each launched rock.</summary>
     private const ushort PolypRockPreInstruction =
         (ushort)EnemyProjectilePreInstruction.PolypRock;
+    /// <summary>Each rock frame advances the quadratic speed-table index by two records.</summary>
     private const ushort PolypRockGravityStep = 2;
+    /// <summary>Falling rocks stop accelerating at the native $0040 speed index.</summary>
     private const ushort PolypRockTerminalSpeedIndex = 0x0040;
 
     /// <summary>
@@ -185,6 +198,7 @@ internal sealed class PolypBehavior : IEnemySpecies
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
     }
 
+    /// <summary>Integrates two upward quadratic samples unless the apex consumes this frame.</summary>
     private static void StepRisingPolypRock(RoomEnemyProjectileSlot projectile)
     {
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
@@ -209,6 +223,7 @@ internal sealed class PolypBehavior : IEnemySpecies
         MovePolypRockHorizontally(projectile);
     }
 
+    /// <summary>Clamps downward speed and integrates two positive quadratic samples per frame.</summary>
     private static void StepFallingPolypRock(RoomEnemyProjectileSlot projectile)
     {
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(

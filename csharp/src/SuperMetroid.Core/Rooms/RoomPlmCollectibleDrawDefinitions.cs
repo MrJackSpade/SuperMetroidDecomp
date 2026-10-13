@@ -27,6 +27,7 @@ internal static class RoomPlmCollectibleDrawDefinitions
     /// <summary>Dynamic-item second-frame selector table at $84:E077.</summary>
     internal const ushort DynamicFrame1Table = 0xe077;
 
+    /// <summary>Enumerates all 24 collectible one-cell draw lists in native address order.</summary>
     internal static IEnumerable<RoomPlmCollectibleDrawFrame> All
     {
         get
@@ -63,10 +64,26 @@ internal static class RoomPlmCollectibleDrawDefinitions
     }
 
     /// <summary>The six draw-list groups in address order; holes between them are not draw lists.</summary>
-    private enum DrawGroup { Empty, Orb, OrbBurst, Tank, Dynamic, ShotReveal }
+    private enum DrawGroup
+    {
+        /// <summary>Air tile after an item is removed.</summary>
+        Empty,
+        /// <summary>Three shootable Chozo orb animation frames.</summary>
+        Orb,
+        /// <summary>Solid burst frame when a Chozo orb opens.</summary>
+        OrbBurst,
+        /// <summary>Two visible frames for each of four tank pickup kinds.</summary>
+        Tank,
+        /// <summary>Two frames for each dynamically allocated item graphics slot.</summary>
+        Dynamic,
+        /// <summary>Three solid frames of a shot-block item reveal.</summary>
+        ShotReveal,
+    }
 
+    /// <summary>Stable order of the six disjoint collectible draw address groups.</summary>
     private static readonly DrawGroup[] DrawGroups = Enum.GetValues<DrawGroup>();
 
+    /// <summary>Gets a group's first native draw pointer and number of six-byte records.</summary>
     private static (ushort First, int Count) SpanOf(DrawGroup group) => group switch
     {
         DrawGroup.Empty => (Empty, 1),
@@ -78,6 +95,7 @@ internal static class RoomPlmCollectibleDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {(int)group}."),
     };
 
+    /// <summary>Resolves a draw pointer to its physical level word and optional export identifier.</summary>
     private static bool TryResolve(ushort pointer, bool includeId, out RoomPlmCollectibleDrawFrame frame)
     {
         foreach (DrawGroup group in DrawGroups)
@@ -102,17 +120,20 @@ internal static class RoomPlmCollectibleDrawDefinitions
         return false;
     }
 
+    /// <summary>Gets the stable visual ID stem for one of the four tank pickup kinds.</summary>
     private static string TankKindName(int kind) => kind switch
     {
         0 => "energy", 1 => "missile", 2 => "super-missile", _ => "power-bomb",
     };
 
+    /// <summary>Checks that a pointer starts an owned six-byte draw record within a group.</summary>
     private static bool TryIndex(ushort pointer, ushort first, int count, out int index)
     {
         int offset = pointer - first;
         index = offset / 6;
         return offset >= 0 && offset % 6 == 0 && index < count;
     }
+    /// <summary>Resolves an exact artwork identifier to its compiled collectible draw frame.</summary>
     internal static bool TryGetById(string id, out RoomPlmCollectibleDrawFrame frame)
     {
         foreach (var candidate in All)

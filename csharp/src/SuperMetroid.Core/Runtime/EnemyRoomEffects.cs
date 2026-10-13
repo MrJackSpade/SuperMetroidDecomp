@@ -12,18 +12,30 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class EnemyRoomEffects
 {
+    /// <summary>Destination for Mother Brain's room palette and FX transitions.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Receives layer-blending defaults selected by a Mother Brain FX entry.</summary>
     private readonly GameplayDisplayState _display;
+    /// <summary>Publishes boss PLM requests and receives downward-gate projectile work.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Starts the escape countdown on Mother Brain's requested frame.</summary>
     private readonly EscapeTimer _escapeTimer;
+    /// <summary>Supplies Samus equipment and relinquishes the drained-phase timer handler.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Owns the shared forty-slot PLM pool that applies boss terrain changes.</summary>
     private readonly RoomPlmSystem _plms;
+    /// <summary>Provides active level, area, FX pointer, and room scroll state.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Loads Mother Brain's requested layer-three FX record.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Spawns palette FX definitions published by Mother Brain's death sequence.</summary>
     private readonly RoomPaletteFxSystem _roomPaletteFx;
+    /// <summary>Records boss bits and the Zebes timebomb event requested by the encounter.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Address space supplied to palette FX definition setup.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Binds the room systems needed to consume enemy publications immediately after their AI pass.</summary>
     internal EnemyRoomEffects(EnemyRoomEffectsDependencies dependencies)
     {
         _cgram = dependencies.Cgram;

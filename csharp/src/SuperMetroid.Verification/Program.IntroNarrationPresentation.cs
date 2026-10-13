@@ -18,8 +18,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static RetailGameFixtureVerification;
 
+/// <summary>Checks installed opening narration and font artwork through the cinematic's live tilemap and VRAM paths.</summary>
 internal static class IntroNarrationPresentationVerification
 {
+    /// <summary>Compares all six stock pages and the font upload with native data, then checks edits, rebinding, and malformed glyph rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the decompressed opening-font planar bytes")]
     internal static void VerifyIntroNarrationPresentation(string romPath)
@@ -144,6 +146,7 @@ internal static class IntroNarrationPresentationVerification
             "Opening font: 144 PNG tiles compile to exact native 2-bpp bytes; installed upload, active pixel edit and ROM-read guard pass.");
     }
 
+    /// <summary>Starts a text layer filled with the native blank tilemap word.</summary>
     private static ushort[] CreateBlankIntroTilemap()
     {
         var result = new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
@@ -151,6 +154,7 @@ internal static class IntroNarrationPresentationVerification
         return result;
     }
 
+    /// <summary>Calls the cinematic entry point for one of its six English story pages.</summary>
     private static void StartPage(IntroCinematicObjectSystem state, IntroNarrationPageId page)
     {
         switch (page)
@@ -165,6 +169,7 @@ internal static class IntroNarrationPresentationVerification
         }
     }
 
+    /// <summary>Recognizes the page-specific wait or finish state after all typewriter characters display.</summary>
     private static bool IsPageComplete(
         IntroCinematicObjectSystem state,
         IntroNarrationPageId page) => page switch
@@ -178,6 +183,7 @@ internal static class IntroNarrationPresentationVerification
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, null),
     };
 
+    /// <summary>Checks deterministic stock JSON, installed text overrides, identity changes, and corrupt-override failure.</summary>
     internal static void VerifyIntroNarrationAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -213,6 +219,7 @@ internal static class IntroNarrationPresentationVerification
             "Opening-narration catalog: deterministic stock, override selection/identity and corruption failure pass.");
     }
 
+    /// <summary>Checks deterministic stock PNG bytes, edited installed VRAM bytes, identity changes, and corrupt-PNG rejection.</summary>
     internal static void VerifyIntroFontAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -246,16 +253,19 @@ internal static class IntroNarrationPresentationVerification
             "Opening-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
     }
 
+    /// <summary>Rejects cartridge text reads from the English narration's bank-$8C source ranges.</summary>
     private static CartridgeReadGuard NewIntroNarrationGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => SnesAddressMath.BankNumber(address) == 0x8c &&
                 (SnesAddressMath.OffsetInBank(address)) is >= 0xc383 and <= 0xd5dd or >= 0xd67d and <= 0xd780,
             address => $"Installed opening narration read cartridge text address ${address:X6}.");
 
+    /// <summary>Rejects reads from the extracted opening-font compressed ROM stream.</summary>
     private static CartridgeReadGuard NewIntroFontGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(0x95d089, 0x95d713 - 0x95d089,
             address => $"Installed opening font read cartridge address ${address:X6}.");
 
+    /// <summary>Runs opening narration and font presentation checks against the repository cartridge.</summary>
     [VerificationCommand("--intro-narration-presentation")]
     internal static int IntroNarrationPresentationCommand()
     {

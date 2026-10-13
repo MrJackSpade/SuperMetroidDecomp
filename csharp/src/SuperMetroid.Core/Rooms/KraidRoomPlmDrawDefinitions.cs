@@ -34,12 +34,15 @@ internal enum KraidRoomDraw : ushort
 /// </summary>
 internal static class KraidRoomPlmDrawDefinitions
 {
+    /// <summary>Number of reachable Kraid ceiling and spike draw lists.</summary>
     internal const int DrawCount = 10;
 
     /// <summary>A horizontal, single-run Kraid draw evaluated without stored words.</summary>
     internal readonly record struct Draw(ushort Pointer)
     {
+        /// <summary>Gets the number of blocks in this single horizontal native run.</summary>
         internal int BlockCount => CountFor(Pointer);
+        /// <summary>Calculates the full collision and tile word for a block in this draw.</summary>
         internal ushort WordAt(int index) => LevelWord(Pointer, index);
     }
 
@@ -57,6 +60,7 @@ internal static class KraidRoomPlmDrawDefinitions
         };
     }
 
+    /// <summary>Recognizes a reachable Kraid room draw pointer and returns its calculated descriptor.</summary>
     internal static bool TryGet(ushort pointer, out Draw draw)
     {
         if (CountFor(pointer) != 0)
@@ -72,6 +76,7 @@ internal static class KraidRoomPlmDrawDefinitions
     private static int CountFor(ushort pointer) =>
         Enum.IsDefined((KraidRoomDraw)pointer) ? CountFor((KraidRoomDraw)pointer) : 0;
 
+    /// <summary>Gets the one, fifteen, or twenty-two block span for a named Kraid draw.</summary>
     private static int CountFor(KraidRoomDraw draw) => draw switch
     {
         KraidRoomDraw.CrumbleFirst or KraidRoomDraw.CrumbleSecond or KraidRoomDraw.CrumbleThird or
@@ -93,6 +98,7 @@ internal static class KraidRoomPlmDrawDefinitions
         return LevelWord(ClosedNativeWords.Decode<KraidRoomDraw>(pointer, "Kraid room draw"), index);
     }
 
+    /// <summary>Calculates a named crumble, background, or alternating clear block word.</summary>
     private static ushort LevelWord(KraidRoomDraw draw, int index) => draw switch
     {
         KraidRoomDraw.CrumbleFirst => 0x8180,
@@ -126,6 +132,7 @@ internal static class KraidRoomPlmDrawDefinitions
         }
     }
 
+    /// <summary>Resolves an ordinal artwork identifier to its calculated Kraid draw.</summary>
     internal static bool TryGetByVisualId(string id, out Draw draw)
     {
         foreach (KraidRoomDraw candidate in Enum.GetValues<KraidRoomDraw>())
@@ -134,8 +141,10 @@ internal static class KraidRoomPlmDrawDefinitions
         draw = default;
         return false;
     }
+    /// <summary>Gets the stable artwork identifier for a supported native draw pointer.</summary>
     internal static string VisualId(ushort pointer) =>
         VisualId(ClosedNativeWords.Decode<KraidRoomDraw>(pointer, "Kraid room draw with a visual ID"));
+    /// <summary>Maps a named ceiling or spike draw to its stable artwork identifier.</summary>
     private static string VisualId(KraidRoomDraw draw) => draw switch
     {
         KraidRoomDraw.CrumbleFirst => "crumble-first",
@@ -151,6 +160,7 @@ internal static class KraidRoomPlmDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {(int)draw:X4}."),
     };
 
+    /// <summary>Checks whether a PLM header belongs to the Kraid ceiling or spike sequence.</summary>
     internal static bool IsKraidOwner(PlmHeaderId header) => header is
         PlmHeaderId.CrumbleKraidCeilingIntoBackground1 or
         PlmHeaderId.CrumbleKraidPlatformVariant1 or

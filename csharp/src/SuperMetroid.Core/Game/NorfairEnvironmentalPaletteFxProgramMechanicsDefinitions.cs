@@ -42,21 +42,31 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
     private const ushort HeatPhaseProgram = 0xf08e;
     /// <summary>$8D:F1D1: foreground palette-four loop; palette-five/six programs follow with the same record geometry.</summary>
     private const ushort FirstRegularProgram = 0xf1d1;
-    /// <summary>Each program begins with a color-index command/operand and ends with a goto command/operand.</summary>
-    private const int SetupBytes = 4, GotoBytes = 4;
+    /// <summary>The color-index setup command and operand occupy four bytes.</summary>
+    private const int SetupBytes = 4;
+    /// <summary>The loop's goto command and destination occupy four bytes.</summary>
+    private const int GotoBytes = 4;
     /// <summary>Regular phases contain duration, five colors, one skip command and one wait command.</summary>
     private const int RegularFrameBytes = 2 + ColorsPerFrame * 2 + 2 + 2;
     /// <summary>Heat publication adds an instruction word and its byte-sized phase operand before each regular record.</summary>
     private const int HeatPublicationBytes = 3;
-    /// <summary>$8D:F08E's $006A color index starts at palette three/color five.</summary>
-    private const int HeatPalette = 3, HeatFirstColor = 5;
-    /// <summary>$8D:F1D1/F2D9/F3E1 select color one in foreground palettes four/five/six.</summary>
-    private const int RegularFirstPalette = 4, RegularFirstColor = 1;
+    /// <summary>$8D:F08E publishes heat phases while writing foreground palette three.</summary>
+    private const int HeatPalette = 3;
+    /// <summary>The heat program's $006A CGRAM index starts at color five.</summary>
+    private const int HeatFirstColor = 5;
+    /// <summary>The first regular program writes foreground palette four; later programs advance the palette.</summary>
+    private const int RegularFirstPalette = 4;
+    /// <summary>All three regular programs start their writes at color one.</summary>
+    private const int RegularFirstColor = 1;
 
+    /// <summary>Materializes the four native programs from their shared record geometry.</summary>
     private static readonly ProgramDefinitions Definitions = new();
+    /// <summary>Provides indexed definitions in adjacent native pointer order without storing duplicate records.</summary>
     private sealed class ProgramDefinitions : IReadOnlyList<NorfairEnvironmentalPaletteFxProgramDefinition>
     {
+        /// <summary>The four adjacent definition identities at $8D:F785 through $F791.</summary>
         public int Count => 4;
+        /// <summary>Calculates one program's entry, frame, loop, and CGRAM addresses from its owner index.</summary>
         public NorfairEnvironmentalPaletteFxProgramDefinition this[int index]
         {
             get
@@ -75,10 +85,12 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
                     (ushort)((palette * 16 + color) * sizeof(ushort)), heat);
             }
         }
+        /// <summary>Visits the heat-phase program followed by palette-four, five, and six programs.</summary>
         public IEnumerator<NorfairEnvironmentalPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same native-order sequence through the nongeneric collection contract.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>The four real environmental programs in definition order.</summary>
@@ -132,11 +144,16 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete Norfair environmental palette control program.</summary>
 public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
 {
+    /// <summary>Each heat phase begins with a word instruction and one byte phase operand.</summary>
     private const int HeatPhasePublicationByteCount = 3;
+    /// <summary>Three colors precede the skip command in each palette record.</summary>
     private const int LeadingColorCount = 3;
+    /// <summary>The first color follows the frame's two-byte duration.</summary>
     private const int LeadingColorsOffset = 2;
+    /// <summary>Two trailing colors follow duration, leading colors, and skip command.</summary>
     private const int TrailingColorsOffset = 10;
 
+    /// <summary>Captures the compiled pointer geometry and destination for one environmental loop.</summary>
     internal NorfairEnvironmentalPaletteFxProgramDefinition(
         NorfairEnvironmentalPaletteOwner owner,
         ushort definitionPointer,

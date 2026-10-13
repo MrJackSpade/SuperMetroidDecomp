@@ -16,8 +16,10 @@ using static KraidContourCaseMappingsVerification;
 using static KraidHeadCommandMappingVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail-data and typed-WRAM checks for Kraid head instruction programs.</summary>
 internal static class KraidHeadInstructionsVerification
 {
+    /// <summary>Checks command mapping, entry timers, production frame interpretation, and mutable growth resume selection.</summary>
     internal static void VerifyKraidHeadInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => unchecked((ushort)(
@@ -50,9 +52,11 @@ internal static class KraidHeadInstructionsVerification
             "Kraid head programs: 28 commands, 91 stream words, both sound callbacks, all entry timers, mutable low-half growth selection, and production interpretation pass with the private streams forbidden.");
     }
 
+    /// <summary>Reads one retail byte for the independent entry-timer oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid head instruction definitions")]
     private static byte KraidHeadInstructionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Executes each compiled head command and checks timed frames, hitboxes, tilemap uploads, and sound effects.</summary>
     private static void VerifyProductionInterpreter(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -111,6 +115,7 @@ internal static class KraidHeadInstructionsVerification
         }
     }
 
+    /// <summary>Checks roar, glow, death, and all 16-bit growth-resume timer inputs against native selection.</summary>
     private static void VerifyTimerAndGrowthConsumers(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
@@ -181,10 +186,14 @@ internal static class KraidHeadInstructionsVerification
     internal sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Live low-half tilemap alias supplied to Kraid's growth resume path.</summary>
         public ushort MutableTilemap { get; set; }
+        /// <summary>Counts attempts to reread the compiled head stream.</summary>
         public int ForbiddenReadAttempts { get; private set; }
+        /// <summary>Counts invalid generic-bus reads of the typed low-half WRAM alias.</summary>
         public int UntypedLowHalfReadAttempts { get; private set; }
 
+        /// <summary>Rejects head-stream bytes and low-half alias reads before delegating other cartridge data.</summary>
         public byte ReadCartridgeByte(int address)
         {
             if (address is 0xa71002 or 0xa71003)
@@ -202,6 +211,7 @@ internal static class KraidHeadInstructionsVerification
             return source.ReadCartridgeByte(address);
         }
 
+        /// <summary>Serves the mutable tilemap alias directly and forwards other WRAM reads.</summary>
         public byte ReadWorkRamByte(int address) => address switch
         {
             0xa71002 => (byte)MutableTilemap,
@@ -210,13 +220,16 @@ internal static class KraidHeadInstructionsVerification
                 "Kraid head guard source does not expose WRAM.")).ReadWorkRamByte(address),
         };
 
+        /// <summary>Forwards SRAM reads to the mutable source.</summary>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Kraid head guard source does not expose SRAM.")).ReadSaveRamByte(address);
 
+        /// <summary>Preserves ordinary writes through the guarded address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    /// <summary>Runs the retail-backed Kraid head instruction verification command.</summary>
     [VerificationCommand("--kraid-head-instruction-definitions")]
     internal static int KraidHeadInstructionDefinitionsCommand()
     {

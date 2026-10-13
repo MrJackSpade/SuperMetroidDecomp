@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Falling Spark's looping flight and floor-impact instructions against bank $86.</summary>
 internal static class FallingSparkInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the pinned cartridge and runs the Falling Spark instruction comparison.</summary>
     internal static void VerifyFallingSparkInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFallingSparkInstructionProgramDefinitions), () => VerifyFallingSparkInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks native words, the live flight and impact frame sequence, deletion, and guarded reads.</summary>
     internal static void VerifyFallingSparkInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -136,6 +139,7 @@ internal static class FallingSparkInstructionProgramDefinitionsVerification
             "with mechanics bytes forbidden.");
     }
 
+    /// <summary>Repeats warmed Falling Spark mechanics lookups for the caller's allocation measurement.</summary>
     private static int ProbeFallingSparkInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -149,6 +153,7 @@ internal static class FallingSparkInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Dispatches the Falling Spark instruction mechanics verification command.</summary>
     [VerificationCommand("--falling-spark-instruction-mechanics")]
     internal static int FallingSparkInstructionMechanicsCommand()
     {

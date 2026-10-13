@@ -5,12 +5,18 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Tourian unlock species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class TourianUnlockBehavior
 {
+    /// <summary>Live room randomness and installed statue eye artwork.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Allocator and initializer for statue, dust, particle, and splash projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Earthquake state written by the statue release instruction.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Audio queue receiving the statue eye release sound.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>CGRAM owner receiving installed statue eye colors.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Binds the unlock effects to the current room's projectile, audio, FX, and artwork owners.</summary>
     internal TourianUnlockBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyPresentation presentation)
     {
         _room = room;
@@ -22,6 +28,7 @@ internal sealed class TourianUnlockBehavior
 
     /// <summary>FX surface used by the native unlocking particles and their splash actors.</summary>
     internal ushort TourianStatueWaterY { get; set; }
+    /// <summary>Creates four fixed-position dust actors for the descending Tourian statue sequence.</summary>
     internal void SpawnTourianDescentDust()
     {
         for (int count = 0; count < 4; count++)
@@ -58,6 +65,7 @@ internal sealed class TourianUnlockBehavior
                 .ApplyEye(_presentation._cgram!, parameter);
     }
 
+    /// <summary>Spawns a splash, particle, or tail at its parent, applying water height or randomized motion.</summary>
     internal void SpawnTourianParticleChild(RoomEnemyProjectileSlot parent, RoomEnemyProjectileKind kind)
     {
         if (kind is not (RoomEnemyProjectileKind.TourianStatueSplash or RoomEnemyProjectileKind.TourianStatueParticle or
@@ -76,6 +84,7 @@ internal sealed class TourianUnlockBehavior
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(4 * EnemyTrigonometryTables.SignedNegativeCosineWord(angle)))));
     }
 
+    /// <summary>Runs native splash, soul, or particle motion and requests deletion at their exit boundaries.</summary>
     internal bool TryStepTourianUnlockEffect(RoomEnemyProjectileSlot projectile)
     {
         if (!Enum.IsDefined((TourianStatuePreInstruction)projectile.PreInstruction))
@@ -112,6 +121,7 @@ internal sealed class TourianUnlockBehavior
         }
     }
 
+    /// <summary>Handles statue-specific sound, child spawns, earthquake, and vertical-offset instructions.</summary>
     internal bool TryExecuteTourianUnlockInstruction(RoomEnemyProjectileSlot projectile, ushort code, ref ushort cursor)
     {
         if (code == (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6 &&
@@ -152,6 +162,7 @@ internal sealed class TourianUnlockBehavior
         return true;
     }
 
+    /// <summary>Registers statue-specific pre-instruction and instruction interceptors.</summary>
     internal void RegisterTourianUnlockProjectiles(EnemyProjectileHandlerTable table)
     {
         // The Tourian statue effects use words outside the closed bank-$86 sets.

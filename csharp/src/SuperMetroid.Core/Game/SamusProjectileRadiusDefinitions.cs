@@ -13,9 +13,12 @@ internal static class SamusProjectileRadiusDefinitions
     /// <summary>The 805 timed instruction owners, calculated from native program layout.</summary>
     internal static IReadOnlyList<ushort> TimedRecordPointers { get; } = new TimedRecordSequence();
 
+    /// <summary>Enumerates compiled timed-frame addresses without caching an 805-entry pointer array.</summary>
     private sealed class TimedRecordSequence : IReadOnlyList<ushort>
     {
+        /// <summary>Number of timed frame records in the compiled projectile instruction layout.</summary>
         public int Count => SamusProjectileInstructionDefinitions.EnumerateTimedPointers().Count();
+        /// <summary>Finds a frame pointer at its native-order index by walking the compiled layout.</summary>
         public ushort this[int index]
         {
             get
@@ -26,7 +29,9 @@ internal static class SamusProjectileRadiusDefinitions
                 throw new IndexOutOfRangeException();
             }
         }
+        /// <summary>Enumerates timed projectile records in program order.</summary>
         public IEnumerator<ushort> GetEnumerator() => SamusProjectileInstructionDefinitions.EnumerateTimedPointers().GetEnumerator();
+        /// <summary>Shares the typed timed-record enumerator with non-generic callers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -216,7 +221,19 @@ internal static class SamusProjectileRadiusDefinitions
     }
     /// <summary>$93:9CCF..9D47 and 9E37..9EAF: the five outward long-beam poses,
     /// paired with alternate artwork and then traversed back toward the center.</summary>
-    private enum PlasmaWaveSpreadPose { Centered, FirstSplit, Middle, OuterShoulder, FullySpread }
+    private enum PlasmaWaveSpreadPose
+    {
+        /// <summary>Compact opening lobe before separation.</summary>
+        Centered,
+        /// <summary>First visible split of the diagonal beam.</summary>
+        FirstSplit,
+        /// <summary>Intermediate collision reach during outward travel.</summary>
+        Middle,
+        /// <summary>Broad shoulder immediately before the widest pose.</summary>
+        OuterShoulder,
+        /// <summary>Maximum authored diagonal collision reach.</summary>
+        FullySpread,
+    }
 
     /// <summary>$93:9CD3/9CE3/9CF3/9D03/9D13: selected 12/16/17/20/24 hit reach for the five
     /// semantic diagonal spread poses. The same source sprites have short-axis extents 20/26/29/31/32;
@@ -231,6 +248,7 @@ internal static class SamusProjectileRadiusDefinitions
         PlasmaWaveSpreadPose.FullySpread => 24,
         _ => throw new IndexOutOfRangeException(),
     };
+    /// <summary>Reads a compiled X or Y hitbox radius byte for a timed frame, including the safe Murder Beam zero case.</summary>
     internal static byte ReadByte(int address)
     {
         if (address is MurderBeamRadiusAddress or MurderBeamRadiusAddress + 1)

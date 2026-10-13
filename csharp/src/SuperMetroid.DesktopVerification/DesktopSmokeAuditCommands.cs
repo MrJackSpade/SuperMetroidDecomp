@@ -3,6 +3,7 @@ using SuperMetroid.Desktop;
 /// <summary>Developer-only smoke commands formerly hosted by the player executable.</summary>
 internal static class DesktopSmokeAuditCommands
 {
+    /// <summary>Dispatches a recognized desktop audit command and reports whether it consumed the arguments.</summary>
     public static bool TryRun(string[] args)
     {
         if (args is ["--session-log-audit", var loggedGameAssembly])

@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Dead Sidehopper's four instruction programs and end-hop handoff against bank $A9.</summary>
 internal static class DeadSidehopperInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the pinned cartridge and runs the Dead Sidehopper instruction comparison.</summary>
     internal static void VerifyDeadSidehopperInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDeadSidehopperInstructionProgramDefinitions), () => VerifyDeadSidehopperInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks native words, live corpse programs, compiled visual selectors, and guarded reads.</summary>
     internal static void VerifyDeadSidehopperInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -122,6 +125,7 @@ internal static class DeadSidehopperInstructionProgramDefinitionsVerification
             "spritemap selectors pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Runs one selected corpse program through its timed frames and trailing control word.</summary>
     private static void ExecuteDeadSidehopperProgram(
         RoomEnemySystem enemies,
         object?[] processArguments,
@@ -137,6 +141,7 @@ internal static class DeadSidehopperInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeats warmed corpse-program lookups for the caller's allocation measurement.</summary>
     private static int ProbeDeadSidehopperInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -150,6 +155,7 @@ internal static class DeadSidehopperInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids compiled mechanics rereads and observes native spritemap operands.</summary>
     private static CartridgeReadGuard NewDeadSidehopperInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(DeadSidehopperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -157,6 +163,7 @@ internal static class DeadSidehopperInstructionProgramDefinitionsVerification
             .ObserveWords(0xa90000, DeadSidehopperInstructionProgramDefinitionsTooling.PresentationWordCount,
                 DeadSidehopperInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Dispatches the Dead Sidehopper instruction mechanics verification command.</summary>
     [VerificationCommand("--dead-sidehopper-instruction-mechanics")]
     internal static int DeadSidehopperInstructionMechanicsCommand()
     {

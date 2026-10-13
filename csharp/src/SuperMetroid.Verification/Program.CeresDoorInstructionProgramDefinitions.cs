@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Retail-word and guarded-execution checks for ordinary and Mode-7 Ceres door programs.</summary>
 internal static class CeresDoorInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail data for the Ceres door instruction check.</summary>
     internal static void VerifyCeresDoorInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCeresDoorInstructionProgramDefinitions), () => VerifyCeresDoorInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs Ridley-room, ordinary, elevator, and escape-wall door variants through their loops and branches.</summary>
     internal static void VerifyCeresDoorInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -221,6 +224,7 @@ internal static class CeresDoorInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeats a warmed ordinary-door control lookup for allocation accounting.</summary>
     private static int ProbeCeresDoorInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -232,6 +236,7 @@ internal static class CeresDoorInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects compiled Ceres door control and visual-selector reads during execution.</summary>
     private static CartridgeReadGuard NewCeresDoorInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(CeresDoorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -240,6 +245,7 @@ internal static class CeresDoorInstructionProgramDefinitionsVerification
                 CeresDoorInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read compiled Ceres door visual selector byte ${address:X6}.");
 
+    /// <summary>Runs the retail-backed Ceres door instruction migration command.</summary>
     [VerificationCommand("--ceres-door-instruction-mechanics")]
     internal static int CeresDoorInstructionMechanicsCommand()
     {

@@ -16,14 +16,17 @@ using static DoorDefinitionsVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks four directional Ceres steam programs and their hidden and active phases.</summary>
 internal static class CeresSteamInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for steam instruction and visual selector comparison.</summary>
     internal static void VerifyCeresSteamInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCeresSteamInstructionProgramDefinitions), () => VerifyCeresSteamInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs each steam direction through activation, hidden hold, and return while guarding mechanics reads.</summary>
     internal static void VerifyCeresSteamInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -160,6 +163,7 @@ internal static class CeresSteamInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeatedly reads the compiled up entry to detect allocation on a warmed path.</summary>
     private static int ProbeCeresSteamInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -171,12 +175,14 @@ internal static class CeresSteamInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects live mechanics reads and observes native visual selector access.</summary>
     private static CartridgeReadGuard NewCeresSteamInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(CeresSteamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Ceres steam mechanics ${address:X6}.")
             .ObserveWords(0xa60000, CeresSteamInstructionProgramDefinitionsTooling.PresentationWordCount, CeresSteamInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Runs the steam program comparison from the command dispatcher.</summary>
     [VerificationCommand("--ceres-steam-instruction-mechanics")]
     internal static int CeresSteamInstructionMechanicsCommand()
     {

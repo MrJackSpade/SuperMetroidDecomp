@@ -7,14 +7,21 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit;
 
+/// <summary>One unresolved queue site, invalid transfer, or missing source ownership decision.</summary>
 internal sealed record VramDmaFinding(string Code, string Owner, string Source, string Detail);
+/// <summary>Counts one semantically bound production VRAM queue invocation.</summary>
 internal sealed record VramDmaSite();
+/// <summary>Source and byte extent of a queue producer, optionally backed by an installed asset.</summary>
 internal sealed record VramDmaTransfer(string Owner, int SourceAddress, int ByteCount,
     VramAssetId Asset = VramAssetId.None);
+/// <summary>Collected queue sites, resolved transfer descriptors, and unresolved ownership findings.</summary>
 internal sealed class VramDmaReport
 {
+    /// <summary>Direct queue invocations found by Roslyn semantic binding.</summary>
     public List<VramDmaSite> Sites { get; } = [];
+    /// <summary>Constant or finite-domain source and count descriptors.</summary>
     public List<VramDmaTransfer> Transfers { get; } = [];
+    /// <summary>Bindings and source ranges that the audit could not prove safe.</summary>
     public List<VramDmaFinding> Findings { get; } = [];
 }
 
@@ -25,6 +32,7 @@ internal sealed class VramDmaReport
 /// </summary>
 internal static class VramDmaAudit
 {
+    /// <summary>Prints the static DMA ownership report and optionally writes its JSON form.</summary>
     internal static int Run(string root, string? jsonPath)
     {
         VramDmaReport report = Analyze(CreateCompilation(root), root);
@@ -43,6 +51,7 @@ internal static class VramDmaAudit
         return report.Findings.Count == 0 ? 0 : 1;
     }
 
+    /// <summary>Parses Core sources and binds queue invocations against SDK and project symbols.</summary>
     internal static CSharpCompilation CreateCompilation(string root)
     {
         var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview);
@@ -61,6 +70,7 @@ internal static class VramDmaAudit
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true));
     }
 
+    /// <summary>Discovers direct queue calls and reviewed finite-domain adapters, then checks each transfer.</summary>
     internal static VramDmaReport Analyze(CSharpCompilation compilation, string? root = null,
         Func<int, int, bool>? ownsNative = null, Func<VramAssetId, int, bool>? ownsTyped = null)
     {
@@ -143,6 +153,7 @@ internal static class VramDmaAudit
         }
     }
 
+    /// <summary>Accepts installed typed assets, admitted native ranges, or wholly mutable WRAM/SRAM sources.</summary>
     internal static string? CheckTransfer(VramDmaTransfer transfer, Func<int, int, bool> ownsNative,
         Func<VramAssetId, int, bool> ownsTyped)
     {
@@ -164,11 +175,13 @@ internal static class VramDmaAudit
         return null;
     }
 
+    /// <summary>Reads a compiler-known argument value, leaving state-selected values for reviewed adapters.</summary>
     private static int? Constant(IInvocationOperation call, string name)
     {
         var value = call.Arguments.Single(argument => argument.Parameter?.Name == name).Value.ConstantValue;
         return value is { HasValue: true, Value: not null } ? Convert.ToInt32(value.Value) : null;
     }
+    /// <summary>Formats the source path and one-based line of an audit finding.</summary>
     private static string Location(SyntaxNode node) => node.SyntaxTree.FilePath + ":" +
         (node.GetLocation().GetLineSpan().StartLinePosition.Line + 1);
 }

@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed Tourian corpse tile staging and OAM against independent retail layouts.</summary>
 internal static class DeadTourianCorpseArtworkVerification
 {
+    /// <summary>Compares all corpse initializer variants against native WRAM and confirms a sidehopper PNG edit reaches live staging.</summary>
     internal static void VerifyInstalledDeadTourianCorpseArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
@@ -89,6 +91,7 @@ internal static class DeadTourianCorpseArtworkVerification
         Console.WriteLine("  Tourian corpse artwork: ten guarded sidehopper/Zoomer/Ripper/Skree variants match cartridge WRAM; a PNG edit and reload reach the live buffer.");
     }
 
+    /// <summary>Matches compiled corpse frame selectors and installed OAM compositions to retail spritemaps.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Tourian corpse visuals")]
     private static void VerifyDeadTourianCorpseVisuals(
@@ -172,6 +175,7 @@ internal static class DeadTourianCorpseArtworkVerification
 
     // Independent copy spans from the pinned sm_a9.c corpse initializers
     // $A9:DEC1-$E052. Keep these separate from the runtime's layout definitions.
+    /// <summary>Stages corpse tiles with independent pinned A9 copy spans for the retail WRAM oracle.</summary>
     private static void ReferenceDeadTourianCorpseGraphics(
         SuperMetroidAddressSpace bus, EnemyDefinitionId definition, int variant)
     {
@@ -202,10 +206,12 @@ internal static class DeadTourianCorpseArtworkVerification
                 tiles[copy.Destination + offset] = ReadNativeDeadTourianCorpseSheetByte(bus, copy.Source + offset);
     }
 
+    /// <summary>Reads a retail corpse-sheet byte for the independent staging oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the dead Tourian corpse tile sheet at $B7:C000")]
     private static byte ReadNativeDeadTourianCorpseSheetByte(ISnesAddressSpace rom, int sheetOffset) =>
         rom.ReadCartridgeByte(0xb7c000 + sheetOffset);
 
+    /// <summary>Runs the real sidehopper initializer with corpse-sheet ROM reads forbidden.</summary>
     private static void InitializeDeadSidehopperArtwork(
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork, ushort parameter)
     {
@@ -218,6 +224,7 @@ internal static class DeadTourianCorpseArtworkVerification
         new Action<RoomEnemySlot>(enemies.DeadSidehopperBehavior.InitializeDeadSidehopper)(slot);
     }
 
+    /// <summary>Runs a Zoomer, Ripper, or Skree corpse initializer using installed artwork under a source read guard.</summary>
     private static void InitializeDeadTourianCorpseArtwork(
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork,
         EnemyDefinitionId definition, int variant)
@@ -232,6 +239,7 @@ internal static class DeadTourianCorpseArtworkVerification
         new Action<RoomEnemySlot>(enemies.DeadTourianBehavior.InitializeDeadTourianCorpse)(slot);
     }
 
+    /// <summary>Rejects fallback reads of the bank-$B7 corpse character sheet.</summary>
     private static CartridgeReadGuard NewDeadTourianCorpseArtworkReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xb7c000 and < 0xb7ce00,

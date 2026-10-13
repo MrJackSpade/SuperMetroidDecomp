@@ -8,18 +8,22 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Equipment-selector anchors, visual animation and compositions; selection rules stay compiled.</summary>
 public sealed class PauseSelectorPresentation
 {
+    /// <summary>Only anchors differing from compiled stock coordinates.</summary>
     private readonly Dictionary<string, (int? X, int? Y)> anchorOverrides;
+    /// <summary>Category compositions sharing their native base frame unless a phase overrides it.</summary>
     private readonly PhaseComposition reserve, beam, equipment;
+    /// <summary>Authored durations differing from the native phase timing rule.</summary>
     private readonly Dictionary<int, int>? durationOverrides;
-    /// <summary>Gets the initial selector dwell time in accepted update ticks.</summary>
+    /// <summary>Dwell time before the selector enters its cyclic animation.</summary>
     public int InitialDurationTicks { get; }
-    /// <summary>Gets the selected three-bit OBJ palette encoded in its attribute-word position.</summary>
+    /// <summary>Selected three-bit OBJ palette in the attribute-word bit position.</summary>
     public ushort PaletteBits { get; }
-    /// <summary>Gets the number of cyclic visual animation phases.</summary>
+    /// <summary>Number of phases used to wrap the live selector counter.</summary>
     public int PhaseCount { get; }
+    /// <summary>Retains only authored anchor, composition, and timing differences.</summary>
     private PauseSelectorPresentation(PauseSelectorParts parts)
     { this.anchorOverrides = parts.AnchorOverrides; this.reserve = parts.Reserve; this.beam = parts.Beam; this.equipment = parts.Equipment; PhaseCount = parts.PhaseCount; this.durationOverrides = parts.DurationOverrides; InitialDurationTicks = parts.InitialDuration; PaletteBits = SnesObjAttributeWord.Create(0, parts.Palette, 0).PaletteBits; }
-    /// <summary>Gets the selected screen-pixel anchor for an equipment category and item.</summary>
+    /// <summary>Applies a named screen-pixel override to the category and item's compiled stock anchor.</summary>
     public Position16<OamPixels> Anchor(PauseEquipmentCategory category, int item)
     {
         string name = PauseSelectorDefinitions.Anchor(category, item);
@@ -103,12 +107,16 @@ public sealed class PauseSelectorPresentation
     /// holds its base composition. Capture only explicitly authored phase differences.</summary>
     private sealed class PhaseComposition(PauseSelectorVisual basis)
     {
+        /// <summary>Native base composition shared by phases without an authored override.</summary>
         private readonly PauseSelectorVisual basis = basis;
+        /// <summary>Only animation phases selecting a different composition.</summary>
         private Dictionary<int, PauseSelectorVisual>? overrides;
+        /// <summary>Retains a phase image only when it differs from the base image object.</summary>
         public void Capture(int phase, PauseSelectorVisual value)
         {
             if (!ReferenceEquals(basis, value)) (overrides ??= new()).Add(phase, value);
         }
+        /// <summary>Resolves an authored phase image or falls back to the native base composition.</summary>
         public PauseSelectorVisual Get(int phase) => overrides is not null && overrides.TryGetValue(phase, out var value)
             ? value : basis;
     }
@@ -119,31 +127,31 @@ public sealed class PauseSelectorPresentation
         _ = Load(new MemoryStream(bytes, writable: false)); output.Write(bytes);
     }
 
-    /// <summary>The pause screen's selector compositions, anchors and timing (#633).</summary>
+    /// <summary>Validated selector parts passed into the compact installed representation.</summary>
     private sealed record PauseSelectorParts
     {
-        /// <summary>Anchor overrides.</summary>
+        /// <summary>Named X and Y differences from compiled stock selector anchors.</summary>
         public required Dictionary<string, (int? X, int? Y)> AnchorOverrides { get; init; }
 
-        /// <summary>Reserve.</summary>
+        /// <summary>Reserve category frame sequence.</summary>
         public required PhaseComposition Reserve { get; init; }
 
-        /// <summary>Beam.</summary>
+        /// <summary>Beam category frame sequence.</summary>
         public required PhaseComposition Beam { get; init; }
 
-        /// <summary>Equipment.</summary>
+        /// <summary>Shared suit and boot category frame sequence.</summary>
         public required PhaseComposition Equipment { get; init; }
 
-        /// <summary>Phase count.</summary>
+        /// <summary>Cycle length used when normalizing the live phase.</summary>
         public required int PhaseCount { get; init; }
 
-        /// <summary>Duration overrides.</summary>
+        /// <summary>Phases whose dwell times differ from native menu timing.</summary>
         public required Dictionary<int, int>? DurationOverrides { get; init; }
 
-        /// <summary>Initial duration.</summary>
+        /// <summary>Delay before the first selector animation phase.</summary>
         public required int InitialDuration { get; init; }
 
-        /// <summary>Palette.</summary>
+        /// <summary>OBJ palette index encoded when drawing a selector frame.</summary>
         public required int Palette { get; init; }
     }
 }

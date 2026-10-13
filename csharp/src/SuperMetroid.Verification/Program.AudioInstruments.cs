@@ -13,6 +13,7 @@ using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
 
+/// <summary>Checks that editable instrument metadata controls uploaded SPC records and audible output.</summary>
 internal static class AudioInstrumentsVerification
 {
     /// <summary>
@@ -183,6 +184,7 @@ internal static class AudioInstrumentsVerification
             "audible PCM change and malformed-bank rejection pass.");
     }
 
+    /// <summary>Reads a fixture manifest using the production audio JSON options.</summary>
     internal static AudioAssetManifest ReadAudioManifest(string path)
     {
         using var input = File.OpenRead(path);
@@ -190,12 +192,14 @@ internal static class AudioInstrumentsVerification
             ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
     }
 
+    /// <summary>Writes an edited instrument manifest for the isolated audio fixture.</summary>
     internal static void WriteAudioManifest(string path, AudioAssetManifest manifest)
     {
         using var output = File.Create(path);
         JsonSerializer.Serialize(output, manifest, AudioAssetJson.Options);
     }
 
+    /// <summary>Copies extracted audio assets into a private tree before mutating instrument definitions.</summary>
     internal static void CopyAudioDirectory(string source, string destination)
     {
         Directory.CreateDirectory(destination);
@@ -214,6 +218,7 @@ internal static class AudioInstrumentsVerification
         }
     }
 
+    /// <summary>Runs the editable-instrument APU and PCM verification command.</summary>
     [VerificationCommand("--audio-instruments")]
     internal static int AudioInstrumentsCommand()
     {

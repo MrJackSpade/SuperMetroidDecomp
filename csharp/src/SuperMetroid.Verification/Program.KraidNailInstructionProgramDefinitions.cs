@@ -16,14 +16,17 @@ using static KraidSmallProgramsVerification;
 using static KraidVisualSelectorsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks both Kraid fingernail definitions, their frame loop, and compiled visual selectors.</summary>
 internal static class KraidNailInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for fingernail instruction and population comparison.</summary>
     internal static void VerifyKraidNailInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidNailInstructionProgramDefinitions), () => VerifyKraidNailInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs both nail variants through their loop and initialization while forbidding ROM selector reads.</summary>
     internal static void VerifyKraidNailInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -138,9 +141,11 @@ internal static class KraidNailInstructionProgramDefinitionsVerification
             "with selector and mechanics ROM reads forbidden.");
     }
 
+    /// <summary>Reads one native population byte for the independent Kraid nail slot oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail instruction program definitions")]
     private static byte KraidNailInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Alternates compiled nail frame words to detect allocation on warmed lookups.</summary>
     private static int ProbeKraidNailInstructionAllocation()
     {
         int checksum = 0;
@@ -154,6 +159,7 @@ internal static class KraidNailInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects compiled mechanics and visual reads and records selector access attempts.</summary>
     private static CartridgeReadGuard NewKraidNailInstructionGuard(ISnesAddressSpace source, Action presentationRead) =>
         new CartridgeReadGuard(source)
             .Forbid(KraidNailInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -163,6 +169,7 @@ internal static class KraidNailInstructionProgramDefinitionsVerification
                 KraidNailInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read installed Kraid nail selector ${address:X6}.");
 
+    /// <summary>Matches either byte of every compiled fingernail presentation operand in bank $A7.</summary>
     private static bool IsKraidNailSelectorByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa70000)
@@ -177,6 +184,7 @@ internal static class KraidNailInstructionProgramDefinitionsVerification
         return false;
     }
 
+    /// <summary>Runs the fingernail instruction comparison from the command dispatcher.</summary>
     [VerificationCommand("--kraid-nail-instruction-program-definitions")]
     internal static int KraidNailInstructionProgramDefinitionsCommand()
     {

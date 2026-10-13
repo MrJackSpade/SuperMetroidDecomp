@@ -16,21 +16,35 @@ namespace SuperMetroid.Desktop;
 /// </remarks>
 internal sealed class ControllerInputRecorder : IDisposable
 {
+    /// <summary>Emulated frames between scheduled journal snapshots, about two seconds at sixty updates per second.</summary>
     private const int FlushIntervalFrames = 120;
+    /// <summary>Per-installation folder containing reset-scoped input recordings.</summary>
     private const string RecordingDirectoryName = "input-recordings";
 
+    /// <summary>Serializes frame appends, worker publication, and final shutdown.</summary>
     private readonly Lock gate = new();
+    /// <summary>Verified source-cartridge digest embedded in each replay snapshot.</summary>
     private readonly byte[] romSha256;
+    /// <summary>Save RAM captured once at reset so replay starts from the same slot state.</summary>
     private readonly byte[] initialSaveRam;
+    /// <summary>Game startup options embedded with the input sequence.</summary>
     private readonly SuperMetroidGameOptions gameOptions;
+    /// <summary>Installed resource identity captured when the recording starts.</summary>
     private readonly GameContentIdentitySnapshot? contentIdentity;
+    /// <summary>UTC start time retained across all periodic snapshots.</summary>
     private readonly DateTimeOffset startedUtc;
+    /// <summary>Controller words in exact game-step order.</summary>
     private readonly List<ushort> inputs = [];
+    /// <summary>Final-flush hook for process exit outside normal form disposal.</summary>
     private readonly EventHandler processExitHandler;
+    /// <summary>Latest asynchronous atomic replacement, observed on later game frames.</summary>
     private Task flushTask = Task.CompletedTask;
+    /// <summary>Input count when the most recent periodic snapshot was scheduled.</summary>
     private int frameCountAtLastScheduledFlush;
+    /// <summary>Prevents later frames or shutdown paths from publishing after the final snapshot.</summary>
     private bool disposed;
 
+    /// <summary>Captures replay inputs and startup state for one reset-scoped destination.</summary>
     private ControllerInputRecorder(
         string path,
         byte[] romSha256,
@@ -90,6 +104,7 @@ internal sealed class ControllerInputRecorder : IDisposable
             contentIdentity);
     }
 
+    /// <summary>Creates the recording directory and a timestamped session file destination.</summary>
     private static ControllerInputRecorder StartCore(
         string recordingDirectory,
         byte[] romDigest,
@@ -140,6 +155,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         }
     }
 
+    /// <summary>Publishes one background atomic write under the same lock as input append decisions.</summary>
     private void ScheduleFlush(ushort[] snapshot)
     {
         // Publication under the same lock as RecordFrame prevents a second caller from
@@ -151,6 +167,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         }
     }
 
+    /// <summary>Pairs a copied input prefix with the original reset's cartridge, content, save RAM, and options.</summary>
     private ControllerInputRecording CreateRecording(ushort[] snapshot) => new()
     {
         StartedUtc = startedUtc,
@@ -185,6 +202,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         WriteAtomically(CreateRecording(snapshot));
     }
 
+    /// <summary>Flushes a temporary recording to disk before replacing the session file.</summary>
     private void WriteAtomically(ControllerInputRecording recording)
     {
         string temporaryPath = Path + ".tmp";
@@ -202,6 +220,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         File.Move(temporaryPath, Path, overwrite: true);
     }
 
+    /// <summary>Waits for any periodic write and publishes the full input sequence once.</summary>
     private void FlushFinal()
     {
         Task pendingFlush;
@@ -219,6 +238,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         WriteAtomically(CreateRecording(snapshot));
     }
 
+    /// <summary>Publishes the final recording and unregisters the process-exit hook.</summary>
     public void Dispose()
     {
         FlushFinal();

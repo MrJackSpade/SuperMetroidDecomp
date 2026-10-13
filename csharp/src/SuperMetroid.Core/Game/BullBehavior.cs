@@ -6,17 +6,28 @@ namespace SuperMetroid.Core.Game;
 internal sealed class BullBehavior : IEnemySpecies
 {
 
+    /// <summary>Each Bull acceleration or deceleration tick changes the 8.8 rate by $0018.</summary>
     private const ushort BullAccelerationDelta = 0x0018;
+    /// <summary>Bulls wait sixteen enemy frames before retargeting Samus.</summary>
     private const ushort BullMovementDelayFrames = 0x0010;
 
+    /// <summary>Per-slot AI state for Bulls in the current room.</summary>
     internal readonly BullEnemyState?[] _bullStates = new BullEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Population-selected terminal speed for each Bull slot.</summary>
     internal readonly ushort[] _bullMaxSpeeds = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Latest target bearing toward Samus, retained separately from the flight angle.</summary>
     internal readonly ushort[] _bullAnglesToSamus = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Committed travel bearing used while integrating a Bull's position.</summary>
     internal readonly ushort[] _bullAngles = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Suppresses repeated immune-shot knockback during its reaction window.</summary>
     internal readonly ushort[] _bullShotReactionDisableFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Population-selected interval between acceleration steps.</summary>
     internal readonly ushort[] _bullAccelerationTimerResets = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Population-selected interval between deceleration steps.</summary>
     internal readonly ushort[] _bullDecelerationTimerResets = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Counts down the post-hit period before Bull shot reactions may run again.</summary>
     internal readonly ushort[] _bullShotReactionDisableTimers = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Health captured before common hit processing for immune-hit detection.</summary>
     internal readonly ushort[] _bullPreviousHealth = new ushort[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Bull</c> at <c>$A8:D8C9</c>.</summary>
@@ -102,10 +113,12 @@ internal sealed class BullBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Converts the signed displacement to Samus into Bull's quarter-turn-offset byte angle.</summary>
     private static ushort CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
         unchecked((byte)(EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))) - 0x40));
 
+    /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
     private static void AccelerateBull(BullEnemyState state)
     {
         state.AccelerationIntervalTimer = unchecked((ushort)(
@@ -119,6 +132,7 @@ internal sealed class BullBehavior : IEnemySpecies
         state.Speed = unchecked((ushort)(state.Speed + state.Acceleration));
     }
 
+    /// <summary>Reduces acceleration and speed on the configured deceleration cadence.</summary>
     private static void DecelerateBull(BullEnemyState state)
     {
         state.AccelerationIntervalTimer = unchecked((ushort)(
@@ -132,6 +146,7 @@ internal sealed class BullBehavior : IEnemySpecies
         state.Speed = unchecked((ushort)(state.Speed - state.Acceleration));
     }
 
+    /// <summary>Starts braking when the native signed angle difference reaches $30.</summary>
     private static void TriggerBullDecelerationIfOffTarget(
         RoomEnemySlot slot,
         BullEnemyState state,
@@ -155,6 +170,7 @@ internal sealed class BullBehavior : IEnemySpecies
         state.AccelerationDelta = BullAccelerationDelta;
     }
 
+    /// <summary>Integrates both 16.16 position components from the committed angle and 8.8 speed.</summary>
     internal static void MoveBull(RoomEnemySlot slot, BullEnemyState state)
     {
         slot.Position = slot.Position.WithX(AddBullComponent(
@@ -167,9 +183,11 @@ internal sealed class BullBehavior : IEnemySpecies
             state.Speed));
     }
 
+    /// <summary>Reads the cartridge's signed sine sample for one byte-sized Bull heading.</summary>
     internal static short ReadBullSignedSine(byte angle) =>
         EnemyTrigonometryTables.SignedSixteenBitSine(angle);
 
+    /// <summary>Applies Bull's 24-bit sine-times-speed displacement and native negative-fraction rule.</summary>
     private static SnesFixedPosition AddBullComponent(
         SnesFixedPosition position,
         short sine,
@@ -220,10 +238,12 @@ internal sealed class BullBehavior : IEnemySpecies
         state.ShotReactionDisabled = true;
     }
 
+    /// <summary>Rejects a Bull callback whose slot has not received species initialization.</summary>
     private BullEnemyState RequireBullState(RoomEnemySlot slot) =>
         _bullStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Bull state.");
 
+    /// <summary>Applies Bull's immune-hit recoil after common bomb damage handling.</summary>
     internal void RegisterBullBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Bull &&
@@ -239,6 +259,7 @@ internal sealed class BullBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Associates the Bull definition with its native initialization routine.</summary>
     internal void RegisterBullInitializationAi(EnemyAiTable table)
     {
 
@@ -248,6 +269,7 @@ internal sealed class BullBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Advances the Bull's delay, targeting, acceleration, and braking state each frame.</summary>
     internal void RegisterBullMainAi(EnemyAiTable table)
     {
 
@@ -257,6 +279,7 @@ internal sealed class BullBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Applies recoil after a frozen or undamaging accepted projectile hit.</summary>
     internal void RegisterBullShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Bull &&

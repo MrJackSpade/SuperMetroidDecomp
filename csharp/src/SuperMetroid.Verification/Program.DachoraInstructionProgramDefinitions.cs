@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Dachora body and echo animation programs, facing selection, and running speed tiers.</summary>
 internal static class DachoraInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for Dachora instruction comparison.</summary>
     internal static void VerifyDachoraInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDachoraInstructionProgramDefinitions), () => VerifyDachoraInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs all fifteen compiled programs and checks their native mechanics and visual operand coverage.</summary>
     internal static void VerifyDachoraInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -140,6 +143,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             "ROM reads forbidden.");
     }
 
+    /// <summary>Forces timed instruction calls while recording each installed sprite selector used.</summary>
     private static void ExecuteDachoraProgram(
         ISnesAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -157,6 +161,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates running and falling words to detect allocation on warmed lookups.</summary>
     private static int ProbeDachoraInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -170,6 +175,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects live mechanics reads and observes any cartridge sprite operand accesses.</summary>
     private static CartridgeReadGuard NewDachoraInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(DachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -177,6 +183,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             .ObserveWords(0xa70000, DachoraInstructionProgramDefinitions.PresentationWordCount,
                 DachoraInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Dachora program check from the command dispatcher.</summary>
     [VerificationCommand("--dachora-instruction-program-definitions")]
     internal static int DachoraInstructionProgramDefinitionsCommand()
     {

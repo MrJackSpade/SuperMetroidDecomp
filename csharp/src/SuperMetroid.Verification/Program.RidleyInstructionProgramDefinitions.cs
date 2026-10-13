@@ -15,6 +15,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks Ridley's compiled instruction families and extended-sprite selectors for both facings.</summary>
 internal static class RidleyInstructionProgramDefinitionsVerification
 {
     /// <summary>
@@ -110,6 +111,7 @@ internal static class RidleyInstructionProgramDefinitionsVerification
             "extended-sprite selections pass with zero live operand reads.");
     }
 
+    /// <summary>Runs one Ridley entry to sleep while checking every selected native sprite operand.</summary>
     private static void RunProgram(
         SuperMetroidAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -163,6 +165,7 @@ internal static class RidleyInstructionProgramDefinitionsVerification
             $"Ridley program $A6:{program:X4}, facing {facingDirection}, did not sleep.");
     }
 
+    /// <summary>Repeatedly reads the fireballing entry to detect allocation on warmed lookups.</summary>
     private static int ProbeRidleyInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -174,6 +177,7 @@ internal static class RidleyInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects live mechanics reads and records cartridge visual selector accesses.</summary>
     private static CartridgeReadGuard NewRidleyInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(RidleyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -181,6 +185,7 @@ internal static class RidleyInstructionProgramDefinitionsVerification
             .ObserveWords(0xa60000, RidleyInstructionProgramDefinitionsTooling.PresentationWordCount,
                 RidleyInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Runs Ridley instruction comparison from the command dispatcher.</summary>
     [VerificationCommand("--ridley-instruction-mechanics")]
     internal static int RidleyInstructionMechanicsCommand()
     {

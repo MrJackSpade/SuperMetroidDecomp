@@ -60,9 +60,11 @@ internal static class VerificationCommands
             : Arguments.Select((argument, index) => (argument, value: args[index + 1])).Where(pair => !IsLiteral(pair.argument))
                 .Select(pair => (object?)pair.value).ToArray();
 
+        /// <summary>Distinguishes a required command keyword from a handler-bound placeholder.</summary>
         private static bool IsLiteral(string argument) => argument.StartsWith("--", StringComparison.Ordinal);
     }
 
+    /// <summary>Discovers and validates handlers once on first command lookup.</summary>
     private static readonly Lazy<List<Command>> registry = new(Discover);
 
     /// <summary>Every registered command, ordered by name then shape.</summary>
@@ -104,6 +106,7 @@ internal static class VerificationCommands
         return 0;
     }
 
+    /// <summary>Appends command usage and optional descriptions in registry order.</summary>
     private static void AppendUsage(StringBuilder text, bool withDescriptions)
     {
         text.AppendLine("Usage: SuperMetroid.Verification [<command>]");
@@ -120,6 +123,7 @@ internal static class VerificationCommands
         }
     }
 
+    /// <summary>Finds attributed static handlers and rejects duplicate command name and shape pairs.</summary>
     private static List<Command> Discover()
     {
         var commands = new List<Command>();
@@ -141,6 +145,7 @@ internal static class VerificationCommands
         return commands.OrderBy(command => command.Name, StringComparer.Ordinal).ThenBy(command => command.Shape, StringComparer.Ordinal).ToList();
     }
 
+    /// <summary>Checks a command's name, integer result, and placeholder binding against its handler signature.</summary>
     private static Command Validate(Command command)
     {
         if (!command.Name.StartsWith("--", StringComparison.Ordinal))

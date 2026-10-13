@@ -10,9 +10,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class TitleGraphicsPresentation
 {
+    /// <summary>Owned Mode-7 title characters and map, OBJ characters, and baby character page.</summary>
     private readonly byte[] mode7Characters, mode7Map, objectCharacters, babyCharacters;
+    /// <summary>Compiled OAM compositions keyed by cartridge-selected bank-$8C pointers.</summary>
     private readonly Dictionary<ushort, SpriteComposition> sprites;
 
+    /// <summary>Retains validated title transfer bytes and compiled sprite compositions.</summary>
     private TitleGraphicsPresentation(
         byte[] mode7Characters,
         byte[] mode7Map,
@@ -27,13 +30,13 @@ public sealed class TitleGraphicsPresentation
         this.sprites = sprites;
     }
 
-    /// <summary>Gets the encoded eight-bit Mode 7 character lane for the title artwork.</summary>
+    /// <summary>Eight-bit Mode-7 character lane uploaded for the title backdrop.</summary>
     public ReadOnlySpan<byte> Mode7Characters => mode7Characters;
-    /// <summary>Gets the 64-by-64 byte-indexed Mode 7 title map.</summary>
+    /// <summary>64-by-64 title map of Mode-7 character indexes.</summary>
     public ReadOnlySpan<byte> Mode7Map => mode7Map;
-    /// <summary>Gets the encoded four-bit title OBJ character graphics.</summary>
+    /// <summary>Four-bit title OBJ character graphics selected by sprite compositions.</summary>
     public ReadOnlySpan<byte> ObjectCharacters => objectCharacters;
-    /// <summary>Gets the encoded eight-bit Mode 7 baby Metroid character page.</summary>
+    /// <summary>Separate eight-bit Mode-7 character page for the baby Metroid scene.</summary>
     public ReadOnlySpan<byte> BabyCharacters => babyCharacters;
 
     /// <summary>Draws one ROM-selected title frame from installed composition data.</summary>
@@ -129,6 +132,7 @@ public sealed class TitleGraphicsPresentation
         json.Write(bytes);
     }
 
+    /// <summary>Validates the full native title-frame pointer set and compiles each editable part into OAM words.</summary>
     private static Dictionary<ushort, SpriteComposition> CompileSprites(TitleSpriteFrame[]? frames)
     {
         if (frames is null || frames.Length != TitleGraphicsFormat.SpriteFrameCount)

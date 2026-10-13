@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable authored highlight colors and durations; contains no palette addresses or audio commands.</summary>
 public sealed class MapPaletteCycle
 {
+    /// <summary>Frame holds that differ from the native fifteen/three-tick schedule.</summary>
     private readonly Dictionary<int, byte> durationEdits = [];
+    /// <summary>Independent forward color phases or the complete supplied sequence for other lengths.</summary>
     private readonly Bgr555[][] colors;
+    /// <summary>Reverse-traversal colors that differ from their mirrored forward phase.</summary>
     private readonly Dictionary<int, Bgr555> reverseColorEdits = [];
 
     /// <summary>
@@ -16,6 +19,7 @@ public sealed class MapPaletteCycle
     /// </summary>
     private static byte NativeDuration(int frame) => frame == 0 ? (byte)15 : (byte)3;
 
+    /// <summary>Retains independent holds and paint edits while deriving the stock fourteen-frame mirror.</summary>
     private MapPaletteCycle(byte[] durations, Bgr555[][] suppliedColors)
     {
         FrameCount = durations.Length;
@@ -34,8 +38,10 @@ public sealed class MapPaletteCycle
     /// <summary>Number of selected ordered color frames, one through 255; the animation owner, not this resource, advances and wraps the frame cursor.</summary>
     public int FrameCount { get; }
 
+    /// <summary>Maps a stock reverse frame to its matching forward paint phase.</summary>
     private int Phase(int frame) => FrameCount == 14 ? Math.Min(frame, 14 - frame) : frame;
 
+    /// <summary>Rejects a frame index outside the selected cycle.</summary>
     private void CheckFrame(int frame)
     {
         if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();

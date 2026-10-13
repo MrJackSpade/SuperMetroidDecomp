@@ -15,12 +15,15 @@ using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Retail-word and guarded-execution checks for Golden Torizo egg projectile programs.</summary>
 internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail data for the Golden Torizo egg instruction check.</summary>
     internal static void VerifyGoldenTorizoEggInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoEggInstructionProgramDefinitions), () => VerifyGoldenTorizoEggInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Runs both egg facings through bounce, hatch, flight, floor break, and shot break with fixed RNG inputs.</summary>
     internal static void VerifyGoldenTorizoEggInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -221,9 +224,11 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Reads one retail egg-program byte for the independent control-word oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo egg instruction program definitions")]
     private static byte GoldenTorizoEggInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Alternates warmed bounce and break control lookups for allocation accounting.</summary>
     private static int ProbeGoldenTorizoEggInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -237,6 +242,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Runs the retail-backed Golden Torizo egg instruction migration command.</summary>
     [VerificationCommand("--golden-torizo-egg-instruction-mechanics")]
     internal static int GoldenTorizoEggInstructionMechanicsCommand()
     {

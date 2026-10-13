@@ -16,12 +16,15 @@ using static DoorDefinitionsVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail-word and guarded-execution checks for Torizo low-health and death explosion programs.</summary>
 internal static class TorizoExplosionInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail data for the Torizo explosion instruction check.</summary>
     internal static void VerifyTorizoExplosionInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoExplosionInstructionProgramDefinitions), () => VerifyTorizoExplosionInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks low-health jitter cycles and both probabilistic death paths through exact lifetime and frame selection.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo explosion instruction program definitions")]
     internal static void VerifyTorizoExplosionInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -221,6 +224,7 @@ internal static class TorizoExplosionInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates warmed low-health and death control lookups for allocation accounting.</summary>
     private static int ProbeTorizoExplosionInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -234,12 +238,14 @@ internal static class TorizoExplosionInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects migrated Torizo control reads while observing visual-operand accesses.</summary>
     private static CartridgeReadGuard NewTorizoExplosionInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(TorizoExplosionInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Torizo explosion byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, TorizoExplosionInstructionProgramDefinitions.PresentationWordCount, TorizoExplosionInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the retail-backed Torizo explosion instruction migration command.</summary>
     [VerificationCommand("--torizo-explosion-instruction-mechanics")]
     internal static int TorizoExplosionInstructionMechanicsCommand()
     {

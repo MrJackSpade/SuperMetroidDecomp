@@ -52,11 +52,17 @@ public enum RoomCollisionType : byte
 /// </remarks>
 public readonly record struct RoomLevelWord(ushort Raw)
 {
+    /// <summary>Low ten bits selecting a room metatile definition.</summary>
     private const ushort VisualBlockIndexMask = 0x03ff;
+    /// <summary>Two parent-metatile horizontal and vertical flip bits.</summary>
     private const ushort VisualFlipMask = 0x0c00;
+    /// <summary>All twelve presentation bits, excluding physical collision dispatch.</summary>
     private const ushort VisualBitsMask = VisualBlockIndexMask | VisualFlipMask;
+    /// <summary>High nibble selecting the native collision handler.</summary>
     private const ushort CollisionTypeMask = 0xf000;
+    /// <summary>High bit checked by the native solid-attachment probe.</summary>
     private const ushort SolidProbeMask = 0x8000;
+    /// <summary>Distance from the low bit to the collision dispatch nibble.</summary>
     private const int CollisionTypeShift = 12;
 
     /// <summary>Low ten bits selecting a visual 16×16 block definition.</summary>
@@ -130,12 +136,14 @@ public readonly record struct RoomLevelWord(ushort Raw)
             (Raw & ~CollisionTypeMask) | ((ushort)collisionType << CollisionTypeShift))));
     }
 
+    /// <summary>Rejects a metatile index that would overwrite flip or collision bits.</summary>
     private static void ValidateVisualBlockIndex(ushort visualBlockIndex)
     {
         if ((visualBlockIndex & ~VisualBlockIndexMask) != 0)
             throw new ArgumentOutOfRangeException(nameof(visualBlockIndex));
     }
 
+    /// <summary>Rejects flags outside the two parent-metatile flip bits.</summary>
     private static void ValidateVisualFlipFlags(LevelBlockFlipFlags visualFlipFlags)
     {
         const LevelBlockFlipFlags All =
@@ -144,6 +152,7 @@ public readonly record struct RoomLevelWord(ushort Raw)
             throw new ArgumentOutOfRangeException(nameof(visualFlipFlags));
     }
 
+    /// <summary>Rejects a collision dispatch value that cannot fit in the native high nibble.</summary>
     private static void ValidateCollisionType(RoomCollisionType collisionType)
     {
         if ((byte)collisionType > 0x0f)

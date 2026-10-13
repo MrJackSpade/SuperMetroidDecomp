@@ -11,13 +11,20 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal sealed class DesktopSessionLog : IDisposable
 {
+    /// <summary>Serializes both console streams and archive checkpoints around one journal.</summary>
     private readonly Lock gate = new();
+    /// <summary>Unwrapped stdout used for the terminal and diagnostic fallback.</summary>
     private readonly TextWriter originalOutput;
+    /// <summary>Unwrapped stderr used when the journal itself fails.</summary>
     private readonly TextWriter originalError;
+    /// <summary>Durable UTF-8 interim log shared for read access while the game runs.</summary>
     private readonly StreamWriter journal;
+    /// <summary>Stops further journal writes after a diagnostic IO failure.</summary>
     private bool journalFailed;
+    /// <summary>Prevents writes and repeated archive cleanup after disposal.</summary>
     private bool disposed;
 
+    /// <summary>Creates a uniquely named live journal and ZIP path beside the executable.</summary>
     private DesktopSessionLog(string executableDirectory)
     {
         originalOutput = Console.Out;
@@ -67,6 +74,7 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Archives the final journal, restores console streams, and removes interim text after success.</summary>
     public void Dispose()
     {
         lock (gate)
@@ -103,6 +111,7 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Flushes the live log to disk and atomically publishes a ZIP containing session.log.</summary>
     private bool TryArchive()
     {
         string temporary = ArchivePath + ".tmp";
@@ -132,6 +141,7 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Writes a console segment to the journal first, then forwards it to its original stream.</summary>
     internal void Write(TextWriter console, ReadOnlySpan<char> text)
     {
         lock (gate)
@@ -149,6 +159,7 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Flushes journal and original stream in the same order as their writes.</summary>
     internal void Flush(TextWriter console)
     {
         lock (gate)
@@ -166,6 +177,7 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Reports logging failure directly to unwrapped stderr to avoid a broken tee loop.</summary>
     private void ReportLogFailure(Exception error)
     {
         // Bypass the tee: writing another error through a failed journal would recurse.

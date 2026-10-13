@@ -1,5 +1,6 @@
 namespace SuperMetroid.Core.Game;
 
+/// <summary>Compiled bank-$A8 Work Robot instruction mechanics, preserving authored pose timing and branches.</summary>
 internal abstract class WorkRobotInstructionProgramDefinitions
 {
     /// <summary><c>InstList_RobotNoPower_Neutral</c> at $A8:C6D3.</summary>
@@ -47,6 +48,7 @@ internal abstract class WorkRobotInstructionProgramDefinitions
     /// <summary><c>InstList_Robot_ApproachingFallLeft</c> at $A8:CB65.</summary>
     public const ushort ApproachingFallLeft = 0xcb65;
 
+    /// <summary>Marks spritemap operands that must be resolved by the presentation owner.</summary>
     internal const int PresentationOperand = -1;
     /// <summary>$A8:CB77, first code after the complete robot instruction region.</summary>
     internal const ushort EndAddress = 0xcb77;
@@ -76,19 +78,24 @@ internal abstract class WorkRobotInstructionProgramDefinitions
     private const ushort LedgeTicks = 128;
     /// <summary>$A8:CA61: right-facing shot retreat's second contact pose differs from its five-tick peers. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
     private const ushort RightRetreatContactTicks = 10;
+    /// <summary>Reads a compiled instruction or timing word and rejects presentation-only addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (!IsWordAddress(address)) throw NotCompiled(address);
         int value = ProgramWord(address);
         return value == PresentationOperand ? throw NotCompiled(address) : (ushort)value;
     }
+    /// <summary>Identifies pose operands inside a compiled program without reading sprite artwork.</summary>
     internal static bool IsPresentationWordAddress(ushort address) =>
         IsWordAddress(address) && ProgramWord(address) == PresentationOperand;
+    /// <summary>Bounds aligned instruction words to the complete Work Robot program interval.</summary>
     private static bool IsWordAddress(ushort address) => address >= NoPowerNeutral && address < EndAddress &&
         ((address - NoPowerNeutral) & 1) == 0;
 
-    // Each phase emits its executable instruction shape into a scalar selector. No
-    // generated words or presentation-address table are retained between calls.
+    /// <summary>
+    /// Selects one executable word by emitting the relevant native program phase into a
+    /// scalar cursor. No word array or presentation-address table survives the call.
+    /// </summary>
     internal static int ProgramWord(ushort address)
     {
         ushort start;
@@ -132,9 +139,18 @@ internal abstract class WorkRobotInstructionProgramDefinitions
         return writer.Value;
     }
 
-    /// <summary>The native shooting programs select exactly one of down, horizontal or up.</summary>
-    private enum LaserAim { Down, Horizontal, Up }
+    /// <summary>The three mutually exclusive laser trajectories used by authored firing lists.</summary>
+    private enum LaserAim
+    {
+        /// <summary>Fires below the robot's horizontal line.</summary>
+        Down,
+        /// <summary>Fires along the robot's facing direction.</summary>
+        Horizontal,
+        /// <summary>Fires above the robot's horizontal line.</summary>
+        Up,
+    }
 
+    /// <summary>Emits the direction-specific gait with callback windows and movement sounds.</summary>
     private static void Walk(ref WordSelector writer, bool right)
     {
         ushort move = MoveForward(right, hitWallOnly: false);
@@ -160,6 +176,7 @@ internal abstract class WorkRobotInstructionProgramDefinitions
         if (!right) ShootingOpportunity(ref writer, (ushort)WorkRobotInstruction.TryShootingLaserDownLeft);
         writer.Goto((ushort)((right ? FacingRightWalkingForwards : FacingLeftWalkingForwards) + 4));
     }
+    /// <summary>Places a shot callback early in a gait pose and retains its remaining duration.</summary>
     private static void ShootingOpportunity(ref WordSelector writer, ushort callback)
     {
         // The callback is scheduled within a pose; the remainder completes
@@ -168,6 +185,7 @@ internal abstract class WorkRobotInstructionProgramDefinitions
         writer.Command(callback);
         writer.Timed(WalkTicks - ShootingOpportunityTicks);
     }
+    /// <summary>Emits two backward strides at wall or post-shot cadence before returning to walking.</summary>
     private static void Retreat(ref WordSelector writer, bool right, bool wallResponse)
     {
         ushort cadence = wallResponse ? WalkTicks : ShotResponseTicks;
@@ -196,6 +214,7 @@ internal abstract class WorkRobotInstructionProgramDefinitions
         writer.Command(right ? (ushort)WorkRobotInstruction.Goto_FacingLeft_WalkingForwards
             : (ushort)WorkRobotInstruction.SetInstListTo_FacingRight_WalkingForwards);
     }
+    /// <summary>Emits the forward response after Samus shoots from behind the robot.</summary>
     private static void AdvanceAfterShot(ref WordSelector writer, bool right)
     {
         ushort move = MoveForward(right, hitWallOnly: true);
@@ -217,6 +236,7 @@ internal abstract class WorkRobotInstructionProgramDefinitions
         writer.Command(right ? (ushort)WorkRobotInstruction.SetInstListTo_FacingRight_WalkingForwards
             : (ushort)WorkRobotInstruction.Goto_FacingLeft_WalkingForwards);
     }
+    /// <summary>Emits the selected laser aim and its direction-specific transition into recoil.</summary>
     private static void Laser(ref WordSelector writer, bool right, LaserAim aim)
     {
         writer.Timed(LaserPoseTicks);
@@ -230,6 +250,7 @@ internal abstract class WorkRobotInstructionProgramDefinitions
         }
         if (aim != LaserAim.Up) writer.Goto(right ? FacingRightLaserShotRecoil : FacingLeftLaserShotRecoil);
     }
+    /// <summary>Emits kick, recovery, cooldown, and return-to-walking phases after firing.</summary>
     private static void Recoil(ref WordSelector writer, bool right)
     {
         ushort move = MoveBackward(right, hitWallOnly: false);
@@ -244,6 +265,7 @@ internal abstract class WorkRobotInstructionProgramDefinitions
         if (!right) writer.Command((ushort)WorkRobotInstruction.DecrementLaserCooldown);
         writer.Goto(right ? FacingRightWalkingForwards : FacingLeftWalkingForwards);
     }
+    /// <summary>Holds at a ledge, reduces laser cooldown, and resumes the walking list.</summary>
     private static void Ledge(ref WordSelector writer, bool right)
     {
         writer.Timed(LedgeTicks);
@@ -251,40 +273,52 @@ internal abstract class WorkRobotInstructionProgramDefinitions
         writer.Command((ushort)WorkRobotInstruction.DecrementLaserCooldown);
         writer.Goto(right ? FacingRightWalkingForwards : FacingLeftWalkingForwards);
     }
+    /// <summary>Selects the native forward callback with either wall-only or wall-and-fall handling.</summary>
     private static ushort MoveForward(bool right, bool hitWallOnly) => right
         ? hitWallOnly ? (ushort)WorkRobotInstruction.FacingRight_MoveForward_HandleHittingWall
             : (ushort)WorkRobotInstruction.FacingRight_MoveForward_HandleWallOrFall
         : hitWallOnly ? (ushort)WorkRobotInstruction.FacingLeft_MoveForward_HandleHittingWall
             : (ushort)WorkRobotInstruction.FacingLeft_MoveForward_HandleWallOrFall;
+    /// <summary>Selects the native backward callback with the requested collision behavior.</summary>
     private static ushort MoveBackward(bool right, bool hitWallOnly) => right
         ? hitWallOnly ? (ushort)WorkRobotInstruction.FacingRight_MoveBackward_HandleHittingWall
             : (ushort)WorkRobotInstruction.FacingRight_MoveBackward_HandleWallOrFall
         : hitWallOnly ? (ushort)WorkRobotInstruction.FacingLeft_MoveBackward_HandleHittingWall
             : (ushort)WorkRobotInstruction.FacingLeft_MoveBackward_HandleWallOrFall;
+    /// <summary>Places the on-screen movement sound before the movement callback.</summary>
     private static void SoundThenMove(ref WordSelector writer, ushort move)
     {
         writer.Command((ushort)WorkRobotInstruction.PlaySFXIfOnScreen);
         writer.Command(move);
     }
+    /// <summary>Places the on-screen movement sound after the movement callback.</summary>
     private static void MoveThenSound(ref WordSelector writer, ushort move)
     {
         writer.Command(move);
         writer.Command((ushort)WorkRobotInstruction.PlaySFXIfOnScreen);
     }
+    /// <summary>Retains only the requested word while a phase emits its instruction shape.</summary>
     private struct WordSelector(ushort address, ushort start)
     {
+        /// <summary>Counts emitted words until the caller's address is reached.</summary>
         private int remaining = (address - start) / 2;
 
+        /// <summary>The selected instruction word, requiring the phase to have emitted it.</summary>
         public int Value { get => field == int.MinValue
             ? throw new InvalidOperationException("Work Robot semantic program shape is incomplete.") : field; private set; } = int.MinValue;
+        /// <summary>Offers one mechanic opcode to the requested-address selector.</summary>
         public void Command(ushort command) => Emit(command);
+        /// <summary>Emits timed poses with presentation operands in their native interleaving.</summary>
         public void Timed(ushort duration, int poses = 1)
         {
             for (int pose = 0; pose < poses; pose++) { Emit(duration); Emit(PresentationOperand); }
         }
+        /// <summary>Emits the native goto opcode followed by its list destination.</summary>
         public void Goto(ushort target) { Emit((ushort)CommonEnemyInstruction.Goto); Emit(target); }
+        /// <summary>Captures the emitted word only when it occupies the requested address.</summary>
         private void Emit(int value) { if (remaining-- == 0) Value = value; }
     }
+    /// <summary>Identifies an address outside the compiled mechanics or inside presentation data.</summary>
     private static InvalidDataException NotCompiled(ushort address) =>
         new($"Work Robot instruction mechanics pointer $A8:{address:X4} is not compiled.");
 }

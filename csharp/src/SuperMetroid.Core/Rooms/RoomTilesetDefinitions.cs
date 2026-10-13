@@ -6,6 +6,7 @@ public static class RoomTilesetDefinitions
     /// <summary>$8F:E7A7..E7DF: graphics themes $00..$1C precede unrelated data.</summary>
     public const int Count = 0x1d;
 
+    /// <summary>Twenty-nine retail graphics-set selectors from the bank-$8F room tileset table.</summary>
     private enum Theme : byte
     {
         /// <summary>$8F:E6A2, <c>Tileset_Table_0_UpperCrateria</c>, graphics-set selector $00.</summary>
@@ -68,6 +69,7 @@ public static class RoomTilesetDefinitions
         Draygon = 0x1c,
     }
 
+    /// <summary>Native compressed block-definition sources shared by compatible room themes.</summary>
     private enum BlockSource : int
     {
         /// <summary>$C1B6F6, <c>TileTables_0_1_UpperCrateria</c>: native BlockSource identity.</summary>
@@ -100,6 +102,7 @@ public static class RoomTilesetDefinitions
         Draygon = 0xc2960d,
     }
 
+    /// <summary>Maps a room theme to the compressed block table used for its level words.</summary>
     private static BlockSource SelectBlockSource(Theme theme) => theme switch
     {
         Theme.UpperCrateria or Theme.RedCrateria => BlockSource.UpperCrateria,
@@ -119,6 +122,7 @@ public static class RoomTilesetDefinitions
         _ => throw new InvalidDataException("Invalid graphics theme."),
     };
 
+    /// <summary>Native compressed character-art sources shared by compatible room themes.</summary>
     private enum CharacterSource : int
     {
         /// <summary>$BAC629, <c>Tiles_0_1_UpperCrateria</c>: native CharacterSource identity.</summary>
@@ -155,6 +159,7 @@ public static class RoomTilesetDefinitions
         Draygon = 0xbf9dea,
     }
 
+    /// <summary>Maps a room theme to the character tiles uploaded for its backgrounds.</summary>
     private static CharacterSource SelectCharacterSource(Theme theme) => theme switch
     {
         Theme.UpperCrateria or Theme.RedCrateria => CharacterSource.UpperCrateria,
@@ -176,6 +181,7 @@ public static class RoomTilesetDefinitions
         _ => throw new InvalidDataException("Invalid graphics theme."),
     };
 
+    /// <summary>Native room palette sources selected independently of block and character sharing.</summary>
     private enum PaletteSource : int
     {
         /// <summary>$C2AD7C, <c>Palettes_0_UpperCrateria</c>: native PaletteSource identity.</summary>
@@ -230,6 +236,7 @@ public static class RoomTilesetDefinitions
         Draygon = 0xc2ba2c,
     }
 
+    /// <summary>Maps a room theme to its selected palette resource, including Ceres color variants.</summary>
     private static PaletteSource SelectPaletteSource(Theme theme) => theme switch
     {
         Theme.UpperCrateria => PaletteSource.UpperCrateria,

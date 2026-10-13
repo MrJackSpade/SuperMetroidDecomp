@@ -14,8 +14,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 using static KraidReportedCollisionsVerification;
 using static SuiteTimingVerification;
+/// <summary>Checks close-range Super Missile damage and native projectile slot traversal in Kraid's mouth.</summary>
 internal static class KraidSuperMissileDamageVerification
 {
+    /// <summary>Runs two room shots through damage and deferred link cleanup, or emits the focused collision report.</summary>
     internal static int VerifyKraidSuperMissileDamage(bool collisionReport = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -91,6 +93,7 @@ internal static class KraidSuperMissileDamageVerification
         return 0;
     }
 
+    /// <summary>Checks count-bounded traversal, inactive slot handling, scratch-word rejection, and adjacent bomb slots.</summary>
     private static void VerifyKraidCollisionSlotOrder(ISnesAddressSpace bus,
         SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState state)
     {
@@ -164,12 +167,14 @@ internal static class KraidSuperMissileDamageVerification
         Console.WriteLine("Kraid close-range damage, deferred owner/link cleanup, count traversal and adjacent bomb slot verified.");
     }
 
+    /// <summary>Runs the focused reported collision path from the command dispatcher.</summary>
     [VerificationCommand("--kraid-reported-collisions")]
     internal static int KraidReportedCollisionsCommand()
     {
         return VerifyKraidSuperMissileDamage(collisionReport: true);
     }
 
+    /// <summary>Runs the two-shot Kraid mouth damage check from the command dispatcher.</summary>
     [VerificationCommand("--kraid-super-missile-damage")]
     internal static int KraidSuperMissileDamageCommand()
     {

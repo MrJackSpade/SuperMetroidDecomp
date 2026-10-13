@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Checks editable Crystal Flash body and bubble colors against native palette updates.</summary>
 internal static class CrystalFlashColorsVerification
 {
+    /// <summary>Compares cartridge source words, then checks edited CGRAM, unchanged timers, and stock repair.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crystal Flash body and bubble colors")]
     internal static void VerifyCrystalFlashColorOverride(string stockDirectory,
@@ -152,6 +154,7 @@ internal static class CrystalFlashColorsVerification
         }
     }
 
+    /// <summary>Blocks all native body and bubble pointer and color bytes during installed palette updates.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Crystal Flash palette pointers and colors the installed cycle must not reread")]
     private static CartridgeReadGuard NewCrystalFlashColorReadGuard(ISnesAddressSpace source)
     {

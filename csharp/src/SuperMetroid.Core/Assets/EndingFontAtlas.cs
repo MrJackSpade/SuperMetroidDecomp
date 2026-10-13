@@ -3,9 +3,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable 4-bpp font shared by the credits, result screens, and post-shot subtitle.</summary>
 public sealed class EndingFontAtlas
 {
-    // Footprint positions, native cutouts and all other artwork remain required.
+    /// <summary>Selected fill-ink footprint for calculable alphabet and digit outlines.</summary>
     private readonly HashSet<int> glyphFootprint = new();
+    /// <summary>Required native cutouts, other artwork, and supplied differences from calculated ink.</summary>
     private readonly Dictionary<int, byte> pixels = new();
+    /// <summary>Separates calculable glyph ink from independently required or edited pixels.</summary>
     private EndingFontAtlas(byte[] supplied)
     {
         for (int pixel = 0; pixel < supplied.Length; pixel++)
@@ -21,6 +23,7 @@ public sealed class EndingFontAtlas
             .Select(Pixel).ToArray(),
         new(EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height), EndingFontAtlasFormat.BitsPerPixel);
 
+    /// <summary>Resolves one selected atlas pixel from retained artwork or its glyph outline rule.</summary>
     private byte Pixel(int pixel) => pixels.TryGetValue(pixel, out byte value) ? value
         : EndingFontAtlasFormat.TryCalculatedPixel(pixel, glyphFootprint, out byte calculated) ? calculated
         : throw new InvalidOperationException("Required ending font pixel is absent.");
@@ -78,10 +81,19 @@ public static class EndingFontAtlasFormat
     }
 
     /// <summary>The two blank characters the ending text maps to a space.</summary>
-    private enum SpaceCell { ResultBlank, LargeBlank }
+    /// <summary>Two text-mapped space tiles with transparent native ink.</summary>
+    private enum SpaceCell
+    {
+        /// <summary>Small result-text space tile $4F.</summary>
+        ResultBlank,
+        /// <summary>Large ending-text space tile $7F.</summary>
+        LargeBlank,
+    }
 
+    /// <summary>Both native space cells used by the result and large text layouts.</summary>
     private static readonly SpaceCell[] SpaceCells = Enum.GetValues<SpaceCell>();
 
+    /// <summary>Maps the semantic space role to its tile word in the ending text layout.</summary>
     private static int TileOf(SpaceCell space) => space switch
     {
         SpaceCell.ResultBlank => EndingTextDefinitions.ResultBlankWord,
@@ -95,6 +107,7 @@ public static class EndingFontAtlasFormat
     /// <summary>Font3 $97:E7DE, small/large alphabet and copyright digits: REQUIRED one-pixel eight-neighbor outline extent.</summary>
     private const int GlyphOutlineWidth = 1;
 
+    /// <summary>Recognizes the small result alphabet's contiguous tile range.</summary>
     internal static bool IsSmallAlphabetPixel(int pixel)
     {
         if ((uint)pixel >= Width * Height) throw new ArgumentOutOfRangeException(nameof(pixel));
@@ -158,6 +171,7 @@ public static class EndingFontAtlasFormat
             or (0x42, 7, 13) or (0x42, 1, 14) or (0x42, 6, 14)
             or (0x45, 6, 11) or (0x45, 2, 14);
     }
+    /// <summary>Calculates transparent, fill, or adjacent outline ink only for the proven glyph domain.</summary>
     internal static bool TryCalculatedPixel(int pixel, IReadOnlySet<int> requiredFootprint, out byte ink)
     {
         ink = 0;

@@ -68,6 +68,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
 /// <summary>One Tourian boss statue's complete mechanics program.</summary>
 public sealed class TourianStatueAnimatedTileProgramDefinition
 {
+    /// <summary>Captures one statue's header, timing, event, palette, and effect operands from its boss-specific definition.</summary>
     internal TourianStatueAnimatedTileProgramDefinition(TourianStatueAnimatedTileProgramParts parts)
     {
         ObjectPointer = parts.ObjectPointer;
@@ -119,9 +120,12 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// </summary>
     public IReadOnlyList<ushort> SourceOperandPointers { get; }
 
+    /// <summary>Calculates the nine visual-source operand addresses from a statue's shared 104-byte program layout.</summary>
     private sealed class CalculatedSourceOperands(ushort programStart) : IReadOnlyList<ushort>
     {
+        /// <summary>Five oscillation, two release, one eye-glow, and one soul source operand.</summary>
         public int Count => 9;
+        /// <summary>Finds an operand in the appropriate timed-frame or waiting-phase portion of the program.</summary>
         public ushort this[int index]
         {
             get
@@ -138,11 +142,13 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
             }
         }
 
+        /// <summary>Enumerates the nine calculated source locations in native order.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
 
+        /// <summary>Shares the typed operand enumeration with non-generic callers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -232,6 +238,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
         return true;
     }
 
+    /// <summary>Resolves an instruction branch target relative to this statue's program start with native word wraparound.</summary>
     private ushort At(int relativeOffset) =>
         unchecked((ushort)(ProgramStart + relativeOffset));
 }

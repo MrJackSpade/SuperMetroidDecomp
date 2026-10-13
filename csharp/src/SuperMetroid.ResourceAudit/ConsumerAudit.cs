@@ -12,6 +12,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class ConsumerAudit
 {
+    /// <summary>Builds a semantic Core/tooling inventory and records resolvable consumers and explicit coverage gaps.</summary>
     public static void Run(string root, ResourceIndex exports, AuditReport report)
     {
         CSharpCompilation compilation = CreateCompilation(root);
@@ -41,6 +42,7 @@ internal static class ConsumerAudit
     internal static Type? ProgramOwnerType(string fullName) =>
         typeof(SuperMetroid.Core.Game.RoomEnemySystem).Assembly.GetType(fullName) ?? typeof(ToolingTypes).Assembly.GetType(fullName);
 
+    /// <summary>Parses Core and its tooling mirror with SDK implicit usings for semantic source inspection.</summary>
     internal static CSharpCompilation CreateCompilation(string root)
     {
         string directory = Path.Combine(root, "csharp/src/SuperMetroid.Core");
@@ -71,6 +73,7 @@ internal static class ConsumerAudit
         return compilation;
     }
 
+    /// <summary>Classifies an instance resource lookup by semantic owner and constant source identity.</summary>
     internal static void Inspect(InvocationExpressionSyntax call, SemanticModel semantic,
         ResourceIndex exports, AuditReport report, ClosedPresentationAudit? closedProviders = null)
     {
@@ -108,6 +111,7 @@ internal static class ConsumerAudit
         report.Consumers.Add(new(owner, source,             exports.Contains(domain, key) ? "resolved" : "missing"));
     }
 
+    /// <summary>Recognizes asset and room presentation types that may consume installed resources.</summary>
     private static bool IsResourceType(ITypeSymbol type)
     {
         string space = type.ContainingNamespace.ToDisplayString();
@@ -118,6 +122,7 @@ internal static class ConsumerAudit
              type.Name.EndsWith("Visuals", StringComparison.Ordinal));
     }
 
+    /// <summary>Maps a known presentation operation to the resource domain it addresses.</summary>
     private static string? Domain(string type, string method) => (type, method) switch
     {
         ("EnemySpritemapCatalog", "TryGetDisplay" or "TryGet") => ResourceDomains.EnemySimple,
@@ -129,6 +134,7 @@ internal static class ConsumerAudit
         _ => null,
     };
 
+    /// <summary>Builds a resource key from compiler-bound constant arguments, or leaves dynamic calls unresolved.</summary>
     private static string? ConstantKey(string domain, InvocationExpressionSyntax call, SemanticModel semantic)
     {
         // Match parameter identities, not textual argument order; named arguments

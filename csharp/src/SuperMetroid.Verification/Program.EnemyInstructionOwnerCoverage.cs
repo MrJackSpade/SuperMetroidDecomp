@@ -15,6 +15,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Audits instruction ownership for every named retail enemy definition and population variant.</summary>
 internal static class EnemyInstructionOwnerCoverageVerification
 {
     /// <summary>
@@ -171,6 +172,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             "explicitly inventoried pending families.");
     }
 
+    /// <summary>Distinguishes a compiled family dispatch from the terminal cartridge fallback read.</summary>
     private static bool HasCompiledEnemyInstructionOwner(
         RoomEnemySystem enemies,
         ISnesAddressSpace source,
@@ -201,6 +203,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         }
     }
 
+    /// <summary>Recognizes the dispatcher's specific failure for a definition without translated initialization AI.</summary>
     private static bool IsUntranslatedEnemyInitializer(
         Exception? exception,
         EnemyDefinitionId definitionPointer) =>
@@ -210,6 +213,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             StringComparison.Ordinal) &&
         invalid.Message.EndsWith(" is not translated.", StringComparison.Ordinal);
 
+    /// <summary>Extracts distinct bank-$A0 enemy headers named in the pinned symbol inventory.</summary>
     private static EnemyDefinitionId[] ReadNamedRetailEnemyDefinitions()
     {
         string symbolPath = Path.GetFullPath(
@@ -228,6 +232,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             .ToArray();
     }
 
+    /// <summary>Groups native population records from all retail room states by enemy definition.</summary>
     private static Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>>
         ReadRetailEnemyPopulationRecords(ISnesAddressSpace rom)
     {
@@ -265,13 +270,16 @@ internal static class EnemyInstructionOwnerCoverageVerification
         return records;
     }
 
+    /// <summary>Turns any cartridge mechanics read into a recognizable unowned-definition failure.</summary>
     private static CartridgeReadGuard NewEnemyInstructionOwnerReadProbe(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(_ => true,
             address => new EnemyInstructionOwnerFallbackReadException(address));
 
+    /// <summary>Signals that an ordinary enemy's instruction dispatch reached the ROM fallback.</summary>
     internal sealed class EnemyInstructionOwnerFallbackReadException(int address) :
         Exception($"Ordinary-enemy mechanics fell back to ROM at ${address:X6}.");
 
+    /// <summary>Runs the retail-wide audit of translated enemy instruction ownership.</summary>
     [VerificationCommand("--enemy-instruction-owner-coverage")]
     internal static int EnemyInstructionOwnerCoverageCommand()
     {

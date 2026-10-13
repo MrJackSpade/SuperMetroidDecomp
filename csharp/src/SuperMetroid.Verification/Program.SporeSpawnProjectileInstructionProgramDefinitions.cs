@@ -16,12 +16,15 @@ using static DoorDefinitionsVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Spore Spawn emitter, spore, and stalk instruction paths against bank $86.</summary>
 internal static class SporeSpawnProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the pinned cartridge and runs the Spore Spawn projectile comparison.</summary>
     internal static void VerifySporeSpawnProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifySporeSpawnProjectileInstructionProgramDefinitions), () => VerifySporeSpawnProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks live spawn, release, loop, shot/drop, and selector paths with compiled ROM bytes guarded.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn projectile instruction program definitions")]
     internal static void VerifySporeSpawnProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -143,6 +146,7 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitionsVerificat
             AssertEqual(nativeOperands.Length, draw, "Spore Spawn executes every expected draw step");
         }
     }
+    /// <summary>Repeats warmed emitter and shot-program lookups for the caller's allocation measurement.</summary>
     private static int ProbeSporeSpawnProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -156,12 +160,14 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitionsVerificat
         return checksum;
     }
 
+    /// <summary>Forbids compiled mechanics rereads and observes native sprite operands.</summary>
     private static CartridgeReadGuard NewSporeSpawnProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(SporeSpawnProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Spore Spawn mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, SporeSpawnProjectileInstructionProgramDefinitions.PresentationWordCount, SporeSpawnProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Dispatches the Spore Spawn projectile instruction verification command.</summary>
     [VerificationCommand("--spore-spawn-projectile-instruction-mechanics")]
     internal static int SporeSpawnProjectileInstructionMechanicsCommand()
     {

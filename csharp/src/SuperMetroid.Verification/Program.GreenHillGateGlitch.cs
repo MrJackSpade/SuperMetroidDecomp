@@ -14,8 +14,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Compares Green Hill Grapple and Speed Booster gate triggers with native success and control records.</summary>
 internal static class GreenHillGateGlitchVerification
 {
+    /// <summary>Captures one setup's gate opening frame, Samus position and pose, and Grapple state.</summary>
     internal readonly record struct GreenHillGateRecord(
         int StartX,
         int BaseSpeed,
@@ -27,6 +29,7 @@ internal static class GreenHillGateGlitchVerification
         Position16<RoomPixels> Grapple,
         ushort GrappleFunction);
 
+    /// <summary>Checks two native success windows and three adjacent failures against the real room.</summary>
     internal static void VerifyGreenHillGrappleSpeedGateGlitch()
     {
         GreenHillGateRecord[] expected = File.ReadLines(
@@ -57,6 +60,7 @@ internal static class GreenHillGateGlitchVerification
             "original CPU, including the opening gate actor.");
     }
 
+    /// <summary>Seeds grounded Samus at a recorded fixed-point setup and observes the actual gate PLM and actor.</summary>
     private static GreenHillGateRecord RunGreenHillGrappleSpeedGateGlitch(
         int startX,
         int baseSpeed)
@@ -148,6 +152,7 @@ internal static class GreenHillGateGlitchVerification
         return actual;
     }
 
+    /// <summary>Decodes one captured native CSV row, including hexadecimal pose and Grapple function words.</summary>
     private static GreenHillGateRecord ParseGreenHillGateRecord(string line)
     {
         string[] fields = line.Split(',');
@@ -169,6 +174,7 @@ internal static class GreenHillGateGlitchVerification
             ushort.Parse(fields[10], NumberStyles.HexNumber, CultureInfo.InvariantCulture));
     }
 
+    /// <summary>Runs the Green Hill gate comparison from the command dispatcher.</summary>
     [VerificationCommand("--green-hill-gate-glitch")]
     internal static int GreenHillGateGlitchCommand()
     {

@@ -18,8 +18,10 @@ public static class RoomPlmCollectibleVisualFiles
     public const string VisualFileName = "collectibles.json";
     /// <summary>Stock provenance manifest filename containing the format, source-cartridge identity, and visual-file digest.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Schema revision required by stock collectible visuals and their manifest.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Reads and writes collectible documents with stable camel-case JSON names.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -92,6 +94,7 @@ public static class RoomPlmCollectibleVisualFiles
     /// <param name="directory">Stock collectible directory; overrides are intentionally ignored.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Checks eight dynamic selectors and all 24 one-cell native draws before extracting visual words.</summary>
     private static RoomPlmCollectibleVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         for (int slot = 0; slot < 4; slot++)
@@ -122,6 +125,7 @@ public static class RoomPlmCollectibleVisualFiles
         return entries.ToArray();
     }
 
+    /// <summary>Checks that hash-validated stock visual bits still match compiled cartridge definitions.</summary>
     private static void VerifyStockMatchesCompiled(RoomPlmCollectibleVisualCatalog catalog,
         string path)
     {
@@ -132,6 +136,7 @@ public static class RoomPlmCollectibleVisualFiles
                     $"Stock collectible visuals {path} differ from compiled frame {frame.Id}.");
     }
 
+    /// <summary>Validates document version and entries, attaching the source path to any catalog error.</summary>
     private static RoomPlmCollectibleVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -146,8 +151,10 @@ public static class RoomPlmCollectibleVisualFiles
         }
     }
 
+    /// <summary>Reads a collectible document from an installed JSON path.</summary>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
 
+    /// <summary>Deserializes a collectible document and identifies malformed or empty content by path.</summary>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -161,8 +168,10 @@ public static class RoomPlmCollectibleVisualFiles
         }
     }
 
+    /// <summary>Records the supported cartridge revision and digest of the stock visual JSON.</summary>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
+    /// <summary>Stores a versioned, complete set of named collectible visual references.</summary>
     private sealed record VisualDocument(int Version,
         RoomPlmCollectibleVisualEntry[] Entries);
 }

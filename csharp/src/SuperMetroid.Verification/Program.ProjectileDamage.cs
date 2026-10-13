@@ -6,8 +6,10 @@ using SuperMetroid.Core.Input;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks compiled projectile damage and special beam mechanics against native data and guarded production initialization.</summary>
 internal static class ProjectileDamageVerification
 {
+    /// <summary>Exercises beam, missile, bomb, hyper, and combo initializers with cartridge damage reads forbidden.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile damage")]
     internal static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
     {
@@ -104,6 +106,7 @@ internal static class ProjectileDamageVerification
         Console.WriteLine("Projectile initialization: 357 selection words, 40 damage headers, loud non-catalog rejection and all seven initializer paths pass with selection/damage reads forbidden.");
     }
 
+    /// <summary>Runs cost, angle, sine-offset, and activation checks for compiled special beam data.</summary>
     private static void VerifyComboMechanicsDefinitions(
         SuperMetroidAddressSpace rom,
         Func<int, ushort> readWord)
@@ -113,6 +116,7 @@ internal static class ProjectileDamageVerification
         Suite(nameof(VerifyComboMotionAndActivation), () => VerifyComboMotionAndActivation(rom));
     }
 
+    /// <summary>Compares every combo Power Bomb cost with the native table and checks invalid beam indices.</summary>
     internal static void VerifyComboPowerBombCostAlgorithm(Func<int, ushort> readWord)
     {
         for (int beam = 0; beam < 12; beam++)
@@ -128,6 +132,7 @@ internal static class ProjectileDamageVerification
         Console.WriteLine("Combo cost algorithm: all twelve original cost words and bounds match.");
     }
 
+    /// <summary>Compares the four combo origin angles with native words and checks slot bounds.</summary>
     internal static void VerifyComboOriginAngleAlgorithm(Func<int, ushort> readWord)
     {
         for (int slot = 0; slot < 4; slot++)
@@ -143,6 +148,7 @@ internal static class ProjectileDamageVerification
         Console.WriteLine("Combo origin algorithm: all four original angle words and bounds match.");
     }
 
+    /// <summary>Compares all byte-valued angle and amplitude pairs with the native sine-offset calculation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for combo sine offset alias")]
     internal static void VerifyComboSineOffsetAlias(SuperMetroidAddressSpace rom)
     {
@@ -169,6 +175,7 @@ internal static class ProjectileDamageVerification
 
     }
 
+    /// <summary>Checks combo activation cost, origin angles, and first motion step while compiled table reads are forbidden.</summary>
     private static void VerifyComboMotionAndActivation(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyComboSineOffsetAlias), () => VerifyComboSineOffsetAlias(rom));
@@ -220,6 +227,7 @@ internal static class ProjectileDamageVerification
             "  Special beam mechanics: twelve costs, four origin angles and 65,536 sine offsets match cartridge data; all four producers avoid those ROM tables.");
     }
 
+    /// <summary>Rejects native damage-header and selection-table reads during projectile initialization.</summary>
     private static MutableCartridgeReadGuard NewProjectileDamageReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -228,6 +236,7 @@ internal static class ProjectileDamageVerification
         return guard;
     }
 
+    /// <summary>Rejects combo cost, origin-angle, and sine-table reads from the production path.</summary>
     private static MutableCartridgeReadGuard NewComboMechanicsReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);

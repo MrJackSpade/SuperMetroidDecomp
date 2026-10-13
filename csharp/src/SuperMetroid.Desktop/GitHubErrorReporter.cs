@@ -36,13 +36,20 @@ public sealed record GitHubErrorContext(
 /// </remarks>
 public sealed class GitHubErrorReporter : IDisposable
 {
+    /// <summary>Private owner/repository destination for automatically captured errors.</summary>
     private readonly string repository;
+    /// <summary>Remote lookup, comment, and creation operations used by the single worker.</summary>
     private readonly IGitHubIssueClient issueClient;
+    /// <summary>Nonblocking multiwriter queue processed in report order by one remote worker.</summary>
     private readonly Channel<QueuedError> queue = Channel.CreateUnbounded<QueuedError>(
         new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
+    /// <summary>Counts repeated failures per fingerprint and context after excluding frame/input changes.</summary>
     private readonly Dictionary<string, int> sessionOccurrences = new(StringComparer.Ordinal);
+    /// <summary>Serializes occurrence throttling across reporting threads.</summary>
     private readonly Lock fingerprintLock = new();
+    /// <summary>Drains queued errors and prevents duplicate-check races between novel failures.</summary>
     private readonly Task worker;
+    /// <summary>Atomic gate that stops queueing new reports after disposal begins.</summary>
     private int disposed;
 
     /// <summary>Starts a single-reader reporting queue backed by the authenticated GitHub CLI.</summary>
@@ -52,6 +59,7 @@ public sealed class GitHubErrorReporter : IDisposable
     {
     }
 
+    /// <summary>Starts the same reporting worker with an injected issue client for focused host checks.</summary>
     internal GitHubErrorReporter(string repository, IGitHubIssueClient issueClient)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(repository);
@@ -124,6 +132,7 @@ public sealed class GitHubErrorReporter : IDisposable
         worker.GetAwaiter().GetResult();
     }
 
+    /// <summary>Hashes exception and managed-method identity, adding room/state unless a typed dispatch error declares itself room-independent.</summary>
     internal static string CreateFingerprint(Exception exception, GitHubErrorContext? context = null)
     {
         Ensure.NotNull(exception);
@@ -137,6 +146,7 @@ public sealed class GitHubErrorReporter : IDisposable
         return $"SMERR-{Convert.ToHexString(digest.AsSpan(0, 8))}";
     }
 
+    /// <summary>Uses a typed dispatch key or recursively records exception type, message, managed stack methods, and inner errors without source locations.</summary>
     private static void AppendExceptionIdentity(StringBuilder identity, Exception exception)
     {
         if (exception is CartridgeDispatchException dispatch)
@@ -165,6 +175,7 @@ public sealed class GitHubErrorReporter : IDisposable
         }
     }
 
+    /// <summary>Processes reports serially, comments on matching fingerprints, and prints remote failures without recursively reporting them.</summary>
     private async Task ProcessQueueAsync()
     {
         await foreach (QueuedError queued in queue.Reader.ReadAllAsync().ConfigureAwait(false))
@@ -208,6 +219,7 @@ public sealed class GitHubErrorReporter : IDisposable
         }
     }
 
+    /// <summary>Formats the searchable auto-error marker and compresses whitespace to fit GitHub's 240-character title limit.</summary>
     private static string BuildTitle(string fingerprint, Exception exception)
     {
         string message = string.Join(
@@ -220,6 +232,7 @@ public sealed class GitHubErrorReporter : IDisposable
         return prefix + message;
     }
 
+    /// <summary>Records build IDs, capture context, optional frame diagnostics, and the full exception for a new issue or occurrence comment.</summary>
     private static string BuildBody(
         string fingerprint,
         Exception exception,
@@ -269,12 +282,14 @@ public sealed class GitHubErrorReporter : IDisposable
         return body.ToString();
     }
 
+    /// <summary>Adds an optional 16-bit runtime field in four-digit hexadecimal form.</summary>
     private static void AppendHexContext(StringBuilder body, string name, ushort? value)
     {
         if (value is ushort word)
             body.Append("- ").Append(name).Append(": $").AppendLine(word.ToString("X4"));
     }
 
+    /// <summary>Adds an optional room or door pointer with its owning cartridge bank.</summary>
     private static void AppendBankContext(
         StringBuilder body,
         string name,
@@ -288,12 +303,14 @@ public sealed class GitHubErrorReporter : IDisposable
         }
     }
 
+    /// <summary>One queued exception occurrence or a completion marker consumed by the serial worker.</summary>
     private sealed record QueuedError(
         string? Fingerprint,
         Exception? Exception,
         GitHubErrorContext? Context,
         TaskCompletionSource? FlushCompletion)
     {
+        /// <summary>Captures the first occurrence with no queue-flush completion marker.</summary>
         public QueuedError(string fingerprint, Exception exception, GitHubErrorContext context)
             : this(fingerprint, exception, context, null)
         {
@@ -301,10 +318,14 @@ public sealed class GitHubErrorReporter : IDisposable
     }
 }
 
+/// <summary>Remote issue operations used to deduplicate and publish captured desktop failures.</summary>
 internal interface IGitHubIssueClient
 {
+    /// <summary>Adds another occurrence to the issue already owning this fingerprint.</summary>
     Task CommentAsync(string repository, string issueUrl, string body);
+    /// <summary>Finds a published issue by its stable auto-error marker.</summary>
     Task<string?> FindByFingerprintAsync(string repository, string fingerprint);
 
+    /// <summary>Creates a new issue for a previously unseen fingerprint.</summary>
     Task<string> CreateAsync(string repository, string title, string body);
 }

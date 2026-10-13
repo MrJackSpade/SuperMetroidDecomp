@@ -8,14 +8,16 @@ namespace SuperMetroid.Core.Game;
 internal sealed class MetareeBehavior : IEnemySpecies
 {
 
+    /// <summary>Creates the debris burst during burrow and death reactions.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Uses the room's projectile engine for Metaree's four-piece metal debris.</summary>
     internal MetareeBehavior(EnemyProjectileEngine projectiles)
     {
         _projectiles = projectiles;
     }
 
-    /// <summary>Executes Metaree's private animation instruction.</summary>
+    /// <summary>Publishes attack readiness at the end of the preparation list; main AI consumes it on the following enemy frame.</summary>
     private bool TryProcessMetareeInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
     {
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Metaree ||
@@ -37,17 +39,24 @@ internal sealed class MetareeBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Maximum strict horizontal separation for starting a dive, regardless of Samus's vertical side.</summary>
     private const ushort MetareeHorizontalActivationDistance = 0x48;
+    /// <summary>Unsigned Y separation divisor used to choose NTSC dive speed.</summary>
     private const ushort MetareeDiveDivisorNtsc = 24;
+    /// <summary>Whole-pixel downward speed added even for zero vertical separation.</summary>
     private const ushort MetareeMinimumYVelocity = 4;
+    /// <summary>Whole-pixel X steering toward Samus, reevaluated every airborne frame.</summary>
     private const ushort MetareeHorizontalDiveSpeed = 2;
+    /// <summary>Ground-impact countdown before the actor deletes itself.</summary>
     private const ushort MetareeBurrowLifetimeNtsc = 21;
+    /// <summary>Burrow countdown value that spawns the particle burst.</summary>
     private const ushort MetareeParticleFrameNtsc = 8;
 
+    /// <summary>AI phase and animation-list state indexed by native enemy slot.</summary>
     internal readonly MetareeEnemyState?[] _metareeStates =
         new MetareeEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
-    /// <summary>Ports <c>InitAI_Metaree</c> at <c>$A3:8960</c>.</summary>
+    /// <summary>Starts the idle list directly and initializes the slot's dive, burrow, and instruction-change state.</summary>
     internal void InitializeMetaree(RoomEnemySlot slot)
     {
         _metareeStates[slot.SlotIndex] = new MetareeEnemyState(slot)
@@ -67,7 +76,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
         slot.CurrentInstruction = OrdinaryEnemyInstructionLists.MetareeInitial;
     }
 
-    /// <summary>Ports the indirect state dispatch in <c>MainAI_Metaree</c>.</summary>
+    /// <summary>Dispatches idle, attack preparation, airborne dive, and burrow phases with required Samus and room data.</summary>
     private void RunMetareeMain(
         RoomEnemySlot slot,
         MetareeEnemyState state,
@@ -106,6 +115,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Starts preparation within 72 horizontal pixels and derives dive speed from the wrapped unsigned Y difference.</summary>
     internal static void RunMetareeIdle(
         RoomEnemySlot slot,
         MetareeEnemyState state,
@@ -130,6 +140,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
         state.Function = MetareeEnemyFunction.PreparingAttack;
     }
 
+    /// <summary>Consumes the preparation list's ready flag, installs the dive list, and publishes sound $5B.</summary>
     internal void RunMetareePreparation(RoomEnemySlot slot, MetareeEnemyState state)
     {
         if (!state.AttackReady)
@@ -145,6 +156,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
         LastMetareeSoundEffect = 0x005b;
     }
 
+    /// <summary>Probes solid terrain ahead before whole-pixel descent; ground contact begins burrowing while airborne frames steer toward Samus.</summary>
     private void RunMetareeDive(
         RoomEnemySlot slot,
         MetareeEnemyState state,
@@ -183,6 +195,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
                 : -MetareeHorizontalDiveSpeed))));
     }
 
+    /// <summary>Moves down one pixel per burrow frame, emits debris at timer eight, then saves graphics indexes to the spawn record and deletes the actor.</summary>
     private void RunMetareeBurrow(RoomEnemySlot slot, MetareeEnemyState state)
     {
         state.BurrowTimer = unchecked((ushort)(state.BurrowTimer - 1));
@@ -206,6 +219,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
     }
 
+    /// <summary>Changes the instruction pointer only when the requested animation phase differs from the installed one.</summary>
     internal static void InstallRequestedMetareeInstruction(
         RoomEnemySlot slot,
         MetareeEnemyState state)
@@ -221,10 +235,12 @@ internal sealed class MetareeBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Rejects main AI or private instruction dispatch before slot state has been initialized.</summary>
     private MetareeEnemyState RequireMetareeState(RoomEnemySlot slot) =>
         _metareeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Metaree state.");
 
+    /// <summary>Binds Metaree initialization only to the Metaree enemy-definition ID.</summary>
     internal void RegisterMetareeInitializationAi(EnemyAiTable table)
     {
 
@@ -234,6 +250,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Binds the phase dispatcher to Metaree's native main-AI routine.</summary>
     internal void RegisterMetareeMainAi(EnemyAiTable table)
     {
 
@@ -243,6 +260,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Claims the preparation-list ready instruction for Metaree slots and leaves other instructions to the shared interpreter.</summary>
     internal void RegisterMetareeOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -275,8 +293,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
     }
 
 
-    // `$A3:8B0F` saves these graphics words around common shot AI, uses them for four metal debris actors on
-    // death, then clears the dead body. Spawning before the clears preserves that exact graphics index.
+    /// <summary>Spawns four metal debris actors with the dying Metaree's graphics indexes before common shot death clears them.</summary>
     internal void RegisterMetareeShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metaree &&
@@ -291,8 +308,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
         });
     }
 
-    // `$A3:8B0F` restores the dying actor's graphics long enough to seed four debris actors, then clears both
-    // words. The host death flag does not erase the record, so the exact source remains here.
+    /// <summary>After a lethal bomb, spawns debris while the body's graphics words are intact, then clears both indexes on the retained host record.</summary>
     internal void RegisterMetareeBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metaree &&

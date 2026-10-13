@@ -9,7 +9,8 @@ namespace SuperMetroid.Core.Rendering;
 public static class GameplayDisplayCapture
 {
     /// <summary>
-    /// Captures the full currently modeled gameplay composition, including mixed video-mode bands.
+    /// Captures the full currently modeled gameplay composition, including mixed video-mode bands,
+    /// room FX, X-ray ownership, message glyphs, and the final suit/power-bomb color effects.
     /// </summary>
     public static LayeredRenderSnapshot? TryCaptureFrame(SuperMetroidRuntime runtime)
     {
@@ -60,6 +61,7 @@ public static class GameplayDisplayCapture
         AddLayer(SamusSuitPickupRenderer.Capture(runtime.SuitPickup));
         return new(basis.Memory, layers.ToArray(), basis.ObjectSelection, basis.Brightness);
 
+        /// <summary>Appends an active optional effect without introducing an empty render layer.</summary>
         void AddLayer(RenderLayer? layer) { if (layer is not null) layers.Add(layer); }
     }
 
@@ -145,6 +147,7 @@ public static class GameplayDisplayCapture
             SnesPpuLayout.MaximumMasterBrightness);
     }
 
+    /// <summary>Copies only gameplay scanlines from a published HDMA table and rejects coverage shorter than the viewport.</summary>
     private static ushort[] VisibleLines(IReadOnlyList<ushort>? values)
     {
         if (values is null) return [];
@@ -155,6 +158,7 @@ public static class GameplayDisplayCapture
         return result;
     }
 
+    /// <summary>Adds signed quake displacement to a 16-bit PPU scroll register with native wrapping.</summary>
     private static ushort Add(ushort scroll, short shake) => unchecked((ushort)(scroll + shake));
 
     /// <summary>Normal Fireflea blending ($88:80B0), before and after X-ray owns the window.</summary>
@@ -170,6 +174,7 @@ public static class GameplayDisplayCapture
         return new(ordinary, closed, revealBlocks: false, math: new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract, AddSubscreen = false, FixedRed = fixedColor.RedIntensity, FixedGreen = fixedColor.GreenIntensity, FixedBlue = fixedColor.BlueIntensity });
     }
 
+    /// <summary>Captures the Ceres shaft or Ridley Mode-7 matrix and HUD, adding the Mode-1 floor band during Ridley's getaway.</summary>
     [PpuLayoutBoundary("codec: Mode 7 gameplay render packet (BG3 and floor base registers)")]
     private static LayeredRenderSnapshot CaptureMode7Base(SuperMetroidRuntime runtime)
     {
@@ -207,6 +212,7 @@ public static class GameplayDisplayCapture
             new RenderLayer[] { layer }, GameplayRenderDefinitions.ObjectSelection, SnesPpuLayout.MaximumMasterBrightness);
     }
 
+    /// <summary>Removes BG2 when Phantoon is hidden, or uses it as an additive subscreen when the body is semitransparent.</summary>
     private static RenderLayer CapturePhantoonBlending(SuperMetroidRuntime runtime, LayeredRenderSnapshot basis)
     {
         var ordinary = (OrdinaryGameplayRenderLayer)basis.Layers[0];

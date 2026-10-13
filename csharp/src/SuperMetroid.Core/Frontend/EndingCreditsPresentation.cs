@@ -9,8 +9,10 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>The ending scene's presentation: Mode 7, background and sprite composition into a render snapshot or the legacy raster, drawn from the scene state it belongs to.</summary>
 internal sealed class EndingCreditsPresentation
 {
+    /// <summary>Scene state whose phase, PPU memory, and actors determine the rendered image.</summary>
     private readonly EndingCreditsState _ending;
 
+    /// <summary>Binds presentation to the ending scene without copying its changing state.</summary>
     internal EndingCreditsPresentation(EndingCreditsState owner)
     {
         _ending = owner;
@@ -107,6 +109,7 @@ internal sealed class EndingCreditsPresentation
         return new(PpuMemorySnapshot.Capture(_ending.vram, _ending.cgram, oam), layers.ToArray(), objectSelection, _ending.brightness);
     }
 
+    /// <summary>Mode 7 matrix and center for the post-shot reward scene.</summary>
     private Mode7RenderRegisters PostShotRegisters
     {
         get
@@ -118,9 +121,9 @@ internal sealed class EndingCreditsPresentation
                 new Offset16<Mode7Pixels>(EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY));
         }
     }
-    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    /// <summary>Temporary OBJ pixels reused across renders and cleared by the span renderer.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
-    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    /// <summary>Reusable final raster; callers retain it only until the next scene render.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
     /// <summary>Projects the current cartridge-backed PPU image into the desktop raster.</summary>
@@ -152,6 +155,7 @@ internal sealed class EndingCreditsPresentation
         return pixels;
     }
 
+    /// <summary>Composes the atmospheric Mode 7 viewport from the scene's native zoom, angle, and scroll.</summary>
     private void RenderMode7Background(Span<Rgba32> pixels)
     {
         // Ending setup uses the standard bank-$8B matrix helper. X/Y are the same signed
@@ -164,25 +168,28 @@ internal sealed class EndingCreditsPresentation
         SnesMode7Renderer.CompositeViewport(pixels, _ending.vram, _ending.cgram, new Mode7RenderRegisters { MatrixA = matrixA, MatrixB = matrixB, MatrixC = unchecked((short)-matrixB), MatrixD = matrixA, Center = CurrentMode7Center, Scroll = _ending.mode7.Whole.AsSignedRegister(), WrapOutsideMap = AtmosphericMapWraps });
     }
 
+    /// <summary>Selects cloud OBJ tiles before the explosion and escape OBJ tiles afterward.</summary>
     internal byte CurrentEscapeObjectSelection => _ending.Phase < EndingCreditsPhase.FadeInZebesExplosion
         ? EndingCreditsRomData.Rendering.CloudObjectSelection : EndingCreditsRomData.Rendering.EscapeObjectSelection;
 
-    // SetupPpu_5_Mode7 leaves M7SEL=0 through both atmospheric scenes.
-    // Later scene setup owns its own overflow policy; do not change those implicitly.
+    /// <summary>Whether atmospheric scenes use the Mode 7 wrap policy from SetupPpu_5_Mode7.</summary>
     private bool AtmosphericMapWraps => _ending.Phase < EndingCreditsPhase.FadeInZebesExplosion;
 
+    /// <summary>Whether the current explosion music wait renders a white screen.</summary>
     internal bool ExplosionWhiteout => _ending.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic
         or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;
-    // Func120 selects Mode 7: priority-zero OBJ is behind BG1, the ship itself.
+    /// <summary>Whether flyaway Mode 7 places priority-zero OBJ behind the ship on BG1.</summary>
     private bool UsesFlyawayMode7Priority => _ending.Phase is >= EndingCreditsPhase.PlanetEscapeFast and < EndingCreditsPhase.Credits;
+    /// <summary>Whether the current ending phase draws object actors at all.</summary>
     private bool EndingObjectsEnabled => !ExplosionWhiteout && _ending.Phase is not
         (EndingCreditsPhase.PostCreditsCopyright or EndingCreditsPhase.PostCreditsWaitingSamus or EndingCreditsPhase.PostCreditsBlank);
 
-    // The Mode 7 matrix centre: the atmospheric scenes rotate about one shared point.
+    /// <summary>Mode 7 rotation center, shared by atmospheric scenes and changed for flyaway.</summary>
     private Offset16<Mode7Pixels> CurrentMode7Center => _ending.Phase < EndingCreditsPhase.PlanetEscapeFast
         ? new(EndingCreditsRomData.Rendering.AtmosphericMode7Center, EndingCreditsRomData.Rendering.AtmosphericMode7Center)
         : new(EndingCreditsRomData.Rendering.Mode7CenterX, EndingCreditsRomData.Rendering.Mode7CenterY);
 
+    /// <summary>Composes the active BG tilemap and font during post-credit scenes.</summary>
     private void RenderPostCreditsBackground(Span<Rgba32> pixels)
     {
         if (!PostCreditsBackgroundEnabled)
@@ -193,6 +200,7 @@ internal sealed class EndingCreditsPresentation
         SnesBgTilemapRenderer.Composite4BppViewport(pixels, _ending.vram, _ending.cgram, new BgVramAddresses { TilemapBaseWord = CurrentPostCreditsTilemapWord, CharacterBaseWord = CurrentPostCreditsCharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, _ending.postCreditsVerticalScroll), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, checked((ushort)_ending.postCreditsMapHeight)) });
     }
 
+    /// <summary>Renders ending OBJ and applies the reward scene's subscreen addition when selected.</summary>
     private void RenderSprites(Span<Rgba32> pixels, byte obsel)
     {
         OamBuffer oam = PrepareSprites();
@@ -202,27 +210,28 @@ internal sealed class EndingCreditsPresentation
         else SnesLayerCompositor.Composite(pixels, objects);
     }
 
-    // E1D2 turns BG1 off when reward actors spawn. The armored reward uses OBJ only;
-    // faster rewards return to BG2 for the waiting-Samus dissolve.
+    /// <summary>Whether the phase displays post-credit BG; the armored reward uses OBJ alone.</summary>
     private bool PostCreditsBackgroundEnabled => _ending.Phase != EndingCreditsPhase.PostCreditsBlank
         && _ending.Phase != EndingCreditsPhase.PostCreditsFadeIn
         && _ending.Phase != EndingCreditsPhase.PostCreditsGesture
         && _ending.Phase != EndingCreditsPhase.PostCreditsJump
         && !(_ending.Phase == EndingCreditsPhase.PostCreditsReward && _ending.EndingReward == EndingReward.Armored);
+    /// <summary>Whether to use the waiting scene's BG2 map and character base.</summary>
     private bool UsesWaitingBackground => _ending.Phase is < EndingCreditsPhase.PostCreditsWaitingSamus
         or EndingCreditsPhase.PostCreditsReward;
-    // E1D2/E2DD: TM=BG2, TS=OBJ, CGADSUB=$22 adds OBJ to BG2 and backdrop.
+    /// <summary>Whether native E1D2/E2DD subscreen settings add OBJ to BG2 and backdrop.</summary>
     private bool RewardSubscreenAddition => _ending.ExplosionCrossfadeActive
         || _ending.Phase == EndingCreditsPhase.PostCreditsShootingStars
         || (_ending.Phase == EndingCreditsPhase.PostCreditsReward && _ending.EndingReward != EndingReward.Armored);
 
+    /// <summary>VRAM map base for the waiting backdrop or uploaded result panel.</summary>
     private ushort CurrentPostCreditsTilemapWord => UsesWaitingBackground
         ? EndingCreditsRomData.Rendering.WaitingTilemapWord : _ending.postCreditsUploadWord;
+    /// <summary>VRAM character base matching the selected post-credit BG map.</summary>
     private ushort CurrentPostCreditsCharacterWord => UsesWaitingBackground
         ? EndingCreditsRomData.Rendering.WaitingCharacterWord : EndingCreditsRomData.Rendering.PostCreditsCharacterWord;
 
-    // Keep sprite drawing on the simulation-side display boundary. Neither the
-    // immutable packet consumer nor repeated rendering may advance sprite state.
+    /// <summary>Builds scene OAM at the simulation display boundary without advancing sprite state.</summary>
     internal OamBuffer PrepareSprites()
     {
         var oam = new OamBuffer();
@@ -251,11 +260,14 @@ internal sealed class EndingCreditsPresentation
         return oam;
     }
 
+    /// <summary>Reads a signed sine component from the installed enemy trigonometry table.</summary>
     private static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(index);
 
+    /// <summary>Uses the reward jump's OBJ selection when active, otherwise the default reward bank.</summary>
     private byte CurrentRewardObjectSelection => _ending.rewardJump?.ObjectSelection
         ?? EndingCreditsRomData.Rendering.RewardObjectSelection;
 
+    /// <summary>Multiplies a signed Mode 7 component by the scene's 8.8 zoom scalar.</summary>
     private static short Scale(short component, ushort scalar) =>
         unchecked((short)(SnesEightEight.Multiply(component, (short)scalar)));
 }

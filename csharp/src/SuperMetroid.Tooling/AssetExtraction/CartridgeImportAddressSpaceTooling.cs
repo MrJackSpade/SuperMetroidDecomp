@@ -5,6 +5,10 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Development-tool members of <see cref="CartridgeImportAddressSpace"/>; never linked by player hosts.</summary>
 internal static class CartridgeImportAddressSpaceTooling
 {
+    /// <summary>
+    /// Opens a retail image for extraction, accepting an optional 512-byte copier header
+    /// only when the remaining bytes contain the expected LoROM title.
+    /// </summary>
     public static CartridgeImportAddressSpace LoadRetailRom(string path)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
@@ -33,6 +37,7 @@ internal static class CartridgeImportAddressSpaceToolingExtensions
 {
     extension(CartridgeImportAddressSpace self)
     {
+        /// <summary>Exposes the normalized image bytes to extraction tools without copying them.</summary>
         public ReadOnlySpan<byte> Rom => self._rom;
     }
 }

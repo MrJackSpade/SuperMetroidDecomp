@@ -6,14 +6,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Fune/Namihe species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class FuneNamiheBehavior : IEnemySpecies
 {
+    /// <summary>Allocates the shared directional fireball fired by either species' animation list.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Connects the family AI to the room's enemy projectile slots.</summary>
     internal FuneNamiheBehavior(EnemyProjectileEngine projectiles)
     {
         _projectiles = projectiles;
     }
 
-    /// <summary>Executes the Fune/Namihe family's private animation instructions.</summary>
+    /// <summary>Handles private sound, fireball-spawn, and activity-finish opcodes while advancing the mixed-list cursor past each command.</summary>
     private bool TryProcessFuneNamiheInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
     {
         if (!IsFuneNamiheDefinition(slot.EnemyDefinitionPointer) ||
@@ -55,6 +57,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Cooldown, proximity, list-cursor, and species state indexed by native enemy slot.</summary>
     internal readonly FuneNamiheEnemyState?[] _funeNamiheStates =
         new FuneNamiheEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -64,11 +67,12 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
     /// </summary>
     public ushort? LastFuneNamiheSoundEffect { get; private set; }
 
+    /// <summary>Restricts the shared initializer, main AI, and private opcodes to Fune or Namihe enemy definitions.</summary>
     internal static bool IsFuneNamiheDefinition(EnemyDefinitionId definitionPointer) =>
         definitionPointer is EnemyDefinitionId.Fune or
             EnemyDefinitionId.Namihe;
 
-    /// <summary>Ports shared initializer <c>$A8:96E3</c>.</summary>
+    /// <summary>Decodes species, facing, cooldown, and Y proximity from population parameters, then installs the corresponding idle list.</summary>
     internal void InitializeFuneNamihe(RoomEnemySlot slot)
     {
         FuneNamiheEnemyState state = new(slot)
@@ -102,7 +106,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         InstallFuneNamiheInstructionList(slot, state);
     }
 
-    /// <summary>Ports shared main dispatcher <c>$A8:9730</c>.</summary>
+    /// <summary>Starts Fune's activity after a wrapping cooldown or Namihe's after strict modular Y proximity; active lists own the return to idle.</summary>
     internal static void RunFuneNamiheMain(
         RoomEnemySlot slot,
         FuneNamiheEnemyState state,
@@ -181,11 +185,11 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
     private static ushort ReadFuneNamiheInstructionList(ushort tableCursor) =>
         FuneNamiheDefinitions.InstructionList(tableCursor);
 
-    /// <summary>Instruction $A8:9625.</summary>
+    /// <summary>Publishes the shared library-two spit cue for the outer enemy audio queue.</summary>
     private void QueueFuneNamiheSpitSound() =>
         LastFuneNamiheSoundEffect = FuneNamiheDefinitions.SpitSoundEffect;
 
-    /// <summary>Instructions $A8:9695/$96B4, which differ only by address.</summary>
+    /// <summary>Moves the list-table cursor back to idle and restores the species-specific waiting function after the active animation.</summary>
     private static void FinishFuneNamiheActivity(FuneNamiheEnemyState state)
     {
         state.InstructionListPointerTableCursor = unchecked((ushort)(
@@ -195,10 +199,12 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
             : FuneNamiheEnemyFunction.FuneWaitForCooldown;
     }
 
+    /// <summary>Rejects a family AI or finish opcode before the slot's variant state has been initialized.</summary>
     private FuneNamiheEnemyState RequireFuneNamiheState(RoomEnemySlot slot) =>
         _funeNamiheStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fune/Namihe state.");
 
+    /// <summary>Binds the shared fireball pre-instruction to 8.8 horizontal travel and inclusive camera culling.</summary>
     internal static void RegisterFuneNamiheProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -208,6 +214,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.NamiFuneFireball);
     }
 
+    /// <summary>Registers the shared initializer only for Fune and Namihe records.</summary>
     internal void RegisterFuneNamiheInitializationAi(EnemyAiTable table)
     {
 
@@ -217,6 +224,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the shared cooldown/proximity dispatcher for both family definitions.</summary>
     internal void RegisterFuneNamiheMainAi(EnemyAiTable table)
     {
 
@@ -226,6 +234,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Claims the family's private animation opcodes while yielding unrelated words to the common enemy interpreter.</summary>
     internal void RegisterFuneNamiheOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -234,6 +243,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
             return TryProcessFuneNamiheInstruction(slot, word, ref cursor);
         });
     }
+    /// <summary>Shared projectile movement callback installed for both Fune and Namihe fireballs.</summary>
     private const ushort NamiFuneFireballPreInstruction =
         (ushort)EnemyProjectilePreInstruction.NamiFuneFireball;
 

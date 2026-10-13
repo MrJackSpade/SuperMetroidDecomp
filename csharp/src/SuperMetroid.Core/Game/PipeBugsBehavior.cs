@@ -5,33 +5,48 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The pipe bugs species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class PipeBugsBehavior : IEnemySpecies
 {
+    /// <summary>Provides the consecutive physical slots used by Norfair's five-bug formation.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Binds the shared enemy pool needed to validate Norfair formation membership.</summary>
     internal PipeBugsBehavior(EnemySlotTable slotTable)
     {
         _slotTable = slotTable;
     }
 
+    /// <summary>Pixels a Brinstar pipe bug rises above its stored spawn Y before flying.</summary>
     private const ushort BrinstarPipeBugEmergenceHeight = 16;
+    /// <summary>Strict horizontal range that wakes a hidden Brinstar pipe bug.</summary>
     private const ushort BrinstarPipeBugTriggerWidth = 64;
+    /// <summary>Vertical band above a Brinstar bug in which Samus can trigger emergence.</summary>
     private const ushort BrinstarPipeBugTriggerTop = 96;
+    /// <summary>Native wait before an offscreen Brinstar bug may emerge again.</summary>
     private const ushort BrinstarPipeBugRespawnFrames = 48;
 
+    /// <summary>Leader plus four consecutive followers addressed by Norfair's native routine.</summary>
     private const int NorfairFormationSize = 5;
 
+    /// <summary>Forward horizontal range that wakes a yellow pipe bug.</summary>
     private const ushort YellowPipeBugTriggerDistance = 192;
+    /// <summary>Strict vertical distance allowed by the yellow bug's Samus trigger.</summary>
     private const ushort YellowPipeBugTriggerHeight = 48;
+    /// <summary>Frames between a yellow bug becoming visible and starting its straight flight.</summary>
     private const ushort YellowPipeBugEmergenceDelayFrames = 24;
+    /// <summary>Distance past Samus at which a yellow bug begins its one-time arc.</summary>
     private const ushort YellowPipeBugArcTriggerDistance = 48;
+    /// <summary>First quadratic-speed index for the yellow bug's vertical arc.</summary>
     private const ushort YellowPipeBugArcCounterStart = 40;
 
+    /// <summary>Per-slot Zeb, Zebbo, Gamet, and Geega state cleared on room load.</summary>
     internal readonly PipeBugEnemyState?[] _pipeBugStates =
         new PipeBugEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
+    /// <summary>Recognizes the two Brinstar variants that share bank-$B3 pipe-bug AI.</summary>
     internal static bool IsBrinstarPipeBugDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.Zeb or
             EnemyDefinitionId.Zebbo;
 
+    /// <summary>Releases every initialized species state before a new room population loads.</summary>
     internal void ResetPipeBugRoomState() => Array.Clear(_pipeBugStates);
 
     /// <summary>Ports <c>BrinstarPipeBug_Init</c> at $B3:883B.</summary>
@@ -197,6 +212,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Wakes a hidden Brinstar bug only when Samus enters its narrow horizontal and upper vertical band.</summary>
     private static void RunBrinstarPipeBugWaiting(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -223,6 +239,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         SelectBrinstarPipeBugAnimation(slot, state);
     }
 
+    /// <summary>Applies the native fractional Y decrement until the bug rises above Samus and switches to horizontal flight.</summary>
     private static void RunBrinstarPipeBugEmergence(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -247,6 +264,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.Function = PipeBugEnemyFunction.BrinstarFlyHorizontally;
     }
 
+    /// <summary>Moves two pixels per frame, then restores the stored spawn position and starts an invisible respawn wait offscreen.</summary>
     private static void RunBrinstarPipeBugFlight(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -269,6 +287,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.Function = PipeBugEnemyFunction.BrinstarRespawnDelay;
     }
 
+    /// <summary>Installs a strong or ordinary Brinstar instruction list only when the selected animation changes.</summary>
     internal static void SelectBrinstarPipeBugAnimation(
         RoomEnemySlot slot,
         PipeBugEnemyState state)
@@ -283,6 +302,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Arms the Norfair leader only after all five consecutive formation members remain dormant.</summary>
     private void RunNorfairPipeBugFormationWait(RoomEnemySlot slot, PipeBugEnemyState state)
     {
         // Only the first record has a nonzero low parameter byte. It is the formation
@@ -298,6 +318,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Launches the five-bug rise when Samus enters the leader's trigger, retaining follower instruction timers.</summary>
     internal void RunNorfairPipeBugSamusWait(
         RoomEnemySlot leader,
         PipeBugEnemyState leaderState,
@@ -334,6 +355,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Raises one Norfair bug until it passes Samus's Y and selects its authored post-rise function.</summary>
     private static void RunNorfairPipeBugRise(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -353,6 +375,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
                 : NorfairPipeBugInstructionProgramDefinitions.RisingLeft);
     }
 
+    /// <summary>Offsets a rising Norfair member by its signed stagger target before its timed flight wait.</summary>
     private static void RunNorfairPipeBugVerticalStagger(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -375,6 +398,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.Function = PipeBugEnemyFunction.NorfairWaitForStagger;
     }
 
+    /// <summary>Waits for a member's stagger counter and then chooses left or right flight from Samus's live X.</summary>
     private static void RunNorfairPipeBugStaggerWait(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -415,6 +439,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);
     }
 
+    /// <summary>Finds the leader's four following physical slots and rejects an incomplete or unrelated formation.</summary>
     private RoomEnemySlot[] RequireNorfairPipeBugFormation(RoomEnemySlot leader)
     {
         if (leader.SlotIndex + NorfairFormationSize > RoomEnemySystem.MaximumEnemyCount)
@@ -440,6 +465,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         return formation;
     }
 
+    /// <summary>Wakes a yellow bug when Samus is ahead on its authored side and within the narrow vertical band.</summary>
     private static void RunYellowPipeBugWaiting(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -460,6 +486,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.Function = PipeBugEnemyFunction.YellowEmergenceDelay;
     }
 
+    /// <summary>Counts down the visible emergence delay before installing directional straight-flight art.</summary>
     private static void RunYellowPipeBugDelay(RoomEnemySlot slot, PipeBugEnemyState state)
     {
         state.EmergenceDelay = unchecked((ushort)(state.EmergenceDelay - 1));
@@ -479,6 +506,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Advances yellow flight and begins its single quadratic arc after passing Samus by the native threshold.</summary>
     private static void RunYellowPipeBugStraightFlight(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -512,6 +540,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
                 : YellowPipeBugInstructionProgramDefinitions.ArcingRight);
     }
 
+    /// <summary>Applies the two quadratic vertical phases until the bug returns to its spawn height.</summary>
     private static void RunYellowPipeBugArc(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -558,6 +587,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
                 : YellowPipeBugInstructionProgramDefinitions.FlyingRight);
     }
 
+    /// <summary>Hides an offscreen yellow bug, restores its spawn point, and makes its arc available again.</summary>
     private static bool ResetYellowPipeBugIfOffScreen(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -578,6 +608,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Applies the separately authored positive or negative 16.16 flight speed.</summary>
     private static void AddYellowPipeBugHorizontalVelocity(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -590,6 +621,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         AddPipeBugFixedVelocity(slot, horizontal: true, whole, fraction);
     }
 
+    /// <summary>Reads a native linear-speed entry and adds its whole and fraction words to one axis.</summary>
     private static void AddPipeBugLinearVelocity(
         RoomEnemySlot slot,
         bool horizontal,
@@ -599,6 +631,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         AddPipeBugFixedVelocity(slot, horizontal, unchecked((ushort)whole), fraction);
     }
 
+    /// <summary>Adds whole and fraction velocity with the 65816 carry from fractional overflow.</summary>
     private static void AddPipeBugFixedVelocity(
         RoomEnemySlot slot,
         bool horizontal,
@@ -620,6 +653,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Adds a wrapped signed 16.16 displacement to one position axis.</summary>
     private static void AddPipeBugDisplacement(
         RoomEnemySlot slot,
         bool horizontal,
@@ -639,6 +673,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Creates species state at the enemy's physical slot before its first AI pass.</summary>
     private PipeBugEnemyState CreatePipeBugState(RoomEnemySlot slot)
     {
         var state = new PipeBugEnemyState(slot);
@@ -646,10 +681,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         return state;
     }
 
+    /// <summary>Finds initialized state for a callback and rejects an unrelated or uninitialized slot.</summary>
     private PipeBugEnemyState RequirePipeBugState(RoomEnemySlot slot) =>
         _pipeBugStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Pipe Bug state.");
 
+    /// <summary>Restarts an instruction list at timer one and clears its animation frame timer.</summary>
     internal static void InstallPipeBugInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -657,12 +694,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Rejects a behavior callback that needs Samus but received no live player actor.</summary>
     private static void RequirePipeBugSamus(SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Pipe Bug behavior requires the active Samus actor.");
     }
 
+    /// <summary>Registers initialization callbacks for Brinstar Zeb/Zebbo, Norfair Gamet, and yellow Geega.</summary>
     internal void RegisterPipeBugsInitializationAi(EnemyAiTable table)
     {
 
@@ -682,6 +721,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes the three pipe-bug definition families through their shared function dispatcher.</summary>
     internal void RegisterPipeBugsMainAi(EnemyAiTable table)
     {
 

@@ -17,8 +17,10 @@ using static BabyMetroidRouteDefinitionsVerification;
 using static ShotBlockPlmProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail and guarded-runtime checks for respawning/permanent grapple-block PLMs and editable visuals.</summary>
 internal static class GrappleBlockProgramsVerification
 {
+    /// <summary>Checks all nineteen compiled control addresses and values across the full 16-bit bank-local domain.</summary>
     private static void VerifyGrappleBlockControlMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcd6a,0xcd6e,0xcd71,0xcd75,0xcd79,0xcd7d,0xcd81,0xcd85,0xcd89,0xcd8d,0xcd8f,0xcd91,
@@ -33,6 +35,7 @@ internal static class GrappleBlockProgramsVerification
         }
     }
 
+    /// <summary>Checks the thirteen interleaved draw-pointer words while rejecting non-operand addresses.</summary>
     private static void VerifyGrappleBlockDrawOperandMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcd6c,0xcd73,0xcd77,0xcd7b,0xcd7f,0xcd83,0xcd87,0xcd8b,
@@ -46,6 +49,7 @@ internal static class GrappleBlockProgramsVerification
         }
     }
 
+    /// <summary>Checks both packed sound operands and exact byte-address ownership.</summary>
     private static void VerifyGrappleBlockSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcd70,0xcdaf];
@@ -58,9 +62,11 @@ internal static class GrappleBlockProgramsVerification
         }
     }
 
+    /// <summary>Reads a cartridge sound byte solely as the compiled-operand oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple block sound mapping")]
     private static byte GrappleBlockSoundMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Compares five one-block draw lists with native geometry, collision words, and terminal offsets.</summary>
     private static void VerifyGrappleBlockPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
@@ -84,9 +90,11 @@ internal static class GrappleBlockProgramsVerification
         }
     }
 
+    /// <summary>Reads native draw-list terminal offsets as the physical-geometry oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple block physical draw mapping")]
     private static byte GrappleBlockPhysicalDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks calculated stock tile choices and content identity, then rejects missing, duplicate, or collision-bit edits.</summary>
     private static void VerifyGrappleBlockStockVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
@@ -123,6 +131,7 @@ internal static class GrappleBlockProgramsVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmGrappleBlockVisualCatalog(entries),"Grapple rejects artwork collision bits");
     }
 
+    /// <summary>Runs both BTS programs under read guards for 300 frames and checks edited art remains separate from physical collision.</summary>
     internal static void VerifyGrappleBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -177,6 +186,7 @@ internal static class GrappleBlockProgramsVerification
         Console.WriteLine($"Grapple-block PLMs: 19 control words, 2 sound bytes, and 5 draw lists match ROM; both programs run with source reads forbidden.");
     }
 
+    /// <summary>Confirms a first-frame tile edit changes immediate and streamed visuals while retaining the same grapple collision word.</summary>
     private static void VerifyGrappleBlockVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
@@ -189,6 +199,7 @@ internal static class GrappleBlockProgramsVerification
         entries[first] = entries[first] with { VisualWord = 0x00b8 };
         var edited = new RoomPlmGrappleBlockVisualCatalog(entries);
 
+        /// <summary>Runs the first PLM draw and captures collision, immediate tile upload, and later camera-streamed tile output.</summary>
         (ushort physical, ushort immediate, ushort streamed) Render(
             RoomPlmGrappleBlockVisualCatalog visuals)
         {
@@ -237,6 +248,7 @@ internal static class GrappleBlockProgramsVerification
             "Grapple catalog rejects collision bits in editable data");
     }
 
+    /// <summary>Checks extracted stock, edited override, stock refresh, and rejection of invalid art or corrupt stock manifest.</summary>
     private static void VerifyGrappleBlockVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("grapple-block-visual");
@@ -298,9 +310,11 @@ internal static class GrappleBlockProgramsVerification
         }
     }
 
+    /// <summary>Constructed room collision, tile streamer, and PLM system for one grapple BTS program.</summary>
     internal sealed record GrappleBlockFixture(
         RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
 
+    /// <summary>Spawns one grapple block at cell 27 in an eight-column synthetic room.</summary>
     private static GrappleBlockFixture NewGrappleBlockFixture(byte bts)
     {
         const int width = 8;
@@ -314,6 +328,7 @@ internal static class GrappleBlockProgramsVerification
         return new GrappleBlockFixture(level, level.CreateBackgroundStreamer(), plms);
     }
 
+    /// <summary>Runs the grapple-block mechanics and visual checks from their command-line switch.</summary>
     [VerificationCommand("--grapple-block-programs")]
     internal static int GrappleBlockProgramsCommand()
     {

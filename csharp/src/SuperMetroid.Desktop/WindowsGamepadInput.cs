@@ -17,10 +17,14 @@ namespace SuperMetroid.Desktop;
 /// </remarks>
 internal sealed partial class WindowsGamepadInput
 {
+    /// <summary>Minimum interval between scans while no joystick is connected.</summary>
     private const double RediscoveryIntervalSeconds = 1.0;
 
+    /// <summary>WinMM device index currently selected, or the disconnected sentinel.</summary>
     private uint activeDeviceId = WindowsGamepadIdentifiers.NoDevice;
+    /// <summary>Advertised axis ranges, layout, and product identity of the active device.</summary>
     private JoystickCapabilities activeCapabilities;
+    /// <summary>Stopwatch tick at which disconnected-device discovery may run again.</summary>
     private long nextDiscoveryTimestamp;
 
     /// <summary>Name reported by the active joystick driver, or null while disconnected.</summary>
@@ -57,6 +61,7 @@ internal sealed partial class WindowsGamepadInput
         return MapAndRemember(position);
     }
 
+    /// <summary>Selects the first WinMM joystick with readable capabilities and position.</summary>
     private void DiscoverFirstConnectedDevice()
     {
         uint possibleDeviceCount = NativeMethods.JoyGetNumberOfDevices();
@@ -90,6 +95,7 @@ internal sealed partial class WindowsGamepadInput
         }
     }
 
+    /// <summary>Clears selected device metadata and normalized state after a failed poll.</summary>
     private void ForgetActiveDevice()
     {
         if (DeviceName is not null)
@@ -100,6 +106,7 @@ internal sealed partial class WindowsGamepadInput
         LastSnapshot = default;
     }
 
+    /// <summary>Requests all joystick position fields in one nonblocking WinMM call.</summary>
     private static bool TryRead(uint deviceId, out JoystickPosition position)
     {
         position = new JoystickPosition
@@ -112,6 +119,7 @@ internal sealed partial class WindowsGamepadInput
             WindowsMultimediaResult.NoError;
     }
 
+    /// <summary>Stores the normalized snapshot and maps it to SNES buttons for this poll.</summary>
     private SnesButton MapAndRemember(JoystickPosition position)
     {
         LastSnapshot = CreateSnapshot(position, activeCapabilities);
@@ -120,12 +128,14 @@ internal sealed partial class WindowsGamepadInput
             faceButtonLayout: ResolveFaceButtonLayout(activeCapabilities));
     }
 
+    /// <summary>Selects face-button ordering from the driver's manufacturer and product IDs.</summary>
     private static GenericGamepadFaceButtonLayout ResolveFaceButtonLayout(
         JoystickCapabilities capabilities) =>
         WindowsGamepadIdentifiers.ResolveFaceButtonLayout(
             capabilities.ManufacturerId,
             capabilities.ProductId);
 
+    /// <summary>Normalizes present axes and ignores a zero-filled POV field when no hat is advertised.</summary>
     private static GenericGamepadSnapshot CreateSnapshot(
         JoystickPosition position,
         JoystickCapabilities capabilities)
@@ -153,6 +163,7 @@ internal sealed partial class WindowsGamepadInput
             Buttons: position.Buttons);
     }
 
+    /// <summary>Maps a driver's bounded unsigned axis reading into the signed 16-bit stick range.</summary>
     private static short NormalizeAxis(uint value, uint minimum, uint maximum)
     {
         if (maximum <= minimum)
@@ -172,37 +183,62 @@ internal sealed partial class WindowsGamepadInput
         return checked((short)normalized);
     }
 
+    /// <summary>Blittable WinMM JOYCAPSW fields used for joystick identity and axis calibration.</summary>
     [StructLayout(LayoutKind.Sequential)]
     [SpatialComponents("Win32 interop: winmm's JOYCAPSW declares each axis range as separate fields.")]
     private struct JoystickCapabilities
     {
+        /// <summary>Driver-reported manufacturer identifier used to choose button layout.</summary>
         public ushort ManufacturerId;
+        /// <summary>Driver-reported product identifier used to choose button layout.</summary>
         public ushort ProductId;
 
+        /// <summary>Fixed-width driver product label shown on connection.</summary>
         public FixedUtf16Name ProductName;
 
+        /// <summary>Minimum X-axis reading advertised by the driver.</summary>
         public uint XMinimum;
+        /// <summary>Maximum X-axis reading advertised by the driver.</summary>
         public uint XMaximum;
+        /// <summary>Minimum Y-axis reading advertised by the driver.</summary>
         public uint YMinimum;
+        /// <summary>Maximum Y-axis reading advertised by the driver.</summary>
         public uint YMaximum;
+        /// <summary>Minimum Z-axis reading in the native capabilities layout.</summary>
         public uint ZMinimum;
+        /// <summary>Maximum Z-axis reading in the native capabilities layout.</summary>
         public uint ZMaximum;
+        /// <summary>Number of buttons exposed by the driver.</summary>
         public uint ButtonCount;
+        /// <summary>Driver's minimum polling period in milliseconds.</summary>
         public uint MinimumPeriod;
+        /// <summary>Driver's maximum polling period in milliseconds.</summary>
         public uint MaximumPeriod;
+        /// <summary>Minimum R-axis reading in the native capabilities layout.</summary>
         public uint RMinimum;
+        /// <summary>Maximum R-axis reading in the native capabilities layout.</summary>
         public uint RMaximum;
+        /// <summary>Minimum U-axis reading in the native capabilities layout.</summary>
         public uint UMinimum;
+        /// <summary>Maximum U-axis reading in the native capabilities layout.</summary>
         public uint UMaximum;
+        /// <summary>Minimum V-axis reading in the native capabilities layout.</summary>
         public uint VMinimum;
+        /// <summary>Maximum V-axis reading in the native capabilities layout.</summary>
         public uint VMaximum;
+        /// <summary>WinMM capability flags, including whether a POV hat exists.</summary>
         public uint Capabilities;
+        /// <summary>Maximum axis count the driver can expose.</summary>
         public uint MaximumAxisCount;
+        /// <summary>Currently exposed axis count; gates X and Y normalization.</summary>
         public uint AxisCount;
+        /// <summary>Maximum button count the driver can expose.</summary>
         public uint MaximumButtonCount;
 
+        /// <summary>Fixed-width registry key reported by JOYCAPSW.</summary>
         public FixedUtf16Name RegistryKey;
 
+        /// <summary>Fixed-width OEM VxD path retained for the native structure layout.</summary>
         public FixedUtf16Path OemVxD;
     }
 
@@ -210,6 +246,7 @@ internal sealed partial class WindowsGamepadInput
     [InlineArray(32)]
     private struct FixedUtf16Name
     {
+        /// <summary>First UTF-16 code unit of the inline WinMM product or registry name.</summary>
         private ushort first;
 
         /// <summary>The text before the field's first NUL terminator.</summary>
@@ -220,15 +257,17 @@ internal sealed partial class WindowsGamepadInput
     [InlineArray(260)]
     private struct FixedUtf16Path
     {
+        /// <summary>First UTF-16 code unit of the inline WinMM OEM path.</summary>
         private ushort first;
 
         /// <summary>The text before the field's first NUL terminator.</summary>
         public override readonly string ToString() => FixedUtf16.Read(this);
     }
 
+    /// <summary>Converts WinMM's fixed-width UTF-16 buffers without runtime marshaling.</summary>
     private static class FixedUtf16
     {
-        // WCHAR units are stored as ushort: char is not blittable under runtime marshalling.
+        /// <summary>Reads UTF-16 code units up to the first NUL in a WinMM inline field.</summary>
         public static string Read(ReadOnlySpan<ushort> field)
         {
             ReadOnlySpan<char> text = MemoryMarshal.Cast<ushort, char>(field);
@@ -237,36 +276,54 @@ internal sealed partial class WindowsGamepadInput
         }
     }
 
+    /// <summary>Blittable WinMM JOYINFOEX result for axes, buttons, and POV hat.</summary>
     [StructLayout(LayoutKind.Sequential)]
     [SpatialComponents("Win32 interop: winmm's JOYINFOEX declares each axis reading as separate fields.")]
     private struct JoystickPosition
     {
+        /// <summary>Byte size passed to WinMM to select this JOYINFOEX layout.</summary>
         public uint Size;
+        /// <summary>Requested result fields, set to ReturnAll by the poller.</summary>
         public uint Flags;
+        /// <summary>Current X-axis reading.</summary>
         public uint X;
+        /// <summary>Current Y-axis reading.</summary>
         public uint Y;
+        /// <summary>Current Z-axis reading.</summary>
         public uint Z;
+        /// <summary>Current R-axis reading.</summary>
         public uint R;
+        /// <summary>Current U-axis reading.</summary>
         public uint U;
+        /// <summary>Current V-axis reading.</summary>
         public uint V;
+        /// <summary>Bit field of currently held joystick buttons.</summary>
         public uint Buttons;
+        /// <summary>One-based button number reported by JOYINFOEX.</summary>
         public uint ButtonNumber;
+        /// <summary>POV hat angle or centered sentinel when a hat is present.</summary>
         public uint PointOfView;
+        /// <summary>Native reserved word retained for JOYINFOEX size and alignment.</summary>
         public uint Reserved1;
+        /// <summary>Second native reserved word retained for JOYINFOEX size and alignment.</summary>
         public uint Reserved2;
     }
 
+    /// <summary>WinMM entry points used to enumerate and poll HID-backed joysticks.</summary>
     private static partial class NativeMethods
     {
+        /// <summary>Gets the number of joystick device slots advertised by WinMM.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "joyGetNumDevs")]
         public static partial uint JoyGetNumberOfDevices();
 
+        /// <summary>Reads the selected device's JOYCAPSW identity and range metadata.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "joyGetDevCapsW")]
         public static partial WindowsMultimediaResult JoyGetDeviceCapabilities(
             uint deviceId,
             ref JoystickCapabilities capabilities,
             uint capabilitiesByteCount);
 
+        /// <summary>Reads current axes, buttons, and POV into a JOYINFOEX result.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "joyGetPosEx")]
         public static partial WindowsMultimediaResult JoyGetPosition(
             uint deviceId,

@@ -14,8 +14,10 @@ using static LookupEyeDoorVisualIdsVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 
+/// <summary>Checks eye-door PLM programs, mirrored physical draws, and installed visual edits.</summary>
 internal static class EyeDoorPlmDrawDefinitionsVerification
 {
+    /// <summary>Checks both eye-door orientations from compiled draw data through opening and room reload.</summary>
     internal static void VerifyEyeDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyEyeDoorVisualIds), () => VerifyEyeDoorVisualIds());
@@ -56,6 +58,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
             "  Eye doors: 622 compiled instruction bytes, guarded mirrored lifecycles, 24 physical draws and 23 compatible authored identities preserve collision.");
     }
 
+    /// <summary>Checks eye-door instruction control, timing, draw, callback, and hit-count words.</summary>
     private static void VerifyEyeDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyEyeDoorProgramControl), () => VerifyEyeDoorProgramControl(rom));
@@ -72,6 +75,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         Suite(nameof(VerifyEyeDoorProgramLoopCount), () => VerifyEyeDoorProgramLoopCount(rom));
     }
 
+    /// <summary>Checks each eye-door component's collision blocks and immediate edited tilemap update.</summary>
     private static void VerifyEyeDoorNativeDrawPath(
         EyeDoorOrientation orientation,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists,
@@ -121,6 +125,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         }
     }
 
+    /// <summary>Runs a retail eye-door program through Super Missile opening and reopened-room conversion.</summary>
     private static void VerifyEyeDoorRetailProgramPath(
         SuperMetroidAddressSpace rom,
         EyeDoorOrientation orientation,
@@ -209,9 +214,11 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
             $"{orientation} opened eye-door reload avoids instruction and draw ROM reads");
     }
 
+    /// <summary>Reads one retail bank-$84 program byte for the fixture oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for eye door retail program path")]
     private static byte EyeDoorRetailProgramPathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks extracted stock validation, override persistence, and invalid eye-door visual rejection.</summary>
     private static void VerifyEyeDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("eye-door-visual");
@@ -267,6 +274,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         }
     }
 
+    /// <summary>Rejects runtime reads of compiled eye-door instructions and physical draw payloads.</summary>
     private static MutableCartridgeReadGuard NewEyeDoorDrawGuard(
         ISnesAddressSpace source, RoomPlmShotBlockDrawDefinitions.DrawList[] lists)
     {

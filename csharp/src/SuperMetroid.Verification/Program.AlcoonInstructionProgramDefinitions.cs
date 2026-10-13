@@ -14,10 +14,13 @@ using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Alcoon mechanics and visual selectors through a retail room's movement and fire callbacks.</summary>
 internal static class AlcoonInstructionProgramDefinitionsVerification
 {
+    /// <summary>Retail room containing the Alcoon population used by the instruction audit.</summary>
     private const ushort AlcoonInstructionAuditRoom = 0x93aa;
 
+    /// <summary>Compares every compiled mechanics word and byte-ownership boundary with bank $A8.</summary>
     internal static void VerifyAlcoonMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
@@ -67,6 +70,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
                 "Alcoon mechanics ordinal bounds");
     }
 
+    /// <summary>Lists native visual-operand addresses independently of the compiled selector catalog.</summary>
     private static ushort[] AlcoonPresentationAddressOracle() =>
         [
             0xdbeb,0xdbf1,0xdbf7,0xdbfd,
@@ -77,6 +81,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             0xdc97,0xdc9d,0xdca1,0xdca5,0xdca9,0xdcad,0xdcb3,0xdcb9,0xdcbd,0xdcc3,
         ];
 
+    /// <summary>Checks all visual-operand addresses and rejects nonpresentation words.</summary>
     internal static void VerifyAlcoonPresentationAddressMapping()
     {
         ushort[] expected = AlcoonPresentationAddressOracle();
@@ -93,6 +98,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
                 "Alcoon presentation ordinal bounds");
     }
 
+    /// <summary>Checks Alcoon visual dispatch through actor-specific and shared selectors against native words.</summary>
     internal static void VerifyAlcoonVisualSelectorMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = AlcoonPresentationAddressOracle();
@@ -121,12 +127,14 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
                 "Alcoon distant invalid visual operand");
     }
 
+    /// <summary>Loads the retail cartridge and runs the Alcoon instruction suite.</summary>
     internal static void VerifyAlcoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs a real Alcoon room until reachable frames and both fire directions execute without source reads.</summary>
     internal static void VerifyAlcoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? installedArt = null)
     {
@@ -221,6 +229,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
               "with mechanics and visual source bytes forbidden.");
     }
 
+    /// <summary>Cycles ten compiled program entries to detect warmed lookup allocations.</summary>
     private static int ProbeAlcoonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -244,12 +253,14 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads one retail bank-$A8 instruction word for the comparison oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Alcoon instruction words")]
     internal static ushort ReadAlcoonInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa80000 | address);
 
+    /// <summary>Rejects compiled mechanics reads and optionally rejects visual-selector reads as well.</summary>
     private static CartridgeReadGuard NewAlcoonInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
@@ -277,6 +288,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Runs the standalone Alcoon instruction mechanics verification command.</summary>
     [VerificationCommand("--alcoon-instruction-mechanics")]
     internal static int AlcoonInstructionMechanicsCommand()
     {

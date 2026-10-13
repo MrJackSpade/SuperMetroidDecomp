@@ -17,6 +17,7 @@ using static RoomEnemiesVerification;
 using static SyntheticEnemyCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Post-Ceres gunship descent, landing, entry-sound, and escape-takeoff fixtures.</summary>
 internal static class GunshipLandingVerification
 {
     /// <summary>
@@ -217,6 +218,7 @@ internal static class GunshipLandingVerification
             "Samus lift, event-$0E takeoff, and state-$26 handoff agree.");
     }
 
+    /// <summary>Ends the synthetic three-slot gunship population with the native $FFFF header and zero kill quota.</summary>
     [CpuBusBoundary("exact bus test: seeds the constructed cartridge population's $FFFF terminator and its kill-quota byte")]
     private static void WriteGunshipPopulationTerminator(TestAddressSpace bus, int address)
     {
@@ -224,6 +226,7 @@ internal static class GunshipLandingVerification
         bus.WriteByte(address + 2, 0);
     }
 
+    /// <summary>Writes one sixteen-byte native enemy placement with its definition, room position, and second parameter.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one gunship enemy population record")]
     private static void WriteGunshipPopulationRecord(
         TestAddressSpace bus,
@@ -295,6 +298,7 @@ internal static class GunshipLandingVerification
         WriteGunshipPopulationTerminator(bus, population + 48);
     }
 
+    /// <summary>Checks the exact Down-input entry sound edge without running the later escape takeoff.</summary>
     [VerificationCommand("--gunship-entry-sound")]
     internal static int GunshipEntrySoundCommand()
     {

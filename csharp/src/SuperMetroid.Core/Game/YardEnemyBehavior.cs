@@ -8,11 +8,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Yard species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class YardEnemyBehavior : IEnemySpecies
 {
+    /// <summary>Provides active room context for Yard initialization and main AI.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Runs native surface probes and movement while Yard crawls or falls.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Lets Yard react to the active room quake during its main AI.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Applies the common touch and vulnerability paths after Yard-specific reactions.</summary>
     private readonly EnemyCollision _collision;
 
+    /// <summary>Binds Yard's room, terrain, quake, and collision owners for its registered AI callbacks.</summary>
     internal YardEnemyBehavior(EnemyRoomBinding room, EnemyTerrain terrain, RoomEarthquake earthquake, EnemyCollision collision)
     {
         _room = room;
@@ -88,8 +93,10 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Native invisible spritemap used while Yard waits for its next crawl instruction.</summary>
     private const ushort YardNothingSpritemap = 0x804d;
 
+    /// <summary>Species state indexed by the shared enemy slot and reset at room load.</summary>
     internal readonly YardEnemyState?[] _yardStates =
         new YardEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -140,6 +147,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         state.CrawlingVelocity = YardVelocityDefinitions.Apply(speed, direction);
     }
 
+    /// <summary>Rejects a crawl speed selector outside Yard's native signed speed table.</summary>
     private static void ValidateYardSpeedIndex(ushort index)
     {
         if (index >= CrawlerSpeedDefinitions.Count)
@@ -276,6 +284,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             DropYard(slot, state);
     }
 
+    /// <summary>Moves Yard along its wall or floor, probes the turn lookahead, and detaches if the supporting surface ends.</summary>
     internal void RunYardCrawlingMovement(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -360,6 +369,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         HandleYardTurnTransitionDisabling(state, adjusted);
     }
 
+    /// <summary>Keeps turn transitions disabled on a slope adjustment and reenables them after sixteen clear passes.</summary>
     private static void HandleYardTurnTransitionDisabling(
         YardEnemyState state,
         bool slopeAdjusted)
@@ -380,6 +390,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         state.TurnTransitionDisableCounter = next;
     }
 
+    /// <summary>Starts a turn instruction immediately and resets the temporary turn suppression counter.</summary>
     private static void SetYardInstructionAndDisableTurn(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -455,6 +466,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             : fallingVelocity.WithFraction(accelerated.Fraction));
     }
 
+    /// <summary>Stops Yard's fall, selects normal or aggressive crawling, and restores crawler velocity from its floor-facing bits.</summary>
     private static void LandYard(RoomEnemySlot slot, YardEnemyState state, SamusState samus)
     {
         state.AirborneVelocity = FixedVector<RoomPixels>.Zero;
@@ -488,6 +500,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Selects visible and hiding instruction lists from Yard's airborne facing direction.</summary>
     private static void SetYardAirborneLists(
         RoomEnemySlot slot,
         YardEnemyState state)
@@ -500,6 +513,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Turns Yard after landing only when its airborne facing points away from Samus.</summary>
     private static bool MakeYardFaceSamusHorizontally(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -511,6 +525,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         return shouldTurn && TurnYardAround(slot, state);
     }
 
+    /// <summary>Reverses Yard's crawl direction and associated graphics, property bits, and velocities unless it is hidden or instruction-pending.</summary>
     internal static bool TurnYardAround(RoomEnemySlot slot, YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Hiding ||
@@ -614,6 +629,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         state.Behavior = YardBehavior.NormalCrawling;
     }
 
+    /// <summary>Interprets the exact held horizontal direction used by Yard's touch callback.</summary>
     private static bool SamusIsDirectingTowardYard(
         YardEnemyState state,
         ushort controllerInput)
@@ -640,13 +656,16 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         LastYardSoundEffect = 0x0070;
     }
 
+    /// <summary>Recombines native whole and fraction velocity words without losing their signed 16.16 bit pattern.</summary>
     internal static int ComposeSignedFixed(ushort whole, ushort fraction) =>
         unchecked((int)((SnesSixteenSixteen.FromWhole((uint)whole)) | fraction));
 
+    /// <summary>Finds the state paired with a live Yard slot and rejects an uninitialized callback.</summary>
     private YardEnemyState RequireYardState(RoomEnemySlot slot) =>
         _yardStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Yard state.");
 
+    /// <summary>Registers Yard's bank-$A3 initialization callback for Yard definitions.</summary>
     internal void RegisterYardInitializationAi(EnemyAiTable table)
     {
 
@@ -656,6 +675,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Yard's main AI for each enemy frame that selects its definition.</summary>
     internal void RegisterYardMainAi(EnemyAiTable table)
     {
 
@@ -665,6 +685,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Yard's private animation words with the shared enemy instruction interpreter.</summary>
     internal void RegisterYardOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -674,6 +695,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes Yard shots through its custom launch branch before common vulnerability damage.</summary>
     internal void RegisterYardShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Yard &&
@@ -695,6 +717,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Yard's touch callback, including its facing-dependent shell response.</summary>
     internal void RegisterYardTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard &&

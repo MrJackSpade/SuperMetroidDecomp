@@ -533,7 +533,10 @@ public static class GameInstallationLayout
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; incompatible stock content requires validation and repair before opening.</summary>
     public const int FormatVersion = 86;
+    /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
+    /// <summary>Prefix for a stock tree being prepared before publication.</summary>
     internal const string StagingPrefix = ".game.install-";
+    /// <summary>Coordinates installers sharing the same installation root.</summary>
     internal const string LockFileName = ".game-install.lock";
 }

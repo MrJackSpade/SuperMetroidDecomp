@@ -19,11 +19,16 @@ public sealed class MotherBrainDeathColorCatalog
             corpseFade.AppendIdentity(content, "corpseFade");
         });
 
+    /// <summary>Sixteen-stage body and brain palette progression toward black.</summary>
     private readonly ColorFade bodyFade;
+    /// <summary>Separate sixteen-stage back-leg palette progression.</summary>
     private readonly ColorFade legFade;
+    /// <summary>Eight-stage detached-head progression toward the drained palette.</summary>
     private readonly ColorFade corpseFade;
+    /// <summary>Edited escape-door colors, or null when the canonical image suffices.</summary>
     private readonly Bgr555[]? explodedDoor;
 
+    /// <summary>Compresses stock fade images into calculated stages while retaining independently edited frames.</summary>
     private MotherBrainDeathColorCatalog(Bgr555[][] bodyFade, Bgr555[][] legFade,
         Bgr555[][] corpseFade, Bgr555[] explodedDoor)
     {
@@ -33,6 +38,7 @@ public sealed class MotherBrainDeathColorCatalog
         this.explodedDoor = MotherBrainExplodedDoorPaintDefinitions.Matches(explodedDoor) ? null : explodedDoor;
     }
 
+    /// <summary>Strict camel-case settings for the editable death-color document.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -120,6 +126,7 @@ public sealed class MotherBrainDeathColorCatalog
         return bytes;
     }
 
+    /// <summary>Checks authored frame and color bounds before resolving a fade color.</summary>
     private static Bgr555 Resolve(ColorFade frames, int frame, int color, string name) =>
         (uint)frame < frames.FrameCount && (uint)color < frames.ColorCount
             ? frames.Resolve(frame, color)
@@ -136,13 +143,20 @@ public sealed class MotherBrainDeathColorCatalog
     /// </summary>
     private sealed class ColorFade
     {
+        /// <summary>Edited starting colors, or null when the health palette supplies the stock start.</summary>
         private readonly Bgr555[]? first;
+        /// <summary>Selects the back-leg rather than body starting palette.</summary>
         private readonly bool backLeg;
+        /// <summary>Corpse fade endpoint; null selects black for the body and leg fades.</summary>
         private readonly MotherBrainRainbowPalettePresentation.DrainedBodyColors? last;
+        /// <summary>Exact edited frames retained when the calculated stock interpolation differs.</summary>
         private readonly Bgr555[][]? supplied;
+        /// <summary>Number of authored palette stages in this fade.</summary>
         internal int FrameCount { get; }
+        /// <summary>Opaque colors in each authored stage.</summary>
         internal int ColorCount { get; }
 
+        /// <summary>Detects whether the supplied stages follow stock interpolation or need exact storage.</summary>
         internal ColorFade(Bgr555[][] frames, bool toBlack, bool backLeg = false)
         {
             this.backLeg = backLeg;
@@ -163,9 +177,11 @@ public sealed class MotherBrainDeathColorCatalog
             }
         }
 
+        /// <summary>Returns an exact edited color when present, otherwise calculates the stock stage.</summary>
         internal Bgr555 Resolve(int frame, int color) =>
             supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
+        /// <summary>Interpolates a channel with the native black-fade bias or rounded corpse endpoint.</summary>
         private Bgr555 Calculate(int frame, int color)
         {
             int steps = FrameCount - 1;
@@ -176,6 +192,7 @@ public sealed class MotherBrainDeathColorCatalog
             return start.Zip(end, (_, from, to) => (from * (steps - frame) + to * frame + bias) / steps);
         }
 
+        /// <summary>Appends resolved stage colors to the identity independent of storage representation.</summary>
         internal void AppendIdentity(SelectedPresentationHash content, string label)
         {
             content.Append(label, FrameCount);
@@ -189,6 +206,7 @@ public sealed class MotherBrainDeathColorCatalog
         }
     }
 
+    /// <summary>Checks the authored stage count and converts each RGB5 row.</summary>
     private static Bgr555[][] CompileFrames(PaletteRgb5[][]? source,
         int frameCount, int colorCount, string name)
     {
@@ -199,6 +217,7 @@ public sealed class MotherBrainDeathColorCatalog
             Compile(frame, colorCount, $"{name} frame {index}")).ToArray();
     }
 
+    /// <summary>Checks row size and channel bounds before packing one palette image.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -217,6 +236,7 @@ public sealed class MotherBrainDeathColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects duplicate JSON property names before deserializing color arrays.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Mother Brain death color property {name}."));

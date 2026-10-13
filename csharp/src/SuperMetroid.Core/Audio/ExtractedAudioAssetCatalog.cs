@@ -14,13 +14,19 @@ public sealed class ExtractedAudioAssetCatalog
 {
     /// <summary>JSON manifest filename beneath the selected audio root, identifying upload streams, canonical WAV samples, and authored bank/SFX definitions.</summary>
     public const string ManifestFileName = "audio-manifest.json";
+    /// <summary>Opaque SPC upload bytes indexed by their original cartridge command address.</summary>
     private readonly IReadOnlyDictionary<int, byte[]> streams;
+    /// <summary>Canonical replaceable PCM samples associated with each upload address.</summary>
     private readonly IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks;
+    /// <summary>Validated six-byte instrument definitions selected by each music upload.</summary>
     private readonly IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>>
         instrumentBanks;
+    /// <summary>Compiled track, phrase, and channel definitions for each music upload.</summary>
     private readonly IReadOnlyDictionary<int, AudioBankMetadata> musicBanks;
+    /// <summary>Number of distinct PCM assets after equivalent sample sources are aliased.</summary>
     private readonly int canonicalSampleCount;
 
+    /// <summary>Retains the validated stream, sample, instrument, music, and SFX catalogs as one selected installation.</summary>
     private ExtractedAudioAssetCatalog(ExtractedAudioAssetParts parts)
     {
         this.streams = parts.Streams;
@@ -179,16 +185,27 @@ public sealed class ExtractedAudioAssetCatalog
     /// <summary>A write-only stream that appends every byte to an incremental hash.</summary>
     private sealed class HashingWriteStream(IncrementalHash hash) : Stream
     {
+        /// <summary>Canonical manifest hashing never reads the bytes it receives.</summary>
         public override bool CanRead => false;
+        /// <summary>The digest consumes JSON in write order without a seekable buffer.</summary>
         public override bool CanSeek => false;
+        /// <summary>Accepts serialized manifest bytes for the incremental digest.</summary>
         public override bool CanWrite => true;
+        /// <summary>Length is unavailable because no manifest byte buffer is retained.</summary>
         public override long Length => throw new NotSupportedException();
+        /// <summary>Seeking is unavailable on the incremental hash sink.</summary>
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        /// <summary>Feeds an array segment directly into the canonical manifest hash.</summary>
         public override void Write(byte[] buffer, int offset, int count) => hash.AppendData(buffer, offset, count);
+        /// <summary>Feeds a byte span directly into the canonical manifest hash.</summary>
         public override void Write(ReadOnlySpan<byte> buffer) => hash.AppendData(buffer);
+        /// <summary>Completes a stream flush without changing the incremental hash state.</summary>
         public override void Flush() { }
+        /// <summary>Rejects attempts to read from the write-only hash sink.</summary>
         public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        /// <summary>Rejects seeking because the hash reflects serialized write order.</summary>
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        /// <summary>Rejects resizing because serialized bytes are consumed immediately.</summary>
         public override void SetLength(long value) => throw new NotSupportedException();
     }
 
@@ -255,6 +272,7 @@ public sealed class ExtractedAudioAssetCatalog
     /// <summary>Stable SFX command IDs and their compiled routing/allocation metadata.</summary>
     public IReadOnlyList<AudioSoundLibraryMetadata> SoundLibraries { get; }
 
+    /// <summary>Orders every required instrument by native index and rejects duplicates or inconsistent noise markers.</summary>
     private static System.Collections.ObjectModel.ReadOnlyCollection<AudioInstrumentMetadata>
         ValidateInstruments(
         AudioBankMetadata bank)
@@ -299,6 +317,7 @@ public sealed class ExtractedAudioAssetCatalog
         return Array.AsReadOnly(ordered);
     }
 
+    /// <summary>Loads hashed mono PCM WAVs, validates rate and length, and rejects duplicate decoded sample/loop pairs.</summary>
     private static Dictionary<string, ManagedPcmSample> LoadCanonicalSamples(
         string root,
         IReadOnlyList<AudioCanonicalSampleMetadata> definitions)
@@ -340,6 +359,7 @@ public sealed class ExtractedAudioAssetCatalog
         return samples;
     }
 
+    /// <summary>Checks stable track, phrase, and program addresses before compiling an authored SPC music bank.</summary>
     private static void ValidateMusicBank(AudioBankMetadata bank)
     {
         if (bank.TrackPointers is null || bank.MusicTracks is null ||
@@ -402,6 +422,7 @@ public sealed class ExtractedAudioAssetCatalog
         _ = SpcMusicDefinitionCodec.CompileBank(bank);
     }
 
+    /// <summary>Validates bounded SFX programs and each library's fixed command routing and voice allocation.</summary>
     private static (
         IReadOnlyList<AudioSoundProgramMetadata> Programs,
         IReadOnlyList<AudioSoundLibraryMetadata> Libraries) ValidateSoundDefinitions(
@@ -488,6 +509,7 @@ public sealed class ExtractedAudioAssetCatalog
             Array.AsReadOnly(manifest.SoundLibraries.ToArray()));
     }
 
+    /// <summary>Resolves an audio manifest resource beneath the installation root and rejects escapes or missing files.</summary>
     private static string ResolveContainedPath(string root, string relativePath)
     {
         if (Path.IsPathRooted(relativePath))
@@ -501,6 +523,7 @@ public sealed class ExtractedAudioAssetCatalog
         return path;
     }
 
+    /// <summary>Opens the selected audio root's manifest for streaming deserialization.</summary>
     private static AudioAssetManifest ReadManifest(string root)
     {
         return DeserializeManifest(Path.Combine(root, ManifestFileName));
@@ -517,6 +540,7 @@ public sealed class ExtractedAudioAssetCatalog
             ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
     }
 
+    /// <summary>Allows audible asset edits while keeping stock upload, bank, sample-source, and SFX routing identities fixed.</summary>
     private static void ValidateOverrideCompatibility(
         AudioAssetManifest stock,
         AudioAssetManifest selected,
@@ -722,8 +746,10 @@ public sealed record AudioSoundEffectMetadata(
     byte Configuration,
     IReadOnlyList<string> ChannelPrograms);
 
+/// <summary>Serializes large audio manifests with exact byte lists and low-allocation music instruction records.</summary>
 internal static class AudioAssetJson
 {
+    /// <summary>Camel-case manifest settings with converters that preserve the authored JSON structure.</summary>
     internal static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -739,9 +765,10 @@ internal static class AudioAssetJson
     /// </summary>
     private sealed class MusicInstructionConverter : JsonConverter<AudioMusicInstructionMetadata>
     {
-        // Operation names repeat across every program; keep one instance of each.
+        /// <summary>Thread-local intern table sharing repeated operation names across music programs.</summary>
         [ThreadStatic] private static Dictionary<string, string>? operations;
 
+        /// <summary>Reads an authored instruction directly, retaining default and last-duplicate JSON behavior.</summary>
         public override AudioMusicInstructionMetadata Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.StartObject)
@@ -785,6 +812,7 @@ internal static class AudioAssetJson
             return new AudioMusicInstructionMetadata(operation!, opcode, timing!, arguments!);
         }
 
+        /// <summary>Interns repeated operation strings using a span lookup before allocating a new name.</summary>
         private static string Operation(ref Utf8JsonReader reader)
         {
             if (reader.TokenType != JsonTokenType.String)
@@ -800,6 +828,7 @@ internal static class AudioAssetJson
             return name;
         }
 
+        /// <summary>Writes the four authored music instruction fields in the canonical manifest order.</summary>
         public override void Write(Utf8JsonWriter writer, AudioMusicInstructionMetadata value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
@@ -819,6 +848,7 @@ internal static class AudioAssetJson
     /// </summary>
     private sealed class ExactByteListConverter : JsonConverter<IReadOnlyList<byte>>
     {
+        /// <summary>Reads a byte array with stack storage for short operands and a pooled buffer for larger ones.</summary>
         public override IReadOnlyList<byte> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.StartArray)
@@ -851,6 +881,7 @@ internal static class AudioAssetJson
             }
         }
 
+        /// <summary>Writes each timing or argument byte as a JSON number without changing collection order.</summary>
         public override void Write(Utf8JsonWriter writer, IReadOnlyList<byte> value, JsonSerializerOptions options)
         {
             writer.WriteStartArray();

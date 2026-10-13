@@ -19,8 +19,10 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks the reported G-Mode gate route and the PLM suspension effects that drive it.</summary>
 internal static class GModeGateGlitchVerification
 {
+    /// <summary>Compares the three native gate-timing rows and checks related suspended-PLM contracts.</summary>
     internal static void VerifyGModeGateGlitch()
     {
         string[] nativeRows = File.ReadAllLines(
@@ -50,6 +52,7 @@ internal static class GModeGateGlitchVerification
             "  G-Mode: native gate timing, direct/indirect ownership, sand overload, and default block collision pass.");
     }
 
+    /// <summary>Replays one native reactivation timing row through the Kronic Boost gate room.</summary>
     private static void VerifyDirectGModeGateTiming(
         int reactivateFrame,
         int expectedPassedFrame,
@@ -130,6 +133,7 @@ internal static class GModeGateGlitchVerification
             $"reactivation frame {reactivateFrame} matches native switch timing");
     }
 
+    /// <summary>Confirms a door transition keeps subsystem disables while discarding the gate projectile actor.</summary>
     private static void VerifyIndirectGModeOmitsGateActor()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -156,6 +160,7 @@ internal static class GModeGateGlitchVerification
             "indirect room load retains independent PLM/enemy-projectile disable words");
     }
 
+    /// <summary>Checks that suspended quicksand setup fills forty PLM slots and stops adding sink displacement at capacity.</summary>
     private static void VerifyGModeSandOverload()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -219,6 +224,7 @@ internal static class GModeGateGlitchVerification
             "first restored PLM pass executes all forty transient sand delete lists");
     }
 
+    /// <summary>Checks that an exhausted PLM pool prevents a blue-door opening actor and its block mutation.</summary>
     private static void VerifyGModeBlueDoorAllocation()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -263,6 +269,7 @@ internal static class GModeGateGlitchVerification
             "dropped blue-door request leaves its shootable-solid cap untouched");
     }
 
+    /// <summary>Checks default collision outcomes for several block types when their PLM reaction cannot allocate.</summary>
     private static void VerifyGModeDefaultBlockCollision()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -338,6 +345,7 @@ internal static class GModeGateGlitchVerification
         }
     }
 
+    /// <summary>Confirms station touch locks Samus while the suspended refill sequence remains pending.</summary>
     private static void VerifyGModeStationSoftlock()
     {
         var bus = new TestAddressSpace();
@@ -383,6 +391,7 @@ internal static class GModeGateGlitchVerification
             "resumed station owns Samus until the full access sequence finishes");
     }
 
+    /// <summary>Confirms a collectible touched during suspension is awarded after PLM processing resumes, even from a distance.</summary>
     private static void VerifyGModeRemoteItemAcquisition()
     {
         var bus = new TestAddressSpace();
@@ -407,6 +416,7 @@ internal static class GModeGateGlitchVerification
             "remote acquisition publishes exactly one cartridge pickup event");
     }
 
+    /// <summary>Checks that a Power Bomb mark on the glass tube waits for the restored PLM pass.</summary>
     private static void VerifyGModeNoobTubeSuspension()
     {
         var bus = new TestAddressSpace();
@@ -451,6 +461,7 @@ internal static class GModeGateGlitchVerification
             "first post-G-Mode PLM pass consumes the Power Bomb and arms the input callback");
     }
 
+    /// <summary>Occupies all forty native PLM slots with suspended quicksand reactions.</summary>
     private static void FillSuspendedPlmPool(
         RoomPlmSystem plms)
     {
@@ -465,6 +476,7 @@ internal static class GModeGateGlitchVerification
             "G-Mode fixture occupies all forty native PLM slots");
     }
 
+    /// <summary>Uses fatal X-Ray damage and reserve recovery to reach direct G-Mode with all subsystem words disabled.</summary>
     private static void EnterDirectGMode(ISnesAddressSpace bus, SamusState samus)
     {
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
@@ -492,6 +504,7 @@ internal static class GModeGateGlitchVerification
             "direct G-Mode owns all four cartridge disable words");
     }
 
+    /// <summary>Runs the focused G-Mode gate-glitch verification suite.</summary>
     [VerificationCommand("--gmode-gate-glitch")]
     internal static int GmodeGateGlitchCommand()
     {

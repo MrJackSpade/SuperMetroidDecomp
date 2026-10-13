@@ -7,11 +7,15 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Etecoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class EtecoonBehavior : IEnemySpecies
 {
+    /// <summary>Probes the floor, walls, and ceiling throughout the teaching route.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Pauses instruction timing while a room earthquake is active.</summary>
     private readonly RoomEarthquake _earthquake;
 
+    /// <summary>Suppresses the pre-jump transition while an elevator door transition owns the room.</summary>
     private readonly ElevatorBehavior _elevatorBehavior;
 
+    /// <summary>Binds the terrain, quake, and elevator owners consulted by Etecoon AI.</summary>
     internal EtecoonBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, ElevatorBehavior elevatorBehavior)
     {
         _elevatorBehavior = elevatorBehavior;
@@ -19,31 +23,53 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         _earthquake = earthquake;
     }
 
+    /// <summary>Library-two sound queued when an Etecoon wakes near Samus.</summary>
     internal const ushort EtecoonWakeSound = 0x0035;
+    /// <summary>Library-two sound queued at an audible teaching hop.</summary>
     private const ushort EtecoonJumpSound = 0x0033;
+    /// <summary>Library-two sound queued when an airborne Etecoon meets a wall.</summary>
     private const ushort EtecoonWallSound = 0x0032;
+    /// <summary>Vertical distance within which Samus can wake a dormant Etecoon.</summary>
     private const int EtecoonActivationYDistance = 0x80;
+    /// <summary>Strict proximity radius used before the initial Samus-facing pause.</summary>
     private const int EtecoonNearbyDistance = 0x40;
+    /// <summary>Axis band used to choose cardinal rather than diagonal facing.</summary>
     private const int EtecoonDirectionBand = 0x20;
+    /// <summary>Horizontal range that lets Samus trigger the long demonstration run.</summary>
     private const int EtecoonLongRunTriggerDistance = 0x30;
+    /// <summary>Fixed-point lookahead distance for the right wall probe.</summary>
     private const int EtecoonRightWallProbe = 32 << 16;
+    /// <summary>Room X where the left teaching route stops and begins hopping.</summary>
     private const ushort EtecoonFirstTeachingX = 537;
+    /// <summary>Room X where the right teaching route begins a jump or return.</summary>
     private const ushort EtecoonRunStartX = 600;
+    /// <summary>Room X where the long jump switches back to running art.</summary>
     private const ushort EtecoonLongJumpMidpointX = 680;
+    /// <summary>Room X where the long route installs its landing jump.</summary>
     private const ushort EtecoonLongJumpEndX = 840;
+    /// <summary>Last X that permits the alternate wait before another teaching jump.</summary>
     private const ushort EtecoonLongRunMaximumX = 832;
 
     // These are the literal eight ROM words at $A7:E900-$E90F. Keeping them named beside
     // their consumers avoids replacing authored fixed-point values with host-side tuning.
+    /// <summary>Signed whole Y speed for an ordinary Etecoon hop.</summary>
     private const ushort EtecoonJumpYVelocity = 0xfffd;
+    /// <summary>Fractional Y speed paired with an ordinary hop.</summary>
     private const ushort EtecoonJumpYSubvelocity = 0x0000;
+    /// <summary>Signed whole Y speed for the stronger long jump.</summary>
     private const ushort EtecoonLongJumpYVelocity = 0xfffc;
+    /// <summary>Fractional Y speed paired with the long jump.</summary>
     private const ushort EtecoonLongJumpYSubvelocity = 0x0000;
+    /// <summary>Whole X speed used by rightward teaching runs.</summary>
     private const ushort EtecoonRightVelocity = 0x0002;
+    /// <summary>Fractional X speed paired with rightward runs.</summary>
     private const ushort EtecoonRightSubvelocity = 0x0000;
+    /// <summary>Signed whole X speed used by leftward teaching runs.</summary>
     private const ushort EtecoonLeftVelocity = 0xfffe;
+    /// <summary>Fractional X speed paired with leftward runs.</summary>
     private const ushort EtecoonLeftSubvelocity = 0x0000;
 
+    /// <summary>Per-slot route function, velocity, and timer state cleared on room load.</summary>
     internal readonly EtecoonEnemyState?[] _etecoonStates =
         new EtecoonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -186,6 +212,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         state.FunctionTimer = 256;
     }
 
+    /// <summary>Expires the wake pause, installs the first jump speed, and gates its sound by Samus's X.</summary>
     private void RunEtecoonPreJumpCountdown(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -202,6 +229,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             LastEtecoonSoundEffect = EtecoonJumpSound;
     }
 
+    /// <summary>Finishes the initial hop and either faces nearby Samus or schedules another hop.</summary>
     private void RunEtecoonInitialJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -244,6 +272,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.HitCeiling;
     }
 
+    /// <summary>Waits 32 calls before choosing a left or right wall run from the stored facing bit.</summary>
     private static void RunEtecoonFaceSamusPause(
         RoomEnemySlot slot,
         EtecoonEnemyState state)
@@ -266,6 +295,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
     }
 
+    /// <summary>Runs left until terrain collision, then reverses into the rightward teaching path.</summary>
     private void RunEtecoonLeftToWall(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -280,6 +310,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.Parameter1 = 1;
     }
 
+    /// <summary>Runs right until the 32-pixel solid lookahead arms the airborne wall-jump state.</summary>
     private void RunEtecoonRightToWall(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -298,6 +329,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         MoveEtecoonHorizontally(slot, state, level);
     }
 
+    /// <summary>Handles wall bounce or floor landing during the alternating teaching hops.</summary>
     private void RunEtecoonAirborne(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -337,6 +369,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
     }
 
+    /// <summary>Waits eight calls at a wall, then launches in the stored opposite direction.</summary>
     private void RunEtecoonWallPause(RoomEnemySlot slot, EtecoonEnemyState state)
     {
         PauseEtecoonForEarthquake(slot);
@@ -357,6 +390,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
     }
 
+    /// <summary>Selects one of the three authored post-landing routes from parameter two.</summary>
     private static void RunEtecoonRouteAfterLanding(
         RoomEnemySlot slot,
         EtecoonEnemyState state)
@@ -389,6 +423,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Runs to the left teaching marker before starting an idle hopping interval.</summary>
     private void RunEtecoonMoveLeftToTeachingStart(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -403,6 +438,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
     }
 
+    /// <summary>Runs to the right teaching marker before starting an idle hopping interval.</summary>
     private void RunEtecoonMoveRightToTeachingStart(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -417,6 +453,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
     }
 
+    /// <summary>Runs to X=600 and launches the stronger rightward demonstration jump.</summary>
     private void RunEtecoonRightToLongJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -431,6 +468,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
     }
 
+    /// <summary>Advances the long jump on both axes and returns to running art at X=680.</summary>
     private void RunEtecoonLongJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -446,6 +484,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         state.Function = EtecoonAiFunction.RunRightAfterLongJump;
     }
 
+    /// <summary>Continues the long route to X=840 before installing its landing hop.</summary>
     private void RunEtecoonRightAfterLongJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -460,6 +499,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         SetEtecoonVerticalVelocity(state, 0xffff, EtecoonLongJumpYSubvelocity);
     }
 
+    /// <summary>Waits for floor contact after the long route, then resumes the teaching-hop pause.</summary>
     private void RunEtecoonLongJumpLanding(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -475,6 +515,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         state.Function = EtecoonAiFunction.IdleBetweenTeachingJumps;
     }
 
+    /// <summary>Handles ceiling and floor contact for a demonstration hop, selecting another hop or Samus wait.</summary>
     private void RunEtecoonTeachingJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -501,6 +542,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.HitCeiling;
     }
 
+    /// <summary>Counts teaching hops in parameter one's high byte and takes the return run after four on nonlooping routes.</summary>
     private void RunEtecoonIdleBetweenTeachingJumps(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -538,6 +580,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             LastEtecoonSoundEffect = EtecoonJumpSound;
     }
 
+    /// <summary>Starts the long run when Samus approaches; otherwise schedules another teaching hop.</summary>
     private void RunEtecoonWaitForSamusBeforeLongRun(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -564,6 +607,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Runs to the return marker and installs the rightward jump back toward the wall route.</summary>
     private void RunEtecoonRightToReturnJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -577,6 +621,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
     }
 
+    /// <summary>Completes the return jump and restores leftward wall-running speed on landing.</summary>
     private void RunEtecoonReturnJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -631,6 +676,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         return _terrain.MoveEnemyVertically(level, slot, displacement);
     }
 
+    /// <summary>Adds a signed 16.16 whole/fraction increment to the Etecoon's vertical speed.</summary>
     private static void AddEtecoonFixed(
         EtecoonEnemyState state,
         ushort wholeIncrement,
@@ -641,6 +687,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + increment);
     }
 
+    /// <summary>Installs a native signed whole/fraction Y speed for the next movement phase.</summary>
     private static void SetEtecoonVerticalVelocity(
         EtecoonEnemyState state,
         ushort whole,
@@ -649,6 +696,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), fraction));
     }
 
+    /// <summary>Installs a native signed whole/fraction X speed for the next movement phase.</summary>
     private static void SetEtecoonHorizontalVelocity(
         EtecoonEnemyState state,
         ushort whole,
@@ -657,6 +705,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), fraction));
     }
 
+    /// <summary>Uses native post-decrement semantics, treating a one-to-zero or signed underflow as expiry.</summary>
     private static bool DecrementEtecoonTimerAndTestExpired(EtecoonEnemyState state)
     {
         bool wasOne = state.FunctionTimer == 1;
@@ -664,12 +713,14 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         return wasOne || (state.FunctionTimer & 0x8000) != 0;
     }
 
+    /// <summary>Checks strict wrapped horizontal distance from an Etecoon to Samus.</summary>
     private static bool EtecoonIsWithinX(
         RoomEnemySlot slot,
         SamusState samus,
         int distance) =>
         Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) < distance;
 
+    /// <summary>Checks strict wrapped vertical distance from an Etecoon to Samus.</summary>
     private static bool EtecoonIsWithinY(
         RoomEnemySlot slot,
         SamusState samus,
@@ -692,6 +743,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         return deltaY < 0 ? (ushort)1 : (ushort)3;
     }
 
+    /// <summary>Restarts an authored Etecoon animation list at timer one.</summary>
     private static void InstallEtecoonInstruction(
         RoomEnemySlot slot,
         ushort instructionPointer)
@@ -700,10 +752,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Finds initialized state for a live Etecoon or rejects an unrelated slot callback.</summary>
     private EtecoonEnemyState RequireEtecoonState(RoomEnemySlot slot) =>
         _etecoonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Etecoon state.");
 
+    /// <summary>Registers the bank-$A7 Etecoon initializer for its enemy definition.</summary>
     internal void RegisterEtecoonInitializationAi(EnemyAiTable table)
     {
 
@@ -713,6 +767,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the Etecoon function dispatcher under its native main AI identity.</summary>
     internal void RegisterEtecoonMainAi(EnemyAiTable table)
     {
 

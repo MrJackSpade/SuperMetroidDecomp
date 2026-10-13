@@ -125,6 +125,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary>$86:E1FC, <c>UNUSED_InstList_EnemyProj_MiscDust_1C_ElevatorPad_86E1FC</c>, native misc-dust selector 28: LoopingElevatorPad.</summary>
     internal const ushort MiscDustLoopingElevatorPad = 0xe1fc;
 
+    /// <summary>The six collision-radius stages in the blue-ring growth list.</summary>
     internal const int BlueRingRadiusCount = 6;
 
     /// <summary>$8D:8276/827D/8284..82C6: mutually exclusive tiny seed, single ring and composite radial growth forms.</summary>
@@ -249,6 +250,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary>$86:C8CA: released drool pose before Sleep; this chosen timing input remains required.</summary>
     private const ushort DroolReleaseFrames = 10;
 
+    /// <summary>Uses the ring's seed, formation, or expansion stage to select its frame hold.</summary>
     private static ushort BlueRingDuration(int radius)
     {
         RingGrowthPhase phase = radius switch
@@ -267,12 +269,15 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         };
     }
 
+    /// <summary>Holds compact rainbow explosion frames for three ticks and expanded frames for four.</summary>
     private static ushort RainbowExplosionDuration(int frame)
     {
         RainbowBurstPhase phase = frame < 2 ? RainbowBurstPhase.Compact : RainbowBurstPhase.Expanded;
         return phase == RainbowBurstPhase.Compact ? CompactRainbowBurstFrames : ExpandedRainbowBurstFrames;
     }
+    /// <summary>The distinct timed projectile programs indexed by the compiled mechanics reader.</summary>
     internal const int TimedProgramCount = 37;
+    /// <summary>Selects a bank-$86 program's start, duration pattern, and terminating control flow.</summary>
     internal static EnemyProjectileTimedProgramDefinition TimedProgram(int index) => index switch
     {
         0 => new(MotherBrainBombInitial, 9, null, (ushort)EnemyProjectileInstruction.GotoY, MotherBrainBombInitial, frame => (ushort)(BombPeakFrames - Math.Min(frame, 9 - frame) * BombHoldStepFrames)),
@@ -321,6 +326,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
+    /// <summary>Identifies projectile species whose instruction mechanics are compiled here.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainOnionRing or
         RoomEnemyProjectileKind.MotherBrainBomb or
@@ -336,6 +342,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         RoomEnemyProjectileKind.EyeDoorSmoke or
         RoomEnemyProjectileKind.MiscDustExplosion;
 
+    /// <summary>Maps native misc-dust selectors $00 through $1D to their bank-$86 programs.</summary>
     internal static ushort MiscDustInitialPointer(ushort animationIndex)
     {
         if (animationIndex >= 30)
@@ -381,9 +388,11 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         };
     }
 
+    /// <summary>Reads an owned instruction word, rejecting addresses outside translated mechanics.</summary>
     internal static ushort ReadMechanicsWord(ushort address) => TryReadMechanicsWord(address, out ushort value)
         ? value : throw new InvalidDataException($"Bank-$86 projectile mechanics pointer ${address:X4} is outside the translated program domain.");
 
+    /// <summary>Reconstructs behavior words from the ring, drool, and timed programs while leaving spritemap operands to installed art.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         int offset = address - MotherBrainBlueRingInitial;
@@ -432,10 +441,13 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         return false;
     }
 
+    /// <summary>Enumerates presentation operands that artwork installation must supply separately.</summary>
     internal static VisualFrameList VisualFrames { get; } = new();
 
+    /// <summary>Projects the ring, drool, and timed-program spritemap slots into one artwork manifest.</summary>
     internal sealed class VisualFrameList : IReadOnlyList<EnemyProjectilePresentationFrameDefinition>
     {
+        /// <summary>Counts the ring and drool slots plus every timed program's visual frames.</summary>
         public int Count
         {
             get
@@ -445,6 +457,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
                 return count;
             }
         }
+        /// <summary>Locates one visual operand in program order, rejecting out-of-range indices.</summary>
         public EnemyProjectilePresentationFrameDefinition this[int index]
         {
             get
@@ -454,6 +467,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
                 throw new InvalidOperationException("Projectile visual enumeration count disagrees with its programs.");
             }
         }
+        /// <summary>Yields operand addresses and stable artwork names in native program order.</summary>
         public IEnumerator<EnemyProjectilePresentationFrameDefinition> GetEnumerator()
         {
             for (int frame = 0; frame < 6; frame++)
@@ -474,6 +488,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
                     yield return new((ushort)(first + frame * 4 + 2), $"projectile_86_{program.InitialPointer:X4}_frame_{frame:D2}".ToLowerInvariant());
             }
         }
+        /// <inheritdoc />
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

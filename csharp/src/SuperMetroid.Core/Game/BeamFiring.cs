@@ -8,12 +8,18 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Firing beams, missiles and the Hyper Beam: charge cancellation, spawn position and velocity, the interaction-immunity timer $18AC, and the charged and combo launch paths.</summary>
 internal sealed class BeamFiring
 {
+    /// <summary>Clears charge flares and initializes launched beam animation.</summary>
     private readonly ProjectileAnimation _animation;
+    /// <summary>Tracks held Shoot duration, charge effects, and Hyper Beam glow.</summary>
     private readonly BeamChargeState _charge;
+    /// <summary>Handles the special beam attack after the charge counter reaches 120.</summary>
     private readonly BeamCombos _combos;
+    /// <summary>Owns the five counted projectile slots and their native counter.</summary>
     private readonly ProjectileSlotTable _slotTable;
+    /// <summary>Runs initial muzzle collision against room terrain and PLMs.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
 
+    /// <summary>Connects firing to charge, animation, slot allocation, combo, and terrain systems.</summary>
     internal BeamFiring(ProjectileAnimation animation, BeamChargeState charge, BeamCombos combos, ProjectileSlotTable slotTable, ProjectileTerrainCollision terrainCollision)
     {
         _animation = animation;
@@ -62,6 +68,7 @@ internal sealed class BeamFiring
         ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
     }
 
+    /// <summary>Clears the charge counter, its prior sample, and all flare animation layers.</summary>
     private void CancelCharge()
     {
         _charge.FlareCounter = 0;
@@ -69,6 +76,7 @@ internal sealed class BeamFiring
         _animation.ClearFlareAnimationState();
     }
 
+    /// <summary>Handles held Shoot, release, pose-transition release, Hyper Beam, and special attack timing.</summary>
     internal (int? Slot, ushort Sound, byte MaximumQueued) HandleBeamInput(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -224,6 +232,7 @@ internal sealed class BeamFiring
             : (null, 0, 0);
     }
 
+    /// <summary>Attempts allocation and muzzle setup for an ordinary or charged beam shot.</summary>
     private (int? Slot, ushort Sound) TryFireBeam(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -345,6 +354,7 @@ internal sealed class BeamFiring
         return (slotIndex, sound);
     }
 
+    /// <summary>Allocates charged-Plasma art with Hyper damage, Wave collision, and a 21-frame cooldown.</summary>
     private (int? Slot, ushort Sound) TryFireHyperBeam(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -432,6 +442,7 @@ internal sealed class BeamFiring
         return (slotIndex, sound);
     }
 
+    /// <summary>Consumes a current or retained Shoot edge, ammo, and cooldown to launch a missile.</summary>
     internal (int? Slot, ushort Sound) TryFireMissile(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -527,6 +538,7 @@ internal sealed class BeamFiring
         return (slotIndex, isSuperMissile ? (ushort)4 : (ushort)3);
     }
 
+    /// <summary>Places the muzzle using pose height and the running or ordinary directional origin table.</summary>
     internal static void InitializePosition(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -543,6 +555,7 @@ internal sealed class BeamFiring
         slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + origin.X)), unchecked((ushort)(samus.Position.Y.Whole + origin.Y - poseYOffset))));
     }
 
+    /// <summary>Selects beam speed from its combination and diagonal direction before applying inherited velocity.</summary>
     internal static void InitializePowerBeamVelocity(
         ISnesAddressSpace bus,
         SamusProjectileSlot slot)
@@ -558,6 +571,7 @@ internal sealed class BeamFiring
         InitializeDirectionalVelocity(bus, slot, speed);
     }
 
+    /// <summary>Clears projectile position fractions and combines base speed with Samus' inherited motion.</summary>
     internal static void InitializeDirectionalVelocity(
         ISnesAddressSpace bus,
         SamusProjectileSlot slot,

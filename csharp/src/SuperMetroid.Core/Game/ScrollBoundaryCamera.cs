@@ -225,6 +225,7 @@ public sealed class ScrollBoundaryCamera
 
     // The subtraction is unsigned: Samus left of or above the camera borrows and scrolls
     // back, as do screen offsets below the near edge; offsets at the far edge advance.
+    /// <summary>Moves the camera toward Samus until she lies within the grapple dead zone.</summary>
     private static ushort StepTowardDeadZone(ushort camera, ushort samus, ushort nearEdge, ushort farEdge)
     {
         if (samus < camera)
@@ -420,6 +421,7 @@ public sealed class ScrollBoundaryCamera
             : NextScreenStart(proposed));
     }
 
+    /// <summary>Stops rightward travel at the ideal point, room edge, or red cell to the right.</summary>
     private void HandleScrollingRight()
     {
         ushort proposed = Position.X.Whole;
@@ -453,6 +455,7 @@ public sealed class ScrollBoundaryCamera
         SetWholeX(candidate);
     }
 
+    /// <summary>Stops leftward travel at the ideal point, room edge, or current red cell.</summary>
     private void HandleScrollingLeft()
     {
         ushort proposed = Position.X.Whole;
@@ -480,6 +483,7 @@ public sealed class ScrollBoundaryCamera
         SetWholeX(candidate);
     }
 
+    /// <summary>Applies blue versus red/green vertical alignment and blocks downward travel at room or scroll limits.</summary>
     private void HandleScrollingDown()
     {
         ushort proposed = Position.Y.Whole;
@@ -523,6 +527,7 @@ public sealed class ScrollBoundaryCamera
         }
     }
 
+    /// <summary>Stops upward travel at the ideal point, room top, or current red cell.</summary>
     private void HandleScrollingUp()
     {
         ushort proposed = Position.Y.Whole;
@@ -549,6 +554,7 @@ public sealed class ScrollBoundaryCamera
         SetWholeY(candidate);
     }
 
+    /// <summary>Samples the scroll cell at the camera's horizontal midpoint for vertical boundaries.</summary>
     private int VerticalCellIndex()
     {
         int xScreenAtCenter = SnesEightEight.WholeOf((ushort)(Position.X.Whole + 0x0080));
@@ -556,6 +562,7 @@ public sealed class ScrollBoundaryCamera
         return yScreen * Scrolls.Size.X + xScreenAtCenter;
     }
 
+    /// <summary>Interprets modular coordinate subtraction with the cartridge's signed 16-bit comparison.</summary>
     private static int SignedDifference(ushort left, ushort right) => unchecked((short)(left - right));
 
     /// <summary>The first pixel of the 256-pixel scroll screen holding <paramref name="pixel"/> (the AND #$FF00 alignment).</summary>
@@ -580,10 +587,10 @@ public sealed class ScrollBoundaryCamera
         return SnesSignedSixteenSixteen.FromRaw(unchecked((int)distance));
     }
 
-    // The scroll handlers are per-axis ports: each writes one integer layer-one word, leaving
-    // the other axis and (unless stated) both fraction words untouched.
+    /// <summary>Writes only the horizontal integer camera word, preserving its fraction and vertical axis.</summary>
     private void SetWholeX(ushort x) => Position = Position.WithX(Position.X.WithWhole(x));
 
+    /// <summary>Writes only the vertical integer camera word, preserving its fraction and horizontal axis.</summary>
     private void SetWholeY(ushort y) => Position = Position.WithY(Position.Y.WithWhole(y));
 }
 

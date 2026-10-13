@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Beetom's compiled instruction controls and visual-selector separation against the retail A8 bank.</summary>
 internal static class BeetomInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge oracle and runs the standalone Beetom instruction suite.</summary>
     internal static void VerifyBeetomInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises all six live crawl, hop, and drain programs while guarding compiled mechanics and optional installed artwork from cartridge reads.</summary>
     internal static void VerifyBeetomInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
@@ -141,6 +144,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
               "mechanics while visual-selector reads are forbidden.");
     }
 
+    /// <summary>Compares the 48 compiled control words to bank A8 and checks byte ownership, aliases, bounds, and rejected gaps.</summary>
     private static void VerifyBeetomMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xb696,0xb698,0xb69c,0xb6a0,0xb6a4,0xb6a8,0xb6aa,
@@ -177,6 +181,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             AssertThrows<IndexOutOfRangeException>(() => BeetomInstructionProgramDefinitionsTooling.MechanicsWord(index), "Beetom mechanics ordinal bounds");
     }
 
+    /// <summary>Initializes a Beetom with an injected RNG so distant-action selection can be checked for each seed.</summary>
     private static (RoomEnemySystem Enemies, BeetomEnemyState State, Action<BeetomEnemyState> Choose)
         CreateBeetomDistantSelectionFixture(Func<ushort> nextRandom)
     {
@@ -192,6 +197,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         return (enemies, enemies.BeetomStates[0]!, choose);
     }
 
+    /// <summary>Checks every RNG word against the native eight-pointer action table and verifies one random consumption per choice.</summary>
     private static void VerifyBeetomDistantActionMapping(SuperMetroidAddressSpace rom)
     {
         ushort random = 0;
@@ -214,6 +220,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Confirms the selected travel direction uses the seed's low bit independently of the chosen action.</summary>
     private static void VerifyBeetomDistantDirectionMapping()
     {
         ushort random = 0;
@@ -227,6 +234,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             AssertEqual((ushort)(value % 2), fixture.State.Direction, "Beetom direction preserves native low-bit mapping independently of selected action");
         }
     }
+    /// <summary>Checks all 32 spritemap operands against bank A8 and rejects control words, small-hop gaps, and adjacent data.</summary>
     private static void VerifyBeetomVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xb69a,0xb69e,0xb6a2,0xb6a6,0xb6b0,0xb6b4,0xb6b8,0xb6bc,
@@ -257,6 +265,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BeetomFrameAt(address), "Beetom distant invalid operand");
     }
+    /// <summary>Checks the ordered visual-operand catalog and exact membership across the full 16-bit address range.</summary>
     private static void VerifyBeetomPresentationMapping()
     {
         ushort[] expected = [0xb69a,0xb69e,0xb6a2,0xb6a6,0xb6b0,0xb6b4,0xb6b8,0xb6bc,
@@ -272,12 +281,14 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         foreach (int index in new[] {int.MinValue, -1, 32, int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Beetom operand ordinal bounds");
     }
+    /// <summary>Starts the short-hop variant used by the instruction sleep checks, with the requested horizontal direction.</summary>
     private static void StartBeetomHop(
         RoomEnemySlot slot,
         BeetomEnemyState state,
         bool left) =>
         BeetomBehavior.StartBeetomHop(slot, state, 0, left, longHop: false);
 
+    /// <summary>Advances a crawl or drain program through its goto and first repeated frame, checking the resulting pointer.</summary>
     private static void RunBeetomLoop(
         RoomEnemySystem enemies,
         object?[] arguments,
@@ -296,6 +307,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             "Beetom program completes its native goto and first repeated frame");
     }
 
+    /// <summary>Advances a hop through its timed frames and checks that the terminal sleep instruction is reached.</summary>
     private static void RunBeetomSleepProgram(
         RoomEnemySystem enemies,
         object?[] arguments,
@@ -316,6 +328,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             "Beetom hop program reaches terminal sleep");
     }
 
+    /// <summary>Repeatedly reads the six live mechanics entries to measure warmed per-thread allocation without a dead-code result.</summary>
     private static int ProbeBeetomInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -335,12 +348,14 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads a native Beetom instruction word from bank A8 solely for comparison with compiled definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Beetom instruction words")]
     internal static ushort ReadBeetomInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa80000 | address);
 
+    /// <summary>Forbids compiled mechanics reads and either observes or forbids visual-operand reads according to artwork installation.</summary>
     private static CartridgeReadGuard NewBeetomInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
@@ -355,6 +370,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
                 BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 
+    /// <summary>Runs the retail Beetom instruction suite from the verification command line.</summary>
     [VerificationCommand("--beetom-instruction-mechanics")]
     internal static int BeetomInstructionMechanicsCommand()
     {

@@ -10,8 +10,10 @@ using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail and live-scene checks for ending explosion sprite frames, programs, and editable compositions.</summary>
 internal static class EndingExplosionSpriteArtworkVerification
 {
+    /// <summary>Compares sixteen program-selected frame pointers, part counts, and stable asset keys with bank-$8C sprite maps.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion frame catalog")]
     internal static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
     {
@@ -54,9 +56,11 @@ internal static class EndingExplosionSpriteArtworkVerification
             "planet record count");
     }
 
+    /// <summary>Checks calculated grid/quadrant parts preserve native OAM and selected edits keep their authored composition.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion calculated parts")]
     private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
     {
+        /// <summary>Applies the five calculation families only when the supplied sprite map still matches their supported basis.</summary>
         static SpriteComposition Calculate(ushort pointer, SpriteComposition supplied) =>
             EndingExplosionGridParts.CalculateIfMatching(pointer, EndingExplosionQuadrantParts.CalculateIfMatching(pointer, EndingExplosionStarfieldParts.CalculateIfMatching(pointer, EndingExplosionAfterglowParts.CalculateIfMatching(pointer, EndingExplosionSilhouetteParts.CalculateIfMatching(pointer, supplied)))));
         for (int pose = 0; pose < 16; pose++)
@@ -88,6 +92,7 @@ internal static class EndingExplosionSpriteArtworkVerification
             }
             SpriteComposition calculated = Calculate(pointer, original);
             AssertTrue(!ReferenceEquals(original, calculated), "original grid uses calculated parts");
+            /// <summary>Hashes every compiled visual field and part order to compare authored and calculated compositions.</summary>
             string Identity(SpriteComposition composition) => SelectedPresentationHash.Create("grid", composition.AppendIdentity);
             AssertEqual(Identity(original), Identity(calculated), "calculated grid preserves every compiled visual field and order");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
@@ -143,6 +148,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                 (EndingExplosionSpriteDefinitions.Pose)invalid, 0), "quadrant basis role bounds");
     }
 
+    /// <summary>Checks every bank-$8B program word and advances all eight sprite actors against native cursor, frame, callback, timer, and lifetime behavior.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion programs")]
     internal static void VerifyEndingExplosionPrograms(ISnesAddressSpace bus)
     {
@@ -197,6 +203,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                 $"explosion frame {frame} has four OAM parts and a 22-byte record");
     }
 
+    /// <summary>Compares installed explosion OAM with native maps for visible and wrapped offscreen origins after checking frame and program catalogs.</summary>
     internal static void VerifyEndingExplosionActorArtwork(
         ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
     {
@@ -230,6 +237,7 @@ internal static class EndingExplosionSpriteArtworkVerification
         }
     }
 
+    /// <summary>Flips the starfield art and confirms a live explosion scene changes OAM and pixels without bank-$8C reads, then rejects a missing frame.</summary>
     internal static void VerifyEndingExplosionVisualOverride(GameInstallation installation,
         EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
     {

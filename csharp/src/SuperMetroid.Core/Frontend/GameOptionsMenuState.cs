@@ -10,28 +10,46 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Complete game-state-$02 options owner, including both secondary pages.</summary>
 public sealed class GameOptionsMenuState
 {
-    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    /// <summary>Reusable OBJ composition layer cleared each render and excluded from saved state.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
-    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    /// <summary>Reusable final frame, valid until this scene renders again.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
+    /// <summary>Supplies menu PPU setup data.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Receives cursor and confirmation sounds when available.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>Owns the options menu tilemaps, palette, and PPU registers.</summary>
     private readonly MenuPpuState ppu;
+    /// <summary>Holds the heading and animated selection missile for rendering.</summary>
     private readonly OamBuffer oam = new();
+    /// <summary>Derives newly pressed buttons from the raw held controller word.</summary>
     private readonly ControllerInputState controller = new();
+    /// <summary>Provides editable menu art after construction or debugger restoration.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    /// <summary>Mutable primary page whose language palette bits can change in place.</summary>
     private readonly byte[] primaryTilemap;
+    /// <summary>English controller page updated with current button labels.</summary>
     private readonly byte[] controllerEnglishTilemap;
+    /// <summary>Japanese controller page updated with current button labels.</summary>
     private readonly byte[] controllerJapaneseTilemap;
+    /// <summary>English special page updated with toggle palette bits.</summary>
     private readonly byte[] specialEnglishTilemap;
+    /// <summary>Japanese special page updated with toggle palette bits.</summary>
     private readonly byte[] specialJapaneseTilemap;
+    /// <summary>Page currently loaded into BG1.</summary>
     private byte[] visibleTilemap;
+    /// <summary>Page whose input and cursor policy currently apply.</summary>
     private GameOptionsPage page = GameOptionsPage.Primary;
+    /// <summary>Page to load when the current page has dissolved to black.</summary>
     private GameOptionsPage dissolveDestination = GameOptionsPage.Primary;
+    /// <summary>Current INIDISP level for page fades and final exits.</summary>
     private int brightness;
+    /// <summary>BG1 scroll used to expose the lower controller rows.</summary>
     private int bg1VerticalScroll;
+    /// <summary>Countdown to the next selection-missile animation frame.</summary>
     private int missileTimer = 1;
+    /// <summary>Current selection-missile artwork frame.</summary>
     private int missileFrame;
 
     /// <summary>Creates the complete primary, controller, and special options-menu state.</summary>
@@ -257,6 +275,7 @@ public sealed class GameOptionsMenuState
             unchecked((ushort)bg1VerticalScroll), checked((byte)brightness));
     }
 
+    /// <summary>Draws the current page heading and animated cursor in OAM.</summary>
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
@@ -270,6 +289,7 @@ public sealed class GameOptionsMenuState
         oam.FinalizeFrame();
     }
 
+    /// <summary>Handles primary rows for language, subpages, start, and cancel.</summary>
     private void StepPrimary(SnesButton pressed)
     {
         if ((pressed & SnesButton.Up) != 0)
@@ -322,6 +342,7 @@ public sealed class GameOptionsMenuState
         }
     }
 
+    /// <summary>Handles button swaps, reset and exit rows, and upper/lower page scrolling.</summary>
     private void StepController(SnesButton pressed)
     {
         if ((pressed & SnesButton.Up) != 0)
@@ -395,6 +416,7 @@ public sealed class GameOptionsMenuState
         }
     }
 
+    /// <summary>Handles icon-cancel and moonwalk toggles or returns to the primary page.</summary>
     private void StepSpecial(SnesButton pressed)
     {
         if ((pressed & SnesButton.Up) != 0)
@@ -443,12 +465,14 @@ public sealed class GameOptionsMenuState
         LoadVisiblePage();
     }
 
+    /// <summary>Records the destination before starting the page fade-out.</summary>
     private void BeginDissolveTo(GameOptionsPage destination)
     {
         dissolveDestination = destination;
         Phase = GameOptionsPhase.DissolveOut;
     }
 
+    /// <summary>Selects the language-specific page, reapplies live labels or toggles, and loads BG1.</summary>
     private void LoadVisiblePage()
     {
         visibleTilemap = page switch
@@ -470,6 +494,7 @@ public sealed class GameOptionsMenuState
         ppu.LoadBg1(visibleTilemap);
     }
 
+    /// <summary>Updates primary-page palette bits for the selected text language.</summary>
     private void ApplyLanguagePaletteBits()
     {
         (mapPresentation ?? throw new InvalidOperationException(
@@ -477,6 +502,7 @@ public sealed class GameOptionsMenuState
             .GameOptions.ApplyLanguage(primaryTilemap, JapaneseText);
     }
 
+    /// <summary>Marks the two special-setting toggle rows using installed presentation art.</summary>
     private void ApplySpecialPaletteBits()
     {
         var content = mapPresentation ?? throw new InvalidOperationException(
@@ -487,6 +513,7 @@ public sealed class GameOptionsMenuState
             GameOptionsPresentationDefinitions.MoonwalkToggle, MoonwalkEnabled);
     }
 
+    /// <summary>Writes current physical-button labels to every controller action row.</summary>
     private void ApplyControllerLabels()
     {
         var content = mapPresentation ?? throw new InvalidOperationException(
@@ -498,6 +525,7 @@ public sealed class GameOptionsMenuState
         }
     }
 
+    /// <summary>Uses the page cursor layout or the hidden anchor during transitions.</summary>
     private (ushort X, ushort Y) CursorPosition()
     {
         GameOptionsPage? cursorPage = GameOptionsCursorPolicy.Select(Phase);
@@ -515,6 +543,7 @@ public sealed class GameOptionsMenuState
         return (checked((ushort)point.X), checked((ushort)point.Y));
     }
 
+    /// <summary>Advances the selection missile after its installed frame duration.</summary>
     private void StepMissile()
     {
         if (--missileTimer != 0)
@@ -524,6 +553,7 @@ public sealed class GameOptionsMenuState
             MenuMissileAnimationDefinitions.FrameDuration;
     }
 
+    /// <summary>Maps the active menu page to its installed presentation key.</summary>
     private static string PresentationPageName(GameOptionsPage value) => value switch
     {
         GameOptionsPage.Primary => GameOptionsPresentationDefinitions.PrimaryMenu,
@@ -532,16 +562,19 @@ public sealed class GameOptionsMenuState
         _ => throw new InvalidOperationException($"Unknown options page {value}."),
     };
 
+    /// <summary>Queues the native cursor sound within the menu sound limit.</summary>
     private void QueueMoveSound() =>
         audio?.QueueSound(
             SoundEffectLibrary1Sounds.MenuCursor,
             maximumQueued: GameOptionsRomData.MaximumQueuedMenuSounds);
 
+    /// <summary>Queues the native confirmation sound within the menu sound limit.</summary>
     private void QueueSelectSound() =>
         audio?.QueueSound(
             SoundEffectLibrary1Sounds.MenuConfirm,
             maximumQueued: GameOptionsRomData.MaximumQueuedMenuSounds);
 
+    /// <summary>Applies the menu's current INIDISP brightness to a composed frame.</summary>
     private void ApplyBrightness(Span<Rgba32> pixels)
     {
         for (int pixel = 0; pixel < pixels.Length; pixel++)
@@ -592,9 +625,13 @@ public enum GameOptionsPhase
     LoadingMenu,
 }
 
+/// <summary>The primary and two secondary options pages selected by menu navigation.</summary>
 internal enum GameOptionsPage
 {
+    /// <summary>Start, language, controller settings, and special settings.</summary>
     Primary,
+    /// <summary>Editable action-button bindings plus reset and exit rows.</summary>
     Controller,
+    /// <summary>Automatic item cancel and moonwalk toggles.</summary>
     Special,
 }

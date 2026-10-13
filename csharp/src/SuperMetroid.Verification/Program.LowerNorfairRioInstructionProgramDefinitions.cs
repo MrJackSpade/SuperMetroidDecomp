@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Lower Norfair Rio parent and flame programs against cartridge words and live instruction execution.</summary>
 internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge and runs Lower Norfair Rio instruction verification.</summary>
     internal static void VerifyLowerNorfairRioInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyLowerNorfairRioInstructionProgramDefinitions), () => VerifyLowerNorfairRioInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks seven instruction programs, initializer selections, and compiled visual operands without runtime mechanics reads.</summary>
     internal static void VerifyLowerNorfairRioInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -138,6 +141,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
             "parent/flame programs, three callbacks, and 32 compiled spritemap selectors pass.");
     }
 
+    /// <summary>Confirms that the parent starts idle while its follower starts the flame program.</summary>
     private static void VerifyLowerNorfairRioInitializerSelections(
         ISnesAddressSpace bus)
     {
@@ -162,6 +166,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
             "Lower Norfair Rio follower initializer selects flames");
     }
 
+    /// <summary>Creates a guarded Rio instruction fixture with its selected entry installed in the first enemy slot.</summary>
     internal static (
         RoomEnemySystem Enemies,
         RoomEnemySlot Slot,
@@ -183,6 +188,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         return (enemies, slot, state);
     }
 
+    /// <summary>Forces the instruction timer and advances the requested number of interpreter calls.</summary>
     internal static void RunLowerNorfairRioInstructionFrames(
         RoomEnemySystem enemies,
         object?[] arguments,
@@ -196,6 +202,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates compiled idle and cooldown lookups to detect warmed per-frame allocations.</summary>
     private static int ProbeLowerNorfairRioInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -209,12 +216,14 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads one native bank-$A2 word solely as the retail comparison oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Lower Norfair Rio instruction words")]
     internal static ushort ReadLowerNorfairRioInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa20000 | address);
 
+    /// <summary>Rejects compiled mechanics reads and optionally rejects presentation-selector reads as well.</summary>
     internal static CartridgeReadGuard NewLowerNorfairRioInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
@@ -230,6 +239,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
             : guard.ObserveWords(0xa20000, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 
+    /// <summary>Runs the standalone Lower Norfair Rio instruction verification command.</summary>
     [VerificationCommand("--lower-norfair-rio-instruction-program-definitions")]
     internal static int LowerNorfairRioInstructionProgramDefinitionsCommand()
     {

@@ -21,9 +21,10 @@ public sealed class SamusDrainedState
     [field: NonSerialized]
     public SamusHyperBeamColorCatalog? PresentationColors { get; set; }
 
-    // Controller zero and command `$17` both call LoadSamusSuitPalette immediately. The
-    // runtime's software-CGRAM pass occurs later in the same frame, so this one-shot latch
-    // preserves that ordering without passing a rendering device into movement commands.
+    /// <summary>
+    /// Latches the immediate suit-palette restore from controller zero or command $17
+    /// until the same frame's software-CGRAM pass runs.
+    /// </summary>
     private bool _suitPaletteRestoreRequested;
 
     /// <summary>Host-readable substitute for the active native pose/handler combination.</summary>
@@ -399,6 +400,7 @@ public sealed class SamusDrainedState
     /// <summary>Ends the Samus-side drain lock after release art reaches `$FD,$01/$02`.</summary>
     internal void CompleteRelease() => Phase = DrainedSamusPhase.Inactive;
 
+    /// <summary>Starts the shared left-knockback rainbow setup and locks Samus input.</summary>
     private void SetupForRainbowBeam(ISnesAddressSpace bus, SamusState samus)
     {
         Ensure.NotNull(bus);
@@ -416,6 +418,7 @@ public sealed class SamusDrainedState
         Phase = DrainedSamusPhase.RainbowBeamLocked;
     }
 
+    /// <summary>Erases horizontal base speed and both halves of vertical speed during drained pose changes.</summary>
     private static void ClearBaseAndVerticalSpeed(SamusState samus)
     {
         samus.HorizontalSpeed.BaseSpeed = 0;

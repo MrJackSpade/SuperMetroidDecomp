@@ -6,22 +6,33 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Morph Ball eye species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class MorphBallEyeBehavior : IEnemySpecies
 {
+    /// <summary>Validates that the room-global beam still belongs to the retail body slot.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Uses native enemy-slot layout to bind the beam object to its eye body.</summary>
     internal MorphBallEyeBehavior(EnemySlotTable slotTable)
     {
         _slotTable = slotTable;
     }
 
+    /// <summary>The eye responds to collected Morph Ball even when it is unequipped.</summary>
     private const ushort MorphBallItemMask = 0x0004;
+    /// <summary>Strict horizontal range for starting the opening animation.</summary>
     private const ushort EyeActivateXDistance = 0x0080;
+    /// <summary>Wider strict horizontal range that keeps an active beam open.</summary>
     private const ushort EyeDeactivateXDistance = 0x00b0;
+    /// <summary>Strict vertical range for initial activation.</summary>
     private const ushort EyeActivateYDistance = 0x0080;
+    /// <summary>Strict vertical range retained while tracking Samus.</summary>
     private const ushort EyeDeactivateYDistance = 0x0080;
+    /// <summary>Native word countdown for both opening and closing eye transitions.</summary>
     private const ushort EyeTransitionDuration = 0x0020;
+    /// <summary>Library-two cue when the eye finishes opening and requests its beam.</summary>
     private const ushort EyeActivationSound = 0x0017;
+    /// <summary>Library-two cue when Samus leaves the active eye's range.</summary>
     private const ushort EyeDeactivationSound = 0x0071;
 
+    /// <summary>Body and mount phase state indexed by native enemy slot.</summary>
     internal readonly MorphBallEyeEnemyState?[] _morphBallEyeStates =
         new MorphBallEyeEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -34,7 +45,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
     /// <summary>Most recent library-two eye sound requested during this enemy frame.</summary>
     public ushort? LastMorphBallEyeSoundEffect { get; private set; }
 
-    /// <summary>Ports <c>InitAI_Eye</c> at $A8:9058.</summary>
+    /// <summary>Initializes a closed body from parameter-one facing, or offsets a mount and resets the room-global beam for negative parameter two.</summary>
     internal void InitializeMorphBallEye(RoomEnemySlot slot)
     {
         var state = new MorphBallEyeEnemyState(slot);
@@ -67,7 +78,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         MorphBallEyeBeam.Reset();
     }
 
-    /// <summary>Ports <c>MainAI_Eye</c> and its four body functions at $A8:90E2-$91DB.</summary>
+    /// <summary>Runs the body state machine only after Morph Ball is collected, preserving activation and tracking independently of equipment selection.</summary>
     private void RunMorphBallEyeMain(
         RoomEnemySlot slot,
         MorphBallEyeEnemyState state,
@@ -100,6 +111,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Starts the 32-frame opening list only inside strict modular X and Y activation ranges.</summary>
     private static void WaitForSamusNearMorphBallEye(
         RoomEnemySlot eye,
         MorphBallEyeEnemyState state,
@@ -119,6 +131,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         state.Function = MorphBallEyeAiFunction.Activating;
     }
 
+    /// <summary>Uses native decrement/wrap semantics, then sounds activation, requests the beam, and captures Samus's angle.</summary>
     private void AdvanceMorphBallEyeActivation(
         RoomEnemySlot eye,
         MorphBallEyeEnemyState state,
@@ -137,6 +150,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
     }
 
+    /// <summary>Aims one of sixteen active frames at Samus or starts closing after the wider horizontal/vertical range fails.</summary>
     private void TrackSamusWithMorphBallEye(
         RoomEnemySlot eye,
         MorphBallEyeEnemyState state,
@@ -168,6 +182,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         eye.InstructionTimer = 1;
     }
 
+    /// <summary>Returns to waiting when the native closing word reaches zero or a negative wrapped value.</summary>
     private static void AdvanceMorphBallEyeDeactivation(MorphBallEyeEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
@@ -176,10 +191,12 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
     }
 
+    /// <summary>Calculates the cartridge angle from signed wrapped eye-to-Samus displacement.</summary>
     private static SnesAngle CalculateMorphBallEyeAngle(RoomEnemySlot eye, SamusState samus) =>
         SnesAngle.FromTableIndex(EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(samus.Position.X.Whole - eye.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - eye.Position.Y.Whole)))));
 
+    /// <summary>Requires the body in retail slot one before scheduling the room-global bank-$88 beam for next frame.</summary>
     private void RequestMorphBallEyeBeam(RoomEnemySlot eye)
     {
         // The native bank-$88 code addresses Enemy[1] and Eye.*+$40 literally. Refusing a
@@ -224,6 +241,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Seeds the beam's fixed colors and zero angular width, then marks its body activated.</summary>
     private void InitializeMorphBallEyeBeamObject()
     {
         RoomEnemySlot body = RequireMorphBallEyeBeamBody();
@@ -241,6 +259,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Widening;
     }
 
+    /// <summary>Accelerates angular width in split whole/fraction words until the beam reaches four units.</summary>
     private void WidenMorphBallEyeBeam()
     {
         uint deltaFraction = (uint)MorphBallEyeBeam.AngularSubwidthDelta + 0x4000u;
@@ -263,6 +282,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Cycles the sixteen native beam colors while the body stays activated, otherwise begins fading.</summary>
     internal void StepFullMorphBallEyeBeam()
     {
         MorphBallEyeEnemyState bodyState = RequireMorphBallEyeState(RequireMorphBallEyeBeamBody());
@@ -278,6 +298,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         MorphBallEyeBeam.ColorIndex = unchecked((ushort)((colorIndex + 1) & 0x000f));
     }
 
+    /// <summary>Decrements beam color channels toward the fixed base and deletes the HDMA object when green reaches $40.</summary>
     private void FadeMorphBallEyeBeam()
     {
         // $88:EAD6 tests green before updating the table or decrementing any component.
@@ -297,6 +318,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
             MorphBallEyeBeam.Blue--;
     }
 
+    /// <summary>Rejects a beam whose saved body slot is missing, wrong species, or a mount rather than the eye body.</summary>
     private RoomEnemySlot RequireMorphBallEyeBeamBody()
     {
         int index = MorphBallEyeBeam.BodySlotIndex;
@@ -310,10 +332,12 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         return _slotTable._slots[index];
     }
 
+    /// <summary>Rejects AI or beam processing before the eye slot's native state exists.</summary>
     private MorphBallEyeEnemyState RequireMorphBallEyeState(RoomEnemySlot slot) =>
         _morphBallEyeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Morph-ball eye slot {slot.SlotIndex} has no initialized native state.");
 
+    /// <summary>Binds eye body/mount setup to the Eye enemy-definition ID.</summary>
     internal void RegisterMorphBallEyeInitializationAi(EnemyAiTable table)
     {
 
@@ -323,6 +347,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Binds proximity and beam-tracking AI to the Eye main routine.</summary>
     internal void RegisterMorphBallEyeMainAi(EnemyAiTable table)
     {
 

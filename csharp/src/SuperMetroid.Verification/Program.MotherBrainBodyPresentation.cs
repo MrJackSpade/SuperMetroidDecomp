@@ -17,6 +17,7 @@ using static EnemyAnimationIsolationFixtureVerification;
 using static EnemyContentIdentityFixtureVerification;
 using static MotherBrainBodyPresentationFixtureVerification;
 
+/// <summary>Checks Mother Brain's installed OAM limbs and BG2 body art while preserving animation mechanics.</summary>
 internal static class MotherBrainBodyPresentationVerification
 {
     /// <summary>
@@ -123,6 +124,7 @@ internal static class MotherBrainBodyPresentationVerification
         };
     }
 
+    /// <summary>Checks each authored limb's OAM position, tile, palette, flip, size, and drawing order.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void AssertBodyOam(OamBuffer actual, EnemyExtendedVisualComponent[] authored, RoomEnemySlot body)
     {
@@ -146,6 +148,7 @@ internal static class MotherBrainBodyPresentationVerification
         AssertEqual(high, actual.HighTable[0], "body limb sizes and high X bits match authored art");
     }
 
+    /// <summary>Checks the exact BG2 tilemap words and destinations written for a selected body pose.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void AssertBodyBg2(SnesVram actual, EnemyBg2FrameDocument authored, string oamName)
     {
@@ -212,6 +215,7 @@ internal static class MotherBrainBodyPresentationVerification
         Console.WriteLine("PASS Mother Brain installation: stock hashes, selected overrides/identity and malformed/tampered-data rejection.");
     }
 
+    /// <summary>Runs the RAM-only Mother Brain presentation suite through the verification dispatcher.</summary>
     [VerificationCommand("--mother-brain-body-presentation")]
     internal static int MotherBrainBodyPresentationCommand()
     {
@@ -219,6 +223,7 @@ internal static class MotherBrainBodyPresentationVerification
         return 0;
     }
 
+    /// <summary>Runs the stock import and override checks through the verification dispatcher.</summary>
     [VerificationCommand("--mother-brain-body-stock-presentation")]
     internal static int MotherBrainBodyStockPresentationCommand()
     {

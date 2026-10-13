@@ -157,8 +157,7 @@ public static class SamusGroundedMovement
         return new GroundedMovementResult(horizontal, vertical);
     }
 
-    // This is held-input behavior, independent of whether the weapon producer admitted a shot.
-    // Angled standing poses deliberately retain their own animation timelines.
+    /// <summary>Restarts neutral standing's shot pose on held Shoot even when no projectile was admitted; angled poses keep their own animation.</summary>
     private static void ResetStandingShotAnimation(SamusState samus, ushort controllerInput)
     {
         if (samus.Pose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose &&

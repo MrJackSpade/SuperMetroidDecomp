@@ -14,12 +14,15 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Mother Brain turret and bullet programs, directional selectors, and contact animation against ROM.</summary>
 internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the turret instruction suite.</summary>
     internal static void VerifyMotherBrainTurretInstructionProgramDefinitions() =>
         Suite(nameof(VerifyMotherBrainTurretInstructionProgramDefinitions), () => VerifyMotherBrainTurretInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks compiled words, real turret and bullet producers, eight directions, contact frames, and deletion paths.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain turret instruction program definitions")]
     internal static void VerifyMotherBrainTurretInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -193,6 +196,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Consumes repeated turret and contact control lookups for the warmed allocation check.</summary>
     private static int ProbeMotherBrainTurretInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -206,6 +210,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids private and shared turret mechanics reads while observing visual operand addresses.</summary>
     private static CartridgeReadGuard NewMotherBrainTurretInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => MotherBrainTurretInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -213,6 +218,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
                 address => $"Production read compiled Mother Brain turret mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount, MotherBrainTurretInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Mother Brain turret suite through the verification command dispatcher.</summary>
     [VerificationCommand("--mother-brain-turret-instruction-mechanics")]
     internal static int MotherBrainTurretInstructionMechanicsCommand()
     {

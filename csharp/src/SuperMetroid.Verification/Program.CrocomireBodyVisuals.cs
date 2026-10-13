@@ -9,8 +9,10 @@ using static EnemyExtendedFrameArtworkVerification;
 using static ExtendedBg2ReferenceVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail comparisons for Crocomire's mixed OAM/BG2 body frames and installed editable artwork.</summary>
 internal static class CrocomireBodyVisualsVerification
 {
+    /// <summary>Derives the 50 selected body roots from bank-$A4 instructions and checks frame ordering, component counts, and the 42-frame BG2 domain.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire body frame geometry")]
     internal static void VerifyCrocomireBodyFrameGeometry(SuperMetroidAddressSpace rom)
     {
@@ -43,6 +45,7 @@ internal static class CrocomireBodyVisualsVerification
         AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(-1), "negative body frame");
         AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(50), "body frame past end");
     }
+    /// <summary>Checks generated BG2 keys against retail selectors and confirms the extractor and loader preserve all 42 mixed-frame streams.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire BG2 generated catalog")]
     internal static void VerifyCrocomireBg2GeneratedCatalog(SuperMetroidAddressSpace rom)
     {
@@ -78,6 +81,7 @@ internal static class CrocomireBodyVisualsVerification
                 "generated catalog loads every native BG2 stream by its published key");
         AssertTrue(!loaded.TryGet(0xca7e, out _), "pure-OAM frame excluded from BG2 catalog");
     }
+    /// <summary>Compares installed OAM and VRAM output for every body frame with visual ROM reads denied, then checks a BG2 edit obeys the new-frame gate.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire body visuals")]
     internal static void VerifyInstalledCrocomireBodyVisuals(
@@ -208,9 +212,11 @@ internal static class CrocomireBodyVisualsVerification
         Console.WriteLine(
             "  Crocomire body: 236 selectors, 50 mixed/pure OAM roots and 42 BG2 roots match native OAM and VRAM with visual ROM reads denied; BG2 edits obey the new-frame gate.");
 
+        /// <summary>Builds cartridge-based OAM and BG2 VRAM references for one selected body frame.</summary>
         (OamBuffer Oam, byte[] Vram) DrawNative(ushort pointer, bool newFrame) =>
             (DrawReferenceExtendedFrame(rom, 0xa4, pointer, new(0x0080, 0x0080)),
                 ReadReferenceExtendedBg2Vram(rom, 0xa4, pointer, newFrame));
+        /// <summary>Draws one compiled Crocomire frame through production enemy presentation into fresh OAM and VRAM buffers.</summary>
         static (OamBuffer Oam, byte[] Vram) Draw(EnemyTileArtworkCatalog art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)
         {

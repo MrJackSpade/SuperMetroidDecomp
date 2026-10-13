@@ -8,8 +8,10 @@ using SuperMetroid.Core.Rooms;
 using static LookupSkyChunkPointersVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed scrolling-sky pages and Landing Site transfers against native VRAM output.</summary>
 internal static class RoomSkyTilemapsVerification
 {
+    /// <summary>Checks page roundtrips, land and ocean row DMA, wrapped WRAM sources, and one edited visible tile.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomSkyTilemaps()
     {
@@ -195,10 +197,12 @@ internal static class RoomSkyTilemapsVerification
     private static void MarkWrappedSkyRowWram(SuperMetroidAddressSpace bus, VramWriteEntry wrappedRow) =>
         bus.WriteByte(0x7e0000 | (SnesAddressMath.OffsetInBank(wrappedRow.SourceAddress)), 0x5a);
 
+    /// <summary>Reads original bank-relative sky page bytes for the independent VRAM comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for scrolling-sky tilemap pages and Landing Site transfers")]
     private static byte[] ReadRetailSkyBytes(ISnesAddressSpace bus, int address, int count) =>
         RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address, count);
 
+    /// <summary>Rejects installed sky page reads and optionally the compiled Landing Site command list.</summary>
     private static MutableCartridgeReadGuard NewSkyPageReadGuard(ISnesAddressSpace source, bool blockLandingList = false)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -215,12 +219,15 @@ internal static class RoomSkyTilemapsVerification
         return guard;
     }
 
+    /// <summary>Supplies queued sky-row DMA from installed pages while retaining live WRAM for wrapped rows.</summary>
     internal sealed class SkyPageProvider(RoomSkyTilemapCatalog art)
         : IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Rejects typed asset requests outside this source-address sky-page fixture.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException($"Unexpected queued asset {asset}.");
 
+        /// <summary>Resolves a bank-relative sky source and exact transfer size from the installed page catalog.</summary>
         public bool TryResolve(int sourceAddress, int byteCount,
             out ReadOnlyMemory<byte> data) => art.TryResolve(sourceAddress, byteCount, out data);
     }

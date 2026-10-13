@@ -10,9 +10,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameplayMessageNoticePresentation
 {
+    /// <summary>Validated templates and bounded text overlays indexed by supported message ID.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledNotice> notices;
+    /// <summary>The 32-cell row copied above and below every notice's content.</summary>
     private readonly ushort[] border;
 
+    /// <summary>Captures compiled notice data together with the hash of its original JSON bytes.</summary>
     private GameplayMessageNoticePresentation(
         Dictionary<GameplayMessageId, CompiledNotice> notices,
         ushort[] border,
@@ -23,7 +26,7 @@ public sealed class GameplayMessageNoticePresentation
         ContentIdentity = contentIdentity;
     }
 
-    /// <summary>Gets the SHA-256 identity of the validated source document.</summary>
+    /// <summary>SHA-256 of the exact validated JSON bytes, including formatting differences.</summary>
     public string ContentIdentity { get; }
 
     /// <summary>Determines whether this catalog contains the specified gameplay message.</summary>
@@ -31,7 +34,7 @@ public sealed class GameplayMessageNoticePresentation
     /// <returns><see langword="true"/> when the message is present.</returns>
     public bool Contains(GameplayMessageId messageId) => notices.ContainsKey(messageId);
 
-    /// <summary>Builds the complete bordered tilemap for a gameplay message.</summary>
+    /// <summary>Copies the shared borders and content template, then blanks and paints each bounded text field using its palette and alignment.</summary>
     /// <param name="messageId">The gameplay message to build.</param>
     /// <returns>The row-major 32-cell-wide tilemap.</returns>
     public ushort[] Build(GameplayMessageId messageId)
@@ -58,7 +61,7 @@ public sealed class GameplayMessageNoticePresentation
         return result;
     }
 
-    /// <summary>Installs the selected YES or NO row in a save-confirmation tilemap.</summary>
+    /// <summary>Replaces the fixed selection-row span in an already built save-confirmation tilemap with its YES or NO variant.</summary>
     /// <param name="messageId">The save-confirmation message that owns the rows.</param>
     /// <param name="tilemap">The complete message tilemap to update.</param>
     /// <param name="yesSelected">Whether to install the YES row instead of the NO row.</param>
@@ -84,7 +87,7 @@ public sealed class GameplayMessageNoticePresentation
             GameplayMessageRomData.Layout.SaveSelectionRowWords));
     }
 
-    /// <summary>Loads and validates a gameplay-message notice document.</summary>
+    /// <summary>Requires the exact supported notice set and dimensions, nonoverlapping bounded text regions, valid glyphs, and selection rows only for save confirmations.</summary>
     /// <param name="json">The stream containing the JSON document.</param>
     /// <returns>The compiled notice presentation.</returns>
     public static GameplayMessageNoticePresentation Load(Stream json)
@@ -185,7 +188,7 @@ public sealed class GameplayMessageNoticePresentation
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
-    /// <summary>Validates and writes a gameplay-message notice document as JSON.</summary>
+    /// <summary>Serializes to memory and passes the result through normal loading validation before writing any bytes to the destination.</summary>
     /// <param name="output">The destination stream.</param>
     /// <param name="document">The document to validate and serialize.</param>
     public static void Write(Stream output, GameplayMessageNoticeDocument document)
@@ -196,12 +199,14 @@ public sealed class GameplayMessageNoticePresentation
         output.Write(bytes);
     }
 
+    /// <summary>Returns the owned message or rejects an unsupported ID before modifying its tilemap.</summary>
     private CompiledNotice Get(GameplayMessageId messageId) =>
         notices.TryGetValue(messageId, out CompiledNotice? notice)
             ? notice
             : throw new ArgumentOutOfRangeException(nameof(messageId), messageId,
                 "The gameplay-message notice catalog does not own this message.");
 
+    /// <summary>Validated tilemap content with optional fixed save-selection variants.</summary>
     private sealed record CompiledNotice(
         int RowCount,
         ushort[] Template,
@@ -209,6 +214,7 @@ public sealed class GameplayMessageNoticePresentation
         ushort[]? YesSelection,
         ushort[]? NoSelection);
 
+    /// <summary>A nonoverlapping text span whose position, width, glyphs, palette, and alignment have been checked.</summary>
     private sealed record CompiledTextRegion(
         int Row,
         int Column,

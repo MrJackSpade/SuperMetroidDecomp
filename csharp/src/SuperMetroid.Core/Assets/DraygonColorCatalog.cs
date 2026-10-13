@@ -35,12 +35,18 @@ public sealed class DraygonColorCatalog
             }
         });
 
+    /// <summary>Selected opening colors for Draygon's intro CGRAM region.</summary>
     private readonly DraygonIntroPaintDefinitions intro;
+    /// <summary>Normal background material colors used outside white hurt flashes.</summary>
     private readonly DraygonMaterialPaintDefinitions background;
+    /// <summary>Normal sprite material colors used outside white hurt flashes.</summary>
     private readonly DraygonMaterialPaintDefinitions sprite;
+    /// <summary>Only edited flash colors; stock entries are calculated on lookup.</summary>
     private readonly Dictionary<int, Bgr555> whiteFlash = new();
+    /// <summary>Four selected colors for each of Draygon's eight health palette rows.</summary>
     private readonly DraygonHealthPaintDefinitions healthBands;
 
+    /// <summary>Retains validated colors and stores only flash entries that differ from stock white.</summary>
     private DraygonColorCatalog(Bgr555[] intro, Bgr555[] background, Bgr555[] sprite,
         Bgr555[] whiteFlash, Bgr555[][] healthBands)
     {
@@ -52,6 +58,7 @@ public sealed class DraygonColorCatalog
         this.healthBands = new(healthBands);
     }
 
+    /// <summary>Uses the published camel-case schema and rejects unknown JSON fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -156,15 +163,18 @@ public sealed class DraygonColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates a health palette row before resolving one of its colors.</summary>
     private static int CheckBand(int band) =>
         (uint)band < DraygonColorRomData.HealthBandCount
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
 
+    /// <summary>Writes the selected colors in index order to a native CGRAM palette view.</summary>
     private static void ApplyCalculated(CgramPalette destination, int count, Func<int, Bgr555> resolve)
     {
         for (int color = 0; color < count; color++) destination.Write(color, resolve(color));
     }
+    /// <summary>Checks a named RGB5 array's required length and channel bounds before packing its colors.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -182,6 +192,7 @@ public sealed class DraygonColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects repeated case-sensitive Draygon JSON property names before deserialization.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Draygon color property {name}."));

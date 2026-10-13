@@ -19,8 +19,11 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes;
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(CpuBusAccessCodeFixProvider)), Shared]
 public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
 {
+    /// <summary>Attribute that associates a typed view property with its catalog cell.</summary>
     private const string ViewOfAttributeName = "CpuBusViewOfAttribute";
+    /// <summary>Catalog field type accepted as a one-cell mapping candidate.</summary>
     private const string CellTypeName = "CpuBusCell";
+    /// <summary>Constructor parameter type required for a safe bus conversion.</summary>
     private const string MemoryBusTypeName = "ISnesMemoryBus";
 
     /// <inheritdoc />
@@ -60,6 +63,7 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
     private sealed record RawRead(ExpressionSyntax Expression, ExpressionSyntax Bus, ITypeSymbol ResultType,
         IFieldSymbol? Cell, int Address, int Width, string Region);
 
+    /// <summary>Walks from a diagnostic node to its enclosing raw-read invocation without crossing a member boundary.</summary>
     private static RawRead? ReadOf(SyntaxNode node, SemanticModel model, CancellationToken token)
     {
         for (SyntaxNode? current = node; current is not null; current = current.Parent)
@@ -105,6 +109,7 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
                 : null;
     }
 
+    /// <summary>Replaces one raw bus invocation with construction of the matching domain view and property read.</summary>
     private static Document Replace(Document document, SyntaxNode root, RawRead read, INamedTypeSymbol view, IPropertySymbol member)
     {
         ExpressionSyntax creation = SyntaxFactory.ObjectCreationExpression(
@@ -118,12 +123,14 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
         return document.WithSyntaxRoot(root.ReplaceNode(read.Expression, replacement));
     }
 
+    /// <summary>Checks that the original bus expression converts implicitly to the view's memory-bus constructor.</summary>
     private static bool AcceptsBus(SemanticModel model, INamedTypeSymbol view, ExpressionSyntax bus) =>
         view.InstanceConstructors.Any(constructor =>
             constructor.Parameters.Length == 1 &&
             constructor.Parameters[0].Type.Name == MemoryBusTypeName &&
             model.ClassifyConversion(bus, constructor.Parameters[0].Type) is { IsImplicit: true });
 
+    /// <summary>Finds the single catalog cell matching a constant read's address, width, and memory region.</summary>
     private static async Task<IFieldSymbol?> CellAtAsync(Solution solution, RawRead read, CancellationToken token)
     {
         IFieldSymbol? match = null;
@@ -139,6 +146,7 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
         return match;
     }
 
+    /// <summary>Finds the sole typed view property that declares the cell and preserves the raw result type.</summary>
     private static async Task<IPropertySymbol?> ViewMemberAsync(Solution solution, IFieldSymbol cell, ITypeSymbol resultType,
         CancellationToken token)
     {
@@ -158,6 +166,7 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
         return match;
     }
 
+    /// <summary>Checks a property's view attribute for the exact catalog type and cell field name.</summary>
     private static bool Declares(IPropertySymbol property, IFieldSymbol cell) =>
         property.GetAttributes().Any(attribute =>
             attribute.AttributeClass?.Name == ViewOfAttributeName &&
@@ -165,12 +174,14 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
             name == cell.Name &&
             catalog.ToDisplayString() == cell.ContainingType.ToDisplayString());
 
+    /// <summary>Collects static catalog fields whose type is the CPU bus cell descriptor.</summary>
     private static async Task<IReadOnlyList<IFieldSymbol>> CellFieldsAsync(Solution solution, CancellationToken token) =>
         (await SourceTypesAsync(solution, token).ConfigureAwait(false))
             .SelectMany(type => type.GetMembers().OfType<IFieldSymbol>())
             .Where(field => field.IsStatic && field.Type.Name == CellTypeName)
             .ToArray();
 
+    /// <summary>Collects source type symbols from every compilation in the solution.</summary>
     private static async Task<IReadOnlyList<INamedTypeSymbol>> SourceTypesAsync(Solution solution, CancellationToken token)
     {
         var types = new List<INamedTypeSymbol>();
@@ -183,6 +194,7 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
         return types;
     }
 
+    /// <summary>Recursively adds named types from a namespace or containing type.</summary>
     private static void Collect(INamespaceOrTypeSymbol container, List<INamedTypeSymbol> types)
     {
         foreach (INamespaceOrTypeSymbol member in container.GetMembers().OfType<INamespaceOrTypeSymbol>())

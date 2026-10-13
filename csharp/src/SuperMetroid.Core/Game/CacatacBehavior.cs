@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Cacatac species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class CacatacBehavior : IEnemySpecies
 {
+    /// <summary>Supplies shared room RNG for the three-in-256 spike attack gate.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Allocates spike projectiles with source position and OBJ attributes.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Binds Cacatac patrol and spike behavior to room RNG and projectile allocation.</summary>
     internal CacatacBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;
@@ -43,8 +46,10 @@ internal sealed class CacatacBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Library-two request emitted by the spike-release animation command.</summary>
     private const ushort CacatacSpikeSound = 0x0034;
 
+    /// <summary>Typed patrol and attack state indexed by native enemy slot.</summary>
     internal readonly CacatacEnemyState?[] _cacatacStates =
         new CacatacEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -192,6 +197,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
     /// <summary>Animation instruction $A2:9F2A: publish library-two sound $34.</summary>
     private void PlayCacatacSpikeSound() => LastCacatacSoundEffect = CacatacSpikeSound;
 
+    /// <summary>Installs a patrol or attack list for execution on the next instruction tick.</summary>
     internal static void SetCacatacInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -199,10 +205,12 @@ internal sealed class CacatacBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Requires an initialized typed state before a Cacatac AI or list callback runs.</summary>
     private CacatacEnemyState RequireCacatacState(RoomEnemySlot slot) =>
         _cacatacStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Cacatac state.");
 
+    /// <summary>Registers the spike's ten direction-table movers and viewport cull.</summary>
     internal static void RegisterCacatacProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -212,6 +220,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.CacatacSpike);
     }
 
+    /// <summary>Routes bank-$A2 initialization only to Cacatac definitions.</summary>
     internal void RegisterCacatacInitializationAi(EnemyAiTable table)
     {
 
@@ -221,6 +230,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes Cacatac's three-state patrol and attack dispatcher through the enemy table.</summary>
     internal void RegisterCacatacMainAi(EnemyAiTable table)
     {
 
@@ -230,6 +240,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Handles Cacatac's patrol restore, spike sound and projectile spawn opcodes.</summary>
     internal void RegisterCacatacOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -323,6 +334,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
         DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
     }
 
+    /// <summary>Advances one spike horizontally using its signed 8.8 velocity as a 16.16 delta.</summary>
     private static void MoveCacatacSpikeX(
         RoomEnemyProjectileSlot projectile,
         ushort velocity)
@@ -330,6 +342,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
         projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(velocity).ToSixteenSixteenDelta());
     }
 
+    /// <summary>Advances one spike vertically using its signed 8.8 velocity as a 16.16 delta.</summary>
     private static void MoveCacatacSpikeY(
         RoomEnemyProjectileSlot projectile,
         ushort velocity)

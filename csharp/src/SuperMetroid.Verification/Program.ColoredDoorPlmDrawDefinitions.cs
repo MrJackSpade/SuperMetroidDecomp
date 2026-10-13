@@ -11,8 +11,10 @@ using static LookupColoredDoorStockVerification;
 using static LookupColoredProgramVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail and guarded-runtime checks for colored-door PLM programs, draw lists, and editable cap visuals.</summary>
 internal static class ColoredDoorPlmDrawDefinitionsVerification
 {
+    /// <summary>Runs all twelve resident door orientations through load, physical draw, close, projectile hits, open, and opened-state reload without compiled ROM reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for colored door PLM draw definitions")]
     internal static void VerifyColoredDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -170,6 +172,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             "  Colored doors: 1164 compiled program bytes, 12 close/hit/open/reload paths, 48 physical draws, and editable visual blocks pass with source reads blocked.");
     }
 
+    /// <summary>Groups retail comparisons of colored-door control flow, draw pointers, targets, sounds, hit counts, and callbacks.</summary>
     private static void VerifyColoredDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyColoredProgramControls), () => VerifyColoredProgramControls(rom));
@@ -180,6 +183,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
         Suite(nameof(VerifyColoredProgramCallback), () => VerifyColoredProgramCallback(rom));
     }
 
+    /// <summary>Checks extracted stock, an edited green-cap override, survival across stock refresh, and rejection of malformed override or stock files.</summary>
     private static void VerifyColoredDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("colored-door-visual");
@@ -238,6 +242,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
         }
     }
 
+    /// <summary>Forbids runtime reads of the compiled bank-$84 colored-door instruction range and every owned draw payload.</summary>
     private static CartridgeReadGuard NewColoredDoorDrawReadGuard(
         ISnesAddressSpace source,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>

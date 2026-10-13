@@ -71,8 +71,10 @@ using static SuiteTimingVerification;
 using static TitleGradientVerification;
 using static WorldMapLabelsVerification;
 
+/// <summary>Checks editable map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
 internal static class MapPresentationVerification
 {
+    /// <summary>Checks edited map cells in pause projection and HUD, retail roundtrips, and rejection of gameplay rules in artwork JSON.</summary>
     internal static void VerifyMapPresentation()
     {
         Suite(nameof(VerifyIndexedPng), () => VerifyIndexedPng());
@@ -149,12 +151,18 @@ internal static class MapPresentationVerification
         Console.WriteLine("Map presentation: JSON edits reach minimap/shared projection; independent exploration and strict validation pass.");
     }
 
+    /// <summary>Tiny fixed Crateria rule set used to prove edited map tiles cannot change discovery or station reveal behavior.</summary>
     internal sealed class PresentationMapRules : IAreaMapView
     {
+        /// <summary>Places the fixture's cells in Crateria so its projection uses a concrete area identity.</summary>
         public AreaId Area => AreaId.Crateria;
+        /// <summary>Provides the stock blank word that editable cells replace in this fixture.</summary>
         public MapTileWord GetTile(Position16<MapTiles> cell) => MapTileWords.PauseBlank;
+        /// <summary>Restricts exploration to the two fixture cells in column five.</summary>
         public bool IsDiscoverable(Position16<MapTiles> cell) => cell.X == 5 && cell.Y is 5 or 6;
+        /// <summary>Reveals only the lower fixture cell when a map station has been used.</summary>
         public bool IsRevealedByMapStation(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
+        /// <summary>Preserves the lower cell's rule to reveal its cell above after an art edit.</summary>
         public bool RevealsCellAbove(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
     }
 
@@ -165,20 +173,33 @@ internal static class MapPresentationVerification
     /// </summary>
     internal sealed class MapPresentationInstalledRoomAssets
     {
+        /// <summary>Installed standard-object tiles required by the real-room fixture.</summary>
         private readonly RoomCharacterAtlas standardObjects;
+        /// <summary>Installed room-specific character sheets bound before room initialization.</summary>
         private readonly RoomCharacterAtlasCatalog roomCharacters;
+        /// <summary>Installed room palette data used instead of cartridge graphics fallback.</summary>
         private readonly RoomStaticPaletteCatalog roomPalettes;
+        /// <summary>Installed metatiles used when the fixture builds its room layer.</summary>
         private readonly RoomMetatileCatalog roomMetatiles;
+        /// <summary>Installed room visual layouts selected at room entry.</summary>
         private readonly RoomVisualLayoutCatalog visualLayouts;
+        /// <summary>Installed background tilemaps for the room renderer.</summary>
         private readonly RoomBackgroundTilemapCatalog backgrounds;
+        /// <summary>Installed sky tilemaps for rooms that use a scrolling sky.</summary>
         private readonly RoomSkyTilemapCatalog skies;
+        /// <summary>Installed beam art bound to Samus's projectile presentation.</summary>
         private readonly BeamTileCatalog beamTiles;
+        /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
         private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
 
+        /// <summary>Initial CGRAM colors loaded when the fixture enters gameplay.</summary>
         public GameplayBasePaletteCatalog InitialPalettes { get; }
+        /// <summary>Enemy character and sprite art bound alongside room art.</summary>
         public EnemyTileArtworkCatalog EnemyTiles { get; }
+        /// <summary>Samus body art bound before gameplay drawing begins.</summary>
         public SamusBodyArtworkCatalog SamusBody { get; }
 
+        /// <summary>Loads the complete installed room artwork set once for live-map override checks.</summary>
         public MapPresentationInstalledRoomAssets(SuperMetroid.AssetExtraction.GameInstallation installation)
         {
             InitialPalettes = installation.LoadGameplayBasePalettes();
@@ -195,6 +216,7 @@ internal static class MapPresentationVerification
             elevatorPlatform = installation.LoadRoomPlmElevatorPlatformVisuals();
         }
 
+        /// <summary>Installs all fixture artwork owners before Ceres room setup can request graphics.</summary>
         public void Bind(SuperMetroidRuntime runtime)
         {
             runtime.Artwork.StandardObjectArt = standardObjects;
@@ -211,6 +233,7 @@ internal static class MapPresentationVerification
         }
     }
 
+    /// <summary>Checks map catalog reload, override precedence and identity, stock replacement, and live runtime rebinding.</summary>
     private static void VerifyMapPresentationCatalog(ISnesAddressSpace bus)
     {
         using var temporaryDirectory = new TestScratchDirectory("map-catalog");
@@ -339,6 +362,7 @@ internal static class MapPresentationVerification
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
     }
 
+    /// <summary>Checks Mother Brain rainbow, beam, drain, and fake-death palette overrides against native CGRAM output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Mother Brain rainbow, grey and beam palettes")]
     private static void VerifyMotherBrainRainbowPaletteOverride(
@@ -626,6 +650,7 @@ internal static class MapPresentationVerification
         Console.WriteLine("Mother Brain palette: 10 rainbow, 38 HDMA beam, 16 drain/revival and eight fake-death grey frames; native CGRAM parity, ROM-free fades, live edits, legacy overrides and strict validation pass.");
     }
 
+    /// <summary>Checks Mother Brain health-threshold palette edits, stock copies, schema validation, and identity restoration.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyMotherBrainHealthPaletteOverride(
         ISnesAddressSpace bus,
@@ -718,6 +743,7 @@ internal static class MapPresentationVerification
         Console.WriteLine("Mother Brain health palette: 8 threshold boundaries, ROM-free stock copies, live body/leg edits, schema checks and content identity pass.");
     }
 
+    /// <summary>Checks edited room palette-FX colors in a bound runtime while preserving program timing and stock provenance.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyRoomPaletteFxOverride(
         ISnesAddressSpace bus,
@@ -1105,6 +1131,7 @@ internal static class MapPresentationVerification
         }
     }
 
+    /// <summary>Checks that title gradient edits alter production output and installed identity, then restore on removal.</summary>
     private static void VerifyTitleGradientOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1142,6 +1169,7 @@ internal static class MapPresentationVerification
         Console.WriteLine("Title gradient override: content identity and production title output change immediately, then restore exactly.");
     }
 
+    /// <summary>Checks that title palette edits alter production output and installed identity, then restore on removal.</summary>
     private static void VerifyTitlePaletteOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1241,6 +1269,7 @@ internal static class MapPresentationVerification
         Console.WriteLine("Title palette override: content identity and production title output change immediately, then restore exactly.");
     }
 
+    /// <summary>Checks that edited title tiles reach production rendering and revert when the override is removed.</summary>
     private static void VerifyTitleGraphicsOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1284,6 +1313,7 @@ internal static class MapPresentationVerification
         Console.WriteLine("Title graphics override: content identity and production title output change immediately, then restore exactly.");
     }
 
+    /// <summary>Checks title sprite composition edits against native pointer selection and live OAM while preserving animation timing.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native title year sprite pointer")]
     private static void VerifyTitleSpriteCompositionOverride(
         ISnesAddressSpace bus,
@@ -1333,6 +1363,7 @@ internal static class MapPresentationVerification
         Console.WriteLine("Title sprite override: installed JSON changes live OAM without changing timing, then restores exactly.");
     }
 
+    /// <summary>Checks debugger rebinding and live Ceres HUD, pause, and file-select consumers under a map-ROM read guard.</summary>
     private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited, AreaMapCartridgeData[] rules,
         GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
@@ -1375,6 +1406,7 @@ internal static class MapPresentationVerification
         Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind excludes stale content and preserves scroll.");
     }
 
+    /// <summary>Checks stock file-select map pixels, edited BG1 words, and restoration without stale override art.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyFileSelectMapCatalog(ISnesAddressSpace bus, ISnesAddressSpace guard,
         AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
@@ -1404,11 +1436,13 @@ internal static class MapPresentationVerification
         Console.WriteLine("File-select map: exact stock pixels, edited BG1 words, and graphics-state rebind pass.");
     }
 
+    /// <summary>Provides an unbacked bus that rejects every read and write during installed map projection.</summary>
     internal static CartridgeReadGuard NewForbiddenMapBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Unexpected map ROM read {address:X6}.")
             .RejectWrites(_ => "Unexpected map bus write.");
 
+    /// <summary>Rejects palette ROM reads while allowing only Mother Brain's trailing WRAM color write.</summary>
     internal static CartridgeReadGuard NewPaletteReadForbiddenBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address =>
@@ -1417,6 +1451,7 @@ internal static class MapPresentationVerification
                     MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram + 1),
                 address => new InvalidOperationException($"Unexpected Mother Brain palette write ${address:X6}."));
 
+    /// <summary>Guards imported map tilemaps, reveal masks, atlases, HUD art, and static or animated palette sources during live rendering.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static MutableCartridgeReadGuard NewMapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps)
     {
@@ -1445,6 +1480,7 @@ internal static class MapPresentationVerification
         return guard;
     }
 
+    /// <summary>Runs the editable map presentation and installed-content verification suite.</summary>
     [VerificationCommand("--map-presentation")]
     internal static int MapPresentationCommand()
     {

@@ -23,6 +23,7 @@ using static ImportedSpritemapsVerification;
 using static RoomEnemiesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks statically identified enemy definition conversions against ROM and installed artwork.</summary>
 internal static class EnemyDefinitionBoundaryVerification
 {
     /// <summary>Verifies only the already statically identified enemy-reader conversions; no gameplay read discovery.</summary>
@@ -67,6 +68,7 @@ internal static class EnemyDefinitionBoundaryVerification
         Console.WriteLine($"Enemy definitions: all 1,761 Torizo mechanics words, 564 selectors, 106 physical frames, corpse metadata, 50 Crocomire reactions, 393 editable palette colors and {drawCases} composed OAM cases pass.");
     }
 
+    /// <summary>Checks Torizo control words, visual selectors, physical components, and hitbox records against bank AA.</summary>
     private static void VerifyCompleteTorizoDefinitions(ISnesAddressSpace source)
     {
         AssertEqual(1761, TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount, "complete Torizo mechanics count");
@@ -126,6 +128,7 @@ internal static class EnemyDefinitionBoundaryVerification
         }
     }
 
+    /// <summary>Checks corpse rotation offsets, DMA descriptors, Torizo touch boxes, and sand tile sources.</summary>
     internal static void VerifyCorpseMetadataDefinitions(ISnesAddressSpace source)
     {
         foreach ((ushort pointer, int count) in new (ushort, int)[]
@@ -160,6 +163,7 @@ internal static class EnemyDefinitionBoundaryVerification
         }
     }
 
+    /// <summary>Compares all Crocomire frame mouth selections used for Power Bomb reactions with ROM.</summary>
     private static void VerifyCrocomirePowerBombReactionDefinitions(ISnesAddressSpace source)
     {
         int tested = 0;
@@ -179,6 +183,7 @@ internal static class EnemyDefinitionBoundaryVerification
         AssertEqual(50, tested, "all Crocomire reaction frames");
     }
 
+    /// <summary>Checks extracted RGB5 colors, editable override compilation, and invalid color and JSON rejection.</summary>
     private static void VerifyEnemyAuxiliaryColors(ISnesAddressSpace source)
     {
         byte[] json = EnemyAuxiliaryColorFiles.Extract(source);
@@ -205,6 +210,7 @@ internal static class EnemyDefinitionBoundaryVerification
         AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(EnemyAuxiliaryPalette.FaceBlock, 8, 0), "palette frame bounded");
     }
 
+    /// <summary>Runs corpse geometry and typed view checks through the verification command dispatcher.</summary>
     [VerificationCommand("--lookup-stream5-corpse-geometry")]
     internal static int LookupStream5CorpseGeometryCommand()
     {
@@ -214,6 +220,7 @@ internal static class EnemyDefinitionBoundaryVerification
         return 0;
     }
 
+    /// <summary>Runs the converted enemy definition checks using the repository retail ROM.</summary>
     [VerificationCommand("--enemy-definition-boundary")]
     internal static int EnemyDefinitionBoundaryCommand()
     {

@@ -6,26 +6,39 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit;
 
+/// <summary>One missing or invalid compiled PLM program record with its root owner and bank-84 offset.</summary>
 internal sealed record PlmProgramFinding(string Code, string Owner, ushort Address, string Detail);
+/// <summary>Marks a PLM root handled by a reviewed typed owner rather than the generic interpreter.</summary>
 internal sealed record PlmProgramClassification();
 
 /// <summary>Finite closure of immutable PLM records. Never runs a PLM or opens a ROM.</summary>
 internal sealed class PlmProgramAuditReport
 {
+    /// <summary>Decoded instruction and timed-draw records reached by the static walk.</summary>
     public int Records { get; set; }
+    /// <summary>Timed PLM draw records among the decoded records.</summary>
     public int TimedDraws { get; set; }
+    /// <summary>Word operands required by decoded instruction formats.</summary>
     public int WordOperands { get; set; }
+    /// <summary>Packed byte operands required by decoded instruction formats.</summary>
     public int ByteOperands { get; set; }
+    /// <summary>Cartridge-source VRAM transfers that require an installed artwork provider.</summary>
     public int ArtworkTransfers { get; set; }
+    /// <summary>Missing words, draws, targets, or transfer ownership found by the walk.</summary>
     public List<PlmProgramFinding> Findings { get; } = [];
+    /// <summary>Roots classified as execution owned by a typed PLM path.</summary>
     public List<PlmProgramClassification> Classifications { get; } = [];
 }
 
+/// <summary>Walks compiled PLM programs and checks instruction, draw, and DMA closure without executing gameplay.</summary>
 internal static class PlmProgramAudit
 {
+    /// <summary>Reads a compiled bank-84 instruction or operand word when the catalog owns it.</summary>
     internal delegate bool WordReader(ushort address, out ushort value);
+    /// <summary>Reads a packed byte operand when the compiled catalog owns it.</summary>
     internal delegate bool ByteReader(ushort address, out byte value);
 
+    /// <summary>Audits every header, named list, constant root, and disconnected compiled component.</summary>
     internal static int Run(string root, string? jsonPath)
     {
         var report = new PlmProgramAuditReport();
@@ -95,8 +108,7 @@ internal static class PlmProgramAudit
         return report.Findings.Count == 0 ? 0 : 1;
     }
 
-    // These are actual alternative execution owners, not missing-data exemptions.
-    // Their setup/step source is guarded alongside the generic interpreter.
+    /// <summary>Identifies headers executed by guarded typed setup and step paths instead of the generic interpreter.</summary>
     private static string? TypedHeaderRoute(PlmHeaderId header)
     {
         if (CollectiblePlms.TryIdentifyPermanentCollectible(header, out _, out _))
@@ -112,6 +124,7 @@ internal static class PlmProgramAudit
         };
     }
 
+    /// <summary>Identifies named lists whose execution belongs to a guarded typed PLM owner.</summary>
     private static string? TypedListRoute(string name) => name switch
     {
         nameof(RoomPlmInstructionLists.ScrollTriggerWaiting) or
@@ -124,14 +137,19 @@ internal static class PlmProgramAudit
         _ => null,
     };
 
+    /// <summary>Follows compiled instruction records while tracking covered bytes and reporting missing dependencies.</summary>
     internal sealed class Walker(WordReader readWord, ByteReader readByte,
         Func<ushort, bool> ownsDraw, PlmProgramAuditReport report,
         Func<int, int, bool>? ownsArtwork = null)
     {
+        /// <summary>Instruction starts already decoded so loops terminate without losing branch coverage.</summary>
         private readonly HashSet<ushort> visited = [];
+        /// <summary>Every byte in a decoded record, including operands that cannot be branch targets.</summary>
         private readonly HashSet<ushort> covered = [];
+        /// <summary>Whether an address already lies within a decoded record.</summary>
         internal bool Covered(ushort address) => covered.Contains(address);
 
+        /// <summary>Walks all reachable records from one compiled root and reports missing words, draws, or DMA providers.</summary>
         internal void Visit(ushort root, string owner)
         {
             var pending = new Stack<ushort>();

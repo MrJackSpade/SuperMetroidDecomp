@@ -4,8 +4,10 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks cartridge import validation, extracted-content reuse and repair, and ROM-free Android startup.</summary>
 internal static class AssetImportVerification
 {
+/// <summary>Exercises invalid imports first, then optional retail extraction, audio parity, cancellation, recovery, and host startup.</summary>
 public static int Run(string? romPath)
 {
 using var temporaryScratch = new TestScratchDirectory("import-verification");
@@ -195,40 +197,58 @@ finally
 
 }
 
+/// <summary>Fails an import contract assertion and optionally suppresses a successful per-file message.</summary>
 static void Check(bool value, string description, bool quiet = false)
 {
     if (!value) throw new InvalidDataException(description);
     if (!quiet) Console.WriteLine("PASS " + description);
 }
+/// <summary>Requires an import or repair operation to fail with the identified exception type.</summary>
 static void Reject<T>(Action action) where T : Exception
 {
     try { action(); }
     catch (T) { return; }
     throw new InvalidDataException($"Expected {typeof(T).Name}.");
 }
+/// <summary>Routes extraction progress inline so cancellation can occur at a known phase.</summary>
 sealed class InlineProgress(Action<string> report) : IProgress<string>
 {
+    /// <summary>Forwards the current extraction message to the fixture callback.</summary>
     public void Report(string value) => report(value);
 }
+/// <summary>Limits each read to 8191 bytes and records consumption for oversized non-seekable import checks.</summary>
 sealed class NonSeekableStream(byte[] bytes) : Stream
 {
+    /// <summary>Underlying read-only byte source without exposed seek support.</summary>
     private readonly MemoryStream inner = new(bytes);
+    /// <summary>Total bytes consumed from the input, used to check early oversized-input rejection.</summary>
     public int BytesRead { get; private set; }
+    /// <summary>Importers may read this fixture stream.</summary>
     public override bool CanRead => true;
+    /// <summary>Forces the importer to validate input without seeking.</summary>
     public override bool CanSeek => false;
+    /// <summary>The selected cartridge input is read-only.</summary>
     public override bool CanWrite => false;
+    /// <summary>Seeking and length inspection are unavailable on this input.</summary>
     public override long Length => throw new NotSupportedException();
+    /// <summary>Neither reading nor assigning an absolute stream position is supported.</summary>
     public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+    /// <summary>Reads at most 8191 bytes per call while tracking actual input consumption.</summary>
     public override int Read(byte[] buffer, int offset, int count)
     {
         int read = inner.Read(buffer, offset, Math.Min(count, 8191));
         BytesRead += read;
         return read;
     }
+    /// <summary>Rejects flushing a read-only fixture stream.</summary>
     public override void Flush() => throw new NotSupportedException();
+    /// <summary>Rejects position changes so import must process bytes sequentially.</summary>
     public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+    /// <summary>Rejects resizing the read-only cartridge input.</summary>
     public override void SetLength(long value) => throw new NotSupportedException();
+    /// <summary>Rejects writes to the selected cartridge input.</summary>
     public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+    /// <summary>Releases the underlying byte stream when the fixture is disposed.</summary>
     protected override void Dispose(bool disposing) { if (disposing) inner.Dispose(); base.Dispose(disposing); }
 }
 }

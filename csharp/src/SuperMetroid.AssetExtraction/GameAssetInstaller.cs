@@ -90,6 +90,7 @@ public static class GameAssetInstaller
         return IsExtractedContentComplete(installation) ? installation : null;
     }
 
+    /// <summary>Serializes setup, reuses a complete verified installation or stages all components from a newly supplied ROM.</summary>
     private static GameInstallation InstallValidated(byte[] rom, string root,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
@@ -111,9 +112,11 @@ public static class GameAssetInstaller
         return ExtractAndPublish(installation, rom, new HashSet<InstallerComponent>(), cancellationToken, progress);
     }
 
+    /// <summary>Requires both an installed cartridge copy and a valid extracted-content receipt and inventory.</summary>
     private static bool IsComplete(GameInstallation installation) =>
         File.Exists(installation.RomPath) && IsExtractedContentComplete(installation);
 
+    /// <summary>Treats missing or malformed installed assets as repairable incompleteness after strict validation.</summary>
     private static bool IsExtractedContentComplete(GameInstallation installation)
     {
         try
@@ -178,6 +181,7 @@ public static class GameAssetInstaller
         }
     }
 
+    /// <summary>Restores the previous content directory when a publish stopped after moving the old directory aside.</summary>
     private static void RecoverInterruptedPublish(GameInstallation installation)
     {
         string previous = Path.Combine(installation.Root, GameInstallationLayout.PreviousDirectoryName);
@@ -185,6 +189,7 @@ public static class GameAssetInstaller
             Directory.Move(previous, installation.ContentDirectory);
     }
 
+    /// <summary>Opens the setup lock exclusively so only one repair or extraction publishes at a time.</summary>
     internal static FileStream Lock(string root)
     {
         Directory.CreateDirectory(root);
@@ -192,8 +197,10 @@ public static class GameAssetInstaller
         catch (IOException error) { throw new IOException("Game setup is already in use. Close the other setup window and retry.", error); }
     }
 
+    /// <summary>Published content format and verified source-revision digest.</summary>
     private sealed record InstallationReceipt(int FormatVersion, string RomSha256);
 
+    /// <summary>Verified installed ROM plus component reuse decisions from one inspection pass.</summary>
     private sealed record InstalledState(byte[] Rom, HashSet<InstallerComponent> Reusable, bool Complete);
 
     /// <summary>One extraction stage: its progress text, extractor, and stock validator.</summary>
@@ -208,6 +215,7 @@ public static class GameAssetInstaller
     /// </summary>
     private sealed record InstallerComponent(string DirectoryName, params InstallerStep[] Steps)
     {
+        /// <summary>Runs every stock validator for this component under its installed directory.</summary>
         public void Validate(string contentDirectory)
         {
             string directory = Path.Combine(contentDirectory, DirectoryName);
@@ -215,6 +223,7 @@ public static class GameAssetInstaller
         }
     }
 
+    /// <summary>Adapts an extraction without cancellation parameters into one installer stage.</summary>
     private static InstallerStep Step(string progress,
         Action<CartridgeImportAddressSpace, string> extract, Action<string> validate) =>
         new(progress, (bus, directory, _) => extract(bus, directory), validate);
@@ -366,6 +375,7 @@ public static class GameAssetInstaller
         catch (Exception error) when (IsRepairableContentFailure(error)) { return false; }
     }
 
+    /// <summary>Copies a previously validated component tree into the new staging directory.</summary>
     private static void CopyDirectory(string source, string destination)
     {
         Directory.CreateDirectory(destination);

@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static MapPresentationVerification;
 
+/// <summary>Retail and installed-artwork checks for Samus's ten-frame Hyper Beam rainbow palette.</summary>
 internal static class SamusHyperBeamColorsVerification
 {
+    /// <summary>Checks extracted RGB5 endpoint sharing, native CGRAM rows and guarded rainbow playback against the supported cartridge.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hyper beam colors")]
     internal static void VerifySamusHyperBeamColors()
@@ -396,6 +398,7 @@ internal static class SamusHyperBeamColorsVerification
         Console.WriteLine("  Hyper Beam: both native palette views, independent edits and guarded runtime cycles pass.");
     }
 
+    /// <summary>Edits one installed rainbow ink, verifies it reaches live CGRAM and content identity, then checks invalid RGB5 and stock restoration.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
@@ -450,6 +453,7 @@ internal static class SamusHyperBeamColorsVerification
         Console.WriteLine("Hyper Beam override: edited frame reaches CGRAM and stock restores.");
     }
 
+    /// <summary>Blocks native Hyper Beam pointer and palette tables while installed colors update Samus.</summary>
     private static CartridgeReadGuard NewForbiddenHyperBeamColorBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {
@@ -464,6 +468,7 @@ internal static class SamusHyperBeamColorsVerification
             },
             address => $"Installed Hyper Beam read native artwork ${address:X6}.");
 
+    /// <summary>Runs Samus Hyper Beam color extraction and runtime palette verification.</summary>
     [VerificationCommand("--samus-hyper-beam-colors")]
     internal static int SamusHyperBeamColorsCommand()
     {

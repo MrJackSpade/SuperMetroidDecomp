@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static AssertionsVerification;
 
+/// <summary>Exercises semantic native-word views while checking that unnamed cartridge bits survive typed operations.</summary>
 internal static class TypedWordsVerification
 {
 

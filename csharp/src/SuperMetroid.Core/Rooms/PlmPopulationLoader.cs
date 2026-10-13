@@ -7,15 +7,24 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Loads a room PLM population: installs the room bindings, allocates native slots and runs each family setup in record order.</summary>
 internal sealed class PlmPopulationLoader
 {
+    /// <summary>Installs room services once so every resident pre-instruction sees the same owners.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Handles the Bomb Torizo hand's boss-state setup.</summary>
     private readonly BombTorizoHandPlms _bombTorizoHand;
+    /// <summary>Sets up permanent item slots and their dynamic graphics.</summary>
     private readonly CollectiblePlms _collectiblePlms;
+    /// <summary>Sets up eye-door headers after allocating their native PLM slots.</summary>
     private readonly EyeDoorPlms _eyeDoors;
+    /// <summary>Sets up downward gates and their collision changes.</summary>
     private readonly GatePlms _gates;
+    /// <summary>Initializes the Mother Brain glass room object.</summary>
     private readonly MotherBrainGlassPlms _motherBrainGlass;
+    /// <summary>Native descending slot array shared by population and runtime spawns.</summary>
     private readonly PlmSlotTable _slotTable;
+    /// <summary>Initializes the Speed Booster escape object when its header appears.</summary>
     private readonly SpeedBoosterEscapePlms _speedBoosterEscape;
 
+    /// <summary>Connects setup-family services and the shared slot table for one PLM system.</summary>
     internal PlmPopulationLoader(PlmPopulationLoaderDependencies dependencies)
     {
         _bindings = dependencies.Bindings;
@@ -104,6 +113,7 @@ recordIndex,
         return spawnedRecordCount;
     }
 
+    /// <summary>Claims the highest inactive native slot, resets recycled family state, and installs record identity before setup runs.</summary>
     private PlmSlot? AllocateRoomPopulationSlot(
         RoomPlmPopulationRecord record,
         int blockIndex,
@@ -128,6 +138,7 @@ recordIndex,
         return null;
     }
 
+    /// <summary>Clears both native scalar state and C# family references so a recycled slot cannot execute its former handler.</summary>
     internal static void ClearSlot(PlmSlot slot)
     {
         // Native PLM arrays contain only scalar words, so allocating an inactive ID
@@ -158,6 +169,7 @@ recordIndex,
         slot.DraygonCannon = null;
     }
 
+    /// <summary>Dispatches translated room-population headers to their family setup; returns false for an unsupported header so loading can fail with record context.</summary>
     private bool TryRunRoomPopulationSetup(
         PlmRoom room,
         IAreaBossFlagReader bosses,

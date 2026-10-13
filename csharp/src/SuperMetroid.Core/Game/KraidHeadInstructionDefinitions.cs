@@ -81,6 +81,7 @@ internal static class KraidHeadInstructionDefinitions
         return OpeningCommand(DeathInitial, index - 22, true, DeathEntryTimer, 64);
     }
 
+    /// <summary>Calculates one opening or closing roar frame, embedded sound command, or terminal cursor.</summary>
     private static KraidHeadInstructionDefinition OpeningCommand(
         ushort start, int step, bool death, ushort frameTimer, ushort openTimer)
     {
@@ -95,6 +96,7 @@ internal static class KraidHeadInstructionDefinitions
         return MouthFrame(pointer, stage == 3 ? openTimer : frameTimer, stage);
     }
 
+    /// <summary>Derives a mouth stage's tilemap and vulnerable/invulnerable hitbox pointers from native strides.</summary>
     private static KraidHeadInstructionDefinition MouthFrame(ushort pointer, ushort duration, int stage) =>
         Frame(pointer, duration, (ushort)(ClosedMouthTilemap + 0x300 * stage),
             (ushort)(VulnerableHitboxStart + 8 * stage),
@@ -184,6 +186,7 @@ internal static class KraidHeadInstructionDefinitions
             _ => new(0x96f4, 64),
         };
 
+    /// <summary>Packages one timed head frame with its selected tilemap and two collision shapes.</summary>
     private static KraidHeadInstructionDefinition Frame(
         ushort pointer,
         ushort duration,
@@ -193,15 +196,18 @@ internal static class KraidHeadInstructionDefinitions
         new(pointer, KraidHeadInstructionKind.Frame, duration, tilemap,
             vulnerableHitbox, invulnerableHitbox, 0);
 
+    /// <summary>Packages a two-byte roar command without frame duration or collision operands.</summary>
     private static KraidHeadInstructionDefinition Sound(
         ushort pointer,
         KraidHeadInstructionKind kind,
         ushort soundId) =>
         new(pointer, kind, 0, 0, 0, 0, soundId);
 
+    /// <summary>Marks the end cursor of a private head program.</summary>
     private static KraidHeadInstructionDefinition End(ushort pointer) =>
         new(pointer, KraidHeadInstructionKind.Terminate, 0, 0, 0, 0, 0);
 
+    /// <summary>Reads a restored low-bank WRAM alias or one of the three compiled LoROM boundary bytes.</summary>
     private static byte ReadLiveByte(ISnesAddressSpace bus, ushort pointer)
     {
         // Bank $A7's low system window mirrors WRAM, not cartridge data.
@@ -220,9 +226,13 @@ internal static class KraidHeadInstructionDefinitions
 /// <summary>Mutually exclusive command forms used by Kraid's private head interpreter.</summary>
 internal enum KraidHeadInstructionKind
 {
+    /// <summary>Timed pose selecting a tilemap and mouth collision shapes.</summary>
     Frame,
+    /// <summary>Normal roar sound command inserted before a fully opened mouth.</summary>
     RoarSound,
+    /// <summary>Dying-roar sound command inserted in the slower opening sequence.</summary>
     DyingSound,
+    /// <summary>End cursor with no displayed frame.</summary>
     Terminate,
 }
 
@@ -242,18 +252,25 @@ internal readonly record struct KraidHeadResumeDefinition(ushort Pointer, ushort
 /// <summary>Calculated native head commands with no stored lookup or startup cache.</summary>
 internal readonly record struct KraidHeadCommandSequence(int Length)
 {
+    /// <summary>Calculates a command by its ordinal in native program order.</summary>
     public KraidHeadInstructionDefinition this[int index] => KraidHeadInstructionDefinitions.Command(index);
+    /// <summary>Materializes all calculated commands for consumers requiring an array.</summary>
     public KraidHeadInstructionDefinition[] ToArray()
     {
         var result = new KraidHeadInstructionDefinition[Length];
         for (int index = 0; index < result.Length; index++) result[index] = this[index];
         return result;
     }
+    /// <summary>Traverses native commands without allocating a backing table.</summary>
     public Enumerator GetEnumerator() => new(this);
+    /// <summary>Value enumerator over a calculated Kraid head command sequence.</summary>
     public struct Enumerator(KraidHeadCommandSequence sequence)
     {
+        /// <summary>Ordinal of the command to expose on the next iteration.</summary>
         private int next;
+        /// <summary>Advances until all commands in the sequence have been visited.</summary>
         public bool MoveNext() => next++ < sequence.Length;
+        /// <summary>Calculates the command selected by the most recent advance.</summary>
         public KraidHeadInstructionDefinition Current => KraidHeadInstructionDefinitions.Command(next - 1);
     }
 }

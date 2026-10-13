@@ -6,17 +6,23 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Gate PLMs: the shot-switched vertical gates and the downward gate with its sounds and projectile requests.</summary>
 internal sealed class GatePlms
 {
+    /// <summary>Current room and Samus state used by gate-column proximity checks.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Fixed PLM pool used for temporary shot triggers and resident gates.</summary>
     private readonly PlmSlotTable _slotTable;
+    /// <summary>Sound queue receiving accepted gate wake and rejected-shot effects.</summary>
     private readonly PlmSoundQueue _sounds;
 
+    /// <summary>Binds the gate PLM owner to the active room, slot pool, and sound queue.</summary>
     internal GatePlms(PlmRoomBindings bindings, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _bindings = bindings;
         _slotTable = slotTable;
         _sounds = sounds;
     }
+    /// <summary>Spawn and close requests published by gate PLMs for the projectile system.</summary>
     internal readonly List<DownwardGateProjectileRequest> _downwardGateProjectileRequests = new();
+    /// <summary>Rejected-shot sounds buffered until the room's sound publication stage.</summary>
     internal readonly List<PlmSoundRequest> _pendingDownwardGateSounds = new();
 
     /// <summary>
@@ -31,6 +37,7 @@ internal sealed class GatePlms
         return requests;
     }
 
+    /// <summary>Marks the gate's five vertical BTS cells and requests its initial closed projectile.</summary>
     internal void SetupDownwardGateSlot(RoomLevelData level, PlmSlot slot)
     {
         slot.Gate = new DownwardGatePlmState();
@@ -51,6 +58,7 @@ internal sealed class GatePlms
             slot.BlockIndex));
     }
 
+    /// <summary>Installs a side trigger's selected instruction list and authored neighboring shot-block words.</summary>
     internal static void SetupDownwardGateShotBlock(RoomLevelData level, PlmSlot slot)
     {
         DownwardGateShotBlockDefinition definition =
@@ -66,6 +74,7 @@ internal sealed class GatePlms
             WriteDownwardGateShotBlock(level, slot.BlockIndex + 1, definition.RightBlockWord);
     }
 
+    /// <summary>Writes a trigger's foreground word and its low-byte behavior to one collision block.</summary>
     private static void WriteDownwardGateShotBlock(RoomLevelData level, int blockIndex, ushort word)
     {
         _ = level.GetCollisionBlockByIndex(blockIndex);
@@ -146,12 +155,14 @@ internal sealed class GatePlms
         return true;
     }
 
+    /// <summary>Moves buffered rejected-shot sounds into the room sound queue in emission order.</summary>
     internal void PublishPendingDownwardGateSounds()
     {
         _sounds._soundRequests.AddRange(_pendingDownwardGateSounds);
         _pendingDownwardGateSounds.Clear();
     }
 
+    /// <summary>Wakes a resident gate when shot or when Samus occupies the column for the appropriate pre-instruction.</summary>
     internal void RunDownwardGatePreInstruction(PlmSlot slot)
     {
         if (slot.Gate is null)
@@ -176,6 +187,7 @@ internal sealed class GatePlms
         slot.PreInstruction = (ushort)DownwardGatePreInstruction.Inert;
     }
 
+    /// <summary>Tests Samus's block position against the resident gate's five-cell vertical column.</summary>
     private bool IsSamusInsideDownwardGateColumn(PlmSlot slot)
     {
         SamusState? samus = _bindings.Samus?.Current;
@@ -190,9 +202,11 @@ internal sealed class GatePlms
                 DownwardGatePlmRomData.GateHeightInBlocks;
     }
 
+    /// <summary>Distinguishes left-side trigger codes using their native low direction bit.</summary>
     private static bool IsLeftTrigger(DownwardGateTriggerBehavior trigger) =>
         ((byte)trigger & 1) == 0;
 
+    /// <summary>Maps a color-and-side trigger behavior to the matching temporary PLM header.</summary>
     private static PlmHeaderId HeaderForGateTrigger(DownwardGateTriggerBehavior trigger) => trigger switch
     {
         DownwardGateTriggerBehavior.GreenLeft => PlmHeaderId.LeftGreenGateTrigger,
@@ -206,6 +220,7 @@ internal sealed class GatePlms
         _ => throw new ArgumentOutOfRangeException(nameof(trigger), trigger, null),
     };
 
+    /// <summary>Applies cartridge projectile-family rules, including the right-yellow acceptance asymmetry.</summary>
     private static bool GateTriggerAcceptsProjectile(
         DownwardGateTriggerBehavior trigger,
         SamusProjectileTypeWord projectileType)
@@ -227,5 +242,6 @@ internal sealed class GatePlms
         };
     }
 
+    /// <summary>Marker attached to the resident PLM slot so adjacent shot triggers can find its gate.</summary>
     internal sealed class DownwardGatePlmState;
 }

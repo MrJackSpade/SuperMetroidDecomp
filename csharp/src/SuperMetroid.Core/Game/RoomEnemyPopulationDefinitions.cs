@@ -3,7 +3,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One immutable ordered bank-$A1 room population and its terminator quota.</summary>
 public sealed class RoomEnemyPopulationDefinition
 {
+    /// <summary>Placement order captured from the bank-$A1 list before its terminator.</summary>
     private readonly RoomEnemyPopulationRecord[] records;
+    /// <summary>Retains one compiled list's native identity, placement order, and trailing kill quota.</summary>
     internal RoomEnemyPopulationDefinition(ushort pointer, RoomEnemyPopulationRecord[] records, byte deathQuota)
     {
         Pointer = pointer;
@@ -27,6 +29,7 @@ public sealed class RoomEnemyPopulationDefinition
 /// </remarks>
 public static class RoomEnemyPopulationDefinitions
 {
+    /// <summary>Address-ordered retail populations used for bounded pointer lookup.</summary>
     private static readonly RoomEnemyPopulationDefinition[] Definitions =
     [
         ..BuildSegment0(),
@@ -40,6 +43,7 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>Total placement records across the distinct compiled lists, excluding terminators and without counting repeated references from room states.</summary>
     public const int RecordCount = 1658;
 
+    /// <summary>Rejects an incomplete or unordered compiled population table before gameplay can use it.</summary>
     static RoomEnemyPopulationDefinitions()
     {
         if (Definitions.Length != ListCount || Definitions.Sum(list => list.Records.Length) != RecordCount)
@@ -69,6 +73,7 @@ public static class RoomEnemyPopulationDefinitions
             "Pointer is not a retail bank-$A1 enemy population.");
     }
 
+    /// <summary>Provides the first contiguous segment of compiled bank-$A1 placement lists.</summary>
     private static RoomEnemyPopulationDefinition[] BuildSegment0() =>
     [
         new(0x8000,
@@ -652,6 +657,7 @@ public static class RoomEnemyPopulationDefinitions
         ], 0x00),
     ];
 
+    /// <summary>Provides the bank-$A1 placement lists starting at $96E2.</summary>
     private static RoomEnemyPopulationDefinition[] BuildSegment1() =>
     [
         new(0x96e2,
@@ -1308,6 +1314,7 @@ public static class RoomEnemyPopulationDefinitions
         ], 0x06),
     ];
 
+    /// <summary>Provides the bank-$A1 placement lists starting at $B259.</summary>
     private static RoomEnemyPopulationDefinition[] BuildSegment2() =>
     [
         new(0xb259,
@@ -2056,6 +2063,7 @@ public static class RoomEnemyPopulationDefinitions
         ], 0x05),
     ];
 
+    /// <summary>Provides the final bank-$A1 placement lists starting at $D3AA.</summary>
     private static RoomEnemyPopulationDefinition[] BuildSegment3() =>
     [
         new(0xd3aa,

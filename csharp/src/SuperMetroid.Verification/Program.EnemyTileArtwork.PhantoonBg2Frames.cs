@@ -9,8 +9,10 @@ using static ExtendedBg2ReferenceVerification;
 using static FrontendRomFreeVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail write and collision comparisons for Phantoon's installed BG2 frame artwork.</summary>
 internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 {
+    /// <summary>Checks 22 BG2 selectors and native tile writes, then proves an override changes live VRAM without changing engine hitboxes or the new-frame gate.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Phantoon BG2 frames")]
     internal static void VerifyInstalledPhantoonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
@@ -135,6 +137,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         Console.WriteLine("  Phantoon BG2 frames: all 22 selectors preserve native writes and engine-owned hitboxes; live VRAM edit, collision ROM guard, reload and invalid-data checks passed.");
     }
 
+    /// <summary>Compares compiled frame components and three hitbox lists with retail data while checking stock and edited artwork select the same callbacks.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon collision definitions")]
     private static void VerifyPhantoonCollisionDefinitions(
         SuperMetroidAddressSpace rom, ISnesAddressSpace guardedBus,
@@ -207,6 +210,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
             "Phantoon eye-only frame selects native vulnerable eye callback");
     }
 
+    /// <summary>Invokes the production extended-hitbox walker for a selected Phantoon frame and returns its touch or shot callback.</summary>
     internal static ushort FindPhantoonHitboxCallback(
         EnemyTileArtworkCatalog art, ISnesAddressSpace bus,
         ushort pointer, Position16<RoomPixels> target, bool selectShot)
@@ -228,6 +232,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         return found ? (ushort)arguments[4]! : (ushort)0;
     }
 
+    /// <summary>Draws a Phantoon BG2 frame into fresh VRAM, optionally setting the native new-instruction-frame upload bit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static byte[] DrawPhantoonBg2(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer, bool newInstructionFrame)

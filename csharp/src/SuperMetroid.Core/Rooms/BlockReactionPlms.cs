@@ -8,10 +8,14 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Block-reaction PLMs spawned by Samus and her weapons: grapple, bomb, crumble, Speed Booster, shot and bombed special blocks.</summary>
 internal sealed class BlockReactionPlms
 {
+    /// <summary>Provides room-specific state used when block reaction programs are installed.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Handles the animal-escape reaction reserved by the shot-block BTS table.</summary>
     private readonly EscapeAnimalPlms _escapeAnimals;
+    /// <summary>Allocates reaction PLMs in descending native slot order.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Connects block reactions to the active room, escape-animal branch, and shared PLM pool.</summary>
     internal BlockReactionPlms(PlmRoomBindings bindings, EscapeAnimalPlms escapeAnimals, PlmSlotTable slotTable)
     {
         _bindings = bindings;
@@ -19,7 +23,7 @@ internal sealed class BlockReactionPlms
         _slotTable = slotTable;
     }
 
-    /// <summary>Typed BTS overload used by grapple collision dispatch.</summary>
+    /// <summary>Starts a respawning or permanent grapple-block program while preserving its original level word for restoration.</summary>
     public bool TrySpawnBreakableGrappleBlock(
         RoomLevelData level,
         int blockIndex,
@@ -57,7 +61,7 @@ internal sealed class BlockReactionPlms
         return false;
     }
 
-    /// <summary>Typed BTS overload used by Samus collision dispatch.</summary>
+    /// <summary>Starts a timed collision bomb block and substitutes its native visual parent before the first PLM pass.</summary>
     public bool TrySpawnCollisionBombBlock(
         RoomLevelData level,
         int blockIndex,
@@ -219,7 +223,7 @@ internal sealed class BlockReactionPlms
         return false;
     }
 
-    /// <summary>Typed BTS overload used by bomb collision dispatch.</summary>
+    /// <summary>Selects the normal-bomb or Power Bomb reaction list; only the latter executes its packed sound instruction.</summary>
     public bool TrySpawnBombReactionBlock(
         RoomLevelData level,
         int blockIndex,
@@ -285,7 +289,7 @@ internal sealed class BlockReactionPlms
         return false;
     }
 
-    /// <summary>Typed BTS overload used by projectile and grapple collision dispatch.</summary>
+    /// <summary>Selects a shot-block PLM by BTS, weapon family, area table, and air-versus-solid collision semantics.</summary>
     public bool TrySpawnProjectileShotBlock(
         RoomLevelData level,
         int blockIndex,
@@ -443,7 +447,7 @@ internal sealed class BlockReactionPlms
         return false;
     }
 
-    /// <summary>Typed BTS overload used by bomb collision dispatch.</summary>
+    /// <summary>Dispatches normal-bomb special blocks through the area-independent or Brinstar reaction table.</summary>
     public bool TrySpawnBombedSpecialBlock(
         RoomLevelData level,
         int blockIndex,

@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Coloured and blue door PLMs: their setup, shot reactions, opening and the door-closing spawn after a transition.</summary>
 internal sealed class DoorPlms
 {
+    /// <summary>Supplies the room's door-bit persistence owner.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Draws closed and flashing door caps into level data and the background streamer.</summary>
     private readonly PlmBlockDrawing _drawing;
+    /// <summary>Allocates fallback closing and blue-door actors from the native PLM pool.</summary>
     private readonly PlmSlotTable _slotTable;
+    /// <summary>Queues the library-two response to rejected colored-door hits.</summary>
     private readonly PlmSoundQueue _sounds;
 
+    /// <summary>Binds door PLM logic to room persistence, drawing, allocation, and sound owners.</summary>
     internal DoorPlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _bindings = bindings;
@@ -161,6 +166,7 @@ internal sealed class DoorPlms
             (ushort)levelWord.WithCollisionType(deactivatedType));
     }
 
+    /// <summary>Installs shootable-solid collision and resident-PLM projectile BTS at a colored cap.</summary>
     private static void ApplyColoredDoorSetup(RoomLevelData level, int blockIndex)
     {
         // Setup `$84:C7B1` preserves the visual twelve bits, installs shootable-solid
@@ -204,6 +210,7 @@ internal sealed class DoorPlms
             wasOpened ? ColoredDoorPhase.ConvertToBlue : ColoredDoorPhase.Waiting);
     }
 
+    /// <summary>Advances one resident colored cap through blue conversion, hit flashes, or opening.</summary>
     internal bool TryStepColoredDoor(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
         ColoredDoorPlmState? door = slot.ColoredDoor;
@@ -309,6 +316,7 @@ internal sealed class DoorPlms
         return false;
     }
 
+    /// <summary>Decodes a colored-door header into its color family and four-way orientation.</summary>
     internal static bool TryIdentifyColoredDoor(
         PlmHeaderId header,
         out ColoredDoorColor color,

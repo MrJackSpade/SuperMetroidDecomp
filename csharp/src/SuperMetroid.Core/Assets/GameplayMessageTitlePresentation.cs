@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameplayMessageTitlePresentation
 {
+    /// <summary>Validated one-row text and palette keyed by the supported gameplay message identities.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledTitle> titles;
 
+    /// <summary>Retains copied title and border data plus the source document's byte identity.</summary>
     private GameplayMessageTitlePresentation(
         Dictionary<GameplayMessageId, CompiledTitle> titles,
         ushort[] border,
@@ -22,6 +24,7 @@ public sealed class GameplayMessageTitlePresentation
         ContentIdentity = contentIdentity;
     }
 
+    /// <summary>Thirty-two native BG3 words copied to both outer rows of every built message.</summary>
     private ushort[] Border { get; }
     /// <summary>Uppercase SHA-256 of the exact source JSON bytes read during loading, including formatting and property order rather than only compiled title content.</summary>
     public string ContentIdentity { get; }
@@ -136,6 +139,7 @@ public sealed class GameplayMessageTitlePresentation
         output.Write(bytes);
     }
 
+    /// <summary>Encodes a supported title character as a priority BG3 tilemap word with the selected palette.</summary>
     internal static ushort CompileGlyph(char character, int palette)
     {
         ushort tile = character switch
@@ -152,6 +156,7 @@ public sealed class GameplayMessageTitlePresentation
             GameplayMessageTitleDefinitions.PriorityWord | palette << 10));
     }
 
+    /// <summary>Recovers a supported title character from the tile portion of a BG3 word.</summary>
     internal static char DecodeGlyph(ushort word)
     {
         ushort tile = (ushort)(word & 0x03ff);
@@ -169,6 +174,7 @@ public sealed class GameplayMessageTitlePresentation
         };
     }
 
+    /// <summary>Validated title text and palette retained independently of the mutable JSON document.</summary>
     private sealed record CompiledTitle(string Text, int Palette);
 }
 

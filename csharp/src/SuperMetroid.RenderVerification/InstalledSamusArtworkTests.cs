@@ -11,6 +11,7 @@ using SuperMetroid.Core.Spatial;
 /// </summary>
 internal static class InstalledSamusArtworkTests
 {
+    /// <summary>Checks edited Samus body, cannon, and death art through software and GPU rendering without a cartridge.</summary>
     internal static void Run(InstalledSamusArtworkFixture fixture,
         D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
@@ -25,6 +26,7 @@ internal static class InstalledSamusArtworkTests
             $"{check.Comparisons} exact software/GPU comparisons, {check.ChangedPixels} recolored pixels.");
     }
 
+    /// <summary>Draws each Samus pose with stock and edited art and checks OAM, physical state, and visible pixels.</summary>
     private static int CheckPoseDrawing(InstalledSamusArtworkFixture fixture,
         SuperMetroidAddressSpace memory, ArtworkPixelCheck check)
     {
@@ -53,8 +55,10 @@ internal static class InstalledSamusArtworkTests
         return SamusBodyArtworkCatalog.PoseCount;
     }
 
-    // Deliberately excludes derived spritemap indices and DMA flags. Those are the
-    // rendering outputs; pose timing, collision radii and fixed-point motion are not.
+    /// <summary>
+    /// Captures pose timing, collision radii, and fixed-point motion for artwork parity.
+    /// Derived spritemap indices and DMA flags are rendering outputs and are excluded.
+    /// </summary>
     private static string PhysicalState(SamusState samus) => string.Join("|",
         samus.Pose, samus.Position.X.Whole, samus.Position.Y.Whole, samus.Health,
         samus.AnimationFrame, samus.AnimationFrameTimer, samus.AnimationFrameBuffer,
@@ -65,9 +69,11 @@ internal static class InstalledSamusArtworkTests
         samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed,
         samus.Kinematics.Radius.X, samus.Kinematics.Radius.Y);
 
+    /// <summary>Raises a focused artwork fixture failure when an expected property changes.</summary>
     private static void Require(bool condition, string message)
     { if (!condition) throw new InvalidOperationException(message); }
 
+    /// <summary>Checks split body-tile DMA, pending definition identity, neighboring VRAM, and rendered pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static int CheckBodyTransfers(InstalledSamusArtworkFixture fixture,
         SuperMetroidAddressSpace memory, ArtworkPixelCheck check)
@@ -114,6 +120,7 @@ internal static class InstalledSamusArtworkTests
         return count;
     }
 
+    /// <summary>Restores a pending top or bottom transfer pointer as a saved runtime state would.</summary>
     private static void SetPendingDefinition(SamusTileTransferState transfer, bool upper, int pointer)
     {
         // Construct a faithful saved pending-transfer state without modifying the
@@ -124,6 +131,7 @@ internal static class InstalledSamusArtworkTests
             nameof(transfer.BottomTransferEnabled))!.SetValue(transfer, true);
     }
 
+    /// <summary>Checks queued arm-cannon and death-tile uploads across an installed-artwork rebind.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static int CheckQueuedTransfers(InstalledSamusArtworkFixture fixture,
         SuperMetroidAddressSpace memory, ArtworkPixelCheck check)
@@ -159,16 +167,20 @@ internal static class InstalledSamusArtworkTests
         }
     }
 
+    /// <summary>Supplies installed cannon and death tiles to the queued VRAM transfer path.</summary>
     private sealed class SamusQueuedArtwork(SamusBodyArtworkCatalog artwork) :
         IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Resolves a queued transfer from the installed cannon or death-tile catalog.</summary>
         public bool TryResolve(int source, int length, out ReadOnlyMemory<byte> data) =>
             artwork.ArmCannon.TryResolveTile(source, length, out data) ||
             artwork.DeathTiles.TryResolve(source, length, out data);
+        /// <summary>Rejects typed assets outside this fixture's address-based Samus uploads.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidDataException($"Unexpected typed transfer {asset} in Samus upload fixture.");
     }
 
+    /// <summary>Arranges transferred tiles into a deterministic OAM gallery for pixel comparison.</summary>
     private static OamBuffer TileGallery(ushort first, int firstSize, ushort second, int secondSize)
     {
         var oam = new OamBuffer(); oam.BeginFrame();

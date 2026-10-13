@@ -29,13 +29,18 @@ public sealed class SporeSpawnColorCatalog
                     .Select(color => ResolveDeathBackground(frame, color)).ToArray()).ToArray());
         });
 
+    /// <summary>Only spore colors that differ from the healthy boss row; stock art shares that row.</summary>
     private readonly Dictionary<int, Bgr555> spores = new();
+    /// <summary>Painted health endpoints and intermediate edits used by boss palette selection.</summary>
     private readonly HealthRows health;
-    // Endpoint colors remain required inputs; intermediate entries store independent edits only.
+    /// <summary>Death-sprite endpoint colors plus samples that differ from the calculated seven-step fade.</summary>
     private readonly Dictionary<int, Bgr555> deathSprite = new();
+    /// <summary>Required final BG palette 4 row and independent earlier level-art colors.</summary>
     private readonly Dictionary<int, Bgr555> deathLevel = new();
+    /// <summary>Required final BG palette 7 row and independent earlier backdrop colors.</summary>
     private readonly Dictionary<int, Bgr555> deathBackground = new();
 
+    /// <summary>Retains palette endpoints and only the supplied intermediate samples that cannot be reconstructed from them.</summary>
     private SporeSpawnColorCatalog(Bgr555[] spores, Bgr555[][] health,
         Bgr555[][] deathSprite, Bgr555[][] deathLevel, Bgr555[][] deathBackground)
     {
@@ -71,6 +76,7 @@ public sealed class SporeSpawnColorCatalog
         }
     }
 
+    /// <summary>Strict camel-case JSON contract used for both stock and editable color documents.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -107,13 +113,20 @@ public sealed class SporeSpawnColorCatalog
     /// </summary>
     private sealed class HealthRows
     {
+        /// <summary>Shell and glow colors from ink 9 onward interpolate between healthy and critical.</summary>
         private const int FirstInterpolatedColor = 9;
+        /// <summary>Inks 1 through 8 remain painted separately in each intermediate health row.</summary>
         private const int LastPaintedColor = 8;
+        /// <summary>Healthy endpoint supplies the first boss row and interpolation source.</summary>
         private readonly Bgr555[] healthy;
+        /// <summary>Critical endpoint supplies the last boss row and transparent ink zero.</summary>
         private readonly Bgr555[] critical;
+        /// <summary>Authored inks 1 through 8 from the two middle health rows.</summary>
         private readonly Bgr555[][] intermediatePaint;
+        /// <summary>Middle-row calculated inks retained only when the supplied RGB5 value differs.</summary>
         private readonly Dictionary<int, Bgr555> intermediateEdits = new();
 
+        /// <summary>Splits four supplied health rows into endpoints, painted middle inks and independent interpolation edits.</summary>
         internal HealthRows(Bgr555[][] supplied)
         {
             int last = SporeSpawnColorRomData.HealthFrameCount - 1;
@@ -129,6 +142,7 @@ public sealed class SporeSpawnColorCatalog
             }
         }
 
+        /// <summary>Chooses authored paint or reconstructs the requested middle-row ink from editable endpoints.</summary>
         internal Bgr555 Resolve(int frame, int color)
         {
             int last = SporeSpawnColorRomData.HealthFrameCount - 1;
@@ -139,8 +153,10 @@ public sealed class SporeSpawnColorCatalog
                 ? edit : Calculate(frame, color);
         }
 
+        /// <summary>Identifies transparent ink zero and shell/glow inks that derive from endpoint rows.</summary>
         private static bool IsCalculated(int color) => color is 0 or >= FirstInterpolatedColor;
 
+        /// <summary>Interpolates an RGB5 shell/glow ink to nearest integer over the three health intervals; ink zero repeats critical.</summary>
         private Bgr555 Calculate(int frame, int color)
         {
             if (color == 0) return critical[0];
@@ -251,9 +267,11 @@ public sealed class SporeSpawnColorCatalog
         return bytes;
     }
 
+    /// <summary>Checks a palette phase before its packed frame/color key is used.</summary>
     private static int CheckFrame(int frame, int count) =>
         (uint)frame < count ? frame : throw new ArgumentOutOfRangeException(nameof(frame));
 
+    /// <summary>Requires the native number of ordered palette phases and compiles each sixteen-ink RGB5 row.</summary>
     private static Bgr555[][] CompileFrames(PaletteRgb5[][]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -262,6 +280,7 @@ public sealed class SporeSpawnColorCatalog
             .ToArray();
     }
 
+    /// <summary>Validates one complete sixteen-ink row and packs each bounded RGB5 color.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SporeSpawnColorRomData.ColorsPerFrame)
@@ -280,6 +299,7 @@ public sealed class SporeSpawnColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects duplicate color-document property names before deserialization can hide an edit.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Spore Spawn color property {name}."));

@@ -22,6 +22,7 @@ internal static class MotherBrainBodyInstructionProgramDefinitions
     /// frame $A9:A320. It is an authored visual identity, not a timer or opcode.
     /// </summary>
     internal const ushort InitialDummyVisualOperand = 0x9c15;
+    /// <summary>$A9:A320 is the fixed extended frame used by the shared initial dummy list.</summary>
     private const ushort InitialDummyVisualFrame = 0xa320;
 
     /// <summary>Resolves the fixed initial dummy selector without reading the ROM.</summary>
@@ -39,6 +40,7 @@ internal static class MotherBrainBodyInstructionProgramDefinitions
         Layout.IsPresentationWord(address) && Layout.TryReadWord(address, out ushort frame)
             ? frame : throw UnknownVisual(address);
 
+    /// <summary>Identifies an address that is not an installed body-program visual operand.</summary>
     private static InvalidDataException UnknownVisual(ushort address) => new(
         $"Mother Brain body visual operand $A9:{address:X4} is not compiled.");
 

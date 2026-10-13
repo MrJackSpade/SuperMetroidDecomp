@@ -10,8 +10,10 @@ using static LookupBlueDoorStockVerification;
 using static LookupBlueProgramVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled blue-door PLM programs, physical draws, and editable cap artwork.</summary>
 internal static class BlueDoorPlmDrawDefinitionsVerification
 {
+    /// <summary>Runs all four door orientations through opening, closing, and closed lists with native source reads denied.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Blue door PLM draw definitions")]
     internal static void VerifyBlueDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -135,6 +137,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         Console.WriteLine("  Blue-door PLMs: 196 compiled program bytes, all opening/closing/closed lists, twenty physical draws and sixteen compatible visual identities pass with source reads forbidden.");
     }
 
+    /// <summary>Checks the control, draw, sound, and BTS operands of bank-$84 blue-door instruction lists.</summary>
     private static void VerifyBlueDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBlueProgramControls), () => VerifyBlueProgramControls(rom));
@@ -143,6 +146,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         Suite(nameof(VerifyBlueProgramBts), () => VerifyBlueProgramBts(rom));
     }
 
+    /// <summary>Checks stock extraction and persistent visual override loading, including invalid artwork and stock tampering.</summary>
     private static void VerifyBlueDoorVisualInstallation(
         SuperMetroidAddressSpace rom, ushort firstDraw)
     {
@@ -200,6 +204,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         }
     }
 
+    /// <summary>Forbids production reads from compiled blue-door instructions and all selected draw-list payloads.</summary>
     private static CartridgeReadGuard NewBlueDoorDrawReadGuard(
         ISnesAddressSpace source,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>

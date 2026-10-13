@@ -18,6 +18,7 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Pixels the camera and layer two move per IRQ call.</summary>
     private const short LayerStepPixels = 4;
 
+    /// <summary>Captures the directional setup positions, IRQ step, and exact destination snapshots.</summary>
     private DoorOpeningScrollState(DoorOpeningScrollSetup setup)
     {
         Direction = setup.Direction;
@@ -31,11 +32,13 @@ internal sealed class DoorOpeningScrollState
         FinalSamusPosition = setup.FinalSamusPosition;
     }
 
+    /// <summary>Travel axis and sign selected by the destination door header.</summary>
     public DoorDirection Direction { get; }
 
     /// <summary>Samus's signed 16.16 displacement for one moving IRQ call, along the travel axis.</summary>
     public FixedVector<RoomPixels> SamusIrqStep { get; }
 
+    /// <summary>Moving IRQ calls still required before the trajectory can snap to its destination.</summary>
     public int RemainingFrames { get; private set; }
 
     /// <summary>The layer-one words <c>$0911/$0915</c> owned by the IRQ.</summary>
@@ -47,14 +50,19 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Samus's 16.16 position as the IRQ carries her.</summary>
     public FixedPosition<RoomPixels> SamusPosition { get; private set; }
 
+    /// <summary>Exact layer-one endpoint published after the final directional IRQ call.</summary>
     public Position16<RoomPixels> FinalCameraPosition { get; }
 
+    /// <summary>Layer-two endpoint reached through directional four-pixel steps.</summary>
     public Position16<Bg2Pixels> FinalLayer2Position { get; }
 
+    /// <summary>Deferred Samus endpoint retained by the door loader for the destination handoff.</summary>
     public FixedPosition<RoomPixels> FinalSamusPosition { get; }
 
+    /// <summary>Whether the just-advanced IRQ may stream background data; upward doors delay the first rows.</summary>
     public bool ShouldStreamAfterAdvance { get; private set; } = true;
 
+    /// <summary>Builds the native setup position and IRQ trajectory from a door header and destination coordinates.</summary>
     public static DoorOpeningScrollState Create(
         CartridgeDoorHeader door,
         FixedPosition<RoomPixels> sourceSamus,

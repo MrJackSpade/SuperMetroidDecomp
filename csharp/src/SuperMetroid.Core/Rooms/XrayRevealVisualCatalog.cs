@@ -60,6 +60,7 @@ public sealed class XrayOverlayVisualCatalog
     {
     }
 
+    /// <summary>Copies validated item and room overlays, optionally requiring every retail special-room source.</summary>
     private XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
         IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms,
         bool requireCompleteInstallation)

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
+/// <summary>Checks equipment-mask, wireframe, and reserve-transfer rules through the live pause menu.</summary>
 internal static class PauseEquipmentRulesVerification
 {
     /// <summary>Native $82:C04C/$C056/$C062 beam, suit/misc and boot upgrade-mask tables.</summary>
@@ -18,10 +19,14 @@ internal static class PauseEquipmentRulesVerification
         _ => throw new ArgumentOutOfRangeException(nameof(category)),
     };
 
+    /// <summary>Compares five beam upgrade masks with bank-$82 and checks invalid selectors.</summary>
     internal static void VerifyPauseBeamMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Beams, PauseMaskTableAddress(PauseEquipmentCategory.Beams), 5);
+    /// <summary>Compares six suit and miscellaneous upgrade masks with bank-$82.</summary>
     internal static void VerifyPauseSuitMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Suits, PauseMaskTableAddress(PauseEquipmentCategory.Suits), 6);
+    /// <summary>Compares three boot upgrade masks with bank-$82.</summary>
     internal static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Boots, PauseMaskTableAddress(PauseEquipmentCategory.Boots), 3);
 
+    /// <summary>Matches a category's native mask table and verifies category-first bounds rejection.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause mask cases")]
     private static void VerifyPauseMaskCases(ISnesAddressSpace rom, PauseEquipmentCategory category, int address, int count)
     {
@@ -36,6 +41,7 @@ internal static class PauseEquipmentRulesVerification
             CheckRejected(invalid, 0, "category");
             CheckRejected(invalid, -1, "category");
         }
+        /// <summary>Checks that an invalid mask lookup reports the offending selector parameter.</summary>
         static void CheckRejected(PauseEquipmentCategory category, int item, string parameter)
         {
             try { _ = PauseEquipmentRules.Mask(category, item); }
@@ -48,6 +54,7 @@ internal static class PauseEquipmentRulesVerification
         }
     }
 
+    /// <summary>Compares the compiled suit-wireframe selector with every sixteen-bit equipped-item word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause wireframe selection")]
     internal static void VerifyPauseWireframeSelection(ISnesAddressSpace rom)
     {
@@ -65,6 +72,7 @@ internal static class PauseEquipmentRulesVerification
         }
     }
 
+    /// <summary>Checks real menu toggles, first-owned selection, rendered wireframes, Start+A ordering, and reserve transfer cadence.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause equipment set, mask and reserve-transfer tables")]
     internal static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
@@ -143,12 +151,15 @@ internal static class PauseEquipmentRulesVerification
             }
         }
         Console.WriteLine("Compiled pause rules: 14 native masks, 104 subsets, actual toggles, 65,536 wireframe selectors/rendered patches and manual transfer frames pass with rule ROM reads blocked.");
+        /// <summary>Creates a pause menu backed by guarded ROM reads and the supplied Samus inventory.</summary>
         PauseMenuState Create(SamusState samus) => new(guard, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = catalog });
+        /// <summary>Equips exactly the collected bits in the beam or item field for a category fixture.</summary>
         static SamusState Inventory(PauseEquipmentCategory category, ushort owned) => category == PauseEquipmentCategory.Beams
             ? new SamusState { CollectedBeams = owned, EquippedBeams = owned }
             : new SamusState { CollectedItems = owned, EquippedItems = owned };
     }
 
+    /// <summary>Forbids production reads of migrated equipment masks, wireframe masks, and reserve-transfer rate.</summary>
     private static CartridgeReadGuard NewPauseRulesReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => (uint)(address - PauseMenuRomData.EquipmentSetTable) < 8 ||

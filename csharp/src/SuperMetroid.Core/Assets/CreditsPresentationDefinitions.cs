@@ -34,13 +34,17 @@ public static class CreditsPresentationDefinitions
     /// <summary>Font-3 tile used by the lower half of the credits period.</summary>
     public const ushort LargePeriodBottom = 0x007e;
 
+    /// <summary>Fixed native role order without duplicating the 67 role descriptors in storage.</summary>
     private static readonly CreditRoles Roles = new();
     /// <summary>Calculated read-only view of all 67 required credit roles in native order, with fixed one-/two-row styles and preceding blank-row counts; wording remains editable content.</summary>
     public static IReadOnlyList<CreditsLineDefinition> Lines => Roles;
 
+    /// <summary>Calculates role identity, glyph style, and spacing from native line order.</summary>
     private sealed class CreditRoles : IReadOnlyList<CreditsLineDefinition>
     {
+        /// <summary>The 67 staff roles present in the retail credits stream.</summary>
         public int Count => 67;
+        /// <summary>Assigns headings a small font and section spacing, except for the paired sound-effects heading.</summary>
         public CreditsLineDefinition this[int index]
         {
             get
@@ -53,13 +57,16 @@ public static class CreditsPresentationDefinitions
                 return new(id, heading ? CreditsLineStyle.Small : CreditsLineStyle.Large, blankRows);
             }
         }
+        /// <summary>Yields all fixed role descriptors in displayed order.</summary>
         public IEnumerator<CreditsLineDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Adapts the ordered role sequence for non-generic enumeration.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>Maps a retail line ordinal to its stable editable-document role key.</summary>
     private static string RoleId(int index) => index switch
     {
         0 => "staff-heading",
@@ -92,6 +99,7 @@ public static class CreditsPresentationDefinitions
         _ => "general-manager-name",
     };
 
+    /// <summary>Names the eight programming roles shared by their heading and name lines.</summary>
     private static string ProgrammingRole(int index) => index switch
     {
         0 => "program-director",

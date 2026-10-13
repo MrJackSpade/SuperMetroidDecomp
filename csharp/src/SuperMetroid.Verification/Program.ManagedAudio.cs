@@ -19,8 +19,10 @@ using static AudioSoundProgramsVerification;
 using static BrrLoopExtractionVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks managed SPC, DSP, PCM replacement, and audio editor boundaries.</summary>
 internal static class ManagedAudioVerification
 {
+    /// <summary>Runs the focused managed audio checks for playback, looping, effects, and installation.</summary>
     internal static void VerifyManagedSnesDsp()
     {
         Suite(nameof(VerifyManagedDspResetProducesSilence), () => VerifyManagedDspResetProducesSilence());
@@ -42,6 +44,7 @@ internal static class ManagedAudioVerification
         Suite(nameof(VerifyEditableMusicPrograms), () => VerifyEditableMusicPrograms());
     }
 
+    /// <summary>Checks that a source-number write affects the next live loop without restarting a voice.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedDspUsesLiveSourceAtLoop()
     {
@@ -64,6 +67,7 @@ internal static class ManagedAudioVerification
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) < 0, "loop follows live source without another key-on");
     }
 
+    /// <summary>Separates a sample's key-on start from its independently mapped loop entry.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     internal static void VerifyManagedDspUsesIndependentLoopEntry()
     {
@@ -96,6 +100,7 @@ internal static class ManagedAudioVerification
             new Dictionary<byte, byte> { [1] = 3 }), "loop aliases require a mapped destination");
     }
 
+    /// <summary>Checks channel-local seams and within-buffer deltas without stereo separation overflow.</summary>
     private static void VerifyStereoPcmContinuityMeter()
     {
         var meter = new StereoPcmContinuityMeter();
@@ -192,6 +197,7 @@ internal static class ManagedAudioVerification
         }
     }
 
+    /// <summary>Appends a length, destination, and payload in the SPC upload protocol's byte order.</summary>
     private static void AddSpcUploadRecord(List<byte> stream, ushort target, byte[] payload)
     {
         stream.Add(unchecked((byte)payload.Length));
@@ -313,6 +319,7 @@ internal static class ManagedAudioVerification
         AssertEqual(0, dsp.ReadRegister(0x08), "replacement voice reaches silence after key-off");
     }
 
+    /// <summary>Sets voice zero to audible direct gain with equal stereo volume and key-on.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     internal static void ConfigureAudibleVoiceZero(ManagedSnesDsp dsp, byte sourceNumber = 0)
     {
@@ -400,6 +407,7 @@ internal static class ManagedAudioVerification
         }
     }
 
+    /// <summary>Checks invalid APU RAM, register, waveform, sample-rate, and WAV boundaries.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedDspRejectsInvalidBoundaries()
     {
@@ -436,6 +444,7 @@ internal static class ManagedAudioVerification
             "managed PCM rejects malformed WAV container");
     }
 
+    /// <summary>Runs the independent PCM loop-entry verification by command.</summary>
     [VerificationCommand("--pcm-loop-entry")]
     internal static int PcmLoopEntryCommand()
     {

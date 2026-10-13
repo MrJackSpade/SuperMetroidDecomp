@@ -10,8 +10,10 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Verification access to <see cref="RenderFrameSnapshotCodec"/> members production does not use.</summary>
 internal static class RenderFrameSnapshotCodecAccess
 {
+    /// <summary>Exposes a bounded span-based display-packet reader for verification fixtures.</summary>
     extension(RenderFrameSnapshotCodec)
     {
+        /// <summary>Rejects oversized fixture packets before copying their bytes into the production snapshot decoder.</summary>
         internal static RenderFrameSnapshot Deserialize(ReadOnlySpan<byte> bytes)
         {
             if (bytes.Length > RenderPacketFormat.MaximumPacketBytes)
@@ -24,6 +26,7 @@ internal static class RenderFrameSnapshotCodecAccess
 /// <summary>Verification access to <see cref="SnesBgTilemapRenderer"/> members production does not use.</summary>
 internal static class SnesBgTilemapRendererAccess
 {
+    /// <summary>Creates owned pixel buffers for the background renderer's 4-bpp and 2-bpp verification surfaces.</summary>
     extension(SnesBgTilemapRenderer)
     {
         /// <summary>
@@ -83,9 +86,11 @@ internal static class SnesGameplayFrameRendererAccess
             source.A);
     }
 
+    /// <summary>Replicates a five-bit color component into eight-bit display space after X-ray half-color math.</summary>
     private static byte ExpandFiveBit(byte value) =>
         (byte)(((value & 0x1f) << 3) | ((value & 0x1f) >> 2));
 
+    /// <summary>Exposes debugger room composition and the independent X-ray window/color-math projection.</summary>
     extension(SnesGameplayFrameRenderer)
     {
         /// <summary>
@@ -223,6 +228,7 @@ internal static class SnesGameplayFrameRendererAccess
 /// <summary>Verification access to <see cref="SnesMode7Renderer"/> members production does not use.</summary>
 internal static class SnesMode7RendererAccess
 {
+    /// <summary>Provides an owned Mode 7 viewport for register-level verification.</summary>
     extension(SnesMode7Renderer)
     {
         /// <summary>
@@ -256,6 +262,7 @@ internal static class SnesMode7RendererAccess
 /// <summary>Verification access to <see cref="SnesObjRenderer"/> members production does not use.</summary>
 internal static class SnesObjRendererAccess
 {
+    /// <summary>Provides transparent RGBA and priority-resolved OBJ surfaces from finalized OAM.</summary>
     extension(SnesObjRenderer)
     {
         /// <summary>

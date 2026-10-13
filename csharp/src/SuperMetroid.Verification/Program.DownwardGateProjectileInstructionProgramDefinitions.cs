@@ -16,12 +16,15 @@ using static EnemyProjectileProgramOracleVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled downward-gate projectile programs through live close and open lifecycles.</summary>
 internal static class DownwardGateProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for the gate projectile mechanics comparison.</summary>
     internal static void VerifyDownwardGateProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyDownwardGateProjectileInstructionProgramDefinitions), () => VerifyDownwardGateProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks native words, guarded four-stage motion, executed sprite operands, shared deletion, and allocation-free reads.</summary>
     internal static void VerifyDownwardGateProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -151,6 +154,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
             "both real producers, four-stage close/open lifecycles, shared deletion, and " +
             "nine executed native sprite compositions pass with zero live operand reads.");
 
+        /// <summary>Creates an enemy system whose compiled gate and shared instruction bytes cannot be read from the cartridge.</summary>
         RoomEnemySystem NewSystem()
         {
             var system = new RoomEnemySystem();
@@ -158,6 +162,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
             return system;
         }
 
+        /// <summary>Uses the real gate behavior producer to allocate a moving or already closed projectile.</summary>
         RoomEnemyProjectileSlot Spawn(
             RoomEnemySystem system,
             RoomEnemyProjectileKind kind)
@@ -171,12 +176,14 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
             return system.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
         }
 
+        /// <summary>Advances projectile instructions and checks the executed visual operand against installed artwork.</summary>
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
             system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
 
+        /// <summary>Moves the gate one pixel per update and processes its instruction frame while it remains active.</summary>
         void RunMovementFrames(
             RoomEnemySystem system,
             RoomEnemyProjectileSlot projectile,
@@ -191,6 +198,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
         }
     }
 
+    /// <summary>Repeatedly consumes compiled moving and closed control words for steady-state allocation measurement.</summary>
     private static int ProbeDownwardGateProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -204,6 +212,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
         return checksum;
     }
 
+    /// <summary>Forbids compiled gate/shared control reads and observes any remaining presentation operand reads.</summary>
     private static CartridgeReadGuard NewDownwardGateProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -214,6 +223,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
                 DownwardGateProjectileInstructionProgramDefinitions.PresentationWordCount,
                 DownwardGateProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the retail-cartridge gate projectile instruction verification.</summary>
     [VerificationCommand("--downward-gate-projectile-instruction-mechanics")]
     internal static int DownwardGateProjectileInstructionMechanicsCommand()
     {

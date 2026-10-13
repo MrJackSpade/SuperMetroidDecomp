@@ -15,14 +15,17 @@ using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Eye Door projectile animation programs and their opened-door handoff against cartridge words.</summary>
 internal static class EyeDoorProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the Eye Door projectile instruction suite.</summary>
     internal static void VerifyEyeDoorProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEyeDoorProjectileInstructionProgramDefinitions), () => VerifyEyeDoorProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises initial flight, impact, and shot programs while checking compiled mechanics and visual selectors.</summary>
     internal static void VerifyEyeDoorProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -174,6 +177,7 @@ internal static class EyeDoorProjectileInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Consumes repeated initial and shot mechanics lookups for the warmed allocation check.</summary>
     private static int ProbeEyeDoorProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -187,6 +191,7 @@ internal static class EyeDoorProjectileInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Runs the Eye Door projectile instruction suite through the verification command dispatcher.</summary>
     [VerificationCommand("--eye-door-projectile-instruction-mechanics")]
     internal static int EyeDoorProjectileInstructionMechanicsCommand()
     {

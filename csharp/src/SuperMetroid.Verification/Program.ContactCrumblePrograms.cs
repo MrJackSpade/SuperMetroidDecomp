@@ -16,13 +16,15 @@ using static LinkedRestoreVisualsVerification;
 using static ShotBlockPlmProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail and guarded playback checks for all eight contact-crumble PLM programs and linked restore draws.</summary>
 internal static class ContactCrumbleProgramsVerification
 {
-    // Native list boundaries and timed-record counts from pinned bank_84.asm.
+    /// <summary>Native bank-$84 list bounds and timed-record counts from the pinned disassembly.</summary>
     private static (ushort Start, int Frames, ushort End)[] ContactCrumbleNativeLayouts() =>
         [(0xc9f9,7,0xca1c),(0xca1c,8,0xca41),(0xca41,8,0xca66),(0xca66,8,0xca8b),
          (0xca8b,4,0xcaa0),(0xcaa0,4,0xcab5),(0xcab5,4,0xcaca),(0xcaca,4,0xcadf)];
 
+    /// <summary>Compares compiled timing, restoration and deletion words over the full native address domain.</summary>
     private static void VerifyContactCrumbleControlMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new List<ushort>();
@@ -48,6 +50,7 @@ internal static class ContactCrumbleProgramsVerification
         }
     }
 
+    /// <summary>Checks every timed draw operand and rejects ownership of non-draw bank-$84 words.</summary>
     private static void VerifyContactCrumbleDrawMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new HashSet<ushort>();
@@ -64,6 +67,7 @@ internal static class ContactCrumbleProgramsVerification
         }
     }
 
+    /// <summary>Compares packed sound bytes at the eight list starts against native bank-$84 data.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for contact crumble sound mapping")]
     private static void VerifyContactCrumbleSoundMapping(SuperMetroidAddressSpace rom)
     {
@@ -80,6 +84,7 @@ internal static class ContactCrumbleProgramsVerification
         }
     }
 
+    /// <summary>Checks the three native restoration lists and their exact draw-pointer ownership.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for contact crumble restoration mapping")]
     private static void VerifyContactCrumbleRestorationMapping(SuperMetroidAddressSpace rom)
     {
@@ -136,6 +141,7 @@ internal static class ContactCrumbleProgramsVerification
         }
     }
 
+    /// <summary>Runs all eight BTS timelines against retail behavior with compiled source bytes blocked, then checks edited visual isolation.</summary>
     internal static void VerifyContactCrumblePrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -208,6 +214,7 @@ internal static class ContactCrumbleProgramsVerification
         Console.WriteLine($"Contact-crumble PLMs: 64 control words, 8 sound bytes, and 3 restoration lists match ROM; all eight programs run with source reads forbidden.");
     }
 
+    /// <summary>Confirms an edited breakup tile changes the immediate and streamed visual while physical block behavior stays native.</summary>
     private static void VerifyContactCrumbleVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
@@ -305,9 +312,14 @@ internal static class ContactCrumbleProgramsVerification
             "edited block $0BC composition reaches later streaming");
     }
 
+    /// <summary>Constructed room, streamer and PLM owner used for one contact-crumble BTS timeline.</summary>
+    /// <param name="Level">Room block plane containing the triggered contact tile.</param>
+    /// <param name="Streamer">BG tilemap update owner observing restored artwork.</param>
+    /// <param name="Plms">PLM system holding the native crumble instruction list.</param>
     internal sealed record ContactCrumbleFixture(
         RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
 
+    /// <summary>Installs the selected contact-crumble BTS on a synthetic room block and spawns its native PLM program.</summary>
     private static ContactCrumbleFixture NewContactCrumbleFixture(byte bts)
     {
         const int width = 8;
@@ -324,6 +336,7 @@ internal static class ContactCrumbleProgramsVerification
         return new ContactCrumbleFixture(level, level.CreateBackgroundStreamer(), plms);
     }
 
+    /// <summary>Runs the contact-crumble program and restore-draw verification command.</summary>
     [VerificationCommand("--contact-crumble-programs")]
     internal static int ContactCrumbleProgramsCommand()
     {

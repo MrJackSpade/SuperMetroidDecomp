@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using static BabyMetroidRouteDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail comparison for Botwoon's four hole bounds, 32 path choices and bank-$B3 movement streams.</summary>
 internal static class BotwoonNavigationDefinitionsVerification
 {
+    /// <summary>Checks each hole's exclusive right edge through the production detection routine and rejects invalid offsets.</summary>
     internal static void VerifyBotwoonHoleRightBounds(SuperMetroidAddressSpace rom)
     {
         Action<RoomEnemySlot, BotwoonEnemyState> detect = BotwoonBehavior.DetectBotwoonHole;
@@ -40,6 +42,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                 AssertThrows<InvalidDataException>(() => BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset), "Botwoon hole bound domain");
     }
 
+    /// <summary>Checks each hole's exclusive bottom edge through the production detection routine.</summary>
     internal static void VerifyBotwoonHoleBottomBounds(SuperMetroidAddressSpace rom)
     {
         Action<RoomEnemySlot, BotwoonEnemyState> detect = BotwoonBehavior.DetectBotwoonHole;
@@ -59,6 +62,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         }
     }
 
+    /// <summary>Matches all 32 native path descriptors and checks their installation into live Botwoon movement state.</summary>
     internal static void VerifyBotwoonPathDescriptorMappings(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonPathPointerMapping), () => VerifyBotwoonPathPointerMapping(rom));
@@ -87,6 +91,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         Console.WriteLine("Botwoon path descriptors: all 32 pointer, direction and destination fields and production installations match native records; invalid offsets rejected.");
     }
 
+    /// <summary>Checks path pointers and signed stream separators, including the distinct early terminal marker.</summary>
     private static void VerifyBotwoonPathPointerMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] boundaries = [0xa058,0xa328,0xa6ba,0xaa22,0xadfc,0xb168,0xb554,0xb954,
@@ -103,6 +108,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).PathPointer, "Botwoon native forward/reverse descriptor pointer");
     }
 
+    /// <summary>Checks forward and reverse traversal words for every authored path choice.</summary>
     private static void VerifyBotwoonPathDirectionMapping(SuperMetroidAddressSpace rom)
     {
         for (int offset = 0; offset < 256; offset += 8)
@@ -110,6 +116,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).Direction, "Botwoon native traversal direction");
     }
 
+    /// <summary>Checks destination-hole offsets, including the repeated hidden choice in the native table.</summary>
     private static void VerifyBotwoonPathDestinationMapping(SuperMetroidAddressSpace rom)
     {
         for (int offset = 0; offset < 256; offset += 8)
@@ -117,6 +124,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).TargetHoleByteOffset, "Botwoon native destination including repeated hidden choice");
     }
 
+    /// <summary>Compares hole rectangles and movement samples against retail words while guarding compiled source ranges during production navigation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon navigation definitions")]
     internal static void VerifyBotwoonNavigationDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -330,6 +338,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             "targets and rectangle boundaries pass with fixed definition reads forbidden.");
     }
 
+    /// <summary>Blocks runtime rereads of native hole, movement-stream and descriptor regions after compilation.</summary>
     private static CartridgeReadGuard NewBotwoonNavigationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
                 address is >= 0xb3949b and < 0xb394bb or
@@ -337,6 +346,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                     >= 0xb3e150 and < 0xb3e250,
             address => $"Botwoon attempted migrated navigation-definition read ${address:X6}.");
 
+    /// <summary>Runs Botwoon navigation definition verification against the retail cartridge.</summary>
     [VerificationCommand("--botwoon-navigation-definitions")]
     internal static int BotwoonNavigationDefinitionsCommand()
     {

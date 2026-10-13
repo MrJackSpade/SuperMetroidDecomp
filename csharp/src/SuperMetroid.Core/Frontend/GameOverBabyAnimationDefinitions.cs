@@ -167,6 +167,7 @@ public static class GameOverBabyAnimationDefinitions
         return new(pointer, duration, (GameOverBabyFrame)frame, palette, sound, next, restart);
     }
 
+    /// <summary>Reports a bank-$82 address outside the compiled Baby frame-record starts.</summary>
     private static InvalidDataException Unknown(ushort pointer) =>
         new($"Unknown compiled game-over Baby instruction $82:{pointer:X4}.");
 

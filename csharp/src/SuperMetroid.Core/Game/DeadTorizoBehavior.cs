@@ -8,11 +8,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The dead Torizo species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class DeadTorizoBehavior : IEnemySpecies
 {
+    /// <summary>Supplies corpse scratch WRAM, installed tiles, and the shared random seed.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Supplies the enemy-frame counter used to cadence rotting sounds.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Spawns dust when individual corpse rows finish rotting.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Draws the fixed corpse hook using installed spritemap parts.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Binds corpse rotting to room memory, frame timing, projectiles, and presentation.</summary>
     internal DeadTorizoBehavior(EnemyRoomBinding room, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyPresentation presentation)
     {
         _room = room;
@@ -21,12 +26,15 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         _presentation = presentation;
     }
 
+    /// <summary>Native corpse and sand DMA records produced during the current enemy update.</summary>
     internal readonly List<VramWriteEntry> _deadTorizoFrameVramTransfers = [];
+    /// <summary>Single corpse state owned by enemy slot zero in the loaded room.</summary>
     internal DeadTorizoEnemyState? _deadTorizo;
 
     /// <summary>Last library-two sound emitted by a completed corpse row.</summary>
     public ushort? LastDeadTorizoSoundEffect { get; private set; }
 
+    /// <summary>Clears corpse state, pending VRAM writes, and the last sound event on room load.</summary>
     internal void ResetDeadTorizoRoomState()
     {
         _deadTorizo = null;
@@ -114,6 +122,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         BuildDeadTorizoVramTransfers(state);
     }
 
+    /// <summary>Advances sand rows, corpse motion, and one step of the native rotting table.</summary>
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)
     {
         state.SandFrameCounter = unchecked((ushort)(state.SandFrameCounter + 1));
@@ -157,6 +166,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
             TriggerDeadTorizoRotting(slot);
     }
 
+    /// <summary>Checks asymmetric corpse touch boxes and publishes Samus's minimum separation displacement.</summary>
     private static bool DeadTorizoCustomHitboxOverlaps(RoomEnemySlot slot, SamusState samus)
     {
         SamusKinematicsState kinematics = samus.Kinematics;
@@ -207,6 +217,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         return false;
     }
 
+    /// <summary>Copies discontinuous regions of the installed corpse sheet into scratch WRAM.</summary>
     internal void InitializeDeadTorizoGraphics()
     {
         ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
@@ -241,6 +252,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         return tiles.Span;
     }
 
+    /// <summary>Shifts selected corpse tile words through rotation-table offsets, clearing sources on move.</summary>
     internal void CopyOrMoveDeadTorizoPixelRow(
         DeadTorizoEnemyState state,
         ushort yOffset,
@@ -273,6 +285,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Records a finished rot row, spawns dust from shared RNG, and optionally publishes sound.</summary>
     private void FinishDeadTorizoCorpseRow(DeadTorizoEnemyState state, ushort entryIndex)
     {
         state.FinishedEntryCount++;
@@ -286,6 +299,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
             LastDeadTorizoSoundEffect = 0x0010;
     }
 
+    /// <summary>Copies the first bitplane word of eighteen spaced source rows into sand scratch WRAM.</summary>
     internal void CopyDeadTorizoSandLine(ushort lineIndex)
     {
         ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
@@ -319,6 +333,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         slot.Position = slot.Position.WithFractionY(y.Fraction).WithWholeY(y.Whole);
     }
 
+    /// <summary>Advances the corpse transfer phase and appends its authored WRAM-to-VRAM descriptors.</summary>
     internal void BuildDeadTorizoVramTransfers(DeadTorizoEnemyState state)
     {
         state.VramTransferPhase = unchecked((ushort)(state.VramTransferPhase + 1));
@@ -329,6 +344,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
                 record.SizeInBytes, record.SourceAddress, record.EncodedVramDestination));
     }
 
+    /// <summary>Queues this frame's corpse DMA descriptors at their native VRAM destinations.</summary>
     [PpuLayoutBoundary("codec: staged Dead Torizo corpse DMA records' native destinations")]
     internal void QueueDeadTorizoFrameVramTransfers(VramWriteQueue? queue)
     {
@@ -355,6 +371,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = DeadTorizoArtworkDefinitions.SpritemapBank, Pointer = DeadTorizoArtworkDefinitions.HookSpritemap, Origin = new(unchecked((ushort)(296 - camera.X)), screenY), PaletteBits = 0, BaseTileIndex = 0 });
     }
 
+    /// <summary>Requires the initialized slot-zero corpse state and rejects unrelated enemy slots.</summary>
     private DeadTorizoEnemyState RequireDeadTorizoState(RoomEnemySlot slot)
     {
         DeadTorizoEnemyState state = _deadTorizo ??
@@ -364,12 +381,15 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         return state;
     }
 
+    /// <summary>Reads a little-endian corpse scratch word at a table-relative word offset.</summary>
     private ushort ReadWorkWord(int wordOffset) =>
         _room.Scratch.CorpseTiles.ReadWord(wordOffset * 2);
 
+    /// <summary>Writes one corpse scratch word at a table-relative word offset.</summary>
     private void WriteWorkWord(int wordOffset, ushort value) =>
         _room.Scratch.CorpseTiles.WriteWord(wordOffset * 2, value);
 
+    /// <summary>Applies the cartridge's unsigned-word two's-complement absolute operation.</summary>
     private static ushort NativeAbsolute(ushort value) =>
         (value & 0x8000) == 0 ? value : unchecked((ushort)(~value + 1));
 
@@ -386,6 +406,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         _deadTorizoFrameVramTransfers.Clear();
     }
 
+    /// <summary>Routes corpse bomb contact to rotting after the common no-op gate.</summary>
     internal void RegisterDeadTorizoBombReactions(EnemyAiTable table)
     {
         // Specials consulted after the selected literal no-op gate.
@@ -396,6 +417,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
             c => TriggerDeadTorizoRotting(c.Enemy));
     }
 
+    /// <summary>Associates the corpse definition with slot-zero rotting setup.</summary>
     internal void RegisterDeadTorizoInitializationAi(EnemyAiTable table)
     {
 
@@ -405,6 +427,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Advances touch detection, rotting, and corpse DMA each enemy frame.</summary>
     internal void RegisterDeadTorizoMainAi(EnemyAiTable table)
     {
 
@@ -414,6 +437,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Starts corpse rotting on a power bomb without common damage handling.</summary>
     internal void RegisterDeadTorizoPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo &&
@@ -423,6 +447,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
     internal void RegisterDeadTorizoShotReactions(EnemyAiTable table)
     {
         // The dead corpses and Shitroid receive the bank-$A0 projectile prelude but never an impact or vulnerability.
@@ -440,6 +465,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Starts the same rotting tail on direct Samus contact.</summary>
     internal void RegisterDeadTorizoTouch(EnemyAiTable table)
     {
         // `$A9:D433` is shared by touch and shot. Contact does not enter common damage; it makes the corpse solid

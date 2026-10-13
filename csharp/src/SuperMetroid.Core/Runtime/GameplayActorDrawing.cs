@@ -12,23 +12,40 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class GameplayActorDrawing
 {
+    /// <summary>Supplies installed spritemaps, projectile compositions, and suit palette artwork.</summary>
     private readonly RuntimeArtwork _artwork;
+    /// <summary>Provides the attract-demo state that can alter ordinary Samus presentation.</summary>
     private readonly AttractDemoSession _attractSession;
+    /// <summary>Supplies active background offsets for the drawing phase.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Draws bomb effects before the enemy layer pass, following native OAM order.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
+    /// <summary>Receives the palette writes that the software PPU will read for this frame.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Supplies the current input state used by presentation handlers.</summary>
     private readonly ControllerInputState _controller1;
+    /// <summary>Controls gameplay display modes that can suppress ordinary Samus drawing.</summary>
     private readonly GameplayDisplayState _display;
+    /// <summary>Supplies enemy layers, projectiles, and room-specific post-draw hooks.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Determines whether time-dependent enemy projectile drawing is suspended.</summary>
     private readonly GameplayTimeFreeze _freeze;
+    /// <summary>Provides accepted-NMI cadence for blinking and drawing branches.</summary>
     private readonly NmiClock _nmi;
+    /// <summary>Receives actor sprites in cartridge drawing order.</summary>
     private readonly OamBuffer _oam;
+    /// <summary>Supplies Samus pose, palettes, grapple state, and movement effects.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Supplies beam palette updates and player-projectile effects.</summary>
     private readonly SamusProjectileSystem _projectiles;
+    /// <summary>Provides the camera and Ceres arrival actors for this draw pass.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Receives actor graphics transfers requested during presentation.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>Reads cartridge drawing tables and palette data used by native routines.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Binds the shared runtime owners whose state determines each actor drawing pass.</summary>
     internal GameplayActorDrawing(GameplayActorDrawingDependencies dependencies)
     {
         _artwork = dependencies.Artwork;

@@ -17,17 +17,27 @@ using SuperMetroid.Core.Hardware;
 using static NativeSnapshotImportVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Runs complete converted controller timelines against native checkpoints without importing later gameplay state.</summary>
 internal static class FullMovieReplayVerification
 {
+    /// <summary>Repository fixture for the 100% Snes9x playthrough.</summary>
     internal const string FullPlaythroughMoviePath = "csharp/test-fixtures/full-100-percent/Super Metroid 100%.smv";
+    /// <summary>Expected digest of the immutable 100% movie fixture.</summary>
     internal const string FullPlaythroughMovieSha256 = "4D0E6E671E11BD99439AE498210943711135E6CBE8F57D97B2C56815315AE07E";
+    /// <summary>Repository fixture for the 13% Speed Booster lsnes recording.</summary>
     private const string LowPercentPlaythroughMoviePath = "csharp/test-fixtures/low-13-percent/13_speedbooster.lsmv";
+    /// <summary>Expected digest of the immutable 13% movie fixture.</summary>
     private const string LowPercentPlaythroughMovieSha256 = "1D217BB073309AE44EA3D972C5EC3201BE0EC434C60F034E1E958F94FD1BCDA8";
+    /// <summary>Power-on recording used to check the issue 1275 Samus movement divergence.</summary>
     private const string DrunkPlaythroughMoviePath = "csharp/test-fixtures/issue-1275-movies/Samus drunk.smv";
+    /// <summary>Expected digest of the immutable Samus movement recording.</summary>
     private const string DrunkPlaythroughMovieSha256 = "6822B5D0F2D5CD81F7DB3E48E05E8EFE7F0EC2395669E0DDF80B7F5E8FC4DF17";
+    /// <summary>Snapshot-start recording used to check the issue 1275 Mother Brain divergence.</summary>
     private const string MotherBrainGlitchMoviePath = "csharp/test-fixtures/issue-1275-movies/mother brain glitch.smv";
+    /// <summary>Expected digest of the immutable Mother Brain recording.</summary>
     private const string MotherBrainGlitchMovieSha256 = "C63BF68D4F24F378B2E3E3591281ABC158DDBAEBA113D35A63E3307A32D6E505";
 
+    /// <summary>Checks the 100% power-on playthrough against its converted input trace and WRAM checkpoints.</summary>
     internal static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
         VerifyPlaythroughMovie(
             ReplayMovie.Load("100%", FullPlaythroughMoviePath, FullPlaythroughMovieSha256),
@@ -226,6 +236,7 @@ internal static class FullMovieReplayVerification
         return (game, memory, uncheckpointedUpdates);
     }
 
+    /// <summary>Prints port and native state at a converted update to diagnose the first replay divergence.</summary>
     private static void TraceMovieSamus(SuperMetroidGame game, byte[] memory, int update, ConvertedMovieUpdate step)
     {
         var samus = game.RuntimeForVerification?.Player.Samus;
@@ -306,6 +317,7 @@ internal static class FullMovieReplayVerification
         }
     }
 
+    /// <summary>Reads a little-endian WRAM word from a native movie checkpoint.</summary>
     private static ushort Word(byte[] memory, int address) =>
         BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
 
@@ -429,30 +441,35 @@ internal static class FullMovieReplayVerification
         return mismatches;
     }
 
+    /// <summary>Runs the 13% lsnes replay command with the supplied native trace directory.</summary>
     [VerificationCommand("--lsmv-playthrough-movie", "lowTraceDirectory")]
     internal static int LsmvPlaythroughMovieCommand(string lowTraceDirectory)
     {
      VerifyLowPercentPlaythroughMovie(lowTraceDirectory); return 0; 
     }
 
+    /// <summary>Runs the 100% playthrough replay command with the supplied native trace directory.</summary>
     [VerificationCommand("--full-playthrough-movie", "fullTraceDirectory")]
     internal static int FullPlaythroughMovieCommand(string fullTraceDirectory)
     {
      VerifyFullPlaythroughMovie(fullTraceDirectory); return 0; 
     }
 
+    /// <summary>Runs the issue 1275 power-on Samus recording against its native trace.</summary>
     [VerificationCommand("--drunk-playthrough-movie", "drunkTraceDirectory")]
     internal static int DrunkPlaythroughMovieCommand(string drunkTraceDirectory)
     {
      VerifyDrunkPlaythroughMovie(drunkTraceDirectory); return 0; 
     }
 
+    /// <summary>Runs the issue 1275 snapshot-start Mother Brain recording against its native trace.</summary>
     [VerificationCommand("--mother-brain-glitch-movie", "glitchTraceDirectory")]
     internal static int MotherBrainGlitchMovieCommand(string glitchTraceDirectory)
     {
      VerifyMotherBrainGlitchMovie(glitchTraceDirectory); return 0; 
     }
 
+    /// <summary>Runs the 13% replay while printing port and native Samus state from a chosen update.</summary>
     [VerificationCommand("--lsmv-playthrough-movie", "traceDirectory", "--trace-from", "traceFromUpdate")]
     internal static int LsmvPlaythroughMovieTraceCommand(string traceDirectory, string traceFromUpdate)
     {
@@ -460,6 +477,7 @@ internal static class FullMovieReplayVerification
         return 0;
     }
 
+    /// <summary>Runs the 100% replay while printing port and native Samus state from a chosen update.</summary>
     [VerificationCommand("--full-playthrough-movie", "traceDirectory", "--trace-from", "traceFromUpdate")]
     internal static int FullPlaythroughMovieTraceCommand(string traceDirectory, string traceFromUpdate)
     {
@@ -467,6 +485,7 @@ internal static class FullMovieReplayVerification
         return 0;
     }
 
+    /// <summary>Runs the Samus movement replay while printing port and native state from a chosen update.</summary>
     [VerificationCommand("--drunk-playthrough-movie", "traceDirectory", "--trace-from", "traceFromUpdate")]
     internal static int DrunkPlaythroughMovieTraceCommand(string traceDirectory, string traceFromUpdate)
     {
@@ -474,6 +493,7 @@ internal static class FullMovieReplayVerification
         return 0;
     }
 
+    /// <summary>Runs the Mother Brain replay while printing port and native state from a chosen update.</summary>
     [VerificationCommand("--mother-brain-glitch-movie", "traceDirectory", "--trace-from", "traceFromUpdate")]
     internal static int MotherBrainGlitchMovieTraceCommand(string traceDirectory, string traceFromUpdate)
     {

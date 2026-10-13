@@ -28,6 +28,8 @@ internal static class SamusArmCannonPlacementDefinitions
     /// <summary>$90:CAD7/CAD8: later unused retracted descriptor tail, repeated at CC01..CC04 and CC0F..CC14.</summary>
     private static (int X, int Y) UnusedLaterTail => (-19, -2);
 
+    /// <summary>Finds a pose's extreme body-sprite tip and applies its authored cannon join for a drawing-coordinate byte.</summary>
+    /// <remarks>Returns false for unowned coordinates or missing editable body artwork, leaving the installed value intact.</remarks>
     internal static bool TryCoordinate(SamusBodyArtworkCatalog body, ushort address, out byte value)
     {
         value = 0;
@@ -183,6 +185,7 @@ internal static class SamusArmCannonPlacementDefinitions
         return true;
     }
 
+    /// <summary>Locates the semantic pose, animation phase, and X/Y component owning a native cannon descriptor byte.</summary>
     private static bool TryOwner(ushort address, out SamusPoseId pose, out int phase, out bool yComponent)
     {
         pose = 0; phase = 0; yComponent = false;

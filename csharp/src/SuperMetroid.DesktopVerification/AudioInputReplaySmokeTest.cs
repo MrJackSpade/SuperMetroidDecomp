@@ -8,6 +8,14 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.Desktop;
 
 /// <summary>Observable milestones from replaying a desktop journal through the real SPC.</summary>
+/// <param name="FramesExecuted">Journal and neutral-tail updates consumed before the first door completed.</param>
+/// <param name="ProjectileFired">Whether replayed input fired a Samus projectile.</param>
+/// <param name="PowerBeamCommandObserved">Whether the audio engine received the Power Beam SFX request.</param>
+/// <param name="PowerBeamAcknowledged">Whether the SPC acknowledged that request.</param>
+/// <param name="FirstDoorBegan">Whether the recorded door transition started.</param>
+/// <param name="FirstDoorCompleted">Whether that transition completed during replay or its bounded neutral tail.</param>
+/// <param name="SourceRoom">Room pointer before the first door handoff.</param>
+/// <param name="DestinationRoom">Room pointer after the first door handoff.</param>
 public readonly record struct AudioInputReplaySmokeTestResult(
     int FramesExecuted,
     bool ProjectileFired,
@@ -19,6 +27,15 @@ public readonly record struct AudioInputReplaySmokeTestResult(
     ushort DestinationRoom);
 
 /// <summary>PCM measurements for one complete pause found in a recorded player session.</summary>
+/// <param name="EntryFrame">Recorded update that entered the pause transition.</param>
+/// <param name="ResumeFrame">Recorded update that resumed gameplay.</param>
+/// <param name="RoomPointer">Room active during the pause.</param>
+/// <param name="PauseOwnedFrames">Updates owned by pause frontend states.</param>
+/// <param name="MinimumPausedRms">Lowest PCM root-mean-square level while fully paused.</param>
+/// <param name="MaximumPausedRms">Highest PCM root-mean-square level while fully paused.</param>
+/// <param name="MeanPausedRms">Average per-frame PCM root-mean-square level while fully paused.</param>
+/// <param name="AudioCommands">Commands observed during pause-owned updates.</param>
+/// <param name="CommandTrace">Frame/state-tagged audio commands around the pause interval.</param>
 public readonly record struct RecordedPauseAudioResult(
     int EntryFrame,
     int ResumeFrame,
@@ -35,6 +52,7 @@ public readonly record struct RecordedPauseAudioResult(
 /// </summary>
 public static class AudioInputReplaySmokeTest
 {
+    /// <summary>Maximum neutral-input updates allowed for a journal ending before its first door finishes.</summary>
     private const int NeutralTailFrames = 360;
 
     /// <summary>Replays a ROM-validated journal through managed gameplay/audio until its first door completes, checking projectile firing and the power-beam acknowledgement.</summary>
@@ -267,25 +285,37 @@ public static class AudioInputReplaySmokeTest
         return completed;
     }
 
+    /// <summary>Accumulates one recorded pause's PCM levels and audio commands until gameplay resumes.</summary>
     private sealed class PauseAccumulator
     {
+        /// <summary>Lower bound of fully paused frame RMS levels.</summary>
         private double minimumRms = double.MaxValue;
+        /// <summary>Upper bound of fully paused frame RMS levels.</summary>
         private double maximumRms;
+        /// <summary>Sum of fully paused frame RMS levels for the per-frame mean.</summary>
         private double sumRms;
+        /// <summary>Number of fully paused audio frames included in RMS measurements.</summary>
         private int pausedFrames;
+        /// <summary>Frame/state-tagged command lines in recorded order.</summary>
         private readonly List<string> commandTrace = [];
 
+        /// <summary>Starts a pause interval at its recorded entry frame and room.</summary>
         public PauseAccumulator(int entryFrame, ushort roomPointer)
         {
             EntryFrame = entryFrame;
             RoomPointer = roomPointer;
         }
 
+        /// <summary>Recorded update at which this pause began.</summary>
         public int EntryFrame { get; }
+        /// <summary>Room pointer retained across this pause interval.</summary>
         public ushort RoomPointer { get; }
+        /// <summary>Count of frontend updates owned by pause states, including transitions.</summary>
         public int PauseOwnedFrames { get; set; }
+        /// <summary>Number of audio commands dispatched during pause ownership.</summary>
         public int AudioCommands { get; set; }
 
+        /// <summary>Measures one fully paused stereo PCM frame before waveOut receives it.</summary>
         public void AddPausedFrame(ReadOnlySpan<short> samples)
         {
             double squareSum = 0;
@@ -298,6 +328,7 @@ public static class AudioInputReplaySmokeTest
             pausedFrames++;
         }
 
+        /// <summary>Captures upload and port-write commands with their recorded frame and frontend state.</summary>
         public void RecordCommands(
             int frameIndex,
             SuperMetroidGameState state,
@@ -312,6 +343,7 @@ public static class AudioInputReplaySmokeTest
             commandTrace.Add($"{frameIndex}/{state}={formatted}");
         }
 
+        /// <summary>Finalizes a complete interval, requiring at least one fully paused PCM frame.</summary>
         public RecordedPauseAudioResult Complete(int resumeFrame)
         {
             if (pausedFrames == 0)
@@ -329,6 +361,7 @@ public static class AudioInputReplaySmokeTest
         }
     }
 
+    /// <summary>Writes an owned diagnostic gameplay frame as a 256-by-224 PNG after ensuring replay produced it.</summary>
     private static void WriteCapture(Rgba32[]? pixels, string directory, string fileName)
     {
         if (pixels is null)

@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Skree and Metaree particle programs, burst producers, and shared deletion against ROM.</summary>
 internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the Skree and Metaree particle suite.</summary>
     internal static void VerifySkreeMetareeParticleInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySkreeMetareeParticleInstructionProgramDefinitions), () => VerifySkreeMetareeParticleInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled words and executes all eight directional burst particles with runtime mechanics reads forbidden.</summary>
     internal static void VerifySkreeMetareeParticleInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -173,6 +176,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerificat
         }
     }
 
+    /// <summary>Consumes repeated Skree and Metaree control lookups for the warmed allocation check.</summary>
     private static int ProbeSkreeMetareeParticleInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -186,6 +190,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerificat
         return checksum;
     }
 
+    /// <summary>Forbids particle and shared-delete mechanics reads while observing visual selector addresses.</summary>
     internal static CartridgeReadGuard NewSkreeMetareeParticleInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -196,6 +201,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerificat
                 SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordCount,
                 SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Runs the particle instruction suite through the verification command dispatcher.</summary>
     [VerificationCommand("--skree-metaree-particle-instruction-mechanics")]
     internal static int SkreeMetareeParticleInstructionMechanicsCommand()
     {

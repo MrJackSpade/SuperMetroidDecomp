@@ -25,10 +25,13 @@ public sealed class OamBuffer
     [PpuLayoutAccess]
     public const int UploadByteCount = SnesPpuLayout.OamUploadByteCount;
 
-    // One four-byte record per OAM-low object; one two-bit pair per OAM-high object, four per byte.
+    /// <summary>Each low-OAM sprite stores X, Y, tile, and attributes in four bytes.</summary>
     private const int LowRecordByteCount = 4;
+    /// <summary>Four sprites share one high-OAM byte of X-high and size pairs.</summary>
     private const int HighPairsPerByte = 4;
+    /// <summary>Mutable low-OAM bytes staged before the next hardware upload.</summary>
     private readonly byte[] _lowTable = new byte[PpuMemoryLayout.OamLow.Count * LowRecordByteCount];
+    /// <summary>Mutable two-bit sprite pairs staged after the low table.</summary>
     private readonly byte[] _highTable = new byte[PpuMemoryLayout.OamHigh.Count / HighPairsPerByte];
 
     /// <summary>Raw 512-byte low OAM table used by PPU DMA.</summary>
@@ -72,6 +75,7 @@ public sealed class OamBuffer
         SnesObjAttributeWord attributes, Position16<OamPixels> origin)
         => AppendGenericSprite(xOffset, yOffset, attributes, origin, originIsOnScreen: false);
 
+    /// <summary>Applies the generic spritemap vertical-wrap clipping and packs one hardware OBJ record.</summary>
     private void AppendGenericSprite(SnesSpritemapXWord encodedXOffset, byte encodedYOffset,
         SnesObjAttributeWord finalAttributes, Position16<OamPixels> origin, bool originIsOnScreen)
     {
@@ -209,6 +213,7 @@ public sealed class OamBuffer
                 baseTileIndex, clipVerticalWrap, originYIsOnScreen);
     }
 
+    /// <summary>Packs an enemy part after adding its tile base, palette, and optional vertical clipping.</summary>
     private void AppendEnemySpritemapPart(EnemySpritemapPart part,
         Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap, bool originYIsOnScreen)
@@ -375,6 +380,7 @@ public sealed class OamBuffer
         NextByteOffset = 0;
     }
 
+    /// <summary>Replaces one sprite's two-bit high-OAM pair without disturbing its three neighbors.</summary>
     private void SetHighTablePair(int spriteIndex, SnesOamHighTablePair pair)
     {
         int byteIndex = spriteIndex >> 2;
@@ -394,6 +400,7 @@ public sealed class OamBuffer
         _lowTable[lowOffset + 3] = SnesLittleEndian.HighByte(attributes.Raw);
     }
 
+    /// <summary>Implements the native carry and sign test for hiding vertically wrapped generic parts.</summary>
     private static bool ShouldHideForOnScreenOrigin(int unsignedYSum, bool offsetIsNegative)
     {
         byte wrappedY = (byte)unsignedYSum;

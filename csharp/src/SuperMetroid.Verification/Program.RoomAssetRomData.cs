@@ -16,6 +16,7 @@ using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 using static RoomMainCodeCatalogVerification;
 
+/// <summary>Retail checks for compiled room tileset definitions, character streams and installed editable character atlases.</summary>
 internal static class RoomAssetRomDataVerification
 {
     /// <summary>
@@ -275,6 +276,7 @@ internal static class RoomAssetRomDataVerification
             "and padding edits are rejected.");
     }
 
+    /// <summary>Blocks the CRE and selected area-character source addresses while a room loads installed PNG artwork.</summary>
     private static MutableCartridgeReadGuard NewRoomCharacterReadGuard(ISnesAddressSpace source, int areaCharacters)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -283,8 +285,7 @@ internal static class RoomAssetRomDataVerification
         return guard;
     }
 
-    // The guarded range begins at graphics set zero's native definition, located once
-    // through the unguarded source's pointer table.
+    /// <summary>Locates graphics set zero through the unguarded pointer table, then blocks the complete native definition range during room loading.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle locating graphics set zero's native tileset definition")]
     private static MutableCartridgeReadGuard NewTilesetDefinitionReadGuard(ISnesAddressSpace source)
     {
@@ -299,6 +300,7 @@ internal static class RoomAssetRomDataVerification
         return guard;
     }
 
+    /// <summary>Checks a library-background transfer's WRAM source/destination identity, whole-word size and WRAM/VRAM bounds.</summary>
     private static void ValidateTilemapTransfer(
         RoomAssetRomData.TilemapTransfer transfer,
         string description)
@@ -316,6 +318,7 @@ internal static class RoomAssetRomDataVerification
             $"{description} transfer remains in 64-KiB VRAM");
     }
 
+    /// <summary>Runs the compiled room tileset and graphics-stream checks.</summary>
     [VerificationCommand("--room-tileset-definitions")]
     internal static int RoomTilesetDefinitionsCommand()
     {
@@ -323,6 +326,7 @@ internal static class RoomAssetRomDataVerification
         return 0;
     }
 
+    /// <summary>Runs character PNG roundtrips and the installed-artwork room-loading check.</summary>
     [VerificationCommand("--room-character-atlases")]
     internal static int RoomCharacterAtlasesCommand()
     {

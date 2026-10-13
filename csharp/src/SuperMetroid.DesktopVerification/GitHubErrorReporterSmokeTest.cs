@@ -88,6 +88,7 @@ public static class GitHubErrorReporterSmokeTest
             client.CreatedIssues.Count);
     }
 
+    /// <summary>Captures before and failed-frame Samus state and checks replay, build, and input details in the report.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static string VerifyFrameFailureSnapshot()
     {
@@ -123,6 +124,7 @@ public static class GitHubErrorReporterSmokeTest
         return diagnostics;
     }
 
+    /// <summary>Checks that repeated audio failures preserve gameplay frames and do not prevent later audio attempts.</summary>
     private static void VerifyAudioRecovery()
     {
         var recovery = new AudioFrameRecovery();
@@ -148,6 +150,7 @@ public static class GitHubErrorReporterSmokeTest
         Console.WriteLine("PASS audio recovery: repeated failure, reporting disabled, failed reporter, deduplication and subsequent successful frame.");
     }
 
+    /// <summary>Creates a caught exception with the requested message for stable fingerprint comparisons.</summary>
     private static Exception CaptureFixtureException(string message)
     {
         try
@@ -160,26 +163,34 @@ public static class GitHubErrorReporterSmokeTest
         }
     }
 
+    /// <summary>Raises a fixture failure when an expected reporter property is absent.</summary>
     private static void Require(bool condition, string message)
     {
         if (!condition)
             throw new InvalidOperationException(message);
     }
 
+    /// <summary>Records issue lookups, creations, and comments locally for reporter deduplication checks.</summary>
     private sealed class RecordingIssueClient : IGitHubIssueClient
     {
+        /// <summary>Comment bodies sent for distinct occurrences of an existing issue.</summary>
         public List<string> Comments { get; } = [];
+        /// <summary>Records a reporter comment without contacting GitHub.</summary>
         public Task CommentAsync(string repository, string issueUrl, string body)
         {
             Comments.Add(body);
             return Task.CompletedTask;
         }
+        /// <summary>Fingerprints the fake remote repository reports as already present.</summary>
         public HashSet<string> ExistingFingerprints { get; } = new(StringComparer.Ordinal);
 
+        /// <summary>Fingerprint lookup calls made by the reporter worker.</summary>
         public List<string> FindCalls { get; } = [];
 
+        /// <summary>Issue titles and bodies created for previously unseen fingerprints.</summary>
         public List<CreatedIssue> CreatedIssues { get; } = [];
 
+        /// <summary>Records a lookup and returns a fixture URL for an existing fingerprint.</summary>
         public Task<string?> FindByFingerprintAsync(string repository, string fingerprint)
         {
             FindCalls.Add(fingerprint);
@@ -189,6 +200,7 @@ public static class GitHubErrorReporterSmokeTest
             return Task.FromResult(result);
         }
 
+        /// <summary>Records a new issue and returns its fixture URL.</summary>
         public Task<string> CreateAsync(string repository, string title, string body)
         {
             CreatedIssues.Add(new CreatedIssue(title, body));
@@ -196,6 +208,7 @@ public static class GitHubErrorReporterSmokeTest
         }
     }
 
+    /// <summary>Title and body captured from one fake issue creation.</summary>
     private sealed record CreatedIssue(string Title, string Body);
 }
 

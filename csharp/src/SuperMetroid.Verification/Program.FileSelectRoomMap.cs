@@ -17,8 +17,10 @@ using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks file-select room-map rendering, controls, animation, markers, and save loading against native behavior.</summary>
 internal static class FileSelectRoomMapVerification
 {
+    /// <summary>Checks every area map projection and frame word against ROM, then verifies the visible viewport and icon capacity.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for file-select room-map labels and frames")]
     internal static void VerifyFileSelectRoomMapGraphics()
@@ -95,6 +97,7 @@ internal static class FileSelectRoomMapVerification
         }
     }
 
+    /// <summary>Checks the retained room frame and native center-window exposure during cancellation back to the area map.</summary>
     internal static void VerifyMapCancelPresentation()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -142,6 +145,7 @@ internal static class FileSelectRoomMapVerification
             "return contraction uses normal area backdrop addition, unlike forward transition");
     }
 
+    /// <summary>Checks map palette cycling and independent availability-sensitive arrow animation in CGRAM and OAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     internal static void VerifyFileSelectMapAnimations()
     {
@@ -222,6 +226,7 @@ internal static class FileSelectRoomMapVerification
         AssertEqual(2, resumed.LastFinalizedSpriteCount, "both available direction shapes draw");
     }
 
+    /// <summary>Checks exploration, map download, and boss flags against exact icon ordering and scrolled OAM coordinates.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyFileSelectMapIcons()
     {
@@ -289,12 +294,14 @@ internal static class FileSelectRoomMapVerification
         AssertEqual(0x3c, defeated.LowTable[7], "defeated boss changes to palette six");
     }
 
+    /// <summary>Checks that a Zebes save visits the map before gameplay while a Ceres checkpoint resumes its elevator arrival.</summary>
     internal static void VerifySavedGameMapFrontend()
     {
         Suite(nameof(VerifySavedGameMapFrontend), () => VerifySavedGameMapFrontend(4));
         Suite(nameof(VerifySavedGameMapFrontend), () => VerifySavedGameMapFrontend(6));
     }
 
+    /// <summary>Drives a saved slot through frontend map confirmation or the Ceres direct-load path.</summary>
     private static void VerifySavedGameMapFrontend(ushort savedArea)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -375,6 +382,7 @@ internal static class FileSelectRoomMapVerification
 
     }
 
+    /// <summary>Checks area and room confirmation edges, cancel precedence, and the animated return boundary.</summary>
     private static void VerifyFileSelectMapNavigation()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -425,6 +433,7 @@ internal static class FileSelectRoomMapVerification
         AssertThrows<InvalidOperationException>(() => back.CompleteAreaReturn(), "unsolicited area-return completion fails");
     }
 
+    /// <summary>Checks native map centering, eight-frame arrow pulses, input precedence, and scroll limits.</summary>
     private static void VerifyFileSelectMapScroll()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -467,6 +476,7 @@ internal static class FileSelectRoomMapVerification
         AssertEqual(stoppedX, precedence.Scroll.X, "held input cannot scroll beyond unavailable arrow");
     }
 
+    /// <summary>Checks save-station marker frame cadence, backing visibility, OAM placement, and invalid station rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyFileSelectStationMarker()
     {
@@ -522,30 +532,35 @@ internal static class FileSelectRoomMapVerification
             "station lookup cannot cross the sixteen-slot domain");
     }
 
+    /// <summary>Runs the file-select map icon visibility and OAM fixture.</summary>
     [VerificationCommand("--map-icons-fixture")]
     internal static int MapIconsFixtureCommand()
     {
      VerifyFileSelectMapIcons(); return 0; 
     }
 
+    /// <summary>Runs the file-select palette and scroll-arrow animation fixture.</summary>
     [VerificationCommand("--map-animation-fixture")]
     internal static int MapAnimationFixtureCommand()
     {
      VerifyFileSelectMapAnimations(); return 0; 
     }
 
+    /// <summary>Runs the saved-slot frontend map flow fixture.</summary>
     [VerificationCommand("--saved-map-fixture")]
     internal static int SavedMapFixtureCommand()
     {
      VerifySavedGameMapFrontend(); return 0; 
     }
 
+    /// <summary>Runs the room-to-area map cancellation presentation fixture.</summary>
     [VerificationCommand("--map-cancel-fixture")]
     internal static int MapCancelFixtureCommand()
     {
      VerifyMapCancelPresentation(); return 0; 
     }
 
+    /// <summary>Runs the native save-station marker cadence and OAM fixture.</summary>
     [VerificationCommand("--station-marker-fixture")]
     internal static int StationMarkerFixtureCommand()
     {

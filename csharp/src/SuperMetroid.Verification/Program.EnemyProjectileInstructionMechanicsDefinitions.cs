@@ -15,6 +15,7 @@ using SuperMetroid.Core.Rom;
 using static EnemyProjectileProgramOracleVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled bank-$86 projectile mechanics against the ROM and guards production program execution against live source reads.</summary>
 internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
 {
     /// <summary>
@@ -481,6 +482,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
         }
     }
 
+    /// <summary>Rejects reads of compiled mechanics operands while recording any remaining live projectile presentation reads.</summary>
     private static CartridgeReadGuard NewEnemyProjectileMechanicsReadGuard(ISnesAddressSpace source,
         HashSet<int> presentationReadBytes) =>
         new CartridgeReadGuard(source)
@@ -495,6 +497,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
                      EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand(unchecked((ushort)(address - 1)))),
                 address => presentationReadBytes.Add(address));
 
+    /// <summary>Runs the ROM oracle, guarded program execution, and allocation checks for projectile mechanics.</summary>
     [VerificationCommand("--enemy-projectile-instruction-mechanics")]
     internal static int EnemyProjectileInstructionMechanicsCommand()
     {

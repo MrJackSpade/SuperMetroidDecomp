@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks gunship hull and entrance-pad instruction programs against ROM and production initializers.</summary>
 internal static class GunshipInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the gunship instruction suite.</summary>
     internal static void VerifyGunshipInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyGunshipInstructionProgramDefinitions), () => VerifyGunshipInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled control words, five hull and pad paths, initializer selection, and visual operands.</summary>
     internal static void VerifyGunshipInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -178,6 +181,7 @@ internal static class GunshipInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Consumes repeated entrance-pad control lookups for the warmed allocation check.</summary>
     private static int ProbeGunshipInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -189,12 +193,14 @@ internal static class GunshipInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects compiled gunship mechanics reads and observes visual selector addresses.</summary>
     private static CartridgeReadGuard NewGunshipInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(GunshipInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled gunship mechanics ${address:X6}.")
             .ObserveWords(0xa20000, GunshipInstructionProgramDefinitions.PresentationWordCount, GunshipInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the gunship instruction suite through the verification command dispatcher.</summary>
     [VerificationCommand("--gunship-instruction-mechanics")]
     internal static int GunshipInstructionMechanicsCommand()
     {

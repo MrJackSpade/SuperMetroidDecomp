@@ -8,8 +8,10 @@ using static BabyMetroidRouteDefinitionsVerification;
 using static ShotBlockPlmProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks bomb and crumble block restore artwork against native draw lists and production PLM behavior.</summary>
 internal static class LinkedRestoreVisualsVerification
 {
+    /// <summary>Compares six flattened stock layouts with bank-$84 draw words and checks catalog bounds and edit isolation.</summary>
     private static void VerifyLinkedRestoreStockMapping(SuperMetroidAddressSpace rom)
     {
         (ushort Pointer, string Id)[] frames = [(0xa4c7,"bomb-horizontal"), (0xa4cf,"bomb-vertical"),
@@ -68,6 +70,7 @@ internal static class LinkedRestoreVisualsVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmLinkedRestoreVisualCatalog(entries), "linked restore rejects collision bits in artwork");
     }
 
+    /// <summary>Checks stock extraction, editable override persistence, and rejection of malformed restore artwork.</summary>
     internal static void VerifyLinkedRestoreVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
@@ -143,6 +146,7 @@ internal static class LinkedRestoreVisualsVerification
         }
     }
 
+    /// <summary>Runs a real linked bomb or crumble PLM with edited appearance, ensuring its physical parent word stays native.</summary>
     internal static void VerifyLinkedRestoreVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden, bool bomb)
     {

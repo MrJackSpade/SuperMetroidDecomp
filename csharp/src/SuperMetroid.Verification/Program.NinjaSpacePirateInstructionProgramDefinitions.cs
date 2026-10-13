@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled ninja Space Pirate programs, frame selectors, and attack callbacks.</summary>
 internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for ninja Pirate instruction comparison.</summary>
     internal static void VerifyNinjaSpacePirateInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks all twenty guarded programs, claw/dive effects, native frame selectors, and allocation-free lookups.</summary>
     internal static void VerifyNinjaSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -142,6 +145,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             "production programs, claw/palette/sound/function callbacks, and 140 " +
             "compiled frame selectors pass with source bytes forbidden.");
 
+        /// <summary>Checks that a left or right claw attack spawns its first projectile at the correct horizontal offset.</summary>
         void VerifyClawAttack(ushort program, int expectedFirstXOffset)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
@@ -158,6 +162,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 $"ninja Pirate claw program $B2:{program:X4} first spawn X");
         }
 
+        /// <summary>Checks the dive's function switch, shared gold palette, and attack sound.</summary>
         void VerifyDive(ushort program, NinjaSpacePirateFunction function)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
@@ -172,6 +177,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 $"ninja Pirate dive program $B2:{program:X4} sound");
         }
 
+        /// <summary>Initializes a ninja Pirate actor with installed shared palette and guarded instruction bytes.</summary>
         (RoomEnemySystem Enemies, RoomEnemySlot Slot, SamusState Samus) CreateSystem()
         {
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
@@ -188,6 +194,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             return (enemies, slot, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
         }
 
+        /// <summary>Advances production enemy instructions for the requested number of updates.</summary>
         static void RunFrames(
             RoomEnemySystem enemies,
             RoomEnemySlot slot,
@@ -200,6 +207,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeatedly consumes a compiled control word for steady-state allocation measurement.</summary>
     private static int ProbeNinjaSpacePirateInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -211,6 +219,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids reads of compiled control bytes and native frame-selector words during production execution.</summary>
     private static CartridgeReadGuard NewNinjaSpacePirateInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(NinjaSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -220,6 +229,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 address => $"Production read compiled ninja Pirate frame selector " +
                     $"${address:X6}.");
 
+    /// <summary>Runs the retail-cartridge ninja Pirate instruction verification.</summary>
     [VerificationCommand("--ninja-space-pirate-instruction-mechanics")]
     internal static int NinjaSpacePirateInstructionMechanicsCommand()
     {

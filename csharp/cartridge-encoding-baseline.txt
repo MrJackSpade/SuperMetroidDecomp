@@ -1143,7 +1143,7 @@ csharp/src/SuperMetroid.Verification/Program.CinematicCrystalFlash.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Program.CinematicTextGlow.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Program.CollectibleMessageTiming.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Program.CollectibleVisuals.cs	SME6340	28
-csharp/src/SuperMetroid.Verification/Program.Collectibles.cs	SME6340	81
+csharp/src/SuperMetroid.Verification/Program.Collectibles.cs	SME6340	80
 csharp/src/SuperMetroid.Verification/Program.Collectibles.cs	SME6342	4
 csharp/src/SuperMetroid.Verification/Program.CompactWalkOffCollision.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Program.CompiledDynamicCollectibleGraphics.cs	SME6340	6
@@ -1746,7 +1746,7 @@ csharp/src/SuperMetroid.Verification/Program.MoatFirstEntry.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Program.MockballBoostContact.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Program.MoonwalkRanIntoWall.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Program.MotherBrainAscentCapture.cs	SME6340	4
-csharp/src/SuperMetroid.Verification/Program.MotherBrainBeamWindow.cs	SME6340	10
+csharp/src/SuperMetroid.Verification/Program.MotherBrainBeamWindow.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Program.MotherBrainBodyHitboxes.cs	SME6340	18
 csharp/src/SuperMetroid.Verification/Program.MotherBrainBodyInstructionPrograms.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Program.MotherBrainBodyPresentation.cs	SME6340	4

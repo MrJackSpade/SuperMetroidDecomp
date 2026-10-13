@@ -28,7 +28,8 @@ public static class GameplayDisplayCapture
         {
             // Rainbow configuration $24 removes BG3 from the main screen. Its fixed
             // color window replaces room liquid/fog blending while the beam owns HDMA.
-            if (runtime.Enemies.MotherBrainEncounter.MotherBrain?.RainbowBeamHdma.Active != true && runtime.Display.DisplayedRoomLayer3Fx is { } fx)
+            MotherBrainRainbowBeamRenderSnapshot? rainbow = runtime.Enemies.MotherBrainEncounter.MotherBrain?.RainbowBeamHdma.RenderSnapshot;
+            if (rainbow?.Active != true && runtime.Display.DisplayedRoomLayer3Fx is { } fx)
             {
                 if (fx.Type == RoomFxType.Spores)
                 {
@@ -49,15 +50,15 @@ public static class GameplayDisplayCapture
                     runtime.CeresHaze.Intensity, runtime.Artwork.MapPresentation?.RoomFxPaletteBlends));
             if (runtime.Display.DisplayedMorphBallEyeBeam is { } eye)
                 AddLayer(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(runtime.AddressSpace, eye, ppu.Layer1Position));
-            if (runtime.Enemies.MotherBrainEncounter.MotherBrain is { } motherBrain)
-                AddLayer(SnesGameplayFrameRenderer.CaptureMotherBrainRainbowBeam(motherBrain.RainbowBeamHdma));
+            if (rainbow is { } beam)
+                AddLayer(SnesGameplayFrameRenderer.CaptureMotherBrainRainbowBeam(beam));
         }
         // Preserve the reference ordering, including the effects which remain enabled
         // during the door IRQ. Message glyphs precede the suit's final color window.
         AddLayer(SnesGameplayFrameRenderer.CapturePowerBombColorMath(runtime.AddressSpace,
             runtime.BombProjectiles.PowerBombExplosion, ppu.Layer1Position));
         AddLayer(GameplayMessageBoxRenderer.Capture(runtime.MessageBox));
-        AddLayer(SamusSuitPickupRenderer.Capture(runtime.SuitPickup));
+        AddLayer(SamusSuitPickupRenderer.Capture(runtime.SuitPickup.Flash));
         return new(basis.Memory, layers.ToArray(), basis.ObjectSelection, basis.Brightness);
 
         void AddLayer(RenderLayer? layer) { if (layer is not null) layers.Add(layer); }

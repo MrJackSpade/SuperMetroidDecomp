@@ -957,13 +957,14 @@ public static class SnesGameplayFrameRenderer
     }
 
     /// <summary>
-    /// Captures bank-$88 layer configuration $24's fixed-color addition through window 1.
-    /// This shared layer is consumed by both the software and Windows Direct3D backends.
+    /// Captures bank-$88 layer configuration $24's fixed-color addition through window 1,
+    /// rasterizing the published beam geometry. This shared layer is consumed by both the
+    /// software and Windows Direct3D backends.
     /// </summary>
-    public static ScanlineColorAddRenderLayer? CaptureMotherBrainRainbowBeam(MotherBrainRainbowBeamHdmaState beam)
+    public static ScanlineColorAddRenderLayer? CaptureMotherBrainRainbowBeam(MotherBrainRainbowBeamRenderSnapshot beam)
     {
-        Ensure.NotNull(beam);
         if (!beam.Active) return null;
+        ushort[] nativeWindows = RainbowBeamWindowBuilder.Build(beam.Geometry);
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
         byte red = ExpandFiveBit((byte)beam.Color.Red);
@@ -971,7 +972,7 @@ public static class SnesGameplayFrameRenderer
         byte blue = ExpandFiveBit((byte)beam.Color.Blue);
         for (int y = HudHeight; y < Height; y++)
         {
-            ushort word = beam.Windows[y];
+            ushort word = nativeWindows[y];
             byte left = (byte)word, right = SnesLittleEndian.HighByte(word);
             if (left <= right) windows[y] = new(left, right, red, green, blue);
         }

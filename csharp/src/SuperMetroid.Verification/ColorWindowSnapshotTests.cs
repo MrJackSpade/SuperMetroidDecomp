@@ -37,7 +37,7 @@ internal static class ColorWindowSnapshotTestsVerification
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
         {
             var pickup = new SamusSuitPickupState();
-            AssertTrue(SamusSuitPickupRenderer.Capture(pickup) is null, "inactive suit emits no operation");
+            AssertTrue(SamusSuitPickupRenderer.Capture(pickup.Flash) is null, "inactive suit emits no operation");
             var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseId.FacingRightNormalPose });
             pickup.Begin(bus, samus, new(0, 0), kind);
             var phases = new HashSet<byte>();
@@ -49,8 +49,8 @@ internal static class ColorWindowSnapshotTestsVerification
                 if (sample)
                 {
                     expected = baseline.ToArray();
-                    SamusSuitPickupRenderer.Composite(expected, pickup);
-                    retained = SamusSuitPickupRenderer.Capture(pickup)!;
+                    SamusSuitPickupRenderer.Composite(expected, pickup.Flash);
+                    retained = SamusSuitPickupRenderer.Capture(pickup.Flash)!;
                     Compare(expected, retained);
                 }
                 pickup.Step(bus, samus, new SnesCgram());

@@ -21,9 +21,8 @@ internal static class AbsoluteTangentDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled absolute tangent")]
     internal static void VerifyCompiledAbsoluteTangent(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        var guard = NewTangentReadGuard(rom);
         var eye = new Func<int, int>(EyeBeamWindowBuilder.Tangent);
-        var mother = new Func<int, int>(MotherBrainRainbowBeamHdmaState.Tangent);
+        var mother = new Func<int, int>(RainbowBeamWindowBuilder.Tangent);
         for (int index = 0; index <= 128; index++)
         {
             AssertEqual((ushort)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), AbsoluteTangentDefinitions.Sample(index), "All native tangent words including endpoint");
@@ -63,14 +62,13 @@ internal static class AbsoluteTangentDefinitionsVerification
             PresentationColors = RetailPresentationFixture().MotherBrainRainbowPalette,
         };
         foreach (byte angle in new byte[] { 0, 32, 64, 96, 128, 160, 192, 224 })
-            beam.Step(guard, true, new(100, 95), SnesAngle.FromTableIndex(angle), 512);
+        {
+            beam.Step(true, new(100, 95), SnesAngle.FromTableIndex(angle), 512);
+            _ = RainbowBeamWindowBuilder.Build(beam.Geometry);
+        }
         AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangentDefinitions.Sample(129), "Tangent beyond native endpoint rejected");
         Console.WriteLine("Absolute tangent: 129 native words, all direct caller endpoints, 768 X-ray directions and 520 window builds reject runtime tangent reads.");
     }
-
-    private static CartridgeReadGuard NewTangentReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0x91c9d4 and < 0x91cad6,
-            _ => "Runtime absolute-tangent ROM read.");
 
     [VerificationCommand("--absolute-tangent-runtime")]
     internal static int AbsoluteTangentRuntimeCommand()

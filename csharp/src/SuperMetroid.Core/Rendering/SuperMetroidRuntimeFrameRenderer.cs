@@ -197,7 +197,7 @@ public static class SuperMetroidRuntimeFrameRenderer
         // The suit transformation begins only after its bank-$85 message has completely
         // closed. Its bank-$88 window then overlays every ordinary/Mode-7 room through the
         // same PPU fixed-color path, so it belongs after room-specific haze as well.
-        SamusSuitPickupRenderer.Composite(frame, runtime.SuitPickup);
+        SamusSuitPickupRenderer.Composite(frame, runtime.SuitPickup.Flash);
 
         return frame;
     }

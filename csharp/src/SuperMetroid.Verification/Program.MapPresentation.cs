@@ -447,15 +447,14 @@ internal static class MapPresentationVerification
         {
             PresentationColors = original.MotherBrainRainbowPalette,
         };
-        var installedBeamReadGuard = NewPaletteReadForbiddenBus();
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount + 3; frame++)
         {
-            nativeBeamSequence.Step(bus, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
-            installedBeamSequence.Step(installedBeamReadGuard, true, new(100, 95),
+            nativeBeamSequence.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+            installedBeamSequence.Step(true, new(100, 95),
                 SnesAngle.QuarterTurn, 0x4000);
             AssertTrue(nativeBeamSequence.Color == installedBeamSequence.Color &&
                 nativeBeamSequence.ColorCursor == installedBeamSequence.ColorCursor &&
-                nativeBeamSequence.Windows.SequenceEqual(installedBeamSequence.Windows),
+                nativeBeamSequence.Geometry == installedBeamSequence.Geometry,
                 $"installed beam frame {frame} matches native color, cursor, and geometry through loop reset");
         }
 
@@ -565,17 +564,16 @@ internal static class MapPresentationVerification
         {
             PresentationColors = runtime.Enemies.Presentation.MotherBrainRainbowColors,
         };
-        var beamReadGuard = NewPaletteReadForbiddenBus();
-        stockBeam.Step(beamReadGuard, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
-        editedBeam.Step(beamReadGuard, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+        stockBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+        editedBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
         AssertTrue(stockBeam.Color != editedBeam.Color &&
-            stockBeam.Windows.SequenceEqual(editedBeam.Windows),
+            stockBeam.Geometry == editedBeam.Geometry,
             "beam initial-color edit changes only color, not HDMA geometry");
-        stockBeam.Step(beamReadGuard, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
-        editedBeam.Step(beamReadGuard, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+        stockBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+        editedBeam.Step(true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
         AssertTrue(stockBeam.Color != editedBeam.Color &&
             stockBeam.ColorCursor == editedBeam.ColorCursor &&
-            stockBeam.Windows.SequenceEqual(editedBeam.Windows),
+            stockBeam.Geometry == editedBeam.Geometry,
             "beam cycle edit reaches the live HDMA frame without a ROM read or timing change");
 
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(

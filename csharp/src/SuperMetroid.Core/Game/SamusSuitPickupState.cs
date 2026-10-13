@@ -14,10 +14,9 @@ namespace SuperMetroid.Core.Game;
 /// hiding those two independently observable lifetimes behind one host animation.
 /// </para>
 /// <para>
-/// <see cref="WindowTable"/> is the literal 256-word WH0/WH1 table produced at WRAM
-/// <c>$7E:9E00</c>. Each word stores the inclusive left endpoint in its low byte and right
-/// endpoint in its high byte. Keeping the actual table makes the transformation both
-/// debugger-friendly and renderable without reverse-engineering its geometry twice.
+/// The cartridge writes the light beam into a 256-word WH0/WH1 table at WRAM <c>$7E:9E00</c>.
+/// Nothing in gameplay reads that table, so this owner publishes the beam's shape, progress
+/// and fixed color as <see cref="Flash"/> instead, and the renderer rasterizes it.
 /// </para>
 /// </remarks>
 public sealed class SamusSuitPickupState
@@ -33,8 +32,6 @@ public sealed class SamusSuitPickupState
         _transformationSoundPending = false;
         return pending;
     }
-    private readonly ushort[] _windowTable =
-        new ushort[SamusSpecialSequenceRomData.SuitPickup.WindowScanlineCount];
 
     /// <summary>Whether the post-message transformation currently owns Samus input.</summary>
     public bool IsActive { get; private set; }
@@ -71,8 +68,13 @@ public sealed class SamusSuitPickupState
     /// <summary>Raw COLDATA blue byte, including its component-enable bit.</summary>
     public byte FixedColorBlue { get; private set; }
 
-    /// <summary>Most recently produced inclusive WH0/WH1 endpoint pair for each scanline.</summary>
-    public ReadOnlySpan<ushort> WindowTable => _windowTable;
+    /// <summary>Light-beam outline and progress produced by the most recent stage.</summary>
+    public SamusSuitPickupBeam Beam { get; private set; }
+
+    /// <summary>Value-only render input while the transformation is active; null once it ends.</summary>
+    public SamusSuitPickupFlash? Flash => IsActive
+        ? new(Beam, FixedColorRed, FixedColorGreen, FixedColorBlue)
+        : null;
 
     /// <summary>
     /// Executes <c>VariaSuitPickup</c> or <c>GravitySuitPickup</c> after its message closes.
@@ -102,7 +104,7 @@ public sealed class SamusSuitPickupState
         _preInstructionInstallCallsRemaining = 2;
         PublishSharedScratch(samus);
         LightBeamWideningSpeed = SamusSpecialSequenceRomData.SuitPickup.InitialWideningSpeed;
-        Array.Fill(_windowTable, SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints);
+        Beam = SamusSuitPickupBeam.None;
 
         // `$91:D4F7-$D53A/$D5CD-$D610` cancels every independent speed component before
         // changing pose. CancelRunningMomentum also preserves the native departing-echo
@@ -202,13 +204,12 @@ public sealed class SamusSuitPickupState
     private void StepLightBeamAppears()
     {
         LightBeamPosition = unchecked((ushort)(LightBeamPosition + 8));
+        // The narrow beam covers this many scanlines from both the top and bottom edges.
         int scanlineCount = unchecked((short)LightBeamPosition);
-        for (int i = 0; i < scanlineCount; i++)
-        {
-            _windowTable[i] = SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints;
-            _windowTable[_windowTable.Length - 1 - i] =
-                SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints;
-        }
+        Beam = new(SamusSuitPickupBeamShape.GrowingFromEdges,
+            SnesLittleEndian.LowByte(SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints),
+            SnesLittleEndian.HighByte(SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints),
+            scanlineCount);
 
         if (unchecked((short)(LightBeamPosition - 128)) >= 0)
         {
@@ -225,7 +226,7 @@ public sealed class SamusSuitPickupState
         left = unchecked((byte)(left - amount));
         right = unchecked((byte)(right + amount));
         LightBeamPosition = unchecked((ushort)(SnesLittleEndian.Word(left, right)));
-        Array.Fill(_windowTable, LightBeamPosition);
+        Beam = new(SamusSuitPickupBeamShape.Column, left, right, 0);
 
         if (unchecked((sbyte)(left - 97)) < 0)
         {
@@ -255,26 +256,8 @@ public sealed class SamusSuitPickupState
             right = widenedRight > byte.MaxValue ? byte.MaxValue : unchecked((byte)widenedRight);
         }
         LightBeamPosition = unchecked((ushort)(SnesLittleEndian.Word(left, right)));
-
-        // `$88:E13E-$E19C` walks the 128-byte ROM curve forward for the top half, then
-        // backward for the bottom half. The signed left clamp and unsigned right carry
-        // saturation are intentionally asymmetric because the 65816 routine is too.
-        for (int scanline = 0; scanline < _windowTable.Length; scanline++)
-        {
-            int curveIndex = scanline < _windowTable.Length / 2
-                ? scanline
-                : _windowTable.Length - 1 - scanline;
-            byte curve = SuitPickupBeamCurveDefinitions.OffsetAt(curveIndex);
-            int candidateLeft = left - curve;
-            byte curvedLeft = unchecked((sbyte)candidateLeft) < 0
-                ? (byte)0
-                : unchecked((byte)candidateLeft);
-            int candidateRight = right + curve;
-            byte curvedRight = candidateRight > byte.MaxValue
-                ? byte.MaxValue
-                : unchecked((byte)candidateRight);
-            _windowTable[scanline] = unchecked((ushort)(SnesLittleEndian.Word(curvedLeft, curvedRight)));
-        }
+        // `$88:E13E-$E19C` widens this column by the authored curve on each scanline.
+        Beam = new(SamusSuitPickupBeamShape.CurvedColumn, left, right, 0);
 
         LightBeamWideningSpeed = unchecked((ushort)(
             LightBeamWideningSpeed + SamusSpecialSequenceRomData.SuitPickup.WideningAcceleration));
@@ -312,16 +295,10 @@ public sealed class SamusSuitPickupState
 
         LightBeamPosition = unchecked((ushort)(
             LightBeamPosition + (SnesEightEight.WholeOf(LightBeamWideningSpeed))));
+        // The final curved column is wiped by this many scanlines from the top. Native's
+        // lower do/while starts at position minus one, so the bottom wipe is one shorter.
         int scanlineCount = unchecked((short)LightBeamPosition);
-        for (int i = 0; i < Math.Max(1, scanlineCount); i++)
-            _windowTable[i] = SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints;
-        // Native's lower do/while starts at position minus one. It is deliberately
-        // one scanline shorter than the upper wipe, leaving scanline 128 for stage five.
-        for (int i = 0; i < Math.Max(1, scanlineCount - 1); i++)
-        {
-            _windowTable[_windowTable.Length - 1 - i] =
-                SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints;
-        }
+        Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = scanlineCount };
 
         LightBeamWideningSpeed = unchecked((ushort)(
             LightBeamWideningSpeed - SamusSpecialSequenceRomData.SuitPickup.ShrinkingDeceleration));
@@ -343,7 +320,7 @@ public sealed class SamusSuitPickupState
         byte left = unchecked((byte)(LightBeamPosition + 8));
         byte right = unchecked((byte)((SnesLittleEndian.HighByte(LightBeamPosition)) - 8));
         LightBeamPosition = unchecked((ushort)(SnesLittleEndian.Word(left, right)));
-        _windowTable[128] = LightBeamPosition;
+        Beam = new(SamusSuitPickupBeamShape.CenterLine, left, right, 0);
         if (unchecked((sbyte)(left - 112)) >= 0)
             Substate++;
     }
@@ -353,7 +330,7 @@ public sealed class SamusSuitPickupState
         FixedColorRed = SamusPaletteRomData.SuitPickup.ResetRed;
         FixedColorGreen = SamusPaletteRomData.SuitPickup.ResetGreen;
         FixedColorBlue = SamusPaletteRomData.SuitPickup.ResetBlue;
-        _windowTable[0] = SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints;
+        Beam = SamusSuitPickupBeam.None;
         Substate = 0;
         LightBeamPosition = 0;
         FixedColorRed = 0;

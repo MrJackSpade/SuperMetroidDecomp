@@ -509,7 +509,7 @@ internal sealed class InstalledSamusIsolationTests
             stock.Step(pair.Stock.Memory, pair.Stock.Samus, pair.Stock.Colors);
             edited.Step(pair.Edited.Memory, pair.Edited.Samus, pair.Edited.Colors);
             new SamusMechanicsSnapshot(stock).RequireSame(new(edited), $"{kind} suit state {frames}");
-            Require(stock.WindowTable.SequenceEqual(edited.WindowTable), $"{kind} suit window geometry changed");
+            Require(stock.Beam == edited.Beam, $"{kind} suit beam geometry changed");
             pair.Check($"{kind} suit transformation {frames}");
             pair.Draw($"{kind} suit transformation {frames++}");
         }

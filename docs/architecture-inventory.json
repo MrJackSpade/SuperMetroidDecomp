@@ -74734,6 +74734,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Game.MotherBrainRainbowBeamGeometry",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamGeometry.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Game.MotherBrainRainbowBeamHdmaState",
       "kind": "class",
       "scope": "product",
@@ -74745,6 +74758,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Game.MotherBrainRainbowBeamRenderSnapshot",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamGeometry.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Game.MotherBrainRainbowBeamSamusMovement",
@@ -82727,6 +82753,45 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Game.SamusSuitPickupBeam",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Game/SamusSuitPickupFlash.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Game.SamusSuitPickupBeamShape",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Game/SamusSuitPickupFlash.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Game.SamusSuitPickupFlash",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Game/SamusSuitPickupFlash.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Game.SamusSuitPickupKind",
       "kind": "enum",
       "scope": "product",
@@ -90128,6 +90193,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Rendering.RainbowBeamWindowBuilder",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/RainbowBeamWindowBuilder.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Rendering.RenderFrameIdentity",
       "kind": "record struct",
       "scope": "product",
@@ -90571,6 +90649,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rendering/SoftwareScanlineColorRenderer.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.SuitPickupBeamWindowBuilder",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/SuitPickupBeamWindowBuilder.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

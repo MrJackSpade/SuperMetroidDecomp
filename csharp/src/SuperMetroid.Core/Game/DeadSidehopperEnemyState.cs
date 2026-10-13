@@ -30,6 +30,7 @@ public enum DeadSidehopperAiFunction : ushort
 /// <summary>Typed projection of one dead sidehopper's extended bank-$A9 WRAM.</summary>
 public sealed class DeadSidehopperEnemyState
 {
+    /// <summary>Captures one corpse's native configuration and row-processor identities.</summary>
     internal DeadSidehopperEnemyState(RoomEnemySlot slot, ushort graphicsVariant, ushort configurationPointer, CorpseRottingProgram rotting)
     {
         Slot = slot;

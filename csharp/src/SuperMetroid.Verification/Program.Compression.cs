@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks all eight Super Metroid compression commands and malformed-stream failures.</summary>
 internal static class CompressionVerification
 {
+    /// <summary>Verifies header lengths, payload forms, copy semantics, and a mixed-command decode.</summary>
     internal static void VerifySmCompressionFormat()
     {
         // All eight three-bit command codes are named members.

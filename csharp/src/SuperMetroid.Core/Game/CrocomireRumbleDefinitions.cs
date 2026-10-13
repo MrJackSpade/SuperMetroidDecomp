@@ -69,9 +69,12 @@ internal static class CrocomireRumbleDefinitions
     /// </summary>
     internal static TargetSequence All => default;
 
+    /// <summary>Calculates prefix, oscillation, and terminator targets in native table order.</summary>
     internal readonly struct TargetSequence : IReadOnlyList<CrocomireRumbleDefinition>
     {
+        /// <summary>Two prefix targets, seven positive/negative pairs, and two terminators.</summary>
         public int Count => 4 + PhaseCount * 2;
+        /// <summary>Derives an indexed native target and the following cooldown and delta where applicable.</summary>
         public CrocomireRumbleDefinition this[int index]
         {
             get
@@ -94,10 +97,12 @@ internal static class CrocomireRumbleDefinitions
             }
         }
 
+        /// <summary>Visits every target word without allocating a stored waveform table.</summary>
         public IEnumerator<CrocomireRumbleDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same waveform order to non-generic readers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

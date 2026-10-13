@@ -6,8 +6,13 @@ using SuperMetroid.Core.Spatial;
 using static LookupScrollProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled room-scroll PLM programs through both catalog lookup and retail execution.</summary>
 internal static class CompiledScrollPlmProgramsVerification
 {
+    /// <summary>
+    /// Confirms the $8F:8230 resident trigger at (8,13) turns storage cell zero green
+    /// without rereading its compiled $8F:94FA program from cartridge data.
+    /// </summary>
     internal static void VerifyCompiledRoomScrollPrograms(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyScrollProgramIdentities), () => VerifyScrollProgramIdentities(rom));
@@ -41,7 +46,7 @@ internal static class CompiledScrollPlmProgramsVerification
             "retail scroll PLM did not read any compiled program from the ROM bus");
     }
 
-    // Room scroll storage keeps WRAM bytes across rooms; the guard serves WRAM, guarding only cartridge data.
+    /// <summary>Preserves cross-room WRAM storage while rejecting reads of compiled cartridge program ranges.</summary>
     private static CartridgeReadGuard NewRetailScrollProgramReadGuard(ISnesAddressSpace source) =>
         new MutableCartridgeReadGuard(source)
             .Forbid(address => RoomPlmScrollProgramDefinitions.Pointers.Any(pointer =>

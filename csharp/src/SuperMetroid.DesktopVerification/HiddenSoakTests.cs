@@ -12,8 +12,10 @@ using SuperMetroid.Core.Spatial;
 
 using static DesktopVerificationSupport;
 
+/// <summary>Measures paced hidden-window gameplay and pause rendering with real audio output.</summary>
 internal static class HiddenSoakTests
 {
+    /// <summary>Runs both retail scenes with captured packets, hardware D3D11, and silent waveOut timing.</summary>
     internal static async Task RunHiddenSoak(int seconds)
     {
         if (seconds is < 5 or > 300) throw new ArgumentOutOfRangeException(nameof(seconds), "Use 5..300 seconds per scene.");
@@ -105,6 +107,7 @@ internal static class HiddenSoakTests
         }, new JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
     }
 
+    /// <summary>Preserves host capture, PCM queue, acknowledgement, and publish order within one synchronous call.</summary>
     private static void MixAndSubmit(SpcAudioEngine audio, WaveOutAudioDevice output, SuperMetroidGame game,
         CapturedFrontendFrame frame, ref long nonzero, ref long count)
     {
@@ -116,6 +119,7 @@ internal static class HiddenSoakTests
     }
 }
 
+/// <summary>Retail room identities used for active and paused hidden-window samples.</summary>
 internal static class HiddenSoakRooms
 {
     /// <summary>Retail $8F:A3AE room-local ordinary gameplay fixture.</summary>

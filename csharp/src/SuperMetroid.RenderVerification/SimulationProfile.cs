@@ -12,6 +12,7 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Unpaced, room-local CPU baseline. Not a presentation, waveOut-underrun, or five-minute soak gate.</summary>
 internal static class SimulationProfile
 {
+    /// <summary>Prints 600-frame capture, audio, publication, and allocation distributions for gameplay and pause fixtures.</summary>
     internal static void Run()
     {
         VerifyPublicationProfiler();
@@ -36,6 +37,7 @@ internal static class SimulationProfile
         }, new JsonSerializerOptions { WriteIndented = true }));
     }
 
+    /// <summary>Warms one installed room, captures unpaced frames with desktop audio, and summarizes their timing samples.</summary>
     private static object Measure(ushort room, bool paused)
     {
         var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
@@ -101,7 +103,9 @@ internal static class SimulationProfile
             NonzeroPcmSamples = nonzeroPcmSamples };
     }
 
+    /// <summary>Accepts either of the game's two stable pause states during the paused profile.</summary>
     private static bool IsPaused(SuperMetroidGame game) => game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
+    /// <summary>Checks that disabled profiling allocates nothing and active profiling records and resets one publication.</summary>
     private static void VerifyPublicationProfiler()
     {
         // Exclude the CLR's first thread-static/type initialization from steady-state recording.
@@ -122,15 +126,18 @@ internal static class SimulationProfile
         catch (InvalidOperationException) { nestedRejected = true; }
         if (!nestedRejected) throw new InvalidOperationException("Nested profiling would double count work.");
     }
+    /// <summary>Sorts measured samples and selects nearest-rank percentiles plus the maximum.</summary>
     private static Timing Distribution(double[] values)
     {
         Array.Sort(values);
         return new(values[(int)Math.Ceiling(values.Length * .50) - 1], values[(int)Math.Ceiling(values.Length * .95) - 1],
             values[(int)Math.Ceiling(values.Length * .99) - 1], values[^1]);
     }
+    /// <summary>Nearest-rank latency or allocation values at the reported percentiles and maximum.</summary>
     private readonly record struct Timing(double P50, double P95, double P99, double Maximum);
 }
 
+/// <summary>Retail room headers used by the unpaced simulation baseline.</summary>
 internal static class SimulationProfileRooms
 {
     /// <summary>Retail $8F:CEFB room header: Maridia glass tube, logical room $04/$01.</summary>

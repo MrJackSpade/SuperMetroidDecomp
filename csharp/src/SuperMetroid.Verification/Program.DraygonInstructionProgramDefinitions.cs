@@ -14,6 +14,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Draygon's compiled instruction words and four-part list handoff.</summary>
 internal static class DraygonInstructionProgramDefinitionsVerification
 {
     /// <summary>
@@ -133,6 +134,7 @@ internal static class DraygonInstructionProgramDefinitionsVerification
             "operands, four physical owners, atomic list handoff, and both HUD IRQ opcodes pass.");
     }
 
+    /// <summary>Consumes repeated compiled mechanics lookups to detect per-frame allocation.</summary>
     private static int ProbeDraygonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -144,11 +146,13 @@ internal static class DraygonInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Creates an unbacked bus that rejects any Draygon mechanics ROM fallback.</summary>
     private static CartridgeReadGuard NewDraygonInstructionReadGuard() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Draygon mechanics attempted cartridge read ${address:X6}.")
             .RejectWrites(address => $"Draygon mechanics attempted cartridge write ${address:X6}.");
 
+    /// <summary>Runs Draygon instruction ownership and four-part reset checks.</summary>
     [VerificationCommand("--draygon-instruction-mechanics")]
     internal static int DraygonInstructionMechanicsCommand()
     {

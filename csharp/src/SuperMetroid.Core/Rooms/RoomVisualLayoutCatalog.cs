@@ -10,7 +10,9 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public sealed class RoomVisualLayout
 {
+    /// <summary>Copied BG1 visual words independent of the room's collision allocation.</summary>
     private readonly ushort[] foreground;
+    /// <summary>Copied BG2 visual words independent of subsequent scripted room edits.</summary>
     private readonly ushort[] background;
 
     /// <summary>Copies and validates both initial visual planes for one room-level source, rejecting mismatched dimensions and any collision/type bits in the artwork words.</summary>
@@ -54,6 +56,7 @@ public sealed class RoomVisualLayout
     /// <summary>Copied initial BG2 block selectors and parent flips in row-major order, independent of native type bits, BTS, and subsequent scripted room changes.</summary>
     public ReadOnlyMemory<ushort> BackgroundVisualWords => background;
 
+    /// <summary>Rejects artwork words carrying any high-nibble physical block type bits.</summary>
     private static bool HasCollisionBits(ReadOnlySpan<ushort> words)
     {
         foreach (ushort word in words)
@@ -65,6 +68,7 @@ public sealed class RoomVisualLayout
 /// <summary>Complete installed room-layout artwork selected by the room state's source.</summary>
 public sealed class RoomVisualLayoutCatalog
 {
+    /// <summary>Validated source-address selection for all installed room-level visual planes.</summary>
     private readonly Dictionary<int, RoomVisualLayout> layouts;
 
     /// <summary>Copies a source-keyed installation and requires every supported room-level source to have a matching non-null layout.</summary>
@@ -75,6 +79,7 @@ public sealed class RoomVisualLayoutCatalog
     {
     }
 
+    /// <summary>Allows a caller to require every retail source or build a scoped catalog for verification.</summary>
     private RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts,
         bool requireCompleteInstallation)
     {

@@ -16,8 +16,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks extracted room block artwork against compressed cartridge sources and installed room loading.</summary>
 internal static class RoomMetatilesVerification
 {
+    /// <summary>Roundtrips distinct CRE and area metatiles, then checks a visual edit leaves collision and BTS intact.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room metatile (block) definitions")]
     internal static void VerifyRoomMetatileExtraction()
     {
@@ -123,11 +125,13 @@ internal static class RoomMetatilesVerification
             "byte-exactly; a visual edit changes one child without changing collision/BTS.");
     }
 
+    /// <summary>Blocks the selected area's compressed block source and shared CRE source during installed loading.</summary>
     private static CartridgeReadGuard NewRoomMetatileSourceReadGuard(ISnesAddressSpace source, int areaSource) =>
         new CartridgeReadGuard(source).Forbid(address => address == areaSource ||
                 address == RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress,
             address => $"Installed room loader reread metatile source ${address:X6}.");
 
+    /// <summary>Runs the focused metatile extraction and room-loader comparison.</summary>
     [VerificationCommand("--room-metatiles")]
     internal static int RoomMetatilesCommand()
     {

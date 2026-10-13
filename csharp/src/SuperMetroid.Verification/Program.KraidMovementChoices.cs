@@ -4,16 +4,20 @@ using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kraid's second-phase target and think-timer selection against native tables.</summary>
 internal static class KraidMovementChoicesVerification
 {
+    /// <summary>Compares the selected destination X for every RNG word and position row.</summary>
     private static void VerifyKraidMovementTargets(ushort[] positions,
         Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected) =>
         Suite(nameof(VerifyKraidMovementField), () => VerifyKraidMovementField(positions, expected, value => value.TargetX));
 
+    /// <summary>Compares the selected think delay for every RNG word and position row.</summary>
     private static void VerifyKraidMovementTimers(ushort[] positions,
         Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected) =>
         Suite(nameof(VerifyKraidMovementField), () => VerifyKraidMovementField(positions, expected, value => value.ThinkTimer));
 
+    /// <summary>Exercises all weighted choices, including the fallback position row.</summary>
     private static void VerifyKraidMovementField(ushort[] positions,
         Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected,
         Func<(ushort TargetX, ushort ThinkTimer), ushort> field)
@@ -34,6 +38,7 @@ internal static class KraidMovementChoicesVerification
         }
     }
 
+    /// <summary>Compares native records and optionally follows the production thinking transition without advancing RNG.</summary>
     internal static void VerifyKraidMovementChoices(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidMovementChoicesRomByte(rom, a), KraidMovementChoicesRomByte(rom, a + 1)));
@@ -115,6 +120,7 @@ internal static class KraidMovementChoicesVerification
         Console.WriteLine("Kraid choices: all indirect native pairs, every RNG word per row, 524288 actual coordinate/choice transitions and all timer words pass bus-free.");
     }
 
+    /// <summary>Reads one native movement-table byte for the independent selection oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid movement choices")]
     private static byte KraidMovementChoicesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

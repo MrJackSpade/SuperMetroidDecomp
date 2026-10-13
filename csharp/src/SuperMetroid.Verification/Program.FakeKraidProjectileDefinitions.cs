@@ -4,8 +4,10 @@ using SuperMetroid.Core.Hardware;
 using static FakeKraidSpitVelocitiesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Fake Kraid spit and spike launch definitions through physical projectile spawning.</summary>
 internal static class FakeKraidProjectileDefinitionsVerification
 {
+    /// <summary>Compares native velocities and rows, then checks both spit facings and spike spawns without source reads.</summary>
     internal static void VerifyFakeKraidProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
 
@@ -96,6 +98,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
             "Fake Kraid projectile definitions: four spit launches, three spike rows, both facings and every real physical spawn pass with both source tables forbidden.");
     }
 
+    /// <summary>Compares all three signed native spike Y offsets and rejects unsupported rows.</summary>
     internal static void VerifyFakeKraidSpikeRowSelection(ISnesAddressSpace rom)
     {
         for (int row = 0; row < 3; row++)
@@ -110,9 +113,11 @@ internal static class FakeKraidProjectileDefinitionsVerification
                 "Fake Kraid unsupported launch port is rejected without masking");
     }
 
+    /// <summary>Reads one native spike offset byte for the independent placement reference.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid spike row selection")]
     private static byte FakeKraidSpikeRowSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Binds a fresh projectile pool to a bus that rejects migrated definition reads.</summary>
     private static RoomEnemySystem NewFakeKraidProjectileSystem(
         ISnesAddressSpace bus)
     {

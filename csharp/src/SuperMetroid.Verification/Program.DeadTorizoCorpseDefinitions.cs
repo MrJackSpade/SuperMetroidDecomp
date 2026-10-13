@@ -15,8 +15,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Dead Torizo corpse metadata and its production initializer.</summary>
 internal static class DeadTorizoCorpseDefinitionsVerification
 {
+    /// <summary>Compares the native configuration and wrap offset with the slot state created without ROM metadata reads.</summary>
     internal static void VerifyDeadTorizoCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
         DeadTorizoCorpseDefinition definition = DeadTorizoCorpseDefinitions.Corpse;
@@ -83,11 +85,13 @@ internal static class DeadTorizoCorpseDefinitionsVerification
             "Dead Torizo corpse definitions: all eight native configuration words, the derived wrap offset, and the real initializer pass with migrated metadata reads forbidden.");
     }
 
+    /// <summary>Rejects live rereads of the compiled corpse configuration and row-offset word.</summary>
     private static CartridgeReadGuard NewDeadTorizoCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa9dd58 and < 0xa9dd68 or >= 0xa9e228 and < 0xa9e22a,
                 address => $"Dead Torizo attempted migrated corpse metadata read ${address:X6}.");
 
+    /// <summary>Runs the Dead Torizo corpse metadata and initializer checks.</summary>
     [VerificationCommand("--dead-torizo-corpse-definitions")]
     internal static int DeadTorizoCorpseDefinitionsCommand()
     {

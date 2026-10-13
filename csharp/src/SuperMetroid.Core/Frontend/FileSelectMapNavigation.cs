@@ -10,10 +10,15 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class FileSelectMapNavigation
 {
+    /// <summary>Installed address space used when the room-map window is prepared.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Saved area index retained while area-map directions are suppressed in normal mode.</summary>
     private readonly int area;
+    /// <summary>Previous controller word used to detect new confirm and cancel edges.</summary>
     private ushort previousInput;
+    /// <summary>Optional label presentation excluded from serialized navigation state.</summary>
     [NonSerialized] private SuperMetroid.Core.Assets.WorldMapLabelLayout? labels;
+    /// <summary>Rebinds room-map labels before a pending window is constructed.</summary>
     internal void BindLabels(SuperMetroid.Core.Assets.WorldMapLabelLayout? content) => labels = content;
 
     /// <summary>Creates normal area/room-map navigation for a saved area's native index.</summary>

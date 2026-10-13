@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 
+/// <summary>Checks Draygon's native BG2 tilemap words and the visible priority where its body overlaps terrain.</summary>
 internal static class DraygonTerrainPriorityTests
 {
     /// <summary>The repository ROM, the independent source of Draygon's authored tilemap words.</summary>
@@ -19,6 +20,7 @@ internal static class DraygonTerrainPriorityTests
         return total;
     }
 
+    /// <summary>Walks a body's extended tilemap commands and compares each authored word with gameplay VRAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static int VerifyDraygonPartTilemap(SuperMetroidRuntime runtime, RoomEnemySlot body)
     {
@@ -103,8 +105,10 @@ internal static class DraygonTerrainPriorityTests
         return (terrain, body);
     }
 
-    // Deliberately decode bitplanes here instead of calling the production sampler:
-    // the assertion must detect a fused-renderer priority/addressing regression.
+    /// <summary>
+    /// Samples a BG pixel by decoding VRAM bitplanes independently of the production renderer,
+    /// so the priority check can detect renderer addressing and composition regressions.
+    /// </summary>
     private static (bool Opaque, bool High, int Palette) ReadDraygonAuditPixel(
         PpuMemorySnapshot memory, int map, int characters, Extent16<TilemapCells> mapSize, Position16<BgPlanePixels> pixel)
     {
@@ -126,6 +130,7 @@ internal static class DraygonTerrainPriorityTests
     }
 }
 
+/// <summary>Native sentinels and WRAM destination used by Draygon's extended BG2 tilemap commands.</summary>
 internal static class DraygonTilemapAuditDefinitions
 {
     /// <summary>$A0:96CA ProcessExtendedTilemap writes into tilemap_stuff at $7E:2000.</summary>

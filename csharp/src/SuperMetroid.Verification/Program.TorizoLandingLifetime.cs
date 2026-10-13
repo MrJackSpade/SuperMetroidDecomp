@@ -9,8 +9,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+/// <summary>Checks the Bomb Torizo landing earthquake through the full frontend.</summary>
 internal static class TorizoLandingLifetimeVerification
 {
+    /// <summary>Advances landing and audio for 40 frames, requiring exactly 32 displaced frames.</summary>
     internal static int VerifyTorizoLandingLifetime()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;

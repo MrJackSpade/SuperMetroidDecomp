@@ -7,8 +7,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable equipment-page base art, independent of live inventory and reserve patches.</summary>
 public sealed class PauseEquipmentBasePresentation
 {
-    // Only independent supplied edits remain; every stock word comes from the composed page.
+    /// <summary>Only independently edited cells; unchanged words come from the composed stock page.</summary>
     private readonly Dictionary<int, ushort> remainingCells = [];
+    /// <summary>Compares every selected cell with the immutable stock composition.</summary>
     private PauseEquipmentBasePresentation(ReadOnlySpan<byte> selected)
     {
         // Compare each supplied word independently with immutable stock composition.
@@ -29,8 +30,10 @@ public sealed class PauseEquipmentBasePresentation
         return result;
     }
 
+    /// <summary>Uses a supplied visual edit when present and calculates the stock cell otherwise.</summary>
     private ushort Word(int cell) => remainingCells.TryGetValue(cell, out ushort value) ? value : DefaultWord(cell);
 
+    /// <summary>Combines the power-suit wireframe with the equipment base outside its footprint.</summary>
     private static ushort DefaultWord(int cell)
     {
         int relative = cell - PauseWireframeDefinitions.DestinationByte / sizeof(ushort);
@@ -117,7 +120,7 @@ public sealed class PauseEquipmentBasePresentation
 /// <summary>Editable JSON schema for the pause equipment page's static base tilemap.</summary>
 public sealed record PauseEquipmentBaseDocument
 {
-    /// <summary>Gets the equipment-base schema version.</summary>
+    /// <summary>Must match the installed equipment-base format before any cell is accepted.</summary>
     public required int Version { get; init; }
 
     /// <summary>Gets all 1024 BG tile references in 32-column row-major order.</summary>

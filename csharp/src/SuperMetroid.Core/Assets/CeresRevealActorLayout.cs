@@ -11,8 +11,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresRevealActorLayout
 {
+    /// <summary>Explicit authored positions, or null when all six actors use their compiled native placements.</summary>
     private readonly CeresRevealActorPlacement[]? placements;
 
+    /// <summary>Collapses an all-stock layout to native placement lookup while retaining edited actor positions.</summary>
     private CeresRevealActorLayout(CeresRevealActorPlacement[] placements)
     {
         bool stock = true;

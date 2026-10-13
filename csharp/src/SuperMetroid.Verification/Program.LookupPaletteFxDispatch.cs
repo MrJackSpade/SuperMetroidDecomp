@@ -4,8 +4,10 @@ using static DoorDefinitionsVerification;
 using static RoomPaletteFxDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks palette-FX object identity and dispatch fields against bank $8D.</summary>
 internal static class LookupPaletteFxDispatchVerification
 {
+    /// <summary>Enumerates the three declared bank $8D object regions in four-byte records.</summary>
     private static IEnumerable<ushort> OriginalPaletteFxObjects()
     {
         // Independent physical regions from pinned bank8D object declarations.
@@ -14,6 +16,7 @@ internal static class LookupPaletteFxDispatchVerification
                 yield return (ushort)pointer;
     }
 
+    /// <summary>Accepts exactly 63 declared object pointers and rejects every other 16-bit value.</summary>
     internal static void VerifyPaletteFxDispatchDomain()
     {
         var original = OriginalPaletteFxObjects().ToHashSet();
@@ -29,6 +32,7 @@ internal static class LookupPaletteFxDispatchVerification
         }
     }
 
+    /// <summary>Compares each compiled setup callback with the first word of its retail object record.</summary>
     internal static void VerifyPaletteFxSetupSelection(SuperMetroidAddressSpace rom)
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
@@ -36,6 +40,7 @@ internal static class LookupPaletteFxDispatchVerification
                 (ushort)RoomPaletteFxDefinitions.Get(pointer).SetupCallback, "Native palette-FX setup callback");
     }
 
+    /// <summary>Compares each compiled initial instruction pointer with the record's second word.</summary>
     internal static void VerifyPaletteFxInitialListSelection(SuperMetroidAddressSpace rom)
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
@@ -43,6 +48,7 @@ internal static class LookupPaletteFxDispatchVerification
                 RoomPaletteFxDefinitions.Get(pointer).InitialInstructionList, "Native palette-FX initial program");
     }
 
+    /// <summary>Runs identity, setup, list, and spawn checks while guarding compiled definition bytes.</summary>
     internal static void VerifyPaletteFxDispatch(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyPaletteFxDispatchDomain), () => VerifyPaletteFxDispatchDomain());

@@ -14,6 +14,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Reproduces the 13% movie's final Powamp death-countdown frame.</summary>
 internal static class PowampDeathSequenceVerification
 {
     /// <summary>
@@ -47,6 +48,7 @@ internal static class PowampDeathSequenceVerification
         Console.WriteLine("  Powamp death sequence: the countdown ends in EnemyDeath with spikes and an explosion.");
     }
 
+    /// <summary>Runs the focused spike, explosion, and body-slot death check.</summary>
     [VerificationCommand("--powamp-death-sequence")]
     internal static int PowampDeathSequenceCommand()
     {

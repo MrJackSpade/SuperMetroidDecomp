@@ -18,8 +18,10 @@ using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Samus pose history publication during intro flashback and discovery.</summary>
 internal static class IntroPoseHistoryVerification
 {
+    /// <summary>Checks idle, run, and same-pose history shifts after exercising the full intro scene.</summary>
     internal static void VerifyIntroPoseHistory()
     {
         Suite(nameof(VerifyIntroScenePoseHistory), () => VerifyIntroScenePoseHistory());
@@ -57,6 +59,7 @@ internal static class IntroPoseHistoryVerification
         AssertEqual(0x0104, history.PreviousDirectionAndMovement, "intro same-pose fallback commits current metadata");
     }
 
+    /// <summary>Tracks flashback transitions, collision-radius handoff, and preservation of the persistent Samus owner.</summary>
     private static void VerifyIntroScenePoseHistory()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -129,6 +132,7 @@ internal static class IntroPoseHistoryVerification
         AssertEqual(0, failures.Count, "intro scene history: " + string.Join("; ", failures));
     }
 
+    /// <summary>Runs intro pose history and frontend rendering capture fixtures.</summary>
     [VerificationCommand("--frontend-fixtures")]
     internal static int FrontendFixturesCommand()
     {

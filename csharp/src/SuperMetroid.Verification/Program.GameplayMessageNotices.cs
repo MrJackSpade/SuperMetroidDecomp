@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static GameplayMessageTitlesVerification;
 
+/// <summary>Checks cartridge-extracted message text in the installed box renderer and editable presentation catalog.</summary>
 internal static class GameplayMessageNoticesVerification
 {
+    /// <summary>Compares notice tilemaps with the cartridge and checks selection redraw, live rebinding, and glyph rejection.</summary>
     internal static void VerifyGameplayMessageNotices(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -82,6 +84,7 @@ internal static class GameplayMessageNoticesVerification
             $"Gameplay-message notices: {GameplayMessageNoticeDefinitions.MessageIds.Length} UTF-8 layouts and {comparedWords} installed words match the cartridge with message ROM reads forbidden; YES/NO selection, live edit/rebind and invalid glyph rejection pass.");
     }
 
+    /// <summary>Checks deterministic stock extraction and that an override changes rendered save text and content identity.</summary>
     internal static void VerifyGameplayMessageNoticeAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -121,6 +124,7 @@ internal static class GameplayMessageNoticesVerification
             "Gameplay-message notice catalog: deterministic stock, override selection/identity and corruption failure pass.");
     }
 
+    /// <summary>Runs message-notice extraction and rendering checks against the repository ROM.</summary>
     [VerificationCommand("--gameplay-message-notices")]
     internal static int GameplayMessageNoticesCommand()
     {

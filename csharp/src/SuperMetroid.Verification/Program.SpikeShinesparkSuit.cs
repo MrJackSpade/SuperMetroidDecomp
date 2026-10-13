@@ -5,8 +5,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the spike-induced Shinespark suit timing window and Reserve freeze behavior.</summary>
 internal static class SpikeShinesparkSuitVerification
 {
+    /// <summary>Compares adjacent dry launch frames and the underwater Reserve timing window.</summary>
     internal static void VerifySpikeShinesparkSuit()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -103,6 +105,7 @@ internal static class SpikeShinesparkSuitVerification
             "Spike Shinespark Suit: dry one-frame window, command-zero freeze, and suitless underwater Reserve window.");
     }
 
+    /// <summary>Runs one underwater automatic-Reserve freeze and post-recovery Jump timing case.</summary>
     private static SamusState RunReserveSpikeSuitCase(
         SuperMetroidAddressSpace bus,
         int freezeAfter,
@@ -137,6 +140,7 @@ internal static class SpikeShinesparkSuitVerification
         return samus;
     }
 
+    /// <summary>Creates a grounded morph-ball fixture with stored shine and spike contact.</summary>
     private static SuperMetroidRuntime CreateSpikeSuitRuntime(
         SuperMetroidAddressSpace bus,
         bool underwater)

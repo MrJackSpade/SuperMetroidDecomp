@@ -14,8 +14,10 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
+/// <summary>Checks the low-health warning latch and sound-queue threshold edges.</summary>
 internal static class HealthWarningVerification
 {
+    /// <summary>Confirms start and stop IDs, suppression behavior, and debugger restoration of the active latch.</summary>
     internal static void VerifyHealthWarning()
     {
         var warning = new SamusHealthWarningState();
@@ -52,6 +54,7 @@ internal static class HealthWarningVerification
         Console.WriteLine("Low-health warning owner: threshold edges, native commands, rejection/suppression latch and serialization pass; frontend integration pending.");
     }
 
+    /// <summary>Runs the focused low-health warning owner check.</summary>
     [VerificationCommand("--health-warning")]
     internal static int HealthWarningCommand()
     {

@@ -7,8 +7,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed Chozo statue and n00b-tube palette bands against native RGB5 data and live CGRAM initialization.</summary>
 internal static class EnemyTileArtworkChozoAndTubeColorsVerification
 {
+    /// <summary>Checks three editable color bands, persistent overrides, and real initializers while preserving native instructions and PLM requests.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo and tube palette bands")]
     internal static void VerifyInstalledChozoAndTubeColors(
@@ -130,6 +132,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         }
     }
 
+    /// <summary>Rejects reads of the migrated palette region during enemy initialization.</summary>
     private static CartridgeReadGuard NewChozoAndTubePaletteReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= ChozoAndTubeColorRomData.TubeCracksSource and < (ChozoAndTubeColorRomData.LowerNorfairSource + ChozoAndTubeColorRomData.ColorCount * sizeof(ushort)),

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Checks bank-$8F room-main callbacks against every reachable retail room state.</summary>
 internal static class RoomMainCodeCatalogVerification
 {
     /// <summary>
@@ -67,6 +68,7 @@ internal static class RoomMainCodeCatalogVerification
             $"all {retailMainPointers.Count} nonzero callback kinds are catalogued.");
     }
 
+    /// <summary>Extracts a retail room header pointer from a named symbol, excluding the debug room.</summary>
     internal static ushort? TryParseRoomHeaderPointer(string line)
     {
         string[] fields = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -92,6 +94,7 @@ internal static class RoomMainCodeCatalogVerification
         return pointer == 0xe82c ? null : pointer;
     }
 
+    /// <summary>Constructs boss, event, and item contexts that expose conditional room states.</summary>
     internal static RoomStateSelectionContext[] BuildRoomStateAuditContexts()
     {
         var contexts = new List<RoomStateSelectionContext>

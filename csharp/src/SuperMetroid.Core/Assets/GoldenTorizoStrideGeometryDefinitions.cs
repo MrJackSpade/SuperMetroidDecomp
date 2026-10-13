@@ -24,6 +24,7 @@ internal static class GoldenTorizoStrideGeometryDefinitions
     /// <summary>$AA:8FD6-8FE4 and the other body poses: three8px floor-strip tiles $160/$161/$162.</summary>
     private const int FirstFootTile = 0x160, FootTiles = 3, TilePixels = 8;
 
+    /// <summary>Finds the planted foot's local X origin across either five-pose walking half.</summary>
     private static int SupportFootX(int phase) => (phase % 5) switch
     {
         0 or 1 => ForwardPlantX,
@@ -44,6 +45,7 @@ internal static class GoldenTorizoStrideGeometryDefinitions
         return next - SupportFootX((phase + 9) % 10);
     }
 
+    /// <summary>Replaces matching body-component foot strips with calculated planted geometry.</summary>
     internal static EnemySpritemapParts Compile(int frameIdentity, int componentIndex, EnemySpritemapParts supplied)
     {
         int offset = frameIdentity - FirstFrame;
@@ -71,10 +73,13 @@ internal static class GoldenTorizoStrideGeometryDefinitions
         return seen == expected ? new FootParts(supplied, phase, footIndices.ToArray()) : supplied;
     }
 
+    /// <summary>Retains each authored foot tile's non-X appearance while deriving its planted origin.</summary>
     private readonly record struct FootAppearance(ushort XFlags, byte Y, SnesObjAttributeWord Attributes)
     {
+        /// <summary>Separates high X/size flags from the nine-bit authored local coordinate.</summary>
         internal static FootAppearance From(EnemySpritemapPart part) =>
             new((ushort)(part.X.Raw & ~0x1ff), part.Y, part.Attributes);
+        /// <summary>Repositions a support or departing foot tile for the current stride pose.</summary>
         internal EnemySpritemapPart At(int phase)
         {
             int supportPalette = phase < 5 ? 1 : 2;
@@ -84,12 +89,18 @@ internal static class GoldenTorizoStrideGeometryDefinitions
         }
     }
 
+    /// <summary>Combines calculated foot strips with the remaining independently authored OAM parts.</summary>
     private sealed class FootParts : EnemySpritemapParts
     {
+        /// <summary>Unmodified non-foot pieces retained in their original relative order.</summary>
         private readonly EnemySpritemapPart[] otherParts;
+        /// <summary>Foot tile palette, flags, and Y retained while X is calculated.</summary>
         private readonly FootAppearance[] footAppearance;
+        /// <summary>Original OAM positions of the foot pieces among all body parts.</summary>
         private readonly int[] footIndices;
+        /// <summary>Walking phase used to choose support and departing anchors.</summary>
         private readonly int phase;
+        /// <summary>Partitions a matched body component into calculated feet and unchanged pieces.</summary>
         internal FootParts(EnemySpritemapParts supplied, int phase, int[] footIndices)
         {
             this.phase = phase;
@@ -104,7 +115,9 @@ internal static class GoldenTorizoStrideGeometryDefinitions
                 else otherParts[other++] = supplied[index];
             }
         }
+        /// <summary>Preserves the supplied OAM part count after replacing foot geometry.</summary>
         public override int Count => otherParts.Length + footIndices.Length;
+        /// <summary>Restores original OAM ordering while calculating each foot's X coordinate.</summary>
         public override EnemySpritemapPart this[int index]
         {
             get

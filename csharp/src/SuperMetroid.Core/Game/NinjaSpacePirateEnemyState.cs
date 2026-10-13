@@ -60,11 +60,13 @@ public enum NinjaSpacePirateFunction : ushort
 /// </summary>
 public sealed class NinjaSpacePirateEnemyState
 {
+    /// <summary>Physical enemy slot backing native decision and post-position variables A-F.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects one ninja Pirate slot into typed debugger state.</summary>
     internal NinjaSpacePirateEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Gets the current bank-$B2 movement/decision function pointer.</summary>
+    /// <summary>Bank-$B2 movement/decision function retained in native variable A.</summary>
     public NinjaSpacePirateFunction Function
     {
         get => (NinjaSpacePirateFunction)_slot.VariableA;

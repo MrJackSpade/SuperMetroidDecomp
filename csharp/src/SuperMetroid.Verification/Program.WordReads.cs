@@ -12,6 +12,7 @@ using static VerificationHelpersVerification;
 /// </summary>
 internal static class WordReadsVerification
 {
+    /// <summary>Runs byte order, bank-boundary, failure propagation, and PPU format checks for canonical reads.</summary>
     internal static void VerifyCanonicalWordReads()
     {
         Suite(nameof(VerifyWordReadByteOrder), () => VerifyWordReadByteOrder());
@@ -20,6 +21,7 @@ internal static class WordReadsVerification
         Suite(nameof(VerifyBackgroundFormatModel), () => VerifyBackgroundFormatModel());
     }
 
+    /// <summary>Requires one low-byte read followed by one high-byte read from WRAM and cartridge sources.</summary>
     private static void VerifyWordReadByteOrder()
     {
         var bytes = new RecordingByteSource(new() { [0x7e1234] = 0x34, [0x7e1235] = 0x12 });
@@ -33,6 +35,7 @@ internal static class WordReadsVerification
         AssertEqual((ushort)0xbeef, SnesLittleEndian.Word(0xef, 0xbe), "named composition: low then high");
     }
 
+    /// <summary>Distinguishes linear cross-bank reads from fixed-bank wrapping at $FFFF.</summary>
     private static void VerifyWordReadBankBoundary()
     {
         // $8F:FFFF holds the low byte; $90:0000 and $8F:0000 hold different candidate high bytes.
@@ -56,6 +59,7 @@ internal static class WordReadsVerification
         AssertEqual(bytes.ReadCartridgeWord(0x8f8000), bytes.ReadCartridgeWordFixedBank(0x8f8000), "progressions agree inside a bank");
     }
 
+    /// <summary>Checks that a missing high byte keeps the source exception and exact failing address.</summary>
     private static void VerifyWordReadFailurePropagation()
     {
         // The high byte is unmapped: the source's own exception must reach the caller, after the low read.
@@ -69,6 +73,7 @@ internal static class WordReadsVerification
         AssertThrows<ArgumentNullException>(() => ((IImportCartridgeSource)null!).ReadCartridgeWord(0x8f8000), "cartridge word: null source");
     }
 
+    /// <summary>Checks BG screen-block geometry, planar pixel decoding, and VRAM word wrapping.</summary>
     [PpuLayoutBoundary("exact hardware test: checks the PPU tilemap, character and VRAM word formats")]
     private static void VerifyBackgroundFormatModel()
     {
@@ -111,8 +116,10 @@ internal static class WordReadsVerification
         AssertEqual((ushort)0x1234, SnesVramAddressing.ReadWord(vram, 0xffff), "VRAM word addresses wrap and read low byte first");
     }
 
+    /// <summary>Names the exact unmapped byte requested by the recording source.</summary>
     internal sealed class UnmappedByteException(int address) : Exception($"No byte at ${address:X6}.")
     {
+        /// <summary>CPU bus address of the byte that failed to resolve.</summary>
         public int Address { get; } = address;
     }
 
@@ -120,14 +127,19 @@ internal static class WordReadsVerification
     [CpuBusBoundary("exact bus test: recording byte source for the canonical word reads' order, boundary and failure contract")]
     internal sealed class RecordingByteSource(Dictionary<int, byte> bytes) : ISnesMutableMemory, IImportCartridgeSource
     {
+        /// <summary>Every CPU address requested, in the order the word helper read it.</summary>
         public List<int> Reads { get; } = [];
 
+        /// <summary>Records a WRAM byte read or raises an unmapped-address error.</summary>
         public byte ReadWorkRamByte(int cpuAddress) => Read(cpuAddress);
 
+        /// <summary>Records a save-RAM byte read or raises an unmapped-address error.</summary>
         public byte ReadSaveRamByte(int cpuAddress) => Read(cpuAddress);
 
+        /// <summary>Records a cartridge byte read or raises an unmapped-address error.</summary>
         public byte ReadCartridgeByte(int cpuAddress) => Read(cpuAddress);
 
+        /// <summary>Appends the requested address before resolving it from the fixture's byte store.</summary>
         private byte Read(int address)
         {
             Reads.Add(address);

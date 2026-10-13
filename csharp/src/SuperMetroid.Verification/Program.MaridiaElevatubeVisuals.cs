@@ -18,8 +18,10 @@ using static LookupElevatubeStockVerification;
 using static MaridiaElevatubePlmVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks editable Maridia elevatube tile art through stock extraction, installation, and live PLM drawing.</summary>
 internal static class MaridiaElevatubeVisualsVerification
 {
+    /// <summary>Confirms an art override reaches immediate and streamed tiles without changing collision, sound timing, or PLM deletion.</summary>
     internal static void VerifyMaridiaElevatubeVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -125,6 +127,7 @@ internal static class MaridiaElevatubeVisualsVerification
             "Maridia elevatube visuals: native tile, live edit, physical/sound isolation, stock repair and strict failures pass.");
     }
 
+    /// <summary>Runs the focused elevatube artwork and PLM behavior checks.</summary>
     [VerificationCommand("--maridia-elevatube-visuals")]
     internal static int MaridiaElevatubeVisualsCommand()
     {

@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the three compiled Mother Brain death-explosion selectors in production spawns.</summary>
 internal static class MotherBrainDeathExplosionDefinitionsVerification
 {
+    /// <summary>Compares bank $86 selector words and body-relative projectile placement without runtime table reads.</summary>
     internal static void VerifyMotherBrainDeathExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
@@ -51,6 +53,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
             "Mother Brain death explosions: three native program selectors and all three real body-relative spawns pass with the selector table forbidden.");
     }
 
+    /// <summary>Guards the six native selector bytes after their definitions have been compiled.</summary>
     private static CartridgeReadGuard NewMotherBrainDeathExplosionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x86c929 and < 0x86c92f,

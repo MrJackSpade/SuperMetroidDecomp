@@ -3,8 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
+/// <summary>Checks calculated intro Confused Baby sprites against imported parts and native OAM.</summary>
 internal static class IntroConfusedBabyPartsVerification
 {
+    /// <summary>Preserves independent visual edits and compares stock drawing at visible and wrapped origins.</summary>
     internal static void VerifyIntroConfusedBabyParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("ConfusedBaby", value.AppendIdentity);

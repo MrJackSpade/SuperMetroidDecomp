@@ -14,8 +14,10 @@ using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the compiled suit-pickup beam contour against retail bytes and guarded runtime use.</summary>
 internal static class SuitPickupBeamCurveDefinitionsVerification
 {
+    /// <summary>Compares all 128 native contour offsets and rejects indices beyond the contour.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for suit pickup beam curve definitions")]
     internal static void VerifySuitPickupBeamCurveDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -39,6 +41,7 @@ internal static class SuitPickupBeamCurveDefinitionsVerification
             "Suit-pickup beam curve: all 128 native offsets match and invalid indexes fail loudly.");
     }
 
+    /// <summary>Rejects cartridge reads from the compiled curve region during transformation.</summary>
     internal static CartridgeReadGuard NewSuitPickupBeamCurveReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address >= SuitPickupBeamCurveDefinitions.NativeCurveAddress &&
@@ -46,6 +49,7 @@ internal static class SuitPickupBeamCurveDefinitionsVerification
                     SuitPickupBeamCurveDefinitions.OffsetCount,
                 address => $"Suit-pickup transformation attempted curve read ${address:X6}.");
 
+    /// <summary>Runs contour parity and permanent-collectible checks from the verification host.</summary>
     [VerificationCommand("--suit-pickup-beam-curve-definitions")]
     internal static int SuitPickupBeamCurveDefinitionsCommand()
     {

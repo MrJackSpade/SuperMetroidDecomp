@@ -14,8 +14,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Desktop;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
+/// <summary>Checks damage feedback when Samus remains attached to a Grapple swing.</summary>
 internal static class GrappleHurtFeedbackVerification
 {
+    /// <summary>Verifies contact damage starts a single hurt flash and gasp without detaching Grapple or adding knockback.</summary>
     internal static void VerifyGrappleHurtFeedback()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -76,6 +78,7 @@ internal static class GrappleHurtFeedbackVerification
         Console.WriteLine("Grapple hurt feedback: real enemy contact retains hanging/no knockback and starts one native counter-two gasp.");
     }
 
+    /// <summary>Checks pending health-loss history survives current saves and defaults safely in older captures.</summary>
     private static void VerifyHurtHealthHistoryRestoration()
     {
         var state = new SamusState { Health = 77, PreviousHealthForHurtCheck = 99 };
@@ -116,6 +119,7 @@ internal static class GrappleHurtFeedbackVerification
         AssertEqual((ushort)0, migrated.HurtFlashCounter, "legacy load does not invent a damage event");
     }
 
+    /// <summary>Runs the Grapple damage-feedback and save restoration regression.</summary>
     [VerificationCommand("--grapple-hurt-feedback")]
     internal static int GrappleHurtFeedbackCommand()
     {

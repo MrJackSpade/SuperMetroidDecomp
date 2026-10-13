@@ -6,19 +6,32 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Func139–142: rotate the shot graphic, fade Samus, and stage the final logo.</summary>
 internal sealed class EndingPostShot
 {
+    /// <summary>Retains the construction-time address space; post-shot stepping uses installed artwork and never reads it.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Palette captured before the shot and Samus fades begin.</summary>
     private readonly Bgr555[] sourcePalette;
+    /// <summary>Installed logo tile bytes used by the timed VRAM transfers.</summary>
     private byte[] tiles = [];
+    /// <summary>Installed logo tilemap bytes used by the timed VRAM transfers.</summary>
     private byte[] map = [];
+    /// <summary>Subtitle font bytes transferred before the logo sheets.</summary>
     private readonly byte[] font;
+    /// <summary>Post-shot update count driving the shooting and Samus fade schedules.</summary>
     private int calls;
+    /// <summary>Frames remaining after rotation reaches its minimum scale.</summary>
     private int hold;
+    /// <summary>Current size of the rotating shot graphic, clamped at the native minimum.</summary>
     public int Scale { get; private set; } = EndingPostShotDefinitions.InitialScale;
+    /// <summary>Eight-bit rotation angle decremented on each active rotation step.</summary>
     public byte Angle { get; private set; }
+    /// <summary>Number of subtitle and logo transfers already sent to VRAM.</summary>
     public int Uploads { get; private set; }
+    /// <summary>Indicates that the shot graphic has reached its minimum scale.</summary>
     public bool RotationFinished { get; private set; }
+    /// <summary>Signals the caller to hand control to the white-flash phase after the hold expires.</summary>
     public bool ReadyForWhiteFlash { get; private set; }
 
+    /// <summary>Captures the starting palette and installed art for the post-shot rotation and logo transfers.</summary>
     public EndingPostShot(ISnesAddressSpace bus, SnesCgram cgram, EndingFontAtlas fontAtlas,
         EndingObjectArtworkCatalog? artwork = null)
     {
@@ -75,6 +88,7 @@ internal sealed class EndingPostShot
         }
     }
 
+    /// <summary>Advances the native rotation, both palette fades, timed VRAM uploads, and white-flash handoff by one update.</summary>
     public void Step(SnesVram vram, SnesCgram cgram)
     {
         if (ReadyForWhiteFlash) throw new InvalidOperationException("Post-shot white-flash handoff must be consumed.");
@@ -105,6 +119,7 @@ internal sealed class EndingPostShot
         }
     }
 
+    /// <summary>Fades one CGRAM palette range from its captured colors using the native 32-step component progression.</summary>
     [PpuLayoutBoundary("codec: native ending fade over its CGRAM index range")]
     private void ApplyFade(SnesCgram cgram, int start, int elapsed)
     {
@@ -118,6 +133,7 @@ internal sealed class EndingPostShot
         }
     }
 
+    /// <summary>Sends the selected subtitle, tile, or map transfer to its native VRAM word destination.</summary>
     [PpuLayoutBoundary("codec: post-shot upload records' VMADD destinations")]
     private void Upload(SnesVram vram, int index)
     {

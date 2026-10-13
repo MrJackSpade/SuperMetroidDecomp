@@ -9,8 +9,10 @@ using SuperMetroid.Core.Rom;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Checks suitless reward sprite art against native OAM and the live ending scenes.</summary>
 internal static class EndingRewardSpriteArtworkVerification
 {
+    /// <summary>Compares every installed reward frame at screen and wrapped off-screen origins.</summary>
     internal static void VerifyEndingRewardSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
@@ -41,6 +43,7 @@ internal static class EndingRewardSpriteArtworkVerification
         }
     }
 
+    /// <summary>Edits idle, gesture, and jump art and checks visible changes without sprite-ROM rereads.</summary>
     internal static void VerifyEndingRewardVisualOverride(GameInstallation installation,
         EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
     {

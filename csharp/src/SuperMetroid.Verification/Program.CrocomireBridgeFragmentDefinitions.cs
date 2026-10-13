@@ -15,8 +15,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Crocomire bridge fragment positions and the eleven-fragment spawn limit.</summary>
 internal static class CrocomireBridgeFragmentDefinitionsVerification
 {
+    /// <summary>Compares native X positions with real allocations, movement seeds, cursor advance, and cutoff.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire bridge fragment definitions")]
     internal static void VerifyCrocomireBridgeFragmentDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -71,11 +73,13 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
             "Crocomire bridge fragments: all eleven native positions, eleven real allocations and the cursor cutoff pass with the source table forbidden.");
     }
 
+    /// <summary>Rejects live reads of the compiled bridge fragment position table.</summary>
     private static CartridgeReadGuard NewCrocomireBridgeFragmentReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa49156 and < 0xa4916c,
                 address => $"Crocomire bridge fragment attempted migrated position read ${address:X6}.");
 
+    /// <summary>Runs the Crocomire bridge fragment position and spawn checks.</summary>
     [VerificationCommand("--crocomire-bridge-fragment-definitions")]
     internal static int CrocomireBridgeFragmentDefinitionsCommand()
     {

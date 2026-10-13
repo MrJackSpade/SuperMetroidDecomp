@@ -10,8 +10,11 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 public static class UnhandledExceptionConsole
 {
+    /// <summary>Ensures concurrent fatal failures share one stack-trace report and console prompt.</summary>
     private static int fatalErrorIsBeingReported;
+    /// <summary>Optional handler for recoverable exceptions escaping WinForms callbacks.</summary>
     private static Action<Exception>? recoverableUiErrorReporter;
+    /// <summary>Optional diagnostic archive publisher invoked after the fatal report is flushed.</summary>
     private static Action? fatalDiagnosticCheckpoint;
 
     /// <summary>
@@ -87,6 +90,7 @@ public static class UnhandledExceptionConsole
         waitForAcknowledgment();
     }
 
+    /// <summary>Offers callback failures to the recoverable reporter, then falls back to the fatal console boundary.</summary>
     private static void HandleUiThreadException(object? sender, ThreadExceptionEventArgs eventArguments)
     {
         Action<Exception>? reporter = Volatile.Read(ref recoverableUiErrorReporter);
@@ -110,6 +114,7 @@ public static class UnhandledExceptionConsole
         Application.ExitThread();
     }
 
+    /// <summary>Prints a background-thread failure at the CLR termination notification, including non-exception payloads.</summary>
     private static void HandleBackgroundThreadException(object? sender, UnhandledExceptionEventArgs eventArguments)
     {
         Exception exception = eventArguments.ExceptionObject as Exception ??
@@ -119,6 +124,7 @@ public static class UnhandledExceptionConsole
         Environment.ExitCode = ReportAndWait(exception);
     }
 
+    /// <summary>Waits for an interactive Enter, or reaches EOF when console input is redirected.</summary>
     private static void WaitForConsoleAcknowledgment()
     {
         // A normal interactive launch owns a console input stream and waits here. Redirected

@@ -13,10 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks that both Nuclear Waffles visibly move after normal entry into Pillar Room.</summary>
 internal static class PillarFirstEntryVerification
 {
-    // Stage only the neighboring doorway. The destination is loaded exclusively by
-    // the normal door coroutine, including population, FX, graphics and PLM ownership.
+    /// <summary>Stages the neighboring doorway and lets the normal coroutine load population, FX, graphics, and PLMs.</summary>
     internal static void VerifyPillarFirstEntry()
     {
         const ushort source = 0xb3a5, destination = 0xb457;
@@ -114,6 +114,7 @@ internal static class PillarFirstEntryVerification
         Console.WriteLine($"Pillar entry complete. Both actors visibly move after the retail door handoff; this is not a full pre-room playthrough replay.");
     }
 
+    /// <summary>Runs the Pillar Room first-entry visibility check.</summary>
     [VerificationCommand("--pillar-first-entry")]
     internal static int PillarFirstEntryCommand()
     {

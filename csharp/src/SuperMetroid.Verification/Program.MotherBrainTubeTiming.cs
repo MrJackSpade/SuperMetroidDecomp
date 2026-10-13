@@ -13,12 +13,14 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Reproduces the staggered falling tubes in Mother Brain's collapse sequence.</summary>
 internal static class MotherBrainTubeTimingVerification
 {
-    // #1269: every falling-tube spawn after the first ($A9:89E7, $8A0F, $8A9B, $8AC3) starts
-    // with DEC timer : BPL return, so it waits out the $20 its clear step set. The port spawned
-    // three of them at once: in the 100% movie the second tube fell 32 frames early, while the
-    // first still occupied its enemy slot.
+    /// <summary>
+    /// Confirms each later falling-tube spawn ($A9:89E7, $8A0F, $8A9B, $8AC3) waits
+    /// for its predecessor's $20 timer. The 100% movie exposed a second tube that
+    /// fell 32 frames early while the first still occupied an enemy slot.
+    /// </summary>
     internal static void VerifyMotherBrainTubeTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -51,6 +53,7 @@ internal static class MotherBrainTubeTimingVerification
         Console.WriteLine("Mother Brain tube timing: each falling-tube enemy waits out the preceding $20 timer.");
     }
 
+    /// <summary>Runs the focused falling-tube spacing regression.</summary>
     [VerificationCommand("--mother-brain-tube-timing")]
     internal static int MotherBrainTubeTimingCommand()
     {

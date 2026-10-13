@@ -2,8 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled falling-spark launch speeds and spawned projectile motion.</summary>
 internal static class FallingSparkLaunchDefinitionsVerification
 {
+    /// <summary>Compares every RNG selection, including table overread, while guarding migrated reads.</summary>
     internal static void VerifyFallingSparkLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(FallingSparkLaunchDefinitionsRomByte(rom, address), FallingSparkLaunchDefinitionsRomByte(rom, address + 1)));
@@ -57,6 +59,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
         Console.WriteLine("Falling sparks: 16 native words including overread, all 65536 RNG selections, real spawns and horizontal motion pass with launch-table reads forbidden.");
     }
 
+    /// <summary>Reads the native launch table as the independent speed oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for falling spark launch definitions")]
     private static byte FallingSparkLaunchDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

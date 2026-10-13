@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Phantoon figure-eight speed constants and phase transitions against the cartridge.</summary>
 internal static class PhantoonMotionDefinitionsVerification
 {
+    /// <summary>Compares fourteen native words and exercises both real speed adjusters across fractional, whole, and phase boundary values.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon motion")]
     internal static void VerifyCompiledPhantoonMotion(SuperMetroidAddressSpace rom)
     {

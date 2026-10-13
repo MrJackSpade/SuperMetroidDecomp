@@ -7,6 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified skeleton export and component-capacity omissions, not the battle.</summary>
 internal static class CrocomireSkeletonResourceChecks
 {
+    /// <summary>Checks skeleton frame coverage and the thirteen-component collapse import limit.</summary>
     internal static void Run()
     {
         ExtendedEnemyCompositionResourceChecks.Run("Crocomire skeleton",
@@ -16,6 +17,7 @@ internal static class CrocomireSkeletonResourceChecks
         ConfirmFragmentationCapacity();
     }
 
+    /// <summary>Preserves thirteen ordered collapse components while rejecting a fourteenth and keeping ordinary bounds.</summary>
     private static void ConfirmFragmentationCapacity()
     {
         EnemyExtendedFrameDefinition frame = CrocomireSkeletonVisualDefinitions.Frames.ToArray()
@@ -53,6 +55,7 @@ internal static class CrocomireSkeletonResourceChecks
         Console.WriteLine("Crocomire collapse: importer and loader preserve thirteen ordered components; family-specific limits remain enforced.");
     }
 
+    /// <summary>Requires malformed skeleton or ordinary component counts to fail with invalid data.</summary>
     private static void Reject(Action action, string message)
     {
         bool rejected = false;

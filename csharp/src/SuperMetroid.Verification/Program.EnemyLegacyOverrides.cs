@@ -16,6 +16,8 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using static EnemyContentIdentityFixtureVerification;
 
+/// <summary>Checks historical enemy OAM schema overrides preserve authored
+/// frame edits, display remaps, stock inheritance, and content identities.</summary>
 internal static class EnemyLegacyOverridesVerification
 {
     /// <summary>
@@ -137,6 +139,7 @@ internal static class EnemyLegacyOverridesVerification
             .Select(schema => ((int)schema, EnemySpritemapDefinitions.FrameCount(schema)))
             .OrderBy(schema => schema.Item1)];
 
+    /// <summary>Runs ordinary, extended, and projectile legacy override checks.</summary>
     [VerificationCommand("--enemy-legacy-overrides")]
     internal static int EnemyLegacyOverridesCommand()
     {

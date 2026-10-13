@@ -16,9 +16,13 @@ public enum D3D11DeviceKind
 /// <summary>Render-thread-owned D3D11 device/context lifetime, isolated from portable display contracts.</summary>
 public sealed class D3D11RenderDevice : IDisposable
 {
+    /// <summary>Managed thread allowed to use the immediate context and perform first disposal.</summary>
     private readonly int ownerThread = Environment.CurrentManagedThreadId;
+    /// <summary>Prevents repeated GPU calls after context and device release.</summary>
     private bool disposed;
+    /// <summary>D3D11 device retained for render-thread resource creation.</summary>
     internal ID3D11Device Device { get; }
+    /// <summary>Immediate context that must remain on the creating render thread.</summary>
     internal ID3D11DeviceContext Context { get; }
     /// <summary>Description queried from the adapter actually associated with the successfully created device.</summary>
     public string AdapterDescription { get; }
@@ -52,6 +56,7 @@ public sealed class D3D11RenderDevice : IDisposable
         catch { context.Dispose(); device.Dispose(); throw; }
     }
 
+    /// <summary>Selects the first non-software DXGI adapter and rejects an absent hardware device.</summary>
     private static IDXGIAdapter1 FindHardwareAdapter()
     {
         using IDXGIFactory1 factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>();
@@ -63,6 +68,7 @@ public sealed class D3D11RenderDevice : IDisposable
         throw new NotSupportedException("DXGI exposes no hardware adapter; explicitly select WARP for software-driver diagnostics.");
     }
 
+    /// <summary>Rejects use after disposal or from a thread other than the immediate-context owner.</summary>
     internal void VerifyOwner()
     {
         ObjectDisposedException.ThrowIf(disposed, this);

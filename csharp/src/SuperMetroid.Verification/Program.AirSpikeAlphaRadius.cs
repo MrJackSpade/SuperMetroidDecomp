@@ -13,6 +13,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Reproduces the air-spike hit that depends on Samus's radius being
+/// refreshed during alpha before terrain damage is sampled.</summary>
 internal static class AirSpikeAlphaRadiusVerification
 {
     /// <summary>
@@ -64,6 +66,7 @@ internal static class AirSpikeAlphaRadiusVerification
         Console.WriteLine("  Air spike alpha radius: the refreshed standing body reaches the spike.");
     }
 
+    /// <summary>Runs the focused radius-before-spike reproduction from the CLI.</summary>
     [VerificationCommand("--air-spike-alpha-radius")]
     internal static int AirSpikeAlphaRadiusCommand()
     {

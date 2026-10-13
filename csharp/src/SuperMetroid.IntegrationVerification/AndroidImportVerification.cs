@@ -3,8 +3,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Android state and save imports preserve recovery copies and reject invalid replacements.</summary>
 internal static class AndroidImportVerification
 {
+    /// <summary>Exercises corrupt and valid state imports plus staged regular-save activation on next session startup.</summary>
     public static void Run(string root, string rom, string audio, string validSeed)
     {
         VerifyMutableMemoryWithoutCartridge();
@@ -58,6 +60,7 @@ internal static class AndroidImportVerification
         Console.WriteLine("PASS Android imports: corrupt rejection preserves slots/pending save, valid state bytes and backups, next-launch regular save activation.");
     }
 
+    /// <summary>Confirms ROM-free memory retains WRAM and SRAM writes while refusing cartridge capability.</summary>
     [CpuBusBoundary("exact bus test: a cartridge-free address space retains WRAM/SRAM writes and rejects cartridge reads")]
     private static void VerifyMutableMemoryWithoutCartridge()
     {

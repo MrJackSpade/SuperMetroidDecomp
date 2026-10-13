@@ -63,12 +63,14 @@ public static class RidleyMovementTargets
         return (ushort)Math.Min(10, (1 << (stage + 1)) - 1);
     }
 
+    /// <summary>Rejects facing values outside the three native arena-table indices.</summary>
     private static void ValidateFacing(RidleyFacing facing)
     {
         if (!Enum.IsDefined(facing))
             throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {(int)facing}.");
     }
 
+    /// <summary>Limits health-stage selection to the four entries represented by the native movement tables.</summary>
     private static void ValidateStage(int stage)
     {
         if ((uint)stage >= 4) throw new IndexOutOfRangeException();

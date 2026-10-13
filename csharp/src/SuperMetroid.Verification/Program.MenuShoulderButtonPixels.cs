@@ -2,8 +2,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks reconstructed menu shoulder-button tiles and propagation of PNG edits into VRAM.</summary>
 internal static class MenuShoulderButtonPixelsVerification
 {
+    /// <summary>Compares stock atlas uploads and each button pixel with native planar tiles, then checks isolated edits and input bounds.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu shoulder button pixels")]
     internal static void VerifyMenuShoulderButtonPixels(ISnesAddressSpace rom)

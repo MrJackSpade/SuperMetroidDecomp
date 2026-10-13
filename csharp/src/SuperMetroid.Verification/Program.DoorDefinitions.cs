@@ -16,8 +16,10 @@ using static LookupRetailDoorHeadersVerification;
 using static LookupRetailDoorListsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled physical door headers, room door lists, and collision resolution.</summary>
 internal static class DoorDefinitionsVerification
 {
+    /// <summary>Runs retail header and list comparisons plus a no-cartridge-read collision check.</summary>
     internal static void VerifyCompiledDoorDefinitions()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -30,6 +32,7 @@ internal static class DoorDefinitionsVerification
         Console.WriteLine("Doors: all597 physical headers, full elevator overlap and262 room lists match original ROM; collision resolves without native reads.");
     }
 
+    /// <summary>Confirms Landing Site door collision resolves the compiled BTS-indexed transition.</summary>
     internal static void VerifyCompiledDoorListCollision()
     {
         DoorListDefinition landingDoors = DoorDefinitionsTooling.GetList(
@@ -44,6 +47,7 @@ internal static class DoorDefinitionsVerification
 
     }
 
+    /// <summary>Enumerates both physical door-header runs around the bank-$83 FX data gap.</summary>
     internal static IEnumerable<ushort> EnumerateRetailDoorPointers()
     {
         for (int pointer = DoorHeaderRomDataConstants.PreFxBlockStart;
@@ -61,15 +65,18 @@ internal static class DoorDefinitionsVerification
         }
     }
 
+    /// <summary>Reads a native door word solely for verification against compiled definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for door definition words")]
     internal static ushort ReadVerificationWord(ISnesAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
+    /// <summary>Provides an unbacked address space that fails any attempted door collision read or write.</summary>
     internal static CartridgeReadGuard NewDoorNoReadAddressSpace() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Compiled door collision read address ${address:X6}.")
             .RejectWrites(address => $"Compiled door collision wrote address ${address:X6}.");
 
+    /// <summary>Runs the compiled door definition checks against the retail ROM.</summary>
     [VerificationCommand("--door-definitions")]
     internal static int DoorDefinitionsCommand()
     {

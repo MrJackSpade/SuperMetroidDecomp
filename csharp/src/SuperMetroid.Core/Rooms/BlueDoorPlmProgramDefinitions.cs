@@ -28,6 +28,7 @@ internal static class BlueDoorPlmProgramDefinitions
     /// <summary>$84:A9B3: first closed blue cap; orientation groups span five twelve-byte draws.</summary>
     private const ushort ClosedDrawLeft = 0xa9b3;
 
+    /// <summary>Combines any two consecutive compiled bytes into the overlapping native word view.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;

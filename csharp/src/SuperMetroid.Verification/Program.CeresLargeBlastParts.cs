@@ -4,8 +4,12 @@ using SuperMetroid.Core.Hardware;
 using static IntroMotherBrainExplosionPartsVerification;
 using static MapSpritesVerification;
 
+/// <summary>Checks calculated Ceres large-blast geometry against native OAM
+/// while preserving independently edited sprite artwork.</summary>
 internal static class CeresLargeBlastPartsVerification
 {
+    /// <summary>Compares stock parts and wrapped OAM, then distinguishes tile
+    /// edits that keep calculated geometry from edits that retain supplied parts.</summary>
     internal static void VerifyCeresLargeBlastParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresLargeBlast", value.AppendIdentity);

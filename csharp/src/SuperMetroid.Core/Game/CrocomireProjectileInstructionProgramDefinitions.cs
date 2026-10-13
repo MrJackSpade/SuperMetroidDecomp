@@ -43,6 +43,7 @@ internal abstract class CrocomireProjectileInstructionProgramDefinitions
     /// compiled word. Interleaved explosion spritemaps remain live reads.
     /// </summary>
     internal const ushort MouthProjectileShot = 0x9007;
+    /// <summary>Six mouth, one bridge, one spike-wall, and five shot-pose visual operands.</summary>
     public static int PresentationWordCount => 13;
 
     /// <summary>Spritemap operands are two bytes after each frame duration.
@@ -57,6 +58,7 @@ internal abstract class CrocomireProjectileInstructionProgramDefinitions
             : MouthProjectileShot + 2 + 4 * (index - 8));
     }
 
+    /// <summary>Recognizes the three Crocomire projectile families sharing these bank-$86 lists.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.CrocomireProjectile or
         RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
@@ -83,7 +85,7 @@ internal abstract class CrocomireProjectileInstructionProgramDefinitions
             $"Crocomire projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    // Select the preceding program; the caller validates its exact field domain.
+    /// <summary>Selects the preceding mouth, bridge, spike, or shot list; callers validate its exact word positions.</summary>
     internal static (ushort Start, int Frames, ushort Duration) Layout(ushort address) =>
         address < BridgeFragment ? (MouthProjectile, 6, (ushort)3)
         : address < SpikeWallPiece ? (BridgeFragment, 1, (ushort)0x7fff)

@@ -25,9 +25,12 @@ internal static class PauseMapScrollLayout
 /// </summary>
 internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<MapPixels> maximum)
 {
+    /// <summary>Keeps the accepted arrow direction active until its eight-update pulse completes.</summary>
     private MapScrollDirection direction;
+    /// <summary>Counts updates within the current pulse, including the single position update.</summary>
     private int tick;
 
+    /// <summary>Checks the pause map's signed cartridge bounds for an arrow at the current map offset.</summary>
     public bool CanScroll(MapScrollDirection candidate, Position16<MapPixels> scroll) => candidate switch
     {
         MapScrollDirection.Left => Signed(minimum.X - PauseMapScrollLayout.LeftMargin - scroll.X) < 0,
@@ -38,6 +41,7 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
         _ => throw new ArgumentOutOfRangeException(nameof(candidate), candidate, "Undefined map scroll direction."),
     };
 
+    /// <summary>Arbitrates held arrows left-first, advances one map offset during each eight-update pulse, and reports pulse completion.</summary>
     public bool Step(ushort heldInput, ref Position16<MapPixels> scroll)
     {
         bool left = CanScroll(MapScrollDirection.Left, scroll);
@@ -70,5 +74,6 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
         return true;
     }
 
+    /// <summary>Applies the native signed 16-bit comparison to a map-bound subtraction.</summary>
     private static short Signed(int value) => unchecked((short)value);
 }

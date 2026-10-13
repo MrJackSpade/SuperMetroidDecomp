@@ -15,17 +15,21 @@ internal sealed class BotwoonHealthPaintDefinitions
 {
     /// <summary>$B3:973B/975B: copied slot0 target in bands1/2; independently observable CGRAM data.</summary>
     private static readonly Bgr555 EarlyBandTransparentTarget = Bgr555.FromWord(0x2003);
+    /// <summary>Imported band colors that differ from the reviewed endpoint interpolation.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Retains source colors only where they differ from the eight-band health ramp.</summary>
     internal BotwoonHealthPaintDefinitions(Bgr555[][] rows)
     {
         for (int band = 0; band < 8; band++) for (int color = 0; color < 16; color++)
             if (rows[band][color] != Calculate(band, color)) edits.Add(band * 16 + color, rows[band][color]);
     }
 
+    /// <summary>Returns an imported exception or interpolates the selected healthy and damaged paints.</summary>
     internal Bgr555 Resolve(int band, int color) => edits.TryGetValue(band * 16 + color, out Bgr555 value)
         ? value : Calculate(band, color);
 
+    /// <summary>Interpolates RGB5 channels over seven intervals while preserving copied slot-zero metadata.</summary>
     private static Bgr555 Calculate(int band, int color)
     {
         if (color == 0) return band is 1 or 2 ? EarlyBandTransparentTarget : Bgr555.Black;
@@ -37,6 +41,7 @@ internal sealed class BotwoonHealthPaintDefinitions
         });
     }
 
+    /// <summary>Chooses the healthy or damaged material paint for one Botwoon palette slot.</summary>
     private static Bgr555 Endpoint(bool damaged, int color)
     {
         (int red, int green, int blue) = color switch
@@ -51,6 +56,7 @@ internal sealed class BotwoonHealthPaintDefinitions
         return new Bgr555(red, green, blue);
     }
 
+    /// <summary>Supplies four eye shades, shifting from gray-green highlights to warmer damaged colors.</summary>
     private static (int Red, int Green, int Blue) Eye(bool damaged, int shade)
     {
         if (!damaged)
@@ -64,6 +70,7 @@ internal sealed class BotwoonHealthPaintDefinitions
         return (red, green, blue);
     }
 
+    /// <summary>Builds four jaw shades from healthy blue and damaged red ramps.</summary>
     private static (int Red, int Green, int Blue) Jaw(bool damaged, int shade)
     {
         static int Ramp(int peak, int floor, int phase) => (peak * (3 - phase) + floor * phase) / 3;
@@ -73,6 +80,7 @@ internal sealed class BotwoonHealthPaintDefinitions
         return (red, green, blue);
     }
 
+    /// <summary>Builds five skin shades with reduced green in the damaged endpoint.</summary>
     private static (int Red, int Green, int Blue) Skin(bool damaged, int shade)
     {
         int healthyGreen = shade == 4 ? 1 : 18 - 4 * shade;

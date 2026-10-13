@@ -19,6 +19,8 @@ using static CeresSaveStartupVerification;
 using static FrontendRomFreeVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks extracted gunship sprite compositions, legacy override
+/// inheritance, and the first Landing Site fade-in draw.</summary>
 internal static class GunshipInstalledCompositionsVerification
 {
     /// <summary>
@@ -118,6 +120,7 @@ internal static class GunshipInstalledCompositionsVerification
         Console.WriteLine("#1154: reported first Landing Site fade-in draw completes with installed enemy compositions (RAM-only gameplay).");
     }
 
+    /// <summary>Runs extraction and landing presentation checks from the CLI.</summary>
     [VerificationCommand("--gunship-landing-compositions")]
     internal static int GunshipLandingCompositionsCommand()
     {

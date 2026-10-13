@@ -26,8 +26,10 @@ public enum FuneNamiheEnemyFunction : ushort
 /// </summary>
 public sealed class FuneNamiheEnemyState
 {
+    /// <summary>Physical enemy record whose variables A through F hold the shared actor state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view without copying Fune or Namihe's native variable words.</summary>
     internal FuneNamiheEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

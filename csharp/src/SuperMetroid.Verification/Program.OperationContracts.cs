@@ -14,6 +14,8 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
+/// <summary>Checks narrow gameplay operation interfaces, the grapple frame's
+/// withheld capabilities, and construction-time validation of required context.</summary>
 internal static class OperationContractsVerification
 {
     /// <summary>
@@ -99,6 +101,7 @@ internal static class OperationContractsVerification
         Console.WriteLine("#633 operation contracts: narrow child contracts, the masked grapple frame and construction-time validation pass.");
     }
 
+    /// <summary>Runs the focused operation-contract checks from the CLI.</summary>
     [VerificationCommand("--operation-contracts")]
     internal static int OperationContractsCommand()
     {

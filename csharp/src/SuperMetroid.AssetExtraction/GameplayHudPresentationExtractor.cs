@@ -71,11 +71,13 @@ public static class GameplayHudPresentationExtractor
         return output.ToArray();
     }
 
+    /// <summary>Reads consecutive fixed-bank HUD tilemap words and decodes their presentation attributes.</summary>
     private static GameplayHudCell[] ReadCells(ISnesAddressSpace bus, int address, int count) =>
         Enumerable.Range(0, count)
             .Select(index => Cell(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + index * sizeof(ushort))))
             .ToArray();
 
+    /// <summary>Splits a native BG tilemap word into atlas coordinates, palette, priority, and flips.</summary>
     private static GameplayHudCell Cell(ushort raw)
     {
         var word = new SnesBgTilemapWord(raw);
@@ -90,6 +92,7 @@ public static class GameplayHudPresentationExtractor
         };
     }
 
+    /// <summary>Converts a linear HUD tilemap index into its two-dimensional cell anchor.</summary>
     private static Position16<TilemapCells> Point(int index) =>
         new(checked((ushort)(index % GameplayHudDefinitions.Width)), checked((ushort)(index / GameplayHudDefinitions.Width)));
 }

@@ -10,8 +10,12 @@ using static IntroRinkaSpriteArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Checks intro egg effect OAM against native spritemaps and verifies
+/// an edited fragment palette reaches the rendered discovery scene.</summary>
 internal static class IntroEggEffectSpriteArtworkVerification
 {
+    /// <summary>Compares stock frames at visible and wrapped origins, then
+    /// checks live particles use editable art without rereading cartridge maps.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyIntroEggEffectSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)

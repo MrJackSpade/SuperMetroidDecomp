@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks editable Chozo statue visuals against native draw runs and catalog constraints.</summary>
 internal static class LookupChozoStockVerification
 {
+    /// <summary>Compares three native statue frames, then checks custom copies, completeness, and visual-only words.</summary>
     internal static void VerifyChozoStatueStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmChozoStatueVisualCatalog installed)
     {
@@ -77,6 +79,7 @@ internal static class LookupChozoStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmChozoStatueVisualCatalog(entries), "Chozo visual bits only");
     }
 
+    /// <summary>Reads a native draw-record byte to determine each statue run's displacement and terminator.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo statue stock mapping")]
     private static byte ChozoStatueStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

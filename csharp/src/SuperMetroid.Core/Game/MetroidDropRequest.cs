@@ -36,8 +36,10 @@ public readonly record struct MetroidDropRequest();
 /// </summary>
 public sealed class MetroidEnemyState
 {
+    /// <summary>Physical Metroid slot backing velocity, escape timer, and movement function.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Connects the Metroid's common slot to its two live outer-body sprite objects.</summary>
     internal MetroidEnemyState(
         RoomEnemySlot slot,
         RoomSpriteObjectSlot outerBodyA,

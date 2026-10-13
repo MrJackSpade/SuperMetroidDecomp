@@ -8,13 +8,20 @@ using SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class InstalledSamusArtworkFixture : IDisposable
 {
+    /// <summary>Owns the temporary copy and its replacement PNG files for the fixture lifetime.</summary>
     private readonly TestScratchDirectory scratch;
+    /// <summary>Root of the disposable installation used to load edited artwork.</summary>
     private readonly string root;
+    /// <summary>Original body artwork loaded from the supplied installation before any files are copied.</summary>
     internal SamusBodyArtworkCatalog Stock { get; }
+    /// <summary>Artwork loaded from the scratch installation after its replacement PNGs are written.</summary>
     internal SamusBodyArtworkCatalog Edited { get; }
+    /// <summary>Number of replacement sheets written across body sets, arm cannon, and death tiles.</summary>
     internal int EditedPngCount { get; }
+    /// <summary>Disposable installation whose override directory supplies the edited artwork.</summary>
     internal GameInstallation Installation { get; }
 
+    /// <summary>Copies installed Samus artwork into scratch storage, remaps nontransparent tile indices, and reloads it through the installation loader.</summary>
     internal InstalledSamusArtworkFixture(string installationRoot, bool editLayout = false)
     {
         string source = new GameInstallation(Path.GetFullPath(installationRoot)).SamusBodyDirectory;
@@ -65,7 +72,9 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
         catch { Dispose(); throw; }
     }
 
+    /// <summary>Cycles four-bit character indices while preserving transparent index zero.</summary>
     internal static byte Remap(byte index) => index == 0 ? (byte)0 : (byte)(index % 15 + 1);
 
+    /// <summary>Deletes the scratch installation and all replacement sheets.</summary>
     public void Dispose() => scratch.Dispose();
 }

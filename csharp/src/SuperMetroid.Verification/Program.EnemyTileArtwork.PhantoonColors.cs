@@ -7,8 +7,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed Phantoon health, fade, and power-on colors against
+/// native RGB5 data and live palette transitions.</summary>
 internal static class EnemyTileArtworkPhantoonColorsVerification
 {
+    /// <summary>Checks isolated color edits through boss fade and hurt handlers,
+    /// with native source reads forbidden and malformed overrides rejected.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Phantoon palette bands")]
     internal static void VerifyInstalledPhantoonColors(

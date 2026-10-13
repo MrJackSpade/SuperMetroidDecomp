@@ -8,8 +8,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class RoomCharacterAtlas
 {
+    /// <summary>Owned planar 4-bpp transfer bytes for the authored room characters.</summary>
     private readonly byte[] planar;
 
+    /// <summary>Retains the newly compiled planar bytes without exposing a mutable document buffer.</summary>
     private RoomCharacterAtlas(byte[] planar) => this.planar = planar;
 
     /// <summary>Read-only view of the compiled, row-major 8x8 SNES 4-bpp characters, excluding unused PNG cells.</summary>

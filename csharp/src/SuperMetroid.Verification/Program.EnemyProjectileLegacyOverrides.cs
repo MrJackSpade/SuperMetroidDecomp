@@ -3,6 +3,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static EnemyContentIdentityFixtureVerification;
 
+/// <summary>Checks historical enemy-projectile visual schemas preserve edited
+/// native and program frames while inheriting newly authored stock artwork.</summary>
 internal static class EnemyProjectileLegacyOverridesVerification
 {
     /// <summary>Checks named historical frame sets rather than assuming current sorted frames form a prefix.</summary>
@@ -91,6 +93,8 @@ internal static class EnemyProjectileLegacyOverridesVerification
         }
     }
 
+    /// <summary>Reconstructs each schema's named instruction-frame domain,
+    /// including the versions before particular projectile families were added.</summary>
     private static EnemyProjectilePresentationFrameDefinition[] HistoricalPrograms(EnemyProjectileSpritemapVersion version) => version switch
     {
         EnemyProjectileSpritemapVersion.CeresOnly or EnemyProjectileSpritemapVersion.PreProgramFrames => [],

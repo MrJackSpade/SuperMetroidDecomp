@@ -10,12 +10,14 @@ using SuperMetroid.Rendering.Direct3D11;
 /// <summary>Room-local upward elevator handoff using the existing Blue Brinstar regression route.</summary>
 internal static class RetailElevatorReturnTests
 {
+    /// <summary>Checks the upward return and the companion departure through exact captured frame comparisons.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         RunUpward(device, renderer);
         RetailElevatorDepartureTests.Run(device, renderer);
     }
 
+    /// <summary>Follows the Morph Ball room elevator door to Blue Brinstar through arrival and settled camera control.</summary>
     private static void RunUpward(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

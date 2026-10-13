@@ -3,8 +3,12 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Boyon jump height, speed multiplier, and saturation curve
+/// against native data through production initialization and multiplication.</summary>
 internal static class BoyonSpeedDefinitionsVerification
 {
+    /// <summary>Compares all authored initializer rows and effective byte-width
+    /// multipliers, including out-of-range inputs and saturated curve indexes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Boyon speeds")]
     internal static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
     {

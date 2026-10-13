@@ -21,8 +21,10 @@ public enum BoyonBounceMovement : ushort
 /// </summary>
 public sealed class BoyonEnemyState
 {
+    /// <summary>Physical Boyon slot backing its six ordinary enemy variables.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects Boyon's common and extended bounce state from its occupied slot.</summary>
     internal BoyonEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Low-byte multiplier selected by parameter-one's low byte.</summary>

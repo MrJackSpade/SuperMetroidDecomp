@@ -3,9 +3,8 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Source admission and NMI routing backing the ownership comparison.</summary>
 internal static class VramDmaSourceContracts
 {
-    // These reviewed sources connect descriptor geometry to required PNG/JSON
-    // admission, importer manifests and the runtime's native/typed dispatch.
-    // A changed contract is an explicit gap until its new behavior is reviewed.
+    /// <summary>Reviewed descriptor, importer, artwork-admission, and runtime-routing sources that bound native DMA ownership.</summary>
+    /// <remarks>A changed source is an explicit contract gap until its new behavior is reviewed.</remarks>
     internal static readonly ReviewedSource[] Additional =
     [
         new("csharp/src/SuperMetroid.Core/Game/SamusSpecialSequenceRomData.cs"),
@@ -78,6 +77,7 @@ internal static class VramDmaSourceContracts
         // Format 85 requires both bounded invalid-selection beam sheets.
         new("csharp/src/SuperMetroid.AssetExtraction/GameInstallation.cs"),
     ];
+    /// <summary>Reports a missing reviewed provider source from the PLM, area-map, or additional DMA contract sets.</summary>
     internal static void Verify(string root, VramDmaReport report)
     {
         foreach (ReviewedSource source in PlmVramArtworkSourceContract.Sources

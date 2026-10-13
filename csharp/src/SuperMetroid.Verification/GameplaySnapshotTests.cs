@@ -8,8 +8,12 @@ using static GraphDigestVerification;
 using static RenderPacketCodecTestsVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks gameplay render snapshots retain VRAM, CGRAM, OAM, and
+/// per-line scroll independently of later live-memory changes.</summary>
 internal static class GameplaySnapshotTestsVerification
 {
+    /// <summary>Round-trips ordinary layered packets across geometry, priority,
+    /// and HDMA combinations, then compares a captured retail room frame.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void VerifyGameplaySnapshots()
     {

@@ -16,8 +16,10 @@ internal sealed class EnemyPresentation
     [field: NonSerialized]
     internal EscapeTypewriterPresentation? EscapeTypewriterPresentation { get; set; }
 
+    /// <summary>Room artwork binding used to resolve enemy display compositions.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>Binds enemy presentation to its room's installed artwork catalog.</summary>
     internal EnemyPresentation(EnemyRoomBinding room)
     {
         _room = room;
@@ -39,7 +41,9 @@ internal sealed class EnemyPresentation
 
     /// <summary>The bound CGRAM's hardware banks and rows, for actors whose palette row is selected at run time.</summary>
     internal CgramPalettes CgramRows => new(_cgram!);
+    /// <summary>VRAM shared with room and enemy artwork transfers.</summary>
     internal SnesVram? _vram;
+    /// <summary>CGRAM backing boss and enemy palette views.</summary>
     internal SnesCgram? _cgram;
 
     /// <summary>
@@ -64,6 +68,8 @@ internal sealed class EnemyPresentation
     [field: NonSerialized]
     public HudTileAtlas? HudTileArtwork { get; set; }
 
+    /// <summary>Draws an installed enemy composition or accepts the compiled common empty frame.</summary>
+    /// <remarks>A nonempty pointer without installed display art is an asset error rather than a cartridge fallback.</remarks>
     internal void DrawEnemySpritemap(OamBuffer oam, EnemySpritemapDraw draw)
     {
         if (_room.Artwork?.Spritemaps?.TryGetDisplay(draw.Bank, draw.Pointer,

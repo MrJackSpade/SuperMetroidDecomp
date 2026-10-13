@@ -9,8 +9,12 @@ using static IntroCinematicArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Checks intro discovery actor OAM against native spritemaps and
+/// verifies an edited egg composition reaches the rendered scene.</summary>
 internal static class IntroDiscoveryActorSpriteArtworkVerification
 {
+    /// <summary>Compares stock OAM at visible and wrapped origins, then loads an
+    /// override through production scene rendering without cartridge artwork reads.</summary>
     internal static void VerifyIntroDiscoveryActorSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {

@@ -14,6 +14,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Holds focused retail-ROM oracles for narration, Mochtroid shake, and phase data.</summary>
 internal static class LookupRomOraclesVerification
 {
     /// <summary>Checks every registered narration page's native begin callback, then its extraction and compilation.</summary>
@@ -57,6 +58,7 @@ internal static class LookupRomOraclesVerification
     internal static ushort ReadPhaseAlgorithmWord(CartridgeImportAddressSpace rom, int address) =>
         rom.ReadCartridgeWord(address);
 
+    /// <summary>Checks native narration page callbacks, extracted compilation, order, and page bounds.</summary>
     [VerificationCommand("--lookup-intro-narration-registry")]
     internal static int LookupIntroNarrationRegistryCommand()
     {
@@ -68,6 +70,7 @@ internal static class LookupRomOraclesVerification
         return 0;
     }
 
+    /// <summary>Checks native shake offsets and compiled Mochtroid instruction mechanics.</summary>
     [VerificationCommand("--lookup-mochtroid-shake")]
     internal static int LookupMochtroidShakeCommand()
     {

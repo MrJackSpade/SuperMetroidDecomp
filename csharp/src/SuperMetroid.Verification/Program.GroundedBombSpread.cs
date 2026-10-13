@@ -15,8 +15,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks grounded Bomb Spread charge, spawn, and five-slot free-flight behavior.</summary>
 internal static class GroundedBombSpreadVerification
 {
+    /// <summary>Compares release and timeout boundaries plus each 16.16 trajectory and fuse with native tables.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the five native bomb-spread velocity and fuse tables")]
     internal static void VerifyGroundedBombSpread()
     {
@@ -70,6 +72,7 @@ internal static class GroundedBombSpreadVerification
         Console.WriteLine("Grounded Bomb Spread: retained charge, release/timeout boundaries and all five 16.16 free-flight trajectories pass.");
     }
 
+    /// <summary>Runs the focused grounded Bomb Spread timing and motion check.</summary>
     [VerificationCommand("--grounded-bomb-spread")]
     internal static int GroundedBombSpreadCommand()
     {

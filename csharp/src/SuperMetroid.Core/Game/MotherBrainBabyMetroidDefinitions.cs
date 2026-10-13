@@ -9,6 +9,12 @@ internal static class MotherBrainBabyMetroidDefinitions
     /// <summary>$A9:CC6C, Function_BabyMetroidCutscene_PlaySamusTheme: track $0005 follows the theme data upload.</summary>
     internal const byte SamusThemeMusicTrack = 5;
 
+    /// <summary>$AD:F3D3: the first of the room-lights palettes the Baby restores; each earlier one is 56 bytes before.</summary>
+    internal const uint RoomLightsPaletteSource = 0xadf3d3;
+
+    /// <summary>Bytes in each room-lights palette: fourteen colors for each of two destinations.</summary>
+    internal const uint RoomLightsPaletteBytes = 56;
+
     /// <summary>
     /// The single embedded population record at <c>$A9:BE28-$A9:BE37</c>. Baby init AI
     /// subsequently replaces the actor coordinates, but the complete record remains its

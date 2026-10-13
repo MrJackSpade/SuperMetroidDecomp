@@ -86,6 +86,7 @@ using static DraygonBurialEvirDefinitionsVerification;
 using static DraygonHealthPaletteDefinitionsVerification;
 using static DraygonAnimationsVerification;
 using static KraidAnimationsVerification;
+using static MotherBrainAnimationsVerification;
 using static DraygonIntroDanceDefinitionsVerification;
 using static ElevatorInputDefinitionsVerification;
 using static ElevatorInstructionProgramDefinitionsVerification;
@@ -169,19 +170,14 @@ using static MetroidInstructionProgramDefinitionsVerification;
 using static MiscDustProjectileDefinitionsVerification;
 using static MochtroidInstructionProgramDefinitionsVerification;
 using static MorphBallEyeInstructionProgramDefinitionsVerification;
-using static MotherBrainBabyInstructionProgramDefinitionsVerification;
 using static MotherBrainBabyMetroidDefinitionsVerification;
-using static MotherBrainBodyInstructionProgramsVerification;
 using static MotherBrainDeathExplosionDefinitionsVerification;
 using static MotherBrainDoorFragmentDefinitionsVerification;
-using static MotherBrainGlassInstructionProgramDefinitionsVerification;
 using static MotherBrainGlassPlmDrawDefinitionsVerification;
 using static MotherBrainGlassShardDefinitionsVerification;
 using static MotherBrainNeckSineVerification;
-using static MotherBrainRoomPaletteProgramDefinitionsVerification;
 using static MotherBrainTopTubeInstructionProgramDefinitionsVerification;
 using static MotherBrainTurretDefinitionsVerification;
-using static MotherBrainTurretInstructionProgramDefinitionsVerification;
 using static MultiviolaInstructionProgramDefinitionsVerification;
 using static NinjaSpacePirateInstructionProgramDefinitionsVerification;
 using static NoobTubePlmDrawDefinitionsVerification;
@@ -266,7 +262,6 @@ using static ShaktoolProjectileInstructionProgramDefinitionsVerification;
 using static ShaktoolSegmentDefinitionsVerification;
 using static SharedCrawlerInstructionProgramDefinitionsVerification;
 using static SharedSlopeHeightsVerification;
-using static ShitroidInstructionProgramDefinitionsVerification;
 using static ShotCallbackDefinitionsVerification;
 using static SkreeMetareeAnimationDefinitionsVerification;
 using static SkreeMetareeInstructionProgramDefinitionsVerification;
@@ -314,7 +309,6 @@ using static YardTurnDefinitionsVerification;
 using static YellowPipeBugInstructionProgramDefinitionsVerification;
 using static ZebesEscapeExplosionDefinitionsVerification;
 using static ZebetiteDefinitionsVerification;
-using static ZebetiteInstructionProgramDefinitionsVerification;
 using static ZeroInstructionProgramDefinitionsVerification;
 using static ZoaAnimationDefinitionsVerification;
 using static ZoaInstructionProgramDefinitionsVerification;
@@ -392,17 +386,15 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyDraygonAnimations), () => VerifyDraygonAnimations(LoadRepositoryRom())),
         new(nameof(VerifyKraidPartAnimations), () => VerifyKraidPartAnimations(LoadRepositoryRom())),
         new(nameof(VerifyKraidRockAnimations), () => VerifyKraidRockAnimations(LoadRepositoryRom())),
+        new(nameof(VerifyMotherBrainAnimations), () => VerifyMotherBrainAnimations(LoadRepositoryRom())),
+        new(nameof(VerifyMotherBrainProjectileAnimations), () => VerifyMotherBrainProjectileAnimations(LoadRepositoryRom())),
         new(nameof(VerifyWalkingSpacePirateInstructionProgramDefinitions), () => VerifyWalkingSpacePirateInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyWallSpacePirateInstructionProgramDefinitions), () => VerifyWallSpacePirateInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyMotherBrainBodyInstructionPrograms), () => VerifyMotherBrainBodyInstructionPrograms()),
-        new(nameof(VerifyMotherBrainRoomPaletteProgramDefinitions), () => VerifyMotherBrainRoomPaletteProgramDefinitions()),
         new(nameof(VerifyEnemyInstructionOwnerCoverage), () => VerifyEnemyInstructionOwnerCoverage()),
         new(nameof(VerifyDownwardGateProjectileInstructionProgramDefinitions), () => VerifyDownwardGateProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyNoobTubeProjectileInstructionProgramDefinitions), () => VerifyNoobTubeProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainTopTubeInstructionProgramDefinitions), () => VerifyMotherBrainTopTubeInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyMotherBrainGlassInstructionProgramDefinitions), () => VerifyMotherBrainGlassInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyMotherBrainTurretInstructionProgramDefinitions), () => VerifyMotherBrainTurretInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyGunshipDustInstructionProgramDefinitions), () => VerifyGunshipDustInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCacatacInstructionProgramDefinitions), () => VerifyCacatacInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMagdolliteInstructionProgramDefinitions), () => VerifyMagdolliteInstructionProgramDefinitions(LoadRepositoryRom())),
@@ -429,7 +421,6 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyDeadTorizoInstructionProgramDefinitions), () => VerifyDeadTorizoInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyDeadSidehopperInstructionProgramDefinitions), () => VerifyDeadSidehopperInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyDeadTourianCorpseInstructionProgramDefinitions), () => VerifyDeadTourianCorpseInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyShitroidInstructionProgramDefinitions), () => VerifyShitroidInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyRioInstructionProgramDefinitions), () => VerifyRioInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyAtomicMovementDefinitions), () => VerifyAtomicMovementDefinitions(LoadRepositoryRom())),
         new(nameof(VerifySbugMovementDefinitions), () => VerifySbugMovementDefinitions(LoadRepositoryRom())),
@@ -452,7 +443,6 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifySharedCrawlerInstructionProgramDefinitions), () => VerifySharedCrawlerInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyDachoraInstructionProgramDefinitions), () => VerifyDachoraInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyFirefleaInstructionProgramDefinitions), () => VerifyFirefleaInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyZebetiteInstructionProgramDefinitions), () => VerifyZebetiteInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEvirInstructionProgramDefinitions), () => VerifyEvirInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMorphBallEyeInstructionProgramDefinitions), () => VerifyMorphBallEyeInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyYappingMawInstructionProgramDefinitions), () => VerifyYappingMawInstructionProgramDefinitions(LoadRepositoryRom())),
@@ -546,7 +536,6 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyChozoStatueInstructionProgramDefinitions), () => VerifyChozoStatueInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCrocomireTongueAnimations), () => VerifyCrocomireTongueAnimations(LoadRepositoryRom())),
         new(nameof(VerifyCrocomireBodyAnimations), () => VerifyCrocomireBodyAnimations(LoadRepositoryRom())),
-        new(nameof(VerifyMotherBrainBabyInstructionProgramDefinitions), () => VerifyMotherBrainBabyInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEscapeEtecoonDefinitions), () => VerifyEscapeEtecoonDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEscapeEtecoonInstructionProgramDefinitions), () => VerifyEscapeEtecoonInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEscapeDachoraInstructionProgramDefinitions), () => VerifyEscapeDachoraInstructionProgramDefinitions(LoadRepositoryRom())),

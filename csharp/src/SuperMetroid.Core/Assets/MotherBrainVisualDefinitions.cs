@@ -44,6 +44,9 @@ internal static class MotherBrainVisualDefinitions
         return new EnemySpritemapDefinition(Bank, pointer, $"mother_brain_a9_{pointer:x4}");
     }
 
+    /// <summary>$A9:A694, the neck-joint composition every neck segment draws.</summary>
+    internal static EnemySpritemapDefinition NeckJoint => Frame(5);
+
     /// <summary>$A9:ADA1-AE5D: the final five catalog frames are the falling-tube compositions.</summary>
     internal static EnemySpritemapDefinition TubeFrame(int index)
     {

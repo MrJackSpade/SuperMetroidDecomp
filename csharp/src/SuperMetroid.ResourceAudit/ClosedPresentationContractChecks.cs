@@ -41,7 +41,7 @@ internal static class ClosedPresentationContractChecks
                     menu.ApplyPatch(tiles, dynamicName, new(0,0));
                     menu.CopyPage(dynamicName, tiles);
                     colors.ApplyRecoveryLights(cgram, dynamicIndex);
-                    colors.ApplyFlash(cgram, 1);
+                    colors.ApplyFlash(cgram, 14);
                     options.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage);
                     options.ApplySpecialToggle(bytes, dynamicIndex > 0
                         ? GameOptionsPresentationDefinitions.IconCancelToggle

@@ -197,6 +197,8 @@ internal static class EnemyTileArtworkKraidColorsVerification
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Health = 1000;
         var state = new KraidEnemyState();
+        // The death setup restarts the arm's typed program (#641), which lives in the room's Kraid state.
+        enemies.KraidBehavior.Kraid = state;
         switch (consumer)
         {
             case KraidPaletteConsumer.BackdropLoad:

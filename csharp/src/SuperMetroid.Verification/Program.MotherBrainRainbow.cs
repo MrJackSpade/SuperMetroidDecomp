@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static AssertionsVerification;
-using static MotherBrainBodyInstructionProgramsVerification;
 using static SignedSineFixtureVerification;
 using static VerificationHelpersVerification;
 
@@ -146,7 +145,6 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
 /// </summary>
 internal static void VerifyMotherBrainRainbowBeamAttackSequence()
 {
-    VerifyMotherBrainBodyInstructionPrograms();
     TestAddressSpace bus = CreateRainbowBeamAttackSequenceCartridge();
 
     var samus = new SamusState
@@ -258,16 +256,13 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(129, decisionCalls, "$80 decision timer expires on 129th DEC/BPL call");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.FinishSamusOff, attack.Phase,
         "post-drain health below $190 chooses finish-Samus chain");
-    AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingForwardReallySlowInstructionList,
-        attack.Body.InstructionPointer,
-        "low-health decision immediately installs native forward body walk");
-    AssertEqual(1, attack.Body.InstructionTimer,
-        "low-health decision makes forward walk eligible in same enemy frame");
-    ushort headBeforeFinishThreshold = attack.HeadInstructionList;
+    AssertEqual(MotherBrainBodyProgram.WalkForwardReallySlow, attack.Body.Program,
+        "low-health decision immediately requests the native forward body walk");
+    MotherBrainHeadProgram? headBeforeFinishThreshold = attack.HeadProgram;
     MotherBrainRainbowBeamAttackStepResult finishThreshold = attack.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
     AssertEqual(MotherBrainRainbowBeamAttackPhase.FinishSamusOff, finishThreshold.PhaseAfter,
         "399 energy remains above no-suit finish threshold 340");
-    AssertEqual(headBeforeFinishThreshold, attack.HeadInstructionList,
+    AssertEqual(headBeforeFinishThreshold, attack.HeadProgram,
         "RNG zero takes finish-off no-attack branch");
 
     // Boundary 700 uses command five; 699 uses `$18`. The second fixture also proves that

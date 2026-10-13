@@ -1280,6 +1280,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         YappingMawBehavior.RegisterYappingMawMainAi(table);
         YardBehavior.RegisterYardMainAi(table);
         ZebetiteBehavior.RegisterZebetiteMainAi(table);
+        ZebetiteBehavior.RegisterZebetiteTypedAnimations(table);
         ZoaBehavior.RegisterZoaMainAi(table);
         table.RegisterMain(EnemyAiRoutine.RTL_A3804C, null, (slot, frame, nmiFrameCounter8) =>
         { });
@@ -1306,14 +1307,15 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// <summary>Installs species instruction callbacks before shared interpreter callbacks.</summary>
     private void RegisterOwnedInstructions(EnemyAiTable table)
     {
-        BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneOwnedInstructions(table);
+        BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneTypedAnimations(table);
         BoyonBehavior.RegisterBoyonOwnedInstructions(table);
         StokeBehavior.RegisterStokeOwnedInstructions(table);
         MamaTurtleBehavior.RegisterMamaTurtleOwnedInstructions(table);
         DragonBehavior.RegisterDragonOwnedInstructions(table);
         KraidBehavior.RegisterKraidTypedAnimations(table);
         PhantoonBehavior.RegisterPhantoonOwnedInstructions(table);
-        MotherBrainBehavior.RegisterMotherBrainOwnedInstructions(table);
+        MotherBrainBehavior.RegisterMotherBrainTypedAnimations(table);
+        MotherBrainBehavior.RegisterMotherBrainTubeTypedAnimations(table);
         DraygonBehavior.RegisterDraygonTypedAnimations(table);
         BotwoonBehavior.RegisterBotwoonTypedAnimations(table);
         CrocomireBehavior.RegisterCrocomireTypedAnimations(table);
@@ -1346,7 +1348,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         CeresSteamBehavior.RegisterCeresSteamOwnedInstructions(table);
         CeresDoorBehavior.RegisterCeresDoorOwnedInstructions(table);
         DeadSidehopperBehavior.RegisterDeadSidehopperOwnedInstructions(table);
-        ShitroidBehavior.RegisterShitroidOwnedInstructions(table);
+        ShitroidBehavior.RegisterShitroidTypedAnimations(table);
         SporeSpawnBehavior.RegisterSporeSpawnOwnedInstructions(table);
         RinkaBehavior.RegisterRinkaOwnedInstructions(table);
         RioBehavior.RegisterRioOwnedInstructions(table);

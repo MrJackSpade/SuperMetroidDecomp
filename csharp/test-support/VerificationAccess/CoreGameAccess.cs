@@ -1074,64 +1074,6 @@ internal static class MotherBrainCorpseRottingStateAccess
     }
 }
 
-/// <summary>Verification access to <see cref="MotherBrainFallingTubePopulationDefinitions"/> members production does not use.</summary>
-internal static class MotherBrainFallingTubePopulationDefinitionsAccess
-{
-    /// <summary>The five eight-word population records following <c>BottomLeft</c>.</summary>
-    private static readonly ushort[] RecordPointers =
-        [.. Enumerable.Range(0, 5).Select(index => (ushort)(MotherBrainFallingTubePopulationDefinitions.BottomLeft + index * 8 * sizeof(ushort)))];
-
-    /// <summary>Enumerates five falling-tube population pointers using their eight-word record stride.</summary>
-    extension(MotherBrainFallingTubePopulationDefinitions)
-    {
-        /// <summary>Ordered native population identities, calculated from the eight-word record format.</summary>
-        internal static IReadOnlyList<ushort> Pointers => RecordPointers;
-    }
-}
-
-/// <summary>Verification access to <see cref="MotherBrainHandBeamInstructionProgramDefinitions"/> members production does not use.</summary>
-internal static class MotherBrainHandBeamInstructionProgramDefinitionsAccess
-{
-    /// <summary>Locates hand-beam stage callbacks and distinguishes visual bytes from control bytes in bank $86.</summary>
-    extension(MotherBrainHandBeamInstructionProgramDefinitions)
-    {
-        /// <summary>One external-call command occurs after the first frame of each hand-beam stage.</summary>
-        internal static int ExternalCallCount => MotherBrainHandBeamInstructionProgramDefinitions.StageCount;
-
-        /// <summary>Locates the external-call opcode after a stage's initial timed frame.</summary>
-        internal static ushort ExternalCallInstruction(int index)
-        {
-            if ((uint)index >= MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallCount) throw new ArgumentOutOfRangeException(nameof(index));
-            return (ushort)(((int)(MotherBrainHandBeamInstructionProgramDefinitions.StageStart((int)(index)))!) + MotherBrainHandBeamInstructionProgramDefinitions.FrameBytes);
-        }
-
-        /// <summary>Identifies bank-$86 hand-beam frame artwork operands, excluding callback mechanics.</summary>
-        internal static bool IsPresentationByte(int address)
-        {
-            if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;
-            int bankAddress = (ushort)address;
-            if (bankAddress is < MotherBrainHandBeamInstructionProgramDefinitions.Initial or >= MotherBrainHandBeamInstructionProgramDefinitions.TerminalDelete) return false;
-            int offset = (bankAddress - MotherBrainHandBeamInstructionProgramDefinitions.Initial) % MotherBrainHandBeamInstructionProgramDefinitions.StageBytes;
-            if (offset < MotherBrainHandBeamInstructionProgramDefinitions.FrameBytes) return offset >= sizeof(ushort);
-            return offset >= MotherBrainHandBeamInstructionProgramDefinitions.FrameBytes + MotherBrainHandBeamInstructionProgramDefinitions.CallbackBytes && (offset - MotherBrainHandBeamInstructionProgramDefinitions.CallbackBytes) % MotherBrainHandBeamInstructionProgramDefinitions.FrameBytes >= sizeof(ushort);
-        }
-    }
-}
-
-/// <summary>Verification access to <see cref="MotherBrainHeadInstructionProgramDefinitions"/> members production does not use.</summary>
-internal static class MotherBrainHeadInstructionProgramDefinitionsAccess
-{
-    /// <summary>Recognizes the neutral, Baby-attack, and bomb head-program windows executed by the dedicated interpreter.</summary>
-    extension(MotherBrainHeadInstructionProgramDefinitions)
-    {
-        /// <summary>The precise pointer windows executed by the dedicated head interpreter.</summary>
-        internal static bool IsActivePointer(ushort pointer) =>
-            pointer is >= MotherBrainHeadInstructionProgramDefinitionsTooling.NeutralStart and <= MotherBrainHeadInstructionProgramDefinitionsConstants.NeutralActiveEnd or
-                >= MotherBrainHeadInstructionProgramDefinitionsConstants.BabyAttackStart and <= MotherBrainHeadInstructionProgramDefinitionsConstants.BabyAttackActiveEnd or
-                >= MotherBrainHeadInstructionProgramDefinitionsConstants.BombStart and <= MotherBrainHeadInstructionProgramDefinitionsConstants.BombActiveEnd;
-    }
-}
-
 /// <summary>Verification access to <see cref="MotherBrainRainbowBeamAttackSequence"/> members production does not use.</summary>
 internal static class MotherBrainRainbowBeamAttackSequenceAccess
 {
@@ -1217,73 +1159,6 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
             if (!self.BrainMainShakeTimer.IsZero)
                 self.BrainMainShakeTimer = self.BrainMainShakeTimer.Decrement().Remaining;
             return unchecked((ushort)(self.BrainMainShakeTimer.RawValue & 6));
-        }
-    }
-}
-
-/// <summary>Verification access to <see cref="MotherBrainRoomPaletteProgramDefinitions"/> members production does not use.</summary>
-internal static class MotherBrainRoomPaletteProgramDefinitionsAccess
-{
-    /// <summary>Separates Mother Brain room-flash timing and loop controls from bank-$A9 image operands.</summary>
-    extension(MotherBrainRoomPaletteProgramDefinitions)
-    {
-        /// <summary>Reconstructs a timed flash word or terminal loop command from native addresses.</summary>
-        internal static InstructionMechanicsWord MechanicsWord(int index)
-        {
-            if ((uint)index >= MotherBrainRoomPaletteProgramDefinitions.MechanicsWordCount) throw new IndexOutOfRangeException();
-            return index < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount
-                ? new((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart + index * 4), MotherBrainRoomPaletteProgramDefinitions.FlashImageTicks)
-                : new((ushort)(MotherBrainRoomPaletteProgramDefinitions.LoopInstruction + (index - MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount) * 2),
-                    index == MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount ? MotherBrainRoomPaletteProgramDefinitions.GotoInstruction : MotherBrainRoomPaletteProgramDefinitions.FlashStart);
-        }
-
-        /// <summary>Recognizes timed flash controls and the final loop in bank $A9.</summary>
-        internal static bool IsCompiledMechanicsByte(int address)
-        {
-            if ((SnesAddressMath.BankBase(address)) != 0xa90000) return false;
-            int offset = (ushort)address - MotherBrainRoomPaletteProgramDefinitions.FlashStart;
-            return (uint)offset < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount * 4 && offset % 4 < 2 ||
-                offset >= MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount * 4 && offset < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount * 4 + 4;
-        }
-
-        /// <summary>Finds a flash image operand word containing the requested bank-$A9 byte.</summary>
-        internal static bool TryGetPresentationWord(int address, out ushort wordAddress)
-        {
-            wordAddress = 0;
-            if ((SnesAddressMath.BankBase(address)) != 0xa90000) return false;
-            int offset = (ushort)address - MotherBrainRoomPaletteProgramDefinitions.FlashStart;
-            if ((uint)offset >= MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount * 4 || offset % 4 < 2) return false;
-            wordAddress = (ushort)(address & 0xfffe);
-            return true;
-        }
-    }
-}
-
-/// <summary>Verification access to <see cref="MotherBrainTurretInstructionProgramDefinitions"/> members production does not use.</summary>
-internal static class MotherBrainTurretInstructionProgramDefinitionsAccess
-{
-    /// <summary>Indexes eight directional turret and bullet programs at their six-byte native stride.</summary>
-    extension(MotherBrainTurretInstructionProgramDefinitions)
-    {
-        /// <summary>Eight six-byte aiming programs surround the turret.</summary>
-        internal static int DirectionCount => 8;
-
-        /// <summary>Selects a turret aiming program from the leftmost native root.</summary>
-        internal static ushort TurretProgram(MotherBrainTurretDirection direction) =>
-            MotherBrainTurretInstructionProgramDefinitions.DirectionProgram(MotherBrainTurretInstructionProgramDefinitions.TurretLeft, direction);
-
-        /// <summary>Selects a bullet program from its leftmost native root.</summary>
-        internal static ushort BulletProgram(MotherBrainTurretDirection direction) =>
-            MotherBrainTurretInstructionProgramDefinitions.DirectionProgram(MotherBrainTurretInstructionProgramDefinitions.BulletLeft, direction);
-
-        /// <summary>Advances six bytes per aiming direction after validating the eight-way selector.</summary>
-        internal static ushort DirectionProgram(ushort first, MotherBrainTurretDirection direction)
-        {
-            int index = (byte)direction;
-            if ((uint)index >= MotherBrainTurretInstructionProgramDefinitions.DirectionCount)
-                throw new ArgumentOutOfRangeException(nameof(direction), direction,
-                    "Mother Brain turret direction must be zero through seven.");
-            return (ushort)(first + 6 * index);
         }
     }
 }

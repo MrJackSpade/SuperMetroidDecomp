@@ -4,15 +4,13 @@ using SuperMetroid.Core.Rom;
 
 /// <summary>
 /// The native bank-$A7 and bank-$86 lists the Kraid ROM oracle (#1284) walks: the part and rock list entry points,
-/// their callbacks and the cue each must become, and a minimal rock-list reader. Only verification reads them; the
+/// and their callbacks with the cue each must become. Only verification reads them; the
 /// port runs typed programs.
 /// </summary>
 internal static class KraidNativeListAddresses
 {
     /// <summary>Kraid's instruction bank, $A7.</summary>
     internal const byte PartBankNumber = 0xa7;
-    /// <summary>The bank-$86 projectile instruction lists, as a long-address base.</summary>
-    internal const int ProjectileBank = 0x860000;
 
     /// <summary>Each typed part program's native entry point in bank $A7, in authored order.</summary>
     internal static readonly (KraidPartProgram Program, ushort Entry)[] PartEntries =
@@ -65,79 +63,4 @@ internal static class KraidNativeListAddresses
         (KraidRockProgram.RisingRightPose, 0x9c83),
         (KraidRockProgram.SpitRockShot, 0x9c89),
     ];
-
-    /// <summary>What a native bank-$86 Kraid rock list word does.</summary>
-    internal enum RockWordKind
-    {
-        /// <summary>A frame: a duration and a spritemap operand.</summary>
-        Frame,
-        /// <summary>The pre-instruction install and its routine operand.</summary>
-        PreInstruction,
-        /// <summary>The sleep.</summary>
-        Sleep,
-        /// <summary>The deletion.</summary>
-        Delete,
-    }
-
-    /// <summary>The bank-$86 opcodes the rock lists use besides frames.</summary>
-    private static readonly Dictionary<ushort, RockWordKind> RockWords = new()
-    {
-        [(ushort)EnemyProjectileInstruction.PreInstructionInY] = RockWordKind.PreInstruction,
-        [(ushort)EnemyProjectileInstruction.Sleep] = RockWordKind.Sleep,
-        [(ushort)EnemyProjectileInstruction.Delete] = RockWordKind.Delete,
-    };
-
-    /// <summary>Decodes a native rock list word, rejecting words outside the compared set.</summary>
-    internal static RockWordKind ClassifyRockWord(ushort word) =>
-        (word & NativeEnemyListDefinitions.InstructionBit) == 0 ? RockWordKind.Frame
-        : RockWords.TryGetValue(word, out RockWordKind kind) ? kind
-        : throw new InvalidDataException($"Kraid rock list word ${word:X4} is outside the compared set.");
-
-    /// <summary>A native bank-$86 Kraid rock list with the projectile interpreter's timer gate.</summary>
-    internal sealed class NativeRockList(ushort cursor, ushort timer)
-    {
-        /// <summary>The next native instruction.</summary>
-        private ushort cursor = cursor;
-        /// <summary>Updates remaining before the next native instruction is consumed.</summary>
-        internal ushort Timer { get; private set; } = timer;
-        /// <summary>The spritemap operand of the latest native frame.</summary>
-        internal ushort Operand { get; private set; }
-        /// <summary>The pre-instruction the list installed, if any.</summary>
-        internal ushort? PreInstruction { get; private set; }
-        /// <summary>Whether the list has deleted its rock.</summary>
-        internal bool Deleted { get; private set; }
-
-        /// <summary>Runs one update.</summary>
-        internal void Step(IImportCartridgeSource cartridge)
-        {
-            ushort old = Timer;
-            Timer = NativeWordCounter.Decrement(Timer).Value;
-            if (old != 1)
-                return;
-            for (int command = 0; command < 8; command++)
-            {
-                ushort word = cartridge.ReadCartridgeWord(ProjectileBank | cursor);
-                switch (ClassifyRockWord(word))
-                {
-                    case RockWordKind.Frame:
-                        Timer = word;
-                        Operand = unchecked((ushort)(cursor + 2));
-                        cursor = unchecked((ushort)(cursor + 4));
-                        return;
-                    case RockWordKind.PreInstruction:
-                        PreInstruction = cartridge.ReadCartridgeWord(ProjectileBank | (cursor + 2));
-                        cursor = unchecked((ushort)(cursor + 4));
-                        continue;
-                    case RockWordKind.Sleep:
-                        return;
-                    case RockWordKind.Delete:
-                        Deleted = true;
-                        return;
-                    default:
-                        throw new InvalidOperationException($"Undefined {nameof(RockWordKind)}.");
-                }
-            }
-            throw new InvalidDataException("A native Kraid rock list ran eight commands without a frame.");
-        }
-    }
 }

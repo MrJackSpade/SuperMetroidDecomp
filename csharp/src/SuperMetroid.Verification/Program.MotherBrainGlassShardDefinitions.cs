@@ -17,7 +17,6 @@ internal static class MotherBrainGlassShardDefinitionsVerification
         var guarded = NewMotherBrainGlassShardReadGuard(rom);
 
         Suite(nameof(VerifyGlassShardProgramSelection), () => VerifyGlassShardProgramSelection(rom));
-        Suite(nameof(VerifyGlassShardProgramOrigins), () => VerifyGlassShardProgramOrigins(rom));
 
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
@@ -36,9 +35,9 @@ internal static class MotherBrainGlassShardDefinitionsVerification
 
                 RoomEnemyProjectileSlot shard =
                     enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
-                AssertEqual(MotherBrainGlassShardDefinitions.InstructionPointer(animationIndex),
-                    shard.InstructionPointer,
-                    $"production Mother Brain glass-shard instruction {parameter}/{animationIndex}");
+                AssertTrue(shard.Animation is MotherBrainGlassAnimation started &&
+                    started.Program == MotherBrainGlassAnimations.ShardProgram(animationIndex),
+                    $"production Mother Brain glass-shard program {parameter}/{animationIndex}");
                 AssertEqual(unchecked((ushort)(0x0200 + unchecked((short)ReadMotherBrainGlassShardWord(rom, 0x86ce61 + parameter)))), shard.Position.X.Whole,
                     $"production Mother Brain glass-shard X {parameter}/{animationIndex}");
                 AssertEqual(unchecked((ushort)(0x0080 + unchecked((short)ReadMotherBrainGlassShardWord(rom, 0x86ce67 + parameter)))), shard.Position.Y.Whole,
@@ -53,7 +52,7 @@ internal static class MotherBrainGlassShardDefinitionsVerification
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainGlassShardDefinitions.InstructionPointer(16),
+            () => MotherBrainGlassAnimations.ShardProgram(16),
             "Mother Brain glass-shard animation past table");
         AssertThrows<ArgumentOutOfRangeException>(
             () => MotherBrainGlassShardDefinitions.Placement(1),
@@ -69,26 +68,12 @@ internal static class MotherBrainGlassShardDefinitionsVerification
         {
             ushort index = (ushort)raw;
             if (raw >= 16)
-                AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainGlassShardDefinitions.InstructionPointer(index),
+                AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainGlassAnimations.ShardProgram(index),
                     "Glass shard selector full rejected domain");
             else
                 AssertEqual(ReadMotherBrainGlassShardWord(rom, 0x86ce41 + 2 * raw),
-                    MotherBrainGlassShardDefinitions.InstructionPointer(index), "Glass shard original angular selector");
+                    MotherBrainNativeListAddresses.GlassEntries[MotherBrainGlassAnimations.ShardProgram(index)], "Glass shard original angular selector");
         }
-    }
-
-    /// <summary>Compares the eight distinct native shard-loop starts independently of selector stride.</summary>
-    private static void VerifyGlassShardProgramOrigins(SuperMetroidAddressSpace rom)
-    {
-        // Original selector entries that introduce each native loop, independent of its stride.
-        int[] entries = [0,1,3,6,8,9,11,14];
-        AssertEqual(8, MotherBrainGlassInstructionProgramDefinitions.ShardProgramCount, "Glass shard original loop count");
-        for (int index = 0; index < entries.Length; index++)
-            AssertEqual(ReadMotherBrainGlassShardWord(rom, 0x86ce41 + entries[index] * 2),
-                MotherBrainGlassInstructionProgramDefinitions.ShardProgram(index), "Glass shard original loop origin");
-        foreach (int invalid in new[] {int.MinValue,-1,8,16,ushort.MaxValue,int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainGlassInstructionProgramDefinitions.ShardProgram(invalid),
-                "Glass shard ordinal bounds preserve array contract");
     }
 
     /// <summary>Checks signed horizontal offsets for the three supported shard parameters.</summary>

@@ -37,8 +37,8 @@ internal static class MotherBrainShotReaction
             // `$B5A9`: BPL keeps the nonnegative remainder without recoil, which is why
             // sustained Hyper Beam fire first consumes accumulated walk credit. On underflow
             // the counter is replaced by zero, not the wrapped subtraction.
-            ushort candidate = unchecked((ushort)(walkCounter - 0x010a));
-            return (candidate & 0x8000) == 0
+            ushort candidate = unchecked((ushort)(walkCounter - 266));
+            return unchecked((short)candidate) >= 0
                 ? new MotherBrainShotReactionResult(candidate, HyperBeamRecoil: false)
                 : new MotherBrainShotReactionResult(0, HyperBeamRecoil: true);
         }
@@ -50,9 +50,9 @@ internal static class MotherBrainShotReaction
         if (reactionType == 0)
             return new MotherBrainShotReactionResult(0, HyperBeamRecoil: false);
 
-        ushort genericCandidate = unchecked((ushort)(walkCounter - 0x0100));
+        ushort genericCandidate = unchecked((ushort)(walkCounter - 256));
         return new MotherBrainShotReactionResult(
-            (genericCandidate & 0x8000) == 0 ? genericCandidate : (ushort)0,
+            unchecked((short)genericCandidate) >= 0 ? genericCandidate : (ushort)0,
             HyperBeamRecoil: false);
     }
 }

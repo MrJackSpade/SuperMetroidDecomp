@@ -68,11 +68,3 @@ internal sealed class IntroMotherBrainParts(int frame) : IReadOnlyList<CompiledS
     /// <summary>Exposes the same spritemap order through the non-generic collection interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
-
-/// <summary>Atlas origin shared by the fixed and animated intro Mother Brain portrait cells.</summary>
-internal static class IntroMotherBrainAtlas
-{
-    /// <summary>Tile$150, upper-left of the first48x48 drawing. Animated patches
-    /// begin six tile columns apart;shared center and bottom cells remain in this patch.</summary>
-    internal const int FirstPatch = 0x150;
-}

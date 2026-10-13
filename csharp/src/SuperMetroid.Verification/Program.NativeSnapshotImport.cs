@@ -281,7 +281,7 @@ internal static class NativeSnapshotImportVerification
             }
         }
         if (runtime.Enemies.MotherBrainEncounter.MotherBrain is not null)
-            ImportNativeMotherBrain(runtime, W);
+            ImportNativeMotherBrain(runtime, SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), W);
         runtime.Nmi.NmiFrameCounter = W(NativeSnapshotMemory.NmiCounter);
         runtime.Nmi.NmiFrameCounter8 = memory[NativeSnapshotMemory.NmiCounterByte];
         samus.CollectedItems = W(NativeSnapshotMemory.CollectedItems); samus.CollectedBeams = W(NativeSnapshotMemory.CollectedBeams);

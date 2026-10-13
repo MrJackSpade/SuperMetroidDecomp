@@ -18,34 +18,22 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class BabyMetroidCutsceneState
 {
-    /// <summary>
-    /// Public debugger witness for <c>InstList_BabyMetroid_Initial</c> at $A9:CFA2.
-    /// </summary>
-    public const ushort InitialInstructionList =
-        MotherBrainBabyInstructionProgramDefinitions.Initial;
-
-    /// <summary>
-    /// Public debugger witness for <c>InstList_BabyMetroid_DrainingMotherBrain</c> at
-    /// $A9:CFB8.
-    /// </summary>
-    public const ushort DrainingMotherBrainInstructionList =
-        MotherBrainBabyInstructionProgramDefinitions.DrainingMotherBrain;
     /// <summary>Authored $A9:93BB X/Y shake offsets shared by Mother Brain and the latched Baby; the frame counter selects one pair.</summary>
     private static readonly Offset16<RoomPixels>[] ShakingOffsets =
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
     /// <summary>Places the latched Baby 24 pixels above Mother Brain's brain anchor.</summary>
-    private static readonly Offset16<RoomPixels> BrainLatchOffset = new(0, -0x0018);
+    private static readonly Offset16<RoomPixels> BrainLatchOffset = new(0, -24);
     /// <summary>Places the latched Baby 20 pixels above Samus's center.</summary>
-    private static readonly Offset16<RoomPixels> SamusLatchOffset = new(0, -0x0014);
+    private static readonly Offset16<RoomPixels> SamusLatchOffset = new(0, -20);
 
     // Enemy header `$A0:ECBF` declares width/height `$24`. Despite the header macro's
     // friendly names, `$A0:8AFF/$8B05` copy those words directly into the enemy slot's
     // X/Y *radius* fields; there is no diameter-to-radius division anywhere in between.
     /// <summary>Horizontal collision half-extent, 36 room pixels from the Baby's center, copied without halving from <c>EnemyHeaders_BabyMetroidCutscene</c> at $A0:ECBF.</summary>
-    public const ushort XHitboxRadius = 0x0024;
+    public const ushort XHitboxRadius = 36;
     /// <summary>Vertical collision half-extent, 36 room pixels from the Baby's center, copied without halving from <c>EnemyHeaders_BabyMetroidCutscene</c> at $A0:ECBF.</summary>
-    public const ushort YHitboxRadius = 0x0024;
+    public const ushort YHitboxRadius = 36;
 
     // Shared bank-$86 component math indexes this 16-bit sign-extended table with an
     // eight-bit angle. Angle zero points down; positive rotation is anti-clockwise.
@@ -63,8 +51,8 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Enemy graphics offset selecting the four transferred Baby tile rows.</summary>
     public ushort GraphicsOffset { get; private set; }
 
-    /// <summary>Current bank-$A9 enemy instruction list.</summary>
-    public ushort InstructionList { get; private set; }
+    /// <summary>The Baby's current program.</summary>
+    public MotherBrainBabyProgram Program { get; private set; }
 
     /// <summary>Enemy instruction timer reset to one whenever the list changes.</summary>
     public ushort InstructionTimer { get; private set; }
@@ -174,10 +162,10 @@ public sealed class BabyMetroidCutsceneState
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.ProcessInstructions);
         Palette = EnemyPaletteBits.Palette7;
-        GraphicsOffset = 0x00a0;
-        SetInstructionList(InitialInstructionList);
+        GraphicsOffset = 160;
+        SetProgram(MotherBrainBabyProgram.Initial);
         CrySoundEnabled = true;
-        PaletteHandlerDelay = 0x000a;
+        PaletteHandlerDelay = 10;
         HealthBasedPaletteEnabled = false;
         MovementTablePointer = 0;
         Health = 3200;
@@ -192,12 +180,12 @@ public sealed class BabyMetroidCutsceneState
         RoomLightsTransitionCounter = 0;
         SamusRainbowPaletteAnimationCounter = 0;
         SamusRainbowPhase = BabyMetroidSamusRainbowPhase.Inactive;
-        Position = FixedPosition<RoomPixels>.FromWhole(new(0x0140, 0x0060)).WithFractionsOf(previousOccupant);
+        Position = FixedPosition<RoomPixels>.FromWhole(new(320, 96)).WithFractionsOf(previousOccupant);
         Velocity = default;
         Speed = 0;
         Angle = 0;
         Phase = BabyMetroidCutscenePhase.DashOntoScreen;
-        FunctionTimer = NativeCountdown.Start(0x00f8);
+        FunctionTimer = NativeCountdown.Start(248);
     }
 
     /// <summary>
@@ -247,7 +235,7 @@ public sealed class BabyMetroidCutsceneState
         {
             bool reachedLatchPoint = AccelerateTowardsPoint(
                 samus.Position.Whole + SamusLatchOffset,
-                acceleration: 0x0010);
+                acceleration: 16);
             if (reachedLatchPoint)
             {
                 Velocity = default;
@@ -264,26 +252,26 @@ public sealed class BabyMetroidCutsceneState
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
-                    Angle = 0xd800;
-                    Speed = 0x0a00;
+                    Angle = 55296;
+                    Speed = 2560;
                     Phase = BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
-                    FunctionTimer = NativeCountdown.Start(0x000a);
+                    FunctionTimer = NativeCountdown.Start(10);
                     goto case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
                 }
                 break;
 
             case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead:
-                UpdateSpeedAndAngle(angleDelta: 0xfe80, targetAngle: 0xb000, targetSpeed: 0x0a00);
+                UpdateSpeedAndAngle(angleDelta: unchecked((ushort)-384), targetAngle: 45056, targetSpeed: 2560);
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
                     Phase = BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace;
-                    FunctionTimer = NativeCountdown.Start(0x0009);
+                    FunctionTimer = NativeCountdown.Start(9);
                 }
                 break;
 
             case BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace:
-                UpdateSpeedAndAngle(angleDelta: 0xfa00, targetAngle: 0x8200, targetSpeed: 0x0e00);
+                UpdateSpeedAndAngle(angleDelta: unchecked((ushort)-1536), targetAngle: 33280, targetSpeed: 3584);
                 brainCollision = CollidesWithRectangle(
                     head,
                     TargetRadius);
@@ -308,8 +296,8 @@ public sealed class BabyMetroidCutsceneState
                 Position16<RoomPixels> target = head + BrainLatchOffset;
                 GraduallyAccelerateTowardsPoint(
                     target,
-                    accelerationDivisor: 0x10,
-                    wrongWayOffScreenXSpeed: 0x0400,
+                    accelerationDivisor: 16,
+                    wrongWayOffScreenXSpeed: 1024,
                     layer1);
                 brainCollision = CollidesWithRectangle(target, new Extent16<RoomPixels>(8, 8));
                 if (brainCollision)
@@ -327,14 +315,14 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody:
             {
                 Position16<RoomPixels> target = head + BrainLatchOffset;
-                bool reachedTarget = AccelerateTowardsPoint(target, acceleration: 0x0200);
+                bool reachedTarget = AccelerateTowardsPoint(target, acceleration: 512);
                 if (reachedTarget)
                 {
                     // The helper predicts whole-pixel overshoot but does not itself store
                     // its returned target coordinate. `$C8A4-$C8B7` performs the exact pin.
                     Velocity = default;
                     Position = Position.WithWhole(target);
-                    SetInstructionList(DrainingMotherBrainInstructionList);
+                    SetProgram(MotherBrainBabyProgram.DrainingMotherBrain);
                     Phase = BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse;
                     PaletteHandlerDelay = 1;
                     motherBrain.InterruptFinalBeamForBabyDrain();
@@ -350,7 +338,7 @@ public sealed class BabyMetroidCutsceneState
                 if (motherBrain.Phase2CorpseState != 0)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
-                    FunctionTimer = NativeCountdown.Start(0x0040);
+                    FunctionTimer = NativeCountdown.Start(64);
                 }
                 break;
             }
@@ -362,10 +350,10 @@ public sealed class BabyMetroidCutsceneState
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
-                    SetInstructionList(InitialInstructionList);
-                    PaletteHandlerDelay = 0x000a;
+                    SetProgram(MotherBrainBabyProgram.Initial);
+                    PaletteHandlerDelay = 10;
                     Phase = BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds;
-                    FunctionTimer = NativeCountdown.Start(0x0020);
+                    FunctionTimer = NativeCountdown.Start(32);
                     Velocity = default;
                 }
                 break;
@@ -382,13 +370,13 @@ public sealed class BabyMetroidCutsceneState
                     // enemy's current room coordinate and passes animation parameter nine
                     // to the ordinary highest-free-slot allocator.
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        head + new Offset16<RoomPixels>(-0x0010, -0x0008),
+                        head + new Offset16<RoomPixels>(-16, -8),
                         Animation: MiscDustAnimation.SmallDustCloud));
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        head + new Offset16<RoomPixels>(0, -0x0010),
+                        head + new Offset16<RoomPixels>(0, -16),
                         Animation: MiscDustAnimation.SmallDustCloud));
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        head + new Offset16<RoomPixels>(0x0010, -0x0008),
+                        head + new Offset16<RoomPixels>(16, -8),
                         Animation: MiscDustAnimation.SmallDustCloud));
                     Phase = BabyMetroidCutscenePhase.MoveToTheCeiling;
                 }
@@ -399,8 +387,8 @@ public sealed class BabyMetroidCutsceneState
                 Position16<RoomPixels> target = head.WithY(0);
                 GraduallyAccelerateTowardsPoint(
                     target,
-                    accelerationDivisor: 0x10,
-                    wrongWayOffScreenXSpeed: 0x0400,
+                    accelerationDivisor: 16,
+                    wrongWayOffScreenXSpeed: 1024,
                     layer1);
                 bool ceilingCollision = CollidesWithRectangle(target, TargetRadius);
                 brainCollision = ceilingCollision;
@@ -420,7 +408,7 @@ public sealed class BabyMetroidCutsceneState
                 // only the low twelve bits and succeeds for `$FA0-$FFF` (96 of 4096 seeds).
                 CrySoundEnabled = false;
                 HealthBasedPaletteEnabled = true;
-                ambientCrySoundQueued = (randomNumber & 0x0fff) >= 0x0fa0;
+                ambientCrySoundQueued = (randomNumber & 4095) >= 4000;
 
                 // `$CA24-$CA64` is eight overlapping records. The fixed targets, divisor
                 // indexes, and callback identities are compiled mechanics definitions;
@@ -433,12 +421,12 @@ public sealed class BabyMetroidCutsceneState
                 // `$F56A` is `[10,0F,...,01]`; every retail `$CA24` record uses index zero,
                 // but implementing all legal indices costs nothing and catches malformed
                 // data before a divide-by-zero or an invented fallback can hide it.
-                if (divisorIndex > 0x000f)
+                if (divisorIndex > 15)
                 {
                     throw new InvalidDataException(
                         $"Baby route ${MovementTablePointer:X4} has invalid divisor index ${divisorIndex:X4}.");
                 }
-                ushort accelerationDivisor = unchecked((ushort)(0x0010 - divisorIndex));
+                ushort accelerationDivisor = unchecked((ushort)(16 - divisorIndex));
                 ushort wrongWayExtra = BabyMetroidRouteDefinitions.GetWrongWayOffScreenXSpeed(
                     record.MovementFunction);
 
@@ -455,7 +443,7 @@ public sealed class BabyMetroidCutsceneState
                 if (CollidesWithRectangle(target, TargetRadius))
                 {
                     ushort nextWord = record.FollowingWord;
-                    if ((nextWord & 0x8000) != 0)
+                    if (unchecked((short)nextWord) < 0)
                     {
                         if (nextWord != BabyMetroidRouteDefinitions.LatchOntoSamusFunction)
                         {
@@ -478,8 +466,8 @@ public sealed class BabyMetroidCutsceneState
                 // handler `$CF03`, executed after main AI and the common mover below.
                 GraduallyAccelerateTowardsPoint(
                     samus.Position.Whole + SamusLatchOffset,
-                    accelerationDivisor: 0x10,
-                    wrongWayOffScreenXSpeed: 0x0400,
+                    accelerationDivisor: 16,
+                    wrongWayOffScreenXSpeed: 1024,
                     layer1);
                 break;
 
@@ -525,13 +513,13 @@ public sealed class BabyMetroidCutsceneState
                     // health carried into the final charge. Native code deliberately gives
                     // the Baby `$0140` health, changes to the low-health palette function,
                     // disables health-band palettes, and lets `$CB13` run next frame.
-                    Health = 0x0140;
+                    Health = 320;
                     Phase = BabyMetroidCutscenePhase.ReleaseSamus;
-                    LowHealthPaletteTimer = 0x000a;
+                    LowHealthPaletteTimer = 10;
                     // `$A9:CB05` stores ten in the same enemy variable used by the normal
                     // palette handler.  This is not an immediate/zero-delay switch: the
                     // low-health palette routine counts through its own ten-frame cadence.
-                    PaletteHandlerDelay = 0x000a;
+                    PaletteHandlerDelay = 10;
                     HealthBasedPaletteEnabled = false;
                 }
                 break;
@@ -551,11 +539,11 @@ public sealed class BabyMetroidCutsceneState
                 // enter at `$A9:F466`, which stores a `$10` wrong-way off-screen X extra,
                 // not the `$400` of the entrance helpers.
             {
-                var target = new Position16<RoomPixels>(unchecked((ushort)(samus.Position.X.Whole - 4)), 0x0060);
+                var target = new Position16<RoomPixels>(unchecked((ushort)(samus.Position.X.Whole - 4)), 96);
                 GraduallyAccelerateTowardsPoint(
                     target,
-                    accelerationDivisor: 0x0010,
-                    wrongWayOffScreenXSpeed: 0x0010,
+                    accelerationDivisor: 16,
+                    wrongWayOffScreenXSpeed: 16,
                     layer1);
                 if (CollidesWithRectangle(target, TargetRadius))
                 {
@@ -568,11 +556,11 @@ public sealed class BabyMetroidCutsceneState
                 // Despite the function's historical name, this leg targets the fixed point
                 // `(272,64)` just beyond the right edge of the original 256-pixel camera.
                 GraduallyAccelerateTowardsPoint(
-                    new Position16<RoomPixels>(0x0110, 0x0040),
-                    accelerationDivisor: 0x0010,
-                    wrongWayOffScreenXSpeed: 0x0010,
+                    new Position16<RoomPixels>(272, 64),
+                    accelerationDivisor: 16,
+                    wrongWayOffScreenXSpeed: 16,
                     layer1);
-                if (CollidesWithRectangle(new Position16<RoomPixels>(0x0110, 0x0040), TargetRadius))
+                if (CollidesWithRectangle(new Position16<RoomPixels>(272, 64), TargetRadius))
                     Phase = BabyMetroidCutscenePhase.MoveToFinalChargeStart;
                 break;
 
@@ -581,13 +569,13 @@ public sealed class BabyMetroidCutsceneState
                 // exactly 79 HP so the final four-ring volley kills on its first collision,
                 // clears the brain-slot speed flag, and replaces Mother Brain's retreat AI.
                 GraduallyAccelerateTowardsPoint(
-                    new Position16<RoomPixels>(0x0131, 0x00a0),
-                    accelerationDivisor: 0x0010,
-                    wrongWayOffScreenXSpeed: 0x0010,
+                    new Position16<RoomPixels>(305, 160),
+                    accelerationDivisor: 16,
+                    wrongWayOffScreenXSpeed: 16,
                     layer1);
-                if (CollidesWithRectangle(new Position16<RoomPixels>(0x0131, 0x00a0), TargetRadius))
+                if (CollidesWithRectangle(new Position16<RoomPixels>(305, 160), TargetRadius))
                 {
-                    Health = 0x004f;
+                    Health = 79;
                     motherBrain.ExecuteFinalBabyMetroidAttack();
                     Phase = BabyMetroidCutscenePhase.InitiateFinalCharge;
                 }
@@ -597,11 +585,11 @@ public sealed class BabyMetroidCutsceneState
                 // Divisor-table index `$A` maps to `$10-$A == 6`. This helper family adds
                 // `$400` only when an off-screen actor is moving the wrong horizontal way.
                 GraduallyAccelerateTowardsPoint(
-                    new Position16<RoomPixels>(0x0122, 0x0080),
-                    accelerationDivisor: 0x0006,
-                    wrongWayOffScreenXSpeed: 0x0400,
+                    new Position16<RoomPixels>(290, 128),
+                    accelerationDivisor: 6,
+                    wrongWayOffScreenXSpeed: 1024,
                     layer1);
-                if (CollidesWithRectangle(new Position16<RoomPixels>(0x0122, 0x0080), TargetRadius))
+                if (CollidesWithRectangle(new Position16<RoomPixels>(290, 128), TargetRadius))
                     Phase = BabyMetroidCutscenePhase.FinalCharge;
                 break;
 
@@ -610,21 +598,20 @@ public sealed class BabyMetroidCutsceneState
                 // centre. Index `$C` maps to divisor four and therefore accelerates much
                 // more aggressively than the staging leg.
                 GraduallyAccelerateTowardsPoint(
-                    head + new Offset16<RoomPixels>(0, -0x0020),
-                    accelerationDivisor: 0x0004,
-                    wrongWayOffScreenXSpeed: 0x0400,
+                    head + new Offset16<RoomPixels>(0, -32),
+                    accelerationDivisor: 4,
+                    wrongWayOffScreenXSpeed: 1024,
                     layer1);
                 if (Health == 0)
                 {
                     // `$A9:CBF2-$CC3D` changes graphics/list state, freezes the body AI,
                     // clears velocity, remembers the shake origin, and falls through into
                     // the first of 17 fatal-blow shake calls.
-                    GraphicsOffset = 0x10a0;
-                    SetInstructionList(
-                        MotherBrainBabyInstructionProgramDefinitions.TakingFatalBlow);
+                    GraphicsOffset = 4256;
+                    SetProgram(MotherBrainBabyProgram.TakingFatalBlow);
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
-                    FunctionTimer = NativeCountdown.Start(0x0010);
+                    FunctionTimer = NativeCountdown.Start(16);
                     FatalBlowOrigin = Position.Whole;
                     goto case BabyMetroidCutscenePhase.TakeFinalBlow;
                 }
@@ -635,7 +622,7 @@ public sealed class BabyMetroidCutsceneState
                 // `ShakeBabyMetroidCutscene` ($A9:CEDB) first adds `$FFFF` to the Y velocity,
                 // which the common mover then applies, and places the Baby at the saved origin
                 // plus the undoubled shaking offsets.
-                Velocity = Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(Velocity.Y.RawValue + 0xffff))));
+                Velocity = Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(Velocity.Y.RawValue - 1))));
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
                 Position = Position.WithWhole(FatalBlowOrigin + ShakingOffsets[shakingIndex]);
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
@@ -643,7 +630,7 @@ public sealed class BabyMetroidCutsceneState
                 {
                     Position = Position.WithWhole(FatalBlowOrigin);
                     Phase = BabyMetroidCutscenePhase.PlaySamusTheme;
-                    FunctionTimer = NativeCountdown.Start(0x0038);
+                    FunctionTimer = NativeCountdown.Start(56);
                     goto case BabyMetroidCutscenePhase.PlaySamusTheme;
                 }
                 break;
@@ -656,7 +643,7 @@ public sealed class BabyMetroidCutsceneState
                 if (FunctionTimer.IsNegative)
                 {
                     Phase = BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
-                    FunctionTimer = NativeCountdown.Start(0x000c);
+                    FunctionTimer = NativeCountdown.Start(12);
                     goto case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
                 }
                 break;
@@ -683,7 +670,7 @@ public sealed class BabyMetroidCutsceneState
                     // installs `$CCC0`, and waits through `$80..0` before the first DMA.
                     Properties = Properties.With(EnemyProperties.Invisible);
                     Phase = BabyMetroidCutscenePhase.UnloadTiles;
-                    FunctionTimer = NativeCountdown.Start(0x0080);
+                    FunctionTimer = NativeCountdown.Start(128);
                 }
                 else
                 {
@@ -721,7 +708,7 @@ public sealed class BabyMetroidCutsceneState
                         // publishing entry four. Native falls straight into `$CCDE`, so the
                         // newly written `$B0` becomes `$AF` on this same call.
                         Phase = BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
-                        FunctionTimer = NativeCountdown.Start(0x00b0);
+                        FunctionTimer = NativeCountdown.Start(176);
                         goto case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
                     }
                 }
@@ -747,10 +734,10 @@ public sealed class BabyMetroidCutsceneState
                 {
                     backgroundPaletteTransfer = new MotherBrainBackgroundPaletteTransferRequest(
                         PaletteIndex: paletteIndex,
-                        SourceAddress: unchecked((uint)(0xadf3d3 - paletteIndex * 0x38)),
-                        FirstDestinationColorIndex: 0x0062,
-                        SecondDestinationColorIndex: 0x00a2,
-                        ColorsPerDestination: 0x000e);
+                        SourceAddress: unchecked((uint)(MotherBrainBabyMetroidDefinitions.RoomLightsPaletteSource - paletteIndex * MotherBrainBabyMetroidDefinitions.RoomLightsPaletteBytes)),
+                        FirstDestinationColorIndex: 98,
+                        SecondDestinationColorIndex: 162,
+                        ColorsPerDestination: 14);
                     break;
                 }
 
@@ -805,13 +792,13 @@ public sealed class BabyMetroidCutsceneState
     /// <param name="damage">Unsigned health units to subtract, defaulting to the native $0050 (80); even zero damage refreshes the flash timer when health is nonzero.</param>
     /// <returns>An empty compatibility result; the effects are written directly to <see cref="Health"/> and <see cref="OnionRingHitFlashTimer"/>.</returns>
     /// <remarks>Zero health leaves all state unchanged. The caller must establish overlap and owns the Baby cry request, physical enemy-slot synchronization, and ring explosion/deletion.</remarks>
-    public BabyMetroidOnionRingHitResult ApplyMotherBrainOnionRingHit(ushort damage = 0x0050)
+    public BabyMetroidOnionRingHitResult ApplyMotherBrainOnionRingHit(ushort damage = 80)
     {
         ushort healthBefore = Health;
         if (healthBefore == 0)
             return new BabyMetroidOnionRingHitResult();
 
-        OnionRingHitFlashTimer = NativeCountdown.Start(0x0010);
+        OnionRingHitFlashTimer = NativeCountdown.Start(16);
         Health = healthBefore < damage
             ? (ushort)0
             : unchecked((ushort)(healthBefore - damage));
@@ -830,7 +817,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow:
                 // `$CD30` uses a signed CMP/BMI after adding sixteen to the Baby's Y.
-                if (unchecked((short)(Position.Y.Whole + 0x0010 - samus.Position.Y.Whole)) < 0)
+                if (unchecked((short)(Position.Y.Whole + 16 - samus.Position.Y.Whole)) < 0)
                     return;
                 samus.Drained.EnableRainbow(samus);
                 samusRainbowActivated = true;
@@ -839,7 +826,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown:
             {
-                uint sum = (uint)SamusRainbowPaletteAnimationCounter + 0x0300;
+                uint sum = (uint)SamusRainbowPaletteAnimationCounter + 768;
                 SamusRainbowPaletteAnimationCounter = unchecked((ushort)sum);
                 if (sum > ushort.MaxValue)
                     samus.Drained.IncrementRainbowPaletteFrame(maximumFrame: 10);
@@ -857,9 +844,9 @@ public sealed class BabyMetroidCutsceneState
         // `$CE40` subtracts `$20` from the magnitude, clamps at zero, reapplies the old
         // sign, and independently adds two to vertical 8.8 velocity with 16-bit wrap.
         ushort xVelocity = Velocity.X.RawValue;
-        bool negative = (xVelocity & 0x8000) != 0;
+        bool negative = unchecked((short)xVelocity) < 0;
         ushort magnitude = negative ? unchecked((ushort)-xVelocity) : xVelocity;
-        magnitude = magnitude >= 0x0020 ? unchecked((ushort)(magnitude - 0x0020)) : (ushort)0;
+        magnitude = magnitude >= 32 ? unchecked((ushort)(magnitude - 32)) : (ushort)0;
         Velocity = new(
             new SnesSignedEightEight(negative ? unchecked((ushort)-magnitude) : magnitude),
             new SnesSignedEightEight(unchecked((ushort)(Velocity.Y.RawValue + 2))));
@@ -869,7 +856,7 @@ public sealed class BabyMetroidCutsceneState
     private bool StepFadeToBlack(ref BabyMetroidPaletteTransferRequest? paletteTransfer)
     {
         // No timer changes occur until the actor's centre reaches Y `$80`.
-        if (unchecked((short)(Position.Y.Whole - 0x0080)) < 0)
+        if (unchecked((short)(Position.Y.Whole - 128)) < 0)
             return false;
 
         FadeToBlackPaletteTimer = FadeToBlackPaletteTimer.Decrement().Remaining;
@@ -906,13 +893,13 @@ public sealed class BabyMetroidCutsceneState
         return new BabyMetroidDeathExplosionRequest(
             Position: Position.Whole + DeathExplosionScatterDefinitions.Offset(DeathExplosionPatternIndex),
             Animation: MiscDustAnimation.SmallExplosion,
-            SoundEffect: 0x0013);
+            SoundEffect: MotherBrainSoundDefinitions.Explosion.Value);
     }
 
-    /// <summary>Switches the Baby's native animation list and resets its timer and loop counter.</summary>
-    private void SetInstructionList(ushort pointer)
+    /// <summary>Switches the Baby's program and resets its timer and loop counter.</summary>
+    private void SetProgram(MotherBrainBabyProgram program)
     {
-        InstructionList = pointer;
+        Program = program;
         InstructionTimer = 1;
         InstructionLoopCounter = 0;
     }
@@ -927,9 +914,9 @@ public sealed class BabyMetroidCutsceneState
         if (Speed != targetSpeed)
         {
             if (targetSpeed < Speed)
-                Speed = Speed - 0x20 < targetSpeed ? targetSpeed : unchecked((ushort)(Speed - 0x20));
+                Speed = Speed - 32 < targetSpeed ? targetSpeed : unchecked((ushort)(Speed - 32));
             else
-                Speed = Speed + 0x20 >= targetSpeed ? targetSpeed : unchecked((ushort)(Speed + 0x20));
+                Speed = Speed + 32 >= targetSpeed ? targetSpeed : unchecked((ushort)(Speed + 32));
         }
 
         ushort candidateAngle = unchecked((ushort)(Angle + angleDelta));
@@ -949,7 +936,7 @@ public sealed class BabyMetroidCutsceneState
         byte angleByte = SnesLittleEndian.HighByte(Angle);
         Velocity = new(
             new SnesSignedEightEight(CalculateVelocityComponent(Speed, angleByte)),
-            new SnesSignedEightEight(CalculateVelocityComponent(Speed, unchecked((byte)(angleByte + 0x40)))));
+            new SnesSignedEightEight(CalculateVelocityComponent(Speed, unchecked((byte)(angleByte + 64)))));
     }
 
     /// <summary>Multiplies speed by a signed sine-table entry with the cartridge's bit-8-to-23 result.</summary>
@@ -1031,13 +1018,13 @@ public sealed class BabyMetroidCutsceneState
         // 16 pixels left/right and 96 pixels vertically beyond the ordinary 256x224 view.
         if (unchecked((short)Position.Y.Whole) < 0)
             return true;
-        short relativeY = unchecked((short)(Position.Y.Whole + 0x0060 - layer1.Y));
-        if (relativeY is < 0 or >= 0x01a0)
+        short relativeY = unchecked((short)(Position.Y.Whole + 96 - layer1.Y));
+        if (relativeY is < 0 or >= 416)
             return true;
         if (unchecked((short)Position.X.Whole) < 0)
             return true;
-        short relativeX = unchecked((short)(Position.X.Whole + 0x0010 - layer1.X));
-        return relativeX is < 0 or >= 0x0120;
+        short relativeX = unchecked((short)(Position.X.Whole + 16 - layer1.X));
+        return relativeX is < 0 or >= 288;
     }
 
     /// <summary>Predicts both axis crossings and reports arrival only when X and Y reach their targets together.</summary>
@@ -1059,7 +1046,7 @@ public sealed class BabyMetroidCutsceneState
 
         if (difference < 0)
         {
-            int velocity = Math.Min(Velocity.Y.SignedRawValue + acceleration, 0x0500);
+            int velocity = Math.Min(Velocity.Y.SignedRawValue + acceleration, 1280);
             Velocity = Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)velocity)));
             ushort prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.Y.RawValue)))));
             if (unchecked((short)(prediction - targetY)) < 0)
@@ -1067,7 +1054,7 @@ public sealed class BabyMetroidCutsceneState
         }
         else
         {
-            int velocity = Math.Max(Velocity.Y.SignedRawValue - acceleration, -0x0500);
+            int velocity = Math.Max(Velocity.Y.SignedRawValue - acceleration, -1280);
             Velocity = Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)velocity)));
             ushort prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.Y.RawValue)))));
             short predictedDifference = unchecked((short)(prediction - targetY));
@@ -1085,7 +1072,7 @@ public sealed class BabyMetroidCutsceneState
         short difference = unchecked((short)(Position.X.Whole - targetX));
         if (difference < 0)
         {
-            int velocity = Math.Min(Velocity.X.SignedRawValue + acceleration, 0x0500);
+            int velocity = Math.Min(Velocity.X.SignedRawValue + acceleration, 1280);
             Velocity = Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)velocity)));
             ushort prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.X.RawValue)))));
             if (unchecked((short)(prediction - targetX)) < 0)
@@ -1095,7 +1082,7 @@ public sealed class BabyMetroidCutsceneState
         {
             // Native deliberately sends exact equality through the left branch; unlike Y,
             // there is no BEQ before BPL at `$A9:F619-$F61B`.
-            int velocity = Math.Max(Velocity.X.SignedRawValue - acceleration, -0x0500);
+            int velocity = Math.Max(Velocity.X.SignedRawValue - acceleration, -1280);
             Velocity = Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)velocity)));
             ushort prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.X.RawValue)))));
             short predictedDifference = unchecked((short)(prediction - targetX));

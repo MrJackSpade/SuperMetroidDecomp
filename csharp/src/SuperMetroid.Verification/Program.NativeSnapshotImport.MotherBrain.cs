@@ -9,8 +9,9 @@ internal static class NativeSnapshotImportMotherBrainVerification
     /// Imports Mother Brain's shared encounter state (enemy records $EC7F/$EC3F) from the
     /// native body/brain slot words and her extended WRAM ($7E:7800-$787B, $7E:8000-$8069).
     /// Called only when the room loaded her; the physical slot words were imported first.
+    /// Native list pointers become typed program cursors (#641) through the ROM oracle's walk of each list.
     /// </summary>
-    internal static void ImportNativeMotherBrain(SuperMetroidRuntime runtime, Func<int, ushort> W)
+    internal static void ImportNativeMotherBrain(SuperMetroidRuntime runtime, IImportCartridgeSource cartridge, Func<int, ushort> W)
     {
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
             "The native snapshot holds Mother Brain, but the room load did not create her.");
@@ -18,11 +19,16 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.Pose = (MotherBrainBodyPose)W(MotherBrainMemory.Pose);
         state.HitboxesEnabled = W(MotherBrainMemory.HitboxesEnabled);
         state.Function = (MotherBrainBodyFunction)W(MotherBrainMemory.BodyFunction);
-        state.BrainFunction = (MotherBrainBrainFunction)W(MotherBrainMemory.BrainFunction);
+        state.BrainFunction = MotherBrainNativeListAddresses.NativeBrainFunctions[W(MotherBrainMemory.BrainFunction)];
         state.FunctionTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BodyFunctionTimer));
-        state.RoomPaletteInstructionPointer = W(MotherBrainMemory.RoomPaletteInstructionList);
-        state.RoomPaletteInstructionTimer = W(MotherBrainMemory.RoomPaletteInstructionTimer);
-        state.TubeCollapseFunction = (MotherBrainTubeCollapseFunction)W(MotherBrainMemory.BrainSubFunction);
+        ushort flash = W(MotherBrainMemory.RoomPaletteInstructionList);
+        state.RoomFlashFrame = flash == 0 ? null
+            : MotherBrainNativeListAddresses.RoomFlashRecords.Single(record => unchecked((ushort)record.Record) == flash).Frame;
+        state.RoomFlashTimer = W(MotherBrainMemory.RoomPaletteInstructionTimer);
+        // The sub-function word is shared: outside the tube collapse it holds the death-explosion interval timer
+        // (imported below), so only a collapse routine pointer decodes to a collapse function.
+        if (MotherBrainNativeListAddresses.NativeTubeCollapseFunctions.TryGetValue(W(MotherBrainMemory.BrainSubFunction), out MotherBrainTubeCollapseFunction collapse))
+            state.TubeCollapseFunction = collapse;
         state.TubeCollapseTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunctionTimer));
         state.BodySubFunctionTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunctionTimer));
         state.FakeDeathExplosionTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.FakeDeathExplosionTimer));
@@ -30,8 +36,16 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.EnableUnpauseHook = W(MotherBrainMemory.EnableUnpauseHook) != 0;
         state.NeckPaletteIndex = W(MotherBrainMemory.NeckPaletteIndex);
         state.BrainPaletteIndex = W(MotherBrainMemory.BrainPaletteIndex);
-        state.BrainInstructionPointer = W(MotherBrainMemory.BrainInstructionList);
-        state.BrainInstructionTimer = W(MotherBrainMemory.BrainInstructionTimer);
+        ushort brain = W(MotherBrainMemory.BrainInstructionList);
+        // Bit 15 clear means the brain list is not live.
+        state.BrainCursor = unchecked((short)brain) >= 0 ? null : MotherBrainNativeListAddresses.CompareHead(cartridge)[brain];
+        state.BrainFrameTimer = W(MotherBrainMemory.BrainInstructionTimer);
+        Dictionary<ushort, AnimationProgramCursor<MotherBrainBodyProgram>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
+        state.BodyCursor = body[state.Body.CurrentInstruction];
+        state.HeadSlotCursor = body[state.Head!.CurrentInstruction];
+        Dictionary<ushort, AnimationProgramCursor<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
+        foreach (RoomEnemySlot tube in runtime.Enemies.SlotTable.Slots.Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes))
+            runtime.Enemies.MotherBrainBehavior.FallingTubeCursors[tube.SlotIndex] = tubes[tube.CurrentInstruction];
         state.BrainMainShakeTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BrainMainShakeTimer));
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.RainbowPaletteCursor = W(MotherBrainMemory.RainbowPaletteIndex);
@@ -105,8 +119,6 @@ internal static class NativeSnapshotImportMotherBrainVerification
         var artwork = runtime.Enemies.Room.MotherBrainCorpseArtwork;
         var sequence = new MotherBrainRainbowBeamAttackSequence(artwork);
         sequence.Phase = phase;
-        sequence.HeadInstructionTimer = W(MotherBrainMemory.BrainInstructionTimer);
-        sequence.HeadInstructionPointer = W(MotherBrainMemory.BrainInstructionList);
         sequence.FunctionTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BodyFunctionTimer));
         sequence.AngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);
         sequence.SoundQueueCount = NativeCountdown.FromRaw(W(MotherBrainMemory.RainbowBeamSoundQueueCount));

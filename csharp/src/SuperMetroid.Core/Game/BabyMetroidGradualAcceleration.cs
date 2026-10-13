@@ -11,11 +11,11 @@ namespace SuperMetroid.Core.Game;
 internal static class BabyMetroidGradualAcceleration
 {
     /// <summary>Extra native speed adjustment while reversing direction toward the target.</summary>
-    private const ushort ReversalStep = 0x0008;
+    private const ushort ReversalStep = 8;
     /// <summary>Horizontal signed-velocity clamp applied after the carry-sensitive update.</summary>
-    private const ushort MaxXSpeed = 0x0800;
+    private const ushort MaxXSpeed = 2048;
     /// <summary>Vertical signed-velocity clamp, smaller than the horizontal limit.</summary>
-    private const ushort MaxYSpeed = 0x0500;
+    private const ushort MaxYSpeed = 1280;
 
     /// <summary>
     /// Returns the new X velocity. <paramref name="isVaguelyOffScreen"/> runs only on the
@@ -112,13 +112,13 @@ internal static class BabyMetroidGradualAcceleration
     }
 
     /// <summary>Tests the SNES word sign bit before choosing an acceleration or reversal branch.</summary>
-    private static bool IsNegative(ushort value) => (value & 0x8000) != 0;
+    private static bool IsNegative(ushort value) => unchecked((short)value) < 0;
 
     /// <summary>Models sixteen-bit ADC while carrying overflow into the next native arithmetic step.</summary>
     private static ushort Adc(ushort value, ushort addend, ref bool carry)
     {
         int sum = value + addend + (carry ? 1 : 0);
-        carry = sum > 0xffff;
+        carry = sum > ushort.MaxValue;
         return unchecked((ushort)sum);
     }
 

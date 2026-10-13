@@ -38,19 +38,16 @@ public sealed class MotherBrainRoomColorPresentation
         this.recoveryLights = recoveryLights;
     }
 
-    /// <summary>Applies a color row selected by the compiled $A9:D046 timing program.</summary>
+    /// <summary>Applies the color row of one room-flash frame.</summary>
     /// <param name="cgram">Destination color memory; twelve colors at indices 52..63 and 83..94 are replaced, with the second slice mirrored to 115..126.</param>
-    /// <param name="timedEntryPointer">Bank-$A9 timed-entry address $D046 + row * 4 for row 0..13, pointing at the duration word, not its palette operand.</param>
-    /// <exception cref="InvalidDataException"><paramref name="timedEntryPointer"/> is not one of the fourteen compiled entry addresses.</exception>
+    /// <param name="frame">The flash frame, 0..13.</param>
+    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of the fourteen authored frames.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public void ApplyFlash(SnesCgram cgram, ushort timedEntryPointer)
+    public void ApplyFlash(SnesCgram cgram, int frame)
     {
-        int offset = timedEntryPointer - MotherBrainRoomPaletteProgramDefinitions.FlashStart;
-        int stride = MotherBrainRoomColorRomData.TimedEntryByteCount;
-        if (offset < 0 || offset % stride != 0 || (uint)(offset / stride) >= MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
-            throw new InvalidDataException($"Mother Brain room-flash entry $A9:{timedEntryPointer:X4} is not authored.");
+        if ((uint)frame >= MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
+            throw new InvalidDataException($"Mother Brain room-flash frame {frame} is not authored.");
         Ensure.NotNull(cgram);
-        int frame = offset / stride;
         for (int color = 0; color < MotherBrainRoomColorRomData.SliceColors; color++)
         {
             new MotherBrainPalettes(cgram).RoomFirst.Write(color, flash.Color(frame, color));

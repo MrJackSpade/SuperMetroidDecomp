@@ -12,7 +12,7 @@ internal static class MotherBrainDoorFragmentDefinitions
     internal const int Count = 8;
 
     /// <summary>$86:C9B2-$86:C9D1, interleaved with the X velocity: the fragments' authored scatter speeds.</summary>
-    private static ReadOnlySpan<short> YVelocities => [-0x0200, -0x0100, -0x0100, -0x0080, -0x0080, 0x0080, -0x0100, 0x0200];
+    private static ReadOnlySpan<short> YVelocities => [-512, -256, -256, -128, -128, 128, -256, 512];
 
     /// <summary>
     /// Returns the fragment selected by enemy-projectile parameter zero through seven. The
@@ -27,7 +27,7 @@ internal static class MotherBrainDoorFragmentDefinitions
                 nameof(parameter), parameter, "Mother Brain door fragment parameter must be zero through seven.");
         }
 
-        return new(new Offset16<RoomPixels>(0, (short)(-0x20 + 8 * parameter)),
-            new EightEightVector<RoomPixels>(0x0500, YVelocities[parameter]));
+        return new(new Offset16<RoomPixels>(0, (short)(-32 + 8 * parameter)),
+            new EightEightVector<RoomPixels>(1280, YVelocities[parameter]));
     }
 }

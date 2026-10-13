@@ -35,9 +35,9 @@ internal static class ZebetiteDefinitionsVerification
                 ZebetiteDefinitions.Generation(generation);
             ushort[] actual =
             [
-                definition.GenerationFlags,
+                (ushort)definition.GenerationFlags,
                 definition.YRadius,
-                definition.InstructionList,
+                ZebetiteEntry(definition.Program),
                 definition.XPosition,
                 definition.PrimaryYPosition,
                 definition.LinkedYPosition,
@@ -64,7 +64,7 @@ internal static class ZebetiteDefinitionsVerification
                 health < 800 ? 1 : 0;
             int table = linkedPair ? linkedHealthTable : bigHealthTable;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((table + tier * 2)),
-                ZebetiteDefinitions.HealthInstruction(linkedPair, health),
+                ZebetiteEntry(ZebetiteAnimations.HealthProgram(linkedPair, health)),
                 $"Zebetite {(linkedPair ? "linked" : "big")} health {health}");
         }
 
@@ -109,8 +109,8 @@ internal static class ZebetiteDefinitionsVerification
                 $"production Zebetite generation {generation} flags");
             AssertEqual(expected.YRadius, slot.Radius.Y,
                 $"production Zebetite generation {generation} radius");
-            AssertEqual(expected.InstructionList, slot.CurrentInstruction,
-                $"production Zebetite generation {generation} instruction");
+            AssertEqual(AnimationProgramCursor<ZebetiteProgram>.Start(expected.Program), state.Cursor,
+                $"production Zebetite generation {generation} program");
             AssertEqual(expected.XPosition, slot.Position.X.Whole,
                 $"production Zebetite generation {generation} X");
             AssertEqual(expected.YPosition(linkedHalf), slot.Position.Y.Whole,
@@ -120,10 +120,10 @@ internal static class ZebetiteDefinitionsVerification
             {
                 slot.Health = health;
                 ZebetiteBehavior.SelectZebetiteHealthAnimation(slot, state);
-                AssertEqual(ZebetiteDefinitions.HealthInstruction(
-                        (expected.GenerationFlags & 0x8000) != 0,
+                AssertEqual(ZebetiteAnimations.HealthProgram(
+                        (expected.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0,
                         health),
-                    slot.CurrentInstruction,
+                    state.Cursor.Program,
                     $"production Zebetite generation {generation} health {health}");
             }
         }
@@ -174,4 +174,8 @@ internal static class ZebetiteDefinitionsVerification
         Suite(nameof(VerifyZebetiteDefinitions), () => VerifyZebetiteDefinitions(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
+
+    /// <summary>The native bank-$A6 list of <paramref name="program"/>, which the generation and health tables select.</summary>
+    private static ushort ZebetiteEntry(ZebetiteProgram program) =>
+        MotherBrainNativeListAddresses.ZebetiteEntries.Single(entry => entry.Program == program).Entry;
 }

@@ -8,16 +8,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 /// <remarks>
 /// Mother Brain's body movement is not performed by her AI function. The AI installs one of
-/// the ordinary enemy instruction lists at `$A9:9730-$9972`; bank `$A0:C26A` later advances
-/// that bytecode and its bank-$A9 opcodes mutate body position, pose, BG2 alignment, footsteps,
+/// the body programs (<see cref="MotherBrainBodyProgram"/>); the enemy instruction stage later advances
+/// that program and its cues mutate body position, pose, BG2 alignment, footsteps,
 /// and the displayed extended spritemap. Keeping that second processing stage explicit is
 /// essential: replacing a requested walk with a direct X adjustment would skip roughly ninety
 /// visible animation frames and would change when the AI observes pose zero again.
-///
-/// This class deliberately admits only the command family used by the translated walk,
-/// crouch, lean, and stand-up lists. Encountering any other command throws with its ROM
-/// address, making future animation work an inspectable extension rather than silently
-/// treating unknown bytecode as a frame record.
 /// </remarks>
 public sealed class MotherBrainBodyAnimationState
 {
@@ -34,23 +29,12 @@ public sealed class MotherBrainBodyAnimationState
     /// <summary>Phase/form word consulted by the native footstep sound gate.</summary>
     public ushort Form { get; set; }
 
-    /// <summary>Current bank-$A9 enemy instruction pointer.</summary>
-    public ushort InstructionPointer { get; private set; }
-
-    /// <summary>Post-decremented enemy instruction timer.</summary>
-    public ushort InstructionTimer { get; private set; }
-
-    /// <summary>True after common enemy instruction `$812F` pins the program counter.</summary>
-    public bool Sleeping { get; private set; }
+    /// <summary>The body program most recently requested, or null before the first request.</summary>
+    public MotherBrainBodyProgram? Program { get; private set; }
 
     /// <summary>
-    /// Equivalent of `$A9:C42D`: install a body list, make it eligible on the next enemy
-    /// instruction-processing stage, and clear the prior sleep state.
+    /// Equivalent of `$A9:C42D`: requests a body program; the physical body slot starts it on the next enemy
+    /// instruction-processing stage.
     /// </summary>
-    public void SetInstructionList(ushort pointer)
-    {
-        InstructionPointer = pointer;
-        InstructionTimer = 1;
-        Sleeping = false;
-    }
+    public void SetProgram(MotherBrainBodyProgram program) => Program = program;
 }

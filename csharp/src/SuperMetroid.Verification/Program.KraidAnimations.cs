@@ -162,7 +162,7 @@ internal static class KraidAnimationsVerification
             AssertTrue(enemies.KraidBehavior.SpawnKraidSpitRock(NewRockSource()), "the real spit producer allocates a rock");
             RoomEnemyProjectileSlot rock = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.KraidSpitRock);
             rock.StartAnimation(new KraidRockAnimation(program));
-            var native = new NativeRockList(entry, rock.InstructionTimer.RawValue);
+            var native = new NativeEnemyProjectileListDefinitions.Reader(entry, rock.InstructionTimer.RawValue);
             for (int update = 0; update < 40 && !native.Deleted; update++)
             {
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(rock, null, Position16<RoomPixels>.Zero);

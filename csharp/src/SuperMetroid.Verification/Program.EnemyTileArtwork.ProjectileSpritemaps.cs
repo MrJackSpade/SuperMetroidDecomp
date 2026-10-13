@@ -11,6 +11,20 @@ using static SuiteTimingVerification;
 /// <summary>Compares installed enemy-projectile drawing compositions with native OAM and guards their runtime visual reads.</summary>
 internal static class EnemyTileArtworkProjectileSpritemapsVerification
 {
+    /// <summary>The graphics index the drawing fixtures give every projectile: palette five, tile offset $0004.</summary>
+    private const ushort FixtureGraphicsIndex = 0x0a04;
+
+    /// <summary>Projectile kinds whose typed programs (#641) present frames by key instead of running a native list.</summary>
+    private static readonly HashSet<RoomEnemyProjectileKind> TypedProgramKinds =
+    [
+        RoomEnemyProjectileKind.MotherBrainGlassShard,
+        RoomEnemyProjectileKind.MotherBrainGlassSparkle,
+        RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
+        RoomEnemyProjectileKind.MotherBrainHandBeamFired,
+        RoomEnemyProjectileKind.MotherBrainRoomTurret,
+        RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
+    ];
+
     /// <summary>Checks imported projectile maps and representative animated effects against cartridge OAM at ordinary and wrapped screen coordinates.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEnemyProjectileSpritemaps(
@@ -22,7 +36,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         foreach ((ushort originX, ushort originY, ushort graphicsIndex) in new[]
                  {
                      ((ushort)0x0080, (ushort)0x0004, (ushort)0x0000),
-                     ((ushort)0x01ff, (ushort)0x00fc, (ushort)0x0a04),
+                     ((ushort)0x01ff, (ushort)0x00fc, (ushort)FixtureGraphicsIndex),
                  })
         {
             var nativeOam = new OamBuffer();
@@ -243,17 +257,17 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount,
                 BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress),
             ("Mother Brain glass", RoomEnemyProjectileKind.MotherBrainGlassShard,
-                MotherBrainGlassInstructionProgramDefinitions.PresentationWordCount,
-                MotherBrainGlassInstructionProgramDefinitions.PresentationWordAddress),
+                MotherBrainGlassVisualDefinitions.ProjectileFrameCount,
+                index => MotherBrainGlassVisualDefinitions.PresentationKey(MotherBrainGlassVisualDefinitions.ProjectileFrames[index])),
             ("Mother Brain hand beam", RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
-                MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordCount,
-                MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress),
+                MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,
+                index => MotherBrainHandBeamVisualDefinitions.PresentationKey(MotherBrainHandBeamVisualDefinitions.ProjectileFrames[index])),
             ("Mother Brain top tube", RoomEnemyProjectileKind.MotherBrainTopRightTube,
                 MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordCount,
                 MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordAddress),
             ("Mother Brain turret", RoomEnemyProjectileKind.MotherBrainRoomTurret,
-                MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount,
-                MotherBrainTurretInstructionProgramDefinitions.PresentationWordAddress),
+                MotherBrainTurretVisualDefinitions.ProjectileFrameCount,
+                index => MotherBrainTurretVisualDefinitions.PresentationKey(MotherBrainTurretVisualDefinitions.ProjectileFrames[index])),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in motherBrainAndStatueFamilies)
@@ -262,8 +276,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             {
                 ushort operand = addressAt(index);
                 OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
-                OamBuffer extracted = DrawProgramFrame(stock, operand,
-                    NewEnemyProjectileVisualGuard(bus), kind);
+                OamBuffer extracted = DrawProgramFrame(stock, operand, NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
                     native.ImageEquals(extracted),
                     $"{family} frame {index} draws stock OAM without visual ROM reads");
@@ -854,7 +867,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                     nativeOam.BeginFrame();
                     installedOam.BeginFrame();
                     DrawImportedEnemyProjectileSpritemap(bus, nativeOam, nativePointer,
-                        new(originX, originY), 0x0a04, originYIsOnScreen: true);
+                        new(originX, originY), FixtureGraphicsIndex, originYIsOnScreen: true);
                     installedOam.AddEnemySpritemap(
                         installed.GetProgramFrame(frame.OperandAddress).Span,
                         new Position16<OamPixels>(originX, originY), 0x0a00, 4,
@@ -902,7 +915,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             var oam = new OamBuffer();
             oam.BeginFrame();
             DrawImportedEnemyProjectileSpritemap(source, oam, pointer, new(128, 96),
-                0x0a04, originYIsOnScreen: true);
+                FixtureGraphicsIndex, originYIsOnScreen: true);
             return oam;
         }
 
@@ -954,16 +967,37 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawProgramFrame(EnemyTileArtworkCatalog artwork,
             ushort operand, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
+            // Typed programs (#641) present their frames by key; the rest still run their native lists.
+            if (TypedProgramKinds.Contains(kind))
+                return DrawPresentedFrame(artwork, operand, source, kind);
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             enemies.BindFixtureBus(source);
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(new(128, 96));
-            slot.GraphicsIndex = 0x0a04;
+            slot.GraphicsIndex = FixtureGraphicsIndex;
             slot.InstructionPointer = unchecked((ushort)(operand - 2));
             slot.InstructionTimer = NativeCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(), Position16<RoomPixels>.Zero);
+            var oam = new OamBuffer();
+            oam.BeginFrame();
+            enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
+            return oam;
+        }
+
+        static OamBuffer DrawPresentedFrame(EnemyTileArtworkCatalog artwork,
+            ushort presentationKey, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
+        {
+            var enemies = new RoomEnemySystem { TileArtwork = artwork };
+            enemies.BindFixtureBus(source);
+            RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
+            slot.Kind = kind;
+            slot.Position = slot.Position.WithWhole(new(128, 96));
+            slot.GraphicsIndex = FixtureGraphicsIndex;
+            // As the typed runner does when it shows a frame: the key selects the art, the blank map marks it drawn.
+            slot.PresentationOperandAddress = presentationKey;
+            slot.SpritemapPointer = EnemyProjectileSpritemapDefinitions.BlankSpritemap;
             var oam = new OamBuffer();
             oam.BeginFrame();
             enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
@@ -980,7 +1014,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             slot.Kind = RoomEnemyProjectileKind.NoobTubeShard;
             slot.Variable1 = 128;
             slot.Position = slot.Position.WithWhole(new(128, 96));
-            slot.GraphicsIndex = 0x0a04;
+            slot.GraphicsIndex = FixtureGraphicsIndex;
             slot.InstructionPointer = unchecked((ushort)(
                 NoobTubeProjectileInstructionProgramDefinitions.ShardInstructionLists[0] + 4));
             slot.InstructionTimer = NativeCountdown.Start(1);

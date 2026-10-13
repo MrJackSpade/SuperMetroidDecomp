@@ -7,24 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class MotherBrainFallingTubePopulationDefinitions
 {
-
-    /// <summary>Bottom-left tube spawn at $A9:8AE5.</summary>
-    internal const ushort BottomLeft = 0x8ae5;
-
-    /// <summary>Bottom-right tube spawn at $A9:8AF5.</summary>
-    internal const ushort BottomRight = 0x8af5;
-
-    /// <summary>Bottom-middle-left tube spawn at $A9:8B05.</summary>
-    internal const ushort BottomMiddleLeft = 0x8b05;
-
-    /// <summary>Bottom-middle-right tube spawn at $A9:8B15.</summary>
-    internal const ushort BottomMiddleRight = 0x8b15;
-
-    /// <summary>Main tube spawn at $A9:8B25.</summary>
-    internal const ushort Main = 0x8b25;
-
-    /// <summary>$A9:8AE5-8B34: five records of eight native words each.</summary>
-    private const int RecordBytes = 8 * sizeof(ushort), RecordCount = 5;
     /// <summary>$A9:8B27: selected center X for the main tube; remains required.</summary>
     private const ushort CenterX = 128;
     /// <summary>$A9:8AE7/8AF7: chosen outside-piece horizontal distance from the center; remains required.</summary>
@@ -45,27 +27,22 @@ internal static class MotherBrainFallingTubePopulationDefinitions
     private const ushort MainFallDelay = 32;
 
     /// <summary>
-    /// Resolves the selected piece. Native parameter1 is a word offset consumed at
-    /// $A9:8B38; pose lists at $8C69-8C85 each contain a duration/map pair and Sleep.
-    /// Placement magnitudes and main delay remain independent required inputs.
+    /// Resolves the selected piece's placement. Native parameter one is the piece's word offset, consumed at
+    /// $A9:8B38. The record's instruction list is unused: the piece runs its typed program (#641), so the field is
+    /// zero. Placement magnitudes and the main delay remain independent required inputs.
     /// </summary>
-    internal static RoomEnemyPopulationRecord Get(ushort pointer)
+    internal static RoomEnemyPopulationRecord Get(MotherBrainTubePiece piece)
     {
-        int offset = pointer - BottomLeft;
-        if (offset < 0 || offset >= RecordCount * RecordBytes || offset % RecordBytes != 0)
-            throw new ArgumentOutOfRangeException(nameof(pointer), pointer,
-                "Unknown Mother Brain falling-tube population record.");
-        int piece = offset / RecordBytes;
-        bool main = pointer == Main;
-        bool outer = piece < 2;
+        int index = (int)piece;
+        bool main = piece == MotherBrainTubePiece.Main;
+        bool outer = piece is MotherBrainTubePiece.BottomLeft or MotherBrainTubePiece.BottomRight;
         int horizontalOffset = outer ? OuterOffset : InnerOffset;
-        ushort x = main ? CenterX : (ushort)(CenterX + ((piece & 1) == 0 ? -horizontalOffset : horizontalOffset));
+        ushort x = main ? CenterX : (ushort)(CenterX + ((index & 1) == 0 ? -horizontalOffset : horizontalOffset));
         int compositionBottom = main ? MainBottom : outer ? OuterBottom : InnerBottom;
         ushort y = (ushort)(BottomBaseline - compositionBottom);
-        ushort pose = (ushort)(MotherBrainFallingTubeInstructionDefinitions.FirstList +
-            piece * MotherBrainFallingTubeInstructionDefinitions.ListStride);
         EnemyProperties properties = EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions;
         if (main) properties |= EnemyProperties.ProcessOffScreen;
-        return new(EnemyDefinitionId.MotherBrainTubes, new(x, y), pose, (ushort)properties, (ushort)EnemyExtraProperties.None, (ushort)(piece * sizeof(ushort)), main ? MainFallDelay : (ushort)0);
+        return new(EnemyDefinitionId.MotherBrainTubes, new(x, y), 0, (ushort)properties, (ushort)EnemyExtraProperties.None,
+            (ushort)(index * sizeof(ushort)), main ? MainFallDelay : (ushort)0);
     }
 }

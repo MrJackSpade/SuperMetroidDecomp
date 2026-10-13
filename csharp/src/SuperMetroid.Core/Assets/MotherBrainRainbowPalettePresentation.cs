@@ -201,7 +201,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         }
         for (int color = 0; color < frames.LegCount; color++)
             new MotherBrainPalettes(cgram).DrainedRearLegs.Write(color, frames.Leg(frame, color));
-        var spill = new MotherBrainPaletteMemory(
+        var spill = new MotherBrainPaletteMemoryDefinitions(
             SnesMemoryBusRequirement.Require(bus, "Mother Brain's grey palette spill requires live WRAM."));
         spill.GreyTrailingWord = frames.Trailing(frame)!.Value;
     }

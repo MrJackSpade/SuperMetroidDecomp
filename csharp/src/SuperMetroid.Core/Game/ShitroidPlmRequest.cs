@@ -11,51 +11,51 @@ namespace SuperMetroid.Core.Game;
 public enum ShitroidAiFunction : ushort
 {
     /// <summary>$A9:EFDF, keeps the encounter actor inactive in the alternate camera state.</summary>
-    Dormant = 0xefdf,
+    Dormant = 1,
     /// <summary>$A9:EFE6, waits for the camera before starting the scripted entrance.</summary>
-    WaitForCamera = 0xefe6,
+    WaitForCamera,
     /// <summary>$A9:F02B, initializes the Shitroid entrance delay.</summary>
-    BeginEntranceDelay = 0xf02b,
+    BeginEntranceDelay,
     /// <summary>$A9:F037, counts down before Shitroid enters the room.</summary>
-    EntranceDelay = 0xf037,
+    EntranceDelay,
     /// <summary>$A9:F049, flies toward the living Sidehopper victim.</summary>
-    FlyToSidehopper = 0xf049,
+    FlyToSidehopper,
     /// <summary>$A9:F06D, tracks the Sidehopper until attachment.</summary>
-    ChaseSidehopper = 0xf06d,
+    ChaseSidehopper,
     /// <summary>$A9:F094, attaches to the Sidehopper and begins the feeding pose.</summary>
-    AttachToSidehopper = 0xf094,
+    AttachToSidehopper,
     /// <summary>$A9:F0E6, drains the Sidehopper while advancing its palette.</summary>
-    DrainSidehopper = 0xf0e6,
+    DrainSidehopper,
     /// <summary>$A9:F125, activates the dead Sidehopper corpse actor.</summary>
-    ActivateSidehopperCorpse = 0xf125,
+    ActivateSidehopperCorpse,
     /// <summary>$A9:F138, rises away from the victim after feeding.</summary>
-    RiseAfterFeeding = 0xf138,
+    RiseAfterFeeding,
     /// <summary>$A9:F180, hovers near Samus before beginning pursuit.</summary>
-    HoverNearSamus = 0xf180,
+    HoverNearSamus,
     /// <summary>$A9:F1FA, chases Samus for the scripted drain.</summary>
-    ChaseSamus = 0xf1fa,
+    ChaseSamus,
     /// <summary>$A9:F20E, installs the Samus-draining attachment state.</summary>
-    BeginDrainingSamus = 0xf20e,
+    BeginDrainingSamus,
     /// <summary>$A9:F21B, drains Samus while controlling her attached position.</summary>
-    DrainSamus = 0xf21b,
+    DrainSamus,
     /// <summary>$A9:F2A2, initializes the pause after draining Samus.</summary>
-    BeginPostDrainPause = 0xf2a2,
+    BeginPostDrainPause,
     /// <summary>$A9:F2AE, holds the completed drain pose.</summary>
-    PostDrainPause = 0xf2ae,
+    PostDrainPause,
     /// <summary>$A9:F2C0, rises after releasing the drained Samus.</summary>
-    RiseAfterDrainingSamus = 0xf2c0,
+    RiseAfterDrainingSamus,
     /// <summary>$A9:F2FB, flies left during the scripted departure.</summary>
-    FlyLeft = 0xf2fb,
+    FlyLeft,
     /// <summary>$A9:F324, flies right during the scripted departure.</summary>
-    FlyRight = 0xf324,
+    FlyRight,
     /// <summary>$A9:F360, initializes the final room exit.</summary>
-    BeginExit = 0xf360,
+    BeginExit,
     /// <summary>$A9:F36D, flies out of the encounter room.</summary>
-    Exit = 0xf36d,
+    Exit,
     /// <summary>$A9:F3A3, holds Samus briefly before the scripted release.</summary>
-    HoldSamusBeforeRelease = 0xf3a3,
+    HoldSamusBeforeRelease,
     /// <summary>$A9:F3BE, follows the released-Samus sequence to its handoff.</summary>
-    ReleasedFollow = 0xf3be,
+    ReleasedFollow,
 }
 
 /// <summary>One hardcoded bank-$84 wall mutation emitted by Shitroid's room script.</summary>
@@ -77,6 +77,9 @@ public sealed class ShitroidEnemyState
 
     /// <summary>Gets the physical enemy slot that owns the projected common words.</summary>
     public RoomEnemySlot Slot { get; }
+
+    /// <summary>Where the Shitroid's program resumes (#641).</summary>
+    internal AnimationProgramCursor<ShitroidProgram> Cursor { get; set; }
 
     /// <summary>Gets the current bank-$A9 Shitroid AI function pointer.</summary>
     public ShitroidAiFunction Function

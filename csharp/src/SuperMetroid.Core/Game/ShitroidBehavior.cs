@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -30,51 +30,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         _slotTable = slotTable;
         _presentation = presentation;
     }
-
-    /// <summary>Executes the Tourian Baby Metroid's private animation instructions.</summary>
-    private bool TryProcessShitroidInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
-    {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.BabyMetroid ||
-            !Enum.IsDefined((ShitroidInstruction)word))
-            return false;
-
-        switch ((ShitroidInstruction)word)
-        {
-            case ShitroidInstruction.GotoNormal:
-                // Instruction 3 returns the calm animation list directly; it does not
-                // consume an operand from the calling list.
-                cursor = ShitroidInstructionProgramDefinitions.Normal;
-                return true;
-            case ShitroidInstruction.GotoLatchedOn:
-                // Instruction 4 restarts the aggressive/draining loop.
-                cursor = ShitroidInstructionProgramDefinitions.LatchedOn;
-                return true;
-            case ShitroidInstruction.GotoRemorse:
-                // Instruction 6 restarts the departure loop.
-                cursor = ShitroidInstructionProgramDefinitions.Remorse;
-                return true;
-            case ShitroidInstruction.GotoYOrPlayRemorseSFX:
-                // Instruction 5 samples the existing RNG word; it does not generate a
-                // new value. Clear high bit takes the same-bank operand branch. Set high
-                // bit plays cry $52 and falls through beyond that operand.
-                if ((_room.Random.Read() & 0x8000) == 0)
-                {
-                    cursor = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 2)));
-                }
-                else
-                {
-                    LastShitroidSoundEffectLibrary2 = ShitroidInstructionSounds.RemorseCry;
-                    cursor = unchecked((ushort)(cursor + 4));
-                }
-                return true;
-            default:
-                throw new InvalidOperationException(
-                    $"Baby Metroid does not own instruction ${word:X4}.");
-        }
-    }
-
 
     /// <summary>Four authored feeding jitter offsets indexed by <c>frameCounter &amp; 6</c>.</summary>
     private static readonly Offset16<RoomPixels>[] ShitroidShakeOffsets =
@@ -141,10 +96,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         slot.Properties = slot.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.ProcessInstructions);
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
-        SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.Normal);
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
 
         var state = new ShitroidEnemyState(slot)
         {
+            Cursor = AnimationProgramCursor<ShitroidProgram>.Start(ShitroidProgram.Normal),
             Function = ShitroidAiFunction.WaitForCamera,
             Velocity = default,
             PaletteDelay = 10,
@@ -200,7 +157,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
 
         // Shitroid's private shot handler applies recoil but no health loss. The main AI
         // redundantly restores $7FFF every processed frame, exactly as the cartridge does.
-        slot.Health = 0x7fff;
+        slot.Health = (ushort)short.MaxValue;
         DispatchShitroidState(slot, state, samus, sharedProjectiles);
         DeadTorizoBehavior.MoveBankA9EnemyWithVelocity(slot);
         if (_zebetiteBehavior.PaletteChangeNumber == 0)
@@ -241,7 +198,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
                 return;
 
             case ShitroidAiFunction.FlyToSidehopper:
-                GraduallyAccelerateShitroid(slot, state, 15, new(584, 74), 0x0400);
+                GraduallyAccelerateShitroid(slot, state, 15, new(584, 74), 1024);
                 if (ShitroidOverlapsRectangle(slot, new(584, 74), new(1, 1)))
                     state.Function = ShitroidAiFunction.ChaseSidehopper;
                 return;
@@ -254,7 +211,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
                     state,
                     15,
                     victim.Position.Whole + new Offset16<RoomPixels>(0, -32),
-                    0x0400);
+                    1024);
                 if (ShitroidActorsOverlap(slot, victim))
                     state.Function = ShitroidAiFunction.AttachToSidehopper;
                 return;
@@ -275,7 +232,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
                 goto case ShitroidAiFunction.RiseAfterFeeding;
 
             case ShitroidAiFunction.RiseAfterFeeding:
-                GraduallyAccelerateShitroid(slot, state, 0, new(slot.Position.X.Whole, 104), 0x0400);
+                GraduallyAccelerateShitroid(slot, state, 0, new(slot.Position.X.Whole, 104), 1024);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.HoverNearSamus;
@@ -297,7 +254,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
                     state,
                     15,
                     target.Position.Whole + new Offset16<RoomPixels>(0, -32),
-                    0x0400);
+                    1024);
                 return;
             }
 
@@ -331,13 +288,13 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             case ShitroidAiFunction.RiseAfterDrainingSamus:
             {
                 SamusState target = RequireShitroidSamus(samus);
-                GraduallyAccelerateShitroid(slot, state, 0, new(target.Position.X.Whole, 104), 0x0400);
+                GraduallyAccelerateShitroid(slot, state, 0, new(target.Position.X.Whole, 104), 1024);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
-                    LastShitroidSoundEffectLibrary2 = 0x007d;
+                    LastShitroidSoundEffectLibrary2 = ShitroidSoundDefinitions.FlyAwayCry;
                     state.Function = ShitroidAiFunction.FlyLeft;
                     state.StateTimer = NativeCountdown.Start(88);
-                    SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.LatchedOn);
+                    SetShitroidProgram(slot, ShitroidProgram.LatchedOn);
                     goto case ShitroidAiFunction.FlyLeft;
                 }
                 return;
@@ -351,7 +308,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
                     state,
                     0,
                     new(unchecked((ushort)(target.Position.X.Whole - 64)), 100),
-                    0x0400);
+                    1024);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.FlyRight;
@@ -369,24 +326,24 @@ internal sealed class ShitroidBehavior : IEnemySpecies
                     state,
                     0,
                     new(unchecked((ushort)(target.Position.X.Whole + 96)), 104),
-                    0x0400);
+                    1024);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.HoldSamusBeforeRelease;
                     state.StateTimer = NativeCountdown.Start(256);
-                    SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.Remorse);
+                    SetShitroidProgram(slot, ShitroidProgram.Remorse);
                 }
                 return;
             }
 
             case ShitroidAiFunction.BeginExit:
-                LastShitroidSoundEffectLibrary2 = 0x0052;
+                LastShitroidSoundEffectLibrary2 = ShitroidSoundDefinitions.RemorseCry;
                 state.Function = ShitroidAiFunction.Exit;
                 goto case ShitroidAiFunction.Exit;
 
             case ShitroidAiFunction.Exit:
-                GraduallyAccelerateShitroid(slot, state, 0, new(0xff80, 64), 0x0400);
-                if (ShitroidOverlapsRectangle(slot, new(0xff80, 64), new(8, 8)))
+                GraduallyAccelerateShitroid(slot, state, 0, new(unchecked((ushort)-128), 64), 1024);
+                if (ShitroidOverlapsRectangle(slot, new(unchecked((ushort)-128), 64), new(8, 8)))
                 {
                     state.Velocity = default;
                     // `$A9:F39A` clears instruction processing and invisibility as Shitroid
@@ -455,8 +412,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies
     /// <summary>Requests the two room-column wall PLMs at the authored Tourian positions.</summary>
     private void QueueShitroidWallPlms(PlmHeaderId header)
     {
-        _shitroidPlmRequests.Add(new ShitroidPlmRequest(new(0x30, 0x03), header));
-        _shitroidPlmRequests.Add(new ShitroidPlmRequest(new(0x1f, 0x03), header));
+        _shitroidPlmRequests.Add(new ShitroidPlmRequest(new(48, 3), header));
+        _shitroidPlmRequests.Add(new ShitroidPlmRequest(new(31, 3), header));
     }
 
     /// <summary>Accelerates to the Sidehopper's head and enters the latched feeding animation on arrival.</summary>
@@ -464,12 +421,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies
     {
         RoomEnemySlot victim = RequireShitroidVictim(slot);
         Position16<RoomPixels> latch = victim.Position.Whole + new Offset16<RoomPixels>(0, -32);
-        if (!AccelerateShitroidExactly(state, 0x0200, latch))
+        if (!AccelerateShitroidExactly(state, 512, latch))
             return;
 
         state.Velocity = default;
         slot.Position = slot.Position.WithWhole(latch);
-        SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.LatchedOn);
+        SetShitroidProgram(slot, ShitroidProgram.LatchedOn);
         state.Function = ShitroidAiFunction.DrainSidehopper;
         state.PaletteDelay = 1;
         slot.Parameter2 = 0;
@@ -488,7 +445,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         if (oldTimer == 1)
         {
             state.Function = ShitroidAiFunction.ActivateSidehopperCorpse;
-            SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.FinishDraining);
+            SetShitroidProgram(slot, ShitroidProgram.FinishDraining);
             state.PaletteDelay = 10;
         }
     }
@@ -500,7 +457,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         SamusState samus)
     {
         UpdateShitroidHorizontalLock(state, slot.Position.X.Whole, samus.Position.X.Whole, threshold: 8);
-        if (state.HorizontalLockAccumulator >= 0x0100 ||
+        if (state.HorizontalLockAccumulator >= 256 ||
             unchecked((short)(samus.Position.X.Whole - 512)) < 0)
         {
             state.Function = ShitroidAiFunction.ChaseSamus;
@@ -513,7 +470,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             state,
             10,
             new(samus.Position.X.Whole, targetY),
-            0x0400);
+            1024);
     }
 
     /// <summary>Alternates between a timed followed Y and authored height 80 using the room RNG.</summary>
@@ -524,7 +481,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             state.HoverTimer = state.HoverTimer.Decrement().Remaining;
             return followedY;
         }
-        if ((_room.Random.Read() & 0x0fff) >= 0x0fe0)
+        if ((_room.Random.Read() & 4095) >= 4064)
             state.HoverTimer = NativeCountdown.Start(32);
         return 80;
     }
@@ -542,7 +499,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             sharedProjectiles?.SetSharedBombCounter(0);
             state.Function = ShitroidAiFunction.BeginPostDrainPause;
             state.Velocity = default;
-            SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.FinishDraining);
+            SetShitroidProgram(slot, ShitroidProgram.FinishDraining);
             state.PaletteDelay = 10;
             samus.SpecialSuperPaletteFlags = 0;
             samus.Drained.LetFall(_room.Bus!, samus);
@@ -561,7 +518,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         // extra pixel. BMI reads only the sign of the difference.
         ushort ySpeed = samus.Kinematics.YSpeed;
         int xCarry = ySpeed >= 4 ? 1 : 0;
-        if ((unchecked((ushort)(ySpeed - 4)) & 0x8000) == 0)
+        if (unchecked((short)unchecked((ushort)(ySpeed - 4))) >= 0)
             samus.Kinematics.YSpeed = 2;
 
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
@@ -593,8 +550,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             state,
             8,
             new(samus.Position.X.Whole, targetY),
-            0x0400);
-        return state.HorizontalLockAccumulator >= 0x0400 ||
+            1024);
+        return state.HorizontalLockAccumulator >= 1024 ||
             unchecked((short)(samus.Position.X.Whole - 128)) < 0;
     }
 
@@ -729,9 +686,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies
                 unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
             SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
             state.Velocity += new EightEightVector<RoomPixels>(
-                new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(0x0040, angle.TableIndex)),
+                new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(64, angle.TableIndex)),
                 new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
-                    0x0040,
+                    64,
                     angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex)));
             return;
         }
@@ -740,10 +697,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         {
             if (AccelerateShitroidExactly(
                 state,
-                0x0200,
+                512,
                 samus.Position.Whole + new Offset16<RoomPixels>(0, -32)))
             {
-                SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.LatchedOn);
+                SetShitroidProgram(slot, ShitroidProgram.LatchedOn);
                 state.PaletteDelay = 1;
                 slot.Parameter2 = 0;
                 state.Velocity = default;
@@ -772,8 +729,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             unchecked((short)(slotZeroProjectile.Position.Y.Whole - slot.Position.Y.Whole))));
         SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
         ushort magnitude = unchecked((ushort)(8 * collisionDamage));
-        if (magnitude >= 0x00f0)
-            magnitude = 0x00f0;
+        if (magnitude >= 240)
+            magnitude = 240;
         state.Velocity += new EightEightVector<RoomPixels>(
             new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(magnitude, angle.TableIndex)),
             new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
@@ -807,7 +764,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         if (timer != 0)
         {
             state.PaletteTimerAndPhase = unchecked((ushort)(
-                state.PaletteTimerAndPhase - 0x0100));
+                state.PaletteTimerAndPhase - 256));
             return;
         }
 
@@ -820,8 +777,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             {
                 state.CryCounter = 0;
                 LastShitroidSoundEffectLibrary2 = state.PaletteDelay < 10
-                    ? (ushort)0x0078
-                    : (ushort)0x0072;
+                    ? ShitroidSoundDefinitions.QuickDrainCry
+                    : ShitroidSoundDefinitions.DrainCry;
             }
         }
 
@@ -833,10 +790,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Starts a new animation list with both instruction timers reset.</summary>
-    private static void SetShitroidInstruction(RoomEnemySlot slot, ushort pointer)
+    /// <summary>Starts <paramref name="program"/> with both instruction timers reset.</summary>
+    private void SetShitroidProgram(RoomEnemySlot slot, ShitroidProgram program)
     {
-        slot.CurrentInstruction = pointer;
+        RequireShitroidState(slot).Cursor = AnimationProgramCursor<ShitroidProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -903,14 +860,54 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Claims the private animation branches and RNG-dependent remorse cry word.</summary>
-    internal void RegisterShitroidOwnedInstructions(EnemyAiTable table)
+    /// <summary>Binds the Shitroid's typed program (#641) to the enemy instruction stage.</summary>
+    internal void RegisterShitroidTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid,
+            (slot, context) => AdvanceShitroidAnimation(slot));
+
+    /// <summary>
+    /// Runs the Shitroid's program where the enemy instruction interpreter would: the frame expires on the update its
+    /// native timer would, and a newly shown frame raises the new-frame flag.
+    /// </summary>
+    internal void AdvanceShitroidAnimation(RoomEnemySlot slot)
     {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+        ShitroidEnemyState state = RequireShitroidState(slot);
+        ushort oldTimer = slot.InstructionTimer.RawValue;
+        slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        if (oldTimer != 1)
         {
-            yieldInterpreter = false;
-            return TryProcessShitroidInstruction(slot, word, ref cursor);
-        });
+            slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            return;
+        }
+
+        AnimationProgramCursor<ShitroidProgram> cursor = state.Cursor;
+        NativeCountdown counter = slot.Timer;
+        AnimationProgramAdvance<BabyMetroidFrame> advance = ShitroidAnimations.Programs.Advance(ref cursor, ref counter,
+            (cue, continuation) => ApplyShitroidCue(cue));
+        slot.Timer = counter;
+        state.Cursor = cursor;
+        if (advance.Kind != AnimationProgramAdvanceKind.Show)
+            throw new InvalidOperationException($"The Shitroid's programs have no {advance.Kind} step.");
+        slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
+        slot.SpritemapPointer = advance.Frame.Spritemap;
+        slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+    }
+
+    /// <summary>Carries out one cue of a Shitroid program.</summary>
+    /// <returns>The remorse program when the cry does not sound; otherwise null.</returns>
+    private ShitroidProgram? ApplyShitroidCue(ShitroidCue cue)
+    {
+        switch (cue)
+        {
+            case ShitroidCue.MaybeRemorseCry:
+                // The cue samples the existing random word; it does not generate a new one.
+                if (unchecked((short)_room.Random.Read()) >= 0)
+                    return ShitroidProgram.Remorse;
+                LastShitroidSoundEffectLibrary2 = ShitroidSoundDefinitions.RemorseCry;
+                return null;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(ShitroidCue)} {cue}.");
+        }
     }
 
     /// <summary>Runs the private power-bomb callback in place of common enemy damage.</summary>

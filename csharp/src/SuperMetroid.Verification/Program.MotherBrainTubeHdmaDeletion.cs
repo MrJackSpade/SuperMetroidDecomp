@@ -36,7 +36,7 @@ internal static class MotherBrainTubeHdmaDeletionVerification
         AssertEqual((ushort)0xadb9, runtime.System.RandomNumber, "the live acid object swaps the RNG bytes");
 
         // The real main-tube landing raises the deletion of HDMA objects 0-3.
-        runtime.Enemies.MotherBrainBehavior.SpawnMotherBrainFallingTube(MotherBrainFallingTubePopulationDefinitions.Main);
+        runtime.Enemies.MotherBrainBehavior.SpawnMotherBrainFallingTube(MotherBrainTubePiece.Main);
         RoomEnemySlot tube = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes);
         tube.VariableA = (ushort)MotherBrainTubeFunction.MainTube_Falling;
         tube.VariableC = 0;

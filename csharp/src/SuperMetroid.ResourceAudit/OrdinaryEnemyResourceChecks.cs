@@ -10,22 +10,27 @@ internal static class OrdinaryEnemyResourceChecks
     {
         int previousCount = EnemySpritemapDefinitions.PreAuditOrdinaryFrameCount;
         int previousVersion = (int)EnemySpritemapSchema.PreAuditOrdinary;
-        (string Name, byte Bank, ushort[] Operands, int Count)[] families =
+        // Typed families (#641) name their spritemaps; the rest still resolve compiled operands.
+        (string Name, byte Bank, ushort[]? Operands, ushort[]? Spritemaps, int Count)[] families =
         [
-            ("Hibashi", HibashiVisualDefinitions.Bank, HibashiVisualDefinitions.Operands(), HibashiVisualDefinitions.FrameCount),
-            ("Zebetite", ZebetiteVisualDefinitions.Bank, ZebetiteVisualDefinitions.Operands(), ZebetiteVisualDefinitions.FrameCount),
-            ("WreckedShipGhost", WreckedShipGhostVisualDefinitions.Bank, WreckedShipGhostVisualDefinitions.Operands(), WreckedShipGhostVisualDefinitions.FrameCount),
-            ("Powamp", PowampVisualDefinitions.Bank, PowampVisualDefinitions.Operands(), PowampVisualDefinitions.FrameCount),
-            ("Spark", SparkVisualDefinitions.Bank, SparkVisualDefinitions.Operands(), SparkVisualDefinitions.FrameCount),
-            ("Shitroid", ShitroidVisualDefinitions.Bank, ShitroidVisualDefinitions.Operands(), ShitroidVisualDefinitions.FrameCount),
+            ("Hibashi", HibashiVisualDefinitions.Bank, HibashiVisualDefinitions.Operands(), null, HibashiVisualDefinitions.FrameCount),
+            ("Zebetite", ZebetiteVisualDefinitions.Bank, null, ZebetiteVisualDefinitions.Spritemaps(), ZebetiteVisualDefinitions.FrameCount),
+            ("WreckedShipGhost", WreckedShipGhostVisualDefinitions.Bank, WreckedShipGhostVisualDefinitions.Operands(), null, WreckedShipGhostVisualDefinitions.FrameCount),
+            ("Powamp", PowampVisualDefinitions.Bank, PowampVisualDefinitions.Operands(), null, PowampVisualDefinitions.FrameCount),
+            ("Spark", SparkVisualDefinitions.Bank, SparkVisualDefinitions.Operands(), null, SparkVisualDefinitions.FrameCount),
+            ("Shitroid", ShitroidVisualDefinitions.Bank, null, ShitroidVisualDefinitions.Spritemaps(), ShitroidVisualDefinitions.FrameCount),
         ];
         int offset = 0;
         foreach (var definition in families)
         {
             if (definition.Name == family)
             {
-                EnemyCompositionResourceChecks.Run(family, definition.Bank, definition.Operands,
-                    definition.Count, previousVersion, previousCount, previousCount + offset);
+                if (definition.Spritemaps is { } spritemaps)
+                    EnemyCompositionResourceChecks.RunSpritemaps(family, definition.Bank, spritemaps,
+                        definition.Count, previousVersion, previousCount, previousCount + offset);
+                else
+                    EnemyCompositionResourceChecks.Run(family, definition.Bank, definition.Operands,
+                        definition.Count, previousVersion, previousCount, previousCount + offset);
                 return;
             }
             offset += definition.Count;

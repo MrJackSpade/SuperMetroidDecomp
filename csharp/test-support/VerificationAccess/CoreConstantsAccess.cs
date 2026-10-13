@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -2329,20 +2329,6 @@ internal static class MorphBallEyeInstructionProgramDefinitionsConstants
     }
 }
 
-/// <summary>Cartridge values of <see cref="MotherBrainBabyInstructionProgramDefinitions"/> that only verification reads.</summary>
-internal static class MotherBrainBabyInstructionProgramDefinitionsConstants
-{
-    /// <summary>ProcessMotherBrainInvincibilityPalette at $A9:CFD4, adjacent executable code outside the Baby list.</summary>
-    public const ushort FirstAdjacentMovementCode = 0xcfd4;
-
-    /// <summary>Provides the movement-code boundary adjacent to Mother Brain Baby instruction programs.</summary>
-    extension(MotherBrainBabyInstructionProgramDefinitions)
-    {
-        /// <inheritdoc cref="MotherBrainBabyInstructionProgramDefinitionsConstants.FirstAdjacentMovementCode"/>
-        internal static ushort FirstAdjacentMovementCode => MotherBrainBabyInstructionProgramDefinitionsConstants.FirstAdjacentMovementCode;
-    }
-}
-
 /// <summary>Cartridge values of <see cref="MotherBrainContactHitboxDefinitions"/> that only verification reads.</summary>
 internal static class MotherBrainContactHitboxDefinitionsConstants
 {
@@ -2429,36 +2415,6 @@ internal static class MotherBrainFallingTubePopulationDefinitionsConstants
     }
 }
 
-/// <summary>Cartridge values of <see cref="MotherBrainHeadInstructionProgramDefinitions"/> that only verification reads.</summary>
-internal static class MotherBrainHeadInstructionProgramDefinitionsConstants
-{
-    /// <summary>$A9:9DF5, final current pointer in the dedicated Baby interpreter.</summary>
-    public const ushort BabyAttackActiveEnd = 0x9df5;
-    /// <summary>$A9:9DB1, Baby-targeted four-ring head list.</summary>
-    public const ushort BabyAttackStart = 0x9db1;
-    /// <summary>$A9:9F32, final current pointer in the dedicated bomb interpreter.</summary>
-    public const ushort BombActiveEnd = 0x9f32;
-    /// <summary>$A9:9F00, phase-three bomb head list.</summary>
-    public const ushort BombStart = 0x9f00;
-    /// <summary>$A9:9CE1, final current pointer in the dedicated neutral interpreter.</summary>
-    public const ushort NeutralActiveEnd = 0x9ce1;
-
-    /// <summary>Provides the native Mother Brain head instruction spans for neutral, bomb, and Baby attack states.</summary>
-    extension(MotherBrainHeadInstructionProgramDefinitions)
-    {
-        /// <inheritdoc cref="MotherBrainHeadInstructionProgramDefinitionsConstants.BabyAttackActiveEnd"/>
-        internal static ushort BabyAttackActiveEnd => MotherBrainHeadInstructionProgramDefinitionsConstants.BabyAttackActiveEnd;
-        /// <inheritdoc cref="MotherBrainHeadInstructionProgramDefinitionsConstants.BabyAttackStart"/>
-        internal static ushort BabyAttackStart => MotherBrainHeadInstructionProgramDefinitionsConstants.BabyAttackStart;
-        /// <inheritdoc cref="MotherBrainHeadInstructionProgramDefinitionsConstants.BombActiveEnd"/>
-        internal static ushort BombActiveEnd => MotherBrainHeadInstructionProgramDefinitionsConstants.BombActiveEnd;
-        /// <inheritdoc cref="MotherBrainHeadInstructionProgramDefinitionsConstants.BombStart"/>
-        internal static ushort BombStart => MotherBrainHeadInstructionProgramDefinitionsConstants.BombStart;
-        /// <inheritdoc cref="MotherBrainHeadInstructionProgramDefinitionsConstants.NeutralActiveEnd"/>
-        internal static ushort NeutralActiveEnd => MotherBrainHeadInstructionProgramDefinitionsConstants.NeutralActiveEnd;
-    }
-}
-
 /// <summary>Cartridge values of <see cref="MotherBrainLegTileTransferDefinitions"/> that only verification reads.</summary>
 internal static class MotherBrainLegTileTransferDefinitionsConstants
 {
@@ -2470,20 +2426,6 @@ internal static class MotherBrainLegTileTransferDefinitionsConstants
     {
         /// <inheritdoc cref="MotherBrainLegTileTransferDefinitionsConstants.NativeListAddress"/>
         internal static int NativeListAddress => MotherBrainLegTileTransferDefinitionsConstants.NativeListAddress;
-    }
-}
-
-/// <summary>Cartridge values of <see cref="MotherBrainRoomPaletteProgramDefinitions"/> that only verification reads.</summary>
-internal static class MotherBrainRoomPaletteProgramDefinitionsConstants
-{
-    /// <summary>Presentation palette words plus the two mechanics words in each program record.</summary>
-    public const int MechanicsWordCount = MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount + 2;
-
-    /// <summary>Provides the word count used when decoding Mother Brain room palette mechanics.</summary>
-    extension(MotherBrainRoomPaletteProgramDefinitions)
-    {
-        /// <inheritdoc cref="MotherBrainRoomPaletteProgramDefinitionsConstants.MechanicsWordCount"/>
-        internal static int MechanicsWordCount => MotherBrainRoomPaletteProgramDefinitionsConstants.MechanicsWordCount;
     }
 }
 
@@ -4345,20 +4287,6 @@ internal static class SharedCrawlerInstructionProgramDefinitionsConstants
     }
 }
 
-/// <summary>Cartridge values of <see cref="ShitroidInstructionProgramDefinitions"/> that only verification reads.</summary>
-internal static class ShitroidInstructionProgramDefinitionsConstants
-{
-    /// <summary>The first callback implementation after the programs, at $A9:F990.</summary>
-    public const ushort FirstAdjacentCallbackCode = 0xf990;
-
-    /// <summary>Provides the callback-code boundary adjacent to Shitroid instruction programs.</summary>
-    extension(ShitroidInstructionProgramDefinitions)
-    {
-        /// <inheritdoc cref="ShitroidInstructionProgramDefinitionsConstants.FirstAdjacentCallbackCode"/>
-        internal static ushort FirstAdjacentCallbackCode => ShitroidInstructionProgramDefinitionsConstants.FirstAdjacentCallbackCode;
-    }
-}
-
 /// <summary>Cartridge values of <see cref="SlopeHeightDefinitions"/> that only verification reads.</summary>
 internal static class SlopeHeightDefinitionsConstants
 {
@@ -4963,24 +4891,6 @@ internal static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
         internal static ushort SpaceWhiteoutDefinitionPointer => ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsConstants.SpaceWhiteoutDefinitionPointer;
         /// <inheritdoc cref="ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsConstants.WideExplosionBackgroundDefinitionPointer"/>
         internal static ushort WideExplosionBackgroundDefinitionPointer => ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsConstants.WideExplosionBackgroundDefinitionPointer;
-    }
-}
-
-/// <summary>Cartridge values of <see cref="ZebetiteInstructionProgramDefinitions"/> that only verification reads.</summary>
-internal static class ZebetiteInstructionProgramDefinitionsConstants
-{
-    /// <summary><c>Spritemap_Zebetite_Big_HealthGreaterThanEqualTo800</c> at $A6:FE08.</summary>
-    public const ushort FirstSpritemap = 0xfe08;
-    /// <summary><c>InstList_Small_HealthLessThan200</c> at $A6:FE02.</summary>
-    public const ushort SmallHealthBelow200 = 0xfe02;
-
-    /// <summary>Provides the first Zebetite spritemap and low-health program threshold for instruction checks.</summary>
-    extension(ZebetiteInstructionProgramDefinitions)
-    {
-        /// <inheritdoc cref="ZebetiteInstructionProgramDefinitionsConstants.FirstSpritemap"/>
-        internal static ushort FirstSpritemap => ZebetiteInstructionProgramDefinitionsConstants.FirstSpritemap;
-        /// <inheritdoc cref="ZebetiteInstructionProgramDefinitionsConstants.SmallHealthBelow200"/>
-        internal static ushort SmallHealthBelow200 => ZebetiteInstructionProgramDefinitionsConstants.SmallHealthBelow200;
     }
 }
 

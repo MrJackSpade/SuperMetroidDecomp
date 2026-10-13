@@ -29,6 +29,8 @@ public static class MotherBrainDeathRomData
     public const ushort EmptyBodyTile = 0x0338;
     /// <summary>$86:CB13, body-relative smoky/mixed death explosions.</summary>
     public const ushort ExplosionDefinition = 0xcb13;
+    /// <summary>The fake-death descent loads music data index $21 through the delayed queue.</summary>
+    public const byte FakeDeathMusicData = 0x21;
     /// <summary>$A9:B203 loads music data index $24 through the delayed queue.</summary>
     public const byte EscapeMusicData = 0x24;
     /// <summary>$A9:B280 starts track seven through the eight-frame-delay music queue.</summary>

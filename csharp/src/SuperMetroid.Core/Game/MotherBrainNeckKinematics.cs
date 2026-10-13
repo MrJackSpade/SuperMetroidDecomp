@@ -37,25 +37,25 @@ internal static class MotherBrainNeckKinematics
             case MotherBrainNeckMovement.BobDown: // Bob down to $2800, then reverse.
             {
                 ushort candidate = unchecked((ushort)(lowerAngle - angleDelta));
-                if (candidate < 0x2800)
+                if (candidate < 10240)
                 {
-                    candidate = 0x2800;
+                    candidate = 10240;
                     lowerMovementIndex = MotherBrainNeckMovement.BobUp;
                 }
                 lowerAngle = candidate;
                 break;
             }
             case MotherBrainNeckMovement.BobUp: // Bob up to $9000 unless the brain is already above Y=$3C.
-                if (unchecked((short)(brainY - 0x003c)) < 0)
+                if (unchecked((short)(brainY - 60)) < 0)
                 {
                     lowerMovementIndex = MotherBrainNeckMovement.BobDown;
                 }
                 else
                 {
                     ushort candidate = unchecked((ushort)(lowerAngle + angleDelta));
-                    if (candidate >= 0x9000)
+                    if (candidate >= 36864)
                     {
-                        candidate = 0x9000;
+                        candidate = 36864;
                         lowerMovementIndex = MotherBrainNeckMovement.BobDown;
                     }
                     lowerAngle = candidate;
@@ -64,9 +64,9 @@ internal static class MotherBrainNeckKinematics
             case MotherBrainNeckMovement.Lower: // One-way lower used by beam setup and the resurrection stretch.
             {
                 ushort candidate = unchecked((ushort)(lowerAngle - angleDelta));
-                if (candidate < 0x3000)
+                if (candidate < 12288)
                 {
-                    candidate = 0x3000;
+                    candidate = 12288;
                     lowerMovementIndex = MotherBrainNeckMovement.None;
                 }
                 lowerAngle = candidate;
@@ -75,9 +75,9 @@ internal static class MotherBrainNeckKinematics
             case MotherBrainNeckMovement.Raise: // One-way raise used by fake-death ascent and Baby interruptions.
             {
                 ushort candidate = unchecked((ushort)(lowerAngle + angleDelta));
-                if (candidate >= 0x9000)
+                if (candidate >= 36864)
                 {
-                    candidate = 0x9000;
+                    candidate = 36864;
                     lowerMovementIndex = MotherBrainNeckMovement.None;
                 }
                 lowerAngle = candidate;
@@ -103,9 +103,9 @@ internal static class MotherBrainNeckKinematics
                 else
                 {
                     ushort candidate = unchecked((ushort)(upperAngle - angleDelta));
-                    if (candidate < 0x2000)
+                    if (candidate < 8192)
                     {
-                        candidate = 0x2000;
+                        candidate = 8192;
                         upperMovementIndex = MotherBrainNeckMovement.BobUp;
                     }
                     upperAngle = candidate;
@@ -113,7 +113,7 @@ internal static class MotherBrainNeckKinematics
                 break;
             case MotherBrainNeckMovement.BobUp: // Follow eight angle units above the newly updated lower segment.
             {
-                ushort target = unchecked((ushort)(lowerAngle + 0x0800));
+                ushort target = unchecked((ushort)(lowerAngle + 2048));
                 ushort candidate = unchecked((ushort)(upperAngle + angleDelta));
                 if (candidate >= target)
                 {
@@ -126,9 +126,9 @@ internal static class MotherBrainNeckKinematics
             case MotherBrainNeckMovement.Lower: // One-way lower to $2000.
             {
                 ushort candidate = unchecked((ushort)(upperAngle - angleDelta));
-                if (candidate < 0x2000)
+                if (candidate < 8192)
                 {
-                    candidate = 0x2000;
+                    candidate = 8192;
                     upperMovementIndex = MotherBrainNeckMovement.None;
                 }
                 upperAngle = candidate;
@@ -136,7 +136,7 @@ internal static class MotherBrainNeckKinematics
             }
             case MotherBrainNeckMovement.Raise: // One-way raise to lower angle + $0800.
             {
-                ushort target = unchecked((ushort)(lowerAngle + 0x0800));
+                ushort target = unchecked((ushort)(lowerAngle + 2048));
                 ushort candidate = unchecked((ushort)(upperAngle + angleDelta));
                 if (candidate >= target)
                 {
@@ -158,7 +158,7 @@ internal static class MotherBrainNeckKinematics
         // `$7E:7814/16` is a deliberately offset body reference point. Adding $70/$FFA0
         // below reduces it to body+($20,-$32), but retaining the two native stages makes the
         // individual segment equations auditable against the disassembly.
-        Position16<RoomPixels> reference = body + new Offset16<RoomPixels>(-0x0050, 0x002e);
+        Position16<RoomPixels> reference = body + new Offset16<RoomPixels>(-80, 46);
         byte lower = SnesAngle.FromRaw(lowerAngle).TableIndex;
         byte upper = SnesAngle.FromRaw(upperAngle).TableIndex;
 
@@ -175,7 +175,7 @@ internal static class MotherBrainNeckKinematics
         Position16<RoomPixels> reference,
         byte angle,
         ushort distance) =>
-        reference + new Offset16<RoomPixels>(0x0070, -0x0060) + CalculatePolarOffset(angle, distance);
+        reference + new Offset16<RoomPixels>(112, -96) + CalculatePolarOffset(angle, distance);
 
     /// <summary>
     /// One joint's displacement: <c>$A9:C46C</c> for the angle (X) and the angle plus a
@@ -183,7 +183,7 @@ internal static class MotherBrainNeckKinematics
     /// </summary>
     private static Offset16<RoomPixels> CalculatePolarOffset(byte angle, ushort distance) =>
         new(CalculateSignedComponent(angle, distance),
-            CalculateSignedComponent(unchecked((byte)(angle + 0x40)), distance));
+            CalculateSignedComponent(unchecked((byte)(angle + 64)), distance));
 
     /// <summary>Exact signed multiply/high-word behavior of <c>$A9:C46C</c>.</summary>
     internal static short CalculateSignedComponent(

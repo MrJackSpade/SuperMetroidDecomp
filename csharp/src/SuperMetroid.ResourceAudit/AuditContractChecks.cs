@@ -163,31 +163,19 @@ internal static class AuditContractChecks
             "changed behavior or identity arguments must invalidate the reviewed classification");
     }
 
-    /// <summary>Checks baby instruction bank/frame metadata and the installed Mother Brain flash-row boundary.</summary>
+    /// <summary>Checks the Baby Metroid pulse poses and the installed Mother Brain flash-row boundary.</summary>
     private static void ConfirmMotherBrainMetadata()
     {
         // Confirms only the two identified metadata gaps. No AI, room, frame,
         // palette effect or gameplay callback is executed.
-        Require(MotherBrainBabyInstructionProgramDefinitionsTooling.Bank ==
-            MotherBrainRoomColorRomData.SourceBank >> 16, "cutscene-baby bank ownership must be explicit");
-        // Pinned InstList_BabyMetroid initial, drain and fatal-blow sequences.
-        ushort[] expected = [0xf9a8, 0xfa40, 0xfad8, 0xfa40,
-            0xf9a8, 0xfa40, 0xfad8, 0xfa40, 0xfad8];
-        Require(expected.Length == MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordCount,
-            "the reviewed cutscene-baby sequences must not silently grow");
-        for (int index = 0; index < expected.Length; index++)
+        // The typed Baby programs (#641) name their three pulse poses directly; each must be installed artwork.
+        for (int pose = 0; pose < 3; pose++)
         {
-            Require(SuperMetroid.Core.Assets.CompiledEnemyVisualSelectors.TryGet(
-                MotherBrainBabyInstructionProgramDefinitionsTooling.Bank,
-                MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordAddress(index), out ushort selected)
-                && selected == expected[index], "every cutscene-baby operand must select its pinned native frame");
+            ushort spritemap = SuperMetroid.Core.Assets.BabyMetroidVisualDefinitions.Spritemap(pose);
             Require(SuperMetroid.Core.Assets.EnemySpritemapDefinitions.Frames.ToArray().Any(frame =>
-                frame.Bank == MotherBrainBabyInstructionProgramDefinitionsTooling.Bank && frame.Pointer == selected),
-                "each selected cutscene-baby frame must be installed, not just bound");
+                frame.Bank == SuperMetroid.Core.Assets.MotherBrainVisualDefinitions.Bank && frame.Pointer == spritemap),
+                "each Baby Metroid pulse pose must be installed, not just named");
         }
-        Require(!SuperMetroid.Core.Assets.CompiledEnemyVisualSelectors.TryGet(
-            MotherBrainBabyInstructionProgramDefinitionsTooling.Bank, MotherBrainBabyInstructionProgramDefinitions.Initial, out _),
-            "an adjacent mechanics word must not become a visual selector");
 
         var exports = new ResourceIndex();
         var missing = new AuditReport();

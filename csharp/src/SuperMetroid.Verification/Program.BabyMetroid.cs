@@ -88,8 +88,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(0x3800, baby.Properties, "Baby population/init property OR");
     AssertEqual(0x0e00, baby.Palette, "Baby cutscene palette");
     AssertEqual(0x00a0, baby.GraphicsOffset, "Baby transferred-tile offset");
-    AssertEqual(BabyMetroidCutsceneState.InitialInstructionList, baby.InstructionList,
-        "Baby initial instruction list");
+    AssertEqual(MotherBrainBabyProgram.Initial, baby.Program, "Baby initial program");
     // Whole/subpixel coordinates in native `$0F7A/$0F7C/$0F7E/$0F80` order.
     FixedPosition<RoomPixels> BabyPoint() => baby.Position;
     static FixedPosition<RoomPixels> ExpectedBabyPoint(
@@ -166,14 +165,11 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertTrue(sawBodyStumbleRequest, "Baby requests Mother Brain fast backward stumble");
     AssertTrue(sawMotherBrainInterrupt, "Baby overwrites Mother Brain final-beam function");
     AssertTrue(sawLatchSound, "Baby latch queues sound library one effect $40");
-    AssertEqual(BabyMetroidCutsceneState.DrainingMotherBrainInstructionList,
-        baby.InstructionList,
-        "Baby pin installs draining animation");
+    AssertEqual(MotherBrainBabyProgram.DrainingMotherBrain, baby.Program, "Baby pin installs draining animation");
     AssertEqual(ExpectedBabyPoint(0x0040, 0xc500, 0x0048, 0xf000),
         BabyPoint(),
         "Baby pin changes whole coordinates but retains native subpositions");
-    AssertEqual(MotherBrainRainbowBeamAttackSequence.BodyWalkingBackwardReallyFastInstructionList,
-        motherBrain.Body.InstructionPointer,
+    AssertEqual(MotherBrainBodyProgram.WalkBackwardReallyFast, motherBrain.Body.Program,
         "Baby stumble uses animation-delay index two");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTakenAback,
         motherBrain.Phase,

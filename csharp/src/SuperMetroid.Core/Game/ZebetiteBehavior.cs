@@ -78,7 +78,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
-        slot.VramTilesIndex = 0x0080;
+        // Tile 128: the Zebetite artwork follows the room's first 128 enemy tiles.
+        slot.VramTilesIndex = 128;
         state.PaletteCycle = 0;
         state.Function = state.IsSecondaryHalf
             ? ZebetiteAiFunction.WaitForDoorTransition
@@ -98,7 +99,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         ZebetiteGenerationDefinition definition = ZebetiteDefinitions.Generation(generation);
         state.GenerationFlags = definition.GenerationFlags;
         slot.Radius = slot.Radius.WithY(definition.YRadius);
-        slot.CurrentInstruction = definition.InstructionList;
+        state.Cursor = AnimationProgramCursor<ZebetiteProgram>.Start(definition.Program);
         slot.Position = slot.Position.WithWholeX(definition.XPosition);
         slot.Position = slot.Position.WithWholeY(definition.YPosition(state.IsSecondaryHalf));
     }
@@ -129,7 +130,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
     /// <summary>Creates a linked half when this generation requires one, then enters the door-transition wait.</summary>
     private void RunZebetiteSpawnLinkedHalf(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
-        if ((state.GenerationFlags & 0x8000) != 0)
+        if ((state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0)
         {
             RoomEnemySlot secondary = SpawnZebetite(linkedHalf: true);
             secondary.Parameter2 = slot.NativeIndex;
@@ -202,9 +203,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         RoomEnemySlot slot,
         ZebetiteEnemyState state)
     {
-        slot.CurrentInstruction = ZebetiteDefinitions.HealthInstruction(
-            linkedPair: (state.GenerationFlags & 0x8000) != 0,
-            slot.Health);
+        state.Cursor = AnimationProgramCursor<ZebetiteProgram>.Start(ZebetiteAnimations.HealthProgram(
+            linkedPair: (state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0,
+            slot.Health));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -305,6 +306,47 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
     private ZebetiteEnemyState RequireZebetiteState(RoomEnemySlot slot) =>
         _zebetiteStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Zebetite state.");
+
+    /// <summary>Binds the Zebetites' typed health programs (#641) to the enemy instruction stage.</summary>
+    internal void RegisterZebetiteTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite,
+            (slot, context) => AdvanceZebetiteAnimation(slot));
+
+    /// <summary>
+    /// Runs a half's health program where the enemy instruction interpreter would: its pose shows on the update the
+    /// native timer expires, raising the new-frame flag, and the native sleep then keeps it.
+    /// </summary>
+    internal void AdvanceZebetiteAnimation(RoomEnemySlot slot)
+    {
+        ZebetiteEnemyState state = RequireZebetiteState(slot);
+        ushort oldTimer = slot.InstructionTimer.RawValue;
+        slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        if (oldTimer != 1)
+        {
+            slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            return;
+        }
+
+        AnimationProgramCursor<ZebetiteProgram> cursor = state.Cursor;
+        NativeCountdown counter = slot.Timer;
+        AnimationProgramAdvance<ZebetiteFrame> advance = ZebetiteAnimations.Programs.Advance(ref cursor, ref counter,
+            (cue, continuation) => throw new InvalidOperationException($"Zebetite programs publish no cue {cue}."));
+        slot.Timer = counter;
+        state.Cursor = cursor;
+        switch (advance.Kind)
+        {
+            case AnimationProgramAdvanceKind.Show:
+                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
+                slot.SpritemapPointer = advance.Frame.Spritemap;
+                slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+                return;
+            case AnimationProgramAdvanceKind.Hold:
+                // The native sleep: the timer wraps from zero and the pose stays.
+                return;
+            default:
+                throw new InvalidOperationException($"Zebetite programs have no {advance.Kind} step.");
+        }
+    }
 
     /// <summary>Registers bombs to share the Zebetite shot tail without generic death handling.</summary>
     internal void RegisterZebetiteBombReactions(EnemyAiTable table)

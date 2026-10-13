@@ -10,13 +10,14 @@ internal static class ShitroidVisualDefinitions
     /// <summary>Three Tourian baby Metroid drain and remorse compositions at $A9:F9A8..FAD8.</summary>
     internal const int FrameCount = 3;
 
-    /// <summary>Collects only the presentation operands consumed by the compiled Tourian baby Metroid program, in instruction order.</summary>
-    internal static ushort[] Operands() => Enumerable.Range(0,
-        ShitroidInstructionProgramDefinitions.PresentationWordCount)
-        .Select(ShitroidInstructionProgramDefinitions.PresentationWordAddress).ToArray();
+    /// <summary>The spritemaps the typed Shitroid programs show, in program order.</summary>
+    internal static ushort[] Spritemaps() => [.. Enum.GetValues<ShitroidProgram>()
+        .SelectMany(program => ShitroidAnimations.Programs.Steps(program))
+        .Where(step => step.Kind == AnimationProgramStepKind.Show)
+        .Select(step => step.Frame.Spritemap)];
 
-    /// <summary>Resolves the three selected OAM compositions from bank $A9 while leaving drain behavior in the compiled program.</summary>
+    /// <summary>Names the three OAM compositions in first-shown order.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
-        CompiledEnemyCompositionDefinitions.Frames(Bank, Operands(), FrameCount, "shitroid");
+        CompiledEnemyCompositionDefinitions.FramesFromSpritemaps(Bank, Spritemaps(), FrameCount, "shitroid");
 }
 

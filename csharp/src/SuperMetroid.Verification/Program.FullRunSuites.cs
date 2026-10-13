@@ -201,12 +201,9 @@ using static MotherBrainDeathHandoffVerification;
 using static MotherBrainFakeDeathLockVerification;
 using static MotherBrainFakeDeathPlmsVerification;
 using static MotherBrainFakeDeathVisualsVerification;
-using static MotherBrainFallingTubeInstructionDefinitionsVerification;
 using static MotherBrainGlassSuperMissileVerification;
 using static MotherBrainGlitchMechanicsVerification;
-using static MotherBrainHandBeamBodyInstructionDefinitionsVerification;
 using static MotherBrainHeadHitboxVerification;
-using static MotherBrainHeadInstructionProgramDefinitionsVerification;
 using static MotherBrainInheritedExplosionIndexVerification;
 using static MotherBrainMissileWalkResetVerification;
 using static MotherBrainRainbowVerification;
@@ -528,9 +525,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusDrainedController), () => VerifySamusDrainedController()),
         new(nameof(VerifySamusGrabbedByDraygon), () => VerifySamusGrabbedByDraygon()),
         new(nameof(VerifyMotherBrainRainbowBeamSamusMovement), () => VerifyMotherBrainRainbowBeamSamusMovement()),
-        new(nameof(VerifyMotherBrainHandBeamBodyInstructionDefinitions), () => VerifyMotherBrainHandBeamBodyInstructionDefinitions()),
-        new(nameof(VerifyMotherBrainFallingTubeInstructionDefinitions), () => VerifyMotherBrainFallingTubeInstructionDefinitions()),
-        new(nameof(VerifyMotherBrainHeadInstructionProgramDefinitions), () => VerifyMotherBrainHeadInstructionProgramDefinitions()),
         new(nameof(VerifyMotherBrainRainbowBeamAttackSequence), () => VerifyMotherBrainRainbowBeamAttackSequence()),
         new(nameof(VerifyEnemyProjectileInstructionMechanicsDefinitions), () => VerifyEnemyProjectileInstructionMechanicsDefinitions()),
         new(nameof(VerifyBabyMetroidCutsceneEntrance), () => VerifyBabyMetroidCutsceneEntrance()),

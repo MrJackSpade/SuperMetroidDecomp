@@ -41,9 +41,12 @@ internal readonly record struct AnimationProgramStep<TProgram, TFrame, TCue>(
     AnimationProgramStepKind Kind, TFrame Frame, int Duration, TCue Cue, TProgram Target)
     where TProgram : struct, Enum
 {
-    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> processing updates.</summary>
+    /// <summary>
+    /// Shows <paramref name="frame"/> for <paramref name="duration"/> processing updates. A zero duration is the
+    /// cartridge's own: the native timer wraps, so the frame stays for 65536 updates.
+    /// </summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> Show(TFrame frame, int duration) =>
-        new(AnimationProgramStepKind.Show, frame, Ensure.BetweenInclusive(1, ushort.MaxValue, duration), default!, default);
+        new(AnimationProgramStepKind.Show, frame, Ensure.BetweenInclusive(0, ushort.MaxValue, duration), default!, default);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> Publish(TCue cue) =>

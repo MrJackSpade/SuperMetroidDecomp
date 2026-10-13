@@ -3,7 +3,7 @@ using SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// Verification view of Mother Brain's grey palette-copy WRAM spill (#629). Production's
-/// <see cref="MotherBrainPaletteMemory"/> only stores the word; verification reads it back.
+/// <see cref="MotherBrainPaletteMemoryDefinitions"/> only stores the word; verification reads it back.
 /// </summary>
 [CpuBusBoundary("domain view: Mother Brain palette-copy WRAM spill read back for verification")]
 internal readonly struct MotherBrainPaletteSpillAccess(ISnesMemoryBus bus)

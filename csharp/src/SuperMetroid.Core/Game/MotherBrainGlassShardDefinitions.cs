@@ -3,15 +3,11 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Physical block-relative origin for one Mother Brain glass-shard emitter.</summary>
 internal readonly record struct MotherBrainGlassShardPlacement(Offset16<RoomPixels> Offset);
 
-/// <summary>Compiled animation selectors and physical origins for Mother Brain's glass shards.</summary>
+/// <summary>The graphics index and physical origins of Mother Brain's glass shards.</summary>
 internal static class MotherBrainGlassShardDefinitions
 {
     /// <summary>Graphics index installed by the shard and sparkle initializers.</summary>
     internal const ushort GraphicsIndex = 0x0640;
-
-    /// <summary>Returns the animation program selected by the RNG angle group.</summary>
-    internal static ushort InstructionPointer(ushort animationIndex) =>
-        MotherBrainGlassInstructionProgramDefinitions.SelectShardProgram(animationIndex);
 
     /// <summary>
     /// $86:CE61/CE67 select one of three horizontal emitter positions on the glass:

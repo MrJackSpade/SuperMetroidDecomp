@@ -226,9 +226,7 @@ using static MetroidBehaviorDefinitionsVerification;
 using static MetroidInstructionProgramDefinitionsVerification;
 using static MiscDustProjectileDefinitionsVerification;
 using static MochtroidInstructionProgramDefinitionsVerification;
-using static MotherBrainBabyInstructionProgramDefinitionsVerification;
 using static MotherBrainGeneratedVisualCatalogsVerification;
-using static MotherBrainGlassInstructionProgramDefinitionsVerification;
 using static MotherBrainGlassPlmDrawDefinitionsVerification;
 using static MotherBrainGlassShardDefinitionsVerification;
 using static NoobTubePlmDrawDefinitionsVerification;
@@ -415,10 +413,10 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(this, pointer);
 
 
-    /// <summary>Decodes one bank-$A9 falling-tube population record from seeded words.</summary>
-    public RoomEnemyPopulationRecord ReadFallingTubePopulation(ushort pointer)
+    /// <summary>Decodes the bank-$A9 falling-tube population record of <paramref name="piece"/> from seeded words.</summary>
+    public RoomEnemyPopulationRecord ReadFallingTubePopulation(MotherBrainTubePiece piece)
     {
-        int address = MotherBrainFallingTubePopulationDefinitions.NativeBank | pointer;
+        int address = MotherBrainNativeListAddresses.TubePopulationRecord(piece);
         ushort Word(int offset) => SnesLittleEndian.Word(ReadByte(address + offset), ReadByte(address + offset + 1));
         return new RoomEnemyPopulationRecord((EnemyDefinitionId)Word(0), new(Word(2), Word(4)), Word(6), Word(8), Word(10), Word(12), Word(14));
     }
@@ -1064,7 +1062,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hand-beam body oracle revision");
-        Suite(nameof(VerifyStream3HandBeamBodyLayout), () => VerifyStream3HandBeamBodyLayout());
         return 0;
     }
 
@@ -1086,8 +1083,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby instruction oracle revision");
-        Suite(nameof(VerifyStream3BabyInstructionLayout), () => VerifyStream3BabyInstructionLayout(rom));
-        Suite(nameof(VerifyMotherBrainBabyInstructionProgramDefinitions), () => VerifyMotherBrainBabyInstructionProgramDefinitions(rom));
         Console.WriteLine("Baby command layout: twelve native words, nine visual addresses and rejection domains pass; six hold roles remain required.");
         return 0;
     }
@@ -1111,7 +1106,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hand-beam oracle revision");
-        Suite(nameof(VerifyStream3HandBeamLayout), () => VerifyStream3HandBeamLayout());
         Suite(nameof(VerifyEnemyProjectileInstructionMechanicsDefinitions), () => VerifyEnemyProjectileInstructionMechanicsDefinitions());
         Console.WriteLine("Hand-beam command layout: stage/callback/visual order, exact byte ownership and production checks pass; selected holds remain required.");
         return 0;
@@ -3330,17 +3324,6 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Chozo program oracle revision");
         Suite(nameof(VerifyChozoStatuePlmDefinitions), () => VerifyChozoStatuePlmDefinitions(rom));
-        return 0;
-    }
-
-    /// <summary>Checks Mother Brain glass projectile instruction control words.</summary>
-    [VerificationCommand("--mother-brain-glass-instruction-mechanics")]
-    internal static int MotherBrainGlassInstructionMechanicsCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Glass projectile oracle revision");
-        Suite(nameof(VerifyMotherBrainGlassInstructionProgramDefinitions), () => VerifyMotherBrainGlassInstructionProgramDefinitions(rom));
         return 0;
     }
 

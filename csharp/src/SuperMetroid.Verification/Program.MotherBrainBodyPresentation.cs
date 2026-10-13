@@ -33,12 +33,10 @@ internal static class MotherBrainBodyPresentationVerification
         var baseline = new MotherBrainPresentationFixture(Build(stockOam, stockBg2));
         var mixed = MotherBrainBodyVisualDefinitions.Frames.ToArray()
             .Where(frame => MotherBrainBodyVisualDefinitions.HasBg2(frame.Pointer)).ToArray();
-        var physicalFrames = MotherBrainBodyInstructionProgramDefinitionsTooling.AllWords
-            .Where(word => word.Word < 0x8000)
-            .Select(word => MotherBrainBodyInstructionProgramDefinitions.ReadVisualSelector(
-                checked((ushort)(word.Address + 2)))).ToHashSet();
-        physicalFrames.UnionWith(MotherBrainHandBeamBodyInstructionDefinitionsTooling.PresentationOperands.ToArray()
-            .Select(MotherBrainHandBeamBodyInstructionDefinitions.ReadVisualSelector));
+        var physicalFrames = Enum.GetValues<MotherBrainBodyProgram>()
+            .SelectMany(program => MotherBrainAnimations.Body.Steps(program))
+            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .Select(step => step.Frame.Spritemap).ToHashSet();
         AssertTrue(physicalFrames.SetEquals(MotherBrainBodyVisualDefinitions.Frames.ToArray()
             .Select(frame => frame.Pointer)), "installed body inventory covers every compiled program selector, not only exercised paths");
         // Remap the whole mixed pose, not only its limbs. The native selector must not change.
@@ -67,8 +65,8 @@ internal static class MotherBrainBodyPresentationVerification
                 "repeat OAM draws do not rewrite BG2 without the native new-frame bit");
         }
         int steps = 0;
-        foreach (ushort program in new[] { MotherBrainBodyInstructionLists.WalkForwardsMedium,
-                     MotherBrainBodyInstructionLists.WalkBackwardsFast, MotherBrainBodyInstructionLists.CrouchSlow })
+        foreach (MotherBrainBodyProgram program in new[] { MotherBrainBodyProgram.WalkForwardMedium,
+                     MotherBrainBodyProgram.WalkBackwardFast, MotherBrainBodyProgram.CrouchSlow })
         {
             baseline.SetProgram(program); replacement.SetProgram(program);
             for (int frame = 0; frame < 100; frame++, steps++)

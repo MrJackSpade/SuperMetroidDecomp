@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -190,26 +190,6 @@ internal sealed class EnemyInstructionInterpreter
     /// <summary>Resolves a frame operand through its enemy family's compiled visual selector catalog.</summary>
     internal static ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
     {
-        if (slot.EnemyDefinitionPointer is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead &&
-            operandAddress == MotherBrainBodyInstructionProgramDefinitions.InitialDummyVisualOperand)
-            return MotherBrainBodyInstructionProgramDefinitions.ReadInitialDummyVisualSelector(
-                operandAddress);
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
-            MotherBrainHandBeamBodyInstructionDefinitions.ContainsWord(operandAddress))
-        {
-            return MotherBrainHandBeamBodyInstructionDefinitions.ReadVisualSelector(
-                operandAddress);
-        }
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody)
-            return MotherBrainBodyInstructionProgramDefinitions.ReadVisualSelector(operandAddress);
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes)
-            return MotherBrainFallingTubeInstructionDefinitions.ReadVisualSelector(
-                operandAddress);
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
-            MotherBrainHeadInstructionProgramDefinitions.ContainsWord(operandAddress))
-        {
-            return MotherBrainHeadInstructionProgramDefinitions.ReadWord(operandAddress);
-        }
         if (EnemySpritemapDefinitions.TryFrameAt(
                 slot.EnemyDefinitionPointer, operandAddress, out ushort frame))
             return frame;
@@ -321,12 +301,6 @@ internal sealed class EnemyInstructionInterpreter
             EnemyDefinitionId.ShipBottomEntrance)
         {
             return GunshipInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (slot.EnemyDefinitionPointer ==
-            EnemyDefinitionId.BabyMetroidCutscene)
-        {
-            return MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool)
@@ -525,9 +499,6 @@ internal sealed class EnemyInstructionInterpreter
         if (DeadTourianBehavior.IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
             return DeadTourianCorpseInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid)
-            return ShitroidInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Rio)
             return RioInstructionProgramDefinitions.ReadMechanicsWord(address);
 
@@ -573,9 +544,6 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea)
             return FirefleaInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite)
-            return ZebetiteInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer is EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile)
             return EvirInstructionProgramDefinitions.ReadMechanicsWord(address);
 
@@ -607,28 +575,6 @@ internal sealed class EnemyInstructionInterpreter
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Steam)
             return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody)
-        {
-            if (MotherBrainHandBeamBodyInstructionDefinitions.ContainsWord(address))
-                return MotherBrainHandBeamBodyInstructionDefinitions.ReadMechanicsWord(address);
-            return MotherBrainBodyInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes)
-            return MotherBrainFallingTubeInstructionDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
-            MotherBrainBodyInstructionProgramDefinitions.IsInitialDummyWord(address))
-        {
-            return MotherBrainBodyInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
-            MotherBrainHeadInstructionProgramDefinitions.ContainsWord(address))
-        {
-            return MotherBrainHeadInstructionProgramDefinitions.ReadWord(address);
-        }
 
         if (RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer))
             return RidleyInstructionProgramDefinitions.ReadMechanicsWord(address);

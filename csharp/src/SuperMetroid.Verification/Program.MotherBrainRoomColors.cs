@@ -32,11 +32,11 @@ internal static class MotherBrainRoomColorsVerification
         Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(rom, original.MotherBrainRoomColors, extracted));
         var nativeState = new MotherBrainEnemyState(native.SlotTable.Slots[0])
         {
-            RoomPaletteInstructionPointer = MotherBrainRoomPaletteProgramDefinitions.FlashStart,
+            RoomFlashFrame = 0,
         };
         var installedState = new MotherBrainEnemyState(installed.SlotTable.Slots[0])
         {
-            RoomPaletteInstructionPointer = MotherBrainRoomPaletteProgramDefinitions.FlashStart,
+            RoomFlashFrame = 0,
         };
         for (int frame = 0; frame < 48; frame++)
         {
@@ -44,20 +44,20 @@ internal static class MotherBrainRoomColorsVerification
             installed.MotherBrainBehavior.RunMotherBrainRoomPalette(installedState);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Mother Brain room flash matches full native CGRAM on frame {frame}");
-            AssertEqual(nativeState.RoomPaletteInstructionPointer,
-                installedState.RoomPaletteInstructionPointer,
-                "room-flash presentation leaves bytecode pointer unchanged");
-            AssertEqual(nativeState.RoomPaletteInstructionTimer,
-                installedState.RoomPaletteInstructionTimer,
-                "room-flash presentation leaves bytecode timer unchanged");
+            AssertEqual(nativeState.RoomFlashFrame,
+                installedState.RoomFlashFrame,
+                "room-flash presentation leaves the flash frame unchanged");
+            AssertEqual(nativeState.RoomFlashTimer,
+                installedState.RoomFlashTimer,
+                "room-flash presentation leaves the flash timer unchanged");
         }
         native.MotherBrainBehavior.StopMotherBrainRoomPalette(nativeState);
         installed.MotherBrainBehavior.StopMotherBrainRoomPalette(installedState);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed final grey room colors match all native CGRAM words");
-        AssertEqual(nativeState.RoomPaletteInstructionPointer,
-            installedState.RoomPaletteInstructionPointer,
-            "final room palette preserves bytecode stop state");
+        AssertEqual(nativeState.RoomFlashFrame,
+            installedState.RoomFlashFrame,
+            "final room palette preserves the flash stop state");
 
         Seed(nativeCgram);
         Seed(installedCgram);
@@ -157,10 +157,8 @@ internal static class MotherBrainRoomColorsVerification
         AreaMapPresentationCatalog migrated = AreaMapPresentationCatalog.Load(stock, overrides);
         var migratedFlash = new SnesCgram();
         var originalFlash = new SnesCgram();
-        migrated.MotherBrainRoomColors.ApplyFlash(migratedFlash,
-            MotherBrainRoomPaletteProgramDefinitions.FlashStart);
-        original.MotherBrainRoomColors.ApplyFlash(originalFlash,
-            MotherBrainRoomPaletteProgramDefinitions.FlashStart);
+        migrated.MotherBrainRoomColors.ApplyFlash(migratedFlash, 0);
+        original.MotherBrainRoomColors.ApplyFlash(originalFlash, 0);
         AssertTrue(!new CgramPalettes(migratedFlash).ImageEquals(new CgramPalettes(originalFlash)),
             "version-one room-color override retains its existing flash edit");
         var migratedEntry = new SnesCgram();
@@ -290,10 +288,8 @@ internal static class MotherBrainRoomColorsVerification
         var editedState = new MotherBrainEnemyState(editedEnemy.SlotTable.Slots[0]);
         if (flash)
         {
-            stockState.RoomPaletteInstructionPointer =
-                MotherBrainRoomPaletteProgramDefinitions.FlashStart;
-            editedState.RoomPaletteInstructionPointer =
-                MotherBrainRoomPaletteProgramDefinitions.FlashStart;
+            stockState.RoomFlashFrame = 0;
+            editedState.RoomFlashFrame = 0;
         }
         select(stockEnemy.MotherBrainBehavior)(stockState);
         select(editedEnemy.MotherBrainBehavior)(editedState);
@@ -305,11 +301,11 @@ internal static class MotherBrainRoomColorsVerification
             $"edited {methodName} changes only the selected CGRAM destinations");
         AssertEqual(stockState.Function, editedState.Function,
             $"edited {methodName} preserves body phase");
-        AssertEqual(stockState.RoomPaletteInstructionPointer,
-            editedState.RoomPaletteInstructionPointer,
+        AssertEqual(stockState.RoomFlashFrame,
+            editedState.RoomFlashFrame,
             $"edited {methodName} preserves palette-program cursor");
-        AssertEqual(stockState.RoomPaletteInstructionTimer,
-            editedState.RoomPaletteInstructionTimer,
+        AssertEqual(stockState.RoomFlashTimer,
+            editedState.RoomFlashTimer,
             $"edited {methodName} preserves palette-program timer");
     }
 

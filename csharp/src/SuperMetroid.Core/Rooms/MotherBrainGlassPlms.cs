@@ -23,8 +23,6 @@ internal sealed class MotherBrainGlassPlms
     }
     /// <summary>Only pre-instruction accepted from the installed Mother Brain glass header.</summary>
     private const ushort MotherBrainGlassPreInstruction = MotherBrainGlassPlmProgramDefinitions.HitPreInstruction;
-    /// <summary>Enemy projectile definition spawned for each glass fragment.</summary>
-    private const ushort MotherBrainGlassShardDefinition = 0xcefc;
     /// <summary>Four shard spawns emitted by the most recent shatter instruction.</summary>
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
@@ -48,7 +46,7 @@ internal sealed class MotherBrainGlassPlms
     {
         int physicalSlot = Array.IndexOf(_slotTable._slots, slot);
         if (record.RecordIndex != 0 || physicalSlot != _slotTable._slots.Length - 1 ||
-            record.Block != new Position16<RoomBlocks>(9, 5) || record.RoomArgument != 0x8000)
+            record.Block != new Position16<RoomBlocks>(9, 5) || record.RoomArgument != MotherBrainGlassBlockDefinitions.GlassRoomArgument)
         {
             throw new InvalidDataException(
                 $"Mother Brain glass population diverged: record={record.RecordIndex}, " +
@@ -59,7 +57,7 @@ internal sealed class MotherBrainGlassPlms
         slot.InstructionPointer = RoomPlmInstructionLists.MotherBrainGlass;
         slot.RoomArgument = 0;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
-        ushort glassLevelWord = unchecked((ushort)((original.LevelWord & 0x0fff) | 0x8000));
+        ushort glassLevelWord = unchecked((ushort)((original.LevelWord & MotherBrainGlassBlockDefinitions.TileNumberBits) | MotherBrainGlassBlockDefinitions.GlassBlockType));
         level.SetForegroundEntry(slot.BlockIndex, glassLevelWord);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
         streamer.SetLevelEntry(slot.BlockIndex, glassLevelWord);
@@ -187,7 +185,7 @@ internal sealed class MotherBrainGlassPlms
                         bus,
                         unchecked((ushort)(cursor + 2 + shard * 2)));
                     _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(
-                        MotherBrainGlassShardDefinition,
+                        (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard,
                         parameter,
                         glassBlock));
                 }

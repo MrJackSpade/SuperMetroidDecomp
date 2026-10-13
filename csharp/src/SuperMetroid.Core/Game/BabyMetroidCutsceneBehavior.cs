@@ -36,17 +36,6 @@ internal sealed class BabyMetroidCutsceneBehavior
         _projectiles = dependencies.Projectiles;
     }
 
-    /// <summary>Claims the Baby's two same-bank goto opcodes while leaving unrelated enemy instructions to the shared interpreter.</summary>
-    private static bool TryProcessBabyMetroidCutsceneInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
-    {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.BabyMetroidCutscene ||
-            !Enum.IsDefined((BabyMetroidInstruction)word))
-            return false;
-
-        RunMotherBrainBabyInstruction((BabyMetroidInstruction)word, ref cursor);
-        return true;
-    }
-
     /// <summary>Allocates the Baby in the first free native slot, runs its initializer, and preserves the post-init empty map until its first scheduled turn.</summary>
     internal void SpawnMotherBrainBabyMetroid(MotherBrainEnemyState state)
     {
@@ -80,7 +69,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         // The actor's list is still live and produces its first visible map on its first
         // scheduled turn; the active-index array was frozen before this allocation.
         babySlot.SpritemapPointer = babySlot.Properties.HasAny(EnemyProperties.ProcessInstructions)
-            ? (ushort)0x804d
+            ? CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap
             : (ushort)0;
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
         _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
@@ -101,10 +90,10 @@ internal sealed class BabyMetroidCutsceneBehavior
         baby.Initialize(slot.Position, slot.Properties);
         state.BabyMetroidSlot = slot;
         state.BabyMetroid = baby;
-        state.BabyAppliedInstructionList = baby.InstructionList;
+        state.BabyAppliedProgram = baby.Program;
+        state.BabyCursor = AnimationProgramCursor<MotherBrainBabyProgram>.Start(baby.Program);
 
         CopyBabyMetroidActorToPhysicalSlot(slot, baby);
-        slot.CurrentInstruction = baby.InstructionList;
         slot.InstructionTimer = NativeCountdown.FromRaw(baby.InstructionTimer);
         slot.Timer = NativeCountdown.Start(0);
 
@@ -152,7 +141,7 @@ internal sealed class BabyMetroidCutsceneBehavior
             // `$A9:C7B7` clears the complete shared word and queues only one `$72`, even
             // when several rings incremented it before this later enemy slot ran.
             state.PendingBabyCryCount = 0;
-            state.LastSoundEffect = 0x0072;
+            state.LastSoundEffect = ShitroidSoundDefinitions.DrainCry;
         }
         BabyMetroidCutsceneStepResult step = baby.Step(
             _room.Bus!,
@@ -176,24 +165,17 @@ internal sealed class BabyMetroidCutsceneBehavior
         // begins on the next increasing-slot enemy pass exactly like the cross-WRAM write.
         if (step.BodyStumbleRequested)
         {
-            ushort bodyInstruction = sequence.RequestedBodyInstructionList;
-            if (bodyInstruction == 0)
-            {
-                throw new InvalidDataException(
-                    "Baby requested Mother Brain body movement without an instruction list.");
-            }
-            MotherBrainBehavior.SetMotherBrainInstructionList(state.Body, bodyInstruction);
+            MotherBrainBodyProgram bodyProgram = sequence.RequestedBodyProgram ?? throw new InvalidDataException(
+                "Baby requested Mother Brain body movement without a body program.");
+            MotherBrainBehavior.SetMotherBrainBodyProgram(state, bodyProgram);
         }
 
         // Cross-enemy writes happen during the later Baby slot and become visible in the
         // body record immediately, though body AI cannot execute them until the next frame.
         state.Function = MotherBrainBehavior.MapLiveMotherBrainRainbowFunction(sequence.Phase);
 
-        if (baby.InstructionList != state.BabyAppliedInstructionList)
-        {
-            MotherBrainBehavior.SetMotherBrainInstructionList(slot, baby.InstructionList);
-            state.BabyAppliedInstructionList = baby.InstructionList;
-        }
+        if (baby.Program != state.BabyAppliedProgram)
+            SetBabyMetroidCutsceneProgram(state, slot, baby.Program);
         CopyBabyMetroidActorToPhysicalSlot(slot, baby);
         ApplyBabyMetroidFrameEffects(state, step);
     }
@@ -229,9 +211,9 @@ internal sealed class BabyMetroidCutsceneBehavior
                 MusicCommandDelay.EightFrames);
         }
         if (step.LatchSoundQueued)
-            state.LastSoundEffectLibrary1 = 0x0040;
+            state.LastSoundEffectLibrary1 = MotherBrainSoundDefinitions.StartRainbowDrain;
         if (step.AmbientCrySoundQueued)
-            state.LastSoundEffect = 0x0052;
+            state.LastSoundEffect = ShitroidSoundDefinitions.RemorseCry;
 
         foreach (BabyMetroidReleaseDustRequest dust in step.ReleaseDustClouds)
             _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.Animation);
@@ -294,19 +276,6 @@ internal sealed class BabyMetroidCutsceneBehavior
                 colors.FadeColor(palette.PaletteIndex, color));
     }
 
-    /// <summary>Baby private opcodes `$CFB4/$CFCA` are same-bank direct gotos.</summary>
-    private static void RunMotherBrainBabyInstruction(
-        BabyMetroidInstruction opcode,
-        ref ushort cursor)
-    {
-        cursor = opcode switch
-        {
-            BabyMetroidInstruction.GotoInitial => BabyMetroidCutsceneState.InitialInstructionList,
-            BabyMetroidInstruction.GotoDrainingMotherBrain => BabyMetroidCutsceneState.DrainingMotherBrainInstructionList,
-            _ => throw new InvalidOperationException($"Undefined BabyMetroidInstruction {opcode}."),
-        };
-    }
-
     /// <summary>Binds Baby cutscene setup only to its physical enemy-definition ID.</summary>
     internal void RegisterBabyMetroidCutsceneInitializationAi(EnemyAiTable table)
     {
@@ -327,13 +296,54 @@ internal sealed class BabyMetroidCutsceneBehavior
         });
     }
 
-    /// <summary>Registers Baby-only goto handling without taking ownership of common enemy opcodes.</summary>
-    internal static void RegisterBabyMetroidCutsceneOwnedInstructions(EnemyAiTable table)
+    /// <summary>Binds the Baby's typed program (#641) to the enemy instruction stage.</summary>
+    internal void RegisterBabyMetroidCutsceneTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroidCutscene,
+            (slot, context) => AdvanceBabyMetroidCutsceneAnimation(slot));
+
+    /// <summary>
+    /// Runs the Baby's program where the enemy instruction interpreter would: the frame expires on the update its
+    /// native timer would, and a newly shown frame raises the new-frame flag.
+    /// </summary>
+    internal void AdvanceBabyMetroidCutsceneAnimation(RoomEnemySlot slot)
     {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
+            "The cutscene Baby's program ran without Mother Brain's encounter state.");
+        ushort oldTimer = slot.InstructionTimer.RawValue;
+        slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        if (oldTimer != 1)
         {
-            yieldInterpreter = false;
-            return TryProcessBabyMetroidCutsceneInstruction(slot, word, ref cursor);
-        });
+            slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            return;
+        }
+
+        AnimationProgramCursor<MotherBrainBabyProgram> cursor = state.BabyCursor;
+        NativeCountdown counter = slot.Timer;
+        AnimationProgramAdvance<BabyMetroidFrame> advance = MotherBrainBabyAnimations.Programs.Advance(ref cursor, ref counter,
+            (cue, continuation) => throw new InvalidOperationException($"The cutscene Baby's programs publish no cue {cue}."));
+        slot.Timer = counter;
+        state.BabyCursor = cursor;
+        switch (advance.Kind)
+        {
+            case AnimationProgramAdvanceKind.Show:
+                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
+                slot.SpritemapPointer = advance.Frame.Spritemap;
+                slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+                return;
+            case AnimationProgramAdvanceKind.Hold:
+                // The native sleep: the timer wraps from zero and the last frame stays.
+                return;
+            default:
+                throw new InvalidOperationException($"The cutscene Baby's programs have no {advance.Kind} step.");
+        }
+    }
+
+    /// <summary>Restarts the Baby's slot on <paramref name="program"/>, as the native set-list helper does.</summary>
+    private static void SetBabyMetroidCutsceneProgram(MotherBrainEnemyState state, RoomEnemySlot slot, MotherBrainBabyProgram program)
+    {
+        state.BabyCursor = AnimationProgramCursor<MotherBrainBabyProgram>.Start(program);
+        state.BabyAppliedProgram = program;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 }

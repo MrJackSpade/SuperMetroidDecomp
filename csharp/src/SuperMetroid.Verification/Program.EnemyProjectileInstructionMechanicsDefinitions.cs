@@ -47,55 +47,18 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
 
         }
 
-        for (int index = 0;
-             index < MotherBrainHandBeamInstructionProgramDefinitionsTooling.NativeWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                MotherBrainHandBeamInstructionProgramDefinitionsTooling.NativeWord(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyProjectileCodePointers.BankBase | definition.Address));
-            AssertEqual(definition.Value, native,
-                $"Mother Brain hand-beam mechanics word ${definition.Address:X4}");
-        }
-        for (int index = 0;
-             index < MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallCount;
-             index++)
-        {
-            ushort instruction =
-                MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(index);
-            int operandAddress = EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(instruction + 2));
-            int native = (CartridgeImportSource.Require(rom).ReadCartridgeLong(operandAddress));
-            AssertEqual(MotherBrainHandBeamInstructionProgramDefinitions.SpawnNextCallback,
-                native,
-                $"Mother Brain hand-beam callback at ${instruction:X4}");
-        }
-
         var presentationReadBytes = new HashSet<int>();
         var guarded = NewEnemyProjectileMechanicsReadGuard(rom, presentationReadBytes);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x4000, 0x4000)) };
 
         Suite(nameof(VerifyCompiledRoomSharedPrograms), () => VerifyCompiledRoomSharedPrograms(guarded, samus, rom));
 
-        AssertThrows<InvalidDataException>(
-            () => MotherBrainHandBeamInstructionProgramDefinitions.ReadExternalFunction(
-                unchecked((ushort)(
-                    MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(0) +
-                    1))),
-            "non-opcode hand-beam callback address fails loudly");
-
         _ = EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBombInitial);
-        _ = MotherBrainHandBeamInstructionProgramDefinitions.ReadMechanicsWord(
-            MotherBrainHandBeamInstructionProgramDefinitions.Initial);
-        _ = MotherBrainHandBeamInstructionProgramDefinitions.ReadExternalFunction(
-            MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(0));
         // Tiered JIT can promote these warmed methods during a long, shared suite.
         // A one-time promotion is not a per-frame allocation. Repeat a bounded
         // measurement until the steady-state pass is reached; persistent allocation
         // still fails after all four passes.
-        // The callback operand address is a fixture constant; only the production lookups are measured.
-        ushort externalCall = MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(0);
         long allocated = long.MaxValue;
         int checksum = 0;
         for (int pass = 0; pass < 4 && allocated != 0; pass++)
@@ -105,9 +68,6 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
             {
                 checksum += EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(
                     EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBombInitial);
-                checksum += MotherBrainHandBeamInstructionProgramDefinitions.ReadMechanicsWord(
-                    MotherBrainHandBeamInstructionProgramDefinitions.Initial);
-                checksum += MotherBrainHandBeamInstructionProgramDefinitions.ReadExternalFunction(externalCall);
             }
             allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         }
@@ -122,8 +82,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
         Console.WriteLine(
             $"  Enemy-projectile instruction mechanics: " +
             $"{EnemyProjectileInstructionMechanicsDefinitionsTooling.MechanicsWordCount} words and " +
-            "all 39 Mother Brain/misc-dust programs plus the 25-word recursive hand-beam " +
-            "program pass with mechanics and callback reads forbidden.");
+            "all 39 Mother Brain/misc-dust programs pass with mechanics reads forbidden.");
     }
 
     /// <summary>
@@ -289,7 +248,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
         RoomEnemyProjectileSlot handBeam = handBeamEnemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.MotherBrainHandBeamCharging);
-        ushort referenceCursor = MotherBrainHandBeamInstructionProgramDefinitions.Initial;
+        ushort referenceCursor = MotherBrainNativeListAddresses.HandBeamProgram;
         ushort referenceOperand = 0;
         int referenceTimer = 1;
         var observedHandBeamOperands = new HashSet<ushort>();
@@ -316,7 +275,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
                 $"hand-beam frame {frame} preserves the native remaining duration");
             observedHandBeamOperands.Add(handBeam.PresentationOperandAddress);
         }
-        AssertEqual(MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,
             observedHandBeamOperands.Count, "hand-beam selects all 21 installed visual operands");
         AssertTrue(handBeam.IsActive,
             "hand-beam charge survives all three exact 13-frame stages");
@@ -487,11 +446,9 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
         HashSet<int> presentationReadBytes) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
-                    EnemyProjectileInstructionMechanicsDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                    MotherBrainHandBeamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                    EnemyProjectileInstructionMechanicsDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled enemy-projectile mechanics byte ${address:X6}.")
             .Observe(address =>
-                    MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(address) ||
                     (SnesAddressMath.BankBase(address)) == 0x860000 &&
                     (EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand((ushort)address) ||
                      EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand(unchecked((ushort)(address - 1)))),

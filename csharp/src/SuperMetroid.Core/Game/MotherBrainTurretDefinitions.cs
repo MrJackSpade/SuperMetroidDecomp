@@ -32,16 +32,14 @@ internal readonly record struct MotherBrainTurretDefinition(
     MotherBrainTurretDirection InitialDirection,
     byte AllowedDirectionMask);
 
-/// <summary>Animation selector and physical bullet launch for one turret direction.</summary>
-/// <param name="InstructionPointer">The turret pose's instruction list.</param>
+/// <summary>Physical bullet launch for one turret direction.</summary>
 /// <param name="BulletOffset">The bullet's spawn offset from the turret, in room pixels.</param>
 /// <param name="BulletVelocity">The bullet's signed 8.8 launch velocity.</param>
 internal readonly record struct MotherBrainTurretDirectionDefinition(
-    ushort InstructionPointer,
     Offset16<RoomPixels> BulletOffset,
     EightEightVector<RoomPixels> BulletVelocity);
 
-/// <summary>Compiled placement, rotation, animation-selector, and bullet-physics definitions.</summary>
+/// <summary>Compiled placement, rotation and bullet-physics definitions.</summary>
 internal static class MotherBrainTurretDefinitions
 {
     /// <summary>Graphics index installed by both projectile initializers at $86:BE58/$86:BF5F.</summary>
@@ -67,8 +65,6 @@ internal static class MotherBrainTurretDefinitions
     private const int BulletSpeed = 0x2c0;
     /// <summary>$86:BF9F samples a seventeen-pixel horizontal muzzle radius.</summary>
     private const int MuzzleRadius = 17;
-    /// <summary>$86:C101-$C12B: each direction has one timed pose followed by Sleep, six bytes total.</summary>
-    private const int PoseBytes = 6;
 
     /// <summary>Returns one of the twelve physical turret definitions.</summary>
     internal static MotherBrainTurretDefinition ForTurret(ushort parameter)
@@ -102,7 +98,7 @@ internal static class MotherBrainTurretDefinitions
             (ushort)(RotationPolicyStart + parameter * DirectionCount), initial, allowed);
     }
 
-    /// <summary>Returns the animation and bullet record for one of the eight directions.</summary>
+    /// <summary>Returns the bullet launch for one of the eight directions.</summary>
     internal static MotherBrainTurretDirectionDefinition ForDirection(
         MotherBrainTurretDirection direction)
     {
@@ -123,8 +119,7 @@ internal static class MotherBrainTurretDefinitions
             MotherBrainTurretDirection.Up => -21,
             _ => throw new ArgumentOutOfRangeException(nameof(direction)),
         };
-        return new((ushort)(MotherBrainTurretInstructionProgramDefinitions.TurretLeft + index * PoseBytes),
-            new((short)Math.Round(-MuzzleRadius * Math.Cos(angle)), muzzleY),
+        return new(new((short)Math.Round(-MuzzleRadius * Math.Cos(angle)), muzzleY),
             new((short)Math.Round(-BulletSpeed * Math.Cos(angle)), (short)Math.Round(BulletSpeed * Math.Sin(angle))));
     }
 

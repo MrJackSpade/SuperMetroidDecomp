@@ -26,11 +26,7 @@ using static MochtroidInstructionProgramDefinitionsVerification;
 using static MotherBrainContactHitboxesVerification;
 using static MotherBrainCorpseArtworkVerification;
 using static MotherBrainEscapeTextArtworkVerification;
-using static MotherBrainFallingTubeInstructionDefinitionsVerification;
-using static MotherBrainHandBeamBodyInstructionDefinitionsVerification;
-using static MotherBrainRoomPaletteProgramDefinitionsVerification;
 using static MotherBrainTurretDefinitionsVerification;
-using static MotherBrainTurretInstructionProgramDefinitionsVerification;
 using static PaletteFxInstructionCodesVerification;
 using static RipperInstructionProgramDefinitionsVerification;
 using static SuiteTimingVerification;
@@ -40,23 +36,11 @@ using static YellowPipeBugInstructionProgramDefinitionsVerification;
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
 {
-    /// <summary>Checks the five tube population record addresses, rejects nonrecords, and confirms their production spawn bindings.</summary>
+    /// <summary>Confirms the five typed tube pieces' native records and production spawn bindings.</summary>
     internal static void VerifyStream3FallingTubePopulationLayout(ISnesAddressSpace rom)
     {
-        ushort[] expected = [0x8ae5, 0x8af5, 0x8b05, 0x8b15, 0x8b25];
-        IReadOnlyList<ushort> pointers = MotherBrainFallingTubePopulationDefinitions.Pointers;
-        AssertTrue(expected.SequenceEqual(pointers), "five native falling-tube record identities");
-        AssertThrows<IndexOutOfRangeException>(() => _ = pointers[-1], "negative tube population index");
-        AssertThrows<IndexOutOfRangeException>(() => _ = pointers[pointers.Count], "upper tube population index");
-        for (int address = 0x8ae4; address <= 0x8b35; address++)
-        {
-            ushort pointer = (ushort)address;
-            if (!expected.Contains(pointer))
-                AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainFallingTubePopulationDefinitions.Get(pointer),
-                    $"nonrecord tube population address {pointer:X4}");
-        }
         Suite(nameof(VerifyMotherBrainFallingTubePopulationDefinitions), () => VerifyMotherBrainFallingTubePopulationDefinitions(rom));
-        Console.WriteLine("Falling-tube layout: five native records, all eight columns, production spawns and independent fixture behavior pass; placement magnitudes and delay remain required.");
+        Console.WriteLine("Falling-tube layout: five typed pieces match their native records; production spawns and independent fixture behavior pass.");
     }
     /// <summary>Compares all 256 intro colors with ROM and checks edited RGB5 channels through transfer bytes and live CGRAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
@@ -217,22 +201,6 @@ internal static class LookupStream3Verification
             return IntroFinalLineTilemap.Load(json);
         }
     }
-    /// <summary>Checks the fifteen body visual operands in native order with index and enumeration bounds.</summary>
-    internal static void VerifyStream3HandBeamBodyLayout()
-    {
-        ushort[] nativeOperands = [0x9a46, 0x9a4a, 0x9a4e, 0x9a5a, 0x9a66, 0x9a72,
-            0x9a7e, 0x9a8a, 0x9a96, 0x9aa2, 0x9aae, 0x9ab2, 0x9ab8, 0x9abc, 0x9ac0];
-        IReadOnlyList<ushort> calculated = MotherBrainHandBeamBodyInstructionDefinitionsTooling.PresentationOperands;
-        AssertEqual(nativeOperands.Length, calculated.Count, "hand-beam body visual operand count");
-        for (int index = 0; index < nativeOperands.Length; index++)
-            AssertEqual(nativeOperands[index], calculated[index], $"hand-beam body native operand {index}");
-        AssertTrue(nativeOperands.SequenceEqual(calculated), "hand-beam body indexed/enumerated order");
-        AssertThrows<IndexOutOfRangeException>(() => _ = calculated[-1], "hand-beam body negative operand index");
-        AssertThrows<IndexOutOfRangeException>(() => _ = calculated[calculated.Count], "hand-beam body upper operand index");
-        Suite(nameof(VerifyMotherBrainHandBeamBodyInstructionDefinitions), () => VerifyMotherBrainHandBeamBodyInstructionDefinitions());
-        Console.WriteLine("Hand-beam body address layout: fifteen native identities, enumeration and index bounds pass; selected mechanics inputs remain required.");
-    }
-
     /// <summary>Compares options heading borders with ROM and OAM, then checks individual edits, reordering, and expansion.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for options borders")]
     internal static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
@@ -1034,7 +1002,6 @@ internal static class LookupStream3Verification
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainBeamRomData.DirectionForQuadrants(invalid),
                 "stream 3 beam dispatcher preserves span index bounds");
-        Suite(nameof(VerifyMotherBrainFallingTubeInstructionDefinitions), () => VerifyMotherBrainFallingTubeInstructionDefinitions());
         IntroCinematicRomData.Palette.Regions[] introRegions =
         [IntroCinematicRomData.Palette.Gameplay, IntroCinematicRomData.Palette.GameplayClear,
          IntroCinematicRomData.Palette.Narration, IntroCinematicRomData.Palette.Discovery];
@@ -1214,7 +1181,6 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyStream3HealthTint), () => VerifyStream3HealthTint(rom));
         Suite(nameof(VerifyStream3RecoveryLights), () => VerifyStream3RecoveryLights(rom));
         Suite(nameof(VerifyStream3RoomFlash), () => VerifyStream3RoomFlash(rom));
-        Suite(nameof(VerifyMotherBrainRoomPaletteProgramDefinitions), () => VerifyMotherBrainRoomPaletteProgramDefinitions());
         Suite(nameof(VerifyStream3CorpseGeometry), () => VerifyStream3CorpseGeometry(rom));
         Suite(nameof(VerifyStream3EscapeGeometry), () => VerifyStream3EscapeGeometry(rom));
         Suite(nameof(VerifyStream3PainfulWalking), () => VerifyStream3PainfulWalking(rom));
@@ -1319,30 +1285,6 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyGrappleConnectionDefinitions), () => VerifyGrappleConnectionDefinitions((SuperMetroidAddressSpace)rom));
         Suite(nameof(VerifyWorkRobotLaserInstructionProgramDefinitions), () => VerifyWorkRobotLaserInstructionProgramDefinitions((SuperMetroidAddressSpace)rom));
         Suite(nameof(VerifyMotherBrainTurretDefinitions), () => VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom));
-        Suite(nameof(VerifyMotherBrainTurretInstructionProgramDefinitions), () => VerifyMotherBrainTurretInstructionProgramDefinitions((SuperMetroidAddressSpace)rom));
-        var turretMechanics = new HashSet<int>();
-        for (int direction = 0; direction < 8; direction++)
-        {
-            turretMechanics.Add(0xc101 + 6 * direction);
-            turretMechanics.Add(0xc105 + 6 * direction);
-            turretMechanics.Add(0xc143 + 6 * direction);
-            turretMechanics.Add(0xc147 + 6 * direction);
-        }
-        for (int selector = 0; selector < 9; selector++)
-            turretMechanics.Add(0xc131 + 2 * selector);
-        foreach (int address in new[] { 0xc19a, 0xc19c, 0xc19e, 0xc1a2, 0xc1a6, 0xc1aa, 0xc1ae, 0xc1b2 })
-            turretMechanics.Add(address);
-        foreach (int address in turretMechanics)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x860000 | address),
-                MotherBrainTurretInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "stream 3 turret calculated word read");
-        for (int address = 0; address <= ushort.MaxValue; address++)
-            AssertEqual(turretMechanics.Contains(address) || turretMechanics.Contains(address - 1),
-                MotherBrainTurretInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address),
-                "stream 3 turret mechanics byte ownership domain");
-        foreach (int invalid in new[] { -1, 49, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainTurretInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "stream 3 turret mechanics index bounds");
-        foreach (int invalid in new[] { -1, 21, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainTurretInstructionProgramDefinitions.PresentationWordAddress(invalid), "stream 3 turret visual index bounds");
         foreach (MotherBrainContactPart part in Enum.GetValues<MotherBrainContactPart>())
         {
             var regions = MotherBrainContactHitboxDefinitions.Get(part);
@@ -2684,7 +2626,7 @@ internal static class LookupStream3Verification
             int operand = MotherBrainRoomColorRomData.SourceBank + entry + MotherBrainRoomColorRomDataTooling.PaletteOperandByteOffset;
             int source = (MotherBrainRoomColorRomData.SourceBank|CartridgeImportSource.Require(rom).ReadCartridgeWord(operand));
             var actual = new SnesCgram();
-            stock.ApplyFlash(actual, entry);
+            stock.ApplyFlash(actual, frame);
             for (int color = 0; color < MotherBrainRoomColorRomData.SliceColors * 2; color++)
             {
                 int address = source + color * sizeof(ushort);
@@ -2697,23 +2639,9 @@ internal static class LookupStream3Verification
                     AssertEqual(native, actual.Colors[MotherBrainRoomColorRomData.MirroredSecondColor + color - MotherBrainRoomColorRomData.SliceColors], "stream 3 native room-flash mirror");
             }
         }
-        for (int offset = 0; offset <= ushort.MaxValue; offset++)
-        {
-            bool mechanics = offset >= 0xd046 && offset < 0xd07e && (offset - 0xd046) % 4 < 2 ||
-                offset is >= 0xd07e and < 0xd082;
-            bool presentation = offset >= 0xd046 && offset < 0xd07e && (offset - 0xd046) % 4 >= 2;
-            AssertEqual(mechanics, MotherBrainRoomPaletteProgramDefinitions.IsCompiledMechanicsByte(0xa90000 | offset),
-                "stream 3 room palette mechanics byte ownership");
-            AssertEqual(presentation, MotherBrainRoomPaletteProgramDefinitions.TryGetPresentationWord(0xa90000 | offset, out ushort word),
-                "stream 3 room palette operand byte ownership");
-            if (presentation) AssertEqual((ushort)(offset & 0xfffe), word, "stream 3 room palette canonical operand");
-        }
         foreach (int invalid in new[] { -1, 14, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress(invalid),
                 "stream 3 room palette operand index bounds");
-        foreach (int invalid in new[] { -1, 16, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainRoomPaletteProgramDefinitions.MechanicsWord(invalid),
-                "stream 3 room palette mechanics index bounds");
         for (int frame = 0; frame < 14; frame++)
             for (int color = 0; color < 24; color++)
                 foreach (string component in new[] { "red", "green", "blue" })
@@ -2726,7 +2654,7 @@ internal static class LookupStream3Verification
                     for (int checkFrame = 0; checkFrame < 14; checkFrame++)
                     {
                         var actual = new SnesCgram();
-                        edited.ApplyFlash(actual, (ushort)(0xd046 + checkFrame * 4));
+                        edited.ApplyFlash(actual, checkFrame);
                         for (int checkColor = 0; checkColor < 24; checkColor++)
                         {
                             var expectedRgb = editedNode["flash"]![checkFrame]![checkColor]!;
@@ -3044,75 +2972,6 @@ internal static class LookupStream3Verification
         }
         Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
-    /// <summary>Checks hand-beam instruction stages and separated visual/mechanics addresses.</summary>
-    internal static void VerifyStream3HandBeamLayout()
-    {
-        ushort[] stages = [0xc796, 0xc7b7, 0xc7d8];
-        int[] frameOffsets = [0, 9, 13, 17, 21, 25, 29];
-        var mechanics = new HashSet<int>();
-        var presentation = new HashSet<int>();
-        int visual = 0;
-        for (int stage = 0; stage < stages.Length; stage++)
-        {
-            AssertEqual((ushort)(stages[stage] + 4), MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(stage),
-                "hand-beam native external-call instruction");
-            foreach (int offset in frameOffsets)
-            {
-                mechanics.Add(stages[stage] + offset);
-                mechanics.Add(stages[stage] + offset + 1);
-                presentation.Add(stages[stage] + offset + 2);
-                presentation.Add(stages[stage] + offset + 3);
-                AssertEqual((ushort)(stages[stage] + offset + 2), MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress(visual++),
-                    "hand-beam native visual operand order");
-            }
-            for (int offset = 4; offset < 9; offset++) mechanics.Add(stages[stage] + offset);
-        }
-        mechanics.Add(0xc7f9);
-        mechanics.Add(0xc7fa);
-        for (int address = 0xc795; address <= 0xc7fb; address++)
-        {
-            AssertEqual(mechanics.Contains(address), MotherBrainHandBeamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address),
-                "hand-beam exact mechanics/callback byte ownership");
-            AssertEqual(presentation.Contains(address), MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(0x860000 | address),
-                "hand-beam exact visual byte ownership");
-        }
-        AssertTrue(!MotherBrainHandBeamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x85c796), "hand-beam mechanics rejects other bank");
-        AssertTrue(!MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(0x85c798), "hand-beam artwork rejects other bank");
-        foreach (int index in new[] { -1, 21, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress(index), "hand-beam visual index domain");
-        foreach (int index in new[] { -1, 25, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitionsTooling.NativeWord(index), "hand-beam mechanics index domain");
-        foreach (int index in new[] { -1, 3, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(index), "hand-beam callback index domain");
-    }
-
-    /// <summary>Checks Baby Metroid instruction mechanics and visual operands in native order.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Baby instruction layout")]
-    internal static void VerifyStream3BabyInstructionLayout(ISnesAddressSpace rom)
-    {
-        ushort[] mechanics = [0xcfa2,0xcfa6,0xcfaa,0xcfae,0xcfb2,0xcfb8,0xcfbc,0xcfc0,0xcfc4,0xcfc8,0xcfce,0xcfd2];
-        ushort[] visual = [0xcfa4,0xcfa8,0xcfac,0xcfb0,0xcfba,0xcfbe,0xcfc2,0xcfc6,0xcfd0];
-        AssertEqual(mechanics.Length, MotherBrainBabyInstructionProgramDefinitionsTooling.MechanicsWordCount, "Baby native mechanics count");
-        AssertEqual(visual.Length, MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordCount, "Baby native visual count");
-        for (int index = 0; index < mechanics.Length; index++)
-        {
-            var word = MotherBrainBabyInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(mechanics[index], word.Address, "Baby exact native mechanics enumeration");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa90000 | word.Address),
-                word.Value, "Baby exact native mechanics operand");
-        }
-        for (int index = 0; index < visual.Length; index++)
-            AssertEqual(visual[index], MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Baby exact native visual enumeration");
-        for (int address = 0xcfa1; address <= 0xcfd4; address++)
-            if (!mechanics.Contains((ushort)address))
-                AssertThrows<InvalidDataException>(() => MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
-                    "Baby program rejects operand bytes and adjacent callbacks as mechanics");
-        foreach (int index in new[] { -1,12,int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitionsTooling.MechanicsWord(index), "Baby mechanics enumeration domain");
-        foreach (int index in new[] { -1,9,int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Baby visual enumeration domain");
-    }
-
     /// <summary>Checks the phase-two attack palette's live colors and rear-leg routing without stored stock rows.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain attack palette")]

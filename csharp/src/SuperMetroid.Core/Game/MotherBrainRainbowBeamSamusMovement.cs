@@ -44,7 +44,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         Ensure.NotNull(samus);
 
         FixedPosition<RoomPixels> before = Capture(samus);
-        bool reachedWall = MoveHorizontallyTowardWall(samus, velocity: 0x1000);
+        bool reachedWall = MoveHorizontallyTowardWall(samus, velocity: 4096);
         ushort yVelocity = 0;
         bool reachedVerticalBoundary = false;
 
@@ -52,7 +52,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         {
             // `$86:C272` adds $40 before indexing the sine table. Its multiplication returns
             // product bits 8..23, i.e. a signed 8.8 component for the supplied 8.8 speed.
-            yVelocity = CalculateYVelocity(speed: 0x1000, RainbowBeamAngle);
+            yVelocity = CalculateYVelocity(speed: 4096, RainbowBeamAngle);
             reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(samus, yVelocity);
 
             // `$A9:BBCD` unconditionally clears carry after the vertical helper. The caller
@@ -78,8 +78,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // `CPY SamusYPosition / BPL` tests signed(YTarget-currentY). For the fight's normal
         // coordinate range this is exactly currentY <= $7C, but preserve the 16-bit branch
         // semantics instead of introducing a host integer comparison with different wraps.
-        ushort difference = unchecked((ushort)(0x007c - samus.Position.Y.Whole));
-        ushort yVelocity = unchecked((short)difference >= 0 ? (ushort)0x0040 : (ushort)0xffc0);
+        ushort difference = unchecked((ushort)(124 - samus.Position.Y.Whole));
+        ushort yVelocity = unchecked((short)difference >= 0 ? (ushort)64 : (ushort)-64);
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(samus, yVelocity);
 
         return CreateResult(
@@ -93,7 +93,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// </summary>
     public void BeginFallingAfterRainbowBeam()
     {
-        CustomVelocity = new(-0x0100, 0);
+        CustomVelocity = new(-256, 0);
     }
 
     /// <summary>
@@ -108,11 +108,11 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         // Native ADC wraps to 16 bits and BMI examines the resulting sign bit. As soon as
         // the negative speed crosses into $0000..$7FFF it is clamped to exact zero.
-        short acceleratedX = unchecked((short)(CustomVelocity.X.SignedRawValue + 0x0002));
+        short acceleratedX = unchecked((short)(CustomVelocity.X.SignedRawValue + 2));
         CustomVelocity = CustomVelocity.WithX(SnesSignedEightEight.FromSignedRaw(acceleratedX < 0 ? acceleratedX : (short)0));
         bool reachedWall = MoveHorizontallyTowardWall(samus, unchecked((ushort)CustomVelocity.X.SignedRawValue));
 
-        CustomVelocity += new EightEightVector<RoomPixels>(0, 0x0018);
+        CustomVelocity += new EightEightVector<RoomPixels>(0, 24);
         bool reachedVerticalBoundary =
             MoveVerticallyTowardCeilingOrFloor(samus, unchecked((ushort)CustomVelocity.Y.SignedRawValue));
 
@@ -147,19 +147,19 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(newSubposition);
         // `$A9:BC06` stores the same fraction byte into SamusPreviousYSubPosition+1, and every
         // exit stores the new Y into SamusPreviousYPosition: the camera sees no movement.
-        samus.WritePreviousYSubposition(0xff00, newSubposition);
+        samus.WritePreviousYSubposition(SnesLittleEndian.Word(0, byte.MaxValue), newSubposition);
 
         // BMI/BPL are signed tests of the subtraction result, not unsigned C# comparisons.
         // This distinction is observable if a malformed/debug position wraps around zero.
-        ushort? boundary = unchecked((short)(candidate - 0x0030)) < 0 ? (ushort)0x0030
-            : unchecked((short)(candidate - 0x00c0)) >= 0 ? (ushort)0x00c0
+        ushort? boundary = unchecked((short)(candidate - 48)) < 0 ? (ushort)48
+            : unchecked((short)(candidate - 192)) >= 0 ? (ushort)192
             : null;
         if (boundary is ushort clamped)
         {
             samus.Position = samus.Position.WithWholeY(clamped);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
             samus.WritePreviousYPosition(clamped);
-            samus.WritePreviousYSubposition(0xffff, 0);
+            samus.WritePreviousYSubposition(ushort.MaxValue, 0);
             return true;
         }
 
@@ -178,14 +178,14 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             out ushort newSubposition);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(newSubposition);
         // `$A9:BC48/$BC61/$BC6B/$BC71` mirror every store into the previous-X words.
-        samus.WritePreviousXSubposition(0xff00, newSubposition);
+        samus.WritePreviousXSubposition(SnesLittleEndian.Word(0, byte.MaxValue), newSubposition);
 
-        if (unchecked((short)(candidate - 0x00eb)) >= 0)
+        if (unchecked((short)(candidate - 235)) >= 0)
         {
-            samus.Position = samus.Position.WithWholeX(0x00eb);
+            samus.Position = samus.Position.WithWholeX(235);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
-            samus.WritePreviousXPosition(0x00eb);
-            samus.WritePreviousXSubposition(0xffff, 0);
+            samus.WritePreviousXPosition(235);
+            samus.WritePreviousXSubposition(ushort.MaxValue, 0);
             return true;
         }
 

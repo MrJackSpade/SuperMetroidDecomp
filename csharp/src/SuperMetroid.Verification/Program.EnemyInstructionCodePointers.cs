@@ -17,7 +17,6 @@ internal static class EnemyInstructionCodePointersVerification
         Type[] ownerInstructionSets =
         [
             typeof(AlcoonInstruction),
-            typeof(BabyMetroidInstruction),
             typeof(BeetomInstruction),
             typeof(BoyonInstruction),
             typeof(CacatacInstruction),
@@ -42,7 +41,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(MaridiaLargeSnailInstruction),
             typeof(MetareeInstruction),
             typeof(MetroidInstruction),
-            typeof(MotherBrainInstruction),
             typeof(NorfairRioInstruction),
             typeof(OwtchInstruction),
             typeof(PhantoonPartInstruction),
@@ -50,7 +48,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(RidleyInstruction),
             typeof(RinkaInstruction),
             typeof(ShaktoolInstruction),
-            typeof(ShitroidInstruction),
             typeof(SkreeInstruction),
             typeof(SkulteraInstruction),
             typeof(SpacePirateInstruction),
@@ -100,7 +97,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(RinkaInstruction),
             typeof(RioInstructionCodes),
             typeof(ShaktoolInstruction),
-            typeof(ShitroidInstruction),
             typeof(SkreeInstruction),
             typeof(SkulteraInstruction),
             typeof(SpacePirateInstruction),

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -941,18 +941,8 @@ internal sealed class EnemyProjectileEngine
                     projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileInstruction.MotherBrainsTurretBullets_GotoY when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
-                    // The bullet initializer stores direction * 2 in variable E. The ROM
-                    // opcode adds that byte offset to the eight-pointer table immediately
-                    // following the opcode, then jumps to the selected one-frame map.
-                    cursor = ReadEnemyProjectileInstructionMechanicsWord(
-                        projectile,
-                        unchecked((ushort)(cursor + 2 + projectile.Variable0)));
-                    break;
-                case EnemyProjectileInstruction.UsePalette0 when projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
                 case EnemyProjectileInstruction.UsePalette0_Duplicate when projectile.Kind == RoomEnemyProjectileKind.MotherBrainOnionRing:
-                    // Both native aliases clear the projectile's palette selection before
-                    // their respective turret-smoke or onion-ring impact frames.
+                    // The alias clears the projectile's palette selection before the onion-ring impact frames.
                     projectile.GraphicsIndex = 0;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
@@ -1095,21 +1085,6 @@ internal sealed class EnemyProjectileEngine
         if (MotherBrainTopTubeInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return MotherBrainTopTubeInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (MotherBrainGlassInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return MotherBrainGlassInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (MotherBrainTurretInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return MotherBrainTurretInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (MotherBrainHandBeamInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return MotherBrainHandBeamInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (projectile.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud)

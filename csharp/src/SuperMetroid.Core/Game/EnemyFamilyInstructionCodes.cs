@@ -388,29 +388,6 @@ internal enum DeadSidehopperInstruction : ushort
     EndHop = 0xecd0,
 }
 
-/// <summary>The Tourian Baby Metroid's private bank-$A9 animation instructions.</summary>
-internal enum ShitroidInstruction : ushort
-{
-    /// <summary><c>Instruction_BabyMetroid_GotoNormal</c> at $A9:F920.</summary>
-    GotoNormal = 0xf920,
-
-    /// <summary><c>Instruction_GotoLatchedOn</c> at $A9:F936.</summary>
-    GotoLatchedOn = 0xf936,
-
-    /// <summary><c>Instruction_BabyMetroid_GotoRemorse</c> at $A9:F990.</summary>
-    GotoRemorse = 0xf990,
-
-    /// <summary><c>Instruction_BabyMetroid_GotoY_OrPlayRemorseSFX</c> at $A9:F994.</summary>
-    GotoYOrPlayRemorseSFX = 0xf994,
-}
-
-/// <summary>Sound identifiers published by <see cref="ShitroidInstruction"/> routines.</summary>
-internal static class ShitroidInstructionSounds
-{
-    /// <summary>Library-two remorse cry $52 played by <see cref="ShitroidInstruction.GotoYOrPlayRemorseSFX"/>.</summary>
-    internal const ushort RemorseCry = 0x0052;
-}
-
 /// <summary>Dragon's private bank-$A2 animation instruction.</summary>
 internal enum DragonInstruction : ushort
 {

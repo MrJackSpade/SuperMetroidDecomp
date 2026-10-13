@@ -37,22 +37,12 @@ internal static class ZebetiteDefinitions
         bool linkedPair = (generation & 1) != 0;
         int separation = linkedPair ? 40 : 0;
         return new(
-            linkedPair ? (ushort)0x8000 : (ushort)0,
+            linkedPair ? ZebetiteGenerationFlags.LinkedPair : ZebetiteGenerationFlags.None,
             linkedPair ? (ushort)8 : (ushort)24,
-            HealthInstruction(linkedPair, 1000),
+            ZebetiteAnimations.HealthProgram(linkedPair, 1000),
             (ushort)(824 - generation * 192),
             (ushort)(111 - separation),
             (ushort)(111 + separation));
-    }
-
-    /// <summary>Returns the animation list selected by multipart form and current health.</summary>
-    internal static ushort HealthInstruction(bool linkedPair, ushort health)
-    {
-        int tier = health < 200 ? 4 :
-            health < 400 ? 3 :
-            health < 600 ? 2 :
-            health < 800 ? 1 : 0;
-        return ZebetiteInstructionProgramDefinitions.ProgramAt((linkedPair ? 5 : 0) + tier).Entry;
     }
 
     /// <summary>Returns the exact embedded primary or linked-half enemy population record.</summary>
@@ -62,9 +52,9 @@ internal static class ZebetiteDefinitions
 
 /// <summary>One active Zebetite generation's geometry and initial presentation binding.</summary>
 internal readonly record struct ZebetiteGenerationDefinition(
-    ushort GenerationFlags,
+    ZebetiteGenerationFlags GenerationFlags,
     ushort YRadius,
-    ushort InstructionList,
+    ZebetiteProgram Program,
     ushort XPosition,
     ushort PrimaryYPosition,
     ushort LinkedYPosition)

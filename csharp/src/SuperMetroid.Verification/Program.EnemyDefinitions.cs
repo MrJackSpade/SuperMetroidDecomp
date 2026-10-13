@@ -100,23 +100,24 @@ internal static class EnemyDefinitionsVerification
     internal static void VerifyMotherBrainFallingTubePopulationDefinitions(
         ISnesAddressSpace rom)
     {
-        ushort[] pointers = MotherBrainFallingTubePopulationDefinitions.Pointers.ToArray();
-        AssertEqual(5, pointers.Length, "all five Mother Brain falling-tube placements are compiled");
+        MotherBrainTubePiece[] pieces = Enum.GetValues<MotherBrainTubePiece>();
+        AssertEqual(5, pieces.Length, "all five Mother Brain falling-tube placements are compiled");
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(SuperMetroidAddressSpace.CreateWithoutCartridge());
 
-        for (int index = 0; index < pointers.Length; index++)
+        for (int index = 0; index < pieces.Length; index++)
         {
-            ushort pointer = pointers[index];
-            int address = 0xa90000 | pointer;
+            MotherBrainTubePiece piece = pieces[index];
+            int address = MotherBrainNativeListAddresses.TubePopulationRecord(piece);
             ushort[] words = Enumerable.Range(0, 8)
                 .Select(wordIndex => ReadVerificationWord(rom, address + wordIndex * 2))
                 .ToArray();
-            var native = new RoomEnemyPopulationRecord(EnemyDefinitionIds.FromHeaderPointer(words[0]), new(words[1], words[2]), words[3], words[4], words[5], words[6], words[7]);
-            AssertEqual(native, MotherBrainFallingTubePopulationDefinitions.Get(pointer),
-                $"Mother Brain falling-tube record $A9:{pointer:X4} matches all eight native words");
+            // The native record's instruction list is unused: the piece runs its typed program (#641).
+            var native = new RoomEnemyPopulationRecord(EnemyDefinitionIds.FromHeaderPointer(words[0]), new(words[1], words[2]), 0, words[4], words[5], words[6], words[7]);
+            AssertEqual(native, MotherBrainFallingTubePopulationDefinitions.Get(piece),
+                $"Mother Brain falling-tube record {piece} matches the native placement words");
 
-            enemies.MotherBrainBehavior.SpawnMotherBrainFallingTube(pointer);
+            enemies.MotherBrainBehavior.SpawnMotherBrainFallingTube(piece);
             RoomEnemySlot tube = enemies.SlotTable.Slots[index];
             AssertEqual(native, tube.Spawn.Population,
                 $"production tube spawn {index} retains its authored placement and parameters");
@@ -127,9 +128,6 @@ internal static class EnemyDefinitionsVerification
         }
         AssertEqual(5, enemies.SlotTable.EnemyCount,
             "all five compiled falling-tube placements allocated physical enemy slots");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainFallingTubePopulationDefinitions.Get(0),
-            "an unknown falling-tube placement fails explicitly");
 
         // A constructed bus must continue to supply its own placement rather than
         // silently borrowing the retail coordinates from the compiled catalog.
@@ -139,7 +137,7 @@ internal static class EnemyDefinitionsVerification
                 ((ushort)EnemyDefinitionId.MotherBrainTubes + offset)))
             .ToArray();
         fixture.WriteBytes(0xa00000 | (ushort)EnemyDefinitionId.MotherBrainTubes, header);
-        int fixtureAddress = 0xa90000 | MotherBrainFallingTubePopulationDefinitions.BottomLeft;
+        int fixtureAddress = MotherBrainNativeListAddresses.TubePopulationRecord(MotherBrainTubePiece.BottomLeft);
         byte[] authoredRecord = Enumerable.Range(0, 16)
             .Select(offset => rom.ReadCartridgeByte(fixtureAddress + offset))
             .ToArray();
@@ -148,7 +146,7 @@ internal static class EnemyDefinitionsVerification
         fixture.WriteBytes(fixtureAddress, authoredRecord);
         var fixtureEnemies = new RoomEnemySystem();
         fixtureEnemies.BindFixtureBus(fixture);
-        fixtureEnemies.MotherBrainBehavior.SpawnMotherBrainFallingTube(MotherBrainFallingTubePopulationDefinitions.BottomLeft);
+        fixtureEnemies.MotherBrainBehavior.SpawnMotherBrainFallingTube(MotherBrainTubePiece.BottomLeft);
         AssertEqual(0x1234, fixtureEnemies.SlotTable.Slots[0].Position.X.Whole,
             "constructed room fixture retains its authored falling-tube X position");
 

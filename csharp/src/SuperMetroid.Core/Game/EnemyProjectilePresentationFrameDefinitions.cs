@@ -245,18 +245,16 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             Add(frames, "bomb_torizo_statue_fragment",
                 BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount,
                 BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress);
-            Add(frames, "mother_brain_glass",
-                MotherBrainGlassInstructionProgramDefinitions.PresentationWordCount,
-                MotherBrainGlassInstructionProgramDefinitions.PresentationWordAddress);
-            Add(frames, "mother_brain_hand_beam",
-                MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordCount,
-                MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "mother_brain_glass", MotherBrainGlassVisualDefinitions.ProjectileFrameCount,
+                index => MotherBrainGlassVisualDefinitions.PresentationKey(MotherBrainGlassVisualDefinitions.ProjectileFrames[index]));
+            Add(frames, "mother_brain_hand_beam", MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,
+                index => MotherBrainHandBeamVisualDefinitions.PresentationKey(MotherBrainHandBeamVisualDefinitions.ProjectileFrames[index]));
             Add(frames, "mother_brain_top_tube",
                 MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordCount,
                 MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordAddress);
             Add(frames, "mother_brain_turret",
-                MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount,
-                MotherBrainTurretInstructionProgramDefinitions.PresentationWordAddress);
+                MotherBrainTurretVisualDefinitions.ProjectileFrameCount,
+                index => MotherBrainTurretVisualDefinitions.PresentationKey(MotherBrainTurretVisualDefinitions.ProjectileFrames[index]));
         }
         if (generation >= CatalogGeneration.PrePolypRock)
         {

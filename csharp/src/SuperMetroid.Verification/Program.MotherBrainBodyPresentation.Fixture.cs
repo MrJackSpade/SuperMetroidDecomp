@@ -49,11 +49,8 @@ internal static class MotherBrainBodyPresentationFixtureVerification
                 (fresh ? EnemyExtraProperties.NewInstructionFrame : 0));
         }
 
-        /// <summary>Starts a native body instruction list at its next one-tick dispatch.</summary>
-        internal void SetProgram(ushort pointer)
-        {
-            Body.CurrentInstruction = pointer; Body.InstructionTimer = NativeCountdown.Start(1); Body.Timer = NativeCountdown.Start(0);
-        }
+        /// <summary>Starts a body program at its next one-tick dispatch.</summary>
+        internal void SetProgram(MotherBrainBodyProgram program) => MotherBrainBehavior.SetMotherBrainBodyProgram(State, program);
 
         /// <summary>Advances the body's actual production instruction processor once.</summary>
         internal void Step() => instructions(Body, Inner.Samus, Inner.Level, Position16<RoomPixels>.Zero, 0);

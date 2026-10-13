@@ -40,7 +40,7 @@ internal static class EnemyVisualProgramAudit
             }
             string source = parts[0].SyntaxTree.FilePath;
             var catalog = InstructionProgramCatalog.Of(type);
-            int? bank = ResolveBank(type, catalog, [.. parts, .. adapterParts], compilation);
+            int? bank = ResolveBank(catalog, [.. parts, .. adapterParts], compilation);
             var addresses = new HashSet<ushort>();
             string shape = "unrecognized";
             if (catalog.PresentationOperands is { } indexed)
@@ -78,8 +78,6 @@ internal static class EnemyVisualProgramAudit
                 foreach (var frame in EnemyProjectileInstructionMechanicsDefinitions.VisualFrames)
                     addresses.Add(frame.OperandAddress);
             }
-            else if (EnemyVisualProgramSpecializations.TryOperands(type, addresses))
-                shape = "specialized-layout";
             else if (EnemyVisualProgramSpecializations.IsControlOnly(type))
                 shape = "control-only";
 
@@ -90,7 +88,7 @@ internal static class EnemyVisualProgramAudit
 
             if (shape == "unrecognized")
                 report.Gap(ResourceDomains.CompiledSelector, owner, source, "No explicit presentation disposition for this program shape.");
-            if (words.Count == 0 && !EnemyVisualProgramSpecializations.IsMotherBrain(type))
+            if (words.Count == 0)
                 report.Gap(ResourceDomains.CompiledSelector, owner, source, "No independently enumerable mechanics-word domain.");
             if (bank is null)
                 report.Gap(ResourceDomains.CompiledSelector, owner, source, "Program bank has no unambiguous source declaration.");
@@ -143,8 +141,6 @@ internal static class EnemyVisualProgramAudit
     private static Dictionary<ushort, ushort> ReadWords(Type type, InstructionProgramCatalog catalog)
     {
         var result = new Dictionary<ushort, ushort>();
-        if (type == typeof(MotherBrainBodyInstructionProgramDefinitions))
-            return MotherBrainBodyInstructionProgramDefinitionsTooling.AllWords.ToDictionary(word => word.Address, word => word.Word);
         if (type == typeof(SkreeMetareeInstructionProgramDefinitions))
         {
             foreach (bool metaree in new[] { false, true })
@@ -155,24 +151,14 @@ internal static class EnemyVisualProgramAudit
             }
             return result;
         }
-        if (type == typeof(MotherBrainHandBeamInstructionProgramDefinitions))
-        {
-            for (int i = 0; i < MotherBrainHandBeamInstructionProgramDefinitionsTooling.NativeWordCount; i++)
-            {
-                var word = MotherBrainHandBeamInstructionProgramDefinitionsTooling.NativeWord(i);
-                result.Add(word.Address, word.Value);
-            }
-            return result;
-        }
         foreach (var word in catalog.MechanicsWords ?? [])
             result.Add(word.Address, word.Value);
         return result;
     }
 
     /// <summary>Resolves a program's SNES bank from its declaration or unambiguous source guards.</summary>
-    private static int? ResolveBank(Type type, InstructionProgramCatalog catalog, ClassDeclarationSyntax[] parts, CSharpCompilation compilation)
+    private static int? ResolveBank(InstructionProgramCatalog catalog, ClassDeclarationSyntax[] parts, CSharpCompilation compilation)
     {
-        if (EnemyVisualProgramSpecializations.IsMotherBrain(type)) return MotherBrainVisualDefinitions.Bank;
         if (catalog.DeclaredBank is { } declared)
             return declared <= byte.MaxValue ? declared : SnesAddressMath.BankNumber(declared);
         var banks = new HashSet<int>();
@@ -204,8 +190,7 @@ internal static class EnemyVisualProgramAudit
             return;
         }
         ushort pointer;
-        if (EnemyVisualProgramSpecializations.TryResolve(type, operand, out pointer)) { }
-        else if (type == typeof(DeadTourianCorpseInstructionProgramDefinitions))
+        if (type == typeof(DeadTourianCorpseInstructionProgramDefinitions))
             pointer = DeadTourianCorpseVisualDefinitions.FrameAt(operand);
         else if (type == typeof(SkreeMetareeInstructionProgramDefinitions))
             pointer = EnemySpritemapDefinitions.SkreeMetareeFrameAt(

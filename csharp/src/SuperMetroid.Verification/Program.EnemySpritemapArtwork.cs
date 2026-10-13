@@ -2213,14 +2213,14 @@ internal static class EnemySpritemapArtworkVerification
             AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
                 $"{name} visual override leaves X unchanged");
         }
-        foreach ((EnemyDefinitionId definition, ushort operand, string name) in new[]
+        // The fingernail's frame comes from its typed program (#641); Fake Kraid still selects by operand.
+        foreach ((EnemyDefinitionId definition, ushort pointer, string name) in new[]
                  {
-                     (EnemyDefinitionId.MiniKraid, (ushort)0x99b0, "Fake Kraid"),
-                     (EnemyDefinitionId.KraidNail, (ushort)0x8b0c,
+                     (EnemyDefinitionId.MiniKraid, KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, 0x99b0), "Fake Kraid"),
+                     (EnemyDefinitionId.KraidNail, new KraidPartFrame(KraidPartFrameKind.Nail, 0).Spritemap,
                          "Kraid fingernail"),
                  })
         {
-            ushort pointer = KraidVisualDefinitions.FrameAt(definition, operand);
             OamBuffer nativeFrame = DrawEnemy(stock, NewFrameReadGuard(rom),
                 pointer, definition);
             OamBuffer editedFrame = DrawEnemy(edited, NewFrameReadGuard(rom),

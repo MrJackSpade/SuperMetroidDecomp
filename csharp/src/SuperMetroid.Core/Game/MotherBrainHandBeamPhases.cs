@@ -74,52 +74,52 @@ public enum MotherBrainBodyPose : ushort
 public enum MotherBrainTubeCollapseFunction : ushort
 {
     /// <summary><c>$A9:8949 Function_MotherBrainBody_SpawnTubesFallingWhenLessThan4Proj</c>: admits collapse when four projectile slots are free, then requests physical bottom-left tube enemy 0.</summary>
-    WaitForFourFreeProjectileSlots = 0x8949,
+    WaitForFourFreeProjectileSlots = 1,
     /// <summary><c>$A9:896E Function_MotherBrainBody_ClearBottomLeftTube</c>: requests the bank-$84 removal at block (5,9) and seeds the 32-count top-right delay.</summary>
-    ClearBottomLeftTube = 0x896e,
+    ClearBottomLeftTube,
     /// <summary><c>$A9:8983 Function_MotherBrainBody_SpawnTopRightTubeFallingProjectile</c>: after timer underflow requests the ceiling projectile at pixel (152,47).</summary>
-    SpawnTopRightTube = 0x8983,
+    SpawnTopRightTube,
     /// <summary><c>$A9:89A0 Function_MotherBrainBody_ClearCeilingBlockColumn9</c>: clears ceiling block (9,2) and seeds the next 32-count tube delay.</summary>
-    ClearCeilingColumn9 = 0x89a0,
+    ClearCeilingColumn9,
     /// <summary><c>$A9:89B5 Function_MotherBrainBody_SpawnTopLeftTubeFallingProjectile</c>: after timer underflow requests the ceiling projectile at pixel (104,47).</summary>
-    SpawnTopLeftTube = 0x89b5,
+    SpawnTopLeftTube,
     /// <summary><c>$A9:89D2 Function_MotherBrainBody_ClearCeilingBlockColumn6</c>: clears ceiling block (6,2), selects the next physical tube, and seeds its shared timer.</summary>
-    ClearCeilingColumn6 = 0x89d2,
+    ClearCeilingColumn6,
     /// <summary><c>$A9:89E7 Function_MotherBrainBody_SpawnTubesFalling1</c>: requests physical bottom-right tube enemy 1, independently of the ceiling-projectile pool.</summary>
-    SpawnBottomRightTube = 0x89e7,
+    SpawnBottomRightTube,
     /// <summary><c>$A9:89FA Function_MotherBrainBody_ClearBottomRightTube</c>: requests bottom-right removal at block (10,9) and selects physical tube enemy 2.</summary>
-    ClearBottomRightTube = 0x89fa,
+    ClearBottomRightTube,
     /// <summary><c>$A9:8A0F Function_MotherBrainBody_SpawnTubesFalling2</c>: requests physical bottom-middle-left tube enemy 2.</summary>
-    SpawnBottomMiddleLeftTube = 0x8a0f,
+    SpawnBottomMiddleLeftTube,
     /// <summary><c>$A9:8A22 Function_MotherBrainBody_ClearBottomMiddleLeftTube</c>: removes the side tube at block (6,10) and starts the 32-count upper-middle-left delay.</summary>
-    ClearBottomMiddleLeftTube = 0x8a22,
+    ClearBottomMiddleLeftTube,
     /// <summary><c>$A9:8A37 Function_MotherBrainBody_SpawnTopMiddleLeftTubeFallingProj</c>: after timer underflow requests the ceiling projectile at pixel (120,59).</summary>
-    SpawnTopMiddleLeftTube = 0x8a37,
+    SpawnTopMiddleLeftTube,
     /// <summary><c>$A9:8A54 Function_MotherBrainBody_ClearCeilingTubeColumn7</c>: clears ceiling tube (7,2) and seeds the 32-count upper-middle-right delay.</summary>
-    ClearCeilingColumn7 = 0x8a54,
+    ClearCeilingColumn7,
     /// <summary><c>$A9:8A69 Function_MotherBrainBody_SpawnTopMiddleRightTubeFallingProj</c>: after timer underflow requests the ceiling projectile at pixel (136,59).</summary>
-    SpawnTopMiddleRightTube = 0x8a69,
+    SpawnTopMiddleRightTube,
     /// <summary><c>$A9:8A86 Function_MotherBrainBody_ClearCeilingTubeColumn8</c>: clears ceiling tube (8,2) and selects physical tube enemy 3.</summary>
-    ClearCeilingColumn8 = 0x8a86,
+    ClearCeilingColumn8,
     /// <summary><c>$A9:8A9B Function_MotherBrainBody_SpawnTubesFalling3</c>: requests physical bottom-middle-right tube enemy 3.</summary>
-    SpawnBottomMiddleRightTube = 0x8a9b,
+    SpawnBottomMiddleRightTube,
     /// <summary><c>$A9:8AAE Function_MotherBrainBody_ClearBottomMiddleRightTube</c>: removes the side tube at block (9,10) and seeds the two-count main-tube delay.</summary>
-    ClearBottomMiddleRightTube = 0x8aae,
+    ClearBottomMiddleRightTube,
     /// <summary><c>$A9:8AC3 Function_MotherBrainBody_SpawnTubesFalling4</c>: after timer underflow requests the main falling-tube enemy whose descent carries the head into ascent setup.</summary>
-    SpawnMainTube = 0x8ac3,
+    SpawnMainTube,
     /// <summary><c>$A9:8AD6 Function_MotherBrainBody_ClearBottomMiddleTubes</c>: removes the remaining tubes at block (7,7) and installs its own RTS as the terminal subfunction.</summary>
-    ClearBottomMiddleTubes = 0x8ad6,
+    ClearBottomMiddleTubes,
     /// <summary><c>$A9:8AE4 Function_MotherBrainBody_ClearBottomMiddleTubes.return</c>: inert tube-subfunction endpoint while physical falling actors continue independently.</summary>
-    Finished = 0x8ae4,
+    Finished,
 }
 
 /// <summary>Native function pointers used by Mother Brain's separate brain record.</summary>
 public enum MotherBrainBrainFunction : ushort
 {
     /// <summary><c>$A9:87A2 Function_MotherBrain_SetupBrainAndNeckToBeDrawn</c>: advances neck geometry unless time is frozen, attaches the head to joint 4, and installs the combined draw hook.</summary>
-    SetupBrainAndNeckToBeDrawn = 0x87a2,
+    SetupBrainAndNeckToBeDrawn = 1,
     /// <summary><c>$A9:87D0 Function_MotherBrain_SetupBrainToBeDrawn</c>: installs the head-only custom draw hook without articulated neck drawing.</summary>
-    SetupBrainToBeDrawn = 0x87d0,
+    SetupBrainToBeDrawn,
 }
 
 /// <summary>
@@ -178,12 +178,12 @@ public sealed class MotherBrainEnemyState
     public ushort FakeDeathExplosionIndex { get; internal set; }
 
     /// <summary>
-    /// Bank-$A9 room-palette bytecode pointer/timer. The timer counts upward, unlike enemy
+    /// The room flash's current frame (#641), or null while no flash runs. Its timer counts upward, unlike enemy
     /// instruction timers, because handler $D192 compares elapsed frames with each duration.
     /// </summary>
-    public ushort RoomPaletteInstructionPointer { get; internal set; }
-    /// <summary>Elapsed-update count for the active room-palette timed entry, advanced upward by $A9:D192 and reset when its pointer changes.</summary>
-    public ushort RoomPaletteInstructionTimer { get; internal set; }
+    public int? RoomFlashFrame { get; internal set; }
+    /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by $A9:D192 and reset when the frame changes.</summary>
+    public ushort RoomFlashTimer { get; internal set; }
 
     /// <summary>Head-record sub-dispatch and its independent underflow timer.</summary>
     public MotherBrainTubeCollapseFunction TubeCollapseFunction { get; internal set; }
@@ -227,19 +227,26 @@ public sealed class MotherBrainEnemyState
     public ushort BrainPaletteTimer { get; internal set; }
 
     /// <summary>
-    /// <c>MotherBrainBody.brainInstListPointer</c> ($7E:8002): the brain's own bank-$A9
-    /// instruction list, separate from the head enemy's dummy list. Bit 15 set means live;
-    /// otherwise the brain is not drawn. Only <c>$A9:C447</c> and the draw-time processor
-    /// (<c>$A9:92AF</c>) write it.
+    /// The brain's own program (#641), separate from the head enemy's dummy program: the cursor rests on the frame
+    /// being shown, as <c>MotherBrainBody.brainInstListPointer</c> ($7E:8002) does. Null means the brain is not live
+    /// and not drawn. Only the program setter (<c>$A9:C447</c>) and the draw-time runner (<c>$A9:92AF</c>) write it.
     /// </summary>
-    public ushort BrainInstructionPointer { get; internal set; }
+    internal AnimationProgramCursor<MotherBrainHeadProgram>? BrainCursor { get; set; }
 
     /// <summary>
     /// <c>MotherBrainBody.brainInstructionTimer</c> ($7E:8000). It counts draws up from one
-    /// and the list advances once it exceeds the entry's duration, so each frame shows for
+    /// and the program advances once it exceeds the frame's duration, so each frame shows for
     /// its duration plus one draw.
     /// </summary>
-    public ushort BrainInstructionTimer { get; internal set; }
+    public ushort BrainFrameTimer { get; internal set; }
+
+    /// <summary>Where the body enemy's program resumes (#641).</summary>
+    internal AnimationProgramCursor<MotherBrainBodyProgram> BodyCursor { get; set; } =
+        AnimationProgramCursor<MotherBrainBodyProgram>.Start(MotherBrainBodyProgram.InitialDummy);
+
+    /// <summary>Where the head enemy's program resumes; it keeps the initial dummy for life.</summary>
+    internal AnimationProgramCursor<MotherBrainBodyProgram> HeadSlotCursor { get; set; } =
+        AnimationProgramCursor<MotherBrainBodyProgram>.Start(MotherBrainBodyProgram.InitialDummy);
 
     /// <summary>Earthquake timer copied into the head-shake word after the glass event.</summary>
     public NativeCountdown BrainMainShakeTimer { get; internal set; }
@@ -420,11 +427,14 @@ public sealed class MotherBrainEnemyState
     public BabyMetroidCutsceneStepResult? LastBabyMetroidStep { get; internal set; }
 
     /// <summary>
-    /// Last Baby instruction list copied into its physical slot. The ordinary bank-$A9
-    /// interpreter advances the slot pointer independently, so this latch changes only
-    /// when Baby AI explicitly invokes the native set-list helper.
+    /// Last Baby program copied into its physical slot. The slot's cursor advances
+    /// independently, so this latch changes only when Baby AI explicitly invokes the
+    /// native set-list helper.
     /// </summary>
-    internal ushort BabyAppliedInstructionList { get; set; }
+    internal MotherBrainBabyProgram BabyAppliedProgram { get; set; }
+
+    /// <summary>Where the cutscene Baby's slot program resumes (#641).</summary>
+    internal AnimationProgramCursor<MotherBrainBabyProgram> BabyCursor { get; set; }
 
     /// <summary>
     /// Shared cry counter incremented by bank-$86 onion-ring collision and consumed by the
@@ -450,13 +460,13 @@ public sealed class MotherBrainEnemyState
     public MotherBrainRainbowExplosionRequest? LastRainbowBeamExplosion { get; internal set; }
 
     /// <summary>
-    /// Last head list copied from the rainbow state machine into the physical head slot.
-    /// The physical instruction pointer advances away from the list origin, so comparing
-    /// against <c>Head.CurrentInstruction</c> would reinstall the list and reset its timer
-    /// every frame. This separate producer-owned latch mirrors the fact that `$A9:C447`
-    /// runs only when body AI explicitly requests a different head program.
+    /// Last brain program copied from the rainbow state machine into the brain.
+    /// The brain cursor advances away from the program start, so comparing against it
+    /// would reinstall the program and reset its timer every frame. This separate
+    /// producer-owned latch mirrors the fact that `$A9:C447` runs only when body AI
+    /// explicitly requests a different brain program.
     /// </summary>
-    internal ushort RainbowAppliedHeadInstructionList { get; set; }
+    internal MotherBrainHeadProgram? RainbowAppliedHeadProgram { get; set; }
 
     /// <summary>
     /// Last <see cref="MotherBrainRainbowBeamAttackSequence.SmallPurpleBreathGenerationWriteCount"/>

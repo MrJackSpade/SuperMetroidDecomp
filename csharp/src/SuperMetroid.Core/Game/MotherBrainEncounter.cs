@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -117,7 +117,7 @@ internal sealed class MotherBrainEncounter
         if (_presentation.EscapeTimerArtwork?.TryLoadNativeTransfer(
             _presentation._vram!, unchecked((int)transfer.SourceAddress), transfer.Size, transfer.VramDestination) == true)
             return;
-        if (SnesAddressMath.BankNumber(unchecked((int)transfer.SourceAddress)) is not (0x7e or 0x7f))
+        if (SnesAddressMath.BankNumber(unchecked((int)transfer.SourceAddress)) is not (126 or 127)) // Banks $7E/$7F: WRAM.
         {
             // Every cartridge-backed source used by this encounter has an installed
             // art owner above. The remaining live transfer is the mutable $7E:9000
@@ -143,7 +143,7 @@ internal sealed class MotherBrainEncounter
         {
             // Explosion instruction $13 is QueueSfx3_Max3; the other translated library-
             // three Mother Brain instructions use Max6.
-            byte maximumQueued = motherBrainLibrary3 == 0x13 ? (byte)3 : (byte)6;
+            byte maximumQueued = motherBrainLibrary3 == MotherBrainSoundDefinitions.Explosion.Value ? (byte)3 : (byte)6;
             audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, motherBrainLibrary3), maximumQueued);
         }
     }

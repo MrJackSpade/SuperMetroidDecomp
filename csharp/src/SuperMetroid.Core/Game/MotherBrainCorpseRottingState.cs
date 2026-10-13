@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Game;
 public sealed class MotherBrainCorpseRottingState
 {
     /// <summary>One rot entry per visible pixel row of the table at <see cref="EnemyScratchWorkRam.MotherBrainRotTable"/>.</summary>
-    public const int EntryCount = 0x0030;
+    public const int EntryCount = 48;
 
     /// <summary>True after the head initialization equivalent at <c>$A9:8705</c>.</summary>
     public bool IsInitialized { get; private set; }
@@ -98,11 +98,11 @@ public sealed class MotherBrainCorpseRottingState
                 FinishedEntryCount++;
                 dustRequests.Add(new MotherBrainCorpseDustRequest(
                     Position: brainPosition + new Offset16<RoomPixels>(
-                        unchecked((short)((randomNumberSeed & 0x001f) - 0x0010)),
-                        0x0010),
+                        unchecked((short)((randomNumberSeed % 32) - 16)),
+                        16),
                     Animation: MiscDustAnimation.CorpseDustCloud,
                     SoundEffectQueued: (mainEnemyExecutionCounter & 7) == 0,
-                    SoundEffect: 0x0010));
+                    SoundEffect: SoundEffectLibrary2Sounds.DeadMonsterDust.Value));
             });
 
         // The final entry returns carry clear before the enemy-specific VRAM transfer
@@ -138,7 +138,7 @@ public sealed class MotherBrainCorpseRottingState
         // of the next tile row exactly as the native address arithmetic intends.
         int destinationOffset = pixelRowIndex < 6
             ? sourceOffset
-            : sourceOffset + 0x00d4;
+            : sourceOffset + 212;
 
         for (int columnIndex = 0; columnIndex < MotherBrainCorpseArtworkDefinitions.ColumnCount; columnIndex++)
         {
@@ -153,9 +153,9 @@ public sealed class MotherBrainCorpseRottingState
                 // 0/1 at +0 and planes 2/3 at +$10. Read before any source clear so move
                 // retains the exact load/store ordering of `$EA40-$EB07`.
                 ushort planes01 = tiles.ReadWord(columnOffset + sourceOffset);
-                ushort planes23 = tiles.ReadWord(columnOffset + sourceOffset + 0x10);
+                ushort planes23 = tiles.ReadWord(columnOffset + sourceOffset + 16);
                 tiles.WriteWord(columnOffset + destinationOffset + 2, planes01);
-                tiles.WriteWord(columnOffset + destinationOffset + 0x12, planes23);
+                tiles.WriteWord(columnOffset + destinationOffset + 18, planes23);
             }
 
             if (move)
@@ -163,7 +163,7 @@ public sealed class MotherBrainCorpseRottingState
                 // Move clears even when Y is 46/47 and the copy was suppressed. That subtle
                 // asymmetry is how the bottom rows disappear without writing past height 48.
                 tiles.WriteWord(columnOffset + sourceOffset, 0);
-                tiles.WriteWord(columnOffset + sourceOffset + 0x10, 0);
+                tiles.WriteWord(columnOffset + sourceOffset + 16, 0);
             }
         }
     }

@@ -2,15 +2,15 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>The three native function words stored in Zebetite variable A.</summary>
+/// <summary>The three Zebetite AI functions stored in variable A, in bank $A6 order.</summary>
 public enum ZebetiteAiFunction : ushort
 {
     /// <summary>$A6:FC41, Function_Zebetite_SpawnBottomZebetiteIfNeeded: primary setup allocates a linked half when the generation flag is negative, links native slot indices, then enters the door wait in the same update.</summary>
-    SpawnLinkedHalf = 0xfc41,
+    SpawnLinkedHalf = 1,
     /// <summary>$A6:FC5B, Function_Zebetite_WaitForDoorTransitionToFinish: remains inert while shared WRAM $0795 is nonzero, then installs and executes the active function immediately.</summary>
-    WaitForDoorTransition = 0xfc5b,
+    WaitForDoorTransition,
     /// <summary>$A6:FC67, Function_Zebetite_Active: updates palette/health artwork, regenerates one health per call up to 1000, or handles death with primary-owned generation progression.</summary>
-    Active = 0xfc67,
+    Active,
 }
 
 /// <summary>
@@ -51,11 +51,14 @@ public sealed class ZebetiteEnemyState
     }
 
     /// <summary>Variable F, including the sign bit that requests a linked second half.</summary>
-    public ushort GenerationFlags
+    public ZebetiteGenerationFlags GenerationFlags
     {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        get => (ZebetiteGenerationFlags)_slot.VariableF;
+        internal set => _slot.VariableF = (ushort)value;
     }
+
+    /// <summary>Where this half's health program resumes (#641).</summary>
+    internal AnimationProgramCursor<ZebetiteProgram> Cursor { get; set; }
 
     /// <summary>Parameter two contains the linked half's native <c>$40</c>-byte slot index.</summary>
     public ushort LinkedNativeIndex

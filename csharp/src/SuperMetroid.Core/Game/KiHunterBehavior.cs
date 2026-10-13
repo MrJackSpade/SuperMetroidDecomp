@@ -6,12 +6,18 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Ki-Hunter species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class KiHunterBehavior : IEnemySpecies
 {
+    /// <summary>Provides the active room state used by Ki-Hunter movement.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Checks the flying and wingless body's block collisions.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Allocates the acid spit produced by the body animation.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Queues the acid-spit sound under the enemy queue limit.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Resolves each body's physically adjacent wing record.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Connects Ki-Hunter AI to room collision, projectile, audio and slot services.</summary>
     internal KiHunterBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemySlotTable slotTable)
     {
         _room = room;
@@ -58,26 +64,35 @@ internal sealed class KiHunterBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Bank-$A8 empty drawing map installed when wings detach.</summary>
     private const ushort EmptyA8Spritemap = 0x804d;
+    /// <summary>Native grounded decision delay between jumps or spits.</summary>
     private const ushort KiHunterGroundWaitFrames = 12;
+    /// <summary>Native cooldown after an acid-spit instruction.</summary>
     private const ushort KiHunterSpitWaitFrames = 24;
+    /// <summary>Horizontal Samus range admitted by the grounded acid attack.</summary>
     private const ushort KiHunterGroundAttackDistance = 96;
 
+    /// <summary>Per-physical-slot body and wing state for this room's Ki-Hunters.</summary>
     internal readonly KiHunterEnemyState?[] _kiHunterStates =
         new KiHunterEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Last library-two sound queued by an acid-spit instruction this frame.</summary>
     public ushort? LastKiHunterSoundEffect { get; private set; }
 
+    /// <summary>Recognizes the green, yellow and red body definition records.</summary>
     internal static bool IsKiHunterBodyDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterYellow or EnemyDefinitionId.KihunterRed;
 
+    /// <summary>Recognizes the three corresponding wing definition records.</summary>
     internal static bool IsKiHunterWingDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRedWings;
 
+    /// <summary>Admits either physical component of any Ki-Hunter color variant.</summary>
     internal static bool IsKiHunterDefinition(EnemyDefinitionId definition) =>
         IsKiHunterBodyDefinition(definition) || IsKiHunterWingDefinition(definition);
 
+    /// <summary>Discards per-slot typed state and prior sound publication on room load.</summary>
     internal void ResetKiHunterRoomState()
     {
         Array.Clear(_kiHunterStates);
@@ -322,6 +337,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
             StartKiHunterSwoopRecovery(state);
     }
 
+    /// <summary>Switches a flying body from its dive arc to the collision escape leg.</summary>
     private static void StartKiHunterSwoopRecovery(KiHunterEnemyState state)
     {
         state.Function = KiHunterEnemyFunction.RecoveringFromSwoop;
@@ -605,6 +621,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         wings.Properties = wings.Properties.With(EnemyProperties.ProcessOffScreen);
     }
 
+    /// <summary>Walks the quadratic speed table until detached-wing acceleration crosses the native $2000 threshold.</summary>
     private static void CalculateKiHunterDetachedSpeedReset(KiHunterEnemyState state)
     {
         state.DetachedSpeedReset = 0;
@@ -620,6 +637,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         while (unchecked((short)(state.DetachedSpeedAccumulator - 0x2000)) < 0);
     }
 
+    /// <summary>Centers the detached wing's orbit at its current position with a negative quarter-turn seed.</summary>
     private static void BeginDetachedKiHunterWingOrbit(
         RoomEnemySlot wings,
         KiHunterEnemyState state)
@@ -630,6 +648,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         state.OrbitCenter = wings.Position.Whole;
     }
 
+    /// <summary>Seeds the detached wing's collision-bearing fall arc at its current position.</summary>
     private static void BeginDetachedKiHunterWingCollisionArc(
         RoomEnemySlot wings,
         KiHunterEnemyState state)
@@ -640,6 +659,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         state.OrbitCenter = wings.Position.Whole;
     }
 
+    /// <summary>Reads the unaligned quadratic-table word used by one half of detached-wing orbit motion.</summary>
     internal static ushort ReadKiHunterQuadraticAngleDelta(ushort speedIndex, bool negativeHalf)
     {
         int index = unchecked((byte)(SnesEightEight.WholeOf(speedIndex)));
@@ -649,6 +669,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         return EnemyQuadraticSpeedDefinitions.ReadWord(index * 8 + (negativeHalf ? 5 : 1));
     }
 
+    /// <summary>Subtracts the native $0180 speed step, wrapping a negative result to $0100.</summary>
     private static void DecrementKiHunterDetachedSpeedIndex(KiHunterEnemyState state)
     {
         short next = unchecked((short)(state.TargetXOrSpeedIndex - 384));
@@ -672,12 +693,15 @@ internal sealed class KiHunterBehavior : IEnemySpecies
             : KiHunterInstructionProgramDefinitions.FlyingLeft;
     }
 
+    /// <summary>Lets the body's animation instruction enter its wingless hop function.</summary>
     private static void StartKiHunterGroundJumpFromInstruction(KiHunterEnemyState state) =>
         state.Function = KiHunterEnemyFunction.GroundJump;
 
+    /// <summary>Returns the body to its wingless decision function after an animation instruction.</summary>
     private static void StartKiHunterGroundWaitFromInstruction(KiHunterEnemyState state) =>
         state.Function = KiHunterEnemyFunction.GroundWait;
 
+    /// <summary>Emits the acid projectile and sound, then starts the native 24-frame spit wait.</summary>
     private void SpawnKiHunterAcidFromInstruction(RoomEnemySlot body, bool movingRight)
     {
         LastKiHunterSoundEffect = SoundEffectLibrary2Sounds.KiHunterAcidSpit.Value;
@@ -686,6 +710,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         RequireKiHunterState(body).WaitTimer = KiHunterSpitWaitFrames;
     }
 
+    /// <summary>Restarts matching body and still-attached wing lists for the selected flight direction.</summary>
     private void SetKiHunterPairFacing(RoomEnemySlot body, bool movingRight)
     {
         InstallKiHunterInstruction(
@@ -757,6 +782,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         return wings;
     }
 
+    /// <summary>Resolves a wing's preceding body record and validates its color pairing.</summary>
     private RoomEnemySlot GetKiHunterBody(RoomEnemySlot wings)
     {
         if (!IsKiHunterWingDefinition(wings.EnemyDefinitionPointer) || wings.SlotIndex == 0)
@@ -766,6 +792,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         return body;
     }
 
+    /// <summary>Installs typed body or wing state at the physical enemy-slot index.</summary>
     private KiHunterEnemyState CreateKiHunterState(RoomEnemySlot slot)
     {
         var state = new KiHunterEnemyState(slot);
@@ -773,10 +800,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         return state;
     }
 
+    /// <summary>Rejects access to a body or wing record before its initializer ran.</summary>
     private KiHunterEnemyState RequireKiHunterState(RoomEnemySlot slot) =>
         _kiHunterStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Ki-Hunter state.");
 
+    /// <summary>Restarts a body or wing instruction list from its first timed entry.</summary>
     private static void InstallKiHunterInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -789,6 +818,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         unchecked((short)KiHunterMotionDefinitions.GravityWhole),
         KiHunterMotionDefinitions.GravityFraction);
 
+    /// <summary>Adds split 16.16 motion with the fractional carry retained in the whole word.</summary>
     private static (ushort Whole, ushort Fraction) AddKiHunterFixed(
         ushort whole,
         ushort fraction,
@@ -801,6 +831,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
             unchecked((ushort)lowSum));
     }
 
+    /// <summary>Requires a live Samus, room collision data and a body definition before body-only movement AI.</summary>
     private static void RequireKiHunterWorld(
         RoomEnemySlot actor,
         SamusState? samus,
@@ -812,18 +843,21 @@ internal sealed class KiHunterBehavior : IEnemySpecies
             throw new InvalidDataException("A Ki-Hunter wing entered body-only movement AI.");
     }
 
+    /// <summary>Rejects a missing Samus actor for target-dependent Ki-Hunter movement.</summary>
     private static void RequireKiHunterSamus(SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Ki-Hunter AI requires the active Samus actor.");
     }
 
+    /// <summary>Rejects missing room collision data for flight and ground movement.</summary>
     private static void RequireKiHunterLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Ki-Hunter movement requires room collision data.");
     }
 
+    /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
     internal void RegisterKiHunterBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => IsKiHunterBodyDefinition(c.Enemy.EnemyDefinitionPointer) &&
@@ -833,6 +867,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Connects acid spit startup and gravity movement to bank-$86 pre-instructions.</summary>
     internal static void RegisterKiHunterProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -851,6 +886,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.KiHunterAcid_Right);
     }
 
+    /// <summary>Registers separate bank-$A8 initializers for body and wing records.</summary>
     internal void RegisterKiHunterInitializationAi(EnemyAiTable table)
     {
 
@@ -865,6 +901,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes both body and wing main addresses through the shared per-record dispatcher.</summary>
     internal void RegisterKiHunterMainAi(EnemyAiTable table)
     {
 
@@ -878,6 +915,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         table.RegisterMain(EnemyAiRoutine.MainAI_KihunterWings, slot => IsKiHunterWingDefinition(slot.EnemyDefinitionPointer), shared85);
     }
 
+    /// <summary>Dispatches the body's private animation callbacks before generic enemy bytecode.</summary>
     internal void RegisterKiHunterOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -887,6 +925,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Runs wing-detachment logic after common power-bomb damage to a body.</summary>
     internal void RegisterKiHunterPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
@@ -896,6 +935,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Runs wing-detachment logic after common shot damage to a body.</summary>
     internal void RegisterKiHunterShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
@@ -904,12 +944,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies
             AfterCommon = (c, _) => ResolveKiHunterShotAfterCommon(c.Enemy),
         });
     }
-    // Definition records hold the idle RTS at $86:CFF7; the start-moving callbacks install
-    // the mover at $86:CFF8, so the spit does not move on the frames before that.
+    /// <summary>Bank-$86 acid mover installed by the startup callback after the projectile's idle frames.</summary>
     private const ushort KiHunterAcidMovingPreInstruction =
         (ushort)EnemyProjectilePreInstruction.KiHunterAcid_Moving;
+    /// <summary>Positive 8.8 horizontal acid speed, negated for leftward shots.</summary>
     private const ushort KiHunterAcidHorizontalSpeed = 0x0300;
+    /// <summary>8.8 downward speed added to each active acid frame.</summary>
     private const ushort KiHunterAcidGravity = 0x0010;
+    /// <summary>Maximum 8.8 downward speed for a falling acid projectile.</summary>
     private const ushort KiHunterAcidTerminalYSpeed = 0x0200;
 
     /// <summary>

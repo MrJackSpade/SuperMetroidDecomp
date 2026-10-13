@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The work robot species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class WorkRobotBehavior : IEnemySpecies
 {
+    /// <summary>Checks Phantoon's defeat flag and samples the room random word for laser timing.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Moves the robot along floors and probes its next foothold.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Allocates lasers from the common enemy projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Writes the shared animated robot palette into its OBJ color row.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Binds robot locomotion, power state, lasers, and palette animation to room services.</summary>
     internal WorkRobotBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyPresentation presentation)
     {
         _room = room;
@@ -20,15 +25,23 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         _presentation = presentation;
     }
 
+    /// <summary>Native signed eight-eight leftward laser speed.</summary>
     private const ushort WorkRobotFacingLeftVelocity = 0xfe00;
+    /// <summary>Native signed eight-eight rightward laser speed.</summary>
     private const ushort WorkRobotFacingRightVelocity = 0x0200;
+    /// <summary>Pixels advanced by one robot walk instruction.</summary>
     private const int WorkRobotStepPixels = 4;
+    /// <summary>Library-two cue requested by the footstep opcode.</summary>
     private const ushort WorkRobotFootstepSound = 0x0068;
 
+    /// <summary>Movement, recoil, and laser cooldown state at native enemy slot indices.</summary>
     internal readonly WorkRobotEnemyState?[] _workRobotStates =
         new WorkRobotEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Shared countdown to the next robot palette animation record.</summary>
     internal ushort _workRobotPaletteAnimationTimer;
+    /// <summary>Offset of the next native robot palette record.</summary>
     internal ushort _workRobotPaletteAnimationTableOffset;
+    /// <summary>OBJ palette index selected by the robot graphics-drawn hook.</summary>
     internal ushort _workRobotPaletteAnimationPaletteIndex;
 
     /// <summary>
@@ -37,6 +50,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
     /// </summary>
     public ushort? LastWorkRobotSoundEffect { get; private set; }
 
+    /// <summary>Matches powered and unpowered Wrecked Ship robot population definitions.</summary>
     internal static bool IsWorkRobotDefinition(EnemyDefinitionId definitionPointer) =>
         definitionPointer is EnemyDefinitionId.Robot or EnemyDefinitionId.RobotNoPower;
 
@@ -224,6 +238,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Applies one walk step, carries Samus on contact, and branches to wall or fall lists when support ends.</summary>
     private ushort MoveWorkRobot(RoomEnemySlot slot, WorkRobotEnemyState state, SamusState? samus, RoomLevelData? level, ushort nextCursor, WorkRobotMoveStep step)
     {
         if (level is null)
@@ -263,6 +278,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         return step.FallInstruction;
     }
 
+    /// <summary>Checks the robot origin against the native screen rectangle with exclusive top and left edges.</summary>
     private static bool IsWorkRobotOriginStrictlyOnScreen(
         RoomEnemySlot robot,
         Position16<RoomPixels> camera) =>
@@ -271,6 +287,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         unchecked((short)(robot.Position.Y.Whole - camera.Y)) > 0 &&
         unchecked((short)(camera.Y + 224 - robot.Position.Y.Whole)) >= 0;
 
+    /// <summary>Uses the existing random word to reset cooldown and enters the firing list when ready.</summary>
     private ushort TryFireWorkRobotLaser(
         RoomEnemySlot robot,
         WorkRobotEnemyState state,
@@ -291,6 +308,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         return firingInstruction;
     }
 
+    /// <summary>Counts a nonzero laser cooldown down without unsigned wraparound.</summary>
     private static void DecrementWorkRobotLaserCooldown(WorkRobotEnemyState state)
     {
         if (state.LaserCooldown != 0)
@@ -368,10 +386,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
             _workRobotPaletteAnimationTableOffset + 10));
     }
 
+    /// <summary>Rejects a robot callback before its slot initializes movement and laser state.</summary>
     private WorkRobotEnemyState RequireWorkRobotState(RoomEnemySlot slot) =>
         _workRobotStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Work Robot state.");
 
+    /// <summary>Rejects powered-robot bomb damage before Phantoon's defeat and applies recoil after admitted hits.</summary>
     internal void RegisterWorkRobotBombReactions(EnemyAiTable table)
     {
         // Powered Work Robot returns until Phantoon is dead. Bank $A0 has already marked the bomb, so callback
@@ -386,6 +406,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Connects robot lasers to collision-first movement in their projectile pre-instruction.</summary>
     internal static void RegisterWorkRobotProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -394,6 +415,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.WreckedShipRobotLaser);
     }
 
+    /// <summary>Shares native initialization between powered and unpowered robot definitions.</summary>
     internal void RegisterWorkRobotInitializationAi(EnemyAiTable table)
     {
 
@@ -407,6 +429,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         table.RegisterInitialization(EnemyAiRoutine.InitAI_RobotNoPower, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RobotNoPower, shared74);
     }
 
+    /// <summary>Runs powered robot gravity and movement AI with current room terrain.</summary>
     internal void RegisterWorkRobotMainAi(EnemyAiTable table)
     {
 
@@ -416,6 +439,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Claims robot movement, recoil, footstep, and laser opcodes before common animation dispatch.</summary>
     internal void RegisterWorkRobotOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -425,6 +449,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Applies the powered robot's accepted-impact recoil tail after common projectile shots.</summary>
     internal void RegisterWorkRobotShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
@@ -434,12 +459,14 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes robot contact to its four-pixel external push without Samus damage.</summary>
     internal static void RegisterWorkRobotTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => IsWorkRobotDefinition(slot.EnemyDefinitionPointer) &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.WorkRobotTouch,
             context => ResolveWorkRobotTouch(context.Slot, context.Samus));
     }
+    /// <summary>Library-two cue requested after a robot laser projectile is allocated.</summary>
     private const ushort WorkRobotLaserSound = 0x0067;
 
     /// <summary>
@@ -537,6 +564,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Registers the unpowered robot's native RTS main routine.</summary>
     internal static void RegisterUnpoweredWorkRobotMainAi(EnemyAiTable table)
     {
         table.RegisterMain(EnemyAiRoutine.RTL_A8CC66, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RobotNoPower, (slot, frame, nmiFrameCounter8) =>

@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Ordered native pose-input decisions; the first satisfied chord wins.</summary>
 internal static class SamusPoseInputRulesEarly
 {
+    /// <summary>Selects the first native input chord in an early bank-$91 transition list and rejects lists owned by the other rule section.</summary>
     internal static SamusPoseInputMatch Match(SamusPoseInputList pointer, ushort held, ushort newlyPressed) => pointer switch
     {
         EmptyTransitionList => MatchEmptyTransitionList(),

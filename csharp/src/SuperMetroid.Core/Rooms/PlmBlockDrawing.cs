@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Draws PLM blocks into the room level data and BG1: compiled draw lists, level words and the visual catalogs that resolve them.</summary>
 internal sealed class PlmBlockDrawing
 {
+    /// <summary>Visible PLM block transfers staged for BG1 after physical level words are changed.</summary>
     internal readonly List<PlmTilemapUpdate> _tilemapUpdates = new();
 
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
@@ -125,9 +126,11 @@ internal sealed class PlmBlockDrawing
     [field: NonSerialized]
     public RoomPlmDynamicCollectibleArtCatalog? DynamicCollectibleArt { get; set; }
 
+    /// <summary>Draws a PLM without header-specific visual ownership using its block origin and instruction pointer.</summary>
     internal void DrawPlmInstruction(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, ushort drawPointer, PlmView view) =>
         DrawPlmInstruction(bus, level, streamer, 0, blockIndex, drawPointer, view);
 
+    /// <summary>Resolves a compiled or cartridge draw list, selecting installed visuals by PLM owner while retaining physical collision words.</summary>
     internal void DrawPlmInstruction(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmHeaderId headerPointer, int blockIndex, ushort drawPointer, PlmView view)
     {
         // `$84:861E-$86B3` treats each record as a direction/count word followed by complete
@@ -483,6 +486,7 @@ internal sealed class PlmBlockDrawing
             $"PLM draw list ${drawPointer:X4} did not reach its signed-offset terminator.");
     }
 
+    /// <summary>Walks signed-offset runs in a compiled PLM list and applies each authored physical word.</summary>
     private void DrawCompiledBlockInstruction(RoomLevelData level, BackgroundTilemapStreamer streamer, RoomPlmShotBlockDrawDefinitions.DrawList definition, Position16<RoomBlocks> origin, PlmView view)
     {
         Position16<RoomBlocks> entry = origin;
@@ -507,6 +511,7 @@ internal sealed class PlmBlockDrawing
         }
     }
 
+    /// <summary>Converts a draw-list block coordinate to a safe native level index before writing its physical and visual words.</summary>
     private void DrawPlmWordAt(RoomLevelData level, BackgroundTilemapStreamer streamer, ushort drawPointer, Position16<RoomBlocks> block, ushort levelWord, PlmView view, ushort? visualWord = null)
     {
         int blockIndex;
@@ -524,6 +529,7 @@ internal sealed class PlmBlockDrawing
         DrawLevelWord(level, streamer, blockIndex, levelWord, view, visualWord);
     }
 
+    /// <summary>Updates level collision and BG1 appearance, queuing a tilemap transfer only for blocks in the native draw window.</summary>
     internal void DrawLevelWord(RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, ushort levelWord, PlmView view, ushort? visualWord = null)
     {
         ushort renderedWord = visualWord ?? new RoomLevelWord(levelWord).VisualWord;
@@ -540,6 +546,7 @@ internal sealed class PlmBlockDrawing
         _tilemapUpdates.Add(streamer.BuildPlmLevelBlockUpdate(blockIndex, view.Bg1XOffset));
     }
 
+    /// <summary>Accepts the 16 visible rows and 17 horizontally intersecting blocks used by the native PLM upload path.</summary>
     private static bool IsInsideNativeDrawWindow(
         Position16<RoomBlocks> block,
         Position16<RoomPixels> layer1Position)
@@ -555,6 +562,7 @@ internal sealed class PlmBlockDrawing
         return block.X >= leftBlock && block.X < leftBlock + 17;
     }
 
+    /// <summary>Draws one horizontal Kraid mutation with optional Kraid-owned visual replacements.</summary>
     private void DrawKraidBlockInstruction(RoomLevelData level, BackgroundTilemapStreamer streamer, KraidRoomPlmDrawDefinitions.Draw draw, Position16<RoomBlocks> origin, PlmView view, RoomPlmKraidVisualCatalog? visuals)
     {
         for (int block = 0; block < draw.BlockCount; block++)

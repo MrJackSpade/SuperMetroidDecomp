@@ -19,6 +19,7 @@ using static MapSpritesVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Verifies room loading, camera/scroll state and PPU output with focused cartridge and synthetic fixtures.</summary>
 internal static class RenderingAndRoomsVerification
 {
 
@@ -283,6 +284,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     Console.WriteLine("  HUD: inventory, live minimap coordinates/blink, WRAM upload, and BG3 pixels agree.");
 }
 
+/// <summary>Reads the synthetic Crateria map tile before a fixture temporarily replaces it.</summary>
 [CpuBusBoundary("exact bus test: reads a seeded bank-$B5 area-map tilemap word back from the synthetic cartridge fixture to restore it")]
 static ushort ReadFixtureMapWord(TestAddressSpace bus, Position16<MapTiles> tile) =>
     SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -362,6 +364,7 @@ static void SeedSingleSmallObjSpritemap(TestAddressSpace bus) =>
 static void SeedBg3TilemapEntry(TestAddressSpace bus) =>
     bus.WriteBytes(0x818000, [0x02, 0x04]);
 
+/// <summary>Seeds one bank-$A9 walk instruction stream with retail timing and harmless synthetic spritemap operands.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one Mother Brain bank-$A9 walk program")]
 internal static void SeedMotherBrainWalkProgram(
     TestAddressSpace bus,
@@ -389,6 +392,7 @@ internal static void SeedMotherBrainWalkProgram(
         WriteTestWord(bus, 0xa90000 | unchecked((ushort)(listAddress + index * 2)), words[index]);
 }
 
+/// <summary>Seeds the fast crouch instruction sequence used by Mother Brain movement checks.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Mother Brain bank-$A9 fast crouch program")]
 internal static void SeedMotherBrainCrouchFastProgram(TestAddressSpace bus)
 {
@@ -1238,10 +1242,6 @@ static int ReadRetailPowerBombPreScaledHalfWidth(SuperMetroid.AssetExtraction.Ca
     rom.ReadCartridgeByte(0x889f06 + row);
 
 /// <summary>
-/// Proves that desktop power-bomb composition consumes the same bank-$88 radius frame and
-/// half-profile orientation as the original indirect-HDMA window builder.
-/// </summary>
-/// <summary>
 /// Synthetic cartridge with the literal `$88:A266-$88:A2A5` horizontal samples and vertical
 /// band boundaries used by `$88:8CC6/$8D04/$8D46` (kept independent of the production loop so
 /// a transposed table or rounded product cannot self-validate), and all sixteen pre-explosion
@@ -1268,6 +1268,7 @@ static TestAddressSpace CreatePowerBombColorMathWindowCartridge()
     return bus;
 }
 
+/// <summary>Proves that desktop power-bomb composition uses the native radius frame and center-outward half-profile orientation.</summary>
 internal static void VerifyPowerBombColorMathWindow()
 {
     TestAddressSpace bus = CreatePowerBombColorMathWindowCartridge();
@@ -1338,6 +1339,7 @@ internal static void VerifyPowerBombColorMathWindow()
     Console.WriteLine("  Power bomb: ROM curve bands, rendered-frame timing, and center-outward shapes agree.");
 }
 
+/// <summary>Provides a black gameplay raster that makes power-bomb color-window endpoints visible.</summary>
 static Rgba32[] CreateOpaqueBlackGameplayFrame()
 {
     var frame = new Rgba32[
@@ -1400,6 +1402,7 @@ internal static void VerifyScrollingSkyState()
 // Exercises bank-$90 firing and movement, bank-$93 animation, and bank-$94 solid collision
 // for an uncharged power beam without sharing implementation code with the production path.
 
+    /// <summary>Runs the HUD template, map reveal and BG3 rendering checks.</summary>
     [VerificationCommand("--hud-state")]
     internal static int HudStateCommand()
     {
@@ -1407,6 +1410,7 @@ internal static void VerifyScrollingSkyState()
         return 0;
     }
 
+    /// <summary>Runs the ordered bank-$8F room-state selector checks.</summary>
     [VerificationCommand("--cartridge-room-state-selection")]
     internal static int CartridgeRoomStateSelectionCommand()
     {
@@ -1414,6 +1418,7 @@ internal static void VerifyScrollingSkyState()
         return 0;
     }
 
+    /// <summary>Runs room tilemap streaming and scrolling-sky checks.</summary>
     [VerificationCommand("--room-sky-tilemaps")]
     internal static int RoomSkyTilemapsCommand()
     {

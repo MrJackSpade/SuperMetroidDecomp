@@ -15,8 +15,11 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusShinesparkState
 {
+    /// <summary>Live Power Bomb state consulted when a spark sound request is produced.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
+    /// <summary>Live charge-flare owner canceled when spark windup begins.</summary>
     [NonSerialized] private SamusProjectileSystem? _projectiles;
+    /// <summary>One-frame library-one sound request from canceling a sufficiently charged flare.</summary>
     [NonSerialized] private bool _chargeCancellationSoundRequested;
 
     /// <summary>
@@ -193,7 +196,9 @@ public sealed class SamusShinesparkState
     /// </summary>
     public ShinesparkReleasedEchoClear? LastReleasedCrashEchoClear { get; private set; }
 
+    /// <summary>Fixed slot-three echo storage whose position aliases crash angular words.</summary>
     private readonly ReleasedEchoSlot _firstReleasedCrashEcho = new();
+    /// <summary>Fixed slot-four echo storage drawn before the slot-three copy.</summary>
     private readonly ReleasedEchoSlot _secondReleasedCrashEcho = new();
 
     /// <summary>
@@ -261,6 +266,7 @@ public sealed class SamusShinesparkState
         BeginDirectionalLaunch(bus, samus, targetPose);
     }
 
+    /// <summary>Cancels beam charge and installs the native 30-frame spark windup, palette and boost state.</summary>
     private void InitializeWindup(SamusState samus)
     {
         // Projectile_Func7_Shinespark checks $0CD0 before clearing it. A charge that has
@@ -509,6 +515,7 @@ false);
         return true;
     }
 
+    /// <summary>Stops translational spark motion, seeds paired orbit angles and installs the crash handler without clearing aliased angular travel.</summary>
     private void BeginCrash(ISnesAddressSpace bus, SamusState samus)
     {
         // `$90:D2BA-$D345` kills translational velocity before installing the crash handler.
@@ -698,6 +705,7 @@ false,             CrashSequenceFinished: true);
         return true;
     }
 
+    /// <summary>Expands an echo around live Samus position and clears its drawing words when either viewport axis rejects it.</summary>
     private bool StepReleasedCrashEcho(
         SamusState samus,
         Position16<RoomPixels> layer1,
@@ -749,6 +757,7 @@ false,             CrashSequenceFinished: true);
         return new(unchecked((short)x), unchecked((short)y));
     }
 
+    /// <summary>Multiplies a positive sine half-wave and restores its sign after truncation, matching the projectile table routine.</summary>
     private static ushort LookupSignedComponent(
         SnesAngle angle,
         byte radius)
@@ -788,6 +797,7 @@ false,             CrashSequenceFinished: true);
             samus.WritePreviousYPosition(unchecked((ushort)(samus.Position.Y.Whole + 0x0e)));
     }
 
+    /// <summary>Accelerates horizontal spark speed up to fifteen pixels per frame and probes breakable room blocks.</summary>
     private BlockMoveResult MoveX(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -812,6 +822,7 @@ false,             CrashSequenceFinished: true);
         return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
     }
 
+    /// <summary>Accumulates upward spark acceleration while capping only the temporary collision displacement and probing solid enemies first.</summary>
     private BlockMoveResult MoveY(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -876,17 +887,22 @@ false,             CrashSequenceFinished: true);
     /// </summary>
     private sealed class ReleasedEchoSlot
     {
+        /// <summary>Drawing enable, independent of the slot's current projectile owner.</summary>
         public bool Active { get; private set; }
+        /// <summary>Byte-angle used to place the departing echo around Samus.</summary>
         public SnesAngle Angle { get; set; }
+        /// <summary>Expanding radius retained in the projectile's X velocity word.</summary>
         public ushort Radius { get; set; }
+        /// <summary>Last rendered room position, including the slot-three crash aliases.</summary>
         public Position16<RoomPixels> Position { get; set; }
 
+        /// <summary>Copies only the drawing enable and position for debugger consumers.</summary>
         public ShinesparkReleasedEcho Snapshot => new(Active, Position);
 
-        // Crash entry changes only the drawing enable. It does not clear coordinates,
-        // projectile ownership, or the aliased angular-travel word.
+        /// <summary>Clears drawing enable while retaining coordinates, projectile ownership and aliased crash travel.</summary>
         public void DisableDrawing() => Active = false;
 
+        /// <summary>Activates a departing echo at its crash position with zero projectile radius.</summary>
         public void Initialize(SnesAngle angle, Position16<RoomPixels> position)
         {
             Active = true;
@@ -897,6 +913,7 @@ false,             CrashSequenceFinished: true);
             Position = position;
         }
 
+        /// <summary>Zeroes the native drawing and position words after a viewport rejection.</summary>
         public void Clear()
         {
             Active = false;

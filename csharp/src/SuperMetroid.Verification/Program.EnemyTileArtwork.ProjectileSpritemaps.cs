@@ -8,8 +8,10 @@ using static EnemyProjectileProgramOracleVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Compares installed enemy-projectile drawing compositions with native OAM and guards their runtime visual reads.</summary>
 internal static class EnemyTileArtworkProjectileSpritemapsVerification
 {
+    /// <summary>Checks imported projectile maps and representative animated effects against cartridge OAM at ordinary and wrapped screen coordinates.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEnemyProjectileSpritemaps(
         ISnesAddressSpace bus, string directory, EnemyTileArtworkCatalog stock)
@@ -990,6 +992,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
     }
 
+    /// <summary>Rejects runtime reads of bank-$8D compositions and bank-$86 projectile presentation bytes covered by installed artwork.</summary>
     private static CartridgeReadGuard NewEnemyProjectileVisualGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {

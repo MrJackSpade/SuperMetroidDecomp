@@ -15,8 +15,11 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed class BackgroundTilemapStreamer
 {
+    /// <summary>Retained BG1 level words, including the native streaming tail.</summary>
     private readonly ushort[] _levelEntries;
+    /// <summary>Retained BG2 level words used when the requested layer is background.</summary>
     private readonly ushort[] _backgroundEntries;
+    /// <summary>Four tile words per 16-pixel metatile, shared by camera and PLM expansion.</summary>
     private readonly byte[] _blockDefinitions;
 
     /// <summary>Copies BG1/BG2 source allocations and the combined metatile table used to produce camera-stream and PLM redraw descriptors; construction does not write VRAM.</summary>
@@ -141,6 +144,7 @@ public sealed class BackgroundTilemapStreamer
         };
     }
 
+    /// <summary>Expands sixteen vertical blocks into left and right columns, splitting DMA at the VRAM ring wrap.</summary>
     private TilemapStreamUpdate BuildColumn(BackgroundUpdateRequest request)
     {
         ReadOnlySpan<ushort> source = SelectSource(request.Layer);
@@ -192,6 +196,7 @@ public sealed class BackgroundTilemapStreamer
         return new TilemapStreamUpdate(segments);
     }
 
+    /// <summary>Expands seventeen horizontal blocks into top and bottom rows, splitting DMA across BG screens.</summary>
     private TilemapStreamUpdate BuildRow(BackgroundUpdateRequest request)
     {
         ReadOnlySpan<ushort> source = SelectSource(request.Layer);
@@ -246,6 +251,7 @@ public sealed class BackgroundTilemapStreamer
         return new TilemapStreamUpdate(segments);
     }
 
+    /// <summary>Selects the retained BG1 or BG2 room words requested by the camera streamer.</summary>
     private ReadOnlySpan<ushort> SelectSource(BackgroundLayer layer) => layer switch
     {
         BackgroundLayer.Level => _levelEntries,
@@ -253,6 +259,7 @@ public sealed class BackgroundTilemapStreamer
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
+    /// <summary>Converts the source block to the native row-major index with eight-bit Y multiplication.</summary>
     private int SourceIndex(Position16<RoomBlocks> block)
     {
         // $80:A9E5/$80:AB7F use the SNES 8x8 multiplier for Y*roomWidth, then add the
@@ -260,6 +267,7 @@ public sealed class BackgroundTilemapStreamer
         return unchecked((byte)block.Y * RoomWidthInBlocks + block.X);
     }
 
+    /// <summary>Reads a retained layer word and reports an invalid request beyond the loaded allocation.</summary>
     private static ushort ReadSource(
         ReadOnlySpan<ushort> source,
         int index,

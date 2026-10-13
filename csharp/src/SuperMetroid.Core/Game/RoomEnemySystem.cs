@@ -48,8 +48,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
     /// <summary>The <see cref="RidleyEncounter"/> owner of this RoomEnemySystem.</summary>
     internal RidleyEncounter RidleyEncounter { get; }
+    /// <summary>Coordinates Ridley's multipart tail through the shared slot and projectile services.</summary>
     internal RidleyTail RidleyTail { get; }
+    /// <summary>Publishes dead-monster room effects through the same frame as enemy processing.</summary>
     internal DeadMonsterFrame DeadMonsters { get; }
+    /// <summary>Owns Mother Brain's room encounter and its cutscene state.</summary>
     internal MotherBrainEncounter MotherBrainEncounter { get; }
 
     /// <summary>The <see cref="EnemyCollision"/> owner of this RoomEnemySystem.</summary>
@@ -346,8 +349,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// <summary>The <see cref="RoomEarthquake"/> owner of this RoomEnemySystem.</summary>
     internal RoomEarthquake Earthquake { get; }
 
-    // The AI table holds compiler-generated handler delegates, so it is never serialized: it is rebuilt from the
-    // registering owners on first use, including after a debugger restore.
+    /// <summary>
+    /// Resolves native AI addresses to species handlers. The table contains delegates and is
+    /// rebuilt from its owners on first access after a debugger restore.
+    /// </summary>
     [field: NonSerialized]
     internal EnemyAiTable Ai => field ??= BuildEnemyAiTable();
 
@@ -376,7 +381,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         }
     }
 
-    // Species owners that take part in room-load and frame lifecycle.
+    /// <summary>Species owners visited during room load and each enemy frame.</summary>
     private readonly IEnemySpecies[] _species;
 
     /// <summary>The <see cref="RoomSpriteObjectPool"/> owner of this RoomEnemySystem.</summary>
@@ -397,6 +402,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     public const int NativeSlotSize = 0x40;
     /// <summary>Maximum four enemy graphics-set entries accepted by the native room tileset arrays.</summary>
     public const int MaximumGraphicsSetCount = 4;
+    /// <summary>Post-AI collision snapshots for active physical enemy slots.</summary>
     private readonly List<SolidEnemyCollisionBody> _interactiveCollisionBodies = new();
 
     /// <summary>Creates all 32 stable physical slot objects without loading a room or binding memory, graphics, random-number, or gameplay services.</summary>
@@ -878,6 +884,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         CollectLegacyEnemyAudioRequests();
     }
 
+    /// <summary>
+    /// Copies population and definition fields into a physical slot, resolving room graphics
+    /// indexes and recording a spawn snapshot before initialization AI runs.
+    /// </summary>
     internal void InitializeSlotFromDefinition(
         RoomEnemySlot slot,
         RoomEnemyPopulationRecord population,
@@ -910,6 +920,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             tileIndex);
     }
 
+    /// <summary>Dispatches the definition's banked initialization pointer for the newly loaded slot.</summary>
     internal void RunInitializationAi(
         RoomEnemySlot slot,
         RoomLevelData? level = null,
@@ -931,21 +942,27 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         handler(slot, level, samus, controllerInput, cameraX);
     }
 
+    /// <summary>Exposes physical-slot population setup to the enemy loader.</summary>
     void IEnemyDispatch.InitializeSlotFromDefinition(
         RoomEnemySlot slot, RoomEnemyPopulationRecord population, RoomEnemyDefinition definition) =>
         InitializeSlotFromDefinition(slot, population, definition);
 
+    /// <summary>Lets the population loader invoke the slot's compiled initialization handler.</summary>
     void IEnemyDispatch.RunInitializationAi(RoomEnemySlot slot, RoomLevelData? level, SamusState? samus,
         ushort controllerInput, ushort cameraX) =>
         RunInitializationAi(slot, level, samus, controllerInput, cameraX);
 
+    /// <summary>Routes a scheduled enemy update through its banked main AI handler.</summary>
     void IEnemyDispatch.RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8) =>
         RunMainAi(slot, frame, nmiFrameCounter8);
 
+    /// <summary>Shares the lazily rebuilt handler table with the enemy scheduler.</summary>
     EnemyAiTable IEnemyDispatch.Ai => Ai;
 
+    /// <summary>Exposes native slot offsets selected for Samus collision checks this frame.</summary>
     IReadOnlyList<ushort> IEnemyDispatch.InteractiveEnemyIndexes => ProcessingWindow._interactiveEnemyIndexes;
 
+    /// <summary>Dispatches a loaded slot's banked main AI pointer through the compiled table.</summary>
     internal void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8)
     {
         int address = ((int)new SnesAddress(slot.Definition.Bank, slot.Definition.MainAiPointer));
@@ -1065,9 +1082,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         MotherBrainEncounter.QueueLegacyMusic(Audio);
     }
 
-    // Each species owner registers its own AI. Initialization and main AI resolve per routine, so species
-    // registrations precede the shared ones; owned instructions are a first-match list and keep their established
-    // precedence between species and shared registrations.
+    /// <summary>
+    /// Rebuilds the handler table after construction or debugger restore. Species handlers
+    /// precede shared handlers; owned instructions preserve first-match registration order.
+    /// </summary>
     private EnemyAiTable BuildEnemyAiTable()
     {
         var table = new EnemyAiTable();
@@ -1083,6 +1101,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         return table;
     }
 
+    /// <summary>Registers species initializers before generic and cross-species room-load handlers.</summary>
     private void RegisterInitializationAi(EnemyAiTable table)
     {
         // Species register first; generic and cross-species registrations follow.
@@ -1177,6 +1196,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         { });
     }
 
+    /// <summary>Registers the per-frame routines addressed by enemy definitions.</summary>
     private void RegisterMainAi(EnemyAiTable table)
     {
         // Species register first; generic and cross-species registrations follow.
@@ -1283,6 +1303,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     }
 
     // Owners accept disjoint words; the order mirrors the original single-switch interpreter.
+    /// <summary>Installs species instruction callbacks before shared interpreter callbacks.</summary>
     private void RegisterOwnedInstructions(EnemyAiTable table)
     {
         BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneOwnedInstructions(table);
@@ -1341,6 +1362,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
     // Each species registers its own run of reactions; first match wins, so the interleaving below is the
     // established precedence between species and shared registrations.
+    /// <summary>Maps enemy-definition bomb reaction pointers to translated handlers.</summary>
     private void RegisterBombReactions(EnemyAiTable table)
     {
         CrocomireBehavior.RegisterCrocomireBombReactions(table);
@@ -1410,6 +1432,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     // Each species registers its own run of reactions; first match wins, so the interleaving below is the
     // established precedence between species and shared registrations.
     // Matches are mutually exclusive: each names its definition and header reaction callback.
+    /// <summary>Maps banked power-bomb reaction pointers for each supported species.</summary>
     private void RegisterPowerBombReactions(EnemyAiTable table)
     {
         // These headers install private callbacks instead of falling through common power-bomb damage. A literal RTL
@@ -1534,6 +1557,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     // established precedence between species and shared registrations.
     // Matches are mutually exclusive. Kraid's parts precede the generic literal no-op header and the ordinary
     // normal-shot reaction is last, because Crocomire's tongue also uses NormalEnemyShot.
+    /// <summary>Maps shot-response pointers, including species-specific damage behavior.</summary>
     private void RegisterShotReactions(EnemyAiTable table)
     {
         DeadTorizoBehavior.RegisterDeadTorizoShotReactions(table);
@@ -1618,6 +1642,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     // established precedence between species and shared registrations.
     // Matches are mutually exclusive (each names its definition and header callback); the ordinary normal-touch
     // handler is last because Crocomire's tongue also uses NormalEnemyTouch.
+    /// <summary>Registers Samus-contact handlers after species instruction registrations.</summary>
     private void RegisterTouchHandlers(EnemyAiTable table)
     {
         KraidBehavior.RegisterKraidNailTouch(table);
@@ -1693,6 +1718,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     }
 
     // Hurt AI is a first-match list in EnemyMain's original dispatch order; the shared literal no-op hurt pointer is last.
+    /// <summary>Maps hurt-state AI pointers used while enemies are flashing or reacting.</summary>
     private void RegisterHurtAi(EnemyAiTable table)
     {
         MetroidBehavior.RegisterMetroidHurtAi(table);
@@ -1704,6 +1730,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     }
 
     // Rinka's frozen tail runs before the common thaw and can consume the frame; the others run after it.
+    /// <summary>Maps frozen-state AI pointers used while ice suspends normal behavior.</summary>
     private void RegisterFrozenAi(EnemyAiTable table)
     {
         RinkaBehavior.RegisterRinkaFrozenPreemption(table);

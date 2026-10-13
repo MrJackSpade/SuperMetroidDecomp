@@ -149,6 +149,7 @@ internal abstract class CeresDoorInstructionProgramDefinitions
         return WallLoopWord((ushort)(RidleyEscapeMode7LeftWall + 10 * (index / 4)), index % 4);
     }
 
+    /// <summary>Calculates a wall actor's one-time intangible setup and repeated one-tick frame loop.</summary>
     private static InstructionMechanicsWord WallLoopWord(ushort start, int index) => index switch
     {
         0 => new(start, (ushort)CeresDoorInstruction.SetAsIntangible),
@@ -157,6 +158,7 @@ internal abstract class CeresDoorInstructionProgramDefinitions
         _ => new((ushort)(start + 8), (ushort)(start + 2)),
     };
 
+    /// <summary>Relocates shared normal-door mechanics and local branch targets for either facing.</summary>
     private static InstructionMechanicsWord NormalDoorWord(int index, int facing)
     {
         int start = NormalFacingRight + facing * (NormalFacingLeft - NormalFacingRight);
@@ -192,6 +194,7 @@ internal abstract class CeresDoorInstructionProgramDefinitions
         return new((ushort)(start + offset), value);
     }
 
+    /// <summary>Calculates the Ridley-room handoff program's visibility, frame durations, and branches.</summary>
     private static InstructionMechanicsWord RidleyWord(int index)
     {
         if (index is >= 5 and < 9)
@@ -224,7 +227,9 @@ internal abstract class CeresDoorInstructionProgramDefinitions
     /// <summary>Spritemap_CeresDoor_RidleyEscapeMode7RightWall at $A6:FB2F.</summary>
     private const ushort RightWallSpritemap = 0xfb2f;
 
+    /// <summary>Number of compiled control and duration words across all Ceres door programs.</summary>
     public static int MechanicsWordCount => 97;
+    /// <summary>Number of live spritemap operands across door and wall variants.</summary>
     public static int PresentationWordCount => 33;
 
     /// <summary>
@@ -243,6 +248,7 @@ internal abstract class CeresDoorInstructionProgramDefinitions
             Math.Min(openingPhase, 2) * wideRecord + Math.Max(openingPhase - 2, 0) * narrowRecord);
     }
 
+    /// <summary>Maps a presentation ordinal to its native operand and calculated spritemap record.</summary>
     internal static (ushort Address, ushort Frame) PresentationWord(int index)
     {
         if ((uint)index >= PresentationWordCount)

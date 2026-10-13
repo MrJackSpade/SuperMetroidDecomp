@@ -31,6 +31,7 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Power-bomb projectile type formed from HUD item index three.</summary>
     public const ushort PowerBombType = SamusBombSpreadRomData.PowerBombType;
 
+    /// <summary>Semantic views of native projectile indices five through nine, in their scan order.</summary>
     private readonly SamusBombProjectileSlot[] _slots =
         Enumerable.Range(0, SlotCount).Select(index => new SamusBombProjectileSlot(index)).ToArray();
 
@@ -331,6 +332,7 @@ public sealed class SamusBombProjectileSystem
     /// <summary>$90:F4C2: the flare count from which a charging beam's loop is audible.</summary>
     private const ushort ChargeSoundFlareThreshold = 0x10;
 
+    /// <summary>Ticks the shared shot cooldown, or holds it at $20 during X-Ray time freeze.</summary>
     private void StepCooldown(bool timeIsFrozen)
     {
         // $90:AC32: while time is frozen the cooldown is held at $20 instead of counting
@@ -358,6 +360,7 @@ public sealed class SamusBombProjectileSystem
             CooldownTimer = 0;
     }
 
+    /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in a native slot.</summary>
     internal int? TryPlaceBomb(
         SamusState samus,
         ushort controllerInput,
@@ -433,6 +436,7 @@ public sealed class SamusBombProjectileSystem
         return slotIndex;
     }
 
+    /// <summary>Consumes Morph Ball charge input and either continues its Down hold or emits all five spread bombs.</summary>
     private BombSpreadAdmission HandleBombSpreadInput(
         SamusState samus,
         ushort controllerInput)
@@ -473,6 +477,7 @@ public sealed class SamusBombProjectileSystem
         return BombSpreadAdmission.Spawned;
     }
 
+    /// <summary>Installs five bank-$93 projectiles with slot-specific launch values and clears Samus's stored charge.</summary>
     private void SpawnBombSpread(SamusState samus)
     {
         int verticalModifier =
@@ -502,6 +507,7 @@ public sealed class SamusBombProjectileSystem
         samus.ProjectileFlareCounter = 0;
     }
 
+    /// <summary>Requires a fresh Shoot edge and available bomb capacity, testing only the cooldown's low byte after the first bomb.</summary>
     private bool TryReserveBombSlot(ushort controllerNewInput, ushort shoot)
     {
         if ((controllerNewInput & shoot) == 0)
@@ -524,6 +530,7 @@ public sealed class SamusBombProjectileSystem
         return true;
     }
 
+    /// <summary>Finds the first zero-type physical bomb slot, retaining the native last-slot fallback for inconsistent counters.</summary>
     private int FindFreeBombSlot()
     {
         int slotIndex = 0;
@@ -541,6 +548,7 @@ public sealed class SamusBombProjectileSystem
         return slotIndex;
     }
 
+    /// <summary>Loads damage and starting instruction pointer from the compiled non-beam projectile data for the slot's family.</summary>
     private static void InitializeBombFromRom(
         SamusBombProjectileSlot slot)
     {
@@ -559,6 +567,7 @@ public sealed class SamusBombProjectileSystem
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Advances one bomb fuse or spread trajectory, starts explosions and visits terrain on the native trigger frame.</summary>
     private bool RunBombPreInstruction(
         RoomLevelData level,
         SamusBombProjectileSlot slot,
@@ -663,6 +672,7 @@ public sealed class SamusBombProjectileSystem
         return explosionStarted;
     }
 
+    /// <summary>Applies Samus gravity to a spread bomb, reversing horizontal travel at walls and restoring launch speed on a floor bounce.</summary>
     private static void MoveBombSpread(
         RoomLevelData level,
         SamusBombProjectileSlot slot,
@@ -704,6 +714,7 @@ public sealed class SamusBombProjectileSystem
         slot.BombSpreadDirectionMagnitude ^= 0x8000;
     }
 
+    /// <summary>Decodes the spread bomb's byte-swapped direction and magnitude, then advances split X coordinates with native carry.</summary>
     private static void MoveBombSpreadHorizontally(SamusBombProjectileSlot slot)
     {
         ushort swapped = SnesLittleEndian.SwapBytes(slot.BombSpreadDirectionMagnitude);
@@ -723,6 +734,7 @@ public sealed class SamusBombProjectileSystem
             : unchecked((ushort)(slot.Position.X.Whole + wholeMagnitude + carryOrBorrow)));
     }
 
+    /// <summary>Adds split 16.16 speed words while carrying fractional overflow into the whole part.</summary>
     private static (ushort Whole, ushort Fraction) AddFixedWords(
         ushort whole,
         ushort fraction,
@@ -735,6 +747,7 @@ public sealed class SamusBombProjectileSystem
         return (whole, fraction);
     }
 
+    /// <summary>Tests the bomb center against room bounds, extension parents, solid tiles and the cartridge's non-square slope heights.</summary>
     private static bool BombSpreadCollides(
         RoomLevelData level,
         SamusBombProjectileSlot slot)
@@ -814,6 +827,7 @@ public sealed class SamusBombProjectileSystem
             CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(checked((ushort)right), checked((ushort)y)), reactions, roomPlms, areaIndex, projectileType);
     }
 
+    /// <summary>Visits the normal bomb's five-block cross in native order when its fuse reaches zero.</summary>
     private static void CollectBlockExplosionReactions(
         RoomLevelData level,
         SamusBombProjectileSlot slot,
@@ -854,6 +868,7 @@ public sealed class SamusBombProjectileSystem
         }
     }
 
+    /// <summary>Resolves a bombed tile through extension, item, door and special-block dispatch, including synchronous PLM changes.</summary>
     internal static void CollectSingleBombedBlockReaction(
         RoomLevelData level,
         Position16<RoomBlocks> bombedBlock,
@@ -1059,6 +1074,7 @@ public sealed class SamusBombProjectileSystem
             $"BTS ${block.Behavior:X2} at ({x},{y}).");
     }
 
+    /// <summary>Ticks the bank-$93 bomb instruction list, including timed maps, delete and goto opcodes.</summary>
     private bool RunProjectileInstructionHandler(
         SamusBombProjectileSlot slot)
     {
@@ -1123,6 +1139,7 @@ public sealed class SamusBombProjectileSystem
         throw new InvalidDataException("Bomb projectile instruction list did not reach a timed frame within 16 operations.");
     }
 
+    /// <summary>Scans bombs in ascending slot order and publishes the last overlapping bomb's Samus launch direction.</summary>
     private byte PublishBombJumpOverlap(SamusState samus)
     {
         byte publishedDirection = 0;
@@ -1168,6 +1185,7 @@ public sealed class SamusBombProjectileSystem
         return publishedDirection;
     }
 
+    /// <summary>Clears a physical bomb slot and decrements the native aggregate counter with its signed-underflow clamp.</summary>
     private void ClearProjectile(SamusBombProjectileSlot slot)
     {
         bool wasActive = slot.IsActive;
@@ -1187,6 +1205,7 @@ public sealed class SamusBombProjectileSystem
 /// <summary>One semantic view over a physical WRAM bomb slot.</summary>
 public sealed class SamusBombProjectileSlot
 {
+    /// <summary>Creates one view over the specified logical index in the five-slot bomb half.</summary>
     internal SamusBombProjectileSlot(int index) => Index = index;
 
     /// <summary>Logical bomb index zero through four; physical projectile index is 5+Index.</summary>
@@ -1246,6 +1265,7 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Instruction pointer is the native active-slot sentinel.</summary>
     public bool IsActive => InstructionPointer != 0;
 
+    /// <summary>Zeroes the complete per-slot native projectile state before reuse or deletion.</summary>
     internal void ClearFields()
     {
         Position = FixedPosition<RoomPixels>.Zero;
@@ -1275,11 +1295,16 @@ public readonly record struct BombProjectileFrameResult(
     bool BeamChargeConsumed = false,
     IReadOnlyList<SamusSoundRequest>? SoundRequests = null);
 
+/// <summary>Outcome of Morph Ball charge input before ordinary bomb placement.</summary>
 internal enum BombSpreadAdmission
 {
+    /// <summary>No spread charge was consumed by this pass.</summary>
     NotApplicable,
+    /// <summary>Held Down continued the spread charge timeout.</summary>
     Charging,
+    /// <summary>The completed charge installed all five spread bombs.</summary>
     Spawned,
+    /// <summary>Releasing Shoot canceled an existing beam flare.</summary>
     ChargeCancelled,
 }
 

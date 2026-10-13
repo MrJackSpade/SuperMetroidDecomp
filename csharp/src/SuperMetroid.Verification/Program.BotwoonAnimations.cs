@@ -23,6 +23,7 @@ using SuperMetroid.Core.Hardware;
 /// </summary>
 internal static class BotwoonAnimationsVerification
 {
+    /// <summary>Selects nonpublic Botwoon behavior members exposed to this focused verification.</summary>
     private const BindingFlags BotwoonFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
     /// <summary><c>InstListPointers_Botwoon</c> at $B3:946B: moving lists, then eight hidden duplicates.</summary>
@@ -43,7 +44,9 @@ internal static class BotwoonAnimationsVerification
         [0x94d7] = (12, 12), [0x94f7] = (12, 12), [0x9527] = (12, 12), [0x9547] = (12, 12),
         [0x94e7] = (16, 8), [0x9537] = (16, 8),
     };
+    /// <summary>Native head-list command that marks the current frame as Botwoon's spit frame.</summary>
     private const ushort BotwoonSetSpittingFlagOpcode = 0x9567;
+    /// <summary>Native head-list command that queues Botwoon's spit sound for comparison.</summary>
     private const ushort BotwoonQueueSpitSoundOpcode = 0x9572;
 
     /// <summary>Every head program the cartridge can select runs exactly like its native list.</summary>
@@ -190,6 +193,7 @@ internal static class BotwoonAnimationsVerification
         Console.WriteLine("  Botwoon projectile animations: 32 segment selectors and the spit match their native lists; landing hands off to the shared explosion.");
     }
 
+    /// <summary>Creates a head slot with Botwoon's state attached to its owning enemy system.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Head, BotwoonEnemyState State) NewBotwoonHead()
     {
         var enemies = new RoomEnemySystem();
@@ -200,6 +204,7 @@ internal static class BotwoonAnimationsVerification
         return (enemies, head, state);
     }
 
+    /// <summary>Starts a typed head program from its first instruction and compares it with the selected cartridge list.</summary>
     private static void CompareBotwoonHead(SuperMetroidAddressSpace rom, ushort nativeList, BotwoonHeadProgram program, string label,
         HashSet<ushort> drawn)
     {
@@ -274,12 +279,18 @@ internal static class BotwoonAnimationsVerification
     /// <summary>A native bank-$B3 head list, read from the cartridge with the enemy interpreter's timer gate.</summary>
     internal sealed class NativeBotwoonHead(ushort cursor, ushort timer, Extent16<RoomPixels> radius)
     {
+        /// <summary>Current bank-$B3 instruction offset in the native reference list.</summary>
         private ushort cursor = cursor;
 
+        /// <summary>Updates remaining before the next native instruction is consumed.</summary>
         internal ushort Timer { get; private set; } = timer;
+        /// <summary>Spritemap selected by the latest native frame instruction.</summary>
         internal ushort Spritemap { get; private set; }
+        /// <summary>Collision extent after the latest native radius command.</summary>
         internal Extent16<RoomPixels> Radius { get; private set; } = radius;
+        /// <summary>Whether this update consumed a new native frame instruction.</summary>
         internal bool NewFrame { get; private set; }
+        /// <summary>Whether a native command reached Botwoon's spit frame.</summary>
         internal bool SpitFrame { get; private set; }
 
         /// <summary>Runs one update; returns whether the spit sound was queued.</summary>
@@ -320,6 +331,7 @@ internal static class BotwoonAnimationsVerification
         }
     }
 
+    /// <summary>Runs the projectile instruction parity check against the repository cartridge.</summary>
     [VerificationCommand("--botwoon-projectile-instruction-mechanics")]
     internal static int BotwoonProjectileInstructionMechanicsCommand()
     {
@@ -327,6 +339,7 @@ internal static class BotwoonAnimationsVerification
         return 0;
     }
 
+    /// <summary>Runs the head instruction parity check against the repository cartridge.</summary>
     [VerificationCommand("--botwoon-instruction-mechanics")]
     internal static int BotwoonInstructionMechanicsCommand()
     {
@@ -334,6 +347,7 @@ internal static class BotwoonAnimationsVerification
         return 0;
     }
 
+    /// <summary>Checks that AI-selected head and segment programs match the cartridge's choices.</summary>
     [VerificationCommand("--botwoon-instruction-definitions")]
     internal static int BotwoonInstructionDefinitionsCommand()
     {

@@ -77,11 +77,8 @@ public static class SnesGameplayFrameRenderer
         return output;
     }
 
-    // This pixel loop is deliberately optimized even in a Debug host. It is pure PPU
-    // projection rather than translated game logic, runs roughly 50,000 times per frame,
-    // and is not a useful breakpoint surface for ordinary gameplay debugging. Without the
-    // attribute, Debug JIT call/range-check overhead alone consumes most of the 16.67 ms
-    // video-frame budget.
+    /// <summary>Resolves the Mode-1 BG and OBJ priority ladder in one viewport scan, with tilemap and palette values cached for this frame.</summary>
+    /// <remarks>This pure PPU projection runs roughly 50,000 times per frame; optimized Debug JIT code keeps it inside the video-frame budget.</remarks>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CompositeOrdinaryGameplayViewport(
         Span<Rgba32> output,
@@ -250,6 +247,7 @@ public static class SnesGameplayFrameRenderer
         }
     }
 
+    /// <summary>Decodes a four-bit BG tile pixel, reporting transparency and the tile's priority bit alongside its CGRAM color.</summary>
     [System.Runtime.CompilerServices.MethodImpl(
         System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
     private static bool TryDecodeOrdinaryGameplayBgPixel(
@@ -292,6 +290,7 @@ public static class SnesGameplayFrameRenderer
             destination[color] = source[color].ToRgba32();
     }
 
+    /// <summary>Renders the four BG3 HUD rows from the native HUD tilemap and selected character base.</summary>
     private static void DrawHud(
         Span<Rgba32> output,
         SnesVram vram,
@@ -710,6 +709,7 @@ public static class SnesGameplayFrameRenderer
             verticalWave: true);
     }
 
+    /// <summary>Expands the rotating sixteen-entry heat-haze wave into one BG2 scroll word per gameplay scanline.</summary>
     private static ushort[] BuildLavaAcidBg2Wave(
         ushort baseScroll,
         ushort bg2VerticalScroll,
@@ -771,6 +771,7 @@ public static class SnesGameplayFrameRenderer
         }
     }
 
+    /// <summary>Samples the active power-bomb window's half-width at a signed distance from its center, or minus one outside the flash.</summary>
     private static int ReadPowerBombHalfWidth(
         SamusPowerBombExplosionState explosion,
         int yFromCenter)
@@ -844,12 +845,15 @@ public static class SnesGameplayFrameRenderer
         return selectedHalfWidth;
     }
 
+    /// <summary>Replicates low color bits to expand one SNES five-bit channel to host eight-bit color.</summary>
     private static byte ExpandFiveBit(byte value) =>
         (byte)(((value & 0x1f) << 3) | ((value & 0x1f) >> 2));
 
+    /// <summary>Adds two expanded color channels with a white ceiling.</summary>
     private static byte SaturatingAdd(byte left, byte right) =>
         (byte)Math.Min(byte.MaxValue, left + right);
 
+    /// <summary>Subtracts one expanded color channel without wrapping below black.</summary>
     private static byte SaturatingSubtract(byte left, byte right) =>
         (byte)Math.Max(byte.MinValue, left - right);
 
@@ -884,6 +888,7 @@ public static class SnesGameplayFrameRenderer
         static Offset16<ScreenPixels> Direction(int x, int y) => new(checked((short)x), checked((short)y));
     }
 
+    /// <summary>Fills a correctly sized gameplay frame with CGRAM color zero before any visible PPU layer is composed.</summary>
     private static Rgba32[] CreateBackdrop(SnesCgram cgram, Rgba32[]? outputBuffer = null)
     {
         Ensure.NotNull(cgram);
@@ -897,6 +902,7 @@ public static class SnesGameplayFrameRenderer
         return output;
     }
 
+    /// <summary>Applies the BG3-only HUD split and places all resolved OBJ pixels over the Mode-7 gameplay region.</summary>
     private static void DrawHudAndObjects(
         Rgba32[] output,
         SnesVram vram,

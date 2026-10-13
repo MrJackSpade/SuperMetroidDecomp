@@ -246,6 +246,7 @@ public sealed class SamusDeathSequenceState
                 "Samus death spritemap requires installed artwork."));
     }
 
+    /// <summary>Advances the explosion timer, palette and terminal whiteout, returning whether to draw this frame.</summary>
     private bool StepSuitExplosion(
         SamusState samus,
         SnesCgram cgram,
@@ -281,6 +282,7 @@ public sealed class SamusDeathSequenceState
         return true;
     }
 
+    /// <summary>Advances the room whiteout shade while preserving the first explosion frame's original background.</summary>
     private bool ApplyWhiteout(SnesCgram cgram,
         SamusDeathPaletteArtworkCatalog? artwork)
     {
@@ -300,6 +302,7 @@ public sealed class SamusDeathSequenceState
         return true;
     }
 
+    /// <summary>Loads suited and suitless death colors selected by equipment and animation frame.</summary>
     private static void WritePalettePair(
         SamusState samus,
         SnesCgram cgram,
@@ -324,6 +327,7 @@ public sealed class SamusDeathSequenceState
         throw new InvalidOperationException("Samus death requires installed palette artwork.");
     }
 
+    /// <summary>Enqueues one native graphics segment for the NMI VRAM writer and records its index.</summary>
     [PpuLayoutBoundary("codec: Samus death tile segment records' native destinations")]
     private void QueueSegment(VramWriteQueue vramWrites, byte segmentIndex)
     {

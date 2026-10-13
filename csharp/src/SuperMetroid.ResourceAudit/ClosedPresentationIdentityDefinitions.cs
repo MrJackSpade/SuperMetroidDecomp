@@ -58,6 +58,7 @@ internal static class ClosedPresentationIdentityDefinitions
              (int)VramAssetId.EscapeTimerSecondTiles],
         ("RoomBackgroundTilemapCatalog", "Get", "sourceAddress") => RoomBackgroundTilemapSources.All.ToArray(),
         ("RoomVisualLayoutCatalog", "Get", "sourceAddress") => RoomVisualLayoutSourceDefinitions.All.ToArray(),
+        ("RoomLevelStreamCatalog", "Get", "sourceAddress") => RoomVisualLayoutSourceDefinitions.All.ToArray(),
         ("MotherBrainSpecialSpriteArtworkCatalog", "Get", "sourceAddress") => MotherBrainSpecialSpriteArtworkDefinitions.All
             .Select(sheet => sheet.SourceAddress).ToArray(),
         ("XrayOverlayVisualCatalog", "RoomTiles", "pointer") => XrayRoomOverlaySourceDefinitions.All

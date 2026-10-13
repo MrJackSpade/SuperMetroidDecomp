@@ -474,8 +474,7 @@ project's suite plus the SMV replays. The replays read committed compact traces 
 `SuperMetroid.DebugRunner` hosts file-taking developer tools: extracted-installation
 preparation and validation, Android bundle replay, assembly-metadata and captured-frame
 comparisons, state-fixture exporters, and the generated-definition writers
-(`--generate-enemy-visual-selectors`, `--generate-room-fx-records`,
-`--generate-room-level-stream-corpus`). The dispatchers live in
+(`--generate-enemy-visual-selectors`, `--generate-room-fx-records`). The dispatchers live in
 `src/SuperMetroid.DebugRunner/Tools/`.
 
 ### Asset commands

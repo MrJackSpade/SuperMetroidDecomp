@@ -290,6 +290,9 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     /// <summary>Host-selected visual room layouts, rebound after debugger-state restore.</summary>
     [field: NonSerialized]
     public RoomVisualLayoutCatalog? RoomVisualLayouts { get; set; }
+    /// <summary>Host-bound stock native level allocations, rebound after debugger-state restore.</summary>
+    [field: NonSerialized]
+    public RoomLevelStreamCatalog? RoomLevelStreams { get; set; }
     /// <summary>Host-owned Samus visual tiles; restored and future Samus states use the same edit.</summary>
     [field: NonSerialized]     public SamusBodyArtworkCatalog? SamusBodyArt
     {

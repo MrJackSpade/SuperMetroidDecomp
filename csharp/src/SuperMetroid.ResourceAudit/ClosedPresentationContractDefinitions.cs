@@ -33,6 +33,7 @@ internal static class ClosedPresentationContractDefinitions
         .. RoomRevealClosedContractDefinitions.All,
         .. LibraryBackgroundClosedContractDefinitions.All,
         .. RoomLayoutClosedContractDefinitions.All,
+        .. RoomLevelStreamClosedContractDefinitions.All,
         .. MotherBrainSheetsClosedContractDefinitions.All,
         .. NativeDisplaySelectorClosedContractDefinitions.All,
         .. EnemyArtworkClosedContractDefinitions.All,

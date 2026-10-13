@@ -36,12 +36,14 @@ internal static class RetailRuntimeFixtureVerification
     /// </summary>
     internal static CartridgeRoomAssets LoadFixtureRoomAssets(ISnesAddressSpace bus, CartridgeRoomHeader room,
         RoomCharacterAtlasCatalog? characterArt = null, RoomStaticPaletteCatalog? paletteArt = null,
-        RoomMetatileCatalog? metatileArt = null, RoomVisualLayoutCatalog? visualLayouts = null) =>
+        RoomMetatileCatalog? metatileArt = null, RoomVisualLayoutCatalog? visualLayouts = null,
+        RoomLevelStreamCatalog? levelStreams = null) =>
         CartridgeRoomAssets.Load(bus, room, InstalledFixtures.RoomAssets with
         {
             Characters = characterArt ?? InstalledFixtures.RoomAssets.Characters,
             Palettes = paletteArt ?? InstalledFixtures.RoomAssets.Palettes,
             Metatiles = metatileArt ?? InstalledFixtures.RoomAssets.Metatiles,
             VisualLayouts = visualLayouts ?? InstalledFixtures.RoomAssets.VisualLayouts,
+            LevelStreams = levelStreams ?? InstalledFixtures.RoomAssets.LevelStreams,
         });
 }

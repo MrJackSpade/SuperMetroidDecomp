@@ -90,6 +90,8 @@ Within either platform's application-data root:
   gameplay sprite sheet. Copy it to `overrides/standard-objects/` for persistent edits.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest.
 - `game/room-layouts/`: stock BG1/BG2 visual block-reference JSON for every room level source.
+- `game/room-level-streams/`: stock-only native level allocations (collision, BTS and
+  streaming baseline) for every room level source. These files have no override directory.
 - `game/xray-reveals/`: stock visual metatile choices for X-ray block reveals.
 - `game/room-backgrounds/`: stock JSON for library-background BG tilemaps and their manifest.
 - `game/room-art-index.json`: read-only area/room ID guide to installed art files and state variants.
@@ -508,8 +510,8 @@ edit the index, which is regenerated when stock content is repaired.
 
 Landing Site's dedicated setup path uses these same installed CRE and area
 sheets, plus the installed visual block definitions. Its BG1/BTS/BG2 level
-allocation comes from the compiled bounded room-level corpus because those words
-also drive collision and placement; artwork overrides do not edit room geometry.
+allocation comes from the installed stock-only room-level streams because those
+words also drive collision and placement; artwork overrides do not edit room geometry.
 
 Copy a sheet to the matching filename under `overrides/room-characters/`, edit it,
 and restart. The selected sheet is loaded on desktop and Android; debugger-state
@@ -926,11 +928,15 @@ allocation. Subsequent PLM draws apply their own visual bindings where installed
 Stock files are hash-checked;
 overrides survive stock repair and invalid values fail with the offending path.
 For all 246 retail level sources, that collision/BTS and streaming baseline is
-bundled as immutable application data. Installed desktop and Android room loads
-do not decompress these level streams from the ROM. The separate JSON override
-changes only rendered visual words; it cannot modify the bundled physical
-allocation or the native overread tail. Development verifiers can still read the
-pinned ROM to compare every bundled byte with its original source.
+extracted at installation into `game/room-level-streams/` as one
+`level-*.bin` file per source: the complete, unmodified decompressor output,
+listed with its length and SHA-256 in `room-level-streams.json`. These files are
+stock-only; there is no override directory, and a missing or corrupt file fails
+with its path. Installed desktop and Android room loads do not decompress these
+level streams from the ROM. The separate JSON override changes only rendered
+visual words; it cannot modify the installed physical allocation or the native
+overread tail. Development verifiers can still read the pinned ROM to compare
+every installed byte with its original source.
 
 Ordinary shot-block PLM appearances are installed as
 `game/room-plm-shot-blocks/shot-blocks.json`. Copy that file to the matching

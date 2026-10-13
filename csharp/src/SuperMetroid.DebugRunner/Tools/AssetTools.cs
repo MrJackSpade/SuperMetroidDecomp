@@ -22,9 +22,6 @@ internal static class AssetTools
             case ["--generate-room-fx-records"]:
                 RoomFxRecordGenerator.GenerateRoomFxRecordDefinitions();
                 return 0;
-            case ["--generate-room-level-stream-corpus"]:
-                RoomLevelStreamCorpus.GenerateRoomLevelStreamCorpus();
-                return 0;
             case ["--shutter-native-arc"]:
                 return ShutterNativeArc.ExportShutterBombArc();
             case ["--shutter-arc-trace"]:

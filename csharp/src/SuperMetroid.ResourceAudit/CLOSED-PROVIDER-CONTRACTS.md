@@ -580,6 +580,16 @@ checks pass. No ROM, saves, installed layouts, rooms, rendering or gameplay was
 opened. Membership does not certify caller source selection, geometry, collision
 data, binding, destination placement or pixels.
 
+## Room-level stream installation - one additional original boundary
+
+`RoomLevelStreamCatalog` replaces the level-stream corpus formerly embedded in Core
+(#1332). Its only constructor is internal to the installed-content loader and requires
+exactly the immutable compiled room-state source domain: an unknown source, a missing
+source or a stream without its layer-size word is rejected, and the streams are copied.
+`Get` takes only a source ID and fails for any other key; it never reads the cartridge.
+The rule certifies required-key presence only, not stream contents, collision data,
+binding or caller source selection.
+
 ## Mother Brain special sheets - one additional original boundary
 
 The public constructor formerly checked only the four source keys and admitted

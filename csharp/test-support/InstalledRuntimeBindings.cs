@@ -14,6 +14,7 @@ internal static class InstalledRuntimeBindings
         var assetRoomPaletteArt = installation.LoadRoomPalettes();
         var assetRoomMetatileArt = installation.LoadRoomMetatiles();
         var assetRoomVisualLayouts = installation.LoadRoomVisualLayouts();
+        var assetRoomLevelStreams = installation.LoadRoomLevelStreams();
         var assetRoomPlmShotBlockVisuals = installation.LoadRoomPlmShotBlockVisuals();
         var assetRoomPlmGrappleBlockVisuals = installation.LoadRoomPlmGrappleBlockVisuals();
         var assetRoomPlmStationVisuals = installation.LoadRoomPlmStationVisuals();
@@ -55,6 +56,7 @@ internal static class InstalledRuntimeBindings
             runtime.Artwork.RoomPaletteArt = assetRoomPaletteArt;
             runtime.Artwork.RoomMetatileArt = assetRoomMetatileArt;
             runtime.Artwork.RoomVisualLayouts = assetRoomVisualLayouts;
+            runtime.Artwork.RoomLevelStreams = assetRoomLevelStreams;
             runtime.ShotBlockVisuals.RoomPlmShotBlockVisuals = assetRoomPlmShotBlockVisuals;
             runtime.ShotBlockVisuals.RoomPlmGrappleBlockVisuals = assetRoomPlmGrappleBlockVisuals;
             runtime.ShotBlockVisuals.RoomPlmStationVisuals = assetRoomPlmStationVisuals;

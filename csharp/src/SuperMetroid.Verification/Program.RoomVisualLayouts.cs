@@ -21,27 +21,32 @@ internal static class RoomVisualLayoutsVerification
         RoomVisualLayoutCatalog stock = installed.LoadRoomVisualLayouts();
         AssertEqual(246, RoomVisualLayoutFiles.RetailSources.Count,
             "distinct pinned room-level visual sources");
-        AssertEqual(RoomVisualLayoutFiles.RetailSources.Count, RoomLevelStreamDefinitions.Count,
-            "compiled room-level source count");
-        AssertTrue(RoomLevelStreamDefinitions.SourceSha256.Span.SequenceEqual(
-                SupportedCartridge.CreateSha256Digest()),
-            "compiled room-level corpus records the pinned cartridge provenance");
+        RoomLevelStreamCatalog levelStreams = installed.LoadRoomLevelStreams();
+        AssertEqual(RoomVisualLayoutFiles.RetailSources.Count, levelStreams.Count,
+            "installed room-level source count");
+        AssertTrue(!Directory.Exists(Path.Combine(installed.Root, "overrides",
+                GameInstallationLayout.RoomLevelStreamDirectoryName)),
+            "installed room-level streams have no override directory");
+        VerifyRoomLevelStreamRejections(installed);
         try
         {
-            _ = RoomLevelStreamDefinitions.Get(0);
-            throw new InvalidOperationException("Unknown compiled room-level source was accepted.");
+            _ = levelStreams.Get(0);
+            throw new InvalidOperationException("Unknown installed room-level source was accepted.");
         }
         catch (InvalidDataException error)
         {
             AssertTrue(error.Message.Contains("lacks source", StringComparison.Ordinal),
-                "unknown compiled room-level source fails without ROM fallback");
+                "unknown installed room-level source fails without ROM fallback");
         }
         foreach ((int source, int width) in RoomVisualLayoutFiles.RetailSources)
         {
             RoomVisualLayout layout = stock.Get(source);
             byte[] native = RomDataReader.Decompress(bus, source);
-            AssertTrue(native.AsSpan().SequenceEqual(RoomLevelStreamDefinitions.Get(source).Span),
-                $"compiled room-level source ${source:X6} matches every native allocation byte");
+            AssertTrue(native.AsSpan().SequenceEqual(File.ReadAllBytes(Path.Combine(
+                    installed.RoomLevelStreamDirectory, RoomLevelStreamFiles.SourceFileName(source)))),
+                $"installed level file for ${source:X6} is the complete native decompressor output");
+            AssertTrue(native.AsSpan().SequenceEqual(levelStreams.Get(source).Span),
+                $"installed room-level source ${source:X6} matches every native allocation byte");
             int layerBytes = BinaryPrimitives.ReadUInt16LittleEndian(native);
             int count = layerBytes / 2;
             int backgroundOffset = 2 + layerBytes + count;
@@ -88,9 +93,9 @@ internal static class RoomVisualLayoutsVerification
                 int bg2Offset = 2 + layerBytes + blockCount;
                 int availableBg2 = Math.Min(layerBytes, native.Length - bg2Offset);
                 RoomLevelData loaded = LoadFixtureRoomAssets(
-                    NewRoomLevelCorpusReadGuard(bus, source), room,
+                    NewRoomLevelStreamReadGuard(bus, source), room,
                     characterArt: characters, paletteArt: palettes,
-                    metatileArt: metatiles, visualLayouts: stock).LevelData;
+                    metatileArt: metatiles, visualLayouts: stock, levelStreams: levelStreams).LevelData;
                 AssertEqual(blockCount, loaded.Size.X * loaded.Size.Y,
                     $"room ${header.Pointer:X4} state ${statePointer:X4} physical allocation");
                 for (int blockIndex = 0; blockIndex < blockCount; blockIndex++)
@@ -117,9 +122,9 @@ internal static class RoomVisualLayoutsVerification
             }
         }
         AssertEqual(RoomStateDefinitions.RetailStateCount, stateCount,
-            "all retail room-state loads use the guarded compiled level corpus");
+            "all retail room-state loads use the guarded installed level streams");
         AssertTrue(slopeBlocks > 0 && spikeBlocks > 0,
-            "guarded corpus audit includes physical slope and spike-hazard blocks");
+            "guarded installed-stream audit includes physical slope and spike-hazard blocks");
 
         int landingSource = landing.State.CompressedLevelDataAddress;
         string name = RoomVisualLayoutFiles.SourceFileName(landingSource);
@@ -136,11 +141,11 @@ internal static class RoomVisualLayoutsVerification
 
         CartridgeRoomAssets nativeRoom = LoadFixtureRoomAssets(bus, landing);
         CartridgeRoomAssets stockRoom = LoadFixtureRoomAssets(
-            NewRoomLevelCorpusReadGuard(bus, landingSource), landing,
-            visualLayouts: stock);
+            NewRoomLevelStreamReadGuard(bus, landingSource), landing,
+            visualLayouts: stock, levelStreams: levelStreams);
         CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(
-            NewRoomLevelCorpusReadGuard(bus, landingSource), landing,
-            visualLayouts: installed.LoadRoomVisualLayouts());
+            NewRoomLevelStreamReadGuard(bus, landingSource), landing,
+            visualLayouts: installed.LoadRoomVisualLayouts(), levelStreams: levelStreams);
         AssertTrue(nativeRoom.LevelData.ForegroundEntries.Span.SequenceEqual(
                 editedRoom.LevelData.ForegroundEntries.Span) &&
             nativeRoom.LevelData.BehaviorBytes.Span.SequenceEqual(
@@ -177,22 +182,22 @@ internal static class RoomVisualLayoutsVerification
             "edited BG2 layout changes the live renderer's first row");
 
         // Ceres has no authored BG2 tail, while the Wrecked Ship allocation includes
-        // an extra physical row beyond its camera. Both must survive the corpus path.
+        // an extra physical row beyond its camera. Both must survive the installed-stream path.
         foreach (ushort pointer in new ushort[] { 0xdf8d, 0xc98e })
         {
             CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, pointer);
             CartridgeRoomAssets nativeOther = LoadFixtureRoomAssets(bus, room);
-            CartridgeRoomAssets compiledOther = LoadFixtureRoomAssets(
-                NewRoomLevelCorpusReadGuard(bus, room.State.CompressedLevelDataAddress), room,
-                visualLayouts: stock);
+            CartridgeRoomAssets installedOther = LoadFixtureRoomAssets(
+                NewRoomLevelStreamReadGuard(bus, room.State.CompressedLevelDataAddress), room,
+                visualLayouts: stock, levelStreams: levelStreams);
             AssertTrue(nativeOther.LevelData.ForegroundEntries.Span.SequenceEqual(
-                    compiledOther.LevelData.ForegroundEntries.Span) &&
+                    installedOther.LevelData.ForegroundEntries.Span) &&
                 nativeOther.LevelData.BehaviorBytes.Span.SequenceEqual(
-                    compiledOther.LevelData.BehaviorBytes.Span) &&
+                    installedOther.LevelData.BehaviorBytes.Span) &&
                 nativeOther.LevelData.BackgroundEntries.Span.SequenceEqual(
-                    compiledOther.LevelData.BackgroundEntries.Span) &&
-                nativeOther.LevelData.Size.Y == compiledOther.LevelData.Size.Y,
-                $"compiled room ${pointer:X4} retains native collision, BTS, BG2, and allocation height");
+                    installedOther.LevelData.BackgroundEntries.Span) &&
+                nativeOther.LevelData.Size.Y == installedOther.LevelData.Size.Y,
+                $"installed room ${pointer:X4} retains native collision, BTS, BG2, and allocation height");
         }
 
         // Existing user content is outside the replaceable stock installation. Reimport
@@ -223,7 +228,78 @@ internal static class RoomVisualLayoutsVerification
             "affect only rendering, survive repair, and reject collision bits.");
     }
 
-    private static CartridgeReadGuard NewRoomLevelCorpusReadGuard(ISnesAddressSpace source, int levelSource) =>
+    /// <summary>
+    /// Confirms the stock-only level-stream loader rejects each corrupted installation with a
+    /// path-specific error: a changed or resized stream, a missing file, an unsupported version
+    /// or provenance, and an unknown or missing source.
+    /// </summary>
+    private static void VerifyRoomLevelStreamRejections(GameInstallation installed)
+    {
+        using var scratch = new TestScratchDirectory("room-level-stream-rejections");
+        string firstName = RoomLevelStreamFiles.SourceFileName(RoomVisualLayoutFiles.RetailSources.Keys.Min());
+        const string unknownName = "level-000000.bin";
+
+        void Expect(string label, string namedFile, Action<string> corrupt)
+        {
+            string directory = Path.Combine(scratch.Root, label);
+            Directory.CreateDirectory(directory);
+            foreach (string file in Directory.GetFiles(installed.RoomLevelStreamDirectory))
+                File.Copy(file, Path.Combine(directory, Path.GetFileName(file)));
+            _ = RoomLevelStreamFiles.Load(directory);
+            corrupt(directory);
+            try
+            {
+                _ = RoomLevelStreamFiles.Load(directory);
+                throw new InvalidOperationException($"Room-level streams accepted a {label} installation.");
+            }
+            catch (InvalidDataException error)
+            {
+                AssertTrue(error.Message.Contains(Path.Combine(directory, namedFile), StringComparison.Ordinal),
+                    $"room-level stream {label} is rejected naming {namedFile}");
+            }
+        }
+
+        static void EditManifest(string directory, Action<JsonObject> edit)
+        {
+            string path = Path.Combine(directory, RoomLevelStreamFiles.ManifestFileName);
+            JsonObject manifest = JsonNode.Parse(File.ReadAllText(path))!.AsObject();
+            edit(manifest);
+            File.WriteAllText(path, manifest.ToJsonString());
+        }
+
+        Expect("hash-mismatch", firstName, directory =>
+        {
+            string path = Path.Combine(directory, firstName);
+            byte[] stream = File.ReadAllBytes(path);
+            stream[^1] ^= 1;
+            File.WriteAllBytes(path, stream);
+        });
+        Expect("length-mismatch", firstName, directory =>
+        {
+            using var file = new FileStream(Path.Combine(directory, firstName), FileMode.Append, FileAccess.Write);
+            file.WriteByte(0);
+        });
+        Expect("missing-file", firstName, directory => File.Delete(Path.Combine(directory, firstName)));
+        Expect("wrong-version", RoomLevelStreamFiles.ManifestFileName,
+            directory => EditManifest(directory, manifest => manifest["version"] = 2));
+        Expect("wrong-provenance", RoomLevelStreamFiles.ManifestFileName,
+            directory => EditManifest(directory, manifest => manifest["sourceCartridgeSha256"] = new string('0', 64)));
+        Expect("extra-source", unknownName, directory =>
+        {
+            byte[] stream = [0, 0];
+            File.WriteAllBytes(Path.Combine(directory, unknownName), stream);
+            EditManifest(directory, manifest => manifest["entries"]!.AsObject()[unknownName] = new JsonObject
+            {
+                ["sourceAddress"] = 0,
+                ["byteCount"] = stream.Length,
+                ["sha256"] = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(stream)),
+            });
+        });
+        Expect("missing-source", firstName,
+            directory => EditManifest(directory, manifest => manifest["entries"]!.AsObject().Remove(firstName)));
+    }
+
+    private static CartridgeReadGuard NewRoomLevelStreamReadGuard(ISnesAddressSpace source, int levelSource) =>
         new CartridgeReadGuard(source).Forbid(address => address == levelSource,
             address => $"Installed room reread native level source ${address:X6}.");
 }

@@ -51,6 +51,9 @@ public sealed record GameArtwork
     /// <summary>Initial room foreground and background layouts.</summary>
     public RoomVisualLayoutCatalog? RoomVisualLayouts { get; init; }
 
+    /// <summary>Stock native room-level allocations; not overridable.</summary>
+    public RoomLevelStreamCatalog? RoomLevelStreams { get; init; }
+
     /// <summary>Room PLM shot block visuals.</summary>
     public RoomPlmShotBlockVisualCatalog? RoomPlmShotBlockVisuals { get; init; }
 

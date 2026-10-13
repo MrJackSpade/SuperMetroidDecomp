@@ -112,6 +112,7 @@ internal static class FrontendRomFreeVerification
         var roomPalettes = installation.LoadRoomPalettes();
         var metatiles = installation.LoadRoomMetatiles();
         var visualLayouts = installation.LoadRoomVisualLayouts();
+        var levelStreams = installation.LoadRoomLevelStreams();
         var backgrounds = installation.LoadRoomBackgroundTilemaps();
         var sky = installation.LoadRoomSkyTilemaps();
         var samusEaterVisuals = installation.LoadRoomPlmSamusEaterVisuals();
@@ -197,6 +198,7 @@ internal static class FrontendRomFreeVerification
                 RoomPaletteArt = roomPalettes,
                 RoomMetatileArt = metatiles,
                 RoomVisualLayouts = visualLayouts,
+                RoomLevelStreams = levelStreams,
                 RoomBackgroundTilemapArt = backgrounds,
                 RoomSkyTilemapArt = sky,
                 RoomPlmSamusEaterVisuals = samusEaterVisuals,

@@ -436,36 +436,6 @@ internal static class RoomLevelDataAccess
     }
 }
 
-/// <summary>Verification access to <see cref="RoomLevelStreamDefinitions"/> members production does not use.</summary>
-internal static class RoomLevelStreamDefinitionsAccess
-{
-    /// <summary>The lazily loaded installed stream set.</summary>
-    private static RoomLevelStreamDefinitions.Corpus InstalledStreams => RoomLevelStreamDefinitions.Installed.Value;
-
-    extension(RoomLevelStreamDefinitions)
-    {
-        /// <summary>Every distinct level-data source referenced by the compiled retail room states.</summary>
-        internal static int Count => InstalledStreams.Streams.Count;
-
-        /// <summary>
-        /// Source-cartridge provenance in the embedded corpus header (bytes 8..40), written at
-        /// development-time extraction; the loader does not read it.
-        /// </summary>
-        internal static ReadOnlyMemory<byte> SourceSha256
-        {
-            get
-            {
-                string resource = RoomLevelStreamDefinitions.ResourceName;
-                using Stream source = typeof(RoomLevelStreamDefinitions).Assembly.GetManifestResourceStream(resource)
-                    ?? throw new InvalidDataException($"Missing compiled resource {resource}.");
-                byte[] header = new byte[40];
-                source.ReadExactly(header);
-                return header.AsMemory(8, 32);
-            }
-        }
-    }
-}
-
 /// <summary>Verification access to <see cref="RoomLevelWord"/> members production does not use.</summary>
 internal static class RoomLevelWordAccess
 {

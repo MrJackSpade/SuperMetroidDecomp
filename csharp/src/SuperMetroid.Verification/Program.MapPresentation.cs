@@ -170,6 +170,7 @@ internal static class MapPresentationVerification
         private readonly RoomStaticPaletteCatalog roomPalettes;
         private readonly RoomMetatileCatalog roomMetatiles;
         private readonly RoomVisualLayoutCatalog visualLayouts;
+        private readonly RoomLevelStreamCatalog levelStreams;
         private readonly RoomBackgroundTilemapCatalog backgrounds;
         private readonly RoomSkyTilemapCatalog skies;
         private readonly BeamTileCatalog beamTiles;
@@ -187,6 +188,7 @@ internal static class MapPresentationVerification
             roomPalettes = installation.LoadRoomPalettes();
             roomMetatiles = installation.LoadRoomMetatiles();
             visualLayouts = installation.LoadRoomVisualLayouts();
+            levelStreams = installation.LoadRoomLevelStreams();
             backgrounds = installation.LoadRoomBackgroundTilemaps();
             skies = installation.LoadRoomSkyTilemaps();
             EnemyTiles = installation.LoadEnemyTiles();
@@ -202,6 +204,7 @@ internal static class MapPresentationVerification
             runtime.Artwork.RoomPaletteArt = roomPalettes;
             runtime.Artwork.RoomMetatileArt = roomMetatiles;
             runtime.Artwork.RoomVisualLayouts = visualLayouts;
+            runtime.Artwork.RoomLevelStreams = levelStreams;
             runtime.Artwork.RoomBackgroundTilemapArt = backgrounds;
             runtime.Artwork.RoomSkyTilemapArt = skies;
             runtime.Enemies.TileArtwork = EnemyTiles;

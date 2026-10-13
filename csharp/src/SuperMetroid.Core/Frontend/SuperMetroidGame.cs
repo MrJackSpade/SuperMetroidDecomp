@@ -104,6 +104,10 @@ public sealed class SuperMetroidGame
         {
             if (runtime is not null) runtime.Artwork.RoomVisualLayouts = artwork.RoomVisualLayouts;
         }
+        if (!ReferenceEquals(previous.RoomLevelStreams, artwork.RoomLevelStreams))
+        {
+            if (runtime is not null) runtime.Artwork.RoomLevelStreams = artwork.RoomLevelStreams;
+        }
         if (!ReferenceEquals(previous.RoomPlmShotBlockVisuals, artwork.RoomPlmShotBlockVisuals))
         {
             if (runtime is not null) runtime.ShotBlockVisuals.RoomPlmShotBlockVisuals = artwork.RoomPlmShotBlockVisuals;
@@ -1820,6 +1824,7 @@ public sealed class SuperMetroidGame
         runtime.Artwork.RoomPaletteArt = Artwork.RoomPaletteArt;
         runtime.Artwork.RoomMetatileArt = Artwork.RoomMetatileArt;
         runtime.Artwork.RoomVisualLayouts = Artwork.RoomVisualLayouts;
+        runtime.Artwork.RoomLevelStreams = Artwork.RoomLevelStreams;
         runtime.ShotBlockVisuals.RoomPlmShotBlockVisuals = Artwork.RoomPlmShotBlockVisuals;
         runtime.ShotBlockVisuals.RoomPlmGrappleBlockVisuals = Artwork.RoomPlmGrappleBlockVisuals;
         runtime.ShotBlockVisuals.RoomPlmStationVisuals = Artwork.RoomPlmStationVisuals;

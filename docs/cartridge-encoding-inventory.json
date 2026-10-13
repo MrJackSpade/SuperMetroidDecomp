@@ -21,18 +21,18 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 33111,
+    "RawHexLiteral": 33108,
     "PointerDispatch": 1292,
     "OpaqueWordArray": 1150,
-    "CatalogHexLiteral": 101607,
+    "CatalogHexLiteral": 101605,
     "JustifiedHexLiteral": 76,
     "OwnedWidthOperation": 122,
     "JustifiedWidthOperation": 3,
-    "class:NumericQuantity": 56182,
+    "class:NumericQuantity": 56179,
     "class:DomainIdentity": 6974,
-    "class:ComposableBits": 1902,
+    "class:ComposableBits": 1900,
     "class:StructuredInstruction": 44536,
-    "class:CartridgeAddress": 26739,
+    "class:CartridgeAddress": 26737,
     "class:Unknown": 1030,
     "storageWidthMembers": 1949
   },
@@ -9436,16 +9436,16 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 27612,
+        "RawHexLiteral": 27609,
         "PointerDispatch": 432,
         "OpaqueWordArray": 1011,
-        "CatalogHexLiteral": 5416,
+        "CatalogHexLiteral": 5414,
         "OwnedWidthOperation": 59,
-        "class:NumericQuantity": 10378,
+        "class:NumericQuantity": 10375,
         "class:DomainIdentity": 618,
-        "class:ComposableBits": 572,
+        "class:ComposableBits": 570,
         "class:StructuredInstruction": 14285,
-        "class:CartridgeAddress": 8155,
+        "class:CartridgeAddress": 8153,
         "class:Unknown": 524,
         "storageWidthMembers": 317
       },
@@ -11708,10 +11708,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.AbsoluteTangentDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 7,
+            "CatalogHexLiteral": 5,
             "OwnedWidthOperation": 1,
             "class:ComposableBits": 1,
-            "class:CartridgeAddress": 7
+            "class:CartridgeAddress": 5
           }
         },
         {
@@ -12999,9 +12999,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.Collectibles.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 81,
+            "RawHexLiteral": 80,
             "OpaqueWordArray": 4,
-            "class:NumericQuantity": 47,
+            "class:NumericQuantity": 46,
             "class:DomainIdentity": 4,
             "class:ComposableBits": 1,
             "class:StructuredInstruction": 26,
@@ -18407,8 +18407,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainBeamWindow.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 10,
-            "class:NumericQuantity": 7,
+            "RawHexLiteral": 8,
+            "class:NumericQuantity": 5,
             "class:DomainIdentity": 3
           }
         },

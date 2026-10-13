@@ -122,6 +122,10 @@ public sealed record GameInstallation(string Root)
     /// <summary>Visual room-block references independent of native collision and BTS.</summary>
     public RoomVisualLayoutCatalog LoadRoomVisualLayouts() =>
         RoomVisualLayoutFiles.Load(RoomVisualLayoutDirectory, RoomVisualLayoutOverrideDirectory);
+    /// <summary>Stock native room-level allocations under the replaceable content tree; this family has no override directory.</summary>
+    public string RoomLevelStreamDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomLevelStreamDirectoryName);
+    /// <summary>Validated stock collision/BTS and streaming allocations, independent of editable visual layouts.</summary>
+    public RoomLevelStreamCatalog LoadRoomLevelStreams() => RoomLevelStreamFiles.Load(RoomLevelStreamDirectory);
     /// <summary>Stock definitions for shootable block appearances under the replaceable content tree.</summary>
     public string RoomPlmShotBlockVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmShotBlockVisualDirectoryName);
     /// <summary>Persistent replacements for shootable block appearances, preserved during stock rebuilds.</summary>
@@ -392,6 +396,7 @@ public sealed record GameInstallation(string Root)
             RoomPaletteArt = LoadRoomPalettes(),
             RoomMetatileArt = LoadRoomMetatiles(),
             RoomVisualLayouts = LoadRoomVisualLayouts(),
+            RoomLevelStreams = LoadRoomLevelStreams(),
             RoomPlmShotBlockVisuals = LoadRoomPlmShotBlockVisuals(),
             RoomPlmGrappleBlockVisuals = LoadRoomPlmGrappleBlockVisuals(),
             RoomPlmStationVisuals = LoadRoomPlmStationVisuals(),
@@ -473,6 +478,8 @@ public static class GameInstallationLayout
     public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";
     /// <summary>Content child directory for visual room-block references independent of native collision and BTS.</summary>
     public const string RoomVisualLayoutDirectoryName = "room-layouts";
+    /// <summary>Content child directory for stock-only native room-level allocations (collision, BTS, and streaming baseline).</summary>
+    public const string RoomLevelStreamDirectoryName = "room-level-streams";
     /// <summary>Content child directory for shootable block appearances.</summary>
     public const string RoomPlmShotBlockVisualDirectoryName = "room-plm-shot-blocks";
     /// <summary>Content child directory for Grapple-reactive block appearances.</summary>
@@ -532,7 +539,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; incompatible stock content requires validation and repair before opening.</summary>
-    public const int FormatVersion = 86;
+    public const int FormatVersion = 87;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

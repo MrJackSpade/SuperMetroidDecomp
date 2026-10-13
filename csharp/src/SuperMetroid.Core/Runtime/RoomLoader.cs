@@ -1244,9 +1244,10 @@ internal sealed class RoomLoader
     /// <summary>The host-bound room catalogs; room loading never substitutes cartridge artwork.</summary>
     private RoomAssetCatalogs RequireRoomAssetCatalogs() =>
         _artwork.RoomCharacterArt is { } characters && _artwork.RoomPaletteArt is { } palettes &&
-        _artwork.RoomMetatileArt is { } metatiles && _artwork.RoomVisualLayouts is { } layouts
-            ? new RoomAssetCatalogs(characters, palettes, metatiles, layouts)
+        _artwork.RoomMetatileArt is { } metatiles && _artwork.RoomVisualLayouts is { } layouts &&
+        _artwork.RoomLevelStreams is { } levelStreams
+            ? new RoomAssetCatalogs(characters, palettes, metatiles, layouts, levelStreams)
             : throw new InvalidOperationException(
-                "Room loading requires installed character, palette, metatile, and visual-layout assets.");
+                "Room loading requires installed character, palette, metatile, visual-layout, and level-stream assets.");
 
 }

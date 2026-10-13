@@ -27,6 +27,8 @@ $projects = [ordered]@{
     'SuperMetroid.BuildPolicyVerification' = 'net10.0'
 }
 
+# Pinned public reference sources several audits read (README.md lists the pins).
+& "$PSScriptRoot/fetch-reference-sources.ps1"
 dotnet build csharp/SuperMetroid.slnx -c Release --nologo -v quiet -clp:ErrorsOnly
 if (Test-Path -LiteralPath $run) { Remove-Item -LiteralPath $run -Recurse -Force }
 # Tests delete their own scratch when they finish; a killed or crashed run cannot, so every run

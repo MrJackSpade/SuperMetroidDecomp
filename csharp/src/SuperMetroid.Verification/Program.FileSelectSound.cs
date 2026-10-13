@@ -21,7 +21,7 @@ internal static class FileSelectSoundVerification
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
         var menu = new FileSelectMenuState(bus, audio, RetailPresentationFixture());
-        var renderer = new CartridgeAudioRenderer(ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio")));
+        var renderer = new CartridgeAudioRenderer(ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory));
         int writes = 0, nonzero = 0;
         bool accepted = false;
         for (int frame = 0; frame < 180; frame++)
@@ -54,7 +54,7 @@ internal static class FileSelectSoundVerification
         if (existingSave)
             new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, new SuperMetroidSaveSnapshot());
         var game = CreateRetailGameFixture(bus);
-        var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));
+        var assets = ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory);
         var actual = new CartridgeAudioRenderer(assets);
         var withoutSwoosh = new CartridgeAudioRenderer(assets);
         int writes = 0, differentSamples = 0;

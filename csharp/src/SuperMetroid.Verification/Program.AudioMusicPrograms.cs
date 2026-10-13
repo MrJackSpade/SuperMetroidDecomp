@@ -18,7 +18,7 @@ internal static class AudioMusicProgramsVerification
     [SpcMemoryBoundary("exact APU memory test: checks uploaded APU RAM bytes")]
     internal static void VerifyEditableMusicPrograms()
     {
-        string sourceDirectory = Path.GetFullPath("standalone-assets/audio");
+        string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;
         ExtractedAudioAssetCatalog stock = ExtractedAudioAssetCatalog.Load(sourceDirectory);
         int trackCount = 0;
         int phraseCount = 0;

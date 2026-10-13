@@ -18,7 +18,7 @@ internal static class AudioSoundProgramsVerification
     [SpcMemoryBoundary("exact APU memory test: checks uploaded APU RAM bytes")]
     internal static void VerifyEditableSoundEffectPrograms()
     {
-        string sourceDirectory = Path.GetFullPath("standalone-assets/audio");
+        string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;
         ExtractedAudioAssetCatalog stock = ExtractedAudioAssetCatalog.Load(sourceDirectory);
         var rawPlayer = new ManagedSpcPlayer();
         rawPlayer.Upload(stock.GetUpload(AudioUploadAddresses.SpcEngine).Span);

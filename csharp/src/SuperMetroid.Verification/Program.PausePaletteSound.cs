@@ -13,7 +13,7 @@ internal static class PausePaletteSoundVerification
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
         var audio = new CartridgeAudioState();
         var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
-        var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));
+        var assets = ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory);
         var player = new ManagedSpcPlayer();
         player.Upload(assets.GetUpload(AudioUploadAddresses.SpcEngine).Span);
         player.SetSampleBank(assets.GetSampleBank(AudioUploadAddresses.SpcEngine));

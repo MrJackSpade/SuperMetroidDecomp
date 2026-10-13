@@ -17,7 +17,7 @@ internal static class AudioOverridesVerification
 {
     internal static void VerifyPersistentAudioOverrides()
     {
-        string source = Path.GetFullPath("standalone-assets/audio");
+        string source = RepositoryInstallation.Installation.AudioDirectory;
         using var rootScratch = new TestScratchDirectory("audio-override");
         string root = rootScratch.Root;
         var installation = new GameInstallation(root);

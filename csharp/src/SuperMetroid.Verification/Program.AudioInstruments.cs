@@ -23,7 +23,7 @@ internal static class AudioInstrumentsVerification
     [SpcMemoryBoundary("exact APU memory test: checks uploaded APU RAM bytes")]
     internal static void VerifyEditableAudioInstruments()
     {
-        string sourceDirectory = Path.GetFullPath("standalone-assets/audio");
+        string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;
         ExtractedAudioAssetCatalog stock = ExtractedAudioAssetCatalog.Load(sourceDirectory);
         foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogData.All)
         {

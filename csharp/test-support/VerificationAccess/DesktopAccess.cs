@@ -106,9 +106,16 @@ namespace SuperMetroid.Desktop
             {
                 for (DirectoryInfo? directory = new(Path.GetFullPath(start)); directory is not null; directory = directory.Parent)
                 {
-                    string nested = Path.Combine(directory.FullName, "standalone-assets", "audio");
-                    if (File.Exists(Path.Combine(nested, SuperMetroid.Core.Audio.ExtractedAudioAssetCatalog.ManifestFileName)))
-                        return nested;
+                    // The repository verification installation (csharp/.cache), then a hand extraction.
+                    foreach (string nested in new[]
+                    {
+                        Path.Combine(directory.FullName, "csharp", ".cache", "verification-installed-content", "game", "audio"),
+                        Path.Combine(directory.FullName, "standalone-assets", "audio"),
+                    })
+                    {
+                        if (File.Exists(Path.Combine(nested, SuperMetroid.Core.Audio.ExtractedAudioAssetCatalog.ManifestFileName)))
+                            return nested;
+                    }
                     // Published builds copy the contents under an adjacent audio directory.
                     string adjacent = Path.Combine(directory.FullName, "audio");
                     if (File.Exists(Path.Combine(adjacent, SuperMetroid.Core.Audio.ExtractedAudioAssetCatalog.ManifestFileName)))

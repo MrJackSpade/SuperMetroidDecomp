@@ -63,7 +63,7 @@ internal static class MapPaletteCycleVerification
         for (int tick = 0; tick < 60; tick++)
         {
             pause.Step(0, 0); nativePause.Step(0, 0);
-            AssertTrue(pause.Render().AsSpan().SequenceEqual(nativePause.Render()), "stock imported highlight gives exact pause pixels through full cycle");
+            AssertTrue(pause.Render().SequenceEqual(nativePause.Render()), "stock imported highlight gives exact pause pixels through full cycle");
         }
         using var snapshot = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(snapshot, pause);
@@ -101,7 +101,7 @@ internal static class MapPaletteCycleVerification
         AssertTrue(cycleColorsChanged, "edited highlight colors animate in restored pause CGRAM with palette ROM blocked");
         pause.BindMapPresentation(original);
         for (int tick = 0; tick < 60; tick++) { pause.Step(0, 0); nativePause.Step(0, 0); }
-        AssertTrue(pause.Render().AsSpan().SequenceEqual(nativePause.Render()), "rebind preserves timing and returns to exact stock animated pixels");
+        AssertTrue(pause.Render().SequenceEqual(nativePause.Render()), "rebind preserves timing and returns to exact stock animated pixels");
 
         var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         var saved = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
@@ -122,7 +122,7 @@ internal static class MapPaletteCycleVerification
         for (int tick = 0; tick < 60; tick++)
         {
             nativeMenu.Step(0); menu.Step(0);
-            menuEdit |= !menu.Render().AsSpan().SequenceEqual(nativeMenu.Render());
+            menuEdit |= !menu.Render().SequenceEqual(nativeMenu.Render());
             AssertEqual(nativeMenu.Phase, menu.Phase, "palette replacement does not change file-select phase");
         }
         AssertTrue(menuEdit, "edited palette visibly animates in installed file-select map");
@@ -142,7 +142,7 @@ internal static class MapPaletteCycleVerification
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
         SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "palette override survives re-extraction and reload");
-        AssertTrue(editedBytes.AsSpan().SequenceEqual(File.ReadAllBytes(replacement)), "palette override never rewritten");
+        AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(replacement)), "palette override never rewritten");
         foreach (string invalid in new[] { "null", "{}", "{\"version\":1,\"frames\":[]}", "{\"version\":1,\"frames\":null}" })
         {
             using var input = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid));

@@ -353,10 +353,10 @@ public sealed class SamusBodyArtworkCatalog
         content.AppendWords("top pointers", TopSetPointers);
         content.AppendWords("bottom pointers", BottomSetPointers);
         content.AppendWords("pose pointers", PosePointers);
-        content.Append("graphics y offsets", GraphicsYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
+        content.Append("graphics y offsets", GraphicsYOffsets.SelectToArray(value => unchecked((byte)value)));
         content.AppendWords("landing y offsets", LandingYOffsets);
-        content.Append("posture y offsets", PostureYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
-        content.Append("drained y offsets", DrainedYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
+        content.Append("posture y offsets", PostureYOffsets.SelectToArray(value => unchecked((byte)value)));
+        content.Append("drained y offsets", DrainedYOffsets.SelectToArray(value => unchecked((byte)value)));
         foreach (SamusBodyFrameSelection frame in Frames)
         {
             content.Append("top set", frame.TopSet);

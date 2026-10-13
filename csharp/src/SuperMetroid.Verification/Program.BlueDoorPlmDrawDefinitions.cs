@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -24,8 +25,8 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             BlueDoorPlmDrawDefinitionsTooling.All.OrderBy(list => list.Pointer).ToArray();
         RoomPlmBlueDoorVisualEntry[] entries = BlueDoorPlmDrawDefinitions.Editable.Select(draw =>
             new RoomPlmBlueDoorVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span[0].LevelWords.Span.ToArray()
-                    .Select(word => new RoomLevelWord(word).VisualWord).ToArray())).ToArray();
+                draw.Runs.Span[0].LevelWords.Span
+                    .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
         RoomPlmBlueDoorVisualCatalog stock = RoomPlmBlueDoorVisualCatalog.Stock();
         RoomPlmBlueDoorVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "left-frame-1");

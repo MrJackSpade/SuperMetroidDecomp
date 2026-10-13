@@ -33,13 +33,13 @@ internal static class InstalledFileSelectMapVerification
             AssertEqual(control.Phase, installed.Phase, "installed map navigation phase matches cartridge path");
             AssertEqual(control.LoadRequested, installed.LoadRequested, "installed map load handoff timing");
             AssertEqual(control.OptionsRequested, installed.OptionsRequested, "installed map options handoff timing");
-            AssertTrue(control.Render().AsSpan().SequenceEqual(installed.Render()), "installed map navigation renders exact stock frame");
+            AssertTrue(control.Render().SequenceEqual(installed.Render()), "installed map navigation renders exact stock frame");
             if (verifyCapturedRendering)
             {
                 var nativePixels = SoftwareLayeredSnapshotRenderer.Render(control.CaptureRenderSnapshot(), nativeRaster);
                 var installedPixels = SoftwareLayeredSnapshotRenderer.Render(installed.CaptureRenderSnapshot(), installedRaster);
-                AssertTrue(nativePixels.AsSpan().SequenceEqual(installedPixels), "installed map render captures retain native pixels through every transition");
-                AssertTrue(installed.Render().AsSpan().SequenceEqual(installedPixels), "captured and direct map rendering agree");
+                AssertTrue(nativePixels.SequenceEqual(installedPixels), "installed map render captures retain native pixels through every transition");
+                AssertTrue(installed.Render().SequenceEqual(installedPixels), "captured and direct map rendering agree");
             }
         }
         for (int i = 0; i < 48; i++) StepBoth(0);
@@ -59,12 +59,12 @@ internal static class InstalledFileSelectMapVerification
         installed.BindMapPresentation(edited);
         using var reboundState = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(reboundState, installed);
-        AssertTrue(state.ToArray().AsSpan().SequenceEqual(reboundState.ToArray()),
+        AssertTrue(state.WrittenBytes().SequenceEqual(reboundState.WrittenBytes()),
             "catalog-only identity change outside this area is not serialized into menu graph");
         state.Position = 0;
         installed = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<FileSelectMapMenuState>(state);
         installed.BindMapPresentation(original);
-        AssertTrue(control.Render().AsSpan().SequenceEqual(installed.Render()), "restored room map retains scrolled frame");
+        AssertTrue(control.Render().SequenceEqual(installed.Render()), "restored room map retains scrolled frame");
         StepBoth((ushort)SnesButton.B);
         for (int i = 0; i < 60; i++) StepBoth(0);
         AssertEqual(FileSelectMapNavigationPhase.Area, installed.Phase, "restored menu returns to area");

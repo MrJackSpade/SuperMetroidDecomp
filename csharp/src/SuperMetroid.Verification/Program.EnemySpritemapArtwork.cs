@@ -428,7 +428,7 @@ internal static class EnemySpritemapArtworkVerification
             EnemySpritemapDefinitions.Frames.Length,
             "post-Gunship installed composition groups account for the complete current catalog");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
-            .ToArray()
+            
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
             .Select(frame => frame.Pointer)
             .ToHashSet();
@@ -454,7 +454,7 @@ internal static class EnemySpritemapArtworkVerification
                 KiHunterInstructionProgramDefinitions.FlyingLeft),
             "KiHunter rejects adjacent instruction mechanics as presentation");
         HashSet<ushort> installedMawPointers = EnemySpritemapDefinitions.Frames
-            .ToArray()
+            
             .Where(frame => frame.Name.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
             .Select(frame => frame.Pointer)
             .ToHashSet();
@@ -479,11 +479,11 @@ internal static class EnemySpritemapArtworkVerification
             () => YappingMawVisualDefinitions.FrameAt(
                 YappingMawInstructionProgramDefinitions.AttackingFacingUp),
             "Yapping Maw rejects adjacent instruction mechanics as presentation");
-        AssertEqual(276, EnemySpritemapDefinitions.Frames.ToArray().Count(
+        AssertEqual(276, EnemySpritemapDefinitions.Frames.Count(
                 frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank),
             "all bank-B4 sprite-object programs select 276 distinct visual frames");
         HashSet<ushort> installedSpritePointers = EnemySpritemapDefinitions.Frames
-            .ToArray()
+            
             .Where(frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank)
             .Select(frame => frame.Pointer)
             .ToHashSet();
@@ -1238,7 +1238,7 @@ internal static class EnemySpritemapArtworkVerification
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         // Construct the historical version boundary, not today's catalog minus
         // a few known families. Every older fixture below derives from this set.
-        HashSet<string> preYardNames = EnemySpritemapDefinitions.Frames.ToArray()
+        HashSet<string> preYardNames = EnemySpritemapDefinitions.Frames
             .Take(EnemySpritemapDefinitions.PreYardFrameCount)
             .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
         var preYardFrames = document.Frames
@@ -2446,7 +2446,7 @@ internal static class EnemySpritemapArtworkVerification
                 .Spritemaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .Spritemaps.")).TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
         // Preserve the edited values while selecting exactly the pre-Dragon schema.
-        HashSet<string> historicalNames = EnemySpritemapDefinitions.Frames.ToArray()
+        HashSet<string> historicalNames = EnemySpritemapDefinitions.Frames
             .Take(EnemySpritemapDefinitions.PreDragonFrameCount)
             .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
         IEnumerable<KeyValuePair<string, SpriteVisualPart[]>> HistoricalFrames() =>

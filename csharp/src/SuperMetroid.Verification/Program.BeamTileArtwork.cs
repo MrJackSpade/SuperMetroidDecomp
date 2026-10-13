@@ -145,9 +145,9 @@ internal static class BeamTileArtworkVerification
         // Simulate an old snapshot with a queued ROM beam upload before host rebind.
         LoadNativeBeamFixture(bus, null, runtime.Cgram, runtime.VramWrites, 0);
         runtime.Artwork.BeamArtwork = edited;
-        AssertTrue(previous.AsSpan().SequenceEqual(runtime.Vram.Bytes), "Binding beam PNG leaves retained VRAM unchanged");
+        AssertTrue(previous.SequenceEqual(runtime.Vram.Bytes), "Binding beam PNG leaves retained VRAM unchanged");
         runtime.NmiHandler.RunNmi(0, false);
-        AssertTrue(previous.AsSpan().SequenceEqual(runtime.Vram.Bytes), "Lag NMI does not publish rebound artwork");
+        AssertTrue(previous.SequenceEqual(runtime.Vram.Bytes), "Lag NMI does not publish rebound artwork");
         runtime.NmiHandler.RunNmi(0, true);
         int start = BeamTileAtlasDefinitions.DestinationWord * 2;
         AssertTrue(runtime.Vram.Bytes.Slice(start, 256).SequenceEqual(edited.Resolve(BeamTileCatalog.AssetFor(0)).Span),

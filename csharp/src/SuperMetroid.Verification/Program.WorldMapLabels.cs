@@ -28,7 +28,7 @@ internal static class WorldMapLabelsVerification
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             native.SelectArea(area); installed.SelectArea(area);
-            AssertTrue(native.Render(used).AsSpan().SequenceEqual(installed.Render(used)), "stock label pixels with position ROM blocked");
+            AssertTrue(native.Render(used).SequenceEqual(installed.Render(used)), "stock label pixels with position ROM blocked");
             var nativeWindow = new FileSelectMapWindow(bus, area,
                 ReadCartridgeMapWindowMotion(bus, area), original.Labels);
             var installedWindow = new FileSelectMapWindow(guard, area, original.Labels);
@@ -51,19 +51,19 @@ internal static class WorldMapLabelsVerification
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "label edit invalidates content identity");
         installed.SelectArea(0); native.SelectArea(0);
         installed.BindLabels(edited.Labels);
-        AssertTrue(!native.Render(used).AsSpan().SequenceEqual(installed.Render(used)), "label edit changes real rendered pixels");
-        AssertTrue(native.Render(new ushort[6]).AsSpan().SequenceEqual(installed.Render(new ushort[6])), "layout edit does not reveal unavailable areas");
+        AssertTrue(!native.Render(used).SequenceEqual(installed.Render(used)), "label edit changes real rendered pixels");
+        AssertTrue(native.Render(new ushort[6]).SequenceEqual(installed.Render(new ushort[6])), "layout edit does not reveal unavailable areas");
         var navigation = new FileSelectMapNavigation(guard, 0);
         navigation.BindLabels(edited.Labels);
         navigation.Step((ushort)SnesButton.A); navigation.Step(0);
         AssertEqual(areas["Crateria"].X, (navigation.Window ?? throw new InvalidOperationException("Verification requires navigation.Window.")).Left, "normal navigation uses edited label/window anchor");
         AssertEqual(areas["Crateria"].Y, navigation.Window.Top, "normal navigation uses edited vertical anchor");
         installed.BindLabels(original.Labels);
-        AssertTrue(native.Render(used).AsSpan().SequenceEqual(installed.Render(used)), "rebind restores stock label pixels");
+        AssertTrue(native.Render(used).SequenceEqual(installed.Render(used)), "rebind restores stock label pixels");
         string rebuilt = Path.Combine(overrides, "rebuilt");
         SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "label override survives stock replacement");
-        AssertTrue(bytes.AsSpan().SequenceEqual(File.ReadAllBytes(replacement)), "label override bytes preserved");
+        AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(replacement)), "label override bytes preserved");
         foreach (var invalid in new[] { document with { Version = 2 }, document with { Areas = new() },
             document with { Areas = areas.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })
             AssertThrows<System.IO.InvalidDataException>(() => WorldMapLabelLayout.Write(new MemoryStream(), invalid), "invalid label schema/area/coordinate rejected");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Text.Json.Nodes;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -16,7 +17,7 @@ internal static class EnemyProjectileArtworkContractChecks
     internal static void Run()
     {
         var direct = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
-        var programs = EnemyProjectilePresentationFrameDefinitions.All.ToArray().ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
+        var programs = EnemyProjectilePresentationFrameDefinitions.All.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
         var document = new EnemyProjectileSpritemapDocument {
             Version = (int)EnemyProjectileSpritemapVersion.Current, Frames = direct, ProgramFrames = programs };
         EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument value, EnemyProjectileSpritemapCatalog? stock = null) =>

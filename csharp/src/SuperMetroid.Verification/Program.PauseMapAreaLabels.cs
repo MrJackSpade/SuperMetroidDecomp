@@ -71,7 +71,7 @@ internal static class PauseMapAreaLabelsVerification
             AssertLabels(start, "stable map");
             var nativePixels = SnesObjRenderer.Render(native, rawVram, nativeColors, PauseMenuLayout.ObjectSelection);
             var installedPixels = SnesObjRenderer.Render(native, pause.vram, pause.cgram, PauseMenuLayout.ObjectSelection);
-            AssertTrue(nativePixels.AsSpan().SequenceEqual(installedPixels), $"{area} installed label artwork and colors equal raw ROM");
+            AssertTrue(nativePixels.SequenceEqual(installedPixels), $"{area} installed label artwork and colors equal raw ROM");
             // The high-priority BG2 holder covers destination names at the map edges.
             // Confirm visible lettering in the map interior, separately from complete OBJ/OAM equality above.
             int visiblePixels = 0;
@@ -92,7 +92,7 @@ internal static class PauseMapAreaLabelsVerification
                 pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(stream);
                 pause.BindMapPresentation(RetailPresentationFixture());
             }
-            AssertTrue(beforeRestore.AsSpan().SequenceEqual(pause.Render()), "restoring preserves destination-label fade priority");
+            AssertTrue(beforeRestore.SequenceEqual(pause.Render()), "restoring preserves destination-label fade priority");
             pause.Step((ushort)SnesButton.R, 0); _ = pause.Render();
             AssertLabels(pause.oam.LastFinalizedSpriteCount * 4 - labelBytes, "R input stable-map dispatch");
             pause.Step(0, 0); _ = pause.Render();

@@ -44,8 +44,8 @@ try
     File.WriteAllBytes(input, headered);
     string root = Path.Combine(temporary, "app-data");
     GameInstallation installed = GameAssetInstaller.Install(input, root);
-    Check(File.ReadAllBytes(input).AsSpan().SequenceEqual(headered), "original selected ROM is preserved");
-    Check(File.ReadAllBytes(installed.RomPath).AsSpan().SequenceEqual(rom), "installed ROM strips only the copier header");
+    Check(File.ReadAllBytes(input).SequenceEqual(headered), "original selected ROM is preserved");
+    Check(File.ReadAllBytes(installed.RomPath).SequenceEqual(rom), "installed ROM strips only the copier header");
     Check(GameAssetInstaller.TryOpenExtractedContent(root) is not null,
         "complete extracted content is recognized with its source-revision receipt");
     string heldRom = Path.Combine(temporary, "temporarily-held-installed-rom.smc");
@@ -95,7 +95,7 @@ try
         foreach (string file in expected)
         {
             string relative = Path.GetRelativePath(reference, file);
-            Check(File.ReadAllBytes(file).AsSpan().SequenceEqual(File.ReadAllBytes(Path.Combine(installed.AudioDirectory, relative))),
+            Check(File.ReadAllBytes(file).SequenceEqual(File.ReadAllBytes(Path.Combine(installed.AudioDirectory, relative))),
                 $"reference parity: {relative}", quiet: true);
         }
         Check(expected.Length == Directory.GetFiles(installed.AudioDirectory, "*", SearchOption.AllDirectories).Length,
@@ -144,14 +144,14 @@ try
     }
     File.Delete(input);
     Check(GameAssetInstaller.EnsureInstalled(root) is not null, "repair works after the original selected document is gone");
-    Check(File.ReadAllBytes(waveform).AsSpan().SequenceEqual(waveBefore), "damaged waveform is regenerated exactly");
-    Check(File.ReadAllBytes(save).AsSpan().SequenceEqual(saveBefore) && File.ReadAllText(settings) == SuperMetroidGameOptionsIni.DefaultFileContents,
+    Check(File.ReadAllBytes(waveform).SequenceEqual(waveBefore), "damaged waveform is regenerated exactly");
+    Check(File.ReadAllBytes(save).SequenceEqual(saveBefore) && File.ReadAllText(settings) == SuperMetroidGameOptionsIni.DefaultFileContents,
         "repair preserves saves and configuration outside content");
 
     byte[] wrong = (byte[])rom.Clone();
     wrong[0] ^= 1;
     Reject<InvalidDataException>(() => GameAssetInstaller.Install(new MemoryStream(wrong), root));
-    Check(File.ReadAllBytes(installed.RomPath).AsSpan().SequenceEqual(rom), "unsupported ROM never replaces a valid installation");
+    Check(File.ReadAllBytes(installed.RomPath).SequenceEqual(rom), "unsupported ROM never replaces a valid installation");
     using (var gate = new FileStream(Path.Combine(root, ".game-install.lock"), FileMode.Open, FileAccess.ReadWrite, FileShare.None))
         Reject<IOException>(() => GameAssetInstaller.Install(new MemoryStream(rom), root));
 

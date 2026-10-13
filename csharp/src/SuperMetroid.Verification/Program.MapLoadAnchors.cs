@@ -174,7 +174,7 @@ internal static class MapLoadAnchorsVerification
             {
                 var stations = new ushort[FileSelectMapRomData.AreaCount];
                 for (int index = 0; index < stations.Length; index++) stations[index] = (ushort)((mask >> index) & 1);
-                AssertTrue(native.Render(stations).AsSpan().SequenceEqual(compiled.Render(stations)), "compiled area order retains label layering and visibility for every area combination");
+                AssertTrue(native.Render(stations).SequenceEqual(compiled.Render(stations)), "compiled area order retains label layering and visibility for every area combination");
             }
         }
         Console.WriteLine("Map load metadata: all 34 native anchors, four visibility patterns/scroll trajectories, each saved-menu entry and 384 display-order frames pass with every bus access forbidden; unbound cartridge fallback is rejected.");
@@ -200,8 +200,8 @@ internal static class MapLoadAnchorsVerification
                 AssertEqual(ScrollState(Scroll(native)), ScrollState(Scroll(compiled)), "each saved station retains menu-owned scroll state");
             }
             AssertEqual(FileSelectMapNavigationPhase.Room, compiled.Phase, $"saved-station fixture {area}/{station} reaches room map");
-            AssertTrue(native.Render().AsSpan().SequenceEqual(compiled.Render()), "every saved station has exact composed room-map position");
-            AssertTrue(before.AsSpan().SequenceEqual(ReadSram()), "map entry leaves entire SRAM and progression unchanged");
+            AssertTrue(native.Render().SequenceEqual(compiled.Render()), "every saved station has exact composed room-map position");
+            AssertTrue(before.SequenceEqual(ReadSram()), "map entry leaves entire SRAM and progression unchanged");
         }
         byte[] ReadSram() => SaveRamImage.Capture(SnesMemoryBusRequirement.Require(bus, "Map load anchors compare the whole SRAM image before and after map entry."));
         static FileSelectMapScroll Scroll(FileSelectMapMenuState menu) => menu.scroll;

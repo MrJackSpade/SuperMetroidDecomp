@@ -224,7 +224,7 @@ internal static class IntroCinematicArtworkVerification
                 AssertEqual(stockVisualState.Phase, editedVisualState.Phase,
                     $"visible opening palette edit preserves cinematic phase at frame {frame}");
                 if (frame % 20 == 0 && !SoftwareLayeredSnapshotRenderer.Render(
-                        stockVisualState.CaptureTranslatedRenderSnapshot()).AsSpan().SequenceEqual(
+                        stockVisualState.CaptureTranslatedRenderSnapshot()).SequenceEqual(
                         SoftwareLayeredSnapshotRenderer.Render(
                             editedVisualState.CaptureTranslatedRenderSnapshot())))
                     changedVisiblePixel = true;
@@ -323,7 +323,7 @@ internal static class IntroCinematicArtworkVerification
             AssertEqual(stockDividerVisual.Phase, editedDividerVisual.Phase,
                 "visual divider override leaves page phase unchanged");
             AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(
-                    stockDividerVisual.CaptureTranslatedRenderSnapshot()).AsSpan().SequenceEqual(
+                    stockDividerVisual.CaptureTranslatedRenderSnapshot()).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(
                         editedDividerVisual.CaptureTranslatedRenderSnapshot())),
                 "divider palette edits change displayed illustrated-page pixels");
@@ -392,7 +392,7 @@ internal static class IntroCinematicArtworkVerification
                 nativeVram.AsSpan(BeamTileAtlasDefinitions.DestinationWord * 2,
                     BeamTileAtlasDefinitions.ByteCount).CopyTo(expected.AsSpan(
                         BeamTileAtlasDefinitions.DestinationWord * 2));
-                AssertTrue(!expected.AsSpan().SequenceEqual(nativeVram) &&
+                AssertTrue(!expected.SequenceEqual(nativeVram) &&
                         editedState.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
                     $"edited {name} reaches the exact production VRAM transfer without changing other scene bytes");
                 installed.BindCharacterArtwork(edited);
@@ -439,7 +439,7 @@ internal static class IntroCinematicArtworkVerification
                 byte[] expected = nativeVram.ToArray();
                 edited.BackgroundPages.Span.CopyTo(expected.AsSpan(
                     (IntroVramLayout.BackgroundPages.Offset * 2)));
-                AssertTrue(!expected.AsSpan().SequenceEqual(nativeVram) &&
+                AssertTrue(!expected.SequenceEqual(nativeVram) &&
                         CreateRetailIntroFixture(guarded, characterArtwork: edited)
                             .CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
                     $"edited {name} reaches exactly its production BG page transfer");
@@ -465,7 +465,7 @@ internal static class IntroCinematicArtworkVerification
                     stockScene.inidisp = ScreenFade.FullyLit;
                     editedScene.inidisp = ScreenFade.FullyLit;
                     AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(stockScene.CaptureTranslatedRenderSnapshot())
-                            .AsSpan().SequenceEqual(RenderForComparison(
+                            .SequenceEqual(RenderForComparison(
                                 editedScene.CaptureTranslatedRenderSnapshot())),
                         "edited opening BG page produces visible flashback pixels");
                 }
@@ -507,7 +507,7 @@ internal static class IntroCinematicArtworkVerification
                 IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
                 byte[] expected = nativeVram.ToArray();
                 transfer(edited).Span.CopyTo(expected.AsSpan(destination));
-                AssertTrue(!expected.AsSpan().SequenceEqual(nativeVram) &&
+                AssertTrue(!expected.SequenceEqual(nativeVram) &&
                         CreateRetailIntroFixture(guarded, characterArtwork: edited)
                             .CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
                     $"edited {name} reaches only its initial cinematic VRAM page");
@@ -806,7 +806,7 @@ internal static class IntroCinematicArtworkVerification
         state.SetupFirstIllustratedPage();
         state.SetupMotherBrainFlashback();
         AssertTrue(state.MotherBrainLevelData is not null &&
-                state.MotherBrainLevelData.AsSpan().SequenceEqual(native),
+                state.MotherBrainLevelData.SequenceEqual(native),
             "flashback setup retains the exact native physical level without ROM reads");
         var level = state.flashbackLevel;
         for (int index = 0; index < (level ?? throw new InvalidOperationException("Verification requires level.")).ForegroundEntries.Length; index++)

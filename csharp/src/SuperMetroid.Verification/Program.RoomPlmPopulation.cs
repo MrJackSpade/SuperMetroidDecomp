@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -1292,7 +1293,7 @@ internal static class RoomPlmPopulationVerification
         {
             Version = (int)EnemyProjectileSpritemapVersion.Current,
             Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Item2, _ => Array.Empty<SpriteVisualPart>()),
-            ProgramFrames = EnemyProjectilePresentationFrameDefinitions.All.ToArray().ToDictionary(
+            ProgramFrames = EnemyProjectilePresentationFrameDefinitions.All.ToDictionary(
                 frame => frame.Name, frame => electricityOperands.Contains(frame.OperandAddress) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
         };
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ProjectileSpritemaps = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
@@ -1363,7 +1364,7 @@ internal static class RoomPlmPopulationVerification
         {
             Version = GameplayMessageNoticeDefinitions.Version,
             Border = Cells(GameplayMessageRomData.Layout.TilemapWidth, 0x3801),
-            Notices = GameplayMessageNoticeDefinitions.MessageIds.ToArray().ToDictionary(id => id.ToString(), id =>
+            Notices = GameplayMessageNoticeDefinitions.MessageIds.ToDictionary(id => id.ToString(), id =>
                 new GameplayMessageNotice
                 {
                     RowCount = GameplayMessageNoticeDefinitions.ContentRows(id),

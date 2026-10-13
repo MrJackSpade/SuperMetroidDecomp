@@ -120,8 +120,8 @@ public sealed class GameplayMessageNoticePresentation
                 "Gameplay-message notices require version 1, one 32-cell border and every named notice.");
         }
 
-        string[] expected = GameplayMessageNoticeDefinitions.MessageIds.ToArray()
-            .Select(static id => id.ToString()).ToArray();
+        string[] expected = GameplayMessageNoticeDefinitions.MessageIds
+            .SelectToArray(static id => id.ToString());
         if (document.Notices.Count != expected.Length ||
             expected.Any(name => !document.Notices.ContainsKey(name)))
         {

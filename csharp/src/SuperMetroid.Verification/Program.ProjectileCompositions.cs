@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
@@ -56,7 +57,7 @@ internal static class ProjectileCompositionsVerification
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<ProjectileSpriteDocument>(json, options);
-        ushort editedId = ProjectileSpriteDefinitions.NativePointers.ToArray().First(id => document.Frames[ProjectileSpriteDefinitions.Name(id)].Length > 0);
+        ushort editedId = ProjectileSpriteDefinitions.NativePointers.First(id => document.Frames[ProjectileSpriteDefinitions.Name(id)].Length > 0);
         string name = ProjectileSpriteDefinitions.Name(editedId);
         var original = document.Frames[name][0];
         document.Frames[name][0] = original with { OffsetX = original.OffsetX == 255 ? 254 : original.OffsetX + 1 };
@@ -186,7 +187,7 @@ internal static class ProjectileCompositionsVerification
         {
             target.Oam.BeginFrame();
             target.ActorDrawing.DrawGameplayActors(false, false);
-            return target.Oam.LowTable.ToArray().Concat(target.Oam.HighTable.ToArray()).ToArray();
+            return target.Oam.LowTable.ConcatToArray(target.Oam.HighTable);
         }
         // Seed only a visible timed composition. The shared production actor draw, not
         // a duplicate test emitter, must bind all three owner passes to host content.
@@ -235,7 +236,7 @@ internal static class ProjectileCompositionsVerification
         });
         using var with = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(with, game);
-        AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Projectile content excluded from frontend and runtime state graph");
+        AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Projectile content excluded from frontend and runtime state graph");
         with.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = restored.GameplayRuntime;

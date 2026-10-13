@@ -222,7 +222,7 @@ internal static class ProjectileTrailArtworkVerification
         });
         using var with = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(with, game);
-        AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Trail catalogs are excluded from both frontend and runtime snapshots");
+        AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Trail catalogs are excluded from both frontend and runtime snapshots");
         with.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = restored.GameplayRuntime;

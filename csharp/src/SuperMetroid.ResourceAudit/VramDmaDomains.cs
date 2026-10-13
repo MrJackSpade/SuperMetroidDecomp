@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -22,13 +23,13 @@ internal static class VramDmaDomains
                     (VramAssetId.EscapeTimerSecondTiles, EscapeTimerTileAtlasFormat.SecondByteCount)]);
             case "grapple-point":
             case "grapple-segment":
-                return Typed(GrappleTileDefinitions.Transfers.ToArray().Where(frame =>
+                return Typed(GrappleTileDefinitions.Transfers.Where(frame =>
                     (frame.AtlasOffset < GrappleTileDefinitions.TransferFor(VramAssetId.GrappleHorizontalSegmentTiles).AtlasOffset) ==
                     (family == "grapple-point")).Select(frame => (frame.Asset, (int)frame.ByteCount)));
             case "grapple-native":
                 // Legal saved ordinals are the four endpoint frames. Malformed old
                 // snapshot counters are not silently claimed as valid table indices.
-                return Native(GrappleTileDefinitions.Transfers.ToArray().Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
+                return Native(GrappleTileDefinitions.Transfers.Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
             case "trails":
                 return Typed([(VramAssetId.ProjectileIceWaveTrailTiles, ProjectileTrailAtlasDefinitions.IceWaveByteCount),
                     (VramAssetId.ProjectileMissileTrailTiles, ProjectileTrailAtlasDefinitions.MissileByteCount)]);
@@ -36,22 +37,22 @@ internal static class VramDmaDomains
                 var page = CeresEscapeOverlayTilemapDefinitions.Emergency;
                 return Native([(page.SourceAddress, page.WordCount * sizeof(ushort))]);
             case "ceres":
-                return Native(CeresEscapeVramTransferDefinitionsTooling.All.ToArray().Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
+                return Native(CeresEscapeVramTransferDefinitionsTooling.All.Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
             case "ceres-japanese":
-                return Native(CeresEscapeVramTransferDefinitionsTooling.All.ToArray().Where(frame =>
+                return Native(CeresEscapeVramTransferDefinitionsTooling.All.Where(frame =>
                     frame.Pointer is >= CeresEscapeVramTransferDefinitions.JapaneseOverlay and
                     < CeresEscapeVramTransferDefinitions.TimerSprites).Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
             case "corpse":
                 return Native(DeadMonsterRottingDefinitionsTooling.AllTransfers.Select(frame => (frame.SourceAddress, (int)frame.SizeInBytes)));
             case "dead-torizo":
-                return Native(DeadTorizoVramTransferDefinitions.ForPhase(0).ToArray().Concat(
+                return Native(DeadTorizoVramTransferDefinitions.ForPhase(0).Concat(
                     DeadTorizoVramTransferDefinitions.ForPhase(1).ToArray()).Select(frame => (frame.SourceAddress, (int)frame.SizeInBytes)));
             case "kraid":
                 return Typed(Enumerable.Range(0, KraidBackgroundRomData.StandardBg3TransferCount).Select(index =>
                     (KraidBackgroundRomData.StandardBg3AssetForQuarter(index), (int)KraidBackgroundRomData.StandardBg3TransferBytes)));
             case "gunship":
-                return Native(GunshipLiftoffTransferDefinitions.Frames.ToArray().Select(frame => (frame.SourceAddress, (int)GunshipLiftoffTransferDefinitions.ByteCount)))
-                    .Concat(Typed(GunshipLiftoffTransferDefinitions.Frames.ToArray().Select(frame => (frame.Asset, (int)GunshipLiftoffTransferDefinitions.ByteCount))));
+                return Native(GunshipLiftoffTransferDefinitions.Frames.Select(frame => (frame.SourceAddress, (int)GunshipLiftoffTransferDefinitions.ByteCount)))
+                    .Concat(Typed(GunshipLiftoffTransferDefinitions.Frames.Select(frame => (frame.Asset, (int)GunshipLiftoffTransferDefinitions.ByteCount))));
             case "enemies":
                 return Native(RoomEnemyGraphicsSetDefinitions.Pointers.SelectMany(pointer =>
                     RoomEnemyGraphicsSetDefinitions.Get(pointer).Records.ToArray()).Select(entry =>
@@ -64,7 +65,7 @@ internal static class VramDmaDomains
                 return Native(SamusArmCannonArtworkFormat.TileSourcePointers.Select(pointer =>
                     (SamusRenderingRomData.Banks.CharacterData | pointer, (int)SamusRenderingRomData.ArmCannon.TileUploadByteCount)));
             case "death":
-                return Native(SamusSpecialSequenceRomData.Death.TileSegments.ToArray().Select(segment =>
+                return Native(SamusSpecialSequenceRomData.Death.TileSegments.Select(segment =>
                     (segment.SourceAddress, (int)SamusSpecialSequenceRomData.Death.TileSegmentByteCount)));
             case "beam":
                 return Typed(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount).Select(BeamTileAtlasDefinitions.SelectionAt).Select(selection =>
@@ -108,7 +109,7 @@ internal static class VramDmaDomains
             bool blueBottom = unchecked((short)state.ScrollPointer) >= 0
                 ? (byte)(state.ScrollPointer + 1) == (byte)RoomScrollState.Blue
                 : RoomScrollDefinitions.Get(state.ScrollPointer).Storage.Span
-                    .Slice(logicalCount - room.Size.X, room.Size.X).ToArray()
+                    .Slice(logicalCount - room.Size.X, room.Size.X)
                     .All(cell => cell == (byte)RoomScrollState.Blue);
             int maximum = ((room.Size.Y - 1) << VramDmaDomainGeometry.ScreenPixelShift) +
                 (blueBottom ? 0 : VramDmaDomainGeometry.NonBlueLowerAlignment);

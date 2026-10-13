@@ -16,7 +16,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
     {
         string overrides = Path.Combine(directory, "kraid-head-clock-overrides");
         Directory.CreateDirectory(overrides);
-        ushort[] pointers = KraidHeadInstructionDefinitions.All.ToArray()
+        ushort[] pointers = KraidHeadInstructionDefinitions.All
             .Where(command => command.Kind == KraidHeadInstructionKind.Frame)
             .Select(command => command.Tilemap).Distinct().ToArray();
         for (int index = 0; index < pointers.Length; index++)
@@ -57,8 +57,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 AssertEqual(stockResult, editedResult, "head interpretation result is not editable");
                 AssertAnimationValues(baseline.Body, changed.Body, "Kraid head tick " + tick);
                 AssertAnimationValues(baseline.State, changed.State, "Kraid head tick " + tick);
-                AssertTrue(workingBody.AsSpan().SequenceEqual(baseline.State.BackgroundTilemapWords) &&
-                    workingBody.AsSpan().SequenceEqual(changed.State.BackgroundTilemapWords),
+                AssertTrue(workingBody.SequenceEqual(baseline.State.BackgroundTilemapWords) &&
+                    workingBody.SequenceEqual(changed.State.BackgroundTilemapWords),
                     "head DMA must not overwrite the WRAM body-map source");
                 AssertEqual(baseline.Enemies.KraidBehavior.LastKraidSoundEffect, changed.Enemies.KraidBehavior.LastKraidSoundEffect,
                     "head art does not alter sound publication");
@@ -78,8 +78,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
                         AssertEqual(ushort.MaxValue, stockResult, "terminator on the exact sum-of-durations tick");
                         AssertEqual(admission.Pointer, baseline.Body.VariableB, "termination retains native cursor");
                         AssertEqual((ushort)0, baseline.Body.VariableC, "termination consumes the last timer tick");
-                        AssertTrue(expectedStock.AsSpan().SequenceEqual(baseline.Vram.Bytes) &&
-                            expectedEdited.AsSpan().SequenceEqual(changed.Vram.Bytes), "termination emits no tilemap upload");
+                        AssertTrue(expectedStock.SequenceEqual(baseline.Vram.Bytes) &&
+                            expectedEdited.SequenceEqual(changed.Vram.Bytes), "termination emits no tilemap upload");
                         break;
                     }
                     AssertEqual((ushort)1, stockResult, "frame admission result");
@@ -98,8 +98,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 AssertEqual(inner, baseline.State.InvulnerableMouthHitbox, "inner mouth window follows compiled admission");
                 AssertEqual(soundCount, baseline.State.RoarRequestCount, "roar callback count on every tick");
                 AssertEqual(uploadCount, baseline.State.HeadTilemapUploadCount, "no extra head upload during hold");
-                AssertTrue(expectedStock.AsSpan().SequenceEqual(baseline.Vram.Bytes), "exact stock head DMA and untouched VRAM");
-                AssertTrue(expectedEdited.AsSpan().SequenceEqual(changed.Vram.Bytes), "exact authored head DMA and untouched VRAM");
+                AssertTrue(expectedStock.SequenceEqual(baseline.Vram.Bytes), "exact stock head DMA and untouched VRAM");
+                AssertTrue(expectedEdited.SequenceEqual(changed.Vram.Bytes), "exact authored head DMA and untouched VRAM");
                 // Actual mouth collision method, including the strict bottom-edge -1,
                 // not a radius-only approximation or equality of endpoint state.
                 foreach (ushort hitbox in new[] { outer, inner }.Where(value => value != ushort.MaxValue))

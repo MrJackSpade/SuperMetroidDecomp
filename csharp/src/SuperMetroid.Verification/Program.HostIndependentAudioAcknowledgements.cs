@@ -52,7 +52,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
                     $"session acknowledgements after update {update}");
             }
             playing.CopyAudioFrame(pcm);
-            AssertTrue(pcm.AsSpan().SequenceEqual(expectedPcm), $"session PCM after update {update}");
+            AssertTrue(pcm.SequenceEqual(expectedPcm), $"session PCM after update {update}");
             update++;
         }
 

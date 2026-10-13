@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -34,7 +35,7 @@ internal static class EndingDmaVerification
         var audio = new CartridgeAudioState();
         var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
         ending.Step();
-        var projection = ending.Presentation.CaptureRenderSnapshot().Layers.ToArray().OfType<SuperMetroid.Core.Rendering.Mode7RenderLayer>().Single().Registers;
+        var projection = ending.Presentation.CaptureRenderSnapshot().LayersOf<SuperMetroid.Core.Rendering.Mode7RenderLayer>().Single().Registers;
         AssertEqual((short)0, projection.Scroll.X, "native atmospheric scroll X");
         AssertEqual((short)0, projection.Scroll.Y, "native atmospheric scroll Y");
         AssertEqual((short)45, projection.MatrixA, "native initial angle 32, scale 64 cosine");

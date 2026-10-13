@@ -57,8 +57,8 @@ internal static class RoomCharacterInstallationVerification
             VerifyXrayRevealVisualInstallation(installed);
             CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, landing);
             CartridgeRoomAssets installedRoom = LoadFixtureRoomAssets(bus, landing, stock);
-            AssertTrue(installedRoom.CreCharacters.AsSpan().SequenceEqual(native.CreCharacters) &&
-                installedRoom.RoomCharacters.AsSpan().SequenceEqual(native.RoomCharacters),
+            AssertTrue(installedRoom.CreCharacters.SequenceEqual(native.CreCharacters) &&
+                installedRoom.RoomCharacters.SequenceEqual(native.RoomCharacters),
                 "installed stock room PNGs retain Landing Site character bytes");
 
             int source = native.Tileset.CharacterAddress;
@@ -76,7 +76,7 @@ internal static class RoomCharacterInstallationVerification
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             RoomCharacterAtlasCatalog edited = installed.LoadRoomCharacters();
             CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(bus, landing, edited);
-            AssertTrue(!editedRoom.RoomCharacters.AsSpan().SequenceEqual(native.RoomCharacters),
+            AssertTrue(!editedRoom.RoomCharacters.SequenceEqual(native.RoomCharacters),
                 "installed PNG override changes the real room-loader output");
             AssertTrue(stock.Get(source).Transfer.Span.SequenceEqual(native.RoomCharacters),
                 "room override does not mutate stock artwork already loaded");
@@ -312,7 +312,7 @@ internal static class RoomCharacterInstallationVerification
                 "scrolling-sky stock is restored while its override survives repair");
             CartridgeRoomAssets repairedEdited = LoadFixtureRoomAssets(bus, landing,
                 repaired.LoadRoomCharacters());
-            AssertTrue(repairedEdited.RoomCharacters.AsSpan().SequenceEqual(editedRoom.RoomCharacters),
+            AssertTrue(repairedEdited.RoomCharacters.SequenceEqual(editedRoom.RoomCharacters),
                 "repaired installation retains the selected user room artwork");
             CartridgeRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(bus, landing,
                 paletteArt: repaired.LoadRoomPalettes());

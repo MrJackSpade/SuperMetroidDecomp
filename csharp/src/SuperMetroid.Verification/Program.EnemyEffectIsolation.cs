@@ -37,7 +37,7 @@ internal static class EnemyEffectIsolationVerification
             baseline.Call(c => c.InitializeCrocomireMeltingGraphics); edited.Call(c => c.InitializeCrocomireMeltingGraphics);
             AssertCrocomireEffectMechanics(baseline, edited, "melt graphics replacement");
             AssertTrue(!baseline.Effect.MeltingGraphics.SequenceEqual(edited.Effect.MeltingGraphics), "authored melt pixels reach scratch");
-            AssertTrue(tail.AsSpan().SequenceEqual(baseline.Effect.MeltingGraphics[CrocomireMeltingArtwork.UsedByteCount(pass)..]),
+            AssertTrue(tail.SequenceEqual(baseline.Effect.MeltingGraphics[CrocomireMeltingArtwork.UsedByteCount(pass)..]),
                 "native overlapping copies retain the unwritten scratch tail");
             ushort phase = (ushort)baseline.Actor.DeathSequenceIndex;
             for (int record = 0; record <= pass.Uploads.Length; record++)

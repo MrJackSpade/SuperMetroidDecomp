@@ -178,7 +178,7 @@ internal static class FileSelectRoomMapVerification
         foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
         {
             MapSpriteId id = MapArrowDefinitions.SpriteBase(direction);
-            string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == id).Name;
+            string name = MapSpriteDefinitions.Frames.Single(frame => frame.NativeId == id).Name;
             spriteDocument.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
                 TileColumn = 0, TileRow = 1, Size = 8, Priority = 3, Palette = null, FlipX = false, FlipY = false }];
         }
@@ -210,7 +210,7 @@ internal static class FileSelectRoomMapVerification
         AssertEqual(79, first.LowTable[1], "arrow subtracts native one-pixel Y offset");
         AssertEqual(1, ArrowPhase(0), "zero-initialized arrow timer advances before drawing");
         AssertEqual(0x10, first.LowTable[2], "installed arrow shape reaches OAM");
-        AssertTrue(first.LowTable.ToArray().SequenceEqual(Draw().LowTable.ToArray()), "repaint does not advance arrow animation");
+        AssertTrue(first.LowTable.SequenceEqual(Draw().LowTable), "repaint does not advance arrow animation");
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
         AssertEqual(1, ArrowPhase(0), "arrow holds its full two-tick delay");
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
@@ -232,14 +232,14 @@ internal static class FileSelectRoomMapVerification
         var system = new Bank80SystemState();
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var landmarks = MapLandmarkDefinitions.AllIds().ToDictionary(id => id, _ => new Position16<MapPixels>(511, 255));
-        landmarks[(MapLandmarkDefinitions.Bosses(AreaId.Brinstar).ToArray().First(id => id is not null) ?? throw new InvalidOperationException("Verification requires MapLandmarkDefinitions.Bosses(AreaId.Brinstar).ToArray().First(id => id is not null)."))] = new(32, 40);
-        var destination = MapLandmarkDefinitions.Elevators(AreaId.Brinstar).ToArray().First(label =>
+        landmarks[(MapLandmarkDefinitions.Bosses(AreaId.Brinstar).First(id => id is not null) ?? throw new InvalidOperationException("Verification requires MapLandmarkDefinitions.Bosses(AreaId.Brinstar).ToArray().First(id => id is not null)."))] = new(32, 40);
+        var destination = MapLandmarkDefinitions.Elevators(AreaId.Brinstar).First(label =>
             label.Destination == AreaId.Crateria);
         landmarks[destination.Id] = new(96, 112);
         using var landmarkJson = new MemoryStream();
         MapLandmarkLayout.Write(landmarkJson, new() { Version = 1, Markers = landmarks });
         landmarkJson.Position = 0;
-        var stations = MapStationDiscoveryRules.All.ToArray().ToDictionary(rule => rule.Id, _ => new Position16<MapPixels>(511, 255));
+        var stations = MapStationDiscoveryRules.All.ToDictionary(rule => rule.Id, _ => new Position16<MapPixels>(511, 255));
         var station = MapStationDiscoveryRules.Get(AreaId.Brinstar, MapStationKind.Missile).First();
         stations[station.Id] = new(64, 80);
         using var stationJson = new MemoryStream();
@@ -249,7 +249,7 @@ internal static class FileSelectRoomMapVerification
         var document = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (ushort id in new ushort[] { 9, 0x62, 0x0b, 0x59, 0x5b, 0x5d })
         {
-            string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == (MapSpriteId)id).Name;
+            string name = MapSpriteDefinitions.Frames.Single(frame => frame.NativeId == (MapSpriteId)id).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
                 TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Priority = 3,
                 Palette = null, FlipX = false, FlipY = false }];
@@ -492,7 +492,7 @@ internal static class FileSelectRoomMapVerification
         // Preserve the original fixture's one-part (-2,-3) sprite and priority three.
         foreach (ushort id in new ushort[] { 0x12, 0x5f, 0x60, 0x61 })
         {
-            string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == (MapSpriteId)id).Name;
+            string name = MapSpriteDefinitions.Frames.Single(frame => frame.NativeId == (MapSpriteId)id).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = -2, OffsetY = -3,
                 TileColumn = 1, TileRow = 0, Size = 8, Priority = 3, Palette = null,
                 FlipX = false, FlipY = false }];

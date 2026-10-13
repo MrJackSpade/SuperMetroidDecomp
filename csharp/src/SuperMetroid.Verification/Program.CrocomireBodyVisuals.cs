@@ -152,7 +152,7 @@ internal static class CrocomireBodyVisualsVerification
                 AssertEqual(native[index].DestinationWord,
                     installed.Span[index].DestinationWord,
                     $"Crocomire BG2 frame $A4:{frame.Pointer:X4} write {index} destination");
-                AssertTrue(native[index].Tiles.AsSpan().SequenceEqual(
+                AssertTrue(native[index].Tiles.SequenceEqual(
                         installed.Span[index].Tiles.Span),
                     $"Crocomire BG2 frame $A4:{frame.Pointer:X4} write {index} tiles");
             }

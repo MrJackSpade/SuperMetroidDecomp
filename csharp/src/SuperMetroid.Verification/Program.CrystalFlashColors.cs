@@ -113,7 +113,7 @@ internal static class CrystalFlashColorsVerification
             replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity,
             "stock re-extraction preserves Crystal Flash override");
-        AssertTrue(overrideBeforeRepair.AsSpan().SequenceEqual(File.ReadAllBytes(replacement)),
+        AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),
             "stock re-extraction never rewrites user Crystal Flash colors");
 
         File.Delete(replacement);

@@ -72,9 +72,9 @@ internal static class FrontendRenderCaptureTestsVerification
                 AssertEqual(expected.FrameNumber, retained.Identity.SimulationFrame, "republish retains simulation identity");
                 AssertEqual(expected.FrameNumber, captured.FrameNumber, "republish does not step simulation");
                 AssertEqual(7L, packet.Identity.Generation, "republish does not mutate in-flight identity");
-                AssertTrue(actualPixels.AsSpan().SequenceEqual(RenderForComparison(retained)),
+                AssertTrue(actualPixels.SequenceEqual(RenderForComparison(retained)),
                     "republished display preserves exact pixels and outer fades");
-                AssertTrue(actualPixels.AsSpan().SequenceEqual(RenderForComparison(repeated)),
+                AssertTrue(actualPixels.SequenceEqual(RenderForComparison(repeated)),
                     "repeated republish preserves exact display");
                 packetCount++;
                 if (held is null) { held = packet; heldPixels = actualPixels; }
@@ -84,19 +84,19 @@ internal static class FrontendRenderCaptureTestsVerification
                 AssertTrue(actual.UsedLegacyRaster, "unconverted scene explicitly reports raster fallback");
                 actualPixels = actual.Frame.Pixels;
             }
-            AssertTrue(expected.Pixels.AsSpan().SequenceEqual(actualPixels),
+            AssertTrue(expected.Pixels.SequenceEqual(actualPixels),
                 $"frontend packet pixel parity at tick {tick}, {expected.Phase}");
             if (expected.GameState == SuperMetroidGameState.IntroCinematic)
             {
                 AssertTrue(!actual.UsedLegacyRaster, "intro publishes captured display data");
                 AssertTrue(states.Contains(SuperMetroidGameState.FileSelectMenus), "capture path covers file menu");
                 AssertTrue(states.Contains(SuperMetroidGameState.GameOptionsMenu), "capture path covers options");
-                AssertTrue(held is not null && heldPixels is not null && heldPixels.AsSpan().SequenceEqual(
+                AssertTrue(held is not null && heldPixels is not null && heldPixels.SequenceEqual(
                     SoftwareFrameSnapshotRenderer.Render(held)), "retained title packet survives scene handoffs");
                 // Switching back to the compatibility entry point must also work.
                 FrontendFrame legacyNext = legacy.Step(0);
                 FrontendFrame capturedNext = captured.Step(0);
-                AssertTrue(legacyNext.Pixels.AsSpan().SequenceEqual(capturedNext.Pixels), "legacy Step after captured Step");
+                AssertTrue(legacyNext.Pixels.SequenceEqual(capturedNext.Pixels), "legacy Step after captured Step");
                 Console.WriteLine($"  Frontend capture: {packetCount} packet frames preserve state/audio/pixels through title/file/options and intro handoff.");
                 return;
             }

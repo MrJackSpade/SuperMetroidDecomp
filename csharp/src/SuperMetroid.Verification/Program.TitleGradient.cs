@@ -46,7 +46,7 @@ internal static class TitleGradientVerification
         {
             var actual = TitleGradientDecoder.Decode(bus, zoom);
             var nibble = TitleGradientDecoder.Decode(bus, (ushort)(zoom & 0xf0));
-            if (!actual.AsSpan().SequenceEqual(nibble))
+            if (!actual.SequenceEqual(nibble))
                 throw new InvalidDataException("Title gradient index used low zoom bits.");
             AssertEqual((byte)0xa1, actual[121].Control, "zoom preserves subtractive boundary");
             AssertEqual((byte)0x31, actual[122].Control, "zoom preserves additive boundary");
@@ -102,7 +102,7 @@ internal static class TitleGradientVerification
         {
             stock.Step(0);
             installed.Step(0);
-            if (!stock.Render().AsSpan().SequenceEqual(installed.Render()))
+            if (!stock.Render().SequenceEqual(installed.Render()))
                 throw new InvalidDataException($"Installed title graphics differ from stock at frame {frame}.");
         }
         bool reachedTitle = false;
@@ -176,7 +176,7 @@ internal static class TitleGradientVerification
                     editedTitle.CaptureRenderSnapshot().Memory.Oam))
             {
                 editVisible = true;
-                pixelChanged |= !originalTitle.Render().AsSpan().SequenceEqual(editedTitle.Render());
+                pixelChanged |= !originalTitle.Render().SequenceEqual(editedTitle.Render());
             }
         }
         if (!editVisible)
@@ -188,10 +188,10 @@ internal static class TitleGradientVerification
         for (int frame = 0; frame < 64; frame++) reboundTitle.Step(0);
         byte[] beforeRebind = reboundTitle.CaptureRenderSnapshot().Memory.Oam.ToArray();
         reboundTitle.BindTitleGraphics(editedPresentation);
-        if (beforeRebind.AsSpan().SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.Oam))
+        if (beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.Oam))
             throw new InvalidDataException("Rebinding a live title failed to apply current sprite composition.");
         reboundTitle.BindTitleGraphics(presentation);
-        if (!beforeRebind.AsSpan().SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.Oam))
+        if (!beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.Oam))
             throw new InvalidDataException("Rebinding stock title composition failed to restore the frame.");
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
         byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, MapPresentationFormat.JsonOptions);
@@ -432,7 +432,7 @@ internal static class TitleGradientVerification
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.BabyTilesFile]));
         (TitleGradientLine[] rendered, ushort selectedZoom) = CaptureInstalledTitleGradient(
             guardedBus, presentation, palette, graphics);
-        if (!rendered.AsSpan().SequenceEqual(presentation.Resolve(selectedZoom)) ||
+        if (!rendered.SequenceEqual(presentation.Resolve(selectedZoom)) ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
             throw new InvalidDataException(

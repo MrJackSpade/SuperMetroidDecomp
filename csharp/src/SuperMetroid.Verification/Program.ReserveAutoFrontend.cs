@@ -130,7 +130,7 @@ internal static class ReserveAutoFrontendVerification
             var onesPixels = Enumerable.Range(24, 8).SelectMany(y =>
                 Enumerable.Range(56, 8).Select(x => pixels[y * 256 + x])).ToArray();
             if (digitImages.TryGetValue(frame % 10, out var prior))
-                AssertTrue(prior.AsSpan().SequenceEqual(onesPixels), "repeated health digit has identical visible pixels");
+                AssertTrue(prior.SequenceEqual(onesPixels), "repeated health digit has identical visible pixels");
             else
                 digitImages.Add(frame % 10, onesPixels);
             AssertEqual(frame + 1, samus.Health, "full automatic refill progression");
@@ -142,7 +142,7 @@ internal static class ReserveAutoFrontendVerification
         AssertEqual(10, digitImages.Count, "automatic refill visibly traverses all ten health digits");
         foreach (var left in digitImages)
             foreach (var right in digitImages.Where(pair => pair.Key > left.Key))
-                AssertTrue(!left.Value.AsSpan().SequenceEqual(right.Value), "different health digits render differently during recovery");
+                AssertTrue(!left.Value.SequenceEqual(right.Value), "different health digits render differently during recovery");
         game.StepCaptured(0, ++hostSequence, 1);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "presentation sequence returns to gameplay");
         foreach ((int index, int offset) in new[] { (8, 0), (9, 2), (40, 4), (41, 6), (72, 8), (73, 10) })

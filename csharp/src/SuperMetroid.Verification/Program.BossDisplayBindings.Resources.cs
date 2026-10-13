@@ -20,15 +20,15 @@ internal static class BossDisplayBindingsResourcesVerification
             missing.SetFrame(frame.Pointer, fresh: true);
             byte[] unchanged = missing.Vram.Bytes.ToArray();
             AssertThrows<InvalidDataException>(() => missing.Draw(), "selected BG2 resource is mandatory");
-            AssertTrue(unchanged.AsSpan().SequenceEqual(missing.Vram.Bytes), "missing selected BG2 cannot mutate VRAM");
+            AssertTrue(unchanged.SequenceEqual(missing.Vram.Bytes), "missing selected BG2 cannot mutate VRAM");
             var noBindings = new BossDisplayFixture(definition, edits.Build(extended: false));
             noBindings.SetFrame(frame.Pointer, fresh: true);
             AssertThrows<InvalidDataException>(() => noBindings.Draw(), "BG2 cannot bypass mandatory shared composition bindings");
-            AssertTrue(unchanged.AsSpan().SequenceEqual(noBindings.Vram.Bytes), "missing composition cannot write BG2 then fail");
+            AssertTrue(unchanged.SequenceEqual(noBindings.Vram.Bytes), "missing composition cannot write BG2 then fail");
         }
         var json = new EnemyIdentityFixture();
         var bad = new Dictionary<string, EnemyExtendedVisualComponent[]>(stock.Oam.Frames, StringComparer.Ordinal);
-        string ordinary = EnemyExtendedFrameDefinitions.Frames.ToArray().First(frame => !EnemyExtendedFrameDefinitions.IsBg2Only(frame)).Name;
+        string ordinary = EnemyExtendedFrameDefinitions.Frames.First(frame => !EnemyExtendedFrameDefinitions.IsBg2Only(frame)).Name;
         bad[ordinary] = [];
         AssertThrows<InvalidDataException>(() => EnemyExtendedFrameCatalog.Load(json.Json(stock.Oam with { Frames = bad })),
             "empty components are permitted only on declared BG2-only physical roots");

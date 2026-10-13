@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -22,8 +23,8 @@ internal static class EscapeGateVisualsVerification
                 .OrderBy(draw => draw.Pointer)
                 .Select(draw => new RoomPlmEscapeGateVisualEntry(
                     MotherBrainEscapeGatePlmDrawDefinitions.VisualId(draw.Pointer),
-                    draw.Runs.Span[0].LevelWords.Span.ToArray()
-                        .Select(word => new RoomLevelWord(word).VisualWord).ToArray()))
+                    draw.Runs.Span[0].LevelWords.Span
+                        .SelectToArray(word => new RoomLevelWord(word).VisualWord)))
                 .ToArray();
         RoomPlmEscapeGateVisualEntry closed = entries.Single(entry =>
             entry.Id == "closed");

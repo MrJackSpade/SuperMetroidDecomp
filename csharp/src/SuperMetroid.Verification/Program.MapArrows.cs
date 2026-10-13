@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
@@ -24,8 +25,8 @@ internal static class MapArrowsVerification
         {
             bool Available(MapScrollDirection direction) => (tick / 17 + (int)direction) % 5 != 0;
             native.StepArrows(Available); installed.StepArrows(Available);
-            AssertTrue(Draw(native).AsSpan().SequenceEqual(Draw(installed)), "all four extracted arrow sprites match native OAM");
-            AssertTrue(Counters(native).AsSpan().SequenceEqual(Counters(installed)), "arrow phase/timer and visibility match native including hidden pauses");
+            AssertTrue(Draw(native).SequenceEqual(Draw(installed)), "all four extracted arrow sprites match native OAM");
+            AssertTrue(Counters(native).SequenceEqual(Counters(installed)), "arrow phase/timer and visibility match native including hidden pauses");
         }
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -41,10 +42,10 @@ internal static class MapArrowsVerification
         var changed = new FileSelectMapAnimations(guard, edited.Arrows);
         var control = new FileSelectMapAnimations(bus, original.Arrows);
         changed.StepArrows(_ => true); control.StepArrows(_ => true);
-        AssertTrue(!Draw(changed).AsSpan().SequenceEqual(Draw(control)), "edited anchor moves actual emitted arrow sprite coordinates");
+        AssertTrue(!Draw(changed).SequenceEqual(Draw(control)), "edited anchor moves actual emitted arrow sprite coordinates");
         var graphics = new FileSelectRoomMapGraphics(guard, new Bank80SystemState(), AreaId.Maridia, mapPresentation: original);
         var marker = new FileSelectStationMarker(guard, AreaId.Maridia, 0, original.SaveMarkers);
-        AssertTrue(!graphics.Render(new(0, 0), marker, changed).ToArray().AsSpan().SequenceEqual(graphics.Render(new(0, 0), marker, control)),
+        AssertTrue(!graphics.Render(new(0, 0), marker, changed).ToArray().SequenceEqual(graphics.Render(new(0, 0), marker, control)),
             "edited arrow anchor changes actual composed room-map pixels");
         AssertEqual(11, Counters(changed)[0], "first native decrement advances to authored phase one duration");
         for (int tick = 0; tick < 11; tick++) changed.StepArrows(_ => true);
@@ -55,8 +56,8 @@ internal static class MapArrowsVerification
         DebuggerObjectGraphSerializer.Serialize(snapshot, installed); snapshot.Position = 0;
         installed = DebuggerObjectGraphSerializer.Deserialize<FileSelectMapAnimations>(snapshot);
         installed.BindPresentation(original.Arrows);
-        AssertTrue(before.AsSpan().SequenceEqual(Counters(installed)), "restore/rebind retains exact native phase/timer/visibility");
-        AssertTrue(Draw(native).AsSpan().SequenceEqual(Draw(installed)), "restore/rebind retains exact arrow positions and shapes");
+        AssertTrue(before.SequenceEqual(Counters(installed)), "restore/rebind retains exact native phase/timer/visibility");
+        AssertTrue(Draw(native).SequenceEqual(Draw(installed)), "restore/rebind retains exact arrow positions and shapes");
         installed.BindPresentation(edited.Arrows);
         AssertEqual(before[0], Counters(installed)[0], "shorter replacement retains pending delay");
         AssertEqual(before[1] % 2, Counters(installed)[1], "shorter replacement normalizes phase");
@@ -91,7 +92,7 @@ internal static class MapArrowsVerification
             var oam = new OamBuffer(); oam.BeginFrame();
             animation.DrawArrows(oam, original.Sprites);
             oam.FinalizeFrame();
-            return oam.LowTable.ToArray().Concat(oam.HighTable.ToArray()).ToArray();
+            return oam.LowTable.ConcatToArray(oam.HighTable);
         }
         static int[] Counters(FileSelectMapAnimations animation)
         {

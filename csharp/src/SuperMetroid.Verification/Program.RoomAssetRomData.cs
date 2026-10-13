@@ -128,9 +128,9 @@ internal static class RoomAssetRomDataVerification
             CartridgeRoomAssets guarded = LoadFixtureRoomAssets(guardedBus, header, characters, palettes, metatiles, layouts);
             AssertEqual(native.Tileset, guarded.Tileset,
                 $"room $8F:{roomPointer:X4} resolves compiled graphics metadata");
-            AssertTrue(native.CreCharacters.AsSpan().SequenceEqual(guarded.CreCharacters) &&
-                native.RoomCharacters.AsSpan().SequenceEqual(guarded.RoomCharacters) &&
-                native.PaletteBytes.AsSpan().SequenceEqual(guarded.PaletteBytes) &&
+            AssertTrue(native.CreCharacters.SequenceEqual(guarded.CreCharacters) &&
+                native.RoomCharacters.SequenceEqual(guarded.RoomCharacters) &&
+                native.PaletteBytes.SequenceEqual(guarded.PaletteBytes) &&
                 native.LevelData.BlockDefinitions.Span.SequenceEqual(guarded.LevelData.BlockDefinitions.Span),
                 $"room $8F:{roomPointer:X4} retains exact decompressed visual inputs");
             var nativeVram = new SnesVram();
@@ -203,8 +203,8 @@ internal static class RoomAssetRomDataVerification
             int areaSource = native.Tileset.CharacterAddress;
             var guardedBus = NewRoomCharacterReadGuard(bus, areaSource);
             CartridgeRoomAssets installed = LoadFixtureRoomAssets(guardedBus, room, catalog);
-            AssertTrue(installed.CreCharacters.AsSpan().SequenceEqual(native.CreCharacters) &&
-                installed.RoomCharacters.AsSpan().SequenceEqual(native.RoomCharacters),
+            AssertTrue(installed.CreCharacters.SequenceEqual(native.CreCharacters) &&
+                installed.RoomCharacters.SequenceEqual(native.RoomCharacters),
                 $"room $8F:{roomPointer:X4} loads compiled characters with source reads forbidden");
             var nativeVram = new SnesVram();
             var installedVram = new SnesVram();
@@ -236,7 +236,7 @@ internal static class RoomAssetRomDataVerification
         var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre, compiledBySource);
         CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(
             NewRoomCharacterReadGuard(bus, landingSource), landing, editedCatalog);
-        AssertTrue(!editedRoom.RoomCharacters.AsSpan().SequenceEqual(landingNative),
+        AssertTrue(!editedRoom.RoomCharacters.SequenceEqual(landingNative),
             "edited installed room PNG changes real room-loader character bytes");
 
         // A painted pixel must change the runtime character transfer, while edits in

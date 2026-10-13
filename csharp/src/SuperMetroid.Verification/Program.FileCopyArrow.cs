@@ -101,7 +101,7 @@ internal static class FileCopyArrowVerification
             // Rendering must not advance animation.
             Bgr555[] beforeRender = ppu.Cgram.Colors.ToArray();
             menu.Render(); menu.CaptureRenderSnapshot();
-            AssertTrue(beforeRender.AsSpan().SequenceEqual(ppu.Cgram.Colors), "render leaves palette timing alone");
+            AssertTrue(beforeRender.SequenceEqual(ppu.Cgram.Colors), "render leaves palette timing alone");
             Press(SnesButton.A);
             AssertEqual(FileSelectPhase.CopyCompleted, menu.Phase, "copy completes");
             AssertTrue(Capture().LastFinalizedSpriteCount < noArrowCount + count, "completed page removes Copy arrow");

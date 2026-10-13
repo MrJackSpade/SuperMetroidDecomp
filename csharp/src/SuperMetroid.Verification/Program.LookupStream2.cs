@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
@@ -439,7 +440,7 @@ internal static class LookupStream2Verification
         editedQuadCatalog.Draw(quadPointer, editedQuad, new(255, 255));
         byte[] expectedQuad = nativeQuad.LowTable.ToArray();
         expectedQuad[3] ^= 0x40;
-        AssertTrue(expectedQuad.AsSpan().SequenceEqual(editedQuad.LowTable) && nativeQuad.HighTable.SequenceEqual(editedQuad.HighTable), "Independent one-quadrant reflection edit changes only its exact emitted OAM attribute bit");
+        AssertTrue(expectedQuad.SequenceEqual(editedQuad.LowTable) && nativeQuad.HighTable.SequenceEqual(editedQuad.HighTable), "Independent one-quadrant reflection edit changes only its exact emitted OAM attribute bit");
         const ushort wavePointer = 0xaea4;
         string waveName = ProjectileSpriteDefinitions.Name(wavePointer);
         var wavePart = document.Frames[waveName][0];
@@ -451,7 +452,7 @@ internal static class LookupStream2Verification
         editedWaveCatalog.Draw(wavePointer, editedWave, new(255, 255));
         byte[] expectedWave = nativeWave.LowTable.ToArray();
         expectedWave[1]++;
-        AssertTrue(expectedWave.AsSpan().SequenceEqual(editedWave.LowTable) && nativeWave.HighTable.SequenceEqual(editedWave.HighTable), "Independent diagonal Wave Y edit changes exactly its emitted coordinate and preserves X ninth bit");
+        AssertTrue(expectedWave.SequenceEqual(editedWave.LowTable) && nativeWave.HighTable.SequenceEqual(editedWave.HighTable), "Independent diagonal Wave Y edit changes exactly its emitted coordinate and preserves X ninth bit");
         var flare = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Length; selector++)
         {
@@ -537,7 +538,7 @@ internal static class LookupStream2Verification
             System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(nativeButtons.AsSpan(cell * 2), word);
             AssertEqual(word != PauseBackdropDefinitions.StockButtonWord(cell), buttonResiduals.ContainsKey(cell), "Exact required button residual membership");
         }
-        AssertTrue(nativeButtons.AsSpan().SequenceEqual(stock.CreateButtonTilemap()), "All512native button-template words");
+        AssertTrue(nativeButtons.SequenceEqual(stock.CreateButtonTilemap()), "All512native button-template words");
         foreach (int edit in new[] { 0, 5 * 32 + 8, 5 * 32 + 12, 10 * 32 + 3, 24 * 32 + 31, 26 * 32 + 29 })
         {
             var areas = document.Areas.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -549,7 +550,7 @@ internal static class LookupStream2Verification
             var selected = PauseBackdropPresentation.Load(new MemoryStream(output.ToArray()));
             foreach (AreaId area in Enum.GetValues<AreaId>())
                 ConfirmArea(selected, area, PauseTileGrid.Compile(areas[area.ToString()], "Edited area"));
-            AssertTrue(nativeButtons.AsSpan().SequenceEqual(selected.CreateButtonTilemap()), "Area edit does not propagate into independent button template");
+            AssertTrue(nativeButtons.SequenceEqual(selected.CreateButtonTilemap()), "Area edit does not propagate into independent button template");
         }
         foreach (int edit in new[] { 0, 8 * 32 + 2, 9 * 32 + 5, 10 * 32 + 29 })
         {
@@ -558,14 +559,14 @@ internal static class LookupStream2Verification
             using var output = new MemoryStream();
             PauseBackdropPresentation.Write(output, document with { Buttons = cells });
             var selected = PauseBackdropPresentation.Load(new MemoryStream(output.ToArray()));
-            AssertTrue(PauseTileGrid.Compile(cells, "Edited buttons").AsSpan().SequenceEqual(selected.CreateButtonTilemap()), "Independent control-template edit");
+            AssertTrue(PauseTileGrid.Compile(cells, "Edited buttons").SequenceEqual(selected.CreateButtonTilemap()), "Independent control-template edit");
             ConfirmArea(selected, AreaId.Crateria, PauseTileGrid.Compile(document.Areas[AreaId.Crateria.ToString()], "Unchanged area"));
         }
         var invalidVram = new SnesVram();
         AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new VramStore(invalidVram).All.Slice(-1, PauseBackdropDefinitions.Cells), AreaId.Crateria), "Backdrop negative VRAM destination");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new VramStore(invalidVram).All.Slice(SnesVram.WordCount - PauseBackdropDefinitions.Cells + 1, PauseBackdropDefinitions.Cells), AreaId.Crateria), "Backdrop end-of-VRAM bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new VramStore(invalidVram).All.Slice(0, PauseBackdropDefinitions.Cells), (AreaId)7), "Backdrop area bound");
-        AssertTrue(invalidVram.Bytes.ToArray().All(value => value == 0), "Invalid load fails before any VRAM mutation");
+        AssertTrue(invalidVram.Bytes.All(value => value == 0), "Invalid load fails before any VRAM mutation");
         Console.WriteLine($"Backdrop geometry:7680native words, exact{areaResiduals.Sum(cells => cells.Count)}area/{buttonResiduals.Count}button residuals,53actual VRAM loads,10independent edits and bounds pass; selected layout/art/style inputs remain required.");
 
         static void ConfirmArea(PauseBackdropPresentation presentation, AreaId area, byte[] native)
@@ -575,7 +576,7 @@ internal static class LookupStream2Verification
             vram.LoadBytes(0, expected);
             native.CopyTo(expected, 0x7000);
             presentation.LoadTo(new VramStore(vram).All.Slice(0x7000 / sizeof(ushort), PauseBackdropDefinitions.Cells), area);
-            AssertTrue(expected.AsSpan().SequenceEqual(vram.Bytes), "Actual area load preserves every selected word and untouched VRAM byte");
+            AssertTrue(expected.SequenceEqual(vram.Bytes), "Actual area load preserves every selected word and untouched VRAM byte");
         }
     }
     /// <summary>Checks pause equipment base cells, edit preservation, and layout geometry.</summary>
@@ -588,7 +589,7 @@ internal static class LookupStream2Verification
         for (int cell = 0; cell < 1024; cell++)
             System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2),
                 ReadVerificationWord(rom, 0xb6e800 + cell * 2));
-        AssertTrue(native.AsSpan().SequenceEqual(stock.CreateTilemap()), "Calculated equipment template preserves all1024native words");
+        AssertTrue(native.SequenceEqual(stock.CreateTilemap()), "Calculated equipment template preserves all1024native words");
         var residuals = stock.remainingCells;
         for (int cell = 0; cell < 1024; cell++)
         {
@@ -615,12 +616,12 @@ internal static class LookupStream2Verification
             PauseEquipmentBasePresentation.Write(editedJson, document with { Cells = cells });
             var selected = PauseEquipmentBasePresentation.Load(new MemoryStream(editedJson.ToArray()));
             byte[] expected = PauseTileGrid.Compile(cells, "Independent equipment base edit");
-            AssertTrue(expected.AsSpan().SequenceEqual(selected.CreateTilemap()), "Independent selected glyph/palette/flip edit preserves every other cell and mirror partner");
+            AssertTrue(expected.SequenceEqual(selected.CreateTilemap()), "Independent selected glyph/palette/flip edit preserves every other cell and mirror partner");
             ConfirmRebind(selected, expected);
         }
         byte[] mutable = stock.CreateTilemap();
         mutable[0] ^= 1;
-        AssertTrue(native.AsSpan().SequenceEqual(stock.CreateTilemap()), "Mutable menu state does not alter immutable template");
+        AssertTrue(native.SequenceEqual(stock.CreateTilemap()), "Mutable menu state does not alter immutable template");
         AssertThrows<ArgumentException>(() => stock.RebindBaseInto(new byte[1]), "Base rebind length bound");
         AssertThrows<ArgumentException>(() => stock.RebindBeforeInventoryRefreshInto(new byte[1]), "Inventory rebind length bound");
         Console.WriteLine($"Equipment template:1024native words, exact{residuals.Count}stock overrides,8independent edits,18actual rebinds,mutable-state independence and bounds pass; approved specific page composition retained, glyph pixels separately accounted.");
@@ -647,7 +648,7 @@ internal static class LookupStream2Verification
                 }
                 if (beforeInventory) presentation.RebindBeforeInventoryRefreshInto(actual);
                 else presentation.RebindBaseInto(actual);
-                AssertTrue(expected.AsSpan().SequenceEqual(actual), "Actual base refresh preserves live ownership and arrow palette while applying selected artwork");
+                AssertTrue(expected.SequenceEqual(actual), "Actual base refresh preserves live ownership and arrow palette while applying selected artwork");
             }
         }
     }
@@ -715,7 +716,7 @@ internal static class LookupStream2Verification
                 words.AsSpan(row * PauseWireframeDefinitions.Columns * 2, PauseWireframeDefinitions.Columns * 2)
                     .CopyTo(expected.AsSpan(PauseWireframeDefinitions.DestinationByte + row * PauseWireframeDefinitions.DestinationStride));
             presentation.ApplyTo(actual, kind);
-            AssertTrue(expected.AsSpan().SequenceEqual(actual), context);
+            AssertTrue(expected.SequenceEqual(actual), context);
         }
     }
 
@@ -758,7 +759,7 @@ internal static class LookupStream2Verification
                         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(expected.AsSpan(nativeOffset + cell * 2), value);
                     }
                     selected.ApplyLabel(actual, name, preserve);
-                    AssertTrue(expected.AsSpan().SequenceEqual(actual), "Actual reserve label patch preserves edits, attribute policy and surrounding bytes");
+                    AssertTrue(expected.SequenceEqual(actual), "Actual reserve label patch preserves edits, attribute policy and surrounding bytes");
                 }
             }
             var movedLabels = document.Labels.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -770,7 +771,7 @@ internal static class LookupStream2Verification
             byte[] movedExpected = movedActual.ToArray();
             native.CopyTo(movedExpected, nativeOffset + 2);
             moved.ApplyLabel(movedActual, name);
-            AssertTrue(movedExpected.AsSpan().SequenceEqual(movedActual), "Independent reserve label placement edit");
+            AssertTrue(movedExpected.SequenceEqual(movedActual), "Independent reserve label placement edit");
         }
         AssertEqual(22, words, "All native reserve label words");
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(json));
@@ -831,7 +832,7 @@ internal static class LookupStream2Verification
                             expected.AsSpan((label.Row * 32 + label.Column + cell) * 2), value);
                     }
                     selected.ApplyLabel(actual, identity.Category, identity.Item, length, disabled);
-                    AssertTrue(expected.AsSpan().SequenceEqual(actual), "Actual label patch/disabled recolor preserves every cell and surrounding byte");
+                    AssertTrue(expected.SequenceEqual(actual), "Actual label patch/disabled recolor preserves every cell and surrounding byte");
                 }
                 if (edit >= 0) changedCells++;
             }
@@ -872,7 +873,7 @@ internal static class LookupStream2Verification
         PauseTileGrid.Compile(charge.Cells, "Native Charge text").CopyTo(movedExpected,
             (charge.Row * 32 + charge.Column + 1) * 2);
         moved.ApplyLabel(movedActual, PauseEquipmentCategory.Beams, 0, 5, false);
-        AssertTrue(movedExpected.AsSpan().SequenceEqual(movedActual),
+        AssertTrue(movedExpected.SequenceEqual(movedActual),
             "Independent moved label retains its edited destination and untouched original cell");
         AssertEqual(115, words, "All native equipment glyph words");
         AssertEqual(106, changedCells, "All ordinary label glyph cells edited independently");
@@ -929,7 +930,7 @@ internal static class LookupStream2Verification
                         .CopyTo(expected.AsSpan((label.Row * 32 + label.Column) * 2));
                 }
                 presentation.ApplyInventory(actual, 0, 0, 0, 0, hyper);
-                AssertTrue(expected.AsSpan().SequenceEqual(actual),
+                AssertTrue(expected.SequenceEqual(actual),
                     "Actual uncollected inventory/Hyper blank writes preserve every edited cell and untouched byte");
             }
         }

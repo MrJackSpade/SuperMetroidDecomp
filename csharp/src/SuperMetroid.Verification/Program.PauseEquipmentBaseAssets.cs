@@ -24,7 +24,7 @@ internal static class PauseEquipmentBaseAssetsVerification
         var document = RequiredJson.Deserialize<PauseEquipmentBaseDocument>(stockBytes, MapPresentationFormat.JsonOptions);
         byte[] nativeBase = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseEquipmentBaseDefinitions.Source,
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
-        AssertTrue(nativeBase.AsSpan().SequenceEqual(original.PauseEquipmentBase.CreateTilemap()),
+        AssertTrue(nativeBase.SequenceEqual(original.PauseEquipmentBase.CreateTilemap()),
             "all 1024 equipment base cells match native words");
 
         var guard = NewPauseEquipmentBaseReadGuard(bus);
@@ -38,7 +38,7 @@ internal static class PauseEquipmentBaseAssetsVerification
             installed.Step(input, input, nmiFrameCounter8: (byte)frame);
             AssertTrue(native.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(installed.CaptureRenderSnapshot().Memory.Vram),
                 "equipment base migration retains exact native VRAM through both page transitions");
-            AssertTrue(native.Render().AsSpan().SequenceEqual(installed.Render()),
+            AssertTrue(native.Render().SequenceEqual(installed.Render()),
                 "equipment base migration retains native pixels with its source forbidden");
         }
         AssertEqual(0, installed.ScreenMode, "equipment base fixture returns to the map page");
@@ -58,7 +58,7 @@ internal static class PauseEquipmentBaseAssetsVerification
         var stockPause = new PauseMenuState(guard, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original });
         var editedPause = new PauseMenuState(guard, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = edited });
         EnterEquipment(stockPause); EnterEquipment(editedPause);
-        AssertTrue(!stockPause.Render().AsSpan().SequenceEqual(editedPause.Render()),
+        AssertTrue(!stockPause.Render().SequenceEqual(editedPause.Render()),
             "edited static equipment cell reaches actual menu pixels");
 
         byte[] rebound = Enumerable.Repeat((byte)0x5a, PauseEquipmentBaseDefinitions.Cells * 2).ToArray();
@@ -85,7 +85,7 @@ internal static class PauseEquipmentBaseAssetsVerification
             $"restored equipment page adopts current base VRAM while retaining live page state; first diff={FirstDifference(stockSnapshot.Memory.Vram, restoredSnapshot.Memory.Vram):X4}");
         AssertTrue(stockSnapshot.Memory.Cgram.SequenceEqual(restoredSnapshot.Memory.Cgram),
             "equipment base rebind does not alter live palette state");
-        AssertTrue(stockPause.Render().AsSpan().SequenceEqual(restored.Render()),
+        AssertTrue(stockPause.Render().SequenceEqual(restored.Render()),
             "restored equipment base reproduces stock pixels at the retained phase");
 
         void Reject(PauseEquipmentBaseDocument invalid) => AssertThrows<InvalidDataException>(() =>

@@ -69,7 +69,7 @@ internal static class LookupStream3Verification
                 AssertEqual(expected[color], System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(bytes[(color * 2)..]), "intro palette transfer word");
             var cgram = new SnesCgram();
             selected.LoadTo(cgram);
-            AssertTrue(ToColors(expected).AsSpan().SequenceEqual(cgram.Colors), "intro palette CGRAM load");
+            AssertTrue(ToColors(expected).SequenceEqual(cgram.Colors), "intro palette CGRAM load");
         }
         static IntroCinematicPalette Load(ushort[] words)
         {
@@ -115,7 +115,7 @@ internal static class LookupStream3Verification
         static void Confirm(IntroEyeTilemapPresentation selected, ushort[][] expected)
         {
             for (int frame = 0; frame < expected.Length; frame++)
-                AssertTrue(expected[frame].AsSpan().SequenceEqual(selected.FrameWords(frame)), $"eye rectangle {frame}");
+                AssertTrue(expected[frame].SequenceEqual(selected.FrameWords(frame)), $"eye rectangle {frame}");
             var vram = new SnesVram();
             var objects = new IntroCinematicObjectSystem(new TestAddressSpace(), vram, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), eyeArtwork: selected);
             for (int frame = 0; frame < expected.Length; frame++)
@@ -166,7 +166,7 @@ internal static class LookupStream3Verification
         for (int index = 0; index < native.Length; index++)
             native[index] = ReadVerificationWord(rom, IntroCinematicRomData.Assets.FinalTextLine + 2 * index);
         IntroFinalLineTilemap stock = Load(native);
-        AssertTrue(native.AsSpan().SequenceEqual(stock.Words.Span), "all128 native intro divider cells");
+        AssertTrue(native.SequenceEqual(stock.Words.Span), "all128 native intro divider cells");
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         AssertTrue(stock.suppliedWords is null,
             "native divider retains no generated lookup");
@@ -175,8 +175,8 @@ internal static class LookupStream3Verification
             var edited = (ushort[])native.Clone();
             edited[changed] ^= 0x4401;
             IntroFinalLineTilemap selected = Load(edited);
-            AssertTrue(edited.AsSpan().SequenceEqual(selected.Words.Span), $"independent divider cell edit {changed}");
-            AssertTrue(native.AsSpan().SequenceEqual(stock.Words.Span), "previous divider instance remains immutable");
+            AssertTrue(edited.SequenceEqual(selected.Words.Span), $"independent divider cell edit {changed}");
+            AssertTrue(native.SequenceEqual(stock.Words.Span), "previous divider instance remains immutable");
         }
         Console.WriteLine("Japanese subtitle staging:128 native cells and128 independent tile/palette/flip edits pass; only reviewed display policy remains.");
 
@@ -823,7 +823,7 @@ internal static class LookupStream3Verification
                 foreach (var region in document.LanguageRegions)
                     Paint(expected, region.Cells, japanese == region.HighlightWhenJapanese ? document.SelectedPalette : document.UnselectedPalette);
                 presentation.ApplyLanguage(actual, japanese);
-                AssertTrue(actual.AsSpan().SequenceEqual(expected), "options language boxes preserve exact stock/edited cells");
+                AssertTrue(actual.SequenceEqual(expected), "options language boxes preserve exact stock/edited cells");
             }
             foreach (var pair in document.SpecialToggles)
             foreach (bool enabled in new[] { false, true })
@@ -833,7 +833,7 @@ internal static class LookupStream3Verification
                 Paint(expected, pair.Value.EnabledCells, enabled ? document.SelectedPalette : document.UnselectedPalette);
                 Paint(expected, pair.Value.DisabledCells, enabled ? document.UnselectedPalette : document.SelectedPalette);
                 presentation.ApplySpecialToggle(actual, pair.Key, enabled);
-                AssertTrue(actual.AsSpan().SequenceEqual(expected), "options toggle boxes preserve exact stock/edited cells");
+                AssertTrue(actual.SequenceEqual(expected), "options toggle boxes preserve exact stock/edited cells");
             }
             for (int action = 0; action < 7; action++)
             for (int button = 0; button < 7; button++)
@@ -850,7 +850,7 @@ internal static class LookupStream3Verification
                     System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(expected.AsSpan(((point.Y + cell / 3) * 32 + point.X + cell % 3) * 2), word);
                 }
                 presentation.ApplyControllerLabel(actual, action, button);
-                AssertTrue(actual.AsSpan().SequenceEqual(expected), "options controller boxes preserve exact stock/edited placement");
+                AssertTrue(actual.SequenceEqual(expected), "options controller boxes preserve exact stock/edited placement");
             }
             foreach (var pair in document.CursorAnchors)
                 for (int row = 0; row < pair.Value.Length; row++)

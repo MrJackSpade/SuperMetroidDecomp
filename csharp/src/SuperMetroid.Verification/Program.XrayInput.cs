@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -55,7 +56,7 @@ internal static class XrayInputVerification
                     "setup pre-instruction starts blending one call after the instruction list installs it");
                 if (frame != 0)
                 {
-                    AssertTrue(((GameplayColorMathRenderLayer)startup.Layers[0]).Lines.ToArray().All(line => line.Left > line.Right),
+                    AssertTrue(((GameplayColorMathRenderLayer)startup.Layers[0]).Lines.All(line => line.Left > line.Right),
                         "setup keeps the beam closed while copying tilemaps");
                     AssertEqual(frame == 7 ? XrayRoomDisplayRules.ActiveBackdrop : Bgr555.Black, startup.Memory.Cgram[0],
                         "only setup stage eight installs the X-ray backdrop");
@@ -84,8 +85,8 @@ internal static class XrayInputVerification
             VerifyXrayWindowGeometry(bus, samus, xrayGeometryReference);
         }
         var captured = GameplayDisplayCapture.CaptureFrame(runtime);
-        var reveal = captured.Layers.ToArray().OfType<GameplayColorMathRenderLayer>().Single();
-        AssertTrue(reveal.Lines.ToArray().Any(line => line.Left <= line.Right), "full X-ray publishes a nonempty visible window");
+        var reveal = captured.LayersOf<GameplayColorMathRenderLayer>().Single();
+        AssertTrue(reveal.Lines.Any(line => line.Left <= line.Right), "full X-ray publishes a nonempty visible window");
         var pixels = SoftwareLayeredSnapshotRenderer.Render(captured);
         AssertTrue(pixels.SequenceEqual(SuperMetroidRuntimeFrameRenderer.Render(runtime)), "immediate software entrypoint uses the same X-ray display operation");
         AssertTrue(reveal.RevealBlocks, "ordinary X-ray room selects terrain revelation");
@@ -110,7 +111,7 @@ internal static class XrayInputVerification
             runtime.StepFrame(0);
             var restoring = GameplayDisplayCapture.CaptureFrame(runtime);
             AssertTrue(restoring.Layers[0] is GameplayColorMathRenderLayer, "BG2 restore retains X-ray layer ownership");
-            AssertTrue(((GameplayColorMathRenderLayer)restoring.Layers[0]).Lines.ToArray().All(line => line.Left > line.Right),
+            AssertTrue(((GameplayColorMathRenderLayer)restoring.Layers[0]).Lines.All(line => line.Left > line.Right),
                 "deactivation closes the beam while BG2 restore completes");
             AssertEqual((ushort)0, restoring.Memory.Cgram[0], "deactivation resets the backdrop before unfreezing");
         }
@@ -123,7 +124,7 @@ internal static class XrayInputVerification
             "phase five clears the non-Fireflea fixed color");
         for (int frame = 0; frame < 26; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "releasing Run restores ordinary gameplay");
-        AssertTrue(!GameplayDisplayCapture.CaptureFrame(runtime).Layers.ToArray().Any(layer => layer is GameplayColorMathRenderLayer),
+        AssertTrue(!GameplayDisplayCapture.CaptureFrame(runtime).Layers.Any(layer => layer is GameplayColorMathRenderLayer),
             "release removes the X-ray display window");
         AssertTrue(pixels.SequenceEqual(RenderForComparison(captured)),
             "a queued X-ray frame remains immutable after gameplay resumes");

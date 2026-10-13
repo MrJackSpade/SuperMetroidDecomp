@@ -83,7 +83,7 @@ internal static class IntroProjectileArtworkVerification
             ProjectileCompositions = stock,
         });         using var with = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(with, game);
-        AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Intro snapshot excludes host appearance catalogs");
+        AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Intro snapshot excludes host appearance catalogs");
         with.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(with);
         var restoredIntro = restored.intro;
@@ -127,7 +127,7 @@ internal static class IntroProjectileArtworkVerification
             TrailArtwork = stock,
         });
         draw(intro);
-        AssertTrue(native.AsSpan().SequenceEqual(vram.Bytes), "Intro stock trail PNG preserves every VRAM byte, including compressed cinematic sprites");
+        AssertTrue(native.SequenceEqual(vram.Bytes), "Intro stock trail PNG preserves every VRAM byte, including compressed cinematic sprites");
         var image = IndexedPng.Read(new MemoryStream(png), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
         image.Pixels[0] ^= 1;
         image.Pixels[64] ^= 1;
@@ -148,7 +148,7 @@ internal static class IntroProjectileArtworkVerification
                 TrailArtwork = edited,
             });
             var actual = pair.Item2.vram;
-            AssertTrue(native.AsSpan().SequenceEqual(actual.Bytes), "Intro PNG rebind does not mutate the retained display before preparation");
+            AssertTrue(native.SequenceEqual(actual.Bytes), "Intro PNG rebind does not mutate the retained display before preparation");
             draw(pair.Item2);
             for (int i = 0; i < native.Length; i++)
             {

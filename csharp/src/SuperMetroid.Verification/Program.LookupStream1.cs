@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using static Program;
 using static SamusAtmosphereArtworkBoundaryVerification;
@@ -489,8 +490,8 @@ internal static class LookupStream1Verification
             }
             return 0;
         }
-        byte[] Transfer(EscapeTimerTileAtlas value) => value.Resolve(VramAssetId.EscapeTimerFirstTiles).ToArray()
-            .Concat(value.Resolve(VramAssetId.EscapeTimerSecondTiles).ToArray()).ToArray();
+        byte[] Transfer(EscapeTimerTileAtlas value) => value.Resolve(VramAssetId.EscapeTimerFirstTiles).Span
+            .ConcatToArray(value.Resolve(VramAssetId.EscapeTimerSecondTiles).Span);
         AssertTrue(Transfer(stock).SequenceEqual(native), "Both reconstructed timer pages match all800 native planar bytes");
         AssertEqual(275, Fill(stock).Count, "Exact retained timer fill footprint after calculated digit and label shapes");
         AssertEqual(0, FillOverrides(stock).Count, "Zero stock calculated-footprint overrides");
@@ -869,10 +870,10 @@ internal static class LookupStream1Verification
         {
             content.AppendWords("top pointers", upper); content.AppendWords("bottom pointers", lower);
             content.AppendWords("pose pointers", posePointers);
-            content.Append("graphics y offsets", template.GraphicsYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
+            content.Append("graphics y offsets", template.GraphicsYOffsets.SelectToArray(value => unchecked((byte)value)));
             content.AppendWords("landing y offsets", template.LandingYOffsets);
-            content.Append("posture y offsets", template.PostureYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
-            content.Append("drained y offsets", template.DrainedYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
+            content.Append("posture y offsets", template.PostureYOffsets.SelectToArray(value => unchecked((byte)value)));
+            content.Append("drained y offsets", template.DrainedYOffsets.SelectToArray(value => unchecked((byte)value)));
             foreach (SamusBodyFrameSelection frame in frames)
             {
                 content.Append("top set", frame.TopSet); content.Append("top position", frame.TopPosition);
@@ -1038,7 +1039,7 @@ internal static class LookupStream1Verification
             new ushort[SamusSpritemapArtworkCatalog.PointerCount], []);
         AssertTrue(Create(native, zeroPointers).DrainedYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
         SamusBodyTileDefinition[][] Blank(bool top) => Enumerable.Range(0, top ? SamusBodyArtworkCatalog.TopSetCount : SamusBodyArtworkCatalog.BottomSetCount)
-            .Select(set => (top ? stock.TopSet(set) : stock.BottomSet(set)).ToArray().Select(definition =>
+            .Select(set => (top ? stock.TopSet(set) : stock.BottomSet(set)).Select(definition =>
                 new SamusBodyTileDefinition(definition.SourceAddress, definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
         var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
         AssertTrue(blankPixels.DrainedYOffsets.SequenceEqual(native), "Independently blank PNG pixels preserve original offsets");
@@ -1107,7 +1108,7 @@ internal static class LookupStream1Verification
             new ushort[SamusSpritemapArtworkCatalog.PointerCount], []);
         AssertTrue(Create(native, zeroPointers).PostureYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
         SamusBodyTileDefinition[][] Blank(bool top) => Enumerable.Range(0, top ? SamusBodyArtworkCatalog.TopSetCount : SamusBodyArtworkCatalog.BottomSetCount)
-            .Select(set => (top ? stock.TopSet(set) : stock.BottomSet(set)).ToArray().Select(definition =>
+            .Select(set => (top ? stock.TopSet(set) : stock.BottomSet(set)).Select(definition =>
                 new SamusBodyTileDefinition(definition.SourceAddress, definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
         var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
         AssertTrue(blankPixels.PostureYOffsets.SequenceEqual(native), "Independently blank PNG pixels preserve original offsets");

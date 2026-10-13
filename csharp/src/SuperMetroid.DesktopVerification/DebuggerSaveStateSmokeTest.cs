@@ -128,9 +128,9 @@ public static class DebuggerSaveStateSmokeTest
                 if (actual.GameState != wanted.GameState ||
                     actual.FrameNumber != wanted.FrameNumber ||
                     actual.Phase != wanted.Phase ||
-                    !actual.Pixels.AsSpan().SequenceEqual(wanted.Pixels) ||
+                    !actual.Pixels.SequenceEqual(wanted.Pixels) ||
                     !actual.AudioCommands.SequenceEqual(wanted.AudioCommands) ||
-                    !actualPcm.AsSpan().SequenceEqual(expectedPcm[frame]) ||
+                    !actualPcm.SequenceEqual(expectedPcm[frame]) ||
                     actualAcknowledgements != expectedAcknowledgements[frame])
                 {
                     throw new InvalidDataException(
@@ -215,7 +215,7 @@ public static class DebuggerSaveStateSmokeTest
         }
 
         ControllerInputRecording recording = ControllerInputRecording.Read(recordingPath);
-        if (!recording.RomSha256.AsSpan().SequenceEqual(SupportedCartridge.CreateSha256Digest()) ||
+        if (!recording.RomSha256.SequenceEqual(SupportedCartridge.CreateSha256Digest()) ||
             recording.ControllerInputs is not [0x1234] ||
             recording.ContentIdentity is null)
         {

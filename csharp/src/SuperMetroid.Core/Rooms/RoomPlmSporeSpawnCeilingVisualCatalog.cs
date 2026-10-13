@@ -48,7 +48,7 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
                 !SporeSpawnCeilingPlmDrawDefinitions.TryGetByVisualId(
                     entry.Id, out var draw) ||
                 !SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(draw.Pointer, out ushort stockWord) ||
-                entry.Blocks.Length != draw.Runs.Span.ToArray().Sum(run =>
+                entry.Blocks.Length != draw.Runs.Span.Sum(run =>
                     run.LevelWords.Length) ||
                 entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
                 throw new InvalidDataException(

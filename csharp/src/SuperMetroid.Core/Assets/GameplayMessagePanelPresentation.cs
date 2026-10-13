@@ -96,8 +96,8 @@ public sealed class GameplayMessagePanelPresentation
                 "Gameplay-message panels require version 1, one 32-cell border and every named large panel.");
         }
 
-        string[] expected = GameplayMessagePanelDefinitions.MessageIds.ToArray()
-            .Select(static id => id.ToString()).ToArray();
+        string[] expected = GameplayMessagePanelDefinitions.MessageIds
+            .SelectToArray(static id => id.ToString());
         if (document.Panels.Count != expected.Length ||
             expected.Any(name => !document.Panels.ContainsKey(name)))
         {

@@ -46,7 +46,7 @@ internal static class PauseTileAtlasVerification
                 ushort pressed = tick == 2 ? (ushort)SnesButton.R : tick == toMap ? (ushort)SnesButton.L : (ushort)0;
                 AssertEqual(native.Step(pressed, pressed), pause.Step(pressed, pressed), "pause PNG migration preserves unpause result");
                 AssertEqual(native.ScreenMode, pause.ScreenMode, "pause PNG migration preserves page timing");
-                AssertTrue(native.Render().AsSpan().SequenceEqual(pause.Render()), "pause map/equipment transitions match native pixels with artwork reads blocked");
+                AssertTrue(native.Render().SequenceEqual(pause.Render()), "pause map/equipment transitions match native pixels with artwork reads blocked");
             }
             AssertEqual(0, pause.ScreenMode, "pause PNG fixture returns to the map page");
             EnterPauseEquipment(pause);
@@ -55,13 +55,13 @@ internal static class PauseTileAtlasVerification
             var selected = (pause.SelectedCategory, pause.SelectedItem, samus.EquippedBeams, samus.CollectedBeams);
             pause.BindMapPresentation(edited);
             var after = pause.Render();
-            AssertTrue(!before.AsSpan().SequenceEqual(after), "pause UI PNG edit reaches actual equipment pixels immediately");
-            AssertTrue(after.AsSpan().SequenceEqual(RenderForComparison(pause.CaptureRenderSnapshot())), "edited pause artwork reaches captured rendering");
+            AssertTrue(!before.SequenceEqual(after), "pause UI PNG edit reaches actual equipment pixels immediately");
+            AssertTrue(after.SequenceEqual(RenderForComparison(pause.CaptureRenderSnapshot())), "edited pause artwork reaches captured rendering");
             AssertEqual(selected, (pause.SelectedCategory, pause.SelectedItem, samus.EquippedBeams, samus.CollectedBeams), "artwork rebind preserves selection and equipment");
             using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, pause); captured.Position = 0;
             pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
             pause.BindMapPresentation(original);
-            AssertTrue(before.AsSpan().SequenceEqual(pause.Render()), "restored pause uses current PNG without changing animation phase");
+            AssertTrue(before.SequenceEqual(pause.Render()), "restored pause uses current PNG without changing animation phase");
         }
         File.WriteAllText(path, "invalid PNG");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt pause override is not silently replaced");

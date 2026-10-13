@@ -69,7 +69,7 @@ internal static class KraidArmCollisionDefinitionsVerification
                     hitbox.Bottom, $"Kraid arm hitbox bottom $A7:{record:X4}");
                 hitboxCount++;
             }
-            AssertTrue(compiled.ToArray().SequenceEqual(Enumerable.Range(0, compiled.Length).Select(i => compiled[i])),
+            AssertTrue(compiled.SequenceEqual(Enumerable.Range(0, compiled.Length).Select(i => compiled[i])),
                 "Arm slice materialization preserves native rectangle order");
             foreach (int invalid in new[] { int.MinValue, -1, compiled.Length, int.MaxValue })
                 AssertThrows<IndexOutOfRangeException>(() => _ = compiled[invalid], "Arm slice rejects invalid ordinal");

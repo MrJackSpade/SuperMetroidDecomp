@@ -20,7 +20,7 @@ internal static class CrocomireSkeletonResourceChecks
     /// <summary>Preserves thirteen ordered collapse components while rejecting a fourteenth and keeping ordinary bounds.</summary>
     private static void ConfirmFragmentationCapacity()
     {
-        EnemyExtendedFrameDefinition frame = CrocomireSkeletonVisualDefinitions.Frames.ToArray()
+        EnemyExtendedFrameDefinition frame = CrocomireSkeletonVisualDefinitions.Frames
             .Single(item => item.Pointer == CrocomireSkeletonVisualDefinitions.FirstThirteenComponentFrame);
         int count = CrocomireSkeletonVisualDefinitions.MaximumComponents;
         var source = ConstructedComponentSource(frame, count);

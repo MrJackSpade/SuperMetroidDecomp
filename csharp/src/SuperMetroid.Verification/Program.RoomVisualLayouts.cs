@@ -44,10 +44,10 @@ internal static class RoomVisualLayoutsVerification
         {
             RoomVisualLayout layout = stock.Get(source);
             byte[] native = RomDataReader.Decompress(bus, source);
-            AssertTrue(native.AsSpan().SequenceEqual(File.ReadAllBytes(Path.Combine(
+            AssertTrue(native.SequenceEqual(File.ReadAllBytes(Path.Combine(
                     installed.RoomLevelStreamDirectory, RoomLevelStreamFiles.SourceFileName(source)))),
                 $"installed level file for ${source:X6} is the complete native decompressor output");
-            AssertTrue(native.AsSpan().SequenceEqual(levelStreams.Get(source).Span),
+            AssertTrue(native.SequenceEqual(levelStreams.Get(source).Span),
                 $"installed room-level source ${source:X6} matches every native allocation byte");
             int layerBytes = BinaryPrimitives.ReadUInt16LittleEndian(native);
             int count = layerBytes / 2;
@@ -162,11 +162,11 @@ internal static class RoomVisualLayoutsVerification
         PlmTilemapUpdate nativeFirst = nativeStream.BuildPlmLevelBlockUpdate(0, 0);
         PlmTilemapUpdate stockFirst = stockStream.BuildPlmLevelBlockUpdate(0, 0);
         PlmTilemapUpdate editedFirst = editedStream.BuildPlmLevelBlockUpdate(0, 0);
-        AssertTrue(nativeFirst.TopRow.AsSpan().SequenceEqual(stockFirst.TopRow) &&
-            nativeFirst.BottomRow.AsSpan().SequenceEqual(stockFirst.BottomRow),
+        AssertTrue(nativeFirst.TopRow.SequenceEqual(stockFirst.TopRow) &&
+            nativeFirst.BottomRow.SequenceEqual(stockFirst.BottomRow),
             "stock installed BG1 layout retains native rendered tile words");
-        AssertTrue(!nativeFirst.TopRow.AsSpan().SequenceEqual(editedFirst.TopRow) ||
-            !nativeFirst.BottomRow.AsSpan().SequenceEqual(editedFirst.BottomRow),
+        AssertTrue(!nativeFirst.TopRow.SequenceEqual(editedFirst.TopRow) ||
+            !nativeFirst.BottomRow.SequenceEqual(editedFirst.BottomRow),
             "edited BG1 layout changes the live renderer's first block");
 
         var bg2Request = new BackgroundUpdateRequest(BackgroundLayer.Background,
@@ -178,9 +178,9 @@ internal static class RoomVisualLayoutsVerification
         TilemapStreamUpdate editedBg2 = editedStream.Build(bg2Request)
             ?? throw new InvalidOperationException("Edited BG2 row was suppressed.");
         // A row update's first DMA segment sources the complete staged top-half tile row.
-        AssertTrue(nativeBg2.Segments[0].SourceWords.AsSpan().SequenceEqual(stockBg2.Segments[0].SourceWords),
+        AssertTrue(nativeBg2.Segments[0].SourceWords.SequenceEqual(stockBg2.Segments[0].SourceWords),
             "stock installed BG2 layout retains native rendered tile words");
-        AssertTrue(!nativeBg2.Segments[0].SourceWords.AsSpan().SequenceEqual(editedBg2.Segments[0].SourceWords),
+        AssertTrue(!nativeBg2.Segments[0].SourceWords.SequenceEqual(editedBg2.Segments[0].SourceWords),
             "edited BG2 layout changes the live renderer's first row");
 
         // Ceres has no authored BG2 tail, while the Wrecked Ship allocation includes

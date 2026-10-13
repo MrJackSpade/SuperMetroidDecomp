@@ -17,8 +17,8 @@ internal static class IndexedPngVerification
         AssertEqual((byte)3, png[25], "PNG writer emits indexed color type, not expanded RGBA");
         AssertTrue(png.AsSpan(png.Length - 4).SequenceEqual(new byte[] { 0xae, 0x42, 0x60, 0x82 }), "PNG IEND CRC matches published wire value");
         var decoded = IndexedPng.Read(new MemoryStream(png), new(11, 3));
-        AssertTrue(indexes.AsSpan().SequenceEqual(decoded.Pixels), "indexed PNG retains original indexes");
-        AssertTrue(palette.AsSpan().SequenceEqual(decoded.Palette), "indexed PNG retains RGB and transparent palette entry");
+        AssertTrue(indexes.SequenceEqual(decoded.Pixels), "indexed PNG retains original indexes");
+        AssertTrue(palette.SequenceEqual(decoded.Palette), "indexed PNG retains RGB and transparent palette entry");
         AssertThrows<InvalidDataException>(() => IndexedPng.Read(new MemoryStream(png), new(12, 3)), "PNG wrong dimensions rejected");
         AssertThrows<InvalidDataException>(() => IndexedPng.Read(new MemoryStream(png[..^1]), new(11, 3)), "PNG truncation rejected");
         byte[] corrupt = png.ToArray(); corrupt[29] ^= 1;
@@ -30,7 +30,7 @@ internal static class IndexedPngVerification
         // Decoded rows are 1,2,3 through 13,14,15 using None/Sub/Up/Average/Paeth.
         byte[] filters = [0,1,2,3, 1,4,1,1, 2,3,3,3, 3,7,2,2, 4,3,1,1];
         byte[] filtered = PngFixture(new(3, 5), 8, filters);
-        AssertTrue(IndexedPng.Read(new MemoryStream(filtered), new(3, 5)).Pixels.AsSpan()
+        AssertTrue(IndexedPng.Read(new MemoryStream(filtered), new(3, 5)).Pixels
             .SequenceEqual(Enumerable.Range(1, 15).Select(i => (byte)i).ToArray()), "all PNG filters recover independently specified rows");
         foreach (int depth in new[] { 1, 2, 4, 8 })
         {
@@ -43,7 +43,7 @@ internal static class IndexedPngVerification
                 row[1 + x * depth / 8] |= (byte)(expected[x] << (8 - depth - x * depth % 8));
             }
             byte[] fixture = PngFixture(new(width, 1), depth, row);
-            AssertTrue(expected.AsSpan().SequenceEqual(IndexedPng.Read(new MemoryStream(fixture), new(width, 1)).Pixels),
+            AssertTrue(expected.SequenceEqual(IndexedPng.Read(new MemoryStream(fixture), new(width, 1)).Pixels),
                 $"indexed PNG depth {depth} preserves odd-width packed pixels");
         }
         AssertInvalid(PngFixture(new(1, 1), 8, [5, 0]), "unsupported row filter");

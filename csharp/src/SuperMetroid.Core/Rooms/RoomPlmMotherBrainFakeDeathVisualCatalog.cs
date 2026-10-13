@@ -50,7 +50,7 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
             if (entry is null || entry.Blocks is null ||
                 !MotherBrainFakeDeathPlmDrawDefinitions.TryGetByVisualId(
                     entry.Id, out var draw) ||
-                entry.Blocks.Length != draw.Runs.Span.ToArray().Sum(run =>
+                entry.Blocks.Length != draw.Runs.Span.Sum(run =>
                     run.LevelWords.Length) ||
                 entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
                 throw new InvalidDataException(

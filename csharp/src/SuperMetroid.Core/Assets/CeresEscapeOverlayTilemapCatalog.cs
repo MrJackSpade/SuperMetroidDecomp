@@ -206,7 +206,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
                     compiled.Add(definition.SourceAddress + index * 2, words[index]);
         }
         if (document.Pages.Keys.Any(name =>
-                !CeresEscapeOverlayTilemapDefinitions.All.ToArray()
+                !CeresEscapeOverlayTilemapDefinitions.All
                     .Any(definition => definition.Name == name)))
             throw new InvalidDataException(
                 "Ceres escape overlay contains an unknown tilemap name.");

@@ -25,7 +25,7 @@ internal static class SpecializedColorDomainAudit
         }
         if (type == typeof(EnemyAuxiliaryColorCatalog).FullName && Constant("palette") is int palette)
         {
-            var selected = EnemyAuxiliaryColorDefinitions.All.ToArray().Where(row => (int)row.Id == palette).ToArray();
+            var selected = EnemyAuxiliaryColorDefinitions.All.Where(row => (int)row.Id == palette).ToArray();
             return selected.Length != 1 ? null : Outside("frame", selected[0].FrameCount, selected[0].Id.ToString())
                 ?? Outside("color", selected[0].ColorCount, selected[0].Id.ToString());
         }

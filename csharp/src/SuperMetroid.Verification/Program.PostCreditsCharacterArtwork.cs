@@ -47,7 +47,7 @@ internal static class PostCreditsCharacterArtworkVerification
                     LayeredRenderSnapshot actual = installed.Presentation.CaptureRenderSnapshot();
                     AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                             actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
-                            SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
+                            SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                                 SoftwareLayeredSnapshotRenderer.Render(expected)),
                         $"installed post-credits art preserves VRAM, palette, and pixels in {hours}h {native.Phase}");
                 }
@@ -80,7 +80,7 @@ internal static class PostCreditsCharacterArtworkVerification
                 LayeredRenderSnapshot actual = installed.Presentation.CaptureRenderSnapshot();
                 AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                         actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
-                        SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
+                        SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(expected)),
                     $"installed post-shot logo preserves native VRAM/pixels in {hours}h frame {frame}");
             }
@@ -101,7 +101,7 @@ internal static class PostCreditsCharacterArtworkVerification
                         LayeredRenderSnapshot actual = installed.Presentation.CaptureRenderSnapshot();
                         AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                                 actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
-                                SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
+                                SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                                     SoftwareLayeredSnapshotRenderer.Render(expected)),
                             $"installed logo pixels at frame {frame}");
                         if (native.Phase == EndingCreditsPhase.PostCreditsLogo)
@@ -109,7 +109,7 @@ internal static class PostCreditsCharacterArtworkVerification
                             installed.BindObjectArtwork(editedLogo);
                             LayeredRenderSnapshot changed = installed.Presentation.CaptureRenderSnapshot();
                             visibleLogoEdit |= !actual.Memory.Oam.SequenceEqual(changed.Memory.Oam) &&
-                                !SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
+                                !SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                                     SoftwareLayeredSnapshotRenderer.Render(changed));
                             installed.BindObjectArtwork(stock);
                         }
@@ -248,7 +248,7 @@ internal static class PostCreditsCharacterArtworkVerification
                                     $"edited {fileName} changes only its native fragment transfer range");
                             }
                             visible = !SoftwareLayeredSnapshotRenderer.Render(original)
-                                .AsSpan().SequenceEqual(
+                                .SequenceEqual(
                                     SoftwareLayeredSnapshotRenderer.Render(changed));
                         }
                     }
@@ -269,7 +269,7 @@ internal static class PostCreditsCharacterArtworkVerification
                     LayeredRenderSnapshot rebound = stockState.Presentation.CaptureRenderSnapshot();
                     LayeredRenderSnapshot expectedRebind = editedState.Presentation.CaptureRenderSnapshot();
                     AssertTrue(rebound.Memory.Vram.SequenceEqual(expectedRebind.Memory.Vram) &&
-                            SoftwareLayeredSnapshotRenderer.Render(rebound).AsSpan().SequenceEqual(
+                            SoftwareLayeredSnapshotRenderer.Render(rebound).SequenceEqual(
                                 SoftwareLayeredSnapshotRenderer.Render(expectedRebind)),
                         $"rebind {fileName} immediately replaces already-uploaded logo art");
                 }

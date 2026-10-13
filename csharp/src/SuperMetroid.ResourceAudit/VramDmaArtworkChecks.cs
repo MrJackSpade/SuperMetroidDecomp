@@ -23,7 +23,7 @@ internal static class VramDmaArtworkChecks
             (EscapeTimerTileRomData.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount, VramAssetId.EscapeTimerFirstTiles),
             (EscapeTimerTileRomData.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount, VramAssetId.EscapeTimerSecondTiles),
         };
-        pairs.AddRange(GrappleTileDefinitions.Transfers.ToArray().Select(transfer =>
+        pairs.AddRange(GrappleTileDefinitions.Transfers.Select(transfer =>
             (transfer.SourceAddress, (int)transfer.ByteCount, transfer.Asset)));
         foreach (var pair in pairs)
         {

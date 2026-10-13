@@ -34,7 +34,7 @@ internal static class RetailEndingHandoffTests
             if (actual.UsedLegacyRaster || expected.GameState != actual.Frame.GameState ||
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
                 !expected.AudioCommands.SequenceEqual(actual.Frame.AudioCommands) ||
-                !leftAudio.AsSpan().SequenceEqual(rightAudio))
+                !leftAudio.SequenceEqual(rightAudio))
                 throw new InvalidOperationException("Ending handoff changed frontend cadence/audio.");
             if (pixels) PixelComparison.Verify((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")), expected.Pixels,
                 renderer.RenderForReadback((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))), $"{device.Kind}: ending handoff {sequence}, {expected.Phase}");

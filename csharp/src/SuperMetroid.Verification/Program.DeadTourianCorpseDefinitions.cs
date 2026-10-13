@@ -88,7 +88,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
             definition.RotationTablePointer,
             definition.FinishFunction,
         ];
-        AssertTrue(actual.AsSpan().SequenceEqual(expected),
+        AssertTrue(actual.SequenceEqual(expected),
             $"dead {species} variant {variantIndex} configuration words");
 
         ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2))));

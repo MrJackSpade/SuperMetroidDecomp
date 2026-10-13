@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -26,8 +27,8 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
         RoomPlmColoredDoorVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmColoredDoorVisualEntry(
                 ColoredDoorPlmDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span[0].LevelWords.Span.ToArray()
-                    .Select(word => new RoomLevelWord(word).VisualWord).ToArray())).ToArray();
+                draw.Runs.Span[0].LevelWords.Span
+                    .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
         RoomPlmColoredDoorVisualCatalog stock = RoomPlmColoredDoorVisualCatalog.Stock();
         RoomPlmColoredDoorVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "green-left-frame-0");

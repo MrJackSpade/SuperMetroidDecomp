@@ -167,7 +167,7 @@ internal static class ProjectileFileContractsVerification
                     failures.Add(context + " lost the original codec exception: " + path);
             }
             if (before is not null)
-                AssertTrue(File.ReadAllBytes(path).AsSpan().SequenceEqual(before), context + " retains failing file");
+                AssertTrue(File.ReadAllBytes(path).SequenceEqual(before), context + " retains failing file");
             else AssertTrue(!File.Exists(path), context + " never silently repairs missing file");
         }
     }

@@ -16,7 +16,7 @@ internal static class InterfacePresentationContractChecks
     {
         var document = new IntroDiscoveryActorSpriteDocument {
             Version = IntroDiscoveryActorSpriteFormat.Version,
-            Frames = IntroDiscoveryActorSpriteDefinitions.Frames.ToArray().ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()) };
+            Frames = IntroDiscoveryActorSpriteDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()) };
         Stream Json() => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
         IntroDiscoveryActorSpritePresentation actor = IntroDiscoveryActorSpritePresentation.Load(Json());
         ((IIntroCinematicSpritePresentation)actor).Draw(IntroDiscoveryActorSpriteDefinitions.Frames[0].Pointer, new OamBuffer(), new(0, 0), 0, true);

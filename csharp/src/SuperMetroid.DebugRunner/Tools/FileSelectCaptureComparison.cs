@@ -21,7 +21,7 @@ internal static class FileSelectCaptureComparison
         using var input = File.OpenRead(journalPath);
         var recording = ControllerInputRecording.Read(input);
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        if (!SHA256.HashData(bus.Rom).AsSpan().SequenceEqual(recording.RomSha256))
+        if (!SHA256.HashData(bus.Rom).SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Journal and local ROM differ.");
         // Caller must select a reset-origin journal, not a debugger-state continuation.
         SaveRamImage.Load(bus, recording.InitialSaveRam);

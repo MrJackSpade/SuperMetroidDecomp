@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -132,7 +133,7 @@ internal static class FirefleaFxVerification
         var darkLayer = (GameplayColorMathRenderLayer)ordinaryDarkness.Layers[0];
         AssertEqual((byte)0xA2, (byte)darkLayer.ColorMath,
             "normal Fireflea darkens BG2/backdrop, not foreground or Samus");
-        AssertTrue(darkLayer.Lines.ToArray().All(line => line.Left > line.Right),
+        AssertTrue(darkLayer.Lines.All(line => line.Left > line.Right),
             "ordinary Fireflea darkness has no X-ray exemption window");
         AssertTrue(!darkLayer.RevealBlocks && !darkLayer.AddSubscreen,
             "ordinary Fireflea keeps both room maps and subtracts fixed color");

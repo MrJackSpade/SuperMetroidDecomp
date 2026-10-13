@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -47,5 +48,5 @@ internal static class MapStaticPalettesExtractor
         return json.ToArray();
     }
     /// <summary>Converts all CGRAM words to RGB5 values for the installed palette document.</summary>
-    private static PaletteRgb5[] ToRgb(SnesCgram palette) => new CgramPalettes(palette).Image.ToArray().Select(PaletteRgb5.From).ToArray();
+    private static PaletteRgb5[] ToRgb(SnesCgram palette) => new CgramPalettes(palette).Image.SelectToArray(PaletteRgb5.From);
 }

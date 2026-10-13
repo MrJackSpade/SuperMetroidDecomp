@@ -45,7 +45,7 @@ internal static class RidleyCollisionDefinitionsVerification
         int probes = 0;
         foreach (ushort frame in RidleyCollisionDefinitions.FramePointers)
         {
-            AssertTrue(EnemyExtendedFrameDefinitions.Frames.ToArray().Any(
+            AssertTrue(EnemyExtendedFrameDefinitions.Frames.Any(
                     selected => selected.Bank == RidleyCollisionDefinitions.Bank &&
                         selected.Pointer == frame),
                 $"Ridley collision frame $A6:{frame:X4} is selected artwork identity");

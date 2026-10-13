@@ -13,7 +13,7 @@ internal static class PlmVramArtworkAudit
     /// enemy page, Torizo fragment, Ceres escape tile, or overlay resource.</summary>
     internal static bool OwnsInstalledTransfer(int source, int count) => count > 0 &&
         (EnemyTileSourceDefinitions.All.Any(page => page.SourceAddress == source && page.ByteCount == count) ||
-         TorizoInstructionVramArtworkDefinitions.All.ToArray().Any(page =>
+         TorizoInstructionVramArtworkDefinitions.All.Any(page =>
              source >= page.SourceAddress && source - page.SourceAddress <= page.ByteCount - count) ||
          CeresEscapeTileArtworkDefinitions.Contains(source, count) ||
          CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(source, count));

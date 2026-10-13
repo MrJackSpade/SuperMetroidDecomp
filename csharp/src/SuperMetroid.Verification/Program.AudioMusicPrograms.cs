@@ -155,7 +155,7 @@ internal static class AudioMusicProgramsVerification
                 short[] editedPcm = editedRenderer.RenderFrame([]);
                 stockAudible |= stockPcm.Any(sample => sample != 0);
                 editedAudible |= editedPcm.Any(sample => sample != 0);
-                pcmDiffers |= !stockPcm.AsSpan().SequenceEqual(editedPcm);
+                pcmDiffers |= !stockPcm.SequenceEqual(editedPcm);
             }
             AssertTrue(stockAudible, "stock decoded title music is audible");
             AssertTrue(editedAudible, "edited decoded title music is audible");

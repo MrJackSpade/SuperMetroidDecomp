@@ -27,21 +27,21 @@ internal static class MapScreensVerification
             var native = World(bus, original, index);
             var installed = World(guard, original, index);
             byte[] usedNativeVram = native.Vram.Bytes.ToArray();
-            AssertTrue(usedNativeVram.AsSpan().SequenceEqual(installed.Vram.Bytes),
+            AssertTrue(usedNativeVram.SequenceEqual(installed.Vram.Bytes),
                 "stock world resources reproduce native VRAM");
             foreach (bool backdropMath in new[] { false, true })
-                AssertTrue(native.RenderBackgrounds(backdropMath).AsSpan().SequenceEqual(installed.RenderBackgrounds(backdropMath)), "all six world layers preserve native additive pixels");
+                AssertTrue(native.RenderBackgrounds(backdropMath).SequenceEqual(installed.RenderBackgrounds(backdropMath)), "all six world layers preserve native additive pixels");
             installed.SelectArea((index + 1) % MapScreenDefinitions.ZebesAreas);
             installed.SelectArea(index);
-            AssertTrue(native.RenderBackgrounds().AsSpan().SequenceEqual(installed.RenderBackgrounds()), "reselection reloads authored world background without ROM reads");
+            AssertTrue(native.RenderBackgrounds().SequenceEqual(installed.RenderBackgrounds()), "reselection reloads authored world background without ROM reads");
             var area = (AreaId)index;
             var nativeRoom = new FileSelectRoomMapGraphics(bus, system, area,
                 mapPresentation: original);
             var installedRoom = new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: original);
             AssertTrue(nativeRoom.Vram.ImageEquals(installedRoom.Vram), "stock resolved frame/footer/area label matches full native VRAM");
-            AssertTrue(nativeRoom.RenderFrameOnly().AsSpan().SequenceEqual(installedRoom.RenderFrameOnly()), "native frame-only transition pixels match");
+            AssertTrue(nativeRoom.RenderFrameOnly().SequenceEqual(installedRoom.RenderFrameOnly()), "native frame-only transition pixels match");
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
-                AssertTrue(nativeRoom.RenderBackgrounds(new(scroll, scroll)).AsSpan().SequenceEqual(installedRoom.RenderBackgrounds(new(scroll, scroll))), "fixed room frame remains exact while map scrolls");
+                AssertTrue(nativeRoom.RenderBackgrounds(new(scroll, scroll)).SequenceEqual(installedRoom.RenderBackgrounds(new(scroll, scroll))), "fixed room frame remains exact while map scrolls");
         }
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original, verifyCapturedRendering: true));
         Directory.CreateDirectory(overrides);
@@ -60,7 +60,7 @@ internal static class MapScreensVerification
                 : World(guard, original, (int)area).RenderBackgrounds();
             Rgba32[] after = room ? new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: oneEdit).RenderFrameOnly()
                 : World(guard, oneEdit, (int)area).RenderBackgrounds();
-            AssertTrue(!before.AsSpan().SequenceEqual(after), $"independent {page.Key} JSON edit reaches its composed pixels");
+            AssertTrue(!before.SequenceEqual(after), $"independent {page.Key} JSON edit reaches its composed pixels");
         }
         var pages = document.Pages.ToDictionary(pair => pair.Key, pair => pair.Value.Select(cell => cell with
         { Palette = (cell.Palette + 1) % MapPresentationFormat.PaletteCount, FlipX = !cell.FlipX }).ToArray());
@@ -69,14 +69,14 @@ internal static class MapScreensVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "screen JSON changes catalog identity");
         var worldBefore = World(guard, original, (int)AreaId.Maridia);
         var worldAfter = World(guard, edited, (int)AreaId.Maridia);
-        AssertTrue(!worldBefore.RenderBackgrounds().AsSpan().SequenceEqual(worldAfter.RenderBackgrounds()), "JSON world layer edits change composed pixels");
+        AssertTrue(!worldBefore.RenderBackgrounds().SequenceEqual(worldAfter.RenderBackgrounds()), "JSON world layer edits change composed pixels");
         var roomBefore = new FileSelectRoomMapGraphics(guard, system, AreaId.Maridia, mapPresentation: original);
         var roomAfter = new FileSelectRoomMapGraphics(guard, system, AreaId.Maridia, mapPresentation: edited);
-        AssertTrue(!roomBefore.RenderFrameOnly().AsSpan().SequenceEqual(roomAfter.RenderFrameOnly()), "JSON room frame edits change transition pixels");
+        AssertTrue(!roomBefore.RenderFrameOnly().SequenceEqual(roomAfter.RenderFrameOnly()), "JSON room frame edits change transition pixels");
         using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, worldAfter); captured.Position = 0;
         worldAfter = DebuggerObjectGraphSerializer.Deserialize<FileSelectAreaMapGraphics>(captured);
         worldAfter.BindScreens(original.Screens, original.WorldArtwork);
-        AssertTrue(worldBefore.RenderBackgrounds().AsSpan().SequenceEqual(worldAfter.RenderBackgrounds()), "restored world replaces stale edited page without changing selected area");
+        AssertTrue(worldBefore.RenderBackgrounds().SequenceEqual(worldAfter.RenderBackgrounds()), "restored world replaces stale edited page without changing selected area");
         Suite(nameof(VerifyScreenMenuRebinding), () => VerifyScreenMenuRebinding(bus, guard, original, edited));
         // Test each PNG independently: a combined edit must not mask a disconnected resource.
         File.WriteAllBytes(jsonPath, File.ReadAllBytes(Path.Combine(stock, MapScreenDefinitions.FileName)));
@@ -94,9 +94,9 @@ internal static class MapScreensVerification
             var artEdit = AreaMapPresentationCatalog.Load(stock, overrides);
             AssertTrue(artEdit.ContentIdentity != original.ContentIdentity, "each world PNG affects identity independently");
             var changedWorld = World(guard, artEdit, (int)AreaId.Maridia);
-            AssertTrue(!worldBefore.RenderBackgrounds().AsSpan().SequenceEqual(changedWorld.RenderBackgrounds()), "each world PNG edit reaches composed world pixels independently");
+            AssertTrue(!worldBefore.RenderBackgrounds().SequenceEqual(changedWorld.RenderBackgrounds()), "each world PNG edit reaches composed world pixels independently");
             changedWorld.BindScreens(original.Screens, original.WorldArtwork);
-            AssertTrue(worldBefore.RenderBackgrounds().AsSpan().SequenceEqual(changedWorld.RenderBackgrounds()), "world artwork rebind restores exact stock pixels");
+            AssertTrue(worldBefore.RenderBackgrounds().SequenceEqual(changedWorld.RenderBackgrounds()), "world artwork rebind restores exact stock pixels");
             File.WriteAllText(path, "invalid PNG");
             AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt world PNG override cannot silently select stock");
             using (var output = File.Create(path)) IndexedPng.Write(output, new(1, 1), [0], image.Palette);
@@ -157,21 +157,21 @@ internal static class MapScreensVerification
             control.Step(input); changed.Step(input);
             AssertEqual(control.Phase, changed.Phase, "layout replacement never changes menu transition timing");
         }
-        AssertTrue(!control.Render().AsSpan().SequenceEqual(changed.Render()), "normal installed menu displays edited room frame");
+        AssertTrue(!control.Render().SequenceEqual(changed.Render()), "normal installed menu displays edited room frame");
         using var state = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(state, changed); state.Position = 0;
         changed = DebuggerObjectGraphSerializer.Deserialize<FileSelectMapMenuState>(state);
         changed.BindMapPresentation(original);
-        AssertTrue(control.Render().AsSpan().SequenceEqual(changed.Render()), "whole restored menu rebinds current frame pixels");
+        AssertTrue(control.Render().SequenceEqual(changed.Render()), "whole restored menu rebinds current frame pixels");
         for (int tick = 0; tick < 80; tick++)
         {
             ushort input = tick == 0 ? (ushort)SnesButton.Start : (ushort)0;
             control.Step(input); changed.Step(input);
             AssertEqual(control.Phase, changed.Phase, "restored menu retains load phase");
             AssertEqual(control.LoadRequested, changed.LoadRequested, "restored menu retains load handoff timing");
-            AssertTrue(control.Render().AsSpan().SequenceEqual(changed.Render()), "restored menu retains exact load fade pixels");
+            AssertTrue(control.Render().SequenceEqual(changed.Render()), "restored menu retains exact load fade pixels");
         }
         AssertTrue(changed.LoadRequested, "screen fixture reaches load handoff");
-        AssertTrue((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).ToSnapshot().MapStationBytes.AsSpan().SequenceEqual(data.MapStationBytes), "screen edits preserve saved map progression");
+        AssertTrue((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).ToSnapshot().MapStationBytes.SequenceEqual(data.MapStationBytes), "screen edits preserve saved map progression");
     }
 
     /// <summary>Forbids runtime cartridge reads across all migrated world pages, room frames, labels, and map character sheets.</summary>

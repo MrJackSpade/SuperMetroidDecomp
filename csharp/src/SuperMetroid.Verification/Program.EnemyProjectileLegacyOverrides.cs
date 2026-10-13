@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -99,9 +100,9 @@ internal static class EnemyProjectileLegacyOverridesVerification
     {
         EnemyProjectileSpritemapVersion.CeresOnly or EnemyProjectileSpritemapVersion.PreProgramFrames => [],
         EnemyProjectileSpritemapVersion.FirstProgramFrame => EnemyProjectileInstructionMechanicsDefinitions.VisualFrames.ToArray(),
-        EnemyProjectileSpritemapVersion.PreAlcoon => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray()
-            .Where(frame => !Enumerable.Range(0, AlcoonFireballInstructionProgramDefinitions.PresentationWordCount)
-                .Any(index => frame.OperandAddress == AlcoonFireballInstructionProgramDefinitions.PresentationWordAddress(index))).ToArray(),
+        EnemyProjectileSpritemapVersion.PreAlcoon => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
+            .WhereToArray(frame => !Enumerable.Range(0, AlcoonFireballInstructionProgramDefinitions.PresentationWordCount)
+                .Any(index => frame.OperandAddress == AlcoonFireballInstructionProgramDefinitions.PresentationWordAddress(index))),
         EnemyProjectileSpritemapVersion.PreGoldenTorizo => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray(),
         EnemyProjectileSpritemapVersion.PreGoldenTorizoEgg => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizoEgg.ToArray(),
         EnemyProjectileSpritemapVersion.PreTorizoEffects => EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects.ToArray(),

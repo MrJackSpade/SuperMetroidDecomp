@@ -303,7 +303,7 @@ public sealed class SuperMetroidSaveRam
 
     /// <summary>True for the native completed-game signature, independent of slot checksums.</summary>
     public bool HasCompletedGame => ReadSramBytes(SaveRamLayout.CompletionMarkerOffset,
-        SaveRamLayout.CompletionMarker.Length).AsSpan().SequenceEqual(SaveRamLayout.CompletionMarker);
+        SaveRamLayout.CompletionMarker.Length).SequenceEqual(SaveRamLayout.CompletionMarker);
 
     /// <summary>Encodes named completion state without retaining arbitrary signature bytes.</summary>
     public void SetGameCompleted(bool completed)

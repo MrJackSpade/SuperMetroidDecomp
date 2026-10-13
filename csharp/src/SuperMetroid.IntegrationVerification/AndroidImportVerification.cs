@@ -19,13 +19,13 @@ internal static class AndroidImportVerification
         bool failed = false;
         try { AndroidFileImport.ImportState(root, bad, 9); }
         catch (InvalidDataException) { failed = true; }
-        if (!failed || !previous.AsSpan().SequenceEqual(File.ReadAllBytes(slot)))
+        if (!failed || !previous.SequenceEqual(File.ReadAllBytes(slot)))
             throw new InvalidDataException("Corrupt import replaced the existing slot.");
         AndroidFileImport.ImportState(root, validSeed, 9);
-        if (!File.ReadAllBytes(validSeed).AsSpan().SequenceEqual(File.ReadAllBytes(slot)))
+        if (!File.ReadAllBytes(validSeed).SequenceEqual(File.ReadAllBytes(slot)))
             throw new InvalidDataException("Valid imported state bytes changed.");
         string backup = Directory.GetFiles(Path.Combine(root, "import-backups")).Single();
-        if (!previous.AsSpan().SequenceEqual(File.ReadAllBytes(backup)))
+        if (!previous.SequenceEqual(File.ReadAllBytes(backup)))
             throw new InvalidDataException("State import did not preserve the exact previous slot.");
         string emptyResult = AndroidFileImport.ImportState(root, validSeed, 8);
         if (!emptyResult.Contains("slot was empty", StringComparison.Ordinal) ||
@@ -42,20 +42,20 @@ internal static class AndroidImportVerification
         // Installed save validation only needs mutable SRAM. Prove it neither opens nor
         // depends on the private cartridge path by using the ROM-free overload here.
         AndroidFileImport.StageRegularSave(root, json);
-        if (!previousSave.AsSpan().SequenceEqual(File.ReadAllBytes(save)))
+        if (!previousSave.SequenceEqual(File.ReadAllBytes(save)))
             throw new InvalidDataException("Staging regular save changed current save prematurely.");
         string pending = Path.Combine(root, "SuperMetroid.import.save.json");
         byte[] pendingBytes = File.ReadAllBytes(pending);
         failed = false;
         try { AndroidFileImport.StageRegularSave(root, bad); }
         catch (InvalidDataException) { failed = true; }
-        if (!failed || !pendingBytes.AsSpan().SequenceEqual(File.ReadAllBytes(pending)))
+        if (!failed || !pendingBytes.SequenceEqual(File.ReadAllBytes(pending)))
             throw new InvalidDataException("Invalid JSON displaced the valid pending import.");
         using var restarted = new AndroidSessionData(root, rom, audio);
         if (new SuperMetroidSaveRam(restarted.Bus, saveMaps).ReadSlot(0)?.Health != 17 || File.Exists(pending))
             throw new InvalidDataException("Next session did not activate the pending regular save exactly once.");
         if (!Directory.GetFiles(Path.Combine(root, "import-backups"))
-            .Any(path => previousSave.AsSpan().SequenceEqual(File.ReadAllBytes(path))))
+            .Any(path => previousSave.SequenceEqual(File.ReadAllBytes(path))))
             throw new InvalidDataException("Activating regular save omitted the previous-save recovery copy.");
         Console.WriteLine("PASS Android imports: corrupt rejection preserves slots/pending save, valid state bytes and backups, next-launch regular save activation.");
     }

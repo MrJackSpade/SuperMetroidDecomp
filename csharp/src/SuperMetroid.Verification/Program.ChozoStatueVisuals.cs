@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -166,7 +167,7 @@ internal static class ChozoStatueVisualsVerification
                     ChozoStatuePlmDrawDefinitions.All.Any(draw =>
                     {
                         int first = 0x840000 | draw.Pointer;
-                        int length = draw.Runs.Span.ToArray().Sum(run =>
+                        int length = draw.Runs.Span.Sum(run =>
                             4 + run.LevelWords.Length * 2);
                         return address >= first && address < first + length;
                     }),

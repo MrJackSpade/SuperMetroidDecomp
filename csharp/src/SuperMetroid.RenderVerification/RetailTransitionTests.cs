@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
@@ -24,8 +25,8 @@ internal static class RetailTransitionTests
             {
                 var expected = destruction.Render();
                 var scene = destruction.CaptureRenderSnapshot();
-                mode1 |= scene.Layers.ToArray().Any(layer => layer is Bg4BppRenderLayer);
-                mode7 |= scene.Layers.ToArray().Any(layer => layer is Mode7RenderLayer);
+                mode1 |= scene.Layers.Any(layer => layer is Bg4BppRenderLayer);
+                mode7 |= scene.Layers.Any(layer => layer is Mode7RenderLayer);
                 var packet = new RenderFrameSnapshot(new(++cinematicCount, 1, (ushort)tick), scene);
                 Check(packet, expected, $"Ceres/Zebes {destruction.Phase}, tick {tick}");
                 destruction.Step();

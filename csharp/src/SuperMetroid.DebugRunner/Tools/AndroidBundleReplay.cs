@@ -37,7 +37,7 @@ internal static class AndroidBundleReplay
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var importBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         SuperMetroidAddressSpace bus = importBus;
-        if (!SHA256.HashData(importBus.Rom).AsSpan().SequenceEqual(recording.RomSha256))
+        if (!SHA256.HashData(importBus.Rom).SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Local ROM does not match Android recording digest.");
         var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));
         string temporary = Directory.CreateTempSubdirectory("SuperMetroid-android-replay-").FullName;
@@ -59,7 +59,7 @@ internal static class AndroidBundleReplay
                 var loaded = store.Load(0);
                 bus = loaded.AddressSpace;
                 game = loaded.Game;
-                if (!SaveRamImage.Capture(bus).AsSpan().SequenceEqual(recording.InitialSaveRam))
+                if (!SaveRamImage.Capture(bus).SequenceEqual(recording.InitialSaveRam))
                     throw new InvalidDataException("Preserved seed SRAM differs from the journal reset header.");
             }
 

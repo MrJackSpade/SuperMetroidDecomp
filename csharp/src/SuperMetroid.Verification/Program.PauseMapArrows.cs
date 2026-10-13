@@ -92,7 +92,7 @@ internal static class PauseMapArrowsVerification
             for (int i = 0; i < pixels.Length; i++)
                 if (rawPixels[i].A != 0) { opaque++; AssertEqual(rawPixels[i], pixels[i], "native arrow pixel survives pause layers"); }
             AssertTrue(opaque > 0, "native reference contains visible arrow pixels");
-            AssertTrue(pixels.AsSpan().SequenceEqual(pause.Render()), "repainting does not advance arrows");
+            AssertTrue(pixels.SequenceEqual(pause.Render()), "repainting does not advance arrows");
         }
         var beforeRestore = pause.Render();
         using (var stream = new MemoryStream())
@@ -102,7 +102,7 @@ internal static class PauseMapArrowsVerification
             pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(stream);
             pause.BindMapPresentation(RetailPresentationFixture());
         }
-        AssertTrue(beforeRestore.AsSpan().SequenceEqual(pause.Render()), "debugger restore/rebind retains the current arrow display");
+        AssertTrue(beforeRestore.SequenceEqual(pause.Render()), "debugger restore/rebind retains the current arrow display");
         pause.mapScrollPosition = new Position16<MapPixels>(100, 70);
         pause.Step(0, 0); _ = pause.Render(); int stable = pause.LastRenderedSpriteCount;
         pause.Step((ushort)SnesButton.R, 0); _ = pause.Render();

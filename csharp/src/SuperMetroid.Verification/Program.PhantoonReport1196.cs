@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Frontend;
@@ -66,7 +67,7 @@ internal static class PhantoonReport1196Verification
         wave.Begin(PhantoonWaveRomData.IntroMode);
         wave.Step(boss);
         wave.Step(boss);
-        AssertTrue(wave.ScrollCycle.ToArray().Distinct().Count() > 1, "fixture retains a used introductory wave");
+        AssertTrue(wave.ScrollCycle.CountDistinct() > 1, "fixture retains a used introductory wave");
         boss.Eye.Parameter1 = 0;
         wave.Step(boss);
         boss.Bg2Scroll = boss.Bg2Scroll.WithX(13);
@@ -96,7 +97,7 @@ internal static class PhantoonReport1196Verification
         boss.Mouth.VariableD = 3072;
         wave.Step(boss);
         AssertEqual((ushort)14, wave.Phase, "following HDMA pass resumes native phase advancement");
-        AssertTrue(wave.ScrollCycle.ToArray().Any(scroll => scroll != 13), "following pass rebuilds the animated wave");
+        AssertTrue(wave.ScrollCycle.Any(scroll => scroll != 13), "following pass rebuilds the animated wave");
         Console.WriteLine("Phantoon death: retained intro data is initialized before setup-only death frame; all rendered rows align before wave advancement.");
     }
 

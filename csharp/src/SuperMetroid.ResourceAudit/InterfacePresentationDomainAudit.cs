@@ -43,17 +43,17 @@ internal static class InterfacePresentationDomainAudit
         if (operation.Arguments.Single(argument => argument.Parameter?.Name == "pointer").Value.ConstantValue
             is not { HasValue: true, Value: not null } value) return null;
         int pointer = Convert.ToInt32(value.Value);
-        bool owned = IntroDiscoveryActorSpriteDefinitions.Frames.ToArray().Any(frame => frame.Pointer == pointer) ||
-            IntroEggEffectSpriteDefinitions.Frames.ToArray().Any(frame => frame.Pointer == pointer) ||
-            IntroRinkaSpriteDefinitions.Frames.ToArray().Any(frame => frame.Pointer == pointer) ||
-            IntroScientistSpriteDefinitions.Frames.ToArray().Any(frame => frame.Pointer == pointer) ||
-            CeresFlightSpriteDefinitions.Frames.ToArray().Any(frame => frame.Pointer == pointer) ||
-            CeresDestructionSpriteDefinitions.Frames.ToArray().Any(frame => frame.Pointer == pointer) ||
-            EndingCloudSpriteDefinitions.Frames.ToArray().Any(frame => frame.Pointer == pointer) ||
-            EndingCompletionTextSpriteDefinitions.Frames.ToArray().Any(frame => frame.Pointer == pointer) ||
-            EndingExplosionSpriteDefinitions.Frames.ToArray().Any(frame => frame.Pointer == pointer) ||
-            EndingLogoSpriteDefinitions.Frames.ToArray().Any(frame => frame.Pointer == pointer) ||
-            EndingRewardSpriteDefinitions.Frames.ToArray().Any(frame => frame.Pointer == pointer);
+        bool owned = IntroDiscoveryActorSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
+            IntroEggEffectSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
+            IntroRinkaSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
+            IntroScientistSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
+            CeresFlightSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
+            CeresDestructionSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
+            EndingCloudSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
+            EndingCompletionTextSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
+            EndingExplosionSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
+            EndingLogoSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
+            EndingRewardSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer);
         return owned ? null : $"Known cinematic frame ${pointer:X4} belongs to no reviewed interface implementation.";
     }
 }

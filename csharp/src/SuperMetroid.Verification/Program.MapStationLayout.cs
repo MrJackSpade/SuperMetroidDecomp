@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -32,7 +33,7 @@ internal static class MapStationLayoutVerification
                 installed.BindStations(original.Stations);
                 installed.BindLandmarks(original.Landmarks);
                 installed.BindSprites(original.Sprites);
-                AssertTrue(Draw(native).AsSpan().SequenceEqual(Draw(installed)), $"station OAM stock parity {area}/{mask}");
+                AssertTrue(Draw(native).SequenceEqual(Draw(installed)), $"station OAM stock parity {area}/{mask}");
                 combinations++;
             }
         }
@@ -59,28 +60,28 @@ internal static class MapStationLayoutVerification
         editIcons.BindStations(edited.Stations);
         editIcons.BindLandmarks(edited.Landmarks);
         editIcons.BindSprites(edited.Sprites);
-        AssertTrue(Draw(baseIcons).AsSpan().SequenceEqual(Draw(editIcons)), "moving icon onto explored tile cannot reveal it");
+        AssertTrue(Draw(baseIcons).SequenceEqual(Draw(editIcons)), "moving icon onto explored tile cannot reveal it");
         state.MarkExploredMapTile(AreaId.Brinstar, new(5, 8));
-        AssertTrue(!Draw(baseIcons).AsSpan().SequenceEqual(Draw(editIcons)), "native discovery reveals relocated icon");
+        AssertTrue(!Draw(baseIcons).SequenceEqual(Draw(editIcons)), "native discovery reveals relocated icon");
         var marker = new FileSelectStationMarker(bus, AreaId.Brinstar, 0,
             original.SaveMarkers);
         var nativeGraphics = new FileSelectRoomMapGraphics(bus, state, AreaId.Brinstar,
             mapPresentation: original);
         var graphics = new FileSelectRoomMapGraphics(guard, state, AreaId.Brinstar, mapPresentation: original);
         var nativePixels = nativeGraphics.Render(new(0, 0), marker);
-        AssertTrue(nativePixels.AsSpan().SequenceEqual(graphics.Render(new(0, 0), marker)), "stock station full-menu pixels with ROM layout blocked");
+        AssertTrue(nativePixels.SequenceEqual(graphics.Render(new(0, 0), marker)), "stock station full-menu pixels with ROM layout blocked");
         byte[] before = Enumerable.Range(0, Bank80SystemState.ExploredMapBytesPerArea)
             .Select(i => state.GetExploredMapByteRaw(AreaId.Brinstar, i)).ToArray();
         graphics.BindMapPresentation(edited);
-        AssertTrue(!nativePixels.AsSpan().SequenceEqual(graphics.Render(new(0, 0), marker)), "edited station changes actual menu pixels after rebind");
+        AssertTrue(!nativePixels.SequenceEqual(graphics.Render(new(0, 0), marker)), "edited station changes actual menu pixels after rebind");
         graphics.BindMapPresentation(original);
-        AssertTrue(nativePixels.AsSpan().SequenceEqual(graphics.Render(new(0, 0), marker)), "station rebind restores stock pixels");
-        AssertTrue(before.AsSpan().SequenceEqual(Enumerable.Range(0, before.Length)
+        AssertTrue(nativePixels.SequenceEqual(graphics.Render(new(0, 0), marker)), "station rebind restores stock pixels");
+        AssertTrue(before.SequenceEqual(Enumerable.Range(0, before.Length)
             .Select(i => state.GetExploredMapByteRaw(AreaId.Brinstar, i)).ToArray()), "layout render/rebind preserves exploration bytes");
         string rebuilt = Path.Combine(overrides, "rebuilt");
         SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "station override survives stock replacement");
-        AssertTrue(bytes.AsSpan().SequenceEqual(File.ReadAllBytes(replacement)), "station override bytes preserved");
+        AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(replacement)), "station override bytes preserved");
         string rebuiltStations = Path.Combine(rebuilt, MapStationLayoutFormat.FileName);
         byte[] rebuiltBytes = File.ReadAllBytes(rebuiltStations);
         File.Delete(rebuiltStations);
@@ -99,7 +100,7 @@ internal static class MapStationLayoutVerification
         static byte[] Draw(FileSelectMapIcons icons)
         {
             var oam = new OamBuffer(); oam.BeginFrame(); icons.DrawBeforeMarker(oam, new(0, 0)); oam.FinalizeFrame();
-            return oam.LowTable.ToArray().Concat(oam.HighTable.ToArray()).ToArray();
+            return oam.LowTable.ConcatToArray(oam.HighTable);
         }
     }
 

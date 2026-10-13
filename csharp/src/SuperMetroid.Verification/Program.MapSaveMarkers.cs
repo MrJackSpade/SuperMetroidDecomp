@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -103,7 +104,7 @@ internal static class MapSaveMarkersVerification
             for (int frame = 0; frame < 128; frame++)
             {
                 native.Step(); installed.Step();
-                AssertTrue(Draw(native).AsSpan().SequenceEqual(Draw(installed)), "stock marker animation/backing OAM");
+                AssertTrue(Draw(native).SequenceEqual(Draw(installed)), "stock marker animation/backing OAM");
             }
             valid++;
         }
@@ -136,18 +137,18 @@ internal static class MapSaveMarkersVerification
             AssertEqual(control.Phase, menu.Phase, "cosmetic marker edit preserves entry/navigation timing");
         }
         AssertEqual(FileSelectMapNavigationPhase.Room, menu.Phase, "edited marker fixture reaches room map");
-        AssertTrue(!control.Render().AsSpan().SequenceEqual(menu.Render()), "selected save marker edit changes actual room-map pixels");
+        AssertTrue(!control.Render().SequenceEqual(menu.Render()), "selected save marker edit changes actual room-map pixels");
         using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, menu); captured.Position = 0;
         menu = DebuggerObjectGraphSerializer.Deserialize<FileSelectMapMenuState>(captured);
         menu.BindMapPresentation(original);
-        AssertTrue(control.Render().AsSpan().SequenceEqual(menu.Render()), "restored marker rebind preserves scroll/animation and restores current stock position");
+        AssertTrue(control.Render().SequenceEqual(menu.Render()), "restored marker rebind preserves scroll/animation and restores current stock position");
         for (int frame = 0; frame < 80; frame++)
         {
             ushort input = frame == 0 ? (ushort)SnesButton.Start : (ushort)0;
             control.Step(input); menu.Step(input);
             AssertEqual(control.Phase, menu.Phase, "marker rebind preserves load phase");
             AssertEqual(control.LoadRequested, menu.LoadRequested, "marker rebind preserves load handoff timing");
-            AssertTrue(control.Render().AsSpan().SequenceEqual(menu.Render()), "marker rebind preserves animation through load fade");
+            AssertTrue(control.Render().SequenceEqual(menu.Render()), "marker rebind preserves animation through load fade");
         }
         AssertTrue(menu.LoadRequested, "fixture actually requests loading");
         AssertEqual((ushort)AreaId.Maridia, slot.Area, "layout does not alter selected save area");
@@ -155,7 +156,7 @@ internal static class MapSaveMarkersVerification
         string rebuilt = Path.Combine(overrides, "rebuilt");
         SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "save marker override survives stock replacement");
-        AssertTrue(bytes.AsSpan().SequenceEqual(File.ReadAllBytes(path)), "save marker override bytes preserved");
+        AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(path)), "save marker override bytes preserved");
         foreach (var bad in new[] { document with { Version = 2 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })
             AssertThrows<InvalidDataException>(() => MapSaveMarkerLayout.Write(new MemoryStream(), bad), "invalid save marker layout rejected");
@@ -174,7 +175,7 @@ internal static class MapSaveMarkersVerification
             var oam = new OamBuffer(); oam.BeginFrame();
             marker.Draw(oam, new(24, 8), original.Sprites);
             oam.FinalizeFrame();
-            return oam.LowTable.ToArray().Concat(oam.HighTable.ToArray()).ToArray();
+            return oam.LowTable.ConcatToArray(oam.HighTable);
         }
     }
 

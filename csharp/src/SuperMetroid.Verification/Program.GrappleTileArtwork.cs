@@ -82,7 +82,7 @@ internal static class GrappleTileArtworkVerification
             byte[] expectedBytes = va.Bytes.ToArray();
             expectedBytes[GrappleTileDefinitions.PointDestination * 2] ^= 128;
             for (int tile = 0; tile < 4; tile++) expectedBytes[GrappleTileDefinitions.SegmentDestination * 2 + tile * 32] ^= 128;
-            AssertTrue(expectedBytes.AsSpan().SequenceEqual(vc.Bytes), "Selected Grapple pixels change exactly five mapped bits and no neighboring VRAM");
+            AssertTrue(expectedBytes.SequenceEqual(vc.Bytes), "Selected Grapple pixels change exactly five mapped bits and no neighboring VRAM");
             cases++;
             SamusGrappleState Seed() => new()
             {

@@ -68,7 +68,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
             definition.RotationTablePointer,
             definition.FinishFunction,
         ];
-        AssertTrue(actual.AsSpan().SequenceEqual(expected),
+        AssertTrue(actual.SequenceEqual(expected),
             $"dead sidehopper configuration $A9:{definition.ConfigurationPointer:X4}");
 
         ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2))));

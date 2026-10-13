@@ -16,7 +16,7 @@ internal static class GameplayHudPresentationVerification
     {
         string stockPath = Path.Combine(stock, GameplayHudDefinitions.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.GameplayHudPresentationExtractor.Extract(bus);
-        AssertTrue(extracted.AsSpan().SequenceEqual(File.ReadAllBytes(stockPath)),
+        AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed gameplay HUD JSON is the deterministic cartridge extraction");
         GameplayHudPresentation presentation = GameplayHudPresentation.Load(new MemoryStream(extracted));
         for (int index = 0; index < GameplayHudDefinitions.TopRowByteCount; index++)

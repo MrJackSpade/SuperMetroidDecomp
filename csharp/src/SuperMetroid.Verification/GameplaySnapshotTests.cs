@@ -47,7 +47,7 @@ internal static class GameplaySnapshotTestsVerification
             Array.Fill(y, (ushort)5678);
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
                 new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
-            AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(RoundTripRenderPacket(packet))),
+            AssertTrue(expected.SequenceEqual(RenderForComparison(RoundTripRenderPacket(packet))),
                 $"gameplay snapshot {mapSize.X}x{mapSize.Y}, mask {mask}, HDMA {hdma}");
             if (samples == 1)
             {
@@ -75,11 +75,11 @@ internal static class GameplaySnapshotTestsVerification
         runtime.NmiHandler.RunNmi(0, true);
         Rgba32[] retail = SuperMetroidRuntimeFrameRenderer.Render(runtime);
         LayeredRenderSnapshot captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
-        AssertTrue(retail.AsSpan().SequenceEqual(RenderForComparison(captured)),
+        AssertTrue(retail.SequenceEqual(RenderForComparison(captured)),
             "ordinary retail room capture matches full renderer with inactive effects");
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, new Bgr555(0, 0, 0));
-        AssertTrue(retail.AsSpan().SequenceEqual(RenderForComparison(captured)),
+        AssertTrue(retail.SequenceEqual(RenderForComparison(captured)),
             "gameplay packet survives complete live VRAM/CGRAM replacement");
         Console.WriteLine($"  Gameplay snapshots: {samples} priority/mask/HDMA/geometry cases and retained retail base match.");
     }

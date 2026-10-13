@@ -404,7 +404,7 @@ csharp/src/SuperMetroid.Core/Game/OldTourianEscapeRedFlashPaletteFxProgramMechan
 csharp/src/SuperMetroid.Core/Game/OwtchBehavior.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Game/OwtchEnemyState.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Game/OwtchInstructionProgramDefinitions.cs	SME6341	1
-csharp/src/SuperMetroid.Core/Game/PhantoonBehavior.cs	SME6340	68
+csharp/src/SuperMetroid.Core/Game/PhantoonBehavior.cs	SME6340	66
 csharp/src/SuperMetroid.Core/Game/PhantoonBehavior.cs	SME6349	6
 csharp/src/SuperMetroid.Core/Game/PhantoonEnemyState.cs	SME6340	32
 csharp/src/SuperMetroid.Core/Game/PhantoonInstructionProgramDefinitions.cs	SME6341	13
@@ -1446,8 +1446,7 @@ csharp/src/SuperMetroid.Verification/Program.KraidRoomPlms.cs	SME6341	3
 csharp/src/SuperMetroid.Verification/Program.KraidRoomProgramMapping.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Program.KraidRoomVisualSelection.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Program.KraidRoomVisuals.cs	SME6340	29
-csharp/src/SuperMetroid.Verification/Program.KraidSinkSchedule.cs	SME6340	13
-csharp/src/SuperMetroid.Verification/Program.KraidSinkSchedule.cs	SME6342	1
+csharp/src/SuperMetroid.Verification/Program.KraidSinkSchedule.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Program.KraidSuperMissileDamage.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Program.KraidVisualSelectors.cs	SME6340	25
 csharp/src/SuperMetroid.Verification/Program.KraidVisualSelectors.cs	SME6342	1

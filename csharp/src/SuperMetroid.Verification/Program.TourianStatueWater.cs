@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using System.Reflection;
@@ -54,7 +55,7 @@ internal static class TourianStatueWaterVerification
         AssertEqual(LayerBlendingConfiguration.LiquidOrFogAdditive, displayed.LayerBlendConfiguration, "Native configuration 18");
         var basis = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
         var full = GameplayDisplayCapture.CaptureFrame(runtime);
-        AssertEqual(1, full.Layers.ToArray().Count(layer => layer is Bg2BppColorMathRenderLayer), "One BG3 water plane accompanies the statue");
+        AssertEqual(1, full.Layers.Count(layer => layer is Bg2BppColorMathRenderLayer), "One BG3 water plane accompanies the statue");
         var dryPixels = SoftwareLayeredSnapshotRenderer.Render(basis);
         var wetPixels = SoftwareLayeredSnapshotRenderer.Render(full);
         for (int y = 32; y < 169; y++)

@@ -192,7 +192,7 @@ internal static class IntroNarrationPresentationVerification
         AreaMapPresentationCatalog stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.IntroNarrationExtractor.Extract(bus);
-        AssertTrue(deterministic.AsSpan().SequenceEqual(File.ReadAllBytes(
+        AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, IntroNarrationDefinitions.FileName))),
             "installed opening narration is the deterministic cartridge extraction");
 
@@ -228,7 +228,7 @@ internal static class IntroNarrationPresentationVerification
         AreaMapPresentationCatalog stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(bus);
-        AssertTrue(deterministic.AsSpan().SequenceEqual(File.ReadAllBytes(
+        AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, IntroFontAtlasFormat.FileName))),
             "installed opening font is the deterministic cartridge extraction");
         IndexedPngImage image = IndexedPng.Read(

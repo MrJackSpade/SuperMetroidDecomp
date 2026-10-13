@@ -34,7 +34,7 @@ internal static class PauseReserveUiAssetsVerification
                 "installed reserve labels/digits/arrow tile palettes match native with their ROM sources forbidden");
             AssertTrue(native.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(installed.CaptureRenderSnapshot().Memory.Cgram),
                 "all 32 reserve-arrow color phases match native");
-            AssertTrue(native.Render().AsSpan().SequenceEqual(installed.Render()),
+            AssertTrue(native.Render().SequenceEqual(installed.Render()),
                 "reserve UI migration retains native pixels");
         }
 
@@ -64,7 +64,7 @@ internal static class PauseReserveUiAssetsVerification
             stockPause.Step(0, 0, nmiFrameCounter8: (byte)frame);
             editedPause.Step(0, 0, nmiFrameCounter8: (byte)frame);
         }
-        AssertTrue(!stockPause.Render().AsSpan().SequenceEqual(editedPause.Render()),
+        AssertTrue(!stockPause.Render().SequenceEqual(editedPause.Render()),
             "edited reserve label/digit/arrow presentation changes visible menu pixels");
 
         var cursorBeforeRestore = (editedPause.SelectedCategory, editedPause.SelectedItem);
@@ -74,9 +74,9 @@ internal static class PauseReserveUiAssetsVerification
         restored.BindMapPresentation(original);
         AssertEqual(cursorBeforeRestore, (restored.SelectedCategory, restored.SelectedItem),
             "reserve UI content rebind preserves the live equipment cursor");
-        AssertTrue(!editedPause.Render().AsSpan().SequenceEqual(restored.Render()),
+        AssertTrue(!editedPause.Render().SequenceEqual(restored.Render()),
             "restored reserve UI adopts current content without changing reserve mechanics");
-        AssertTrue(stockPause.Render().AsSpan().SequenceEqual(restored.Render()),
+        AssertTrue(stockPause.Render().SequenceEqual(restored.Render()),
             "restored reserve UI rebind reproduces the current stock presentation at the retained phase");
 
         void Reject(PauseReserveUiDocument invalid) => AssertThrows<InvalidDataException>(() =>

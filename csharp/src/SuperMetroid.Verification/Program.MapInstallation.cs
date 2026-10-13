@@ -361,7 +361,7 @@ internal static class MapInstallationVerification
             AssertThrows<OperationCanceledException>(() => GameAssetInstaller.EnsureInstalled(root, cancellation.Token, cancelBeforePublish),
                 "cancelled full extraction does not publish its staging directory");
         }
-        AssertTrue(outdatedManifest.AsSpan().SequenceEqual(File.ReadAllBytes(manifestPath)), "cancelled upgrade retains original installed catalog");
+        AssertTrue(outdatedManifest.SequenceEqual(File.ReadAllBytes(manifestPath)), "cancelled upgrade retains original installed catalog");
         AssertTrue(!Directory.EnumerateDirectories(root, ".game.install-*").Any(), "cancelled upgrade cleans its own staging directory");
         CheckPreserved();
         var repaired = GameAssetInstaller.EnsureInstalled(root, progress: new ImmediateInstallProgress())
@@ -383,7 +383,7 @@ internal static class MapInstallationVerification
         var unchanged = GameAssetInstaller.EnsureInstalled(root, progress: new ImmediateInstallProgress(_ =>
             throw new InvalidOperationException("Complete installation unexpectedly extracted again.")));
         AssertTrue(unchanged is not null, "complete installation fast path remains available");
-        AssertTrue(sourceHash.AsSpan().SequenceEqual(SHA256.HashData(File.ReadAllBytes(sourceRom))), "full installer leaves original ROM unchanged");
+        AssertTrue(sourceHash.SequenceEqual(SHA256.HashData(File.ReadAllBytes(sourceRom))), "full installer leaves original ROM unchanged");
         File.WriteAllText(paletteOverride, "broken override");
         _ = GameAssetInstaller.EnsureInstalled(root);
         AssertThrows<InvalidDataException>(() => repaired.LoadMaps(), "startup preserves and reports invalid user override instead of repairing it");
@@ -393,7 +393,7 @@ internal static class MapInstallationVerification
         void CheckPreserved()
         {
             foreach (var pair in preserved)
-                AssertTrue(pair.Value.AsSpan().SequenceEqual(File.ReadAllBytes(pair.Key)), $"installer preserves {Path.GetRelativePath(root, pair.Key)} exactly");
+                AssertTrue(pair.Value.SequenceEqual(File.ReadAllBytes(pair.Key)), $"installer preserves {Path.GetRelativePath(root, pair.Key)} exactly");
         }
     }
 

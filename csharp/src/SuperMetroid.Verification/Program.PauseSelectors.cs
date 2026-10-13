@@ -52,7 +52,7 @@ internal static class PauseSelectorsVerification
                 if (pause.ItemSelectorAnimationState.Frame != renderedFrame)
                 {
                     renderedFrame = pause.ItemSelectorAnimationState.Frame;
-                    AssertTrue(native.Render().AsSpan().SequenceEqual(pause.Render()), "all sixteen selectors match native pixels with pointer/art/position/timing reads forbidden");
+                    AssertTrue(native.Render().SequenceEqual(pause.Render()), "all sixteen selectors match native pixels with pointer/art/position/timing reads forbidden");
                 }
                 if (tick == 51)
                 {
@@ -97,7 +97,7 @@ internal static class PauseSelectorsVerification
                 AssertTrue((oam.HighTable[0] & 2) != 0, "authored large selector sprite size");
                 AssertEqual(4, new SnesObjAttributeWord((ushort)(SnesLittleEndian.Word(oam.LowTable[6], oam.LowTable[7]))).PaletteIndex, "null part palette inherits authored selector palette");
             }
-            AssertTrue(customMenu.Render().AsSpan().SequenceEqual(RenderForComparison(snapshot)), "custom selector animation reaches direct and captured rendering consistently");
+            AssertTrue(customMenu.Render().SequenceEqual(RenderForComparison(snapshot)), "custom selector animation reaches direct and captured rendering consistently");
         }
         var before = customMenu.Render(); var timing = customMenu.ItemSelectorAnimationState;
         using (var state = new MemoryStream())
@@ -109,7 +109,7 @@ internal static class PauseSelectorsVerification
         customMenu.BindMapPresentation(catalog);
         AssertEqual(timing, customMenu.ItemSelectorAnimationState, "rebind does not reset saved visual timing");
         customMenu.Render(); AssertEqual((ushort)47, customMenu.LastIndicatorOrigin.X, "restored stock anchor replaces edited anchor");
-        customMenu.BindMapPresentation(edited); AssertTrue(before.AsSpan().SequenceEqual(customMenu.Render()), "restored edit returns exact pixels without advancing animation");
+        customMenu.BindMapPresentation(edited); AssertTrue(before.SequenceEqual(customMenu.Render()), "restored edit returns exact pixels without advancing animation");
         customMenu.Step(0, (ushort)SnesButton.A);
         AssertEqual((ushort)0, customSamus.EquippedBeams, "custom hidden/visible selector cannot prevent actual equipment toggle");
         AssertEqual((ushort)SamusBeamFlags.Charge, customSamus.CollectedBeams, "selector edit cannot change collection");

@@ -24,9 +24,9 @@ internal static class KraidInstalledPresentationResourcesVerification
             words[word] = BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(word * 2));
         KraidHeadClockFixture.ExpectedUpload(expectedVram, words);
         fixture.Transfer(livePointer);
-        AssertTrue(expectedVram.AsSpan().SequenceEqual(fixture.Vram.Bytes), "low-half head source reads actual live WRAM");
-        AssertTrue(bodyMap.AsSpan().SequenceEqual(fixture.State.BackgroundTilemapWords), "live head alias leaves body map untouched");
-        AssertTrue(ramBefore.AsSpan().SequenceEqual(fixture.Memory.WorkRam), "head DMA is read-only to source WRAM");
+        AssertTrue(expectedVram.SequenceEqual(fixture.Vram.Bytes), "low-half head source reads actual live WRAM");
+        AssertTrue(bodyMap.SequenceEqual(fixture.State.BackgroundTilemapWords), "live head alias leaves body map untouched");
+        AssertTrue(ramBefore.SequenceEqual(fixture.Memory.WorkRam), "head DMA is read-only to source WRAM");
         AssertEqual(1, fixture.State.HeadTilemapUploadCount, "live alias retains one head upload");
         Console.WriteLine("PASS Kraid live head alias: exact WRAM-to-VRAM words, no body-map or source-RAM mutation.");
     }
@@ -45,7 +45,7 @@ internal static class KraidInstalledPresentationResourcesVerification
     {
         IEnumerable<string> files = new[] { KraidBackgroundArtworkFormat.UpperFileName,
             KraidBackgroundArtworkFormat.LowerFileName, KraidBackgroundArtworkFormat.RoomBackgroundFileName }
-            .Concat(KraidHeadInstructionDefinitions.All.ToArray().Where(command => command.Kind == KraidHeadInstructionKind.Frame)
+            .Concat(KraidHeadInstructionDefinitions.All.Where(command => command.Kind == KraidHeadInstructionKind.Frame)
                 .Select(command => command.Tilemap).Distinct().Select(KraidBackgroundArtworkFormat.HeadFileName));
         int count = 0;
         foreach (string file in files)

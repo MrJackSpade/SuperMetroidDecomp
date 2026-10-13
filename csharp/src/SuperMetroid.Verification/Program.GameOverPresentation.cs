@@ -19,7 +19,7 @@ internal static class GameOverPresentationVerification
     {
         string stockPath = Path.Combine(stock, GameOverPresentationDefinitions.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(bus);
-        AssertTrue(extracted.AsSpan().SequenceEqual(File.ReadAllBytes(stockPath)),
+        AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed game-over JSON is the deterministic cartridge extraction");
         _ = GameOverPresentation.Load(new MemoryStream(extracted));
         AssertEqual(60, GameOverBabyAnimationDefinitions.InstructionCount,
@@ -42,7 +42,7 @@ internal static class GameOverPresentationVerification
                 "compiled Baby sequence retains native pointer identity");
             AssertEqual(native.BabySpritemap, installed.BabySpritemap,
                 "compiled Baby sequence selects native frame identity");
-            AssertTrue(native.Render().AsSpan().SequenceEqual(installed.Render()),
+            AssertTrue(native.Render().SequenceEqual(installed.Render()),
                 $"installed game-over frame {tick} matches cartridge pixels");
             comparedFrames++;
 
@@ -115,7 +115,7 @@ internal static class GameOverPresentationVerification
             _ = originalEditAudio.AdvanceFrame(bus, default);
             _ = editedAudio.AdvanceFrame(bus, default);
         }
-        AssertTrue(!originalMenu.Render().AsSpan().SequenceEqual(editedMenu.Render()),
+        AssertTrue(!originalMenu.Render().SequenceEqual(editedMenu.Render()),
             "game-over tilemap, actor and anchor edits reach the real renderer");
 
         for (int frame = 0; frame < 23; frame++)

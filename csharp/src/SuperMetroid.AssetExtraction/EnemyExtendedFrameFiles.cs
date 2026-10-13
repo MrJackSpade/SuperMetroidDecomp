@@ -30,7 +30,7 @@ internal static class EnemyExtendedFrameFiles
             {
                 Version = (int)EnemyExtendedFrameSchema.Current,
                 Frames = frames,
-                DisplayFrames = EnemyExtendedFrameDefinitions.Frames.ToArray()
+                DisplayFrames = EnemyExtendedFrameDefinitions.Frames
                     .ToDictionary(frame => frame.Name, frame => frame.Name,
                         StringComparer.Ordinal),
             }, new JsonSerializerOptions

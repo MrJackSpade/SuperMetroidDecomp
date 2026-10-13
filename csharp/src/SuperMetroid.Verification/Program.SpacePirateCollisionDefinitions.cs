@@ -23,7 +23,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var walkingFramePointers = EnemyExtendedFrameDefinitions.Frames.ToArray()
+        var walkingFramePointers = EnemyExtendedFrameDefinitions.Frames
             .Where(frame => frame.Name.StartsWith("walking_pirate_",
                 StringComparison.Ordinal))
             .Select(frame => frame.Pointer).ToHashSet();
@@ -62,7 +62,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
         }
         AssertEqual(229, componentCount,
             "Space Pirate compiled collision-component count");
-        AssertTrue(EnemyExtendedFrameDefinitions.Frames.ToArray().Any(
+        AssertTrue(EnemyExtendedFrameDefinitions.Frames.Any(
                 frame => frame.Bank != EnemyExtendedFrameDefinitions.Bank),
             "shared extended artwork catalog also contains non-Pirate boss frames");
         foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)

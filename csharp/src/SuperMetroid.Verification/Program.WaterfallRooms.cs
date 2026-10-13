@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using static SuiteTimingVerification;
@@ -47,7 +48,7 @@ internal static class WaterfallRoomsVerification
             AssertEqual((byte)0xb1, (byte)math.ColorMath, "waterfall native CGADSUB");
             AssertEqual(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj,
                 math.Gameplay.Registers.MainScreenLayers, "waterfall main excludes BG2");
-            AssertTrue(!snapshot.Layers.ToArray().Any(layer => layer is Bg2BppColorMathRenderLayer),
+            AssertTrue(!snapshot.Layers.Any(layer => layer is Bg2BppColorMathRenderLayer),
                 "waterfall has no second post-composition liquid overlay");
             var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
             AssertEqual(256 * 224, pixels.Length, "reported room composes full frame");

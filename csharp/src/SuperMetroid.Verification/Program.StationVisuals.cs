@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -21,10 +22,10 @@ internal static class StationVisualsVerification
         RoomPlmStationVisualEntry[] entries = RoomPlmStationDrawDefinitions.All
             .Select(list => new RoomPlmStationVisualEntry(
                 RoomPlmStationDrawDefinitions.VisualId(list.Pointer),
-                list.Runs.Span.ToArray()
-                    .Select(run => run.LevelWords.Span.ToArray()
-                        .Select(word => new RoomLevelWord(word).VisualWord).ToArray())
-                    .ToArray()))
+                list.Runs.Span
+                    .SelectToArray(run => run.LevelWords.Span
+                        .SelectToArray(word => new RoomLevelWord(word).VisualWord))
+                    ))
             .ToArray();
         RoomPlmStationVisualEntry first = entries.Single(entry => entry.Id == "map-frame-0");
         first.Runs[0][0] = 0x0053;

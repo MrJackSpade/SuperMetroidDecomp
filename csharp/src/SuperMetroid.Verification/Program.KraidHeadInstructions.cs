@@ -120,6 +120,7 @@ internal static class KraidHeadInstructionsVerification
     {
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         var state = new KraidEnemyState();
+        enemies.KraidBehavior.Kraid = state;
         var guard = new KraidHeadProgramReadGuard(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureBus(guard);

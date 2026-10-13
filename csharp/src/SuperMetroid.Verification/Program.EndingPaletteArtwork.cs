@@ -445,7 +445,7 @@ internal static class EndingPaletteArtworkVerification
             {
                 Bgr555[] before = editedScene.Presentation.CaptureRenderSnapshot().Memory.Cgram.ToArray();
                 editedScene.BindPaletteFxColors(editedColors);
-                AssertTrue(before.AsSpan().SequenceEqual(
+                AssertTrue(before.SequenceEqual(
                         editedScene.Presentation.CaptureRenderSnapshot().Memory.Cgram),
                     "rebinding ending palette-FX preserves already-drawn CGRAM state");
                 reboundDuringScene = true;
@@ -462,7 +462,7 @@ internal static class EndingPaletteArtworkVerification
             if (changed.Memory.Cgram.SequenceEqual(original.Memory.Cgram)) continue;
             AssertTrue(changed.Memory.Vram.SequenceEqual(original.Memory.Vram),
                 "ending palette-FX edit does not change graphics or transfer timing");
-            if (!SoftwareLayeredSnapshotRenderer.Render(changed).AsSpan().SequenceEqual(
+            if (!SoftwareLayeredSnapshotRenderer.Render(changed).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(original)))
             {
                 visibleDifference = true;
@@ -551,7 +551,7 @@ internal static class EndingPaletteArtworkVerification
             LayeredRenderSnapshot original = stockState.Presentation.CaptureRenderSnapshot();
             AssertTrue(changed.Memory.Vram.SequenceEqual(original.Memory.Vram),
                 "credits palette edit does not alter graphics VRAM");
-            if (!SoftwareLayeredSnapshotRenderer.Render(changed).AsSpan().SequenceEqual(
+            if (!SoftwareLayeredSnapshotRenderer.Render(changed).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(original)))
             {
                 visibleDifference = true;
@@ -602,7 +602,7 @@ internal static class EndingPaletteArtworkVerification
             LayeredRenderSnapshot original = stockState.Presentation.CaptureRenderSnapshot();
             AssertTrue(changed.Memory.Vram.SequenceEqual(original.Memory.Vram),
                 "logo fade color edit does not alter graphics VRAM");
-            if (!SoftwareLayeredSnapshotRenderer.Render(changed).AsSpan().SequenceEqual(
+            if (!SoftwareLayeredSnapshotRenderer.Render(changed).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(original)))
             {
                 visibleDifference = true;

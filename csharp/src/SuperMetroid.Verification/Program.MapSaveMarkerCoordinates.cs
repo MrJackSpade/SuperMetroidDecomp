@@ -32,7 +32,7 @@ internal static class MapSaveMarkerCoordinatesVerification
         byte[] extracted = MapSaveMarkerExtractor.Extract(rom);
         using var serialized = new MemoryStream();
         MapSaveMarkerLayout.Write(serialized, original);
-        AssertTrue(extracted.AsSpan().SequenceEqual(serialized.ToArray()), "original marker JSON names, order and values preserved");
+        AssertTrue(extracted.SequenceEqual(serialized.ToArray()), "original marker JSON names, order and values preserved");
         Suite(nameof(VerifyMapSaveMarkerX), () => VerifyMapSaveMarkerX(original, extracted));
         Suite(nameof(VerifyMapSaveMarkerY), () => VerifyMapSaveMarkerY(original, extracted));
     }

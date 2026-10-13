@@ -49,7 +49,7 @@ internal static class LookupStream5Verification
                 var calculated = new CrocomireMeltingTilemap(phase != 0, native[phase]);
                 AssertEqual(0, (calculated.edits).Count,
                     "Every native melt tilemap word calculates without fallback");
-                AssertTrue(calculated.Words().AsSpan().SequenceEqual(native[phase]), "All native melt words");
+                AssertTrue(calculated.Words().SequenceEqual(native[phase]), "All native melt words");
                 AssertTrue((art ?? throw new InvalidOperationException("Verification requires art.")).Tilemap(source).SequenceEqual(native[phase]), "Installed melt words");
                 VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
                     ? CrocomireBodyProgram.MeltingOneTopRow : CrocomireBodyProgram.MeltingTwoTopRow);
@@ -59,8 +59,8 @@ internal static class LookupStream5Verification
                     var independent = new CrocomireMeltingTilemap(phase != 0, edited);
                     edited[index] = native[phase][index];
                     ushort[] expected = (ushort[])native[phase].Clone(); expected[index] ^= 0xffff;
-                    AssertTrue(independent.Words().AsSpan().SequenceEqual(expected), "Full-word edit owns input and preserves neighbors");
-                    AssertTrue(calculated.Words().AsSpan().SequenceEqual(native[phase]), "Edited map does not mutate stock");
+                    AssertTrue(independent.Words().SequenceEqual(expected), "Full-word edit owns input and preserves neighbors");
+                    AssertTrue(calculated.Words().SequenceEqual(native[phase]), "Edited map does not mutate stock");
                 }
                 AssertThrows<InvalidDataException>(() => _ = new CrocomireMeltingTilemap(phase != 0, new ushort[255]), "Short melt map rejects");
             }

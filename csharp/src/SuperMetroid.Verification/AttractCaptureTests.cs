@@ -58,7 +58,7 @@ internal static class AttractCaptureTestsVerification
                     or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB;
                 if (demo || tick % 31 == 0)
                 {
-                    AssertTrue(expected.Pixels.AsSpan().SequenceEqual(RenderForComparison(RoundTripRenderPacket((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))))),
+                    AssertTrue(expected.Pixels.SequenceEqual(RenderForComparison(RoundTripRenderPacket((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))))),
                         $"demo frame {tick} pixel parity");
                     samples++;
                 }
@@ -66,11 +66,11 @@ internal static class AttractCaptureTestsVerification
                 {
                     sawHold = true;
                     held ??= expected.Pixels.ToArray();
-                    AssertTrue(held.AsSpan().SequenceEqual(expected.Pixels), "demo final-image hold stays pixel-identical");
+                    AssertTrue(held.SequenceEqual(expected.Pixels), "demo final-image hold stays pixel-identical");
                 }
                 if (states.Contains(SuperMetroidGameState.TransitionFromDemoB) && expected.GameState == SuperMetroidGameState.OpeningCinematic)
                 {
-                    AssertTrue(expected.Pixels.AsSpan().SequenceEqual(RenderForComparison((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")))), "demo return title frame");
+                    AssertTrue(expected.Pixels.SequenceEqual(RenderForComparison((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")))), "demo return title frame");
                     returned = true; break;
                 }
             }

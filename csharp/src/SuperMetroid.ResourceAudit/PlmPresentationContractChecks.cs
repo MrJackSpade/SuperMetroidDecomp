@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -108,8 +109,8 @@ internal static class PlmPresentationContractChecks
 
     /// <summary>Strips collision bits from each physical draw run while preserving its run and word shape.</summary>
     internal static ushort[][] VisualRuns(RoomPlmShotBlockDrawDefinitions.DrawList frame) =>
-        frame.Runs.ToArray().Select(run => run.LevelWords.ToArray()
-            .Select(word => new RoomLevelWord(word).VisualWord).ToArray()).ToArray();
+        frame.Runs.Span.SelectToArray(run => run.LevelWords.Span
+            .SelectToArray(word => new RoomLevelWord(word).VisualWord));
 
     /// <summary>Exercises every identified PLM visual catalog with complete native draw identities.</summary>
     private static void ConfirmConstructorCoverage()

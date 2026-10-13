@@ -102,7 +102,7 @@ internal static class ProjectileInheritanceProbeVerification
         var records = new ProjectileInheritanceRecordsAccess(bus);
         byte[] beforeProbe = records.Capture();
         SamusBlockCollision.ProbeWallHorizontal(bus, level, samus.Kinematics, 1 << 16);
-        AssertTrue(beforeProbe.AsSpan().SequenceEqual(records.Capture()),
+        AssertTrue(beforeProbe.SequenceEqual(records.Capture()),
             "Wall observation cannot replace live movement inheritance");
         level.SetForegroundEntry(4 * 16 + 5, RoomLevelWord.Create(0, 0, RoomCollisionType.SolidBlock).Raw);
         var clipped = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = 20 << 16 });
@@ -170,7 +170,7 @@ internal static class ProjectileInheritanceProbeVerification
         byte[] beforeFreeze = records.CaptureDistanceRecords();
         runtime.Freeze.GameplayTimeFrozen = true;
         runtime.StepFrame(0);
-        AssertTrue(beforeFreeze.AsSpan().SequenceEqual(records.CaptureDistanceRecords()),
+        AssertTrue(beforeFreeze.SequenceEqual(records.CaptureDistanceRecords()),
             "Frozen gameplay skips the projectile alpha and preserves directional records");
         runtime.Freeze.GameplayTimeFrozen = false;
         samus.InputLocked = true;

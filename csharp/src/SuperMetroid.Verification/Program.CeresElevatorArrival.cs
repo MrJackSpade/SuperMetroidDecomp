@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -43,7 +44,7 @@ internal static class CeresElevatorArrivalVerification
                 frame => frame.Name,
                 frame => frame.Pointer is 0xb1ba or 0xb1d0 or 0x846d
                     ? new[] { part } : Array.Empty<SpriteVisualPart>()),
-            ProgramFrames = EnemyProjectilePresentationFrameDefinitions.All.ToArray().ToDictionary(
+            ProgramFrames = EnemyProjectilePresentationFrameDefinitions.All.ToDictionary(
                 frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()),
         };
         var artwork = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(

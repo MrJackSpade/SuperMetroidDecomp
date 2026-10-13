@@ -26,7 +26,7 @@ internal static class CreditsPresentationVerification
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(bus);
         byte[] repeated = SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(bus);
-        AssertTrue(extracted.AsSpan().SequenceEqual(repeated),
+        AssertTrue(extracted.SequenceEqual(repeated),
             "staff-credit extraction is deterministic");
 
         CreditsPresentation presentation = CreditsPresentation.Load(

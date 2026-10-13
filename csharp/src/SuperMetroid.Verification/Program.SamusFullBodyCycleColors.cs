@@ -518,7 +518,7 @@ internal static class SamusFullBodyCycleColorsVerification
             replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity,
             "stock re-extraction preserves selected full-body cycle override");
-        AssertTrue(overrideBeforeRepair.AsSpan().SequenceEqual(File.ReadAllBytes(replacement)),
+        AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),
             "stock re-extraction never rewrites the user's cycle colors");
 
         File.Delete(replacement);

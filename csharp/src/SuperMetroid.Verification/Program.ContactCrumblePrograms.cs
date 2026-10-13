@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -220,9 +221,9 @@ internal static class ContactCrumbleProgramsVerification
     {
         RoomPlmShotBlockVisualEntry[] entries = RoomPlmShotBlockDrawDefinitions.All
             .Select(list => new RoomPlmShotBlockVisualEntry(list.Pointer,
-                list.Runs.Span.ToArray().Select(run =>
-                    run.LevelWords.Span.ToArray().Select(word =>
-                        new RoomLevelWord(word).VisualWord).ToArray()).ToArray()))
+                list.Runs.Span.SelectToArray(run =>
+                    run.LevelWords.Span.SelectToArray(word =>
+                        new RoomLevelWord(word).VisualWord))))
             .ToArray();
         RoomPlmShotBlockVisualEntry first = entries.Single(entry =>
             entry.DrawPointer == RoomPlmShotBlockDrawDefinitions.SingleFrame0);

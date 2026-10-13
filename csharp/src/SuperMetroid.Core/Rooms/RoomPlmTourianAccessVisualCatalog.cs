@@ -49,7 +49,7 @@ public sealed class RoomPlmTourianAccessVisualCatalog
                 !TourianAccessPlmDrawDefinitions.TryGetByVisualId(entry.Id,
                     out var draw) ||
                 !TourianAccessPlmDrawDefinitions.TryDescribe(draw.Pointer, out _, out ushort stockWord) ||
-                entry.Blocks.Length != draw.Runs.Span.ToArray().Sum(run =>
+                entry.Blocks.Length != draw.Runs.Span.Sum(run =>
                     run.LevelWords.Length) ||
                 entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
                 throw new InvalidDataException(

@@ -32,13 +32,13 @@ internal static class MotherBrainBodyPresentationVerification
         EnemyExtendedFrameDocument stockOam = BodyOam(edited: false), editedOam = BodyOam(edited: true);
         EnemyBg2FrameDocument stockBg2 = BodyBg2(edited: false), editedBg2 = BodyBg2(edited: true);
         var baseline = new MotherBrainPresentationFixture(Build(stockOam, stockBg2));
-        var mixed = MotherBrainBodyVisualDefinitions.Frames.ToArray()
+        var mixed = MotherBrainBodyVisualDefinitions.Frames
             .Where(frame => MotherBrainBodyVisualDefinitions.HasBg2(frame.Pointer)).ToArray();
         var physicalFrames = Enum.GetValues<MotherBrainBodyProgram>()
             .SelectMany(program => MotherBrainAnimations.Body.Steps(program))
             .Where(step => step.Kind == AnimationProgramStepKind.Show)
             .Select(step => step.Frame.Spritemap).ToHashSet();
-        AssertTrue(physicalFrames.SetEquals(MotherBrainBodyVisualDefinitions.Frames.ToArray()
+        AssertTrue(physicalFrames.SetEquals(MotherBrainBodyVisualDefinitions.Frames
             .Select(frame => frame.Pointer)), "installed body inventory covers every compiled program selector, not only exercised paths");
         // Remap the whole mixed pose, not only its limbs. The native selector must not change.
         for (int index = 0; index < mixed.Length; index++)
@@ -62,7 +62,7 @@ internal static class MotherBrainBodyPresentationVerification
             replacement.Inner.Vram.ExecuteWordTransfer(new ushort[] { 0xbeef }, EnemyBg2FrameLayout.VramBase, 1);
             byte[] retained = replacement.Inner.Vram.Bytes.ToArray();
             AssertBodyOam(replacement.Draw(), editedOam.Frames[selected], replacement.Body);
-            AssertTrue(retained.AsSpan().SequenceEqual(replacement.Inner.Vram.Bytes),
+            AssertTrue(retained.SequenceEqual(replacement.Inner.Vram.Bytes),
                 "repeat OAM draws do not rewrite BG2 without the native new-frame bit");
         }
         int steps = 0;
@@ -116,7 +116,7 @@ internal static class MotherBrainBodyPresentationVerification
         static EnemyBg2FrameDocument BodyBg2(bool edited) => new()
         {
             Version = MotherBrainBodyVisualDefinitions.Bg2Version,
-            Frames = MotherBrainBodyVisualDefinitions.Bg2Frames.ToArray().Select((frame, index) =>
+            Frames = MotherBrainBodyVisualDefinitions.Bg2Frames.SelectToArray((frame, index) =>
                 KeyValuePair.Create(frame.Name, new EnemyBg2WriteDocument[]
                 { new() { X = edited ? 3 : 0, Y = edited ? 2 : 0, Tiles = [100 + index, 200 + index] },
                   new() { X = edited ? 4 : 1, Y = edited ? 3 : 1, Tiles = [300 + index, edited ? 600 + index : 400 + index] } })).ToDictionary(),
@@ -143,7 +143,7 @@ internal static class MotherBrainBodyPresentationVerification
             high |= (byte)(((SnesLittleEndian.HighByte(unchecked((ushort)x)) & 1) | (part.Size == 16 ? 2 : 0)) << (index * 2));
         }
         AssertEqual(expected.Length, actual.NextByteOffset, "body emits exactly the authored limb count");
-        AssertTrue(expected.AsSpan().SequenceEqual(actual.LowTable[..expected.Length]), "body limb position/tile/palette/flip/order match authored art");
+        AssertTrue(expected.SequenceEqual(actual.LowTable[..expected.Length]), "body limb position/tile/palette/flip/order match authored art");
         AssertEqual(high, actual.HighTable[0], "body limb sizes and high X bits match authored art");
     }
 

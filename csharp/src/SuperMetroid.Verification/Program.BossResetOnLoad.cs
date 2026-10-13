@@ -95,7 +95,7 @@ internal static class BossResetOnLoadVerification
             AssertTrue(runtime.System.HasAnyBossBits(AreaId.Brinstar, BossBits.AreaMiniBoss),
                 "subsequent defeat persists until another explicit save load");
         }
-        AssertTrue((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).BossBytes.AsSpan().SequenceEqual(slot.BossBytes),
+        AssertTrue((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).BossBytes.SequenceEqual(slot.BossBytes),
             "loading with reset does not rewrite the stored save");
         Console.WriteLine("Boss reset: disabled defaults, strict INI, full saved-state preservation, outside-Tourian flags, five eye doors, Spore/Torizo/Shaktool room selection and load-only application pass.");
     }

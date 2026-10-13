@@ -736,7 +736,7 @@ internal static void VerifySamusHurtFlashPalette()
         int soundsBefore = samus.LiquidPhysics.SoundRequests.Count;
         SamusHurtFlashPalette.Update(
             bus, cgram, samus, controllerInput: 0, presentationColors: hurtColors);
-        bool paletteChanged = !paletteBefore.AsSpan().SequenceEqual(cgram.Colors.Slice(192, 16));
+        bool paletteChanged = !paletteBefore.SequenceEqual(cgram.Colors.Slice(192, 16));
         AssertEqual(call, counterBefore,
             $"hurt palette call {call} reads pre-increment counter");
 

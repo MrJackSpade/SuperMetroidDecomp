@@ -42,7 +42,7 @@ internal static class KraidArmCallbackMappingsVerification
                 rectangle++;
             }
             AssertEqual(count, index, "Arm rectangle enumeration ends");
-            AssertTrue(actual.ToArray().SequenceEqual(Enumerable.Range(0, count).Select(i => actual[i])),
+            AssertTrue(actual.SequenceEqual(Enumerable.Range(0, count).Select(i => actual[i])),
                 "Arm rectangle materialization");
             AssertThrows<IndexOutOfRangeException>(() => _ = actual[-1], "Negative arm rectangle index");
             AssertThrows<IndexOutOfRangeException>(() => _ = actual[count], "Past arm rectangle index");

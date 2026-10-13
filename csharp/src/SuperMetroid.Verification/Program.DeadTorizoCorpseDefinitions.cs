@@ -44,7 +44,7 @@ internal static class DeadTorizoCorpseDefinitionsVerification
             definition.RotationTablePointer,
             definition.FinishFunction,
         ];
-        AssertTrue(actual.AsSpan().SequenceEqual(expected),
+        AssertTrue(actual.SequenceEqual(expected),
             "dead Torizo corpse configuration");
 
         ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2))));

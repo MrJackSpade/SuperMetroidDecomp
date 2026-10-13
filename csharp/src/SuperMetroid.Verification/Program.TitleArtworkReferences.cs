@@ -20,7 +20,7 @@ internal static class TitleArtworkReferencesVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyTitleArtworkReferences()
     {
-        var frames = TitleSpriteDefinitions.NativePointers.ToArray()
+        var frames = TitleSpriteDefinitions.NativePointers
             .Select(pointer => new TitleSpriteFrame { Pointer = pointer, Parts = [] }).ToArray();
         AssertEqual(TitleGraphicsFormat.SpriteFrameCount, frames.Length,
             "compiled title selectors require exactly 31 distinct artwork frames");

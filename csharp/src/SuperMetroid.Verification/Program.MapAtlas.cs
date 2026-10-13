@@ -26,7 +26,7 @@ internal static class MapAtlasVerification
         var pause = new PauseMenuState(guard, new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         var nativePause = new PauseMenuState(bus, new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         Rgba32[] pauseBefore = pause.Render(), menuBefore = menu.RenderBackgrounds(new(0, 0)).ToArray();
-        AssertTrue(pauseBefore.AsSpan().SequenceEqual(nativePause.Render()), "installed stock atlas gives exact pause pixels with artwork ROM blocked");
+        AssertTrue(pauseBefore.SequenceEqual(nativePause.Render()), "installed stock atlas gives exact pause pixels with artwork ROM blocked");
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides, MapTileAtlasFormat.FileName);
         IndexedPngImage image;
@@ -40,11 +40,11 @@ internal static class MapAtlasVerification
         edited.Tiles.LoadTo(new VramStore(vram).All.Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         byte[] planar = Enumerable.Range(0, source.Length).Select(vram.ReadByte).ToArray();
         byte[] decoded = SnesGraphics.DecodePlanarTiles(planar, 4, MapTileAtlasFormat.TileColumns, out _);
-        AssertTrue(decoded.AsSpan().SequenceEqual(image.Pixels), "every edited PNG pixel reaches compiled tile data");
+        AssertTrue(decoded.SequenceEqual(image.Pixels), "every edited PNG pixel reaches compiled tile data");
         menu.BindMapPresentation(edited);
         pause.BindMapPresentation(edited);
-        AssertTrue(!menuBefore.AsSpan().SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "PNG artwork changes rendered file-select map");
-        AssertTrue(!pauseBefore.AsSpan().SequenceEqual(pause.Render()), "PNG artwork changes rendered pause map");
+        AssertTrue(!menuBefore.SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "PNG artwork changes rendered file-select map");
+        AssertTrue(!pauseBefore.SequenceEqual(pause.Render()), "PNG artwork changes rendered pause map");
         bool InnerMapChanged(Rgba32[] before, Rgba32[] after) => Enumerable.Range(64, 96)
             .Any(y => Enumerable.Range(64, 128).Any(x => before[y * 256 + x] != after[y * 256 + x]));
         AssertTrue(InnerMapChanged(menuBefore, menu.RenderBackgrounds(new(0, 0))), "file-select artwork change reaches map interior, not only frame chrome");
@@ -55,12 +55,12 @@ internal static class MapAtlasVerification
         menu = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(state);
         menu.BindMapPresentation(original);
         pause.BindMapPresentation(original);
-        AssertTrue(menuBefore.AsSpan().SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "restored menu replaces stale modified atlas pixels");
-        AssertTrue(pauseBefore.AsSpan().SequenceEqual(pause.Render()), "pause rebind restores exact stock atlas pixels");
+        AssertTrue(menuBefore.SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "restored menu replaces stale modified atlas pixels");
+        AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause rebind restores exact stock atlas pixels");
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
         SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "PNG override survives stock re-extraction");
-        AssertTrue(replacementBytes.AsSpan().SequenceEqual(File.ReadAllBytes(replacement)), "PNG override bytes never rewritten");
+        AssertTrue(replacementBytes.SequenceEqual(File.ReadAllBytes(replacement)), "PNG override bytes never rewritten");
         File.WriteAllText(replacement, "invalid PNG");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "bad PNG override fails without stock fallback");
         AssertEqual("invalid PNG", File.ReadAllText(replacement), "bad PNG override retained for repair");

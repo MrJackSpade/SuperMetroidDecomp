@@ -108,9 +108,9 @@ public sealed class EnemyProjectileSpritemapCatalog
                 EnemyProjectileSpritemapVersion.FirstProgramFrame =>
                     EnemyProjectileInstructionMechanicsDefinitions.VisualFrames.ToArray(),
                 EnemyProjectileSpritemapVersion.PreAlcoon =>
-                    EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray()
-                        .Where(frame => !IsAlcoonFireballOperand(frame.OperandAddress))
-                        .ToArray(),
+                    EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
+                        .WhereToArray(frame => !IsAlcoonFireballOperand(frame.OperandAddress))
+                        ,
                 EnemyProjectileSpritemapVersion.PreGoldenTorizo =>
                     EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray(),
                 EnemyProjectileSpritemapVersion.PreGoldenTorizoEgg =>

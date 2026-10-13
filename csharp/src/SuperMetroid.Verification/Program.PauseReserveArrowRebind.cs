@@ -27,15 +27,15 @@ internal static class PauseReserveArrowRebindVerification
         byte[] vram = menu.CaptureRenderSnapshot().Memory.Vram.ToArray();
 
         menu.BindMapPresentation(catalog);
-        AssertTrue(vram.AsSpan().SequenceEqual(menu.CaptureRenderSnapshot().Memory.Vram), "same-content rebind keeps the latched reserve arrow tilemap");
-        AssertTrue(pixels.AsSpan().SequenceEqual(menu.Render()), "same-content rebind keeps exact reserve page pixels");
+        AssertTrue(vram.SequenceEqual(menu.CaptureRenderSnapshot().Memory.Vram), "same-content rebind keeps the latched reserve arrow tilemap");
+        AssertTrue(pixels.SequenceEqual(menu.Render()), "same-content rebind keeps exact reserve page pixels");
 
         using var state = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(state, menu);
         state.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state);
         restored.BindMapPresentation(catalog);
-        AssertTrue(pixels.AsSpan().SequenceEqual(restored.Render()), "restore plus rebind keeps exact reserve page pixels");
+        AssertTrue(pixels.SequenceEqual(restored.Render()), "restore plus rebind keeps exact reserve page pixels");
         Console.WriteLine("Reserve arrow rebind: same-content rebind and restore keep the latched arrow palette and exact pixels.");
     }
 }

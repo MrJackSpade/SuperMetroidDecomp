@@ -41,7 +41,7 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleDynamicSelector), () => VerifyCollectibleDynamicSelector(rom));
 
         RoomPlmCollectibleVisualEntry[] entries =
-            RoomPlmCollectibleDrawDefinitions.All.ToArray()
+            RoomPlmCollectibleDrawDefinitions.All
                 .Select(frame => new RoomPlmCollectibleVisualEntry(frame.Id,
                     new RoomLevelWord(frame.LevelWord).VisualWord))
                 .ToArray();

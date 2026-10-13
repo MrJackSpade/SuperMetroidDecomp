@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -44,8 +45,8 @@ internal static class CeresExplosionVerification
                     spawned = true;
                 }
 
-                var actual = scene.CaptureRenderSnapshot().Layers.ToArray()
-                    .OfType<ScanlineColorAddRenderLayer>().SingleOrDefault();
+                var actual = scene.CaptureRenderSnapshot()
+                    .LayersOf<ScanlineColorAddRenderLayer>().SingleOrDefault();
                 var expected = SnesGameplayFrameRenderer.CapturePowerBombColorMath(
                     bus, reference, new Position16<RoomPixels>(0, 0), firstVisibleScanline: 0);
                 AssertEqual(expected is null, actual is null, "Ceres blast window lifetime");

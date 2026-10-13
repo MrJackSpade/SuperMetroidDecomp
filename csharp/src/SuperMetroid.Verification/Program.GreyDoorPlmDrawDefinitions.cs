@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -30,8 +31,8 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
         RoomPlmGreyDoorVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmGreyDoorVisualEntry(
                 GreyDoorPlmDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span[0].LevelWords.Span.ToArray()
-                    .Select(word => new RoomLevelWord(word).VisualWord).ToArray())).ToArray();
+                draw.Runs.Span[0].LevelWords.Span
+                    .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
         RoomPlmGreyDoorVisualCatalog stock = RoomPlmGreyDoorVisualCatalog.Stock();
         RoomPlmGreyDoorVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "grey-right-frame-0");

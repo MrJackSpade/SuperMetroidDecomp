@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -31,9 +32,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         RoomPlmMotherBrainGlassVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmMotherBrainGlassVisualEntry(
                 MotherBrainGlassPlmDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span.ToArray().SelectMany(run =>
-                    run.LevelWords.Span.ToArray().Select(word =>
-                        new RoomLevelWord(word).VisualWord)).ToArray())).ToArray();
+                draw.VisualWords())).ToArray();
         RoomPlmMotherBrainGlassVisualEntry shatter = entries.Single(entry =>
             entry.Id == "shatter-1");
         ushort originalWord = shatter.Blocks[6];
@@ -192,7 +191,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         new CartridgeReadGuard(source).Forbid(address => lists.Any(list =>
             {
                 int first = 0x840000 | list.Pointer;
-                int length = list.Runs.Span.ToArray().Sum(run =>
+                int length = list.Runs.Span.Sum(run =>
                     4 + run.LevelWords.Length * 2);
                 return address >= first && address < first + length;
             }),

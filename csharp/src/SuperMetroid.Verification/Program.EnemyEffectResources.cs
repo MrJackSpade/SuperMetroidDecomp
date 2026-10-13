@@ -24,16 +24,16 @@ internal static class EnemyEffectResourcesVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var corpse = new MotherBrainCorpseRottingState();
         byte[] before = memory.WorkRam.ToArray();
-        AssertTrue(before.AsSpan().SequenceEqual(memory.WorkRam), "missing corpse art must not initialize the rot table before throwing");
+        AssertTrue(before.SequenceEqual(memory.WorkRam), "missing corpse art must not initialize the rot table before throwing");
         AssertEqual(false, corpse.IsInitialized, "failed corpse initialization remains uninitialized");
         AssertEqual(0u, corpse.ProcessCallCount, "failed corpse initialization preserves its clock");
         using var shortPng = EffectPng(RoomCharacterAtlasFormat.BytesPerTile, RoomCharacterAtlasFormat.BytesPerTile, 0x55);
         RoomCharacterAtlas shortArt = RoomCharacterAtlas.Load(shortPng, RoomCharacterAtlasFormat.BytesPerTile);
         AssertThrows<InvalidDataException>(() => corpse.Initialize(memory, shortArt), "wrong-size corpse art fails loudly");
-        AssertTrue(before.AsSpan().SequenceEqual(memory.WorkRam), "wrong-size corpse art leaves WRAM unchanged");
+        AssertTrue(before.SequenceEqual(memory.WorkRam), "wrong-size corpse art leaves WRAM unchanged");
         AssertThrows<InvalidDataException>(() => new MotherBrainRainbowBeamAttackSequence().InitializeCorpseRotting(memory),
             "sequence setup requires corpse art");
-        AssertTrue(before.AsSpan().SequenceEqual(memory.WorkRam), "missing sequence corpse art leaves WRAM unchanged");
+        AssertTrue(before.SequenceEqual(memory.WorkRam), "missing sequence corpse art leaves WRAM unchanged");
 
         CheckCrocomireResourceFailure(null, fixture => fixture.InitializeMap((int)CrocomireMeltingTilemapAddress.FirstTilemap),
             "missing melt tilemap");
@@ -65,7 +65,7 @@ internal static class EnemyEffectResourcesVerification
             Action<RoomEnemySlot> initialize = new Action<RoomEnemySlot>(actual.DeadTourianBehavior.InitializeDeadTourianCorpse);
             byte[] before = memory.WorkRam.ToArray();
             AssertThrows<InvalidDataException>(() => initialize(actual.SlotTable.Slots[0]), "missing Tourian corpse art fails loudly");
-            AssertTrue(before.AsSpan().SequenceEqual(memory.WorkRam), "missing Tourian corpse art leaves its rot table/graphics unchanged");
+            AssertTrue(before.SequenceEqual(memory.WorkRam), "missing Tourian corpse art leaves its rot table/graphics unchanged");
             AssertTrue(actual.DeadTourianCorpses.All(state => state is null), "failed corpse setup must not publish an owner");
             AssertAnimationValues(expected.SlotTable.Slots[0], actual.SlotTable.Slots[0], "failed Tourian corpse setup must not mutate the slot");
         }

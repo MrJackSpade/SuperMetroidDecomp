@@ -35,7 +35,7 @@ internal static class EndingFlyawayArtworkVerification
                 LayeredRenderSnapshot actual = installed.Presentation.CaptureRenderSnapshot();
                 AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                         actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
-                        SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
+                        SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(expected)),
                     $"ending Mode-7 DMA and visible pixels match at upload {uploadedFrames}");
                 uploadedFrames++;

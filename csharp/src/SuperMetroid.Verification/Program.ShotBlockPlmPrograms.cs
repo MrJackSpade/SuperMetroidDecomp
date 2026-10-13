@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
@@ -354,10 +355,10 @@ internal static class ShotBlockPlmProgramsVerification
         RoomPlmShotBlockVisualCatalog stock = RoomPlmShotBlockVisualCatalog.Stock();
         RoomPlmShotBlockVisualEntry[] editedEntries = RoomPlmShotBlockDrawDefinitions.All
             .Select(list => new RoomPlmShotBlockVisualEntry(list.Pointer,
-                list.Runs.Span.ToArray()
-                    .Select(run => run.LevelWords.Span.ToArray()
-                        .Select(word => unchecked((ushort)(word & 0x0fff))).ToArray())
-                    .ToArray()))
+                list.Runs.Span
+                    .SelectToArray(run => run.LevelWords.Span
+                        .SelectToArray(word => unchecked((ushort)(word & 0x0fff))))
+                    ))
             .ToArray();
         RoomPlmShotBlockVisualEntry first = editedEntries.Single(entry =>
             entry.DrawPointer == RoomPlmShotBlockDrawDefinitions.SingleFrame0);

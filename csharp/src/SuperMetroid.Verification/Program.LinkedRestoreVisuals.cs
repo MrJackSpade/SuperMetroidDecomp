@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -155,9 +156,7 @@ internal static class LinkedRestoreVisualsVerification
             RoomPlmLinkedRestoreDrawDefinitions.All.Select(draw =>
                 new RoomPlmLinkedRestoreVisualEntry(
                     RoomPlmLinkedRestoreDrawDefinitions.VisualId(draw.Pointer),
-                    draw.Runs.Span.ToArray().SelectMany(run =>
-                        run.LevelWords.Span.ToArray().Select(word =>
-                            new RoomLevelWord(word).VisualWord)).ToArray()))
+                    draw.VisualWords()))
                 .ToArray();
         string editedId = bomb ? "bomb-horizontal" : "crumble-horizontal";
         ushort editedWord = bomb ? (ushort)0x0053 : (ushort)0x0054;

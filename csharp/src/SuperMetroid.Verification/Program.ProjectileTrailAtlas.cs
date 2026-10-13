@@ -21,7 +21,7 @@ internal static class ProjectileTrailAtlasVerification
         runtime.NmiHandler.RunNmi(0, true);
         byte[] native = runtime.Vram.Bytes.ToArray();
         atlas.LoadTo(runtime.Vram);
-        AssertTrue(native.AsSpan().SequenceEqual(runtime.Vram.Bytes), "Stock trail PNG preserves complete VRAM after production room/NMI setup");
+        AssertTrue(native.SequenceEqual(runtime.Vram.Bytes), "Stock trail PNG preserves complete VRAM after production room/NMI setup");
         for (int tile = 0; tile < 12; tile++)
         {
             var image = IndexedPng.Read(new MemoryStream(png), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
@@ -70,7 +70,7 @@ internal static class ProjectileTrailAtlasVerification
         byte[] before = runtime.Vram.Bytes.ToArray();
         runtime.Artwork.TrailArtwork = catalog;
         runtime.NmiHandler.RunNmi(0, false);
-        AssertTrue(before.AsSpan().SequenceEqual(runtime.Vram.Bytes), "Trail rebind does not change retained lag-frame VRAM");
+        AssertTrue(before.SequenceEqual(runtime.Vram.Bytes), "Trail rebind does not change retained lag-frame VRAM");
         runtime.NmiHandler.RunNmi(0, true);
         Check(runtime);
         // Room initialization queues a new standard OBJ upload even after the first

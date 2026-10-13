@@ -30,7 +30,7 @@ public static class GrappleSpriteExtractor
         {
             Version = GrappleSpriteDefinitions.Version,
             Endpoint = Read(GrappleSpriteDefinitions.EndpointAttributeAddress),
-            Segments = GrappleSpriteDefinitions.SegmentAttributeAddresses.ToArray().Select(Read).ToArray(),
+            Segments = GrappleSpriteDefinitions.SegmentAttributeAddresses.Select(Read).ToArray(),
         });
     }
 }

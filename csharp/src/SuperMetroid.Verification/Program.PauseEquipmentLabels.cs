@@ -34,7 +34,7 @@ internal static class PauseEquipmentLabelsVerification
         {
             byte[] expected = EquipmentPage(new PauseMenuState(bus, new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original }));
             byte[] actual = EquipmentPage(new PauseMenuState(guard, new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original }));
-            AssertTrue(expected.AsSpan().SequenceEqual(actual),
+            AssertTrue(expected.SequenceEqual(actual),
                 "installed equipment labels match native tilemap with label ROM sources forbidden");
         }
 
@@ -56,7 +56,7 @@ internal static class PauseEquipmentLabelsVerification
         byte[] before = EquipmentPage(live);
         live.BindMapPresentation(edited);
         byte[] after = live.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
-        AssertTrue(!before.AsSpan().SequenceEqual(after), "edited label placement/art refreshes current equipment page");
+        AssertTrue(!before.SequenceEqual(after), "edited label placement/art refreshes current equipment page");
         ushort moved = BinaryPrimitives.ReadUInt16LittleEndian(after.AsSpan(
             (charge.Row * PauseEquipmentLabelDefinitions.TilemapColumns + editedColumn) * sizeof(ushort)));
         AssertEqual(chargeCells[0].FlipX, new SnesBgTilemapWord(moved).FlipHorizontally,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -66,9 +67,9 @@ internal static class PlmContentIdentityVerification
         IEnumerable<(ushort Pointer, ushort[][] Runs)> Runs(string domain,
             IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions)
         {
-            var frames = definitions.Select(draw => (draw.Pointer, Runs: draw.Runs.Span.ToArray()
-                .Select(run => run.LevelWords.Span.ToArray()
-                    .Select(word => new RoomLevelWord(word).VisualWord).ToArray()).ToArray())).ToArray();
+            var frames = definitions.Select(draw => (draw.Pointer, Runs: draw.Runs.Span
+                .SelectToArray(run => run.LevelWords.Span
+                    .SelectToArray(word => new RoomLevelWord(word).VisualWord)))).ToArray();
             if (domain == edited)
                 foreach (var frame in frames)
                     frame.Runs[^1][^1] ^= 1;
@@ -84,7 +85,7 @@ internal static class PlmContentIdentityVerification
             return reverse ? frames.Reverse() : frames;
         }
 
-        var dynamicEntries = RoomPlmDynamicCollectibleGraphicsDefinitions.All.ToArray()
+        var dynamicEntries = RoomPlmDynamicCollectibleGraphicsDefinitions.All
             .Select(graphic => new RoomPlmDynamicCollectibleArtEntry(graphic.Kind,
                 graphic.Tiles.ToArray(), graphic.PaletteOffsets.ToArray())).ToArray();
         if (edited == GameInstallationLayout.RoomPlmDynamicCollectibleArtDirectoryName)
@@ -119,8 +120,8 @@ internal static class PlmContentIdentityVerification
                 .Select(draw => new RoomPlmKraidVisualEntry(KraidRoomPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), Crocomire = new RoomPlmCrocomireVisualCatalog(Runs(GameInstallationLayout.RoomPlmCrocomireVisualDirectoryName, CrocomireArenaPlmDrawDefinitions.All)
                 .Select(draw => new RoomPlmCrocomireVisualEntry(CrocomireArenaPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), MotherBrainFakeDeath = new RoomPlmMotherBrainFakeDeathVisualCatalog(Runs(GameInstallationLayout.RoomPlmMotherBrainFakeDeathVisualDirectoryName, MotherBrainFakeDeathPlmDrawDefinitions.All)
                 .Select(draw => new RoomPlmMotherBrainFakeDeathVisualEntry(MotherBrainFakeDeathPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), Collectible = new RoomPlmCollectibleVisualCatalog(Words(GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName,
-                RoomPlmCollectibleDrawDefinitions.All.ToArray().Select(draw => (draw.Pointer, draw.LevelWord)))
-                .Select(draw => new RoomPlmCollectibleVisualEntry(RoomPlmCollectibleDrawDefinitions.All.ToArray().Single(frame => frame.Pointer == draw.Pointer).Id, draw.Word))), DynamicCollectibleArt = new RoomPlmDynamicCollectibleArtCatalog(reverse ? dynamicEntries.Reverse() : dynamicEntries) });
+                RoomPlmCollectibleDrawDefinitions.All.Select(draw => (draw.Pointer, draw.LevelWord)))
+                .Select(draw => new RoomPlmCollectibleVisualEntry(RoomPlmCollectibleDrawDefinitions.All.Single(frame => frame.Pointer == draw.Pointer).Id, draw.Word))), DynamicCollectibleArt = new RoomPlmDynamicCollectibleArtCatalog(reverse ? dynamicEntries.Reverse() : dynamicEntries) });
     }
 
     /// <summary>Runs the ROM-free selected-art identity and compatibility checks.</summary>

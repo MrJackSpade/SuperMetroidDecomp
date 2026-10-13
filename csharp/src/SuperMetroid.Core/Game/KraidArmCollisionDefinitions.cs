@@ -262,8 +262,18 @@ internal readonly record struct KraidArmCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
 
 /// <summary>Ordered rectangle view that attaches calculated callbacks without storing them per record.</summary>
-internal readonly record struct KraidArmHitboxSequence(int Start, int Length)
+internal readonly record struct KraidArmHitboxSequence(int Start, int Length) : IEnumerable<KraidArmCollisionHitbox>
 {
+    /// <summary>LINQ traversal of the selected rectangles; boxes one enumerator.</summary>
+    IEnumerator<KraidArmCollisionHitbox> IEnumerable<KraidArmCollisionHitbox>.GetEnumerator()
+    {
+        for (int index = 0; index < Length; index++)
+            yield return this[index];
+    }
+
+    /// <summary>Non-generic traversal of the selected rectangles.</summary>
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => ((IEnumerable<KraidArmCollisionHitbox>)this).GetEnumerator();
+
     /// <summary>Maps an index in a selected hitbox list to its ordered physical rectangle.</summary>
     internal KraidArmCollisionHitbox this[int index]
     {

@@ -155,7 +155,7 @@ internal sealed class CompactCheckpointRecords : NativeCheckpointRecords
         {
             var packedInitial = new byte[layout.PayloadByteCount];
             layout.Pack(initial.Memory.Slice(0, ReplayTraceMemoryCatalog.WorkRamByteCount), packedInitial);
-            if (frame != initial.SourceFrame || pc != initial.BoundaryPc || !packedInitial.AsSpan().SequenceEqual(payload))
+            if (frame != initial.SourceFrame || pc != initial.BoundaryPc || !packedInitial.SequenceEqual(payload))
                 throw new InvalidDataException($"Compact checkpoint {index} disagrees with the trace's complete initial record.");
             return materialize ? initial : null;
         }

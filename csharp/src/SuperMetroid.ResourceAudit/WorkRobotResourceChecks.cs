@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -14,14 +15,14 @@ internal static class WorkRobotResourceChecks
         // frame clock or player input is needed to expose a missing installed binding.
         var frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(
             frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
-        var programs = EnemyProjectilePresentationFrameDefinitions.All.ToArray().ToDictionary(
+        var programs = EnemyProjectilePresentationFrameDefinitions.All.ToDictionary(
             frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
         for (int index = 0; index < WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount; index++)
         {
             ushort operand = WorkRobotLaserInstructionProgramDefinitions.PresentationWordAddress(index);
             Require(EnemyProjectilePresentationFrameDefinitions.Contains(operand),
                 $"Work Robot laser operand {operand:X4} must be included in the production extraction catalog");
-            string name = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+            string name = EnemyProjectilePresentationFrameDefinitions.All
                 .Single(frame => frame.OperandAddress == operand).Name;
             programs[name] = [new SpriteVisualPart
             {
@@ -42,7 +43,7 @@ internal static class WorkRobotResourceChecks
                 stock.GetProgramFrame(operand).Span[0].X.SignedOffset == index,
                 $"installed Work Robot frame {operand:X4} must preserve its actual draw composition");
         }
-        var legacyPrograms = EnemyProjectilePresentationFrameDefinitions.PreWorkRobot.ToArray().ToDictionary(
+        var legacyPrograms = EnemyProjectilePresentationFrameDefinitions.PreWorkRobot.ToDictionary(
             frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
         Require(programs.Count - legacyPrograms.Count == WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount,
             "the schema change must add only the seven identified Work Robot bindings");

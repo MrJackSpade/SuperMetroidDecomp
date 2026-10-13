@@ -55,7 +55,7 @@ internal static class RoomScrollDefinitionsVerification
                 int source = RoomAssetRomData.Tilesets.DefinitionBank | scrollPointer;
                 for (int index = 0; index < expected.Length; index++)
                     expected[index] = bus.ReadCartridgeByte(source + index);
-                AssertTrue(expected.AsSpan().SequenceEqual(
+                AssertTrue(expected.SequenceEqual(
                         RoomScrollDefinitions.Get(scrollPointer).Storage.Span),
                     $"compiled explicit scroll allocation $8F:{scrollPointer:X4}");
             }
@@ -82,7 +82,7 @@ internal static class RoomScrollDefinitionsVerification
                 NewRoomScrollNoReadAddressSpace(bus),
                 scrollPointer,
                 header.Size);
-            AssertTrue(expected.AsSpan().SequenceEqual(compiled.Storage),
+            AssertTrue(expected.SequenceEqual(compiled.Storage),
                 $"compiled scroll grid for state $8F:{header.State.Pointer:X4}");
         }
 
@@ -123,7 +123,7 @@ internal static class RoomScrollDefinitionsVerification
                     : RoomScrollState.Green)
                 : ceresResidue[index];
         }
-        AssertTrue(expectedCeres.AsSpan().SequenceEqual(guardedCeres.Room.LoadedCamera.Scrolls.Storage),
+        AssertTrue(expectedCeres.SequenceEqual(guardedCeres.Room.LoadedCamera.Scrolls.Storage),
             "production Ceres entry installs compiled scroll storage");
 
         Console.WriteLine(

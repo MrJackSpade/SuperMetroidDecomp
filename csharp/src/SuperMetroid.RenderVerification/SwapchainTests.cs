@@ -320,8 +320,8 @@ internal static partial class SwapchainTests
             legacy.CopyAudioFrame(left);
             captured.CopyAudioFrame(right);
             headless.CopyAudioFrame(silentDisplay);
-            if (!right.AsSpan().SequenceEqual(silentDisplay)) throw new InvalidOperationException($"Headless PCM divergence at {sequence}.");
-            if (!left.AsSpan().SequenceEqual(right)) throw new InvalidOperationException($"PCM divergence at {sequence}.");
+            if (!right.SequenceEqual(silentDisplay)) throw new InvalidOperationException($"Headless PCM divergence at {sequence}.");
+            if (!left.SequenceEqual(right)) throw new InvalidOperationException($"PCM divergence at {sequence}.");
             pcmSamples += right.Length;
             foreach (short sample in right) if (sample != 0) nonzero++;
             if (legacy.GameplaySamusX != captured.GameplaySamusX || legacy.GameplaySamusY != captured.GameplaySamusY ||

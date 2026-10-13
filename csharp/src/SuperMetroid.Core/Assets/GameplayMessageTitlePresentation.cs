@@ -99,8 +99,8 @@ public sealed class GameplayMessageTitlePresentation
                 "Gameplay-message titles require version 1, one 32-cell border and every named one-row title.");
         }
 
-        string[] expected = GameplayMessageTitleDefinitions.MessageIds.ToArray()
-            .Select(static id => id.ToString()).ToArray();
+        string[] expected = GameplayMessageTitleDefinitions.MessageIds
+            .SelectToArray(static id => id.ToString());
         if (document.Titles.Count != expected.Length ||
             expected.Any(name => !document.Titles.ContainsKey(name)))
         {

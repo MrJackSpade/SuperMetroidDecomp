@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -48,7 +49,7 @@ internal static class MessageSnapshotTestsVerification
                     RenderLayer[] layers = layer is null ? [] : [layer];
                     var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick),
                         new LayeredRenderSnapshot(memory, layers, 3, 15));
-                    AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(RoundTripRenderPacket(packet))),
+                    AssertTrue(expected.SequenceEqual(RenderForComparison(RoundTripRenderPacket(packet))),
                         $"message {id}, radius {state.RadiusPixels}");
                     if (layer is not null)
                     {
@@ -70,7 +71,7 @@ internal static class MessageSnapshotTestsVerification
             AssertTrue(!state.IsActive, $"message {id} completes reveal/close fixture");
             // Reuse the same live owner after closing, replacing its tilemap and radius.
             state.Begin(bus, GameplayMessageIds.SaveCompleted, 0);
-            AssertTrue(held is not null && heldPixels.AsSpan().SequenceEqual(RenderForComparison(held)),
+            AssertTrue(held is not null && heldPixels.SequenceEqual(RenderForComparison(held)),
                 "retained message survives closing and reuse of the source owner");
         }
 
@@ -90,7 +91,7 @@ internal static class MessageSnapshotTestsVerification
             int top = 124 - Math.Min(radius, rows * 4), bottom = 124 + Math.Min(radius, rows * 4);
             Rgba32 ink = GameplayMessageRomData.Palette.TemporaryLightColor.ToRgba32();
             for (int y = 0; y < 224; y++)
-                AssertTrue(actual.AsSpan(y * 256, 256).ToArray().All(p => p == (y >= top && y < bottom ? ink : baseline[y * 256])),
+                AssertTrue(actual.AsSpan(y * 256, 256).All(p => p == (y >= top && y < bottom ? ink : baseline[y * 256])),
                     $"message geometry {rows} rows, radius {radius}, line {y}");
             if (rows == 3 && radius == 0)
             {

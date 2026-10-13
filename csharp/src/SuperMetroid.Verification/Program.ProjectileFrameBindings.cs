@@ -101,7 +101,7 @@ internal static class ProjectileFrameBindingsVerification
             new MemoryStream(ProjectileSpriteExtractor.Extract(rom)));
         var stockOam = new OamBuffer();
         compositions.Draw(originalSprite, stockOam, new(100, 100));
-        ushort replacement = ProjectileSpriteDefinitions.NativePointers.ToArray().First(sprite =>
+        ushort replacement = ProjectileSpriteDefinitions.NativePointers.First(sprite =>
         {
             var comparison = new OamBuffer();
             compositions.Draw(sprite, comparison, new(100, 100));

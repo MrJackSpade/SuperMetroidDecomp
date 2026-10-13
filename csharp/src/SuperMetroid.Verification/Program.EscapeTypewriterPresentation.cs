@@ -110,7 +110,7 @@ internal static class EscapeTypewriterPresentationVerification
         AreaMapPresentationCatalog stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.EscapeTypewriterExtractor.Extract(bus);
-        AssertTrue(deterministic.AsSpan().SequenceEqual(File.ReadAllBytes(
+        AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, EscapeTypewriterDefinitions.FileName))),
             "installed escape typewriter is the deterministic cartridge extraction");
 

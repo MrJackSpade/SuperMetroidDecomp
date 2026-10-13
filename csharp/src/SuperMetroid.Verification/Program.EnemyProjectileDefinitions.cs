@@ -91,6 +91,12 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(projectile.Animation is DraygonProjectileAnimation { Cursor.Program: DraygonProjectileProgram.GoopTouch },
                     $"{kind} production touch starts the typed touch program");
             }
+            else if (kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet)
+            {
+                // The turret bullet's impact program is typed (#1285); VerifyMotherBrainProjectileAnimations matches it.
+                AssertTrue(projectile.Animation is MotherBrainTurretAnimation,
+                    $"{kind} production touch starts the typed impact program");
+            }
             else
             {
                 AssertEqual(
@@ -133,6 +139,13 @@ internal static class EnemyProjectileDefinitionsVerification
                 // Kraid's rock burst is typed (#641); VerifyKraidRockAnimations matches it to the native list.
                 AssertTrue(projectile.Animation is KraidRockAnimation { Program: KraidRockProgram.SpitRockShot },
                     $"{kind} production shot starts the typed shot program");
+                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+            }
+            else if (kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet)
+            {
+                // The turret bullet's impact is typed (#1285); VerifyMotherBrainProjectileAnimations matches it.
+                AssertTrue(projectile.Animation is MotherBrainTurretAnimation,
+                    $"{kind} production shot starts the typed impact program");
                 AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
             }
             else

@@ -20,7 +20,7 @@ internal static class FileSelectPresentationVerification
     {
         string stockPath = Path.Combine(stock, FileSelectPresentationDefinitions.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(bus);
-        AssertTrue(extracted.AsSpan().SequenceEqual(File.ReadAllBytes(stockPath)),
+        AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed file-select JSON is the deterministic cartridge extraction");
         _ = FileSelectPresentation.Load(new MemoryStream(extracted));
 
@@ -105,7 +105,7 @@ internal static class FileSelectPresentationVerification
             stockMenu.Step(0);
             editedMenu.Step(0);
         }
-        AssertTrue(!stockMenu.Render().AsSpan().SequenceEqual(editedMenu.Render()),
+        AssertTrue(!stockMenu.Render().SequenceEqual(editedMenu.Render()),
             "file-select page, field and actor edits reach the real renderer");
         FileSelectPhase phaseBeforeRebind = stockMenu.Phase;
         int selectionBeforeRebind = stockMenu.SelectedItem;
@@ -115,7 +115,7 @@ internal static class FileSelectPresentationVerification
             "file-select content rebind preserves phase");
         AssertEqual(selectionBeforeRebind, stockMenu.SelectedItem,
             "file-select content rebind preserves selection");
-        AssertTrue(!pixelsBeforeRebind.AsSpan().SequenceEqual(stockMenu.Render()),
+        AssertTrue(!pixelsBeforeRebind.SequenceEqual(stockMenu.Render()),
             "file-select rebind applies edited content without resetting state");
 
         File.WriteAllText(replacement, "{ broken file-select JSON");
@@ -169,7 +169,7 @@ internal static class FileSelectPresentationVerification
                 $"installed file-select selection matches frame {comparedFrames}");
             AssertTrue(native.BackgroundTilemap.SequenceEqual(installed.BackgroundTilemap),
                 $"installed file-select tilemap matches frame {comparedFrames}");
-            AssertTrue(native.Render().AsSpan().SequenceEqual(installed.Render()),
+            AssertTrue(native.Render().SequenceEqual(installed.Render()),
                 $"installed file-select pixels match frame {comparedFrames}");
             native.Step(input);
             installed.Step(input);

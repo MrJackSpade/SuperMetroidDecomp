@@ -44,7 +44,7 @@ internal static class RendererCaptureTests
             Check(restored.Identity.Generation > before.Identity.Generation, "load must advance host generation");
             Check(restored.Identity.Sequence > before.Identity.Sequence, "load must not rewind host sequence");
             Check(control.game.FrameNumber == frameNumber, "load must not step game");
-            Check(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(restored)), "loaded display must match saved pixels");
+            Check(expected.SequenceEqual(SoftwareFrameSnapshotRenderer.Render(restored)), "loaded display must match saved pixels");
             form.ClientSize = new(700, 500);
             if (renderer != RendererSelection.Software)
             {

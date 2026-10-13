@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
@@ -73,7 +74,7 @@ internal static class BossDisplayBindingsStockVerification
                     "stock packed OAM matches independently decoded native records");
                 AssertBossBg2(fixture.Vram, native.Bg2.Select(write => new EnemyBg2WriteDocument
                 { X = write.DestinationWord % EnemyBg2FrameLayout.TilemapWidth, Y = write.DestinationWord / EnemyBg2FrameLayout.TilemapWidth,
-                    Tiles = write.Tiles.ToArray().Select(value => (int)value).ToArray() }).ToArray());
+                    Tiles = write.Tiles.Span.SelectToArray(value => (int)value) }).ToArray());
             }
         }
         Suite(nameof(VerifyBossDisplayInstallation), () => VerifyBossDisplayInstallation(path, overrides, installed));

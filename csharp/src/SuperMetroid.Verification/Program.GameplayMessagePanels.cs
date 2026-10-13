@@ -62,11 +62,11 @@ internal static class GameplayMessagePanelsVerification
             "message-panel content rebind preserves coroutine phase");
         AssertEqual(radius, active.RadiusPixels,
             "message-panel content rebind preserves window radius");
-        AssertTrue(!before.AsSpan().SequenceEqual(active.Tilemap),
+        AssertTrue(!before.SequenceEqual(active.Tilemap),
             "UTF-8 panel-title edit reaches an active message without a ROM patch");
 
         active.BindPresentation(null, stock);
-        AssertTrue(before.AsSpan().SequenceEqual(active.Tilemap),
+        AssertTrue(before.SequenceEqual(active.Tilemap),
             "restoring stock panel restores exact live tilemap and configured button");
 
         byte[] malformed = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
@@ -87,7 +87,7 @@ internal static class GameplayMessagePanelsVerification
         AreaMapPresentationCatalog stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.GameplayMessagePanelExtractor.Extract(bus);
-        AssertTrue(deterministic.AsSpan().SequenceEqual(File.ReadAllBytes(
+        AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, GameplayMessagePanelDefinitions.FileName))),
             "installed gameplay-message panels are the deterministic cartridge extraction");
 
@@ -105,7 +105,7 @@ internal static class GameplayMessagePanelsVerification
         state.BindPresentation(edited.GameplayMessageTitles, edited.GameplayMessagePanels);
         state.Begin(NewForbiddenGameplayMessageBus(), GameplayMessageId.GrappleBeam, 0);
         AssertTrue(!stockCatalog.GameplayMessagePanels.Build(GameplayMessageId.GrappleBeam)
-                .AsSpan().SequenceEqual(state.Tilemap),
+                .SequenceEqual(state.Tilemap),
             "catalog override changes installed large-message title");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "gameplay-message panel override changes catalog content identity");

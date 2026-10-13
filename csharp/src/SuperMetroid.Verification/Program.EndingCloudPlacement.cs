@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -74,11 +75,11 @@ internal static class EndingCloudPlacementVerification
             var expected = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, actual.Layers,
                 actual.ObjectSelection, actual.Brightness));
             var pixels = ending.Presentation.Render();
-            if (frame == 19 || !pixels.AsSpan().SequenceEqual(expected))
+            if (frame == 19 || !pixels.SequenceEqual(expected))
             {
 
             }
-            AssertTrue(pixels.AsSpan().SequenceEqual(expected), $"scene B cloud positions/motion frame {frame} ({ending.Phase})");
+            AssertTrue(pixels.SequenceEqual(expected), $"scene B cloud positions/motion frame {frame} ({ending.Phase})");
             checkedFrames++;
         }
         AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Phase, "complete scene B checked through fade-out");
@@ -101,7 +102,7 @@ internal static class EndingCloudPlacementVerification
         for (int frame = 0; frame < 90; frame++) ending.Step();
         var snapshot = ending.Presentation.CaptureRenderSnapshot();
         var memory = new SoftwarePpuSnapshotMemory(snapshot.Memory);
-        var registers = snapshot.Layers.ToArray().OfType<Mode7RenderLayer>().First().Registers;
+        var registers = snapshot.LayersOf<Mode7RenderLayer>().First().Registers;
         var background = SnesMode7Renderer.RenderViewport(memory.Vram, memory.Cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = new Offset16<Mode7Pixels>(registers.Center.X, registers.Center.Y), Scroll = new Offset16<Mode7Pixels>(registers.Scroll.X, registers.Scroll.Y), WrapOutsideMap = registers.WrapOutsideMap });
         // SetupPpu_5_Mode7 ($8B:8293) writes M7SEL=0, not the $80
         // transparent-overflow mode. Keep this oracle independent of the renderer's
@@ -148,10 +149,10 @@ internal static class EndingCloudPlacementVerification
             SnesLayerCompositor.Composite(wrapped, wrappedBackground);
             int differences = projected.Zip(wrapped).Count(pair => pair.First != pair.Second);
             Console.WriteLine($"Takeoff native wrapping: {differences} background pixels differ in the captured frame.");
-            AssertTrue(projected.AsSpan().SequenceEqual(wrapped), "takeoff M7SEL=0 wraps rotated background instead of exposing square map edges");
+            AssertTrue(projected.SequenceEqual(wrapped), "takeoff M7SEL=0 wraps rotated background instead of exposing square map edges");
             return;
         }
-        AssertTrue(actual.AsSpan().SequenceEqual(expected), "takeoff applies native BG1 subscreen to eligible main pixels");
+        AssertTrue(actual.SequenceEqual(expected), "takeoff applies native BG1 subscreen to eligible main pixels");
         static byte Add(byte a, byte b)
         {
             int value = Math.Min(31, (a >> 3) + (b >> 3));

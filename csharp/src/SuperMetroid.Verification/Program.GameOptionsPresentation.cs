@@ -20,7 +20,7 @@ internal static class GameOptionsPresentationVerification
     {
         string stockPath = Path.Combine(stock, GameOptionsPresentationDefinitions.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(bus);
-        AssertTrue(extracted.AsSpan().SequenceEqual(File.ReadAllBytes(stockPath)),
+        AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed options JSON is the deterministic cartridge extraction");
         _ = GameOptionsPresentation.Load(new MemoryStream(extracted));
 
@@ -101,7 +101,7 @@ internal static class GameOptionsPresentationVerification
             stockMenu.Step(0);
             editedMenu.Step(0);
         }
-        AssertTrue(!stockMenu.Render().AsSpan().SequenceEqual(editedMenu.Render()),
+        AssertTrue(!stockMenu.Render().SequenceEqual(editedMenu.Render()),
             "options page, actor and anchor edits reach the real renderer");
 
         GameOptionsPhase phaseBeforeRebind = stockMenu.Phase;
@@ -181,7 +181,7 @@ internal static class GameOptionsPresentationVerification
                 AssertTrue(LastSpriteX(installed.CaptureRenderSnapshot()) >= 256,
                     $"editable options hides cursor in {installed.Phase}");
             }
-            AssertTrue(native.Render().AsSpan().SequenceEqual(installed.Render()),
+            AssertTrue(native.Render().SequenceEqual(installed.Render()),
                 $"installed options frame {comparedFrames} matches cartridge pixels");
             native.Step(input);
             installed.Step(input);

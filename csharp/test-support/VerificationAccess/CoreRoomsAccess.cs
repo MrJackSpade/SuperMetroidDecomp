@@ -799,9 +799,7 @@ internal static class RoomPlmKraidVisualCatalogAccess
             KraidRoomPlmDrawDefinitions.All.Select(draw =>
                 new RoomPlmKraidVisualEntry(
                     KraidRoomPlmDrawDefinitions.VisualId(draw.Pointer),
-                    draw.Runs.Span.ToArray().SelectMany(run =>
-                        run.LevelWords.Span.ToArray().Select(word =>
-                            new RoomLevelWord(word).VisualWord)).ToArray())));
+                    draw.VisualWords())));
     }
 }
 

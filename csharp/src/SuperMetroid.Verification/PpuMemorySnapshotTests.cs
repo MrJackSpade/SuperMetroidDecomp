@@ -30,7 +30,7 @@ internal static class PpuMemorySnapshotTestsVerification
         AssertTrue(repeated.Vram.SequenceEqual(first.Vram) && repeated.Cgram.SequenceEqual(first.Cgram)
             && repeated.Oam.SequenceEqual(first.Oam), "repeat capture changed the image");
         AssertTrue(vram.Bytes.SequenceEqual(characters) && cgram.Colors.SequenceEqual(expectedPalette)
-            && oam.CreateUploadPayload().AsSpan().SequenceEqual(expectedOam), "capture mutated its source");
+            && oam.CreateUploadPayload().SequenceEqual(expectedOam), "capture mutated its source");
 
         vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         cgram.SetColor(1, new Bgr555(0, 0, 0));

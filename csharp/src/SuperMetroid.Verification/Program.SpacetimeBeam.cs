@@ -130,13 +130,13 @@ internal static class SpacetimeBeamVerification
         AssertEqual((ushort)0x0880, saved.LoadingGameState,
             "save retains corrupted startup dispatcher word");
         var mirror = new SaveMirrorMemory(bus);
-        AssertTrue(saved.EventBytes.AsSpan().SequenceEqual(ReadTable(mirror.Events)),
+        AssertTrue(saved.EventBytes.SequenceEqual(ReadTable(mirror.Events)),
             "save retains corrupted event bytes");
-        AssertTrue(saved.BossBytes.AsSpan().SequenceEqual(ReadTable(mirror.BossBits)),
+        AssertTrue(saved.BossBytes.SequenceEqual(ReadTable(mirror.BossBits)),
             "save retains corrupted boss bytes");
-        AssertTrue(saved.CollectedItemBytes.AsSpan().SequenceEqual(ReadTable(mirror.CollectedItemBits)),
+        AssertTrue(saved.CollectedItemBytes.SequenceEqual(ReadTable(mirror.CollectedItemBits)),
             "save retains corrupted item bytes");
-        AssertTrue(saved.OpenedDoorBytes.AsSpan().SequenceEqual(ReadTable(mirror.OpenedDoorBits)),
+        AssertTrue(saved.OpenedDoorBytes.SequenceEqual(ReadTable(mirror.OpenedDoorBits)),
             "save retains corrupted door bytes");
 
         var restarted = new SamusState();

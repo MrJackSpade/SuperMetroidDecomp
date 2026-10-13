@@ -118,7 +118,7 @@ internal static class AudioSoundProgramsVerification
                 short[] editedPcm = editedRenderer.RenderFrame(frame == 0 ? [trigger] : []);
                 stockAudible |= stockPcm.Any(sample => sample != 0);
                 editedAudible |= editedPcm.Any(sample => sample != 0);
-                pcmDiffers |= !stockPcm.AsSpan().SequenceEqual(editedPcm);
+                pcmDiffers |= !stockPcm.SequenceEqual(editedPcm);
             }
             AssertTrue(stockAudible, $"stock {effect.Id} fixture is audible");
             AssertTrue(editedAudible, $"edited {effect.Id} fixture is audible");

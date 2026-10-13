@@ -96,7 +96,8 @@ internal static class CrocomireRumbleDefinitionsVerification
         ushort referenceY = death.RumbleYOffset;
         ushort referenceCooldown = death.RumbleCooldown.RawValue;
         ushort referenceDelta = death.RumbleDelta;
-        ushort referenceDeathIndex = (ushort)state.DeathSequenceIndex;
+        // The native dispatcher indexes its table by even byte offset; the state stores the phase in table order.
+        ushort referenceDeathIndex = (ushort)((ushort)state.DeathSequenceIndex * 2);
         int frames = 0;
         while (referenceIndex != 0x0080 && frames < 2048)
         {
@@ -118,7 +119,7 @@ internal static class CrocomireRumbleDefinitionsVerification
                 $"Crocomire rumble frame {frames} cooldown");
             AssertEqual(referenceDelta, death.RumbleDelta,
                 $"Crocomire rumble frame {frames} delta");
-            AssertEqual(referenceDeathIndex, (ushort)state.DeathSequenceIndex,
+            AssertEqual(referenceDeathIndex, (ushort)((ushort)state.DeathSequenceIndex * 2),
                 $"Crocomire rumble frame {frames} death index");
         }
 

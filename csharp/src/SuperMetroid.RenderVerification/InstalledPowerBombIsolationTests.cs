@@ -102,7 +102,7 @@ internal static class InstalledPowerBombIsolationTests
                 }
             }
             Require(changedColors > 0, "The edits never reached live fixed colors.");
-            Require(File.ReadAllBytes(path).AsSpan().SequenceEqual(original), "Stock colors were modified.");
+            Require(File.ReadAllBytes(path).SequenceEqual(original), "Stock colors were modified.");
             File.Delete(Path.Combine(overrides, PowerBombFixedColorFormat.FileName));
             Require(AreaMapPresentationCatalog.Load(stockDirectory, overrides).ContentIdentity == stock.ContentIdentity,
                 "Removing the override did not restore stock content identity.");

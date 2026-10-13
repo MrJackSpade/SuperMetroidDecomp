@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
@@ -24,7 +25,7 @@ internal static class SingleFrameEnemyVisualsVerification
         var stock = EnemySpritemapCatalog.Load(new MemoryStream(stockBytes));
         var document = RequiredJson.Deserialize<EnemySpritemapDocument>(stockBytes, options);
         EnemySpritemapDefinition[] previous = EnemySpritemapDefinitions.Frames
-            .ToArray().Take(EnemySpritemapDefinitions.PreSingleFrameFrameCount).ToArray();
+            .Take(EnemySpritemapDefinitions.PreSingleFrameFrameCount).ToArray();
         string edited = previous[0].Name;
         var legacy = document with
         {
@@ -68,7 +69,7 @@ internal static class SingleFrameEnemyVisualsVerification
         var projectileLegacy = projectileDocument with
         {
             Version = (int)EnemyProjectileSpritemapVersion.PrePolypRock,
-            ProgramFrames = EnemyProjectilePresentationFrameDefinitions.PrePolypRock.ToArray()
+            ProgramFrames = EnemyProjectilePresentationFrameDefinitions.PrePolypRock
                 .ToDictionary(frame => frame.Name, frame => (projectileDocument.ProgramFrames ?? throw new InvalidOperationException("Verification requires projectileDocument.ProgramFrames."))[frame.Name]),
         };
         string editedProjectile = EnemyProjectilePresentationFrameDefinitions.PrePolypRock[0].Name;

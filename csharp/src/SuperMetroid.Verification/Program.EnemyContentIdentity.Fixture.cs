@@ -143,7 +143,7 @@ internal static class EnemyContentIdentityFixtureVerification
             });
             var meltFirstMap = MeltMap("melt-first-map");
             var meltSecondMap = MeltMap("melt-second-map");
-            var gunship = GunshipLiftoffTransferDefinitions.Frames.ToArray().Select((definition, index) =>
+            var gunship = GunshipLiftoffTransferDefinitions.Frames.Select((definition, index) =>
                 Characters("gunship-" + index, GunshipLiftoffTransferDefinitions.ByteCount, index)).ToArray();
             Register("gunship-order");
             if (edit == "gunship-order") Array.Reverse(gunship);
@@ -157,20 +157,20 @@ internal static class EnemyContentIdentityFixtureVerification
             }));
             var special = new MotherBrainSpecialSpriteArtworkCatalog(Ordered(MotherBrainSpecialSpriteArtworkDefinitions.All.Select(definition =>
                 KeyValuePair.Create(definition.SourceAddress, Characters(definition.FileName, definition.ByteCount)))));
-            var torizo = new TorizoInstructionVramArtwork(TorizoInstructionVramArtworkDefinitions.All.ToArray().Select(definition =>
+            var torizo = new TorizoInstructionVramArtwork(TorizoInstructionVramArtworkDefinitions.All.Select(definition =>
                 Characters(definition.FileName, definition.ByteCount)).ToArray());
-            var ceresTiles = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.ToArray().Select(definition =>
+            var ceresTiles = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(definition =>
                 Characters(definition.FileName, definition.ByteCount)).ToArray());
             var overlay = CeresEscapeOverlayTilemapCatalog.Load(Json(new CeresEscapeOverlayTilemapDocument
             {
                 Version = CeresEscapeOverlayTilemapDefinitions.Version,
-                Pages = Ordered(CeresEscapeOverlayTilemapDefinitions.All.ToArray().Select(page =>
+                Pages = Ordered(CeresEscapeOverlayTilemapDefinitions.All.Select(page =>
                     KeyValuePair.Create(page.Name, Words("ceres-overlay-" + page.Name, page.WordCount)))),
             }));
             var auxiliary = EnemyAuxiliaryColorCatalog.Load(Json(new EnemyAuxiliaryColorDocument
             {
                 Version = EnemyAuxiliaryColorFormat.Version,
-                Palettes = Ordered(EnemyAuxiliaryColorDefinitions.All.ToArray().Select(definition =>
+                Palettes = Ordered(EnemyAuxiliaryColorDefinitions.All.Select(definition =>
                     KeyValuePair.Create(definition.Id, ColorRows("auxiliary-" + definition.Id, definition.FrameCount, definition.ColorCount)))),
             }));
 
@@ -325,7 +325,7 @@ internal static class EnemyContentIdentityFixtureVerification
         private MemoryStream Bg2(string family, EnemyBg2FrameDefinitionSequence definitions)
         {
             foreach (string component in new[] { "tiles", "x", "y", "order", "count", "run-boundary" }) Register(family + "-" + component);
-            var frames = definitions.ToArray().Select((frame, index) =>
+            var frames = definitions.SelectToArray((frame, index) =>
             {
                 bool first = index == 0;
                 var a = new EnemyBg2WriteDocument { X = 0, Y = 0, Tiles = [1, 2] };

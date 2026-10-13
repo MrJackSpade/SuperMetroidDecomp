@@ -250,8 +250,18 @@ internal readonly record struct KraidHeadInstructionDefinition(
 internal readonly record struct KraidHeadResumeDefinition(ushort Pointer, ushort Timer);
 
 /// <summary>Calculated native head commands with no stored lookup or startup cache.</summary>
-internal readonly record struct KraidHeadCommandSequence(int Length)
+internal readonly record struct KraidHeadCommandSequence(int Length) : IEnumerable<KraidHeadInstructionDefinition>
 {
+    /// <summary>LINQ traversal of the calculated commands; boxes one enumerator.</summary>
+    IEnumerator<KraidHeadInstructionDefinition> IEnumerable<KraidHeadInstructionDefinition>.GetEnumerator()
+    {
+        for (int index = 0; index < Length; index++)
+            yield return this[index];
+    }
+
+    /// <summary>Non-generic traversal of the calculated commands.</summary>
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => ((IEnumerable<KraidHeadInstructionDefinition>)this).GetEnumerator();
+
     /// <summary>Calculates a command by its ordinal in native program order.</summary>
     public KraidHeadInstructionDefinition this[int index] => KraidHeadInstructionDefinitions.Command(index);
     /// <summary>Materializes all calculated commands for consumers requiring an array.</summary>

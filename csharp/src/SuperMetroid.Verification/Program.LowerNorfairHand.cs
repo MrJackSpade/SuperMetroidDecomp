@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -27,9 +28,7 @@ internal static class LowerNorfairHandVerification
         var handEntries = ChozoStatuePlmDrawDefinitions.All.Select(draw =>
             new RoomPlmChozoStatueVisualEntry(
                 ChozoStatuePlmDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span.ToArray().SelectMany(run =>
-                    run.LevelWords.Span.ToArray().Select(word =>
-                        new RoomLevelWord(word).VisualWord)).ToArray())).ToArray();
+                draw.VisualWords())).ToArray();
         handEntries.Single(entry => entry.Id == "lower-norfair-cleared-hand")
             .Blocks[0] = 0x0053;
         runtime.ShotBlockVisuals.RoomPlmChozoStatueVisuals =

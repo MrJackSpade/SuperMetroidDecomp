@@ -60,11 +60,11 @@ internal static class BossDisplayBindingsVerification
                 replacement.Vram.ExecuteWordTransfer(new ushort[] { 0xbeef }, EnemyBg2FrameLayout.VramBase, 1);
                 byte[] retained = replacement.Vram.Bytes.ToArray();
                 AssertBodyOam(replacement.Draw(), edits.Oam.Frames[selected], replacement.Actor);
-                AssertTrue(retained.AsSpan().SequenceEqual(replacement.Vram.Bytes), frame.Name + " retains native new-frame gate");
+                AssertTrue(retained.SequenceEqual(replacement.Vram.Bytes), frame.Name + " retains native new-frame gate");
                 if (edits.Writes(frame.Bank, edits.Selected(frame).Pointer).Length == 0)
                 {
                     replacement.SetFrame(frame.Pointer, fresh: true); replacement.Draw();
-                    AssertTrue(retained.AsSpan().SequenceEqual(replacement.Vram.Bytes),
+                    AssertTrue(retained.SequenceEqual(replacement.Vram.Bytes),
                         "an OAM-only selected pose does not fabricate a BG2 clear");
                 }
             }

@@ -211,7 +211,7 @@ internal static class CeresRidleyColorsVerification
         AreaMapPresentationCatalog repaired = AreaMapPresentationCatalog.Load(replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
             "Ceres Ridley stock repair preserves override identity");
-        AssertTrue(overrideBeforeRepair.AsSpan().SequenceEqual(File.ReadAllBytes(replacement)),
+        AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),
             "Ceres Ridley stock repair does not rewrite override");
         File.Delete(replacement);
         AssertEqual(original.ContentIdentity,

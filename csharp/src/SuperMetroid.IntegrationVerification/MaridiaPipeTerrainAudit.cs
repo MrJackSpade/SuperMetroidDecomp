@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -12,7 +13,7 @@ internal static class MaridiaPipeTerrainAudit
     public static void Observe(SuperMetroidRuntime runtime, RenderFrameSnapshot snapshot, int frame, bool requireAuthoredTerrain = false)
     {
         if (runtime.Room.ActiveRoom?.Pointer != MaridiaPipeFixtureDefinitions.TubeRoom || snapshot.Layers is not { } layers) return;
-        var gameplay = layers.Layers.ToArray().OfType<OrdinaryGameplayRenderLayer>().Single();
+        var gameplay = layers.LayersOf<OrdinaryGameplayRenderLayer>().Single();
         var r = gameplay.Registers;
         var scroll = runtime.BackgroundScroll;
         var level = runtime.Room.LoadedLevelData;

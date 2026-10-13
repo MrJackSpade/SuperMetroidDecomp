@@ -647,7 +647,7 @@ internal static class SamusBodyArtworkVerification
         File.WriteAllBytes(stockArmPath, [0]);
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Samus test installation disappeared during repair.");
-        AssertTrue(File.ReadAllBytes(stockArmPath).AsSpan().SequenceEqual(originalArmStock),
+        AssertTrue(File.ReadAllBytes(stockArmPath).SequenceEqual(originalArmStock),
             "repair restores the hash-checked stock arm-cannon PNG");
         SamusArmCannonArtworkCatalog reboundArm = repaired.LoadSamusBodyArt().ArmCannon;
         AssertTrue(reboundArm.ReadDrawingByte(armXAddress) != stock.ArmCannon.ReadDrawingByte(armXAddress),

@@ -13,7 +13,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
     {
         var fixture = new EnemyIdentityFixture();
         EnemySpritemapDocument ordinary = fixture.OamDocument();
-        var boyon = EnemySpritemapDefinitions.Frames.ToArray()
+        var boyon = EnemySpritemapDefinitions.Frames
             .Where(frame => frame.Name.StartsWith("boyon_", StringComparison.Ordinal)).ToArray();
         for (int index = 0; index < boyon.Length; index++)
         {
@@ -25,7 +25,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
         }
 
         EnemyExtendedFrameDocument extended = fixture.ExtendedDocument();
-        var torizo = EnemyExtendedFrameDefinitions.Frames.ToArray()
+        var torizo = EnemyExtendedFrameDefinitions.Frames
             .Where(frame => frame.Bank == TorizoInstructionProgramDefinitions.Bank).ToArray();
         for (int index = 0; index < torizo.Length; index++)
             extended.Frames[torizo[index].Name] =
@@ -76,7 +76,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
         expected.BeginFrame();
         if (edited.Torizo is null)
         {
-            var definitions = EnemySpritemapDefinitions.Frames.ToArray()
+            var definitions = EnemySpritemapDefinitions.Frames
                 .Where(value => value.Name.StartsWith("boyon_", StringComparison.Ordinal)).ToArray();
             int nativeIndex = Array.FindIndex(definitions, value => value.Pointer == actor.SpritemapPointer);
             AssertTrue(nativeIndex >= 0, "draw assertion selects a declared Boyon frame");
@@ -87,7 +87,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
         }
         else
         {
-            var definitions = EnemyExtendedFrameDefinitions.Frames.ToArray()
+            var definitions = EnemyExtendedFrameDefinitions.Frames
                 .Where(value => value.Bank == TorizoInstructionProgramDefinitions.Bank).ToArray();
             var orb = definitions.Where(value => GoldenTorizoRightOrbFrames().Contains(value.Pointer)).ToArray();
             int orbIndex = Array.FindIndex(orb, value => value.Pointer == actor.SpritemapPointer);

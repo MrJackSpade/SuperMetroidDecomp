@@ -135,7 +135,7 @@ internal static class InstalledSamusFileContractTests
             Restore();
             Require(baseline == Load().ContentIdentity, "fixture did not restore selected content");
             foreach (string name in names)
-                Require(File.ReadAllBytes(Path.Combine(stock, name)).AsSpan().SequenceEqual(originals[name]),
+                Require(File.ReadAllBytes(Path.Combine(stock, name)).SequenceEqual(originals[name]),
                     "fixture changed stock bytes: " + name);
             Require(failures.Count == 0, "Samus file contracts:\n" + string.Join('\n', failures));
             Console.WriteLine($"PASS Samus file contracts: {names.Length} inventoried PNG/JSON resources; " +
@@ -161,7 +161,7 @@ internal static class InstalledSamusFileContractTests
                         failures.Add(context + " lost codec exception: " + path);
                 }
                 if (before is null) Require(!File.Exists(path), "loader silently repaired a missing file");
-                else Require(File.ReadAllBytes(path).AsSpan().SequenceEqual(before), "loader changed failing data");
+                else Require(File.ReadAllBytes(path).SequenceEqual(before), "loader changed failing data");
             }
             void BodyMutation(Action<JsonObject> edit, string context)
             {

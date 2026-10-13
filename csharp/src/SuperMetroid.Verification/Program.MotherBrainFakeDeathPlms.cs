@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -144,7 +145,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
                   pointer < MotherBrainFakeDeathPlmProgramDefinitions.EndExclusive) ||
                  MotherBrainFakeDeathPlmDrawDefinitions.All.Any(draw =>
                      pointer >= draw.Pointer && pointer < draw.Pointer +
-                         draw.Runs.Span.ToArray().Sum(run =>
+                         draw.Runs.Span.Sum(run =>
                              4 + run.LevelWords.Length * 2)));
         }, address => $"Mother Brain mutation reread migrated source ${address:X6}.");
 

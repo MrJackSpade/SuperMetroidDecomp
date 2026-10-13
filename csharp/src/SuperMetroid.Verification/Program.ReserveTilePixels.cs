@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -62,7 +63,7 @@ internal static class ReserveTilePixelsVerification
         }
         var unchanged = new SnesVram();
         AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadArtworkTo(new VramStore(unchanged).All.Slice(0, 1)), "invalid full transfer destination");
-        AssertTrue(unchanged.Bytes.ToArray().All(value => value == 0), "invalid transfer makes no partial writes");
+        AssertTrue(unchanged.Bytes.All(value => value == 0), "invalid transfer makes no partial writes");
 
         void CheckEdited(byte[] pixels, int expectedStored)
         {

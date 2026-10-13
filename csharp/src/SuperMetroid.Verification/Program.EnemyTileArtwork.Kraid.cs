@@ -91,7 +91,7 @@ internal static class EnemyTileArtworkKraidVerification
     private static void VerifyInstalledKraidHeadFrames(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
-        ushort[] pointers = KraidHeadInstructionDefinitions.All.ToArray()
+        ushort[] pointers = KraidHeadInstructionDefinitions.All
             .Where(frame => frame.Kind == KraidHeadInstructionKind.Frame)
             .Select(frame => frame.Tilemap).Distinct().Order().ToArray();
         AssertEqual(4, pointers.Length, "four distinct Kraid head art frames");

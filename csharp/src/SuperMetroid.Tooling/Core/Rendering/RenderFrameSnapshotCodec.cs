@@ -21,7 +21,7 @@ public static class RenderFrameSnapshotCodec
         using var reader = new BinaryReader(stream);
         try
         {
-            if (!ReadExact(reader, RenderPacketFormat.Signature.Length).AsSpan().SequenceEqual(RenderPacketFormat.Signature))
+            if (!ReadExact(reader, RenderPacketFormat.Signature.Length).SequenceEqual(RenderPacketFormat.Signature))
                 throw new InvalidDataException("Not an SMFRAME display fixture.");
             ushort version = reader.ReadUInt16();
             if (version is < RenderPacketFormat.FirstSupportedVersion or > RenderPacketFormat.Version)

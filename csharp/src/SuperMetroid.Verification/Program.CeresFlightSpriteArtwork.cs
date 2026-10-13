@@ -69,7 +69,7 @@ internal static class CeresFlightSpriteArtworkVerification
                 original.Memory.Cgram.SequenceEqual(replacement.Memory.Cgram),
             "Ceres sprite composition edit does not change characters or palette");
         AssertTrue(!original.Memory.Oam.SequenceEqual(replacement.Memory.Oam) &&
-                !SoftwareLayeredSnapshotRenderer.Render(original).AsSpan().SequenceEqual(
+                !SoftwareLayeredSnapshotRenderer.Render(original).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(replacement)),
             "Ceres star composition edit changes production OAM and visible pixels");
 

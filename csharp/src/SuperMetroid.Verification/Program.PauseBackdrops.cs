@@ -40,7 +40,7 @@ internal static class PauseBackdropsVerification
         using (var output = File.Create(path)) PauseBackdropPresentation.Write(output, document with { Areas = editedAreas, Buttons = buttons });
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "backdrop/button-only edits change catalog identity");
-        AssertTrue(original.PauseBackdrops.CreateButtonTilemap().AsSpan().SequenceEqual(
+        AssertTrue(original.PauseBackdrops.CreateButtonTilemap().SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e400, 0x400)), "all native mutable button words survive extraction");
         AreaId everyTickArea = Enum.GetValues<AreaId>()[0];
         foreach (AreaId area in Enum.GetValues<AreaId>())
@@ -49,7 +49,7 @@ internal static class PauseBackdropsVerification
             ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82965f + (int)area * 2);
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | label, 24).CopyTo(expected, 170 * 2);
             var vram = new SnesVram(); original.PauseBackdrops.LoadTo(new VramStore(vram).All.Slice(0 / sizeof(ushort), PauseBackdropDefinitions.Cells), area);
-            AssertTrue(expected.AsSpan().SequenceEqual(vram.Bytes[..0x800]), "all 1024 backdrop words match native frame plus unmasked area lettering");
+            AssertTrue(expected.SequenceEqual(vram.Bytes[..0x800]), "all 1024 backdrop words match native frame plus unmasked area lettering");
             var native = Create(bus, area, original);
             var pause = Create(guard, area, original);
             var persistentEdit = Create(guard, area, edited);
@@ -73,7 +73,7 @@ internal static class PauseBackdropsVerification
                 var snapshot = pause.CaptureRenderSnapshot();
                 AssertTrue(native.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(snapshot.Memory.Vram), "every stock transition frame retains exact native VRAM");
                 var pixels = pause.Render();
-                AssertTrue(native.Render().AsSpan().SequenceEqual(pixels), "seven-area stock pixels match native path with frame, buttons and label ROM reads blocked");
+                AssertTrue(native.Render().SequenceEqual(pixels), "seven-area stock pixels match native path with frame, buttons and label ROM reads blocked");
                 var selection = (pause.ScreenMode, pause.SelectedCategory, pause.SelectedItem, pause.MapScroll);
                 pause.BindMapPresentation(edited);
                 var changed = pause.CaptureRenderSnapshot();
@@ -94,13 +94,13 @@ internal static class PauseBackdropsVerification
                 if (tick == 0 || tick == 2 + PausePageTransitionNativeLength / 2 || tick == toMap)
                 {
                     var changedPixels = pause.Render();
-                    AssertTrue(!pixels.AsSpan().SequenceEqual(changedPixels), "authored frame/button changes are visible on map and equipment pages");
-                    AssertTrue(changedPixels.AsSpan().SequenceEqual(RenderForComparison(changed)), "edited backdrop agrees between direct and captured renderers");
+                    AssertTrue(!pixels.SequenceEqual(changedPixels), "authored frame/button changes are visible on map and equipment pages");
+                    AssertTrue(changedPixels.SequenceEqual(RenderForComparison(changed)), "edited backdrop agrees between direct and captured renderers");
                     using var capture = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(capture, pause); capture.Position = 0;
                     pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(capture);
                 }
                 pause.BindMapPresentation(original);
-                AssertTrue(pixels.AsSpan().SequenceEqual(pause.Render()), "current-content restore preserves complete pixels and animation phase");
+                AssertTrue(pixels.SequenceEqual(pause.Render()), "current-content restore preserves complete pixels and animation phase");
             }
         }
         // The native invalid-beam selection deliberately leaves an overlong label
@@ -115,7 +115,7 @@ internal static class PauseBackdropsVerification
         byte[] glitchPage = glitch.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
         AssertEqual((ushort)0x0900, BinaryPrimitives.ReadUInt16LittleEndian(glitchPage.AsSpan(0x514)), "fixture retains native VAR overrun beyond ordinary Plasma label");
         glitch.BindMapPresentation(edited);
-        AssertTrue(glitchPage.AsSpan().SequenceEqual(glitch.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800)), "replacing backdrop does not rebuild away live native equipment glitch");
+        AssertTrue(glitchPage.SequenceEqual(glitch.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800)), "replacing backdrop does not rebuild away live native equipment glitch");
 
         void Reject(PauseBackdropDocument invalid, string message) => AssertThrows<InvalidDataException>(() =>
             PauseBackdropPresentation.Write(new MemoryStream(), invalid), message);

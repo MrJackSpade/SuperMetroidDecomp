@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -114,7 +115,7 @@ internal static class InstalledSporesTests
                 Require(capture == replacement.CaptureForDisplay(), "Presentation overrides changed scroll/capture mechanics.");
                 if (frame is < 50 or 510 or 511 or 512 or 1024 or 1049)
                 {
-                    Require(Graph(baseline).AsSpan().SequenceEqual(Graph(replacement)), "Presentation edits changed serialized FX control state.");
+                    Require(Graph(baseline).SequenceEqual(Graph(replacement)), "Presentation edits changed serialized FX control state.");
                     var liquid = new SamusLiquidPhysicsState(); replacement.ApplyToSamusLiquidPhysics(liquid);
                     Require(liquid.FxType == RoomFxType.Spores && liquid.FxYPosition == ushort.MaxValue &&
                         liquid.LavaAcidYPosition == ushort.MaxValue, "Spore artwork activated liquid physics.");
@@ -128,7 +129,7 @@ internal static class InstalledSporesTests
                         GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x4000, SnesMainScreenLayers.Bg2));
                     var layer = SnesGameplayFrameRenderer.CaptureSpores(gameplay, (replacement.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires replacement.CaptureForDisplay().")));
                     Require(!layer.RevealBlocks && layer.ColorMath == (SnesColorMathControl)0x32 &&
-                        layer.Lines.ToArray().All(line => line.Left > line.Right) && layer.Subscreen is not null,
+                        layer.Lines.All(line => line.Left > line.Right) && layer.Subscreen is not null,
                         "Spore capture does not use native source-aware $32 blending.");
                     packets.Add(new(new(packets.Count + 1, 1, 0), new LayeredRenderSnapshot(
                         new(editedVram.Bytes, editedColors.Colors, new byte[SnesPpuLayout.OamUploadByteCount], 0), [layer], 0, 15)));
@@ -403,7 +404,7 @@ internal static class InstalledSporesTests
         Require(renamed > 1, "Legacy fixture did not rename object and declaring-field identities.");
         bytes.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<GameplayColorMathRenderLayer>(bytes);
-        Require(SoftwareLayeredSnapshotRenderer.Render(scene).AsSpan().SequenceEqual(
+        Require(SoftwareLayeredSnapshotRenderer.Render(scene).SequenceEqual(
             SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, [restored], 0, 15))),
             "Renaming the shared source-aware renderer changed an old debugger graph.");
 

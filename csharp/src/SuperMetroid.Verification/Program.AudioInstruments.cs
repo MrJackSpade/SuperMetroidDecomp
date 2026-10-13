@@ -131,7 +131,7 @@ internal static class AudioInstrumentsVerification
                 short[] editedPcm = editedRenderer.RenderFrame([]);
                 stockAudible |= stockPcm.Any(sample => sample != 0);
                 editedAudible |= editedPcm.Any(sample => sample != 0);
-                pcmDiffers |= !stockPcm.AsSpan().SequenceEqual(editedPcm);
+                pcmDiffers |= !stockPcm.SequenceEqual(editedPcm);
             }
             AssertTrue(stockAudible, "stock title instrument fixture is audible");
             AssertTrue(editedAudible, "edited title instrument fixture is audible");

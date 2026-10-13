@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -85,7 +86,7 @@ internal static class EndingShootingStarsTests
             var pixels = scene.Presentation.Render();
             var noStars = SoftwareLayeredSnapshotRenderer.Render(withoutStars);
             bool hidden = scene.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;
-            Require(pixels.AsSpan().SequenceEqual(noStars) == hidden, "Stars are visible except behind the native text-only TM");
+            Require(pixels.SequenceEqual(noStars) == hidden, "Stars are visible except behind the native text-only TM");
             var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), snapshot);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Post-credits stars CPU/GPU rendering");
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Star rendering is repeatable");
@@ -103,7 +104,7 @@ internal static class EndingShootingStarsTests
         logo.PaletteStep = 16;
         logo.CrossfadeStarted = true;
         var final = scene.Presentation.CaptureRenderSnapshot();
-        Require(final.Memory.ModeledSpriteCount > 0 && final.Layers.ToArray().OfType<ObjRenderLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");
+        Require(final.Memory.ModeledSpriteCount > 0 && final.LayersOf<ObjRenderLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");
         Console.WriteLine($"{device.Kind}: 40 native star definitions, delay/trajectory/animation/reset, visible ending stars, phase masks and late-scene ownership passed.");
 
         ushort Word(int address) => rom.ReadCartridgeWord(address);

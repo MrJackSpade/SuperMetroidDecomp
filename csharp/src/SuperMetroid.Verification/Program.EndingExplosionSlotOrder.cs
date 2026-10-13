@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -36,16 +37,16 @@ internal static class EndingExplosionSlotOrderVerification
         AssertTrue(actual.Oam[..(37 * 4)].SequenceEqual(expected.LowTable[..(37 * 4)]),
             "native slot order preserves all 37 afterglow pieces before starfield OAM overflow");
         var snapshot = ending.Presentation.CaptureRenderSnapshot();
-        var background = snapshot.Layers.ToArray().OfType<Mode7RenderLayer>().Single();
+        var background = snapshot.LayersOf<Mode7RenderLayer>().Single();
         AssertTrue(Enumerable.Range(0, actual.ModeledSpriteCount).All(index =>
             (actual.Oam[index * 4 + 3] & 0x30) == 0), "live flyaway actors use native priority zero");
-        var fixedWhite = snapshot.Layers.ToArray().OfType<FixedColorAddRenderLayer>().Single();
+        var fixedWhite = snapshot.LayersOf<FixedColorAddRenderLayer>().Single();
         RenderLayer[] order = [fixedWhite, new ObjRenderLayer(FixedColor: fixedWhite), background];
         var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(actual, order,
             snapshot.ObjectSelection, snapshot.Brightness));
         var actualPixels = ending.Presentation.Render();
 
-        AssertTrue(actualPixels.AsSpan().SequenceEqual(nativePixels),
+        AssertTrue(actualPixels.SequenceEqual(nativePixels),
             "live getaway ship occludes priority-zero afterglow pixels");
     }
 }

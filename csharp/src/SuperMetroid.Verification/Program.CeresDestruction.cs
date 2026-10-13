@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -69,8 +70,8 @@ internal static void VerifyCeresDestructionCinematic()
             Version = CeresFlightArtworkFormat.Version,
             Width = CeresFlightArtworkFormat.MapWidth,
             Height = CeresFlightArtworkFormat.MapHeight,
-            FrontTiles = maps.AsSpan(0, 0x300).ToArray().Select(value => (int)value).ToArray(),
-            RearTiles = maps.AsSpan(0x300, 0x300).ToArray().Select(value => (int)value).ToArray(),
+            FrontTiles = maps.AsSpan(0, 0x300).SelectToArray(value => (int)value),
+            RearTiles = maps.AsSpan(0x300, 0x300).SelectToArray(value => (int)value),
         });
     using (var stream = File.Create(Path.Combine(overrideRoot, CeresDestructionArtworkFormat.CeresMapFileName)))
         CeresDestructionArtworkCatalog.WriteMap(stream, new CeresDestructionMapDocument
@@ -79,7 +80,7 @@ internal static void VerifyCeresDestructionCinematic()
             Width = CeresDestructionArtworkFormat.MapWidth,
             Height = CeresDestructionArtworkFormat.MapHeight,
             Views = Enumerable.Range(0, 3).Select(index => maps.AsSpan(0x600 + index * 0x300, 0x300)
-                .ToArray().Select(value => (int)value).ToArray()).ToArray(),
+                .SelectToArray(value => (int)value)).ToArray(),
         });
     var artwork = IntroCinematicArtworkFiles.Load(
         RepositoryInstallation.Installation.IntroCinematicDirectory, overrideRoot);

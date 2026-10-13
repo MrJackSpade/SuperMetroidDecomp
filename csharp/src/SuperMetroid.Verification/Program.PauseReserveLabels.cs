@@ -66,7 +66,7 @@ internal static class PauseReserveLabelsVerification
                 snapshot.ObjectSelection, snapshot.Brightness));
             var actualPixels = pause.Render();
 
-            AssertTrue(actualPixels.AsSpan().SequenceEqual(expectedPixels),
+            AssertTrue(actualPixels.SequenceEqual(expectedPixels),
                 $"visible reserve labels match native ownership/mode ({capacity}/{mode})");
         }
         Console.WriteLine("Pause reserve labels: six ownership/mode cases match native rendered labels.");

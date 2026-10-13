@@ -57,7 +57,7 @@ internal static class RidleyBreakupProgramsVerification
         var stock = EnemySpritemapCatalog.Load(new MemoryStream(stockBytes));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<EnemySpritemapDocument>(stockBytes, options);
-        var previous = EnemySpritemapDefinitions.Frames.ToArray().Take(EnemySpritemapDefinitions.PreRidleyBreakupFrameCount).ToArray();
+        var previous = EnemySpritemapDefinitions.Frames.Take(EnemySpritemapDefinitions.PreRidleyBreakupFrameCount).ToArray();
         var legacy = document with
         {
             Version = (int)EnemySpritemapSchema.PreRidleyBreakup,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -51,7 +52,7 @@ internal static class EndingRewardGestureVerification
             int uploadedBytes = (chunk + 1) * 2048;
             AssertTrue(graphicsVram.Bytes[..uploadedBytes].SequenceEqual(expectedGraphics.AsSpan(0, uploadedBytes)),
                 "reward graphics DMA preserves both interleaved lanes at every upload boundary");
-            AssertTrue(graphicsVram.Bytes[uploadedBytes..].ToArray().All(value => value == 0xa5),
+            AssertTrue(graphicsVram.Bytes[uploadedBytes..].All(value => value == 0xa5),
                 "reward graphics upload preserves pending chunks and the shooting OBJ sheet");
         }
         AssertEqual(0, uploadBus.ForbiddenReadAttempts,

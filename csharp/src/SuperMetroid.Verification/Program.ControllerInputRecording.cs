@@ -33,7 +33,7 @@ internal static class ControllerInputRecordingVerification
 
         using var bytes = new MemoryStream();
         expected.Write(bytes);
-        AssertEqual(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.ToArray().AsSpan(8)),
+        AssertEqual(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.WrittenBytes()[8..]),
             "legacy input recording retains version-one bytes");
         bytes.Position = 0;
         ControllerInputRecording actual = ControllerInputRecording.Read(bytes);
@@ -76,7 +76,7 @@ internal static class ControllerInputRecordingVerification
         ControllerInputRecording expectedV2 = expected with { ContentIdentity = identity };
         using var v2Bytes = new MemoryStream();
         expectedV2.Write(v2Bytes);
-        AssertEqual(2u, BinaryPrimitives.ReadUInt32LittleEndian(v2Bytes.ToArray().AsSpan(8)),
+        AssertEqual(2u, BinaryPrimitives.ReadUInt32LittleEndian(v2Bytes.WrittenBytes()[8..]),
             "identified input recording uses version two");
         v2Bytes.Position = 0;
         ControllerInputRecording actualV2 = ControllerInputRecording.Read(v2Bytes);
@@ -106,7 +106,7 @@ internal static class ControllerInputRecordingVerification
         };
         using var v3Bytes = new MemoryStream();
         expectedV3.Write(v3Bytes);
-        AssertEqual(3u, BinaryPrimitives.ReadUInt32LittleEndian(v3Bytes.ToArray().AsSpan(8)),
+        AssertEqual(3u, BinaryPrimitives.ReadUInt32LittleEndian(v3Bytes.WrittenBytes()[8..]),
             "named-catalog input recording uses version three");
         v3Bytes.Position = 0;
         ControllerInputRecording actualV3 = ControllerInputRecording.Read(v3Bytes);
@@ -124,7 +124,7 @@ internal static class ControllerInputRecordingVerification
                 AdditionalContentSha256 = components.Reverse().ToDictionary(pair => pair.Key, pair => pair.Value),
             },
         }).Write(reorderedBytes);
-        AssertTrue(v3Bytes.ToArray().SequenceEqual(reorderedBytes.ToArray()), "named table has canonical ordering");
+        AssertTrue(v3Bytes.WrittenBytes().SequenceEqual(reorderedBytes.WrittenBytes()), "named table has canonical ordering");
         byte[] damaged = v3Bytes.ToArray();
         int tableOffset = ControllerInputRecordingFormat.CurrentHeaderByteCount;
         BinaryPrimitives.WriteInt32LittleEndian(damaged.AsSpan(tableOffset), int.MaxValue);

@@ -18,7 +18,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXRadii + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYRadii + variant * 2)];
             var compiled = variant == 0 ? TorizoInitializationDefinitions.Bomb : TorizoInitializationDefinitions.Golden;
             ushort[] actual = [compiled.Position.X, compiled.Position.Y, compiled.Instruction, compiled.PropertyMask, compiled.Radius.X, compiled.Radius.Y];
-            AssertTrue(native.AsSpan().SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
+            AssertTrue(native.SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
 
             var enemies = new RoomEnemySystem();
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

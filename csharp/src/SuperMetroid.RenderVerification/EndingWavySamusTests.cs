@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -30,14 +31,14 @@ internal static class EndingWavySamusTests
         scene.Phase = EndingCreditsPhase.PostCreditsShootingStars;
         scene.phaseTimer = 1;
         scene.brightness = (byte)15;
-        Require(!scene.Presentation.CaptureRenderSnapshot().Layers.ToArray().OfType<BgSubscreenAddRenderLayer>().Any(), "Wave must not start during the palette fade");
+        Require(!scene.Presentation.CaptureRenderSnapshot().LayersOf<BgSubscreenAddRenderLayer>().Any(), "Wave must not start during the palette fade");
         scene.Step();
         Rgba32[]? previous = null;
         for (int age = 0; age < 180; age++)
         {
             Require(scene.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop, "Native wave lasts exactly the 180-frame hold");
             var snapshot = scene.Presentation.CaptureRenderSnapshot();
-            var wave = snapshot.Layers.ToArray().OfType<BgSubscreenAddRenderLayer>().Single();
+            var wave = snapshot.LayersOf<BgSubscreenAddRenderLayer>().Single();
             for (int line = 0; line < 224; line++)
             {
                 Require(wave.Scrolls[line].X == NativeX(age, line), $"Native HDMA X age {age}, line {line}");
@@ -86,13 +87,13 @@ internal static class EndingWavySamusTests
                     supplied[0] = new(123, 123);
                     Require(owned.Scrolls[0] == new Position16<BgPlanePixels>(0, 0), "Captured line scrolls own their input memory");
                 }
-                if (age == 3) Require(previous is not null && !expected.AsSpan().SequenceEqual(previous), "Wave changes visible pixels between consecutive frames");
+                if (age == 3) Require(previous is not null && !expected.SequenceEqual(previous), "Wave changes visible pixels between consecutive frames");
                 previous = expected;
             }
             scene.Step();
         }
         Require(scene.Phase == EndingCreditsPhase.PostCreditsWaitingSamus, "Result panel replaces the wave after its wait");
-        Require(!scene.Presentation.CaptureRenderSnapshot().Layers.ToArray().OfType<BgSubscreenAddRenderLayer>().Any(), "Result panel disables BG3 addition");
+        Require(!scene.Presentation.CaptureRenderSnapshot().LayersOf<BgSubscreenAddRenderLayer>().Any(), "Result panel disables BG3 addition");
         Console.WriteLine($"{device.Kind}: ending wave native scrolls, moving blue pixels, BG2-only addition, 180-frame lifecycle and packet round trip passed.");
 
         ushort NativeX(int age, int line)

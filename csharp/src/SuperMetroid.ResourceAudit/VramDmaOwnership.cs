@@ -17,15 +17,15 @@ internal static class VramDmaOwnership
         if (source == HudTileAtlasFormat.SourceAddress && count == HudTileAtlasFormat.TransferByteCount) return true;
         if ((source == EscapeTimerTileRomData.FirstSourceAddress && count == EscapeTimerTileAtlasFormat.FirstByteCount) ||
             (source == EscapeTimerTileRomData.SecondSourceAddress && count == EscapeTimerTileAtlasFormat.SecondByteCount)) return true;
-        if (GrappleTileDefinitions.Transfers.ToArray().Any(frame => frame.SourceAddress == source && frame.ByteCount == count)) return true;
+        if (GrappleTileDefinitions.Transfers.Any(frame => frame.SourceAddress == source && frame.ByteCount == count)) return true;
         if (source == GameplayHudDefinitions.TopRowAddress && count == GameplayHudDefinitions.TopRowByteCount) return true;
         if (source == StandardObjectArtworkAddresses.Source && count == StandardObjectArtworkFormat.TransferByteCount) return true;
-        if (SamusSpecialSequenceRomData.Death.TileSegments.ToArray().Any(segment => segment.SourceAddress == source &&
+        if (SamusSpecialSequenceRomData.Death.TileSegments.Any(segment => segment.SourceAddress == source &&
                 count == SamusSpecialSequenceRomData.Death.TileSegmentByteCount)) return true;
         if ((SnesAddressMath.BankBase(source)) == SamusRenderingRomData.Banks.CharacterData &&
             SamusArmCannonArtworkFormat.TileSourcePointers.Contains((ushort)source) &&
             count == SamusRenderingRomData.ArmCannon.TileUploadByteCount) return true;
-        if (GunshipLiftoffTransferDefinitions.Frames.ToArray().Any(frame => frame.SourceAddress == source &&
+        if (GunshipLiftoffTransferDefinitions.Frames.Any(frame => frame.SourceAddress == source &&
                 count == GunshipLiftoffTransferDefinitions.ByteCount)) return true;
         if (PlmVramArtworkAudit.OwnsInstalledTransfer(source, count)) return true;
         if (RoomFxAnimatedTileAtlasFormat.Segments.Any(frame => frame.IsFrame && frame.SourceAddress == source && frame.ByteCount == count)) return true;
@@ -48,9 +48,9 @@ internal static class VramDmaOwnership
             return count == BeamTileAtlasDefinitions.ByteCount;
         if (asset == VramAssetId.ProjectileIceWaveTrailTiles) return count == ProjectileTrailAtlasDefinitions.IceWaveByteCount;
         if (asset == VramAssetId.ProjectileMissileTrailTiles) return count == ProjectileTrailAtlasDefinitions.MissileByteCount;
-        if (GrappleTileDefinitions.Transfers.ToArray().Any(frame => frame.Asset == asset && frame.ByteCount == count)) return true;
+        if (GrappleTileDefinitions.Transfers.Any(frame => frame.Asset == asset && frame.ByteCount == count)) return true;
         if (asset is >= VramAssetId.KraidBg3RestoreQuarter0 and <= VramAssetId.KraidBg3RestoreQuarter3)
             return count == KraidBackgroundRomData.StandardBg3TransferBytes;
-        return GunshipLiftoffTransferDefinitions.Frames.ToArray().Any(frame => frame.Asset == asset && count == GunshipLiftoffTransferDefinitions.ByteCount);
+        return GunshipLiftoffTransferDefinitions.Frames.Any(frame => frame.Asset == asset && count == GunshipLiftoffTransferDefinitions.ByteCount);
     }
 }

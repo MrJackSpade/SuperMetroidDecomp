@@ -24,7 +24,7 @@ internal static class CinematicTextGlowVerification
                 AssertEqual(expected, map[index], $"glyph age {age} tile {index} preserves non-palette bits and exact rectangle");
             }
             if (restored is not null)
-                AssertTrue(map.AsSpan().SequenceEqual(restoredMap), "mid-glow debugger restore retains all timers and rectangle state");
+                AssertTrue(map.SequenceEqual(restoredMap), "mid-glow debugger restore retains all timers and rectangle state");
             if (age == 7)
             {
                 using var stream = new MemoryStream();

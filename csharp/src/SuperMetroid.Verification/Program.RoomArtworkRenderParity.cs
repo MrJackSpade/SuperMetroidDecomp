@@ -54,7 +54,7 @@ internal static class RoomArtworkRenderParityVerification
             Rgba32[] nativeFrame = SuperMetroidRuntimeFrameRenderer.Render(native);
             Rgba32[] installedFrame = SuperMetroidRuntimeFrameRenderer.Render(installed);
             AssertTrue(nativeFrame.Length == installedFrame.Length &&
-                nativeFrame.AsSpan().SequenceEqual(installedFrame),
+                nativeFrame.SequenceEqual(installedFrame),
                 $"{name} installed artwork preserves every rendered pixel");
             if (nativeFrame.Distinct().Count() < 8)
                 throw new InvalidDataException($"{name} parity compared an almost blank frame.");
@@ -88,7 +88,7 @@ internal static class RoomArtworkRenderParityVerification
                             characterImage.Pixels, characterImage.Palette);
                     SuperMetroidRuntime changed = LoadRoom(installedArt: true);
                     Rgba32[] changedFrame = SuperMetroidRuntimeFrameRenderer.Render(changed);
-                    AssertTrue(!nativeFrame.AsSpan().SequenceEqual(changedFrame),
+                    AssertTrue(!nativeFrame.SequenceEqual(changedFrame),
                         "Landing Site character PNG override changes rendered pixels");
                     AssertGameplayPlanesUnchanged(changed, "character PNG");
                 }
@@ -114,7 +114,7 @@ internal static class RoomArtworkRenderParityVerification
                     File.WriteAllText(blockOverridePath, blocks.ToJsonString());
                     SuperMetroidRuntime changed = LoadRoom(installedArt: true);
                     Rgba32[] changedFrame = SuperMetroidRuntimeFrameRenderer.Render(changed);
-                    AssertTrue(!nativeFrame.AsSpan().SequenceEqual(changedFrame),
+                    AssertTrue(!nativeFrame.SequenceEqual(changedFrame),
                         "Landing Site visual block override changes rendered pixels");
                     AssertGameplayPlanesUnchanged(changed, "visual block JSON");
                 }

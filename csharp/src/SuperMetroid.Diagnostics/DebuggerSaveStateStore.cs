@@ -163,7 +163,7 @@ internal sealed class DebuggerSaveStateStore
             FileOptions.SequentialScan);
         using var reader = new BinaryReader(stream, System.Text.Encoding.UTF8, leaveOpen: true);
         byte[] magic = reader.ReadBytes(DebuggerStateFormat.Magic.Length);
-        if (!magic.AsSpan().SequenceEqual(DebuggerStateFormat.Magic))
+        if (!magic.SequenceEqual(DebuggerStateFormat.Magic))
             throw new InvalidDataException($"'{path}' is not a Super Metroid debugger state.");
         int storedVersion = reader.ReadInt32();
         if (storedVersion != (int)DebuggerStateVersion.Current)

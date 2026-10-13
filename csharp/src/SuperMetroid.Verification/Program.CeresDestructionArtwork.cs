@@ -80,7 +80,7 @@ internal static class CeresDestructionArtworkVerification
                 AssertTrue(actual.Brightness == expected.Brightness &&
                         actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                         actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
-                        SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
+                        SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(expected)),
                     $"installed Ceres/Zebes art preserves native visible pixels at frame {frame}");
             }
@@ -251,7 +251,7 @@ internal static class CeresDestructionArtworkVerification
         spriteState.BindArtwork(editedSprites);
         LayeredRenderSnapshot afterSprites = spriteState.CaptureRenderSnapshot();
         AssertTrue(!beforeSprites.Memory.Oam.SequenceEqual(afterSprites.Memory.Oam) &&
-                !SoftwareLayeredSnapshotRenderer.Render(beforeSprites).AsSpan().SequenceEqual(
+                !SoftwareLayeredSnapshotRenderer.Render(beforeSprites).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(afterSprites)),
             "edited Ceres destruction composition changes production OAM and visible pixels");
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -294,7 +294,7 @@ internal static class CeresDestructionArtworkVerification
         ceresState.BindArtwork(editedCeres);
         LayeredRenderSnapshot afterCeres = ceresState.CaptureRenderSnapshot();
         AssertTrue(!beforeCeres.Memory.Vram.SequenceEqual(afterCeres.Memory.Vram) &&
-                !SoftwareLayeredSnapshotRenderer.Render(beforeCeres).AsSpan().SequenceEqual(
+                !SoftwareLayeredSnapshotRenderer.Render(beforeCeres).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(afterCeres)),
             "restored Ceres destruction adopts edited map and changes visible pixels");
         File.Delete(ceresOverride);

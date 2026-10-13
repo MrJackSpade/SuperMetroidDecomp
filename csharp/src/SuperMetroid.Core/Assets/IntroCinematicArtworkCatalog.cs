@@ -28,7 +28,7 @@ public sealed class IntroCinematicArtworkCatalog
             page.Transfer.Span.CopyTo(pages.AsSpan(index * IntroCinematicArtworkFormat.BackgroundPageByteCount,
                 IntroCinematicArtworkFormat.BackgroundPageByteCount));
         }
-        if (!pages.AsSpan().SequenceEqual(IntroBackgroundTilemapDefinitions.Compile()))
+        if (!pages.SequenceEqual(IntroBackgroundTilemapDefinitions.Compile()))
             suppliedBackgroundPages = pages;
         ReadOnlyMemory<byte> portrait = RequirePage(parts.PortraitTilemap, "portrait");
         if (!portrait.Span.SequenceEqual(IntroPortraitTilemapDefinitions.Compile()))

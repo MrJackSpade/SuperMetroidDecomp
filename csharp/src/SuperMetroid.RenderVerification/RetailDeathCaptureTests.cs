@@ -42,7 +42,7 @@ internal static class RetailDeathCaptureTests
                 throw new InvalidOperationException($"Death capture cadence/commands diverged at {sequence}.");
             legacy.CopyAudioFrame(legacyAudio);
             captured.CopyAudioFrame(capturedAudio);
-            if (!legacyAudio.AsSpan().SequenceEqual(capturedAudio))
+            if (!legacyAudio.SequenceEqual(capturedAudio))
                 throw new InvalidOperationException($"Death PCM diverged at {sequence}.");
             if (comparePixels) PixelComparison.Verify((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")), expected.Pixels,
                 renderer.RenderForReadback((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))), $"{device.Kind}: death frame {sequence}, {expected.GameState}");

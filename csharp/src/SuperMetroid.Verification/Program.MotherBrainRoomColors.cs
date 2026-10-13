@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -235,8 +236,7 @@ internal static class MotherBrainRoomColorsVerification
         AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsSecondColor] !=
             editedCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsSecondColor],
             "second recovery-light slice edit reaches live CGRAM");
-        AssertEqual(2, stockCgram.Colors.ToArray().Zip(editedCgram.Colors.ToArray())
-            .Count(pair => pair.First != pair.Second),
+        AssertEqual(2, stockCgram.Colors.CountDifferences(editedCgram.Colors),
             "recovery-light edits change only two selected CGRAM words");
     }
 
@@ -266,8 +266,7 @@ internal static class MotherBrainRoomColorsVerification
         AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.InitialTubeProjectileColor] !=
             editedCgram.Colors[MotherBrainRoomColorRomData.InitialTubeProjectileColor],
             "room-entry tube edit reaches the production color copy");
-        AssertEqual(2, stockCgram.Colors.ToArray().Zip(editedCgram.Colors.ToArray())
-            .Count(pair => pair.First != pair.Second),
+        AssertEqual(2, stockCgram.Colors.CountDifferences(editedCgram.Colors),
             "room-entry edits change only the two selected CGRAM colors");
     }
 
@@ -296,8 +295,7 @@ internal static class MotherBrainRoomColorsVerification
         AssertTrue(stockCgram.Colors[expectedFirstColor] !=
             editedCgram.Colors[expectedFirstColor],
             $"edited {methodName} color reaches live CGRAM");
-        AssertEqual(expectedDifferences, stockCgram.Colors.ToArray().Zip(editedCgram.Colors.ToArray())
-            .Count(pair => pair.First != pair.Second),
+        AssertEqual(expectedDifferences, stockCgram.Colors.CountDifferences(editedCgram.Colors),
             $"edited {methodName} changes only the selected CGRAM destinations");
         AssertEqual(stockState.Function, editedState.Function,
             $"edited {methodName} preserves body phase");

@@ -46,7 +46,7 @@ internal static class RetailAttractTests
                     if (legacy.AttractDemoHoldFramesRemaining == AttractDemoRomData.FinalImageHoldFrames)
                         held = expected.Pixels.ToArray();
                     held ??= expected.Pixels.ToArray();
-                    if (!held.AsSpan().SequenceEqual(expected.Pixels)) throw new InvalidOperationException("Demo held frame changed.");
+                    if (!held.SequenceEqual(expected.Pixels)) throw new InvalidOperationException("Demo held frame changed.");
                 }
                 if (states.Contains(SuperMetroidGameState.TransitionFromDemoB) && expected.GameState == SuperMetroidGameState.OpeningCinematic)
                 {

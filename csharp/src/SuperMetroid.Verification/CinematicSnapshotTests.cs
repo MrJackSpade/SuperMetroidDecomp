@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -41,7 +42,7 @@ internal static class CinematicSnapshotTestsVerification
             {
                 Rgba32[] expected = flight.Render();
                 LayeredRenderSnapshot snapshot = flight.CaptureRenderSnapshot();
-                coloredRearView |= snapshot.Layers.ToArray().Any(layer => layer is FixedColorAddRenderLayer c
+                coloredRearView |= snapshot.Layers.Any(layer => layer is FixedColorAddRenderLayer c
                     && (c.Red != 0 || c.Green != 0 || c.Blue != 0));
                 Compare(expected, snapshot, tick);
                 flight.StepFrame();
@@ -64,11 +65,11 @@ internal static class CinematicSnapshotTestsVerification
             {
                 Rgba32[] expected = destruction.Render();
                 LayeredRenderSnapshot snapshot = destruction.CaptureRenderSnapshot();
-                mode7 |= snapshot.Layers.ToArray().Any(layer => layer is Mode7RenderLayer);
-                mode1 |= snapshot.Layers.ToArray().Any(layer => layer is Bg4BppRenderLayer);
-                foreach (var window in snapshot.Layers.ToArray().OfType<ScanlineColorAddRenderLayer>())
+                mode7 |= snapshot.Layers.Any(layer => layer is Mode7RenderLayer);
+                mode1 |= snapshot.Layers.Any(layer => layer is Bg4BppRenderLayer);
+                foreach (var window in snapshot.LayersOf<ScanlineColorAddRenderLayer>())
                 {
-                    explosionWindow |= window.Windows.ToArray().Any(row =>
+                    explosionWindow |= window.Windows.Any(row =>
                         row.Left <= row.Right && (row.Red != 0 || row.Green != 0 || row.Blue != 0));
                     ColorAddWindow top = window.Windows[0];
                     explosionCoversTop |= top.Left <= top.Right &&
@@ -149,7 +150,7 @@ internal static class CinematicSnapshotTestsVerification
             if (sample)
             {
                 RenderFrameSnapshot packet = RoundTripRenderPacket(new(new(tick + 1, 1, (ushort)tick), snapshot));
-                AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(packet)),
+                AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                     $"intro captured pixels: {legacy.Phase}, tick {tick}");
                 samples++;
             }
@@ -164,7 +165,7 @@ internal static class CinematicSnapshotTestsVerification
             AssertEqual(legacy.FlashbackSamusY, captured.FlashbackSamusY, "intro Samus Y after draw");
             AssertEqual(legacy.ActiveFlashbackProjectileCount, captured.ActiveFlashbackProjectileCount, "intro projectiles after draw");
             if (sample)
-                AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(snapshot)),
+                AssertTrue(expected.SequenceEqual(RenderForComparison(snapshot)),
                     "intro packet survives subsequent simulation mutations");
         }
         AssertTrue(legacy.CeresFlightFinished && captured.CeresFlightFinished, "full intro capture reaches completed flight");

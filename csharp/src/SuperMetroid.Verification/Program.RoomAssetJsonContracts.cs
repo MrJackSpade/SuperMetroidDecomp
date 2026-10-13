@@ -106,7 +106,7 @@ internal static class RoomAssetJsonContractsVerification
             catch (InvalidDataException error)
             {
                 AssertTrue(error.ToString().Contains(path, StringComparison.Ordinal), name + " identifies exact file path");
-                AssertTrue(File.ReadAllBytes(path).AsSpan().SequenceEqual(defective), name + " retains the invalid authored file");
+                AssertTrue(File.ReadAllBytes(path).SequenceEqual(defective), name + " retains the invalid authored file");
                 rejected++;
                 return;
             }

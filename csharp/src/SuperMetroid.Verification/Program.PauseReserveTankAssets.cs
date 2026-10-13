@@ -41,13 +41,13 @@ internal static class PauseReserveTankAssetsVerification
                 native.Step(0, 0, nmiFrameCounter8: phase); installed.Step(0, 0, nmiFrameCounter8: phase);
                 var expected = native.CaptureRenderSnapshot(); var actual = installed.CaptureRenderSnapshot();
                 AssertTrue(expected.Memory.Oam.SequenceEqual(actual.Memory.Oam), "every legal reserve supply/flicker state matches native ordered OAM with reads forbidden");
-                AssertTrue(native.Render().AsSpan().SequenceEqual(installed.Render()), "every legal reserve supply/flicker state matches native pixels");
+                AssertTrue(native.Render().SequenceEqual(installed.Render()), "every legal reserve supply/flicker state matches native pixels");
                 if (capacity == 100 && supply == 1 && phase == 4)
                 {
                     using var state = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(state, installed); state.Position = 0;
                     var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state); restored.BindMapPresentation(catalog);
                     AssertTrue(actual.Memory.Oam.SequenceEqual(restored.CaptureRenderSnapshot().Memory.Oam), "restored nonzero fill flicker phase retains exact OAM");
-                    AssertTrue(restored.Render().AsSpan().SequenceEqual(restored.Render()), "repeated draw does not advance fill flicker");
+                    AssertTrue(restored.Render().SequenceEqual(restored.Render()), "repeated draw does not advance fill flicker");
                 }
                 comparisons++;
             }
@@ -71,16 +71,16 @@ internal static class PauseReserveTankAssetsVerification
         AssertEqual(SnesObjAttributeWord.Create(50, 5, 3, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical).Raw,
             (ushort)(SnesLittleEndian.Word(snapshot.Memory.Oam[last + 2], snapshot.Memory.Oam[last + 3])), "actual tank tile/palette/priority/flips");
         var editedPixels = menu.Render();
-        AssertTrue(editedPixels.AsSpan().SequenceEqual(RenderForComparison(snapshot)), "edited reserve reaches captured renderer");
+        AssertTrue(editedPixels.SequenceEqual(RenderForComparison(snapshot)), "edited reserve reaches captured renderer");
         using (var state = new MemoryStream())
         {
             DebuggerObjectGraphSerializer.Serialize(state, new object[] { menu, samus }); state.Position = 0;
             var restored = DebuggerObjectGraphSerializer.Deserialize<object[]>(state); menu = (PauseMenuState)restored[0]; samus = (SamusState)restored[1];
         }
         menu.BindMapPresentation(catalog);
-        AssertTrue(!editedPixels.AsSpan().SequenceEqual(menu.Render()), "restore binds current stock artwork instead of frozen edited content");
+        AssertTrue(!editedPixels.SequenceEqual(menu.Render()), "restore binds current stock artwork instead of frozen edited content");
         menu.BindMapPresentation(edited);
-        AssertTrue(editedPixels.AsSpan().SequenceEqual(menu.Render()), "restoring current edited content preserves exact pixels and phase");
+        AssertTrue(editedPixels.SequenceEqual(menu.Render()), "restoring current edited content preserves exact pixels and phase");
         menu.Step(0, (ushort)SnesButton.Down); menu.Step(0, (ushort)SnesButton.A);
         AssertEqual((ushort)51, samus.Health, "custom reserve art cannot change transfer amount");
         AssertEqual((ushort)99, samus.ReserveEnergy, "custom reserve art cannot change reserve consumption");

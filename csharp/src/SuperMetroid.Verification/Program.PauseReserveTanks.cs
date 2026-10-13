@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
@@ -55,7 +56,7 @@ internal static class PauseReserveTanksVerification
                 for (; tank < capacity / 100; tank++) Draw(0x20, tank);
                 if (capacity != 0) Draw(0x1f, tank);
                 native.FinalizeFrame();
-                byte[] objects = native.LowTable.ToArray().Concat(native.HighTable.ToArray()).ToArray();
+                byte[] objects = native.LowTable.ConcatToArray(native.HighTable);
                 var memory = new PpuMemorySnapshot(capture.Memory.Vram, capture.Memory.Cgram, objects, native.LastFinalizedSpriteCount);
                 var expected = SoftwareLayeredSnapshotRenderer.Render(new(memory, capture.Layers, capture.ObjectSelection, capture.Brightness));
                 // This rectangle encloses the tank strip and end-cap, but not the
@@ -63,7 +64,7 @@ internal static class PauseReserveTanksVerification
                 for (int y = 88; y < 120; y++)
                 for (int x = 16; x < 72; x++)
                     AssertEqual(expected[y * 256 + x], actual[y * 256 + x], $"reserve tank pixels {capacity}/{supply}/phase{phase} at {x},{y}");
-                AssertTrue(actual.AsSpan().SequenceEqual(pause.Render()), "rendering tank strip does not advance fill flicker");
+                AssertTrue(actual.SequenceEqual(pause.Render()), "rendering tank strip does not advance fill flicker");
                 if (capacity == 100 && supply == 1 && phase == 4)
                 {
                     using var saved = new MemoryStream();
@@ -71,7 +72,7 @@ internal static class PauseReserveTanksVerification
                     saved.Position = 0;
                     var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(saved);
                     restored.BindMapPresentation(RetailPresentationFixture());
-                    AssertTrue(actual.AsSpan().SequenceEqual(restored.Render()), "saved pause preserves nonzero native tank-flicker phase");
+                    AssertTrue(actual.SequenceEqual(restored.Render()), "saved pause preserves nonzero native tank-flicker phase");
                 }
                 if (capacity == 400 && supply == 199 && phase == 0)
                 {

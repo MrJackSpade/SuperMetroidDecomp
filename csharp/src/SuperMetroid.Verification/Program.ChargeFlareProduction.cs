@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -126,7 +127,7 @@ internal static class ChargeFlareProductionVerification
         {
             target.Oam.BeginFrame();
             target.ActorDrawing.DrawGameplayActors(false, false);
-            return target.Oam.LowTable.ToArray().Concat(target.Oam.HighTable.ToArray()).Concat(BitConverter.GetBytes(target.Oam.NextByteOffset)).ToArray();
+            return target.Oam.LowTable.ConcatToArray(target.Oam.HighTable).Concat(BitConverter.GetBytes(target.Oam.NextByteOffset)).ToArray();
         }
         static SamusProjectileSystem Create()
         {

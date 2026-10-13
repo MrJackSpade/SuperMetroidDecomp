@@ -65,13 +65,13 @@ internal static class GameplayMessageTitlesVerification
         active.BindPresentation(edited);
         AssertEqual(phase, active.Phase, "message-title content rebind preserves coroutine phase");
         AssertEqual(radius, active.RadiusPixels, "message-title content rebind preserves window radius");
-        AssertTrue(!before.AsSpan().SequenceEqual(active.Tilemap),
+        AssertTrue(!before.SequenceEqual(active.Tilemap),
             "UTF-8 title edit reaches an already active message without a ROM patch");
 
         GameplayMessageTitlePresentation restored = GameplayMessageTitlePresentation.Load(
             new MemoryStream(extracted, writable: false));
         active.BindPresentation(restored);
-        AssertTrue(before.AsSpan().SequenceEqual(active.Tilemap),
+        AssertTrue(before.SequenceEqual(active.Tilemap),
             "restoring stock UTF-8 title restores exact live tilemap");
 
         byte[] malformed = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(

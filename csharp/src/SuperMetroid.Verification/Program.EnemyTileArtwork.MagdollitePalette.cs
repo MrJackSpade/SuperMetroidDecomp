@@ -88,7 +88,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             int frame = (tick + 1) / 8 & (MagdollitePaletteRomData.FrameCount - 1);
             if ((tick + 1) % 8 != 0)
             {
-                AssertTrue(before.AsSpan().SequenceEqual(cgram.Colors.Slice(destination,
+                AssertTrue(before.SequenceEqual(cgram.Colors.Slice(destination,
                         MagdollitePaletteRomData.AnimatedColorCount)),
                     $"Magdollite colors do not change before tick {tick + 1} reaches the hook boundary");
             }

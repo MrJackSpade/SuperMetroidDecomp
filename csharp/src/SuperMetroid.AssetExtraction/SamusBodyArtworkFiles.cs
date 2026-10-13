@@ -138,8 +138,8 @@ public static class SamusBodyArtworkFiles
                     !string.Equals(hash, entry.Value, StringComparison.OrdinalIgnoreCase)))
                 throw new InvalidDataException("Samus body override must retain stock PNG provenance hashes.");
             if (selected.Top.Length != stock.Top.Length || selected.Bottom.Length != stock.Bottom.Length ||
-                !selected.TopPointers.AsSpan().SequenceEqual(stock.TopPointers) ||
-                !selected.BottomPointers.AsSpan().SequenceEqual(stock.BottomPointers) ||
+                !selected.TopPointers.SequenceEqual(stock.TopPointers) ||
+                !selected.BottomPointers.SequenceEqual(stock.BottomPointers) ||
                 selected.Top.Where((set, i) => set.Length != stock.Top[i].Length).Any() ||
                 selected.Bottom.Where((set, i) => set.Length != stock.Bottom[i].Length).Any())
                 throw new InvalidDataException("Samus body override changes native definition identities.");
@@ -151,7 +151,7 @@ public static class SamusBodyArtworkFiles
                 for (int position = 0; position < stock.Bottom[set].Length; position++)
                     if (selected.Bottom[set][position].SourceAddress != stock.Bottom[set][position].SourceAddress)
                         throw new InvalidDataException("Samus body override changes a native bottom source identity.");
-            if (!selected.SpritemapPointers.AsSpan().SequenceEqual(stock.SpritemapPointers) ||
+            if (!selected.SpritemapPointers.SequenceEqual(stock.SpritemapPointers) ||
                 selected.Spritemaps.Length != stock.Spritemaps.Length ||
                 selected.Spritemaps.Where((entry, i) => entry.Pointer != stock.Spritemaps[i].Pointer).Any())
                 throw new InvalidDataException("Samus body override changes native spritemap identities.");

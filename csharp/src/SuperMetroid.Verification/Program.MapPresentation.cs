@@ -313,7 +313,7 @@ internal static class MapPresentationVerification
         SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, repaired, "test-provenance");
         var afterRepair = AreaMapPresentationCatalog.Load(repaired, overrides);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity, "re-extracted stock preserves selected override");
-        AssertTrue(editedBytes.AsSpan().SequenceEqual(File.ReadAllBytes(replacement)), "stock extraction and reload never rewrite override bytes");
+        AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(replacement)), "stock extraction and reload never rewrite override bytes");
         Suite(nameof(VerifyBundledMapMaskValidation), () => VerifyBundledMapMaskValidation(repaired));
         Suite(nameof(VerifyMapAtlasIntegration), () => VerifyMapAtlasIntegration(bus, stock, Path.Combine(root, "atlas-overrides"), original, rules.Values.ToArray()));
         Suite(nameof(VerifyHudAtlasIntegration), () => VerifyHudAtlasIntegration(bus, stock, Path.Combine(root, "hud-overrides"), original,
@@ -1160,9 +1160,9 @@ internal static class MapPresentationVerification
             "title gradient override changes installed-content identity");
         (TitleGradientLine[] rendered, ushort selectedZoom) = CaptureInstalledTitleGradient(
             bus, edited.TitleGradient, edited.TitlePalette, edited.TitleGraphics);
-        AssertTrue(rendered.AsSpan().SequenceEqual(edited.TitleGradient.Resolve(selectedZoom)),
+        AssertTrue(rendered.SequenceEqual(edited.TitleGradient.Resolve(selectedZoom)),
             "production title consumes selected gradient override");
-        AssertTrue(!rendered.AsSpan().SequenceEqual(original.TitleGradient.Resolve(selectedZoom)),
+        AssertTrue(!rendered.SequenceEqual(original.TitleGradient.Resolve(selectedZoom)),
             "gradient override visibly changes production title output");
 
         File.Delete(replacement);
@@ -1225,7 +1225,7 @@ internal static class MapPresentationVerification
         AssertTrue(stockTitle.PaletteColors[tube.ColorByteIndex / 2] !=
             editedTitle.PaletteColors[tube.ColorByteIndex / 2],
             "production title consumes selected ambient palette override");
-        AssertTrue(!stockTitle.Render().AsSpan().SequenceEqual(editedTitle.Render()),
+        AssertTrue(!stockTitle.Render().SequenceEqual(editedTitle.Render()),
             "palette override visibly changes production title output");
 
         var stockSkip = new TitleSequenceState(bus,
@@ -1251,7 +1251,7 @@ internal static class MapPresentationVerification
         AssertEqual(edited.TitlePalette.SkipCopyrightRed,
             editedSkip.PaletteColors[TitleSequenceRomData.Palette.CopyrightRedIndex],
             "skip route uses edited copyright red");
-        AssertTrue(!stockSkip.Render().AsSpan().SequenceEqual(editedSkip.Render()),
+        AssertTrue(!stockSkip.Render().SequenceEqual(editedSkip.Render()),
             "skip copyright palette override changes rendered title output");
         editedSkip.BindTitlePalette(original.TitlePalette);
         AssertEqual(original.TitlePalette.SkipCopyrightWhite,
@@ -1306,7 +1306,7 @@ internal static class MapPresentationVerification
             stockTitle.Step(0);
             editedTitle.Step(0);
         }
-        AssertTrue(!stockTitle.Render().AsSpan().SequenceEqual(editedTitle.Render()),
+        AssertTrue(!stockTitle.Render().SequenceEqual(editedTitle.Render()),
             "Mode 7 PNG override visibly changes production title output");
 
         File.Delete(replacement);
@@ -1380,7 +1380,7 @@ internal static class MapPresentationVerification
         });
         using var withContent = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(withContent, game);
-        AssertTrue(withoutContent.ToArray().AsSpan().SequenceEqual(withContent.ToArray()), "map resources do not enter debugger graph");
+        AssertTrue(withoutContent.WrittenBytes().SequenceEqual(withContent.WrittenBytes()), "map resources do not enter debugger graph");
         withContent.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(withContent);
         AssertTrue(restored.MapPresentationIdentity is null, "restored graph requires host content rebind");
@@ -1420,12 +1420,12 @@ internal static class MapPresentationVerification
             AreaId.Crateria, mapPresentation: original);
         var installed = new SuperMetroid.Core.Frontend.FileSelectRoomMapGraphics(guard, system, AreaId.Crateria,
             mapPresentation: original);
-        AssertTrue(stock.RenderBackgrounds(new(0, 0)).AsSpan().SequenceEqual(installed.RenderBackgrounds(new(0, 0))),
+        AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(installed.RenderBackgrounds(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");
         installed.BindMapPresentation(edited);
         byte[] expected = AreaMapTilemapBuilder.Build(edited.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank);
         byte[] unchanged = AreaMapTilemapBuilder.Build(original.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank);
-        AssertTrue(!expected.AsSpan().SequenceEqual(unchanged), "override changes a visible file-select cell");
+        AssertTrue(!expected.SequenceEqual(unchanged), "override changes a visible file-select cell");
         for (int i = 0; i < expected.Length / 2; i++)
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(i * 2)),
                 installed.Vram.ReadWord(SuperMetroid.Core.Frontend.MenuVramLayout.Bg1TilemapWord + i), "file-select rebind writes exact edited tilemap");
@@ -1434,7 +1434,7 @@ internal static class MapPresentationVerification
         snapshot.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.FileSelectRoomMapGraphics>(snapshot);
         restored.BindMapPresentation(original);
-        AssertTrue(stock.RenderBackgrounds(new(0, 0)).AsSpan().SequenceEqual(restored.RenderBackgrounds(new(0, 0))),
+        AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(restored.RenderBackgrounds(new(0, 0))),
             "restored file-select graphics accept current stock without stale override pixels");
         Console.WriteLine("File-select map: exact stock pixels, edited BG1 words, and graphics-state rebind pass.");
     }

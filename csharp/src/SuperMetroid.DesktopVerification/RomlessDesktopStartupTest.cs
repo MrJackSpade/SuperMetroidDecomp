@@ -94,7 +94,7 @@ internal static class RomlessDesktopStartupTest
             var replayGame = (SuperMetroidGame)(replayHost.game ?? throw new InvalidOperationException(
                     "Replay host has no game."));
             if (MetadataShape.DeclaresProperty(replayMemory.GetType(), "Rom") || replayGame.FrameNumber != savedFrame ||
-                !replayGame.CurrentFrame.Pixels.AsSpan().SequenceEqual(savedPixels))
+                !replayGame.CurrentFrame.Pixels.SequenceEqual(savedPixels))
                 throw new InvalidOperationException(
                     "Zero-ROM Windows input replay diverged from the captured frame.");
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using System.Reflection;
@@ -328,31 +329,31 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             EnemyProjectileInstructionMechanicsDefinitions.VisualFrames[0];
         SpriteVisualPart[] shared = (document.ProgramFrames ?? throw new InvalidOperationException("Verification requires document.ProgramFrames."))[editableProgramFrame.Name];
         shared[0] = shared[0] with { OffsetX = shared[0].OffsetX + 1 };
-        string ceresFrameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+        string ceresFrameName = EnemyProjectilePresentationFrameDefinitions.All
             .Single(frame => frame.OperandAddress == ceresOperand).Name;
         SpriteVisualPart[] ceres = document.ProgramFrames[ceresFrameName];
         ceres[0] = ceres[0] with { OffsetX = ceres[0].OffsetX + 1 };
         ushort alcoonOperand = AlcoonFireballInstructionProgramDefinitions
             .PresentationWordAddress(0);
-        string alcoonFrameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+        string alcoonFrameName = EnemyProjectilePresentationFrameDefinitions.All
             .Single(frame => frame.OperandAddress == alcoonOperand).Name;
         SpriteVisualPart[] alcoon = document.ProgramFrames[alcoonFrameName];
         alcoon[0] = alcoon[0] with { OffsetX = alcoon[0].OffsetX + 1 };
         ushort goldenMissileOperand = GoldenTorizoSuperMissileInstructionProgramDefinitions
             .PresentationWordAddress(0);
-        string goldenMissileFrameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+        string goldenMissileFrameName = EnemyProjectilePresentationFrameDefinitions.All
             .Single(frame => frame.OperandAddress == goldenMissileOperand).Name;
         SpriteVisualPart[] goldenMissile = document.ProgramFrames[goldenMissileFrameName];
         goldenMissile[0] = goldenMissile[0] with { OffsetX = goldenMissile[0].OffsetX + 1 };
         ushort goldenEyeOperand = GoldenTorizoEyeBeamInstructionProgramDefinitions
             .PresentationWordAddress(0);
-        string goldenEyeFrameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+        string goldenEyeFrameName = EnemyProjectilePresentationFrameDefinitions.All
             .Single(frame => frame.OperandAddress == goldenEyeOperand).Name;
         SpriteVisualPart[] goldenEye = document.ProgramFrames[goldenEyeFrameName];
         goldenEye[0] = goldenEye[0] with { OffsetX = goldenEye[0].OffsetX + 1 };
         ushort goldenEggOperand = GoldenTorizoEggInstructionProgramDefinitions
             .PresentationWordAddress(0);
-        string goldenEggFrameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+        string goldenEggFrameName = EnemyProjectilePresentationFrameDefinitions.All
             .Single(frame => frame.OperandAddress == goldenEggOperand).Name;
         SpriteVisualPart[] goldenEgg = document.ProgramFrames[goldenEggFrameName];
         goldenEgg[0] = goldenEgg[0] with { OffsetX = goldenEgg[0].OffsetX + 1 };
@@ -364,7 +365,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                string frameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+                string frameName = EnemyProjectilePresentationFrameDefinitions.All
                     .Single(frame => frame.OperandAddress == operand).Name;
                 SpriteVisualPart[] frame = document.ProgramFrames[frameName];
                 if (frame.Length == 0)
@@ -383,7 +384,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                string frameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+                string frameName = EnemyProjectilePresentationFrameDefinitions.All
                     .Single(frame => frame.OperandAddress == operand).Name;
                 SpriteVisualPart[] frame = document.ProgramFrames[frameName];
                 if (frame.Length == 0)
@@ -402,7 +403,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                string frameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+                string frameName = EnemyProjectilePresentationFrameDefinitions.All
                     .Single(frame => frame.OperandAddress == operand).Name;
                 SpriteVisualPart[] frame = document.ProgramFrames[frameName];
                 if (frame.Length == 0)
@@ -421,7 +422,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                string frameName = EnemyProjectilePresentationFrameDefinitions.All.ToArray()
+                string frameName = EnemyProjectilePresentationFrameDefinitions.All
                     .Single(frame => frame.OperandAddress == operand).Name;
                 SpriteVisualPart[] frame = document.ProgramFrames[frameName];
                 if (frame.Length == 0)
@@ -605,7 +606,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                     NewEnemyProjectileVisualGuard(bus)).LowTable),
             "version-two edits inherit stock shared-program frames");
         var versionThreeFrames = EnemyProjectileInstructionMechanicsDefinitions.VisualFrames
-            .ToArray().ToDictionary(frame => frame.Name,
+            .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionThreeJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
@@ -632,8 +633,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             .Select(AlcoonFireballInstructionProgramDefinitions.PresentationWordAddress)
             .ToHashSet();
         var versionFourFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
-            .ToArray()
-            .Where(frame => !alcoonOperands.Contains(frame.OperandAddress))
+            
+            .WhereToArray(frame => !alcoonOperands.Contains(frame.OperandAddress))
             .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionFourJson = JsonSerializer.SerializeToUtf8Bytes(
@@ -661,7 +662,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 RoomEnemyProjectileKind.AlcoonFireball).LowTable),
             "version-four overrides inherit newly extracted Alcoon fireball frames");
         var versionFiveFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
-            .ToArray().ToDictionary(frame => frame.Name,
+            .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionFiveJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
@@ -695,7 +696,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 $"version-five overrides inherit extracted Golden Torizo {family} frames");
         }
         var versionSixFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizoEgg
-            .ToArray().ToDictionary(frame => frame.Name,
+            .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionSixJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
@@ -722,7 +723,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable),
             "version-six overrides inherit extracted Golden Torizo egg frames");
         var versionSevenFrames = EnemyProjectilePresentationFrameDefinitions.PreTorizoEffects
-            .ToArray().ToDictionary(frame => frame.Name,
+            .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionSevenJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
@@ -752,7 +753,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 $"version-seven overrides inherit Torizo {family} frames");
         }
         var versionEightFrames = EnemyProjectilePresentationFrameDefinitions.PreGenericEnemyDeath
-            .ToArray().ToDictionary(frame => frame.Name,
+            .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionEightJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
@@ -783,7 +784,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 $"version-eight overrides inherit {family} frames");
         }
         var versionNineFrames = EnemyProjectilePresentationFrameDefinitions.PreEnvironmentAndAttack
-            .ToArray().ToDictionary(frame => frame.Name,
+            .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionNineJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
@@ -814,7 +815,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 $"version-nine overrides inherit {family} frames");
         }
         var versionTenFrames = EnemyProjectilePresentationFrameDefinitions.PreMotherBrainAndStatue
-            .ToArray().ToDictionary(frame => frame.Name,
+            .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionTenJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument

@@ -70,7 +70,7 @@ internal static class CeresSaveStartupVerification
         AssertEqual((ushort)2, runtime.GameTime.Minutes, "#1153 destruction load retains minutes");
         AssertEqual((ushort)11, runtime.GameTime.Seconds, "#1153 destruction load retains seconds");
         AssertEqual((ushort)44, runtime.GameTime.Frames, "#1153 destruction load retains frames");
-        AssertTrue(savedBefore.AsSpan().SequenceEqual(bus.SaveRam),
+        AssertTrue(savedBefore.SequenceEqual(bus.SaveRam),
             "#1153 normal load does not rewrite the checkpoint");
 
         // A resumed cinematic constructs a fresh gameplay owner, unlike an ongoing

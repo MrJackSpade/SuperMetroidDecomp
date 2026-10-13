@@ -71,7 +71,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         {
             var state = new RidleyEnemyState { CeresEscapeTransferListPointer = start };
             var queue = new VramWriteQueue();
-            CeresEscapeVramTransferDefinition[] list = records.ToArray()
+            CeresEscapeVramTransferDefinition[] list = records
                 .SkipWhile(record => record.Pointer != start)
                 .TakeWhile(record => start == CeresEscapeVramTransferDefinitions.TimerSprites
                     ? record.Pointer < 0xc4fc : record.Pointer < 0xc536)
@@ -148,7 +148,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
     /// <summary>Imports indexed character pages needed to run the installed Ceres escape transfer path.</summary>
     [CpuBusBoundary("exact bus test: imports the Ceres escape tile pages from their retail ROM source addresses")]
     private static RoomCharacterAtlas[] ImportCeresEscapeTilePages(ISnesAddressSpace rom) =>
-        CeresEscapeTileArtworkDefinitions.All.ToArray().Select(page =>
+        CeresEscapeTileArtworkDefinitions.All.Select(page =>
             RoomCharacterAtlas.Load(new MemoryStream(
                 IndexedTilePageExtractor.Extract(rom, page.SourceAddress,
                     page.ByteCount, page.FileName), writable: false),

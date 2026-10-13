@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -31,8 +32,8 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         RoomPlmEyeDoorVisualEntry[] entries = EyeDoorPlmDrawDefinitions.Editable.Select(draw =>
             new RoomPlmEyeDoorVisualEntry(
                 EyeDoorPlmDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span[0].LevelWords.Span.ToArray()
-                    .Select(word => new RoomLevelWord(word).VisualWord).ToArray())).ToArray();
+                draw.Runs.Span[0].LevelWords.Span
+                    .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
         RoomPlmEyeDoorVisualEntry rightEye = entries.Single(entry =>
             entry.Id == "right-eye-frame-0");
         ushort stockWord = rightEye.Blocks[0];

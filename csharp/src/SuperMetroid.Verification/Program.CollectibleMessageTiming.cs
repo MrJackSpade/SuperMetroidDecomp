@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -43,7 +44,7 @@ internal static class CollectibleMessageTimingVerification
             runtime.Vram.ReadWord((ushort)(update.TopRowDestination + 1)),
             runtime.Vram.ReadWord((ushort)(update.TopRowDestination + 32)),
             runtime.Vram.ReadWord((ushort)(update.TopRowDestination + 33)) };
-        ushort[] HudWords() => runtime.Hud.Tiles.ToArray().Where((_, index) => index % 32 < 26).ToArray();
+        ushort[] HudWords() => runtime.Hud.Tiles.WhereToArray((_, index) => index % 32 < 26);
         ushort[] VisibleHudWords() => Enumerable.Range(0, runtime.Hud.Tiles.Length)
             .Where(index => index % 32 < 26)
             .Select(index => runtime.Vram.ReadWord((ushort)(0x5820 + index))).ToArray();

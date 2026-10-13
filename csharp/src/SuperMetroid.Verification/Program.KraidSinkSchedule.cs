@@ -7,14 +7,15 @@ using static SuiteTimingVerification;
 /// <summary>Checks Kraid's sinking Y schedule, platform PLM callbacks, and spawned rocks against the native program.</summary>
 internal static class KraidSinkScheduleVerification
 {
+
     /// <summary>Checks callback selection for every possible 16-bit body Y coordinate.</summary>
     private static void VerifyKraidSinkCallbackSelection(Dictionary<ushort, ushort> callbacks)
     {
         AssertEqual(28, callbacks.Count, "Native sinking row count");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            ushort? expected = callbacks.TryGetValue((ushort)raw, out ushort callback) ? callback : null;
-            AssertEqual(expected, (ushort?)KraidSinkSchedule.CallbackAt((ushort)raw), "Native sinking Y/callback record");
+            KraidSinkCallback? expected = callbacks.TryGetValue((ushort)raw, out ushort callback) ? KraidNativeListAddresses.NativeSinkCallbacks[callback] : null;
+            AssertEqual(expected, KraidSinkSchedule.CallbackAt((ushort)raw), "Native sinking Y/callback record");
         }
     }
 
@@ -36,7 +37,7 @@ internal static class KraidSinkScheduleVerification
         foreach (ushort callback in callbacks.Distinct())
         {
             int code = 0xa70000 | callback;
-            var request = KraidPlmDefinitions.ForSinkCallback(ClosedNativeWords.Decode<KraidSinkCallback>(callback, "Kraid sinking callback"));
+            var request = KraidPlmDefinitions.ForSinkCallback(KraidNativeListAddresses.NativeSinkCallbacks[callback]);
             if (KraidSinkPlmFieldRomByte(rom, code) == 0x60)
             {
                 AssertEqual<KraidPlmRequest?>(null, request, "Native empty RTS emits no request");
@@ -49,8 +50,9 @@ internal static class KraidSinkScheduleVerification
             count++;
         }
         AssertEqual(6, count, "Six distinct platform mutations");
-        foreach (ushort invalid in new ushort[] { 0, 0xc690, 0xc692, 0xc6a5, 0xc715, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => KraidPlmDefinitions.ForSinkCallback(ClosedNativeWords.Decode<KraidSinkCallback>(invalid, "Kraid sinking callback")), "Unknown sink callback rejected");
+        AssertEqual(7, KraidNativeListAddresses.NativeSinkCallbacks.Count, "Every native sink callback has a typed member");
+        AssertTrue(KraidNativeListAddresses.NativeSinkCallbacks.Values.Distinct().Count() == Enum.GetValues<KraidSinkCallback>().Length,
+            "The typed callbacks are exactly the native routines");
     }
 
     /// <summary>Reads a native callback byte for the independent PLM argument oracle.</summary>
@@ -129,7 +131,7 @@ internal static class KraidSinkScheduleVerification
             ushort? expected = callbacks.TryGetValue((ushort)raw, out ushort callback) ? callback : null;
             step(body, state);
             AssertEqual(expected.HasValue ? 1 : 0, state.SinkTableEventCount, "Only scheduled rows count, including empty RTS");
-            bool crumble = expected.HasValue && callback != (ushort)KraidSinkCallback.NoOperation;
+            bool crumble = expected.HasValue && KraidNativeListAddresses.NativeSinkCallbacks[callback] != KraidSinkCallback.NoOperation;
             AssertEqual(crumble ? 1 : 0, requests.Count, "Only native crumble callbacks mutate platforms");
             AssertEqual(crumble ? 1 : 0, enemies.Projectiles.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None), "Exact native rock count");
             if (!crumble) continue;

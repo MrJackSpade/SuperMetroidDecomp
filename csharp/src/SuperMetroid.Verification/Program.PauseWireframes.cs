@@ -31,7 +31,7 @@ internal static class PauseWireframesVerification
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (pointer + row * 16), 16).CopyTo(expected, 472 + row * 64);
             byte[] actual = Enumerable.Repeat((byte)0x5a, 2048).ToArray();
             original.PauseWireframes.ApplyTo(actual, kind);
-            AssertTrue(expected.AsSpan().SequenceEqual(actual), "all 136 native wireframe words and untouched surrounding bytes match");
+            AssertTrue(expected.SequenceEqual(actual), "all 136 native wireframe words and untouched surrounding bytes match");
             // One replacement at a time proves semantic variants do not alias.
             var frames = document.Frames.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());
             frames[kind.ToString()] = frames[kind.ToString()].Select(cell => cell with
@@ -43,7 +43,7 @@ internal static class PauseWireframesVerification
             {
                 var baseline = new byte[2048]; var changed = new byte[2048];
                 original.PauseWireframes.ApplyTo(baseline, other); edited.PauseWireframes.ApplyTo(changed, other);
-                AssertEqual(kind != other, baseline.AsSpan().SequenceEqual(changed), "wireframe override affects only its named variant");
+                AssertEqual(kind != other, baseline.SequenceEqual(changed), "wireframe override affects only its named variant");
             }
             ushort items = (ushort)(((int)kind & 1) * 0x100 | ((int)kind >> 1));
             foreach (bool gravity in new[] { false, true })
@@ -63,7 +63,7 @@ internal static class PauseWireframesVerification
                         nativeInputs.Brightness == portInputs.Brightness, "every native wireframe variant retains exact colors, objects and brightness through page transitions");
                 }
                 void AssertPixels() =>
-                    AssertTrue(native.Render().AsSpan().SequenceEqual(pause.Render()), "wireframe migration retains actual native pixels with all artwork reads blocked");
+                    AssertTrue(native.Render().SequenceEqual(pause.Render()), "wireframe migration retains actual native pixels with all artwork reads blocked");
                 // To the equipment page and back, each change run to completion (#1266 cadence).
                 ChangePausePage(pause, SnesButton.R, StepBoth);
                 AssertPixels();
@@ -73,11 +73,11 @@ internal static class PauseWireframesVerification
                 // Rebind on the map must not replace the map's shared BG1 page.
                 byte[] map = pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x1000).ToArray();
                 pause.BindMapPresentation(edited);
-                AssertTrue(map.AsSpan().SequenceEqual(pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x1000)), "wireframe edit while viewing map does not overwrite BG1 map");
+                AssertTrue(map.SequenceEqual(pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x1000)), "wireframe edit while viewing map does not overwrite BG1 map");
                 EnterEquipment(pause);
                 AssertPage(pause, edited, kind);
                 var editedPixels = pause.Render();
-                AssertTrue(editedPixels.AsSpan().SequenceEqual(RenderForComparison(pause.CaptureRenderSnapshot())), "edited wireframe agrees between direct and captured rendering");
+                AssertTrue(editedPixels.SequenceEqual(RenderForComparison(pause.CaptureRenderSnapshot())), "edited wireframe agrees between direct and captured rendering");
                 var inventory = (samus.EquippedItems, samus.CollectedItems, samus.EquippedBeams, samus.CollectedBeams);
                 var cursor = (pause.SelectedCategory, pause.SelectedItem);
                 using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, new object[] { pause, samus }); captured.Position = 0;
@@ -85,11 +85,11 @@ internal static class PauseWireframesVerification
                 pause = (PauseMenuState)restored[0]; samus = (SamusState)restored[1];
                 pause.BindMapPresentation(original);
                 AssertPage(pause, original, kind);
-                AssertTrue(!editedPixels.AsSpan().SequenceEqual(pause.Render()), "restored current wireframe changes visible equipment pixels");
+                AssertTrue(!editedPixels.SequenceEqual(pause.Render()), "restored current wireframe changes visible equipment pixels");
                 AssertEqual(cursor, (pause.SelectedCategory, pause.SelectedItem), "wireframe replacement preserves cursor");
                 AssertEqual(inventory, (samus.EquippedItems, samus.CollectedItems, samus.EquippedBeams, samus.CollectedBeams), "wireframe replacement cannot equip or collect upgrades");
                 pause.BindMapPresentation(edited);
-                AssertTrue(editedPixels.AsSpan().SequenceEqual(pause.Render()), "repeated restored-content rebind preserves exact animation phase");
+                AssertTrue(editedPixels.SequenceEqual(pause.Render()), "repeated restored-content rebind preserves exact animation phase");
             }
         }
         // Exercise selection through real menu actions, not only a direct bit fixture.
@@ -136,7 +136,7 @@ internal static class PauseWireframesVerification
         {
             byte[] actual = pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
             byte[] expected = actual.ToArray(); catalog.PauseWireframes.ApplyTo(expected, kind);
-            AssertTrue(expected.AsSpan().SequenceEqual(actual), "actual equipment page contains the selected current-content wireframe patch");
+            AssertTrue(expected.SequenceEqual(actual), "actual equipment page contains the selected current-content wireframe patch");
         }
     }
 

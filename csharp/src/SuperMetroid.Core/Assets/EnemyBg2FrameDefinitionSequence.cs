@@ -28,6 +28,16 @@ internal readonly ref struct EnemyBg2FrameDefinitionSequence
         }
     }
 
+    /// <summary>A new array of <paramref name="selector"/>'s results for each frame and its index, in frame order.</summary>
+    public TResult[] SelectToArray<TResult>(Func<EnemyBg2FrameDefinition, int, TResult> selector)
+    {
+        Ensure.NotNull(selector);
+        var result = new TResult[Length];
+        for (int index = 0; index < Length; index++)
+            result[index] = selector(this[index], index);
+        return result;
+    }
+
     /// <summary>Starts forward traversal over the counted frame identities.</summary>
     public Enumerator GetEnumerator() => new(this);
     /// <summary>Cursor that requests one definition at a time from its parent sequence.</summary>

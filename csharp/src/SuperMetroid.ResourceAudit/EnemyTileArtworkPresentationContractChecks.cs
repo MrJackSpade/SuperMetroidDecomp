@@ -45,12 +45,12 @@ internal static class EnemyTileArtworkPresentationContractChecks
         EnemyPaletteSheet palette = EnemyPaletteSheet.Load(paletteJson);
         var palettes = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionPointer, _ => palette);
         var sources = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionPointer, definition => definition.SourceAddress);
-        var ceres = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.ToArray().Select(page => Sheet(page.ByteCount)).ToArray());
+        var ceres = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(page => Sheet(page.ByteCount)).ToArray());
         using var overlayJson = new MemoryStream(CeresEscapeOverlayTilemapCatalog.Write(new CeresEscapeOverlayTilemapDocument {
             Version = CeresEscapeOverlayTilemapDefinitions.Version,
-            Pages = CeresEscapeOverlayTilemapDefinitions.All.ToArray().ToDictionary(page => page.Name, page => new ushort[page.WordCount]) }));
+            Pages = CeresEscapeOverlayTilemapDefinitions.All.ToDictionary(page => page.Name, page => new ushort[page.WordCount]) }));
         CeresEscapeOverlayTilemapCatalog overlays = CeresEscapeOverlayTilemapCatalog.Load(overlayJson);
-        var torizo = new TorizoInstructionVramArtwork(TorizoInstructionVramArtworkDefinitions.All.ToArray()
+        var torizo = new TorizoInstructionVramArtwork(TorizoInstructionVramArtworkDefinitions.All
             .Select(page => Sheet(page.ByteCount)).ToArray());
         EnemyTileArtworkCatalog Install() => EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, DmaSources = sources, TorizoInstructionVram = torizo, CeresEscapeTiles = ceres, CeresEscapeOverlayTilemaps = overlays });
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];

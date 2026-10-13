@@ -110,7 +110,7 @@ internal static class TilemapJsonContractsEnvironmentVerification
         foreach (string corrupt in TilemapContractCorruptions(dividerJson, root => (JsonObject)root.Required("cells").Required(0)))
             Reject("opening divider", corrupt, text => IntroFinalLineTilemap.Load(TilemapContractStream(text)));
 
-        var overlayWords = CeresEscapeOverlayTilemapDefinitions.All.ToArray().ToDictionary(page => page.Name,
+        var overlayWords = CeresEscapeOverlayTilemapDefinitions.All.ToDictionary(page => page.Name,
             page => Enumerable.Range(0, page.WordCount).Select(index => unchecked((ushort)(index * 197 + 23))).ToArray());
         string overlayJson = Encoding.UTF8.GetString(CeresEscapeOverlayTilemapCatalog.Write(new()
             { Version = CeresEscapeOverlayTilemapDefinitions.Version, Pages = overlayWords }));

@@ -27,7 +27,7 @@ internal static class ClosedTransferDomainAudit
             return (!page && !row) || (long)offset + skyCount > RoomSkyTilemapFormat.TotalByteCount
                 ? "Owned scrolling-sky source/length is neither a complete aligned page nor a complete even-addressed row." : null;
         }
-        if (!GunshipLiftoffTransferDefinitions.Frames.ToArray().Any(frame => frame.SourceAddress == source)) return null;
+        if (!GunshipLiftoffTransferDefinitions.Frames.Any(frame => frame.SourceAddress == source)) return null;
         return Constant("byteCount") is int count && count != GunshipLiftoffTransferDefinitions.ByteCount
             ? $"Owned gunship takeoff source requires {GunshipLiftoffTransferDefinitions.ByteCount} bytes, not {count}." : null;
     }

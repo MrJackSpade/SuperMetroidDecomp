@@ -64,7 +64,7 @@ internal static class MapPresentationJsonContractVerification
                     Require(selectedIdentity != expected, file + " participates in selected identity");
                     Require(AreaMapPresentationCatalog.Load(stock, edits).ContentIdentity == selectedIdentity,
                         file + " retains its identity on a fresh reload");
-                    Require(File.ReadAllBytes(path).AsSpan().SequenceEqual(selected), file + " retains authored bytes");
+                    Require(File.ReadAllBytes(path).SequenceEqual(selected), file + " retains authored bytes");
                     File.Delete(path);
                 }
             }
@@ -94,7 +94,7 @@ internal static class MapPresentationJsonContractVerification
             {
                 Require(error.ToString().Contains("Duplicate", StringComparison.OrdinalIgnoreCase),
                     name + " must identify ambiguity, not an unrelated decoder failure: " + error);
-                Require(File.ReadAllBytes(path).AsSpan().SequenceEqual(defective), name + " must retain defective bytes");
+                Require(File.ReadAllBytes(path).SequenceEqual(defective), name + " must retain defective bytes");
                 rejected++;
                 return;
             }
@@ -160,7 +160,7 @@ internal static class MapPresentationJsonContractVerification
             if (element.ValueKind == JsonValueKind.Object)
             {
                 writer.WriteStartObject();
-                bool duplicate = path.AsSpan().SequenceEqual(target);
+                bool duplicate = path.SequenceEqual(target);
                 foreach (JsonProperty property in element.EnumerateObject())
                 {
                     if (duplicate)

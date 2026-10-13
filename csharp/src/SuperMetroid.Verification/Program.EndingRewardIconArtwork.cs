@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
@@ -50,7 +51,7 @@ internal static class EndingRewardIconArtworkVerification
                 LayeredRenderSnapshot actual = installedScene.Presentation.CaptureRenderSnapshot();
                 AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                         actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
-                        SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
+                        SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(expected)),
                     $"reward icon preserves native partial-upload VRAM and pixels at jump frame {jumpFrames}");
             }
@@ -117,7 +118,7 @@ internal static class EndingRewardIconArtworkVerification
                         .SequenceEqual(edited.RewardIcon.Transfer.Span
                             [..(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)]) &&
                         partialVram.Bytes[(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)..]
-                            .ToArray().All(value => value == 0xa5),
+                            .All(value => value == 0xa5),
                     $"{name} rebinds eight completed chunks without touching pending VRAM");
                 AssertEqual(0, uploadBus.ForbiddenReadAttempts,
                     $"{name} partial upload never reads compressed ROM icon art");
@@ -163,7 +164,7 @@ internal static class EndingRewardIconArtworkVerification
                 LayeredRenderSnapshot baseline = installedScene.Presentation.CaptureRenderSnapshot();
                 LayeredRenderSnapshot changed = scene.Presentation.CaptureRenderSnapshot();
                 AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(baseline)
-                        .AsSpan().SequenceEqual(
+                        .SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(changed)),
                     $"edited {name} changes visible Mode-7 reward-shot pixels");
                 AssertEqual(0, sceneBus.ForbiddenReadAttempts,

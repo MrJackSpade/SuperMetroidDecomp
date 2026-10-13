@@ -17,8 +17,8 @@ internal static class EnemyDisplayArtworkDomainAudit
             .Value.ConstantValue is { HasValue: true, Value: not null } value ? Convert.ToInt32(value.Value) : null;
         if (Constant("bank") is not int bank || Constant("nativePointer") is not int pointer) return null;
         bool owned = type == typeof(EnemySpritemapCatalog).FullName
-            ? EnemySpritemapDefinitions.Frames.ToArray().Any(frame => frame.Bank == bank && frame.Pointer == pointer)
-            : EnemyExtendedFrameDefinitions.Frames.ToArray().Any(frame => frame.Bank == bank && frame.Pointer == pointer) ||
+            ? EnemySpritemapDefinitions.Frames.Any(frame => frame.Bank == bank && frame.Pointer == pointer)
+            : EnemyExtendedFrameDefinitions.Frames.Any(frame => frame.Bank == bank && frame.Pointer == pointer) ||
                 CommonEnemyEmptyExtendedFrameDefinitions.HasFrame((byte)bank, (ushort)pointer);
         return owned ? null : $"Known display identity ${bank:X2}:{pointer:X4} is outside the reviewed installed frame domain.";
     }

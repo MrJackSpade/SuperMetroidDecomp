@@ -45,8 +45,8 @@ public sealed class RoomPlmDynamicCollectibleArtCatalog
                     $"Permanent-item artwork for {entry.Kind} has invalid tile or palette data.");
             RoomPlmDynamicCollectibleGraphic stock =
                 RoomPlmDynamicCollectibleGraphicsDefinitions.Get(entry.Kind);
-            if (!entry.Tiles.AsSpan().SequenceEqual(stock.Tiles.Span) ||
-                !entry.PaletteOffsets.AsSpan().SequenceEqual(stock.PaletteOffsets.Span))
+            if (!entry.Tiles.SequenceEqual(stock.Tiles.Span) ||
+                !entry.PaletteOffsets.SequenceEqual(stock.PaletteOffsets.Span))
                 selected.Add(entry.Kind, new RoomPlmDynamicCollectibleGraphic(
                     entry.Kind, stock.GraphicsPointer,
                     entry.PaletteOffsets.ToArray(), entry.Tiles.ToArray()));

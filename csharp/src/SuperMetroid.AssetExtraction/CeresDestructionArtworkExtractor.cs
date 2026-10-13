@@ -28,7 +28,7 @@ internal static class CeresDestructionArtworkExtractor
             views[view] = allCeresMaps.AsSpan(firstDestructionByte +
                     view * CeresDestructionArtworkFormat.CellsPerView,
                     CeresDestructionArtworkFormat.CellsPerView)
-                .ToArray().Select(tile => (int)tile).ToArray();
+                .SelectToArray(tile => (int)tile);
         using var mapJson = new MemoryStream();
         CeresDestructionArtworkCatalog.WriteMap(mapJson, new CeresDestructionMapDocument
         {

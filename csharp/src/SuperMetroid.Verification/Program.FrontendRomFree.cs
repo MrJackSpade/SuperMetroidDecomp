@@ -77,7 +77,7 @@ internal static class FrontendRomFreeVerification
                 $"installed startup native phase at frame {frame}");
             if (frame % 37 == 0 || visited.Count == 1 ||
                 actual.GameState != before.GameState)
-                AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
+                AssertTrue(actual.Pixels.SequenceEqual(expected.Pixels),
                     $"installed startup native pixels at frame {frame}, {actual.Phase}");
 
             if (actual.GameState == SuperMetroidGameState.GameOptionsMenu &&
@@ -240,7 +240,7 @@ internal static class FrontendRomFreeVerification
                 $"installed intro game state at frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed intro native phase at frame {frame}");
-            AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
+            AssertTrue(actual.Pixels.SequenceEqual(expected.Pixels),
                 $"installed intro native pixels at frame {frame}, {actual.Phase}");
             if (before.GameState == SuperMetroidGameState.IntroCinematic &&
                 actual.GameState != SuperMetroidGameState.IntroCinematic)
@@ -256,7 +256,7 @@ internal static class FrontendRomFreeVerification
                         $"installed post-intro game state frame {gameplayFrame}");
                     AssertEqual(expectedGameplay.Phase, actualGameplay.Phase,
                         $"installed post-intro phase frame {gameplayFrame}");
-                    AssertTrue(actualGameplay.Pixels.AsSpan().SequenceEqual(expectedGameplay.Pixels),
+                    AssertTrue(actualGameplay.Pixels.SequenceEqual(expectedGameplay.Pixels),
                         $"installed post-intro pixels frame {gameplayFrame}");
                 }
                 VerifyFrontendRomFreeRestoredKraidHud(native, installed, bindInstalled);
@@ -430,7 +430,7 @@ internal static class FrontendRomFreeVerification
         AssertTrue(nativeRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
                 .SequenceEqual(installedRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
             "restored Kraid BG2 pages remain intact after the deferred HUD refresh");
-        AssertTrue(actual.Pixels.AsSpan().SequenceEqual(expected.Pixels),
+        AssertTrue(actual.Pixels.SequenceEqual(expected.Pixels),
             "restored Kraid first frame matches native pixels after HUD artwork rebind");
         Console.WriteLine("Frontend ROM-free Kraid restore: relocated HUD refresh preserves both BG2 pages and stock pixels.");
     }
@@ -464,7 +464,7 @@ internal static class FrontendRomFreeVerification
                 $"installed Ceres input state frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed Ceres input phase frame {frame}");
-            if (!actual.Pixels.AsSpan().SequenceEqual(expected.Pixels))
+            if (!actual.Pixels.SequenceEqual(expected.Pixels))
             {
                 int first = 0;
                 while (actual.Pixels[first].Equals(expected.Pixels[first]))
@@ -658,7 +658,7 @@ internal static class FrontendRomFreeVerification
                 awakenedGoldenTorizo.CurrentInstruction <
                     GoldenTorizoLeftFootOrbInstructionProgramDefinitions.End)
                 goldenLeftFootOrbProgramObserved = true;
-            if (!actual.Pixels.AsSpan().SequenceEqual(expected.Pixels))
+            if (!actual.Pixels.SequenceEqual(expected.Pixels))
             {
                 int first = -1;
                 int count = 0;

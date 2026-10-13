@@ -56,7 +56,7 @@ internal static class GoldenTorizoCodeVerification
                 ? [native[0], native[0], native[1], native[1], native[2], native[2],
                    native[3], native[3], native[4], native[4], native[5], native[5], native[6], native[6]]
                 : before;
-            AssertTrue(expected.AsSpan().SequenceEqual(Snapshot(samus)),
+            AssertTrue(expected.SequenceEqual(Snapshot(samus)),
                 $"GT code inventory: header ${(int)header:X4}, held ${held:X4}, defeated {defeated}");
             AssertEqual((ushort)2, samus.ReserveTankMode, "GT code does not set reserve mode");
             AssertEqual((ushort)7, samus.ReserveMissiles, "GT code does not alter reserve missiles");

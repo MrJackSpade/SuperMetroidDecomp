@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
@@ -51,13 +52,13 @@ internal static class SpeedPaletteOverrunVerification
             AssertEqual((ushort)6, speed.SpecialPaletteFrame, "native clamps the phase only after the overrun read");
             AssertEqual((ushort)4, speed.SpecialPaletteTimer.RawValue, "native reloads the four-frame timer");
             string actualTrace = $"{phase},{speed.SpecialPaletteFrame},{speed.SpecialPaletteTimer.RawValue}," +
-                string.Concat(cgram.Colors.Slice(192, 16).ToArray().Select(color => color.ToWord().ToString("X4")));
+                string.Concat(cgram.Colors.Slice(192, 16).SelectToArray(color => color.ToWord().ToString("X4")));
             AssertEqual(nativeTrace[traceRow++], actualTrace, "port colors/phase/timer match execution of original ROM on the 65816 core");
             var first = cgram.Colors.ToArray();
             for (int call = 0; call < 3; call++)
             {
                 AssertTrue(!speed.UpdateSpeedBoosterPalette(memory, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }, cycleColors: colors), "overrun palette remains until timer expires");
-                AssertTrue(first.AsSpan().SequenceEqual(cgram.Colors), "palette holds for four frames");
+                AssertTrue(first.SequenceEqual(cgram.Colors), "palette holds for four frames");
             }
             speed.UpdateSpeedBoosterPalette(memory, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }, cycleColors: colors);
             for (int color = 0; color < 16; color++)

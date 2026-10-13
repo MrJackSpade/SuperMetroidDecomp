@@ -39,11 +39,11 @@ internal static class EndingTextPresentationVerification
             "installed ending-font PNG compiles to exact native planar bytes");
         ISnesAddressSpace installedBus = NewEndingTextReadGuard(nativeBus);
 
-        AssertTrue(presentation.BuildResultPanel().AsSpan().SequenceEqual(
+        AssertTrue(presentation.BuildResultPanel().SequenceEqual(
             ReadEndingWords(nativeBus, EndingTextDefinitions.Native.ResultPanel,
                 EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth)),
             "installed producer panel matches native tilemap");
-        AssertTrue(presentation.BuildCopyrightPanel().AsSpan().SequenceEqual(
+        AssertTrue(presentation.BuildCopyrightPanel().SequenceEqual(
             ReadEndingWords(nativeBus, EndingTextDefinitions.Native.CopyrightPanel,
                 EndingTextDefinitions.CopyrightRows * EndingTextDefinitions.TilemapWidth)),
             "installed copyright panel matches native tilemap");
@@ -141,7 +141,7 @@ internal static class EndingTextPresentationVerification
         AreaMapPresentationCatalog stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.EndingTextExtractor.Extract(bus);
-        AssertTrue(deterministic.AsSpan().SequenceEqual(File.ReadAllBytes(
+        AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, EndingTextDefinitions.FileName))),
             "installed ending text is the deterministic cartridge extraction");
         Directory.CreateDirectory(overrideDirectory);
@@ -171,7 +171,7 @@ internal static class EndingTextPresentationVerification
         AreaMapPresentationCatalog stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.EndingFontAtlasExtractor.Extract(bus);
-        AssertTrue(deterministic.AsSpan().SequenceEqual(File.ReadAllBytes(
+        AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, EndingFontAtlasFormat.FileName))),
             "installed ending font is the deterministic cartridge extraction");
         IndexedPngImage image = IndexedPng.Read(new MemoryStream(deterministic, writable: false),

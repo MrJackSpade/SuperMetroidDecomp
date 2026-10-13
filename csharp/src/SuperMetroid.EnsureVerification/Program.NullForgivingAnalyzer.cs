@@ -44,7 +44,7 @@ internal static class NullForgivingAnalyzerTests
     /// </summary>
     private static void VerifyAnalyzerProjectsHaveNoSuppressions()
     {
-        string source = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
+        string source = SourceDirectory();
         string[] projects = ["SuperMetroid.EnsureAnalyzer", "SuperMetroid.EnsureAnalyzer.CodeFixes", "SuperMetroid.EnsureVerification"];
         foreach (string project in projects)
         {
@@ -65,6 +65,20 @@ internal static class NullForgivingAnalyzerTests
                 }
             }
         }
+    }
+
+    /// <summary>The repository's <c>csharp/src</c> directory, found from the working directory upward.</summary>
+    private static string SourceDirectory()
+    {
+        for (DirectoryInfo? directory = new(Directory.GetCurrentDirectory()); directory is not null; directory = directory.Parent)
+        {
+            string candidate = Path.Combine(directory.FullName, "csharp", "src");
+            if (Directory.Exists(Path.Combine(candidate, "SuperMetroid.EnsureAnalyzer")))
+                return candidate;
+            if (Directory.Exists(Path.Combine(directory.FullName, "SuperMetroid.EnsureAnalyzer")))
+                return directory.FullName;
+        }
+        throw new DirectoryNotFoundException($"No csharp/src with SuperMetroid.EnsureAnalyzer above {Directory.GetCurrentDirectory()}.");
     }
 
     /// <summary>Compiles one source and compares the SME6380 count and an optional message fragment.</summary>

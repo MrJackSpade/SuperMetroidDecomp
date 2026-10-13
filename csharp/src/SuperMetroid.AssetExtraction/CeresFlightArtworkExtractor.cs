@@ -46,10 +46,10 @@ internal static class CeresFlightArtworkExtractor
             Width = CeresFlightArtworkFormat.MapWidth,
             Height = CeresFlightArtworkFormat.MapHeight,
             FrontTiles = map.AsSpan(0, CeresFlightArtworkFormat.MapCellsPerView)
-                .ToArray().Select(value => (int)value).ToArray(),
+                .SelectToArray(value => (int)value),
             RearTiles = map.AsSpan(CeresFlightArtworkFormat.MapCellsPerView,
                 CeresFlightArtworkFormat.MapCellsPerView)
-                .ToArray().Select(value => (int)value).ToArray(),
+                .SelectToArray(value => (int)value),
         });
         byte[] mapFile = mapJson.ToArray();
         byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),

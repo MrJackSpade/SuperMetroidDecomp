@@ -140,14 +140,14 @@ internal static class ExploredMapPackingDefinitionsVerification
             byte[] emptySram = memory.SaveRam.ToArray();
             AssertThrows<InvalidOperationException>(() => unbound.SaveSlot(0, snapshot),
                 "unbound map packing fails before persistence");
-            AssertTrue(emptySram.AsSpan().SequenceEqual(memory.SaveRam), "unbound save leaves SRAM unchanged");
+            AssertTrue(emptySram.SequenceEqual(memory.SaveRam), "unbound save leaves SRAM unchanged");
             var saves = new SuperMetroidSaveRam(memory, original);
             saves.SaveSlot(0, snapshot);
             byte[] expected = memory.SaveRam.ToArray();
             AssertThrows<InvalidOperationException>(() => unbound.ReadSlot(0), "unbound map unpacking fails clearly");
             var editedSaves = new SuperMetroidSaveRam(memory, edited);
             editedSaves.SaveSlot(0, snapshot);
-            AssertTrue(expected.AsSpan().SequenceEqual(memory.SaveRam), "blank artwork overrides preserve exact SRAM format");
+            AssertTrue(expected.SequenceEqual(memory.SaveRam), "blank artwork overrides preserve exact SRAM format");
             for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
             {
                 var a = ExploredMapPackingDefinitions.Area(area, original);
@@ -175,7 +175,7 @@ internal static class ExploredMapPackingDefinitionsVerification
             });
             AssertTrue(restoredSaves.ReadSlot(0) is not null, "frontend rebind restores SRAM decoding");
             restoredSaves.SaveSlot(0, snapshot);
-            AssertTrue((restoredSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires restoredSaves.ReadSlot(0).")).ExploredMapBytes.AsSpan().SequenceEqual((editedSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires editedSaves.ReadSlot(0).")).ExploredMapBytes),
+            AssertTrue((restoredSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires restoredSaves.ReadSlot(0).")).ExploredMapBytes.SequenceEqual((editedSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires editedSaves.ReadSlot(0).")).ExploredMapBytes),
                 "rebound debugger game preserves decoded exploration");
         }
         finally

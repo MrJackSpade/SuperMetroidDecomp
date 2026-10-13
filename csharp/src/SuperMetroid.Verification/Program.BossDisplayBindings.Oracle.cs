@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -74,11 +75,11 @@ internal static class BossDisplayBindingsOracleVerification
     /// <summary>Selects compiled component offsets and hitbox pointers for the frame's boss family.</summary>
     private static (short X, short Y, ushort Pointer)[] BossPhysicalComponents(EnemyExtendedFrameDefinition frame) => frame.Bank switch
     {
-        CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer).ToArray()
+        CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer)
+            .SelectToArray(part => (part.Offset.X, part.Offset.Y, part.HitboxPointer)),
+        PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer)
             .Select(part => (part.Offset.X, part.Offset.Y, part.HitboxPointer)).ToArray(),
-        PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer).ToArray()
-            .Select(part => (part.Offset.X, part.Offset.Y, part.HitboxPointer)).ToArray(),
-        DraygonBg2FrameDefinitions.Bank => DraygonCollisionDefinitions.ComponentsAt(frame.Pointer).ToArray()
+        DraygonBg2FrameDefinitions.Bank => DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)
             .Select(part => (part.Offset.X, part.Offset.Y, (ushort)part.HitboxPointer)).ToArray(),
         _ => throw new InvalidDataException("Unknown native oracle family."),
     };
@@ -86,13 +87,13 @@ internal static class BossDisplayBindingsOracleVerification
     /// <summary>Selects compiled hitbox rectangles and callbacks for a native boss list.</summary>
     private static ushort[][] BossPhysicalHitboxes(byte bank, ushort pointer) => bank switch
     {
-        CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.HitboxesAt(pointer).ToArray()
-            .Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)).ToArray(),
-        PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.HitboxesAt(pointer).ToArray()
+        CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.HitboxesAt(pointer)
+            .SelectToArray(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)),
+        PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.HitboxesAt(pointer)
             .Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)).ToArray(),
         DraygonBg2FrameDefinitions.Bank => DraygonCollisionDefinitions.HitboxesAt(
-                ClosedNativeWords.Decode<DraygonHitboxList>(pointer, "compiled Draygon hitbox list")).ToArray()
-            .Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)).ToArray(),
+                ClosedNativeWords.Decode<DraygonHitboxList>(pointer, "compiled Draygon hitbox list"))
+            .SelectToArray(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)),
         _ => throw new InvalidDataException("Unknown native oracle bank."),
     };
 

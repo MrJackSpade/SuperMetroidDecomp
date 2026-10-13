@@ -42,7 +42,7 @@ internal static class GameplayMessageNoticesVerification
                 installed.Step(0);
             ushort[] yesSelected = installed.Tilemap.ToArray();
             installed.Step((ushort)SnesButton.Right);
-            AssertTrue(!yesSelected.AsSpan().SequenceEqual(installed.Tilemap),
+            AssertTrue(!yesSelected.SequenceEqual(installed.Tilemap),
                 $"installed gameplay-message notice {id} redraws its NO-selection row without cartridge reads");
             comparedWords += installed.Tilemap.Length;
         }
@@ -68,10 +68,10 @@ internal static class GameplayMessageNoticesVerification
             "message-notice content rebind preserves coroutine phase");
         AssertEqual(radius, active.RadiusPixels,
             "message-notice content rebind preserves window radius");
-        AssertTrue(!before.AsSpan().SequenceEqual(active.Tilemap),
+        AssertTrue(!before.SequenceEqual(active.Tilemap),
             "UTF-8 notice edit reaches an active message without a ROM patch");
         active.BindPresentation(null, null, stock);
-        AssertTrue(before.AsSpan().SequenceEqual(active.Tilemap),
+        AssertTrue(before.SequenceEqual(active.Tilemap),
             "restoring stock notice restores exact live tilemap");
 
         byte[] malformed = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
@@ -92,7 +92,7 @@ internal static class GameplayMessageNoticesVerification
         AreaMapPresentationCatalog stockCatalog)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.GameplayMessageNoticeExtractor.Extract(bus);
-        AssertTrue(deterministic.AsSpan().SequenceEqual(File.ReadAllBytes(
+        AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, GameplayMessageNoticeDefinitions.FileName))),
             "installed gameplay-message notices are the deterministic cartridge extraction");
 
@@ -111,7 +111,7 @@ internal static class GameplayMessageNoticesVerification
             edited.GameplayMessageNotices);
         state.Begin(NewForbiddenGameplayMessageBus(), GameplayMessageId.SaveConfirmation, 0);
         AssertTrue(!stockCatalog.GameplayMessageNotices.Build(GameplayMessageId.SaveConfirmation)
-                .AsSpan().SequenceEqual(state.Tilemap),
+                .SequenceEqual(state.Tilemap),
             "catalog override changes installed save-confirmation text");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "gameplay-message notice override changes catalog content identity");

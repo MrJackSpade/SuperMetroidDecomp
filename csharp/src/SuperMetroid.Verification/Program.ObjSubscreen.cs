@@ -142,7 +142,7 @@ internal static class ObjSubscreenVerification
         // Version 19 ends this layer after its priority byte; version 20 adds color presence.
         byte[] oldPriority = RenderFrameSnapshotWriter.Serialize(legacyPriority)[..^1];
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(oldPriority.AsSpan(RenderPacketFormat.Signature.Length), 19);
-        AssertTrue(SoftwareFrameSnapshotRenderer.Render(RenderFrameSnapshotCodec.Deserialize(oldPriority)).AsSpan()
+        AssertTrue(SoftwareFrameSnapshotRenderer.Render(RenderFrameSnapshotCodec.Deserialize(oldPriority))
             .SequenceEqual(RenderForComparison(legacyPriority)), "legacy priority packets remain readable without color payload");
     }
 

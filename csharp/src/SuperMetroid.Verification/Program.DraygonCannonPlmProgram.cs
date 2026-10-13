@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -65,9 +66,7 @@ internal static class DraygonCannonPlmProgramVerification
         var entries = DraygonCannonPlmDrawDefinitions.All.Select(draw =>
             new RoomPlmDraygonCannonVisualEntry(
                 DraygonCannonPlmDrawDefinitions.VisualId(draw.Pointer),
-                draw.Runs.Span.ToArray().SelectMany(run =>
-                    run.LevelWords.Span.ToArray().Select(word =>
-                        new RoomLevelWord(word).VisualWord)).ToArray())).ToArray();
+                draw.VisualWords())).ToArray();
         entries.Single(entry => entry.Id == "right-shield-a").Blocks[0] = 0x0053;
         entries.Single(entry => entry.Id == "left-shield-a").Blocks[0] = 0x0054;
         plms.Drawing.DraygonCannonVisuals = new RoomPlmDraygonCannonVisualCatalog(entries);
@@ -150,7 +149,7 @@ internal static class DraygonCannonPlmProgramVerification
                     DraygonCannonPlmDrawDefinitions.All.Any(draw =>
                     {
                         int start = 0x840000 | draw.Pointer;
-                        int size = draw.Runs.Span.ToArray().Sum(run =>
+                        int size = draw.Runs.Span.Sum(run =>
                             4 + run.LevelWords.Length * 2);
                         return address >= start && address < start + size;
                     }),

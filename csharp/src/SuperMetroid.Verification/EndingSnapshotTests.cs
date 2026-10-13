@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
@@ -43,7 +44,7 @@ internal static class EndingSnapshotTestsVerification
             {
                 legacy.Step(); captured.Step();
                 if (previousPacket is not null)
-                    AssertTrue(previousPixels.AsSpan().SequenceEqual(RenderForComparison(previousPacket)),
+                    AssertTrue(previousPixels.SequenceEqual(RenderForComparison(previousPacket)),
                         "ending packet survives subsequent palette/tile/sprite updates");
                 bool firstPhaseFrame = phases.Add(legacy.Phase);
                 if (firstPhaseFrame) phaseEntryFrames.Add(legacy.Phase, tick);
@@ -70,7 +71,7 @@ internal static class EndingSnapshotTestsVerification
                             | (((source >> 10 & 31) * step / 32) << 10));
                         AssertEqual(expectedColor, explosion.Memory.Cgram[i], "native explosion OBJ palette fades in over both fade-in and crossfade phases");
                     }
-                    AssertTrue(explosion.Layers.ToArray().OfType<ObjRenderLayer>().Single().AddToScreen,
+                    AssertTrue(explosion.LayersOf<ObjRenderLayer>().Single().AddToScreen,
                         "explosion transition adds OBJ subscreen to BG1 and backdrop");
                 }
                 if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
@@ -94,24 +95,24 @@ internal static class EndingSnapshotTestsVerification
                 }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
                 if (legacy.Phase == EndingCreditsPhase.ZebesExplosionAnimation &&
-                    legacy.Presentation.CaptureRenderSnapshot().Layers.ToArray().OfType<BgSubscreenAddRenderLayer>().Any(layer => layer.MainObjects))
+                    legacy.Presentation.CaptureRenderSnapshot().LayersOf<BgSubscreenAddRenderLayer>().Any(layer => layer.MainObjects))
                 {
                     var burst = legacy.Presentation.CaptureRenderSnapshot();
-                    var sub = burst.Layers.ToArray().OfType<BgSubscreenAddRenderLayer>().Single();
+                    var sub = burst.LayersOf<BgSubscreenAddRenderLayer>().Single();
                     AssertEqual((ushort)0x7c00, sub.TilemapWord, "F2B7 selects burst BG2 map");
                     AssertEqual((ushort)0x7000, (sub.MainCoverage ?? throw new InvalidOperationException("Verification requires sub.MainCoverage.")).TilemapWord, "F2B7 keeps BG1 map and excludes backdrop color math");
 
                     burstDisplayFrames++;
                 }
                 if (legacy.Phase == EndingCreditsPhase.ZebesExplosionAnimation
-                    && legacy.Presentation.CaptureRenderSnapshot().Layers.ToArray().OfType<BgSubscreenAddRenderLayer>().Any(layer => layer.IncludeObjects))
+                    && legacy.Presentation.CaptureRenderSnapshot().LayersOf<BgSubscreenAddRenderLayer>().Any(layer => layer.IncludeObjects))
                 {
                     var finale = legacy.Presentation.CaptureRenderSnapshot();
-                    var backgrounds = finale.Layers.ToArray().OfType<Bg4BppRenderLayer>().ToArray();
+                    var backgrounds = finale.LayersOf<Bg4BppRenderLayer>();
                     AssertTrue(backgrounds.Select(bg => bg.TilemapWord).SequenceEqual(new ushort[] { 0x7800, 0x7400, 0x7800, 0x7400 }),
                         "native explosion finale selects both background maps in main-screen priority order");
                     AssertTrue(backgrounds.All(bg => bg.CharacterWord == 0x4000), "explosion finale uses Mode1 character base, not stale Mode7 decoding");
-                    AssertTrue(!finale.Layers.ToArray().Any(layer => layer is ObjRenderLayer or ObjPriorityRenderLayer),
+                    AssertTrue(!finale.Layers.Any(layer => layer is ObjRenderLayer or ObjPriorityRenderLayer),
                         "F2FA moves OBJ exclusively to the subscreen");
                     if (hours == 2 && finaleDisplayFrames == 10)
                     {
@@ -125,7 +126,7 @@ internal static class EndingSnapshotTestsVerification
                         - phaseEntryFrames[EndingCreditsPhase.PostCreditsReward],
                         "gesture starts after two 64-frame reveals and the 180-frame copyright hold");
                     var gestureFrame = legacy.Presentation.CaptureRenderSnapshot();
-                    AssertTrue(gestureFrame.Layers.ToArray().All(layer => layer is ObjRenderLayer),
+                    AssertTrue(gestureFrame.Layers.All(layer => layer is ObjRenderLayer),
                         "E342 gesture renders OBJ without the stale waiting or copyright backgrounds");
                 }
                 if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsJump)
@@ -155,7 +156,7 @@ internal static class EndingSnapshotTestsVerification
                             (jumpFrame.Memory.Oam[OamBuffer.LowTableByteCount + actor / 4] >> shift) & 3,
                             "live reward preserves native actor X-high and size bits");
                     }
-                    AssertTrue(jumpFrame.Layers.ToArray().All(layer => layer is ObjRenderLayer),
+                    AssertTrue(jumpFrame.Layers.All(layer => layer is ObjRenderLayer),
                         "reward flight and landing keep BG disabled during icon graphics replacement");
                 }
                 if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsShot)
@@ -175,9 +176,9 @@ internal static class EndingSnapshotTestsVerification
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsWhiteFlash];
                     var flash = legacy.Presentation.CaptureRenderSnapshot();
-                    var add = flash.Layers.ToArray().OfType<FixedColorAddRenderLayer>().Single();
+                    var add = flash.LayersOf<FixedColorAddRenderLayer>().Single();
                     AssertEqual((byte)Math.Max(0, 31 - elapsed), add.Red, "native post-shot white fade component");
-                    var textPlane = flash.Layers.ToArray().OfType<Bg4BppRenderLayer>().Single();
+                    var textPlane = flash.LayersOf<Bg4BppRenderLayer>().Single();
                     AssertEqual((ushort)0x4c00, textPlane.TilemapWord, "final text uses native upper screen");
                     AssertEqual(64, textPlane.MapSize.Y, "final text map is two screens tall");
                     if (firstPhaseFrame)
@@ -191,7 +192,7 @@ internal static class EndingSnapshotTestsVerification
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShot];
                     var shotFrame = legacy.Presentation.CaptureRenderSnapshot();
-                    var mode = shotFrame.Layers.ToArray().OfType<Mode7RenderLayer>().Single();
+                    var mode = shotFrame.LayersOf<Mode7RenderLayer>().Single();
                     AssertTrue(mode.SubtractObjSubscreen, "live shot enables native BG1 minus OBJ blending");
                     AssertEqual((short)104, mode.Registers.Center.X, "post-shot matrix horizontal origin");
                     AssertEqual((short)112, mode.Registers.Center.Y, "post-shot matrix vertical origin");
@@ -230,9 +231,9 @@ internal static class EndingSnapshotTestsVerification
                     && tick - revealStart == 64)
                 {
                     var copyright = legacy.Presentation.CaptureRenderSnapshot();
-                    AssertTrue(!copyright.Layers.ToArray().Any(layer => layer is ObjRenderLayer),
+                    AssertTrue(!copyright.Layers.Any(layer => layer is ObjRenderLayer),
                         "native E293 hides reward actors during copyright panel");
-                    AssertEqual((ushort)0x4800, copyright.Layers.ToArray().OfType<Bg4BppRenderLayer>().Single().TilemapWord,
+                    AssertEqual((ushort)0x4800, copyright.LayersOf<Bg4BppRenderLayer>().Single().TilemapWord,
                         "native E293 selects copyright BG1 after first 64 reveal frames");
                 }
                 if (legacy.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue)
@@ -246,7 +247,7 @@ internal static class EndingSnapshotTestsVerification
                 }
                 if (legacy.Phase == EndingCreditsPhase.PostCreditsReward)
                 {
-                    var backgrounds = legacy.Presentation.CaptureRenderSnapshot().Layers.ToArray().OfType<Bg4BppRenderLayer>().ToArray();
+                    var backgrounds = legacy.Presentation.CaptureRenderSnapshot().LayersOf<Bg4BppRenderLayer>();
                     AssertEqual(hours >= 10 ? 0 : 1, backgrounds.Length, "native reward reveal background enable mask");
                     if (hours < 10)
                     {
@@ -260,12 +261,12 @@ internal static class EndingSnapshotTestsVerification
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PlanetEscapeFast];
                     int expectedWhite = elapsed <= 192 ? 31 : Math.Max(0, 30 - (elapsed - 193) / 8);
                     var flight = legacy.Presentation.CaptureRenderSnapshot();
-                    var fixedColors = flight.Layers.ToArray().OfType<FixedColorAddRenderLayer>().ToArray();
+                    var fixedColors = flight.LayersOf<FixedColorAddRenderLayer>();
                     AssertEqual(expectedWhite > 0 ? 1 : 0, fixedColors.Length, "native flyaway disables fixed color after final decrement");
                     if (expectedWhite > 0)
                     {
                         AssertEqual((byte)expectedWhite, fixedColors[0].Red, "native flyaway holds 192 calls then fades every eight");
-                        AssertTrue(flight.Layers.ToArray().OfType<ObjPriorityRenderLayer>().All(layer => layer.FixedColor == fixedColors[0]), "OBJ and backdrop share native fixed white");
+                        AssertTrue(flight.LayersOf<ObjPriorityRenderLayer>().All(layer => layer.FixedColor == fixedColors[0]), "OBJ and backdrop share native fixed white");
                         AssertTrue(flight.Layers[0] is FixedColorAddRenderLayer && flight.Layers[1] is ObjPriorityRenderLayer { Priority: 0 }
                             && flight.Layers[2] is Mode7RenderLayer,
                             "fixed backdrop is composed before unaffected Mode7 BG1");
@@ -332,7 +333,7 @@ internal static class EndingSnapshotTestsVerification
 
                     }
                     packet = RoundTripRenderPacket(new(new(++samples, 1, (ushort)tick), captured.Presentation.CaptureRenderSnapshot()));
-                    AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(packet)),
+                    AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                         $"ending reward {hours}, phase {legacy.Phase}, tick {tick} pixel parity");
                 }
                 audio.AdvanceFrame(bus, default); otherAudio.AdvanceFrame(otherBus, default);
@@ -340,7 +341,7 @@ internal static class EndingSnapshotTestsVerification
                 AssertEqual(legacy.CinematicFrame, captured.CinematicFrame, "ending capture preserves timer");
                 AssertEqual(legacy.CreditsVerticalScroll, captured.CreditsVerticalScroll, "ending capture preserves half-pixel scroll result");
                 if (packet is not null)
-                    AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(packet)), "ending packet repeat rendering is observational");
+                    AssertTrue(expected.SequenceEqual(RenderForComparison(packet)), "ending packet repeat rendering is observational");
                 previousPacket = packet;
                 previousPixels = expected;
                 if (legacy.Phase == EndingCreditsPhase.SeeYouNextMission) break;
@@ -355,7 +356,7 @@ internal static class EndingSnapshotTestsVerification
             LayeredRenderSnapshot retained = captured.Presentation.CaptureRenderSnapshot();
             for (int i = 0; i < 600; i++) captured.Step();
 
-            AssertTrue(final.AsSpan().SequenceEqual(RenderForComparison(retained)), "ending final packet survives simulation advance");
+            AssertTrue(final.SequenceEqual(RenderForComparison(retained)), "ending final packet survives simulation advance");
         }
         Console.WriteLine($"  Ending snapshots: {samples} sampled frames cover escape, credits and all three reward branches.");
     }

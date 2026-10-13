@@ -79,11 +79,11 @@ internal static class InvalidBeamSelectionVerification
         var expectedMemory = new PpuMemorySnapshot(expectedVram, after.Memory.Cgram, after.Memory.Oam, after.Memory.ModeledSpriteCount);
         var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, after.Layers, after.ObjectSelection, after.Brightness));
         var actualPixels = pause.Render();
-        if (!expectedPixels.AsSpan().SequenceEqual(actualPixels))
+        if (!expectedPixels.SequenceEqual(actualPixels))
             for (int offset = 0x6000; offset < 0x6800; offset += 2)
                 if (!expectedVram.AsSpan(offset, 2).SequenceEqual(after.Memory.Vram.Slice(offset, 2)))
                     Console.WriteLine($"tile mismatch {offset:X4}: expected {Convert.ToHexString(expectedVram.AsSpan(offset, 2))}, actual {Convert.ToHexString(after.Memory.Vram.Slice(offset, 2))}");
-        AssertTrue(expectedPixels.AsSpan().SequenceEqual(actualPixels), $"native rendered VAR/adjacent-frame label, scenario {scenario}");
+        AssertTrue(expectedPixels.SequenceEqual(actualPixels), $"native rendered VAR/adjacent-frame label, scenario {scenario}");
 
         }
         Console.WriteLine("Inventory beam glitch: simultaneous/adjacent/left-only inputs match retail bits, tile footprint and rendered labels.");

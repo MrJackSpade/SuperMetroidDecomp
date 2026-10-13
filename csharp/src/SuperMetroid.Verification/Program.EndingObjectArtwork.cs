@@ -230,7 +230,7 @@ internal static class EndingObjectArtworkVerification
                 LayeredRenderSnapshot actual = installed.Presentation.CaptureRenderSnapshot();
                 AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                         actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
-                        SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
+                        SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(expected)),
                     $"ending OBJ PNGs preserve native VRAM/pixels at frame {frame}");
             }
@@ -293,7 +293,7 @@ internal static class EndingObjectArtworkVerification
             LayeredRenderSnapshot afterCloudEdit = cloudScene.Presentation.CaptureRenderSnapshot();
             visibleCloudEdit = !beforeCloudEdit.Memory.Oam.SequenceEqual(
                     afterCloudEdit.Memory.Oam) &&
-                !SoftwareLayeredSnapshotRenderer.Render(beforeCloudEdit).AsSpan().SequenceEqual(
+                !SoftwareLayeredSnapshotRenderer.Render(beforeCloudEdit).SequenceEqual(
                     SoftwareLayeredSnapshotRenderer.Render(afterCloudEdit));
             if (!visibleCloudEdit)
             {
@@ -387,7 +387,7 @@ internal static class EndingObjectArtworkVerification
                     scene.BindObjectArtwork(edited);
                     LayeredRenderSnapshot editedArt = scene.Presentation.CaptureRenderSnapshot();
                     visibleEdit = !SoftwareLayeredSnapshotRenderer.Render(nativeArt)
-                        .AsSpan().SequenceEqual(
+                        .SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(editedArt));
                 }
                 scene.Step();

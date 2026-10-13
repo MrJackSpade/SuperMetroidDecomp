@@ -79,7 +79,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
             IndexedPng.Write(png, size, pixels,
                 SnesGraphics.DiagnosticPalette(16));
             byte[] encoded = png.ToArray();
-            if (!ReadTiles(encoded, FileName(graphic.Kind)).AsSpan()
+            if (!ReadTiles(encoded, FileName(graphic.Kind))
                     .SequenceEqual(graphic.Tiles.Span))
                 throw new InvalidDataException(
                     $"Item {graphic.Kind} PNG roundtrip changed cartridge tiles.");
@@ -89,8 +89,8 @@ public static class RoomPlmDynamicCollectibleArtFiles
                 output.Write(encoded);
             hashes.Add(name, Sha(encoded));
             palettes.Add(new PaletteEntry(graphic.Kind.ToString(),
-                graphic.PaletteOffsets.Span.ToArray()
-                    .Select(offset => (int)offset).ToArray()));
+                graphic.PaletteOffsets.Span
+                    .SelectToArray(offset => (int)offset)));
         }
         byte[] paletteJson = JsonSerializer.SerializeToUtf8Bytes(
             new PaletteDocument(FormatVersion, palettes.ToArray()), JsonOptions);
@@ -137,7 +137,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
         {
             InWorldCollectibleKind kind = (InWorldCollectibleKind)(
                 RoomPlmDynamicCollectibleGraphicsDefinitions.FirstKind + index);
-            if (!stockOffsets[index].AsSpan().SequenceEqual(
+            if (!stockOffsets[index].SequenceEqual(
                     RoomPlmDynamicCollectibleGraphicsDefinitions.Get(kind)
                         .PaletteOffsets.Span))
                 throw new InvalidDataException(
@@ -158,7 +158,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
             string name = FileName(graphic.Kind);
             byte[] stockTiles = ReadTiles(ReadStock(stockDirectory, manifest, name),
                 Path.Combine(stockDirectory, name));
-            if (!stockTiles.AsSpan().SequenceEqual(graphic.Tiles.Span))
+            if (!stockTiles.SequenceEqual(graphic.Tiles.Span))
                 throw new InvalidDataException(
                     $"Stock item PNG {name} differs from compiled cartridge art.");
             string? overridePath = overrideDirectory is null ? null :

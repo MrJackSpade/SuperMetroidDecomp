@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
@@ -13,16 +14,16 @@ internal static class ClosedPresentationIdentityDefinitions
     internal static int[]? Get(string type, string method, string parameter) => (type, method, parameter) switch
     {
         ("GameplayMessageTitlePresentation", "Build", "messageId") =>
-            GameplayMessageTitleDefinitions.MessageIds.ToArray().Select(id => (int)id).ToArray(),
+            GameplayMessageTitleDefinitions.MessageIds.SelectToArray(id => (int)id),
         ("GameplayMessagePanelPresentation", "Build", "messageId") =>
-            GameplayMessagePanelDefinitions.MessageIds.ToArray().Select(id => (int)id).ToArray(),
+            GameplayMessagePanelDefinitions.MessageIds.SelectToArray(id => (int)id),
         ("GameplayMessageNoticePresentation", "Build", "messageId") =>
-            GameplayMessageNoticeDefinitions.MessageIds.ToArray().Select(id => (int)id).ToArray(),
+            GameplayMessageNoticeDefinitions.MessageIds.SelectToArray(id => (int)id),
         ("GameplayMessageNoticePresentation", "ApplySelection", "messageId") =>
             [(int)GameplayMessageId.SaveConfirmation, (int)GameplayMessageId.GunshipSaveConfirmation],
         ("SamusFullBodyCycleColorCatalog", "Apply" or "Resolve", "pointer") => FullBodyPointers(),
         ("SamusSuitColorCatalog", "Apply" or "Resolve", "suitTableOffset") => [0, 2, 4],
-        ("EnemyAuxiliaryColorCatalog", "Resolve", "palette") => EnemyAuxiliaryColorDefinitions.All.ToArray()
+        ("EnemyAuxiliaryColorCatalog", "Resolve", "palette") => EnemyAuxiliaryColorDefinitions.All
             .Select(definition => (int)definition.Id).ToArray(),
         ("KraidColorCatalog", "Resolve", "source") => Enum.GetValues<KraidPaletteSource>().Select(id => (int)id).ToArray(),
         ("DachoraColorCatalog", "Resolve", "phase") => Enum.GetValues<DachoraPalettePhase>().Select(id => (int)id).ToArray(),
@@ -34,18 +35,18 @@ internal static class ClosedPresentationIdentityDefinitions
         ("EndingTextPresentation", "Compile", "sequence") => Enum.GetValues<EndingTextSequence>().Select(id => (int)id).ToArray(),
         ("MapSpriteCatalog", "Draw", "id") => MapSpriteDefinitions.Frames.Select(frame => (int)frame.NativeId).ToArray(),
         ("PauseReserveTankPresentation", "Draw", "nativeIdentity") => PauseReserveTankDefinitions.Frames().Select(frame => (int)frame.Id).ToArray(),
-        ("TitleGraphicsPresentation", "DrawSprite", "pointer") => TitleSpriteDefinitions.NativePointers.ToArray().Select(pointer => (int)pointer).ToArray(),
-        ("IntroCaretSpritePresentation", "Draw", "pointer") => IntroCaretSpriteDefinitions.Frames.ToArray().Select(frame => (int)frame.Pointer).ToArray(),
-        ("IntroMotherBrainSpritePresentation", "Draw", "pointer") => IntroMotherBrainSpriteDefinitions.Frames.ToArray().Select(frame => (int)frame.Pointer).ToArray(),
-        ("IntroMotherBrainExplosionSpritePresentation", "Draw", "pointer") => IntroMotherBrainExplosionSpriteDefinitions.Frames.ToArray().Select(frame => (int)frame.Pointer).ToArray(),
-        ("ProjectileTrailCatalog", "Resolve", "frame") => ProjectileTrailVisualDefinitions.Frames.ToArray().Select(frame => (int)frame).ToArray(),
-        ("ProjectileTrailCatalog", "ResolveCurrent", "nextInstruction") => ProjectileTrailVisualDefinitions.Frames.ToArray()
+        ("TitleGraphicsPresentation", "DrawSprite", "pointer") => TitleSpriteDefinitions.NativePointers.Select(pointer => (int)pointer).ToArray(),
+        ("IntroCaretSpritePresentation", "Draw", "pointer") => IntroCaretSpriteDefinitions.Frames.Select(frame => (int)frame.Pointer).ToArray(),
+        ("IntroMotherBrainSpritePresentation", "Draw", "pointer") => IntroMotherBrainSpriteDefinitions.Frames.Select(frame => (int)frame.Pointer).ToArray(),
+        ("IntroMotherBrainExplosionSpritePresentation", "Draw", "pointer") => IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => (int)frame.Pointer).ToArray(),
+        ("ProjectileTrailCatalog", "Resolve", "frame") => ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame).ToArray(),
+        ("ProjectileTrailCatalog", "ResolveCurrent", "nextInstruction") => ProjectileTrailVisualDefinitions.Frames
             .Select(frame => (int)unchecked((ushort)(frame + 4))).Concat(new[] { (int)ProjectileTrailDefinitions.Empty,
                 ProjectileTrailDefinitions.LeftIce, ProjectileTrailDefinitions.RightIce, ProjectileTrailDefinitions.Wave,
                 ProjectileTrailDefinitions.Missile }).Distinct().ToArray(),
         ("ProjectileFrameBindingCatalog", "Resolve", "instructionPointer") => SamusProjectileRadiusDefinitions.TimedRecordPointers
             .Select(pointer => (int)pointer).ToArray(),
-        ("ProjectileSpriteCatalog", "Draw", "id") => ProjectileSpriteDefinitions.NativePointers.ToArray().Select(pointer => (int)pointer).ToArray(),
+        ("ProjectileSpriteCatalog", "Draw", "id") => ProjectileSpriteDefinitions.NativePointers.Select(pointer => (int)pointer).ToArray(),
         ("RoomFxLayer3TilemapCatalog", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
         ("RoomFxPaletteBlendCatalog", "Apply", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).Append(0).ToArray(),
         ("RoomFxPaletteBlendCatalog", "Resolve", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).ToArray(),
@@ -69,7 +70,7 @@ internal static class ClosedPresentationIdentityDefinitions
         ("EnemyProjectileSpritemapCatalog", "Get", "pointer") => EnemyProjectileSpritemapDefinitions.Frames
             .Select(frame => (int)frame.Pointer).Append(EnemyProjectileSpritemapDefinitions.BlankSpritemap).ToArray(),
         ("EnemyProjectileSpritemapCatalog", "GetProgramFrame", "operandAddress") => EnemyProjectilePresentationFrameDefinitions.All
-            .ToArray().Select(frame => (int)frame.OperandAddress).ToArray(),
+            .SelectToArray(frame => (int)frame.OperandAddress),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.
         _ => null,

@@ -8,7 +8,7 @@ public sealed class IntroFontAtlas
 
     /// <summary>Stores edited font bytes while allowing an exact native match to use the compiled glyph source.</summary>
     internal IntroFontAtlas(byte[] transfer) => suppliedTransfer =
-        transfer.AsSpan().SequenceEqual(IntroFontGlyphDefinitions.Compile()) ? null : transfer;
+        transfer.SequenceEqual(IntroFontGlyphDefinitions.Compile()) ? null : transfer;
 
     /// <summary>Gets the 2,304-byte SNES two-bit planar transfer for all 144 narration glyph tiles.</summary>
     public ReadOnlyMemory<byte> Transfer => suppliedTransfer ?? IntroFontGlyphDefinitions.Compile();

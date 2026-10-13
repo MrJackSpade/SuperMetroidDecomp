@@ -64,7 +64,7 @@ internal static class LookupCollectibleDrawsVerification
                 }
         }
         if (field == 3)
-            foreach (string? bad in new string?[] {null,"","energy-tank-2","dynamic-slot-4-frame-0","chozo-orb-3","shot-reveal-3"})
-                AssertTrue(!RoomPlmCollectibleDrawDefinitions.TryGetById((bad ?? throw new InvalidOperationException("Verification requires bad.")), out _), "Collectible unsupported ID");
+            foreach (string bad in new[] {"","energy-tank-2","dynamic-slot-4-frame-0","chozo-orb-3","shot-reveal-3"})
+                AssertTrue(!RoomPlmCollectibleDrawDefinitions.TryGetById(bad, out _), "Collectible unsupported ID");
     }
 }

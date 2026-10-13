@@ -104,7 +104,7 @@ internal static class EndingRewardSpriteArtworkVerification
                     scene.BindObjectArtwork(edited);
                     LayeredRenderSnapshot after = scene.Presentation.CaptureRenderSnapshot();
                     if (!before.Memory.Oam.SequenceEqual(after.Memory.Oam) &&
-                        !SoftwareLayeredSnapshotRenderer.Render(before).AsSpan().SequenceEqual(
+                        !SoftwareLayeredSnapshotRenderer.Render(before).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(after)))
                         return true;
                     scene.Step();

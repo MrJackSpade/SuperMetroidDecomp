@@ -22,7 +22,7 @@ internal static class RenderPacketCodecTestsVerification
             firstVersion.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.FirstSupportedVersion);
         AssertEqual(frame.SolidColor, RenderFrameSnapshotCodec.Deserialize(firstVersion).SolidColor,
             "version-one fixture remains readable after format extension");
-        AssertTrue(SoftwareFrameSnapshotRenderer.Render(frame).AsSpan().SequenceEqual(
+        AssertTrue(SoftwareFrameSnapshotRenderer.Render(frame).SequenceEqual(
             SoftwareFrameSnapshotRenderer.Render(restored)), "fixture ordered-fade pixel parity");
         for (int length = 0; length < bytes.Length; length++)
         {
@@ -100,7 +100,7 @@ internal static class RenderPacketCodecTestsVerification
         byte[] bytes = RenderFrameSnapshotWriter.Serialize(frame);
         RenderFrameSnapshot restored = RenderFrameSnapshotCodec.Deserialize(bytes);
         AssertEqual(frame.Identity, restored.Identity, "render fixture preserves frame identity");
-        AssertTrue(System.Security.Cryptography.SHA256.HashData(bytes).AsSpan().SequenceEqual(PacketDigest(restored)),
+        AssertTrue(System.Security.Cryptography.SHA256.HashData(bytes).SequenceEqual(PacketDigest(restored)),
             "canonical fixture round trip preserves every encoded field");
         return restored;
     }
@@ -134,7 +134,7 @@ internal static class RenderPacketCodecTestsVerification
                     Rgba32 pixel = full[((y + scroll) % 256) * 256 + x];
                     if (pixel.A != 0) expected[y * 256 + x] = pixel;
                 }
-            AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(RoundTripRenderPacket(frame))),
+            AssertTrue(expected.SequenceEqual(RenderForComparison(RoundTripRenderPacket(frame))),
                 $"2bpp viewport scroll={scroll}, transparent={transparent}, priority={priority}");
         }
     }

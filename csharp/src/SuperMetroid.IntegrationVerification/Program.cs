@@ -98,7 +98,7 @@ internal static class Program
                     using var seedEntry = (zip.GetEntry("input-recordings/" + Path.GetFileName(seedPath)) ?? throw new InvalidOperationException("Verification requires zip.GetEntry(\"input-recordings/\" + Path.GetFileName(seedPath)).")).Open();
                     using var copy = new MemoryStream();
                     seedEntry.CopyTo(copy);
-                    if (!originalSeed.AsSpan().SequenceEqual(copy.ToArray())) throw new InvalidDataException("Export modified the exact replay seed.");
+                    if (!originalSeed.SequenceEqual(copy.ToArray())) throw new InvalidDataException("Export modified the exact replay seed.");
                     if (zip.Entries.Any(entry => entry.FullName.StartsWith("game/", StringComparison.Ordinal)))
                         throw new InvalidDataException("Export included installed game assets.");
                     if (zip.GetEntry("debug-states/SuperMetroid-debug-slot-8.smstate") is not null)
@@ -111,7 +111,7 @@ internal static class Program
                 if (!preventedOverwrite) throw new InvalidDataException("Export overwrote an existing artifact.");
                 Console.WriteLine("PASS Android diagnostic ZIP: save/config/state/recording inclusion, byte-identical seed, valid recordings, and overwrite refusal.");
                 data.SaveSlot(0);
-                if (!originalSeed.AsSpan().SequenceEqual(File.ReadAllBytes(seedPath)))
+                if (!originalSeed.SequenceEqual(File.ReadAllBytes(seedPath)))
                     throw new InvalidDataException("Overwriting the visible slot changed the recording seed.");
 
                 // A corrupt user-selected slot must fail before replacing any live state.

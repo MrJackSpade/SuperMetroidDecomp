@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using static Program;
 using static ZebesEscapeExplosionDefinitionsVerification;
@@ -277,7 +278,7 @@ internal static class LookupStream4Verification
                     for (int index = 0; index < program.ColorsPerFrame; index++)
                         expected[program.ColorByteIndex / 2 + index] = Pack(rows[frame][index]);
                 }
-                AssertTrue(ToColors(expected).AsSpan().SequenceEqual(cgram.Colors), "Actual simultaneous title loops preserve stock/source-edited/frame-edited output and wrap");
+                AssertTrue(ToColors(expected).SequenceEqual(cgram.Colors), "Actual simultaneous title loops preserve stock/source-edited/frame-edited output and wrap");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts, "Installed title mechanics avoid live reads");
             AssertEqual(0, guardedPresentationReads.Value, "Installed title colors avoid live reads");
@@ -299,8 +300,8 @@ internal static class LookupStream4Verification
         var footprint = atlas.glyphFootprint;
         AssertEqual(3875, stored.Count, "ending font stores exactly other artwork plus35 required deviations, without stock outline/space overrides");
         AssertEqual(2026, footprint.Count, "all2026 small/large-letter and digit footprint positions remain explicitly required");
-        AssertTrue(native.AsSpan().SequenceEqual(atlas.Transfer.Span), "all5120 original ending font bytes match");
-        AssertTrue(native.AsSpan().SequenceEqual(EndingFontAtlas.FromPlanarBytes(native).Transfer.Span), "legacy native import uses same calculated representation");
+        AssertTrue(native.SequenceEqual(atlas.Transfer.Span), "all5120 original ending font bytes match");
+        AssertTrue(native.SequenceEqual(EndingFontAtlas.FromPlanarBytes(native).Transfer.Span), "legacy native import uses same calculated representation");
         AssertEqual((ushort)0x4F, EndingTextDefinitions.CompileGlyph(' ', EndingTextStyle.ResultSmall), "native small text space selects blank tile4F");
         AssertEqual((ushort)0x7F, EndingTextDefinitions.CompileGlyph(' ', EndingTextStyle.CopyrightLarge), "native large text space selects blank tile7F");
         var largeDeviations = new HashSet<(int Tile, int X, int Y)>
@@ -346,9 +347,9 @@ internal static class LookupStream4Verification
             int x = pixel % 128, y = pixel / 128, tile = y / 8 * 16 + x / 8;
             byte[] expected = native.ToArray();
             expected[tile * 32 + y % 8 * 2] ^= (byte)(1 << (7 - x % 8));
-            AssertTrue(expected.AsSpan().SequenceEqual(changed.Transfer.Span), "independent space/source edit changes exactly its native bitplane bit");
-            AssertTrue(expected.AsSpan().SequenceEqual(EndingFontAtlas.FromPlanarBytes(expected).Transfer.Span), "edited legacy import preserves the same native bit");
-            AssertTrue(native.AsSpan().SequenceEqual(atlas.Transfer.Span), "font edit leaves stock immutable");
+            AssertTrue(expected.SequenceEqual(changed.Transfer.Span), "independent space/source edit changes exactly its native bitplane bit");
+            AssertTrue(expected.SequenceEqual(EndingFontAtlas.FromPlanarBytes(expected).Transfer.Span), "edited legacy import preserves the same native bit");
+            AssertTrue(native.SequenceEqual(atlas.Transfer.Span), "font edit leaves stock immutable");
         }
         foreach (int pixel in new[] { -1, 10240, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => EndingFontAtlasFormat.IsSpacePixel(pixel), "font pixel bounds");
@@ -1102,7 +1103,7 @@ internal static class LookupStream4Verification
         ushort[] native = ReadEndingWords(rom, EndingTextDefinitions.Native.ResultPanel,
             EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth);
         var stock = EndingTextPresentation.Load(new MemoryStream(source));
-        AssertTrue(native.AsSpan().SequenceEqual(stock.BuildResultPanel()), "Calculated credit lines preserve all288 original producer-panel cells");
+        AssertTrue(native.SequenceEqual(stock.BuildResultPanel()), "Calculated credit lines preserve all288 original producer-panel cells");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var stockOverrides = stock.resultOverrides;
         AssertEqual(0, stockOverrides.Count, "Every stock producer-panel cell is calculated, without fallback samples");
@@ -1116,12 +1117,12 @@ internal static class LookupStream4Verification
             var edited = EndingTextPresentation.Load(new MemoryStream(selected));
             ushort[] expected = native.ToArray();
             expected[editedCell] ^= 0x4000;
-            AssertTrue(expected.AsSpan().SequenceEqual(edited.BuildResultPanel()), "Blank, group top/bottom and team edits remain independent of calculated panel cells");
+            AssertTrue(expected.SequenceEqual(edited.BuildResultPanel()), "Blank, group top/bottom and team edits remain independent of calculated panel cells");
             AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(selected)), edited.ContentIdentity, "Result layout preserves raw document identity");
             ushort[] mutableOutput = edited.BuildResultPanel();
             mutableOutput[editedCell] ^= 1;
-            AssertTrue(expected.AsSpan().SequenceEqual(edited.BuildResultPanel()), "Result output snapshots remain independent of the catalog");
-            AssertTrue(native.AsSpan().SequenceEqual(stock.BuildResultPanel()), "Independent result edits leave the original catalog immutable");
+            AssertTrue(expected.SequenceEqual(edited.BuildResultPanel()), "Result output snapshots remain independent of the catalog");
+            AssertTrue(native.SequenceEqual(stock.BuildResultPanel()), "Independent result edits leave the original catalog immutable");
         }
         var changedHeading = RequiredJson.Parse(source);
         changedHeading.Required("resultPanel")["text"] = "TEST";
@@ -1132,7 +1133,7 @@ internal static class LookupStream4Verification
         Array.Fill(expectedHeading, EndingTextDefinitions.ResultBlankWord, region.Column, region.Width);
         for (int letter = 0; letter < 4; letter++)
             expectedHeading[region.Column + letter] = EndingTextDefinitions.CompileGlyph("TEST"[letter], EndingTextStyle.ResultSmall);
-        AssertTrue(expectedHeading.AsSpan().SequenceEqual(heading.BuildResultPanel()), "Provided heading retains original fixed origin, padding and precedence over template words");
+        AssertTrue(expectedHeading.SequenceEqual(heading.BuildResultPanel()), "Provided heading retains original fixed origin, padding and precedence over template words");
         foreach (int invalid in new[] { -1, native.Length })
             AssertThrows<IndexOutOfRangeException>(() => EndingTextLayoutDefinitions.ResultWord(invalid, "PRODUCED BY"), "Calculated result layout bounds");
         Console.WriteLine("Ending result panel:288 direct native cells, zero stock fallback samples, independent edits, heading precedence and immutable output snapshots pass; chosen wording has a narrow nonsense disposition; palette choices and font pixels remain required.");
@@ -1177,7 +1178,7 @@ internal static class LookupStream4Verification
             AssertTrue(expected.SequenceEqual(presentation.JapaneseSubtitle), "Calculated subtitle enumerates exact native or independently edited cells");
             ushort[] copied = Enumerable.Repeat((ushort)0x5678, expected.Length + 1).ToArray();
             presentation.JapaneseSubtitle.CopyTo(copied);
-            AssertTrue(expected.AsSpan().SequenceEqual(copied.AsSpan(0, expected.Length)), "Subtitle direct copy preserves every cell");
+            AssertTrue(expected.SequenceEqual(copied.AsSpan(0, expected.Length)), "Subtitle direct copy preserves every cell");
             AssertEqual((ushort)0x5678, copied[^1], "Subtitle copy leaves the destination suffix untouched");
             ushort[] tilemap = Enumerable.Repeat((ushort)0x2222, EndingCreditsRomData.Rendering.TilemapWords).ToArray();
             var state = new EndingBackgroundTextState(NewFrontendCartridgeReadGuard(rom), new EndingBackgroundTextSetup { Tilemap = tilemap, InstructionPointer = EndingTextDefinitions.Native.ItemPercentage, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = EndingTextSequence.ItemPercentage });
@@ -1187,7 +1188,7 @@ internal static class LookupStream4Verification
             var vram = new SnesVram();
             state.Step(vram);
             int destination = EndingCreditsRomData.Text.JapaneseSubtitleDestination;
-            AssertTrue(expected.AsSpan().SequenceEqual(tilemap.AsSpan(destination, expected.Length)), "Actual ending state draws the calculated/edited subtitle");
+            AssertTrue(expected.SequenceEqual(tilemap.AsSpan(destination, expected.Length)), "Actual ending state draws the calculated/edited subtitle");
             for (int cell = 0; cell < expected.Length; cell++)
             {
                 int address = (EndingCreditsRomData.Rendering.PostCreditsTilemapWord + destination + cell) * 2;
@@ -1195,7 +1196,7 @@ internal static class LookupStream4Verification
             }
             state.instructionTimer = NativeCountdown.Start((ushort)1);
             state.Step(vram);
-            AssertTrue(tilemap.AsSpan(destination, expected.Length).ToArray().All(word => word == EndingCreditsRomData.Rendering.BlankTile), "Actual ending state clears the subtitle at its hold boundary");
+            AssertTrue(tilemap.AsSpan(destination, expected.Length).All(word => word == EndingCreditsRomData.Rendering.BlankTile), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
         }
     }
@@ -1444,7 +1445,7 @@ internal static class LookupStream4Verification
             }
             var vram=new SnesVram();vram.LoadBytes(0xb000,transfer.Span);
             for(int index=0;index<64;index++)AssertEqual(transfer.Span[index],vram.Bytes[0xb000+index],"Existing top-row upload byte contract");
-            ushort[] actual=new ushort[96],original=new ushort[96];selected.ApplyTemplate(actual);stock.ApplyTemplate(original);AssertTrue(actual.AsSpan().SequenceEqual(original),"Top-row edits leave mutable template independent");
+            ushort[] actual=new ushort[96],original=new ushort[96];selected.ApplyTemplate(actual);stock.ApplyTemplate(original);AssertTrue(actual.SequenceEqual(original),"Top-row edits leave mutable template independent");
         }
         foreach(int invalid in new[]{-1,32,int.MinValue,int.MaxValue})AssertThrows<IndexOutOfRangeException>(()=>GameplayHudDefinitions.TopRowWord(invalid),"Top-row column domain");
         const int scale=8,width=256,height=64;byte[] pixels=new byte[width*height];
@@ -1882,13 +1883,13 @@ internal static class LookupStream4Verification
             state.Begin(NewFrontendCartridgeReadGuard(rom), id, 0);
             if (GameplayMessageNoticeDefinitions.IsSaveConfirmation(id))
                 for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8595c1 + column * 2));
-            AssertTrue(expected.AsSpan().SequenceEqual(state.Tilemap), "Actual notice initial tilemap preserves native YES row and all content");
+            AssertTrue(expected.SequenceEqual(state.Tilemap), "Actual notice initial tilemap preserves native YES row and all content");
             if (!GameplayMessageNoticeDefinitions.IsSaveConfirmation(id)) continue;
             for (int frame = 0; frame < 100 && state.Phase != GameplayMessageBoxPhase.AwaitingInput; frame++) state.Step(0);
             AssertEqual(GameplayMessageBoxPhase.AwaitingInput, state.Phase, "Save notice reaches existing input phase");
             state.Step((ushort)SuperMetroid.Core.Input.SnesButton.Right);
             for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x859601 + column * 2));
-            AssertTrue(expected.AsSpan().SequenceEqual(state.Tilemap), "Actual notice NO selection retains native row and neighboring content");
+            AssertTrue(expected.SequenceEqual(state.Tilemap), "Actual notice NO selection retains native row and neighboring content");
         }
         var editedJson = RequiredJson.Parse(bytes);
         editedJson.Required("notices").Required(GameplayMessageId.MapDataAccessCompleted.ToString()).Required("text").Required(0)["text"] = "MAP TEST";
@@ -1914,7 +1915,7 @@ internal static class LookupStream4Verification
             AssertEqual(expected, active.Tilemap[cell], "Independent notice text edit remains within its original calculated rectangle");
         }
         active.BindPresentation(null, null, stock);
-        AssertTrue(original.AsSpan().SequenceEqual(active.Tilemap), "Restoring supplied stock notice restores every live word");
+        AssertTrue(original.SequenceEqual(active.Tilemap), "Restoring supplied stock notice restores every live word");
     }
 
     /// <summary>Checks message dispatch IDs and their cartridge table positions.</summary>
@@ -3252,10 +3253,10 @@ internal static class LookupStream4Verification
                 if (shared)
                     AssertEqual(ReadPixel(native, pixel), ReadPixel(sharedNative, pixel), "Shared tile relationship matches both independent original ROM sheets");
             }
-            AssertTrue(native.AsSpan().SequenceEqual(atlas.Transfer.Span), "Calculated DMA view matches all256 original bytes per beam selection");
+            AssertTrue(native.SequenceEqual(atlas.Transfer.Span), "Calculated DMA view matches all256 original bytes per beam selection");
             var directVram = new SnesVram();
             atlas.LoadTo(directVram);
-            AssertTrue(native.AsSpan().SequenceEqual(directVram.Bytes.Slice(0x6300 * 2, 256)), "Actual direct beam upload uses calculated native bytes");
+            AssertTrue(native.SequenceEqual(directVram.Bytes.Slice(0x6300 * 2, 256)), "Actual direct beam upload uses calculated native bytes");
             VerifyQueued(catalog, selection, native);
             var image = IndexedPng.Read(new MemoryStream(png), new(64, 8));
             foreach (int editedPixel in new[] { 0, 7, 16, 24, 32, 40, 192, 193, 195, 256, 257, 320, 296, 303, 304, 311, 312, 511, 96, 127, 289, 295, 160, 164, 8, 9, 466, 467, 74, 139, 140, 399, 141, 204, 416, 224, 352 })
@@ -3271,7 +3272,7 @@ internal static class LookupStream4Verification
                 int y = editedPixel / 64;
                 int x = editedPixel % 8;
                 expected[tile * 32 + y * 2] ^= (byte)(1 << (7 - x));
-                AssertTrue(expected.AsSpan().SequenceEqual(edited.Transfer.Span), "Editing basis, transpose, rotation or transparent sites changes only the supplied native pixel bit");
+                AssertTrue(expected.SequenceEqual(edited.Transfer.Span), "Editing basis, transpose, rotation or transparent sites changes only the supplied native pixel bit");
                 var editedFiles = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = changed };
                 var editedCatalog = BeamTileCatalog.Load(editedFiles, palettes);
                 VerifyQueued(editedCatalog, selection, expected);
@@ -3279,7 +3280,7 @@ internal static class LookupStream4Verification
                     if (other != selection)
                         AssertTrue(catalog.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(other))).Span.SequenceEqual(editedCatalog.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(other))).Span),
                             "Shared native beam shapes remain independently editable per installed selection");
-                AssertTrue(native.AsSpan().SequenceEqual(atlas.Transfer.Span), "Pixel edits do not mutate original calculated atlas");
+                AssertTrue(native.SequenceEqual(atlas.Transfer.Span), "Pixel edits do not mutate original calculated atlas");
             }
         }
         AssertEqual(1093, runtimeBasisTotal, "Runtime native artwork basis excludes exactly the derived row and tile relationships");
@@ -3298,7 +3299,7 @@ internal static class LookupStream4Verification
             AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90acb6), (int)queue.Entries[0].EncodedVramDestination, "Actual beam DMA destination matches native immediate6300");
             var vram = new SnesVram();
             queue.DrainTo(vram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), selected);
-            AssertTrue(expected.AsSpan().SequenceEqual(vram.Bytes.Slice(0x6300 * 2, 256)), "NMI resolves current calculated pixels without runtime cartridge reads");
+            AssertTrue(expected.SequenceEqual(vram.Bytes.Slice(0x6300 * 2, 256)), "NMI resolves current calculated pixels without runtime cartridge reads");
             AssertEqual((byte)0, vram.ReadByte(0x6300 * 2 - 1), "Beam transfer preserves preceding VRAM byte");
             AssertEqual((byte)0, vram.ReadByte(0x6300 * 2 + 256), "Beam transfer preserves following VRAM byte");
             AssertEqual(0, queue.TailInBytes, "NMI clears the consumed calculated beam transfer");

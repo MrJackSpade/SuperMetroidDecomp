@@ -583,7 +583,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     /// </summary>
     private void ClearCrocomireBg2SinkRow()
     {
-        int byteOffset = 8 * ((CrocomireBg2Scroll.Y + 288) & ~7);
+        int byteOffset = 8 * (unchecked((ushort)(CrocomireBg2Scroll.Y + 288)) & ~7);
         int firstWord = byteOffset >> 1;
         Span<ushort> tilemap = RequireCrocomireDeath().MutableBg2WorkingTilemap;
         if (firstWord < 0 || firstWord + 32 > tilemap.Length)

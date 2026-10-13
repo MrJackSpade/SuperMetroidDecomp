@@ -232,10 +232,9 @@ internal static class CrocomireMeltingDefinitionsVerification
             }
             AssertEqual((ushort)(pass.Uploads.Length * 8), death.MeltingTransferOffset,
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} final transfer offset");
-            ushort phaseBeforeTerminator = (ushort)state.DeathSequenceIndex;
+            CrocomireDeathPhase phaseBeforeTerminator = state.DeathSequenceIndex;
             upload(state);
-            AssertEqual(unchecked((ushort)(phaseBeforeTerminator + 2)),
-                (ushort)state.DeathSequenceIndex,
+            AssertEqual(phaseBeforeTerminator.Next(), state.DeathSequenceIndex,
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} terminal phase");
             AssertEqual((ushort)0, death.MeltingTransferOffset,
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} terminal reset");

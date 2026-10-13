@@ -1247,7 +1247,7 @@ internal static class RidleyFullMovieVerification
                     Check("Completed-scroll visor", runtime.Cgram.Colors[SamusXrayRomData.Palette.VisorCgramIndex].ToWord(),
                         NativeSnapshotMemory.PaletteBuffer + SamusXrayRomData.Palette.VisorCgramIndex * 2);
                 ushort[] owners = CaptureLoadedOwners();
-                if (pendingLoadedOwners is not null && !owners.AsSpan().SequenceEqual(pendingLoadedOwners))
+                if (pendingLoadedOwners is not null && !owners.SequenceEqual(pendingLoadedOwners))
                     throw new InvalidDataException("Destination RNG/palette/enemy owners advanced while native hardware loading was still pending.");
                 pendingLoadedOwners ??= owners;
                 loadingIntervals++;

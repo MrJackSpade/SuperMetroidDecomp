@@ -23,7 +23,7 @@ internal static class GameplayRenderAllocationVerification
         long before = GC.GetAllocatedBytesForCurrentThread();
         var actual = SoftwareLayeredSnapshotRenderer.Render(snapshot);
         long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        if (!actual.AsSpan().SequenceEqual(expected)) throw new InvalidDataException("Fused gameplay pixels differ from direct renderer.");
+        if (!actual.SequenceEqual(expected)) throw new InvalidDataException("Fused gameplay pixels differ from direct renderer.");
         Console.WriteLine($"Gameplay packet allocation: {allocated} bytes; pixel parity passed.");
         // Output plus detached PPU memory fit comfortably below this budget. A second
         // native RGBA backdrop (229376 bytes), discarded by the fused pass, does not.
@@ -32,11 +32,11 @@ internal static class GameplayRenderAllocationVerification
         before = GC.GetAllocatedBytesForCurrentThread();
         var reused = SoftwareLayeredSnapshotRenderer.Render(snapshot, reusable);
         allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        if (!ReferenceEquals(reusable, reused) || !reused.AsSpan().SequenceEqual(expected))
+        if (!ReferenceEquals(reusable, reused) || !reused.SequenceEqual(expected))
             throw new InvalidDataException("Reusable gameplay output changed ownership or pixels.");
         if (allocated >= 100000) throw new InvalidDataException("Reusable gameplay rendering still allocates a full pixel buffer.");
         Array.Fill(reusable, new SuperMetroid.Core.Assets.Rgba32(255, 0, 255));
-        if (!SoftwareLayeredSnapshotRenderer.Render(snapshot, reusable).AsSpan().SequenceEqual(expected))
+        if (!SoftwareLayeredSnapshotRenderer.Render(snapshot, reusable).SequenceEqual(expected))
             throw new InvalidDataException("Reusable output retained previous frame pixels.");
         Console.WriteLine($"Reusable gameplay packet allocation: {allocated} bytes; identity and dirty-buffer parity passed.");
         var memory = PpuMemorySnapshot.Capture(vram, cgram, oam);
@@ -49,7 +49,7 @@ internal static class GameplayRenderAllocationVerification
         var xrayBorrowed = SoftwareLayeredSnapshotRenderer.Render(xray, reusable);
         long xrayBytes = GC.GetAllocatedBytesForCurrentThread() - before;
         Console.WriteLine($"X-ray reused packet: {xrayBytes} bytes.");
-        if (!ReferenceEquals(xrayBorrowed, reusable) || !xrayBorrowed.AsSpan().SequenceEqual(xrayReference))
+        if (!ReferenceEquals(xrayBorrowed, reusable) || !xrayBorrowed.SequenceEqual(xrayReference))
             throw new InvalidDataException("X-ray ignores output reuse or retains dirty pixels.");
         if (xrayBytes >= 100000) throw new InvalidDataException("X-ray allocates redundant full-screen scratch or duplicate PPU memory.");
         var identity = new RenderFrameIdentity(1, 1, 0);
@@ -70,7 +70,7 @@ internal static class GameplayRenderAllocationVerification
             before = GC.GetAllocatedBytesForCurrentThread();
             var borrowed = SoftwareFrameSnapshotRenderer.Render(packet, reusable);
             long reuseBytes = GC.GetAllocatedBytesForCurrentThread() - before;
-            if (!ReferenceEquals(borrowed, reusable) || !borrowed.AsSpan().SequenceEqual(reference))
+            if (!ReferenceEquals(borrowed, reusable) || !borrowed.SequenceEqual(reference))
                 throw new InvalidDataException("Cinematic packet failed dirty-output reuse or pixel parity.");
             if (freshBytes - reuseBytes < reusable.Length * 4)
                 throw new InvalidDataException("Cinematic packet did not eliminate its output allocation.");

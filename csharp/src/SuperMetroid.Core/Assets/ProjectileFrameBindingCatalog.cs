@@ -47,7 +47,7 @@ public sealed class ProjectileFrameBindingCatalog
         if (document.Version != ProjectileFrameBindingFormat.Version || document.Frames is null ||
             document.Frames.Count != ProjectileFrameBindingFormat.FrameCount)
             throw new InvalidDataException("Projectile frame bindings require version 1 and all 805 timed records.");
-        var legalSprites = ProjectileSpriteDefinitions.NativePointers.ToArray().ToHashSet();
+        var legalSprites = ProjectileSpriteDefinitions.NativePointers.ToHashSet();
         var compiled = new Dictionary<ushort, ushort>();
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
         {

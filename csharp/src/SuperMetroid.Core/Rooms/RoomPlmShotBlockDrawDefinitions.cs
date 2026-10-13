@@ -36,7 +36,24 @@ internal static class RoomPlmShotBlockDrawDefinitions
         Offset16<RoomBlocks> Next);
 
     /// <summary>One native shot-block draw pointer with its ordered, immutable level-word runs.</summary>
-    internal readonly record struct DrawList(ushort Pointer, ReadOnlyMemory<Run> Runs);
+    internal readonly record struct DrawList(ushort Pointer, ReadOnlyMemory<Run> Runs)
+    {
+        /// <summary>A new array of every run's visual words, in run then word order.</summary>
+        internal ushort[] VisualWords()
+        {
+            int count = 0;
+            foreach (Run run in Runs.Span)
+                count += run.LevelWords.Length;
+            var words = new ushort[count];
+            int next = 0;
+            foreach (Run run in Runs.Span)
+            {
+                foreach (ushort word in run.LevelWords.Span)
+                    words[next++] = new RoomLevelWord(word).VisualWord;
+            }
+            return words;
+        }
+    }
 
     /// <summary>Sixteen breakup frames and three parent/child restoration draws.</summary>
     internal const int DrawCount = 19;

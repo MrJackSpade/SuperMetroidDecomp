@@ -41,7 +41,7 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
         int sporeFrames = 0;
         int componentsChecked = 0;
         foreach (EnemyExtendedFrameDefinition frame in
-                 EnemyExtendedFrameDefinitions.Frames.ToArray().Take(
+                 EnemyExtendedFrameDefinitions.Frames.Take(
                      EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount))
         {
             if (frame.Bank != DraygonBg2FrameDefinitions.Bank)

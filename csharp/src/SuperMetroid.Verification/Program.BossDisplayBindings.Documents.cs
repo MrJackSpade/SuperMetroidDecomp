@@ -44,7 +44,7 @@ internal static class BossDisplayBindingsDocumentsVerification
 
         /// <summary>Resolves the redirected display pose for a native frame in the fixture.</summary>
         internal EnemyExtendedFrameDefinition Selected(EnemyExtendedFrameDefinition native) =>
-            EnemyExtendedFrameDefinitions.Frames.ToArray().Single(frame => frame.Name == (Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires Oam.DisplayFrames."))[native.Name]);
+            EnemyExtendedFrameDefinitions.Frames.Single(frame => frame.Name == (Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires Oam.DisplayFrames."))[native.Name]);
 
         /// <summary>Locates authored BG2 writes by bank and native frame pointer.</summary>
         internal EnemyBg2WriteDocument[] Writes(byte bank, ushort pointer)
@@ -77,7 +77,7 @@ internal static class BossDisplayBindingsDocumentsVerification
         private static EnemyBg2FrameDocument Bg2(EnemyBg2FrameDefinitionSequence definitions, bool edited) => new()
         {
             Version = 1,
-            Frames = definitions.ToArray().Select((frame, index) => KeyValuePair.Create(frame.Name,
+            Frames = definitions.SelectToArray((frame, index) => KeyValuePair.Create(frame.Name,
                 new EnemyBg2WriteDocument[]
                 { new() { X = 3, Y = 2, Tiles = [100 + index, 200 + index] },
                   new() { X = 4, Y = 2, Tiles = [edited ? 500 + index : 300 + index, 400 + index] },

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -43,13 +44,13 @@ internal static class RoomFxSnapshotTestsVerification
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0),
                 new LayeredRenderSnapshot(memory, layer is null ? [] : new RenderLayer[] { layer }, 3, 15));
             Rgba32[] actual = SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(packet));
-            AssertTrue(expected.AsSpan().SequenceEqual(actual), $"room FX {type}/{blend} at {surface}, phase {phase}, Y {currentY}");
+            AssertTrue(expected.SequenceEqual(actual), $"room FX {type}/{blend} at {surface}, phase {phase}, Y {currentY}");
             AssertTrue(actual.AsSpan(0, 256 * 32).SequenceEqual(baseline.AsSpan(0, 256 * 32)), "room FX preserves HUD band");
         }
         var lines = new Position16<BgPlanePixels>[224];
         var owned = new Bg2BppColorMathRenderLayer(0x5800, 0x4000, 64, 32, ExpandedColorMathOperation.Add, lines);
         Array.Fill(lines, new Position16<BgPlanePixels>(1234, 5678));
-        AssertTrue(owned.Scrolls.ToArray().All(line => line == default), "BG math owns register rows");
+        AssertTrue(owned.Scrolls.All(line => line == default), "BG math owns register rows");
         AssertThrows<ArgumentException>(() => new Bg2BppColorMathRenderLayer(0, 0, 64, 32,
             ExpandedColorMathOperation.Add, new Position16<BgPlanePixels>[223]), "BG math rejects truncated register table");
         AssertThrows<ArgumentOutOfRangeException>(() => new Bg2BppColorMathRenderLayer(0, 0, 64, 32,

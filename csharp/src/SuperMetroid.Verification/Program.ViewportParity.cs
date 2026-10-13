@@ -32,7 +32,7 @@ internal static class ViewportParityVerification
             ushort[]? lineScroll = test % 5 == 0 ? Enumerable.Range(0, height).Select(_ => (ushort)random.Next(65536)).ToArray() : null;
             ViewportReference.Composite4BppViewport(expected, vram, cgram, new BgVramAddresses { TilemapBaseWord = map, CharacterBaseWord = chars }, new BgViewport { Scroll = scroll, Size = size, TilemapSize = mapSize, HorizontalScrollByLine = lineScroll }, priority);
             SnesBgTilemapRenderer.Composite4BppViewport(actual, vram, cgram, new BgVramAddresses { TilemapBaseWord = map, CharacterBaseWord = chars }, new BgViewport { Scroll = scroll, Size = size, TilemapSize = mapSize, HorizontalScrollByLine = lineScroll }, priority);
-            AssertTrue(actual.AsSpan().SequenceEqual(expected), $"tile-row viewport exact pixels case {test}");
+            AssertTrue(actual.SequenceEqual(expected), $"tile-row viewport exact pixels case {test}");
         }
         Console.WriteLine("  Viewport: 120 scalar-reference cases match flips, priority, scroll, wrapping and clipped tile rows.");
         var benchmarkPixels = new Rgba32[256 * 224];

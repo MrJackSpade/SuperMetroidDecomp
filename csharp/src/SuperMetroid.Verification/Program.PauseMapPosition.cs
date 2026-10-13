@@ -71,7 +71,7 @@ internal static class PauseMapPositionVerification
                         AssertEqual(nativePixels[i], pixels[i], $"{area} frame {frame} current-position pixel at {i % 256},{i / 256}");
                     }
                 AssertTrue(visible > 0, "current-position marker visible in pause compositor");
-                AssertTrue(pixels.AsSpan().SequenceEqual(pause.Render()), "repaint does not advance position marker");
+                AssertTrue(pixels.SequenceEqual(pause.Render()), "repaint does not advance position marker");
             }
         }
         Console.WriteLine("Pause current-position marker: raw ROM OAM, all opaque pixels, two room positions, and two 24-frame pulse cycles agree.");

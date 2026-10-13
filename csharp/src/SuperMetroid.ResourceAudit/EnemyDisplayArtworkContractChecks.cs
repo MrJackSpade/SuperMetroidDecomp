@@ -15,7 +15,7 @@ internal static class EnemyDisplayArtworkContractChecks
     /// <summary>Checks valid display bindings, compiled empty frames, and rejection of targets outside the authored frame set.</summary>
     internal static void Run()
     {
-        var simpleFrames = EnemySpritemapDefinitions.Frames.ToArray().ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
+        var simpleFrames = EnemySpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
         var simpleBindings = simpleFrames.Keys.ToDictionary(name => name, name => name);
         var simpleDocument = new EnemySpritemapDocument {
             Version = (int)EnemySpritemapSchema.Current, Frames = simpleFrames, DisplayFrames = simpleBindings };
@@ -29,7 +29,7 @@ internal static class EnemyDisplayArtworkContractChecks
         Reject(() => EnemySpritemapCatalog.Load(Json(simpleDocument)), "unowned simple display target");
         simpleBindings[simpleId.Name] = simpleId.Name;
 
-        var extendedFrames = EnemyExtendedFrameDefinitions.Frames.ToArray().ToDictionary(frame => frame.Name, _ => new[] {
+        var extendedFrames = EnemyExtendedFrameDefinitions.Frames.ToDictionary(frame => frame.Name, _ => new[] {
             new EnemyExtendedVisualComponent { OffsetX = 0, OffsetY = 0, Parts = [] } });
         var extendedBindings = extendedFrames.Keys.ToDictionary(name => name, name => name);
         var extendedDocument = new EnemyExtendedFrameDocument {

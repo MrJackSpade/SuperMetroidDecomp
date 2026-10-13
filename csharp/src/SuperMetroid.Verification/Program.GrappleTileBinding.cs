@@ -70,11 +70,11 @@ internal static class GrappleTileBindingVerification
             GrappleArtwork = edited,
         });
         restoredRuntime.NmiHandler.RunNmi(0, false);
-        AssertTrue(retained.AsSpan().SequenceEqual(restoredRuntime.Vram.Bytes), "Grapple rebind preserves retained lag-frame VRAM");
+        AssertTrue(retained.SequenceEqual(restoredRuntime.Vram.Bytes), "Grapple rebind preserves retained lag-frame VRAM");
         restoredRuntime.NmiHandler.RunNmi(0, true);
         nativeVram[GrappleTileDefinitions.PointDestination * 2] ^= 128;
         for (int tile = 0; tile < 4; tile++) nativeVram[GrappleTileDefinitions.SegmentDestination * 2 + tile * 32] ^= 128;
-        AssertTrue(nativeVram.AsSpan().SequenceEqual(restoredRuntime.Vram.Bytes), "Legacy restored NMI resolves current Grapple PNG with exact edited-bit isolation");
+        AssertTrue(nativeVram.SequenceEqual(restoredRuntime.Vram.Bytes), "Legacy restored NMI resolves current Grapple PNG with exact edited-bit isolation");
         Draw(restoredRuntime);
         AssertTrue(restoredRuntime.VramWrites.Entries.All(entry => entry.AssetId != VramAssetId.None), "Actual rebound actor queues typed Grapple resources");
         using var typedState = new MemoryStream(SerializeGraph(restored));

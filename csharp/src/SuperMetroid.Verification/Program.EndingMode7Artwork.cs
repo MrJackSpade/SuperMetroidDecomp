@@ -55,7 +55,7 @@ internal static class EndingMode7ArtworkVerification
                 LayeredRenderSnapshot actual = installed.Presentation.CaptureRenderSnapshot();
                 AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                         actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
-                        SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
+                        SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(expected)),
                     $"installed ending art preserves native VRAM and pixels at frame {frame}");
             }
@@ -124,7 +124,7 @@ internal static class EndingMode7ArtworkVerification
             byte[] mapVram = mapSnapshot.Memory.Vram.ToArray();
             AssertTrue(!baseline.SequenceEqual(mapVram) &&
                     baseline.AsSpan(0x8000).SequenceEqual(mapVram.AsSpan(0x8000)) &&
-                    !baselinePixels.AsSpan().SequenceEqual(
+                    !baselinePixels.SequenceEqual(
                         SoftwareLayeredSnapshotRenderer.Render(mapSnapshot)),
                 $"edited ending {id} map changes visible pixels, but only its Mode-7 VRAM lanes");
             if (id == EndingMode7SceneId.PlanetExplosion)
@@ -182,7 +182,7 @@ internal static class EndingMode7ArtworkVerification
             byte[] characterVram = characterSnapshot.Memory.Vram.ToArray();
             AssertTrue(!baseline.SequenceEqual(characterVram) &&
                     baseline.AsSpan(0x8000).SequenceEqual(characterVram.AsSpan(0x8000)) &&
-                    !baselinePixels.AsSpan().SequenceEqual(
+                    !baselinePixels.SequenceEqual(
                         SoftwareLayeredSnapshotRenderer.Render(characterSnapshot)),
                 $"edited ending {id} PNG changes visible pixels, but only its Mode-7 VRAM lanes");
             File.Delete(pngOverride);

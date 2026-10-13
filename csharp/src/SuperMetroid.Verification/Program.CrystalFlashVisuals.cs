@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
@@ -52,12 +53,10 @@ internal static class CrystalFlashVisualsVerification
         {
             // Remove only the captured color window, retaining identical OAM,
             // palette, terrain and camera to isolate its actual visible contribution.
-            var withoutWindow = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(packet.Memory,
-                packet.Layers.ToArray().Where(layer => layer is not ScanlineColorAddRenderLayer).ToArray(),
-                packet.ObjectSelection, packet.Brightness));
+            var withoutWindow = SoftwareLayeredSnapshotRenderer.Render(packet.Without<ScanlineColorAddRenderLayer>());
             AssertTrue(pixels.AsSpan(0, 32 * 256).SequenceEqual(withoutWindow.AsSpan(0, 32 * 256)),
                 "Crystal Flash window preserves HUD pixels");
-            windowVisible = !pixels.AsSpan().SequenceEqual(withoutWindow);
+            windowVisible = !pixels.SequenceEqual(withoutWindow);
         }
         return (bodyVisible, windowVisible);
 

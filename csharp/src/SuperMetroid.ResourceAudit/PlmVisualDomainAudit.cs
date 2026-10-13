@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.Core.Rooms;
 
@@ -31,8 +32,8 @@ internal static class PlmVisualDomainAudit
             if (frames.Length == 0) return $"Constant runIndex={runIndex} is outside the selected compiled PLM draw shape.";
         }
         int? word = Constant("wordIndex") ?? Constant("blockIndex");
-        if (word is int wordIndex && !frames.Any(frame => frame.Runs.ToArray()
-            .Where((_, index) => run is null || index == run.Value)
+        if (word is int wordIndex && !frames.Any(frame => frame.Runs.Span
+            .WhereToArray((_, index) => run is null || index == run.Value)
             .Any(row => (uint)wordIndex < row.LevelWords.Length)))
             return $"Constant word/block index={wordIndex} is outside the selected compiled PLM run shape.";
         return null;

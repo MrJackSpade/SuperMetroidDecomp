@@ -99,11 +99,11 @@ internal static class DoorTransitionAutosaveVerification
                 AssertSameBytes(bus.SaveRam, loaded.AddressSpace.SaveRam, "restored continuation SRAM");
                 AssertEqual(runtime.Player.IntroducedSamus.Position.X.Whole, loaded.Game.GameplayRuntimeForVerification.Player.IntroducedSamus.Position.X.Whole, "restored Samus movement");
                 AssertEqual(runtime.System.RandomNumber, loaded.Game.GameplayRuntimeForVerification.System.RandomNumber, "restored RNG");
-                AssertTrue(expectedPcm.AsSpan().SequenceEqual(actualPcm), "restored continuation PCM");
+                AssertTrue(expectedPcm.SequenceEqual(actualPcm), "restored continuation PCM");
                 AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.MainGameplay,
                     store, bus, game) is null, "ordinary gameplay does not replace auto");
             }
-            AssertTrue(first.AsSpan().SequenceEqual(File.ReadAllBytes(autoPath)), "advancing gameplay preserves transition snapshot");
+            AssertTrue(first.SequenceEqual(File.ReadAllBytes(autoPath)), "advancing gameplay preserves transition snapshot");
             AssertTrue(DoorTransitionAutosave.TrySave(true, true, SuperMetroidGameState.LoadingNextRoomB,
                 store, bus, game) is null, "replay does not overwrite recovery");
             PrepareDoor(0x91f8, 0x92fd);
@@ -111,16 +111,16 @@ internal static class DoorTransitionAutosaveVerification
             AssertEqual((ushort)0x92fd, (store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.RoomPointer ?? throw new InvalidOperationException("Verification requires store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.RoomPointer.")),
                 "second auto points at new destination");
             byte[] second = File.ReadAllBytes(autoPath);
-            AssertTrue(!first.AsSpan().SequenceEqual(second), "second transition replaces auto");
+            AssertTrue(!first.SequenceEqual(second), "second transition replaces auto");
             PrepareDoor(0x92fd, 0x91f8);
             AssertEqual(0, FinishDoor(enabled: false), "disabled transition makes no autosave");
-            AssertTrue(second.AsSpan().SequenceEqual(File.ReadAllBytes(autoPath)), "disabled policy preserves prior auto");
+            AssertTrue(second.SequenceEqual(File.ReadAllBytes(autoPath)), "disabled policy preserves prior auto");
             // Keep the destination open without delete sharing: replacement must fail
             // after a complete temporary write and retain the last valid snapshot.
             using (var locked = new FileStream(autoPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 AssertThrows<IOException>(() => store.Save(DebuggerStateFormat.AutomaticSlot, bus, game),
                     "failed atomic replacement is reported");
-            AssertTrue(second.AsSpan().SequenceEqual(File.ReadAllBytes(autoPath)), "failed replacement preserves last valid auto");
+            AssertTrue(second.SequenceEqual(File.ReadAllBytes(autoPath)), "failed replacement preserves last valid auto");
             AssertEqual(0, Directory.GetFiles(storeDirectory, "*.tmp").Length, "failed replacement cleans temporary file");
             for (int slot = 0; slot < DebuggerStateFormat.SlotCount; slot++)
                 AssertEqual("manual slot " + slot, File.ReadAllText(store.GetSlotPath(slot)), "manual slots untouched");

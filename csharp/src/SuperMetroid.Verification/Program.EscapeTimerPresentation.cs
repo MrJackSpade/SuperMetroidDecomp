@@ -34,10 +34,10 @@ internal static class EscapeTimerPresentationVerification
         string stockPath = Path.Combine(stock, EscapeTimerPresentationDefinitions.FileName);
         string stockTilePath = Path.Combine(stock, EscapeTimerTileAtlasFormat.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.EscapeTimerPresentationExtractor.Extract(bus);
-        AssertTrue(extracted.AsSpan().SequenceEqual(File.ReadAllBytes(stockPath)),
+        AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed timer JSON is the deterministic cartridge extraction");
         byte[] extractedTiles = SuperMetroid.AssetExtraction.EscapeTimerTileAtlasExtractor.Extract(bus);
-        AssertTrue(extractedTiles.AsSpan().SequenceEqual(File.ReadAllBytes(stockTilePath)),
+        AssertTrue(extractedTiles.SequenceEqual(File.ReadAllBytes(stockTilePath)),
             "installed timer PNG is the deterministic cartridge extraction");
 
         var tileAtlas = EscapeTimerTileAtlas.Load(new MemoryStream(extractedTiles));
@@ -45,9 +45,9 @@ internal static class EscapeTimerPresentationVerification
             EscapeTimerTileRomData.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount);
         byte[] nativeSecondTiles = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             EscapeTimerTileRomData.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount);
-        AssertTrue(nativeFirstTiles.AsSpan().SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerFirstTiles).Span),
+        AssertTrue(nativeFirstTiles.SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerFirstTiles).Span),
             "first timer PNG page compiles to exact native characters");
-        AssertTrue(nativeSecondTiles.AsSpan().SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerSecondTiles).Span),
+        AssertTrue(nativeSecondTiles.SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerSecondTiles).Span),
             "second timer PNG page compiles to exact native characters");
 
         var queued = new VramWriteQueue();
@@ -63,10 +63,10 @@ internal static class EscapeTimerPresentationVerification
             "timer PNG second record retains native destination");
         var timerVram = new SnesVram();
         queued.DrainTo(timerVram, ReferenceMutableMemory.From(NewForbiddenMapBus()), original);
-        AssertTrue(nativeFirstTiles.AsSpan().SequenceEqual(ReadVram(timerVram,
+        AssertTrue(nativeFirstTiles.SequenceEqual(ReadVram(timerVram,
             EscapeTimerTileAtlasFormat.FirstDestinationWord * 2, nativeFirstTiles.Length)),
             "typed first timer record publishes exact stock VRAM");
-        AssertTrue(nativeSecondTiles.AsSpan().SequenceEqual(ReadVram(timerVram,
+        AssertTrue(nativeSecondTiles.SequenceEqual(ReadVram(timerVram,
             EscapeTimerTileAtlasFormat.SecondDestinationWord * 2, nativeSecondTiles.Length)),
             "typed second timer record publishes exact stock VRAM");
         var synchronousVram = new SnesVram();
@@ -80,10 +80,10 @@ internal static class EscapeTimerPresentationVerification
             EscapeTimerTileAtlasFormat.SecondByteCount,
             EscapeTimerTileAtlasFormat.SecondDestinationWord),
             "Mother Brain synchronous owner recognizes second timer record");
-        AssertTrue(nativeFirstTiles.AsSpan().SequenceEqual(ReadVram(synchronousVram,
+        AssertTrue(nativeFirstTiles.SequenceEqual(ReadVram(synchronousVram,
             EscapeTimerTileAtlasFormat.FirstDestinationWord * 2, nativeFirstTiles.Length)),
             "Mother Brain synchronous first timer transfer uses installed artwork");
-        AssertTrue(nativeSecondTiles.AsSpan().SequenceEqual(ReadVram(synchronousVram,
+        AssertTrue(nativeSecondTiles.SequenceEqual(ReadVram(synchronousVram,
             EscapeTimerTileAtlasFormat.SecondDestinationWord * 2, nativeSecondTiles.Length)),
             "Mother Brain synchronous second timer transfer uses installed artwork");
 
@@ -213,7 +213,7 @@ internal static class EscapeTimerPresentationVerification
                 address => address >= EscapeTimerPresentationDefinitions.DigitPointerTable &&
                     address < EscapeTimerPresentationDefinitions.DigitPointerTable + 10 * sizeof(ushort),
                 address => $"Escape timer reread compiled digit pointer at ${address:X6}."));
-        AssertTrue(nativeExtraction.AsSpan().SequenceEqual(guardedExtraction),
+        AssertTrue(nativeExtraction.SequenceEqual(guardedExtraction),
             "timer extraction selects the same visual records without rereading the pointer table");
 
         var timer = new EscapeTimer();

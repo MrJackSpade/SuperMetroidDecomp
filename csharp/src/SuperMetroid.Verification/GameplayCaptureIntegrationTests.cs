@@ -25,7 +25,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.NmiHandler.RunNmi(0, true);
-        AssertTrue(SuperMetroidRuntimeFrameRenderer.Render(runtime).AsSpan().SequenceEqual(
+        AssertTrue(SuperMetroidRuntimeFrameRenderer.Render(runtime).SequenceEqual(
             SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.CaptureFrame(runtime))), "Ceres Mode-7 capture parity");
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
         runtime.NmiHandler.RunNmi(0, true);
@@ -70,11 +70,11 @@ internal static class GameplayCaptureIntegrationTestsVerification
             && captured.Layers[1] is ScanlineColorAddRenderLayer && captured.Layers[2] is MessageBoxRenderLayer
             && captured.Layers[3] is ScanlineColorAddRenderLayer, "base/Power Bomb/message/suit order");
         var retained = RoundTripRenderPacket(new(new(1, 1, 0), captured));
-        AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(retained)), "composed gameplay overlay parity");
+        AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay overlay parity");
         runtime.MessageBox.Step((ushort)SnesButton.A);
         runtime.SuitPickup.Step(bus, runtime.Player.IntroducedSamus, runtime.Cgram);
         runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
-        AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");
+        AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");
 
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
@@ -146,7 +146,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
             AssertEqual(expected.Phase, actual.Frame.Phase, "gameplay captured phase");
             AssertSequenceEqual(expected.AudioCommands, actual.Frame.AudioCommands, "gameplay capture audio command order");
             Rgba32[] pixels = actual.Snapshot is { } packet ? SoftwareFrameSnapshotRenderer.Render(packet) : actual.Frame.Pixels;
-            AssertTrue(expected.Pixels.AsSpan().SequenceEqual(pixels), $"gameplay capture pixels in {expected.Phase}");
+            AssertTrue(expected.Pixels.SequenceEqual(pixels), $"gameplay capture pixels in {expected.Phase}");
         }
     }
 }

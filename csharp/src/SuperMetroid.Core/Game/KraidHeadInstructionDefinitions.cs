@@ -156,8 +156,8 @@ internal static class KraidHeadInstructionDefinitions
             // and terminal records border a timed frame. Preserve the raw read,
             // including the duration which triggers the native quick-kill delay.
             ushort following = unchecked((ushort)(pointer + 2));
-            return KraidMouthHitboxes.IsDefined(following)
-                ? unchecked((ushort)KraidMouthHitboxes.Resolve(following).Left)
+            return KraidMouthHitboxDefinitions.IsDefined(following)
+                ? unchecked((ushort)KraidMouthHitboxDefinitions.Resolve(following).Left)
                 : Resolve(following).Duration;
         }
 
@@ -216,7 +216,7 @@ internal static class KraidHeadInstructionDefinitions
 
         int boundaryIndex = pointer - 0x8000;
         if ((uint)boundaryIndex < 3)
-            return KraidMouthHitboxes.LowHalfBoundaryByte(boundaryIndex);
+            return KraidMouthHitboxDefinitions.LowHalfBoundaryByte(boundaryIndex);
 
         throw new InvalidDataException(
             $"Kraid low-half head frame crossed into uncompiled cartridge address $A7:{pointer:X4}.");

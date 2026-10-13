@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Calculated geometry and bounded native overreads for Kraid's fingernail contour.</summary>
-internal static class KraidNailContour
+internal static class KraidNailContourDefinitions
 {
     /// <summary>$A7:BF1D..BF34, four contour records followed by two reachable instruction pairs.</summary>
     internal const int RecordCount = 6;
@@ -15,6 +15,8 @@ internal static class KraidNailContour
     private const byte LoadOpcode = 0xad;
     /// <summary>65816 CMP immediate opcode at $A7:BF33.</summary>
     private const byte CompareOpcode = 0xc9;
+    /// <summary><c>InstList_KraidArm_Normal_1</c> at $A7:8A37, the CMP operand at $A7:BF34.</summary>
+    private const ushort ArmNormalPauseList = 0x8a37;
 
     /// <summary>Returns a left offset for one of the six reachable contour records.</summary>
     /// <remarks>
@@ -45,7 +47,7 @@ internal static class KraidNailContour
         {
             3 => unchecked((ushort)-128),
             4 => (ushort)((HandleFirstPhase >> 8) | LoadOpcode << 8),
-            _ => unchecked((ushort)(CompareOpcode | KraidArmInstructionProgramDefinitions.NormalPause << 8)),
+            _ => unchecked((ushort)(CompareOpcode | ArmNormalPauseList << 8)),
         };
     }
 

@@ -40,7 +40,7 @@ internal static partial class CompiledEnemyVisualSelectors
         0xa3 => ElevatorInstructionProgramDefinitions.IsPresentationWord((ushort)address) || PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        0xa7 => KraidNailInstructionProgramDefinitions.IsPresentationWord((ushort)address) || PhantoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        0xa7 => PhantoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa8 => BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         _ => false,
@@ -78,8 +78,7 @@ internal static partial class CompiledEnemyVisualSelectors
                 0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.BoulderFrameAt(operandAddress)
                     : KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operandAddress),
-                0xa7 => PhantoonInstructionProgramDefinitions.IsPresentationWord(operandAddress) ? PhantoonInstructionProgramDefinitions.FrameAt(operandAddress)
-                    : KraidVisualDefinitions.FrameAt(EnemyDefinitionId.KraidNail, operandAddress),
+                0xa7 => PhantoonInstructionProgramDefinitions.FrameAt(operandAddress),
                 _ => FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.FuneNamiheFrameAt(operandAddress)
                     : AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress)

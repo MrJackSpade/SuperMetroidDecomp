@@ -2,7 +2,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Compiled ceiling-break projectile placement data.</summary>
-public static class KraidCeilingRockPositions
+public static class KraidCeilingRockPositionDefinitions
 {
     /// <summary>$A7:ACC5 first callback word, .spawnPLM4 at $AD03, adjacent to the nine X words.</summary>
     private const ushort FollowingCallback = 0xad03;

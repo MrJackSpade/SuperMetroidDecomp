@@ -39,18 +39,22 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             {
                 Kind = kind,
             };
-            // Botwoon's, Crocomire's and Draygon's spawners start typed animations (#641); their oracles match them
-            // to these native lists frame by frame, and no interpreter owns the lists. Crocomire's mouth projectile and
-            // Draygon's goop also start typed shot programs, and the goop a typed touch program.
+            // Botwoon's, Crocomire's, Draygon's and Kraid's spawners (and Kago's, which shares Kraid's rock pose) start
+            // typed animations (#641); their oracles match them to these native lists frame by frame, and no
+            // interpreter owns the lists. Crocomire's mouth projectile, Draygon's goop and Kraid's spat rock also start
+            // typed shot programs, and the goop a typed touch program.
             bool typed = kind is RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit or
                 RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
                 RoomEnemyProjectileKind.CrocomireSpikeWallPieces or RoomEnemyProjectileKind.DraygonGoop or
-                RoomEnemyProjectileKind.DraygonWallTurret;
+                RoomEnemyProjectileKind.DraygonWallTurret or RoomEnemyProjectileKind.KraidSpitRock or
+                RoomEnemyProjectileKind.KraidCeilingRock or RoomEnemyProjectileKind.KraidRisingRockLeft or
+                RoomEnemyProjectileKind.KraidRisingRockRight or RoomEnemyProjectileKind.KagoBug;
             if (!typed)
                 VerifyEntry(definition.InitialInstructionList, "initial");
             if (kind != RoomEnemyProjectileKind.DraygonGoop)
                 VerifyEntry(definition.TouchInstructionList, "touch");
-            if (kind is not (RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.DraygonGoop))
+            if (kind is not (RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.DraygonGoop or
+                RoomEnemyProjectileKind.KraidSpitRock))
                 VerifyEntry(definition.ShotInstructionList, "shot");
 
             void VerifyEntry(ushort address, string role)

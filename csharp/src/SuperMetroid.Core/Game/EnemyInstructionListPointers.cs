@@ -13,15 +13,6 @@ internal static class OrdinaryEnemyInstructionLists
     public const ushort SkreeInitial = 0xc65e;
 }
 
-/// <summary>Named bank-$A7 instruction-list pointers used by Kraid's inert lint maps.</summary>
-internal static class KraidLintInstructionLists
-{
-    /// <summary>Initial lint list at $A7:8AFE.</summary>
-    public const ushort InitialLint = KraidLintInstructionProgramDefinitions.Initial;
-    /// <summary><c>kKraid_Ilist_8B04</c> at $A7:8B04.</summary>
-    public const ushort Ilist_8B04 = KraidLintInstructionProgramDefinitions.PostGrowth;
-}
-
 /// <summary>Named bank-$A2 instruction opcodes used by Rio.</summary>
 internal static class RioInstructionCodes
 {

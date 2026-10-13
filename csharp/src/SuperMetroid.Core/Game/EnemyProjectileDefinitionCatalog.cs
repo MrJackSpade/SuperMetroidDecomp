@@ -87,23 +87,18 @@ internal static class EnemyProjectileDefinitionCatalog
             0x0000, 0x0000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.KraidSpitRock => new(
-0x9D56,
-            KraidRockProjectileInstructionProgramDefinitions.SharedRockAndKagoBug,
-            0x0404, 0x8002, 0x0000,
-            KraidRockProjectileInstructionProgramDefinitions.SpitRockShot),
+0x9D56, 0x9C7D,
+            0x0404, 0x8002, 0x0000, 0x9C89),
         RoomEnemyProjectileKind.KraidCeilingRock => new(
-0x9D89,
-            KraidRockProjectileInstructionProgramDefinitions.SharedRockAndKagoBug,
+0x9D89, 0x9C7D,
             0x0404, 0xA000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.KraidRisingRockLeft => new(
-0x9D56,
-            KraidRockProjectileInstructionProgramDefinitions.SharedRockAndKagoBug,
+0x9D56, 0x9C7D,
             0x0404, 0xA000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.KraidRisingRockRight => new(
-0x9D56,
-            KraidRockProjectileInstructionProgramDefinitions.RisingRockRight,
+0x9D56, 0x9C83,
             0x0404, 0xA000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.PhantoonDestroyableFlame => new(
@@ -353,8 +348,7 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.EnemyDeathPickup => new(0xEFE0, 0xED8D, 0x1010, 0x3000, 0x84FC, 0x84FC),
         RoomEnemyProjectileKind.EnemyDeathExplosion => new(0xEFDF, 0xED8D, 0x1010, 0x7000, 0x84FC, 0x84FC),
         RoomEnemyProjectileKind.KagoBug => new(
-0xD0EB,
-            KraidRockProjectileInstructionProgramDefinitions.SharedRockAndKagoBug,
+0xD0EB, 0x9C7D,
             0x0404, 0x0014, 0x0000, 0xD064),
         RoomEnemyProjectileKind.BotwoonBody => new(0xEA80, 0xE8F3, 0x0202, 0xE080, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.BotwoonSpit => new(0xEC05, 0xEBAE, 0x0202, 0x1060, 0x0000, 0x84FC),

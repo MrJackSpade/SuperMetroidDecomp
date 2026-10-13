@@ -2,13 +2,11 @@ using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Calculated Fake Kraid and fingernail installed-art selections.</summary>
+/// <summary>Calculated Fake Kraid installed-art selections and the fingernail's initial frame.</summary>
 internal static class KraidVisualDefinitions
 {
     /// <summary>Initial fingernail frame at $A7:A617, selected by $A7:8B0C.</summary>
     internal const ushort InitialNailFrame = 0xa617;
-    /// <summary>First nail frame operand at $A7:8B0C; eight records have four-byte stride.</summary>
-    private const ushort FirstNailOperand = 0x8b0c;
     /// <summary>First left-facing MiniKraid walk frame operand at $A6:99B0.</summary>
     private const ushort FirstFakeOperand = 0x99b0;
     /// <summary>Matching right-facing operand at $A6:99FE, 78 bytes after the left program.</summary>
@@ -24,16 +22,7 @@ internal static class KraidVisualDefinitions
     /// </summary>
     internal static ushort FrameAt(EnemyDefinitionId enemyDefinition, ushort address)
     {
-        if (enemyDefinition is EnemyDefinitionId.KraidNail or EnemyDefinitionId.KraidNailBad)
-        {
-            int distance = address - FirstNailOperand;
-            if ((uint)distance <= 28 && distance % 4 == 0)
-            {
-                int frame = distance / 4;
-                return (ushort)(InitialNailFrame + 34 * (frame / 2) + 12 * (frame % 2));
-            }
-        }
-        else if (enemyDefinition == EnemyDefinitionId.MiniKraid)
+        if (enemyDefinition == EnemyDefinitionId.MiniKraid)
         {
             int facing = address >= FirstFakeOperand + FacingProgramStride ? 1 : 0;
             int offset = address - FirstFakeOperand - facing * FacingProgramStride;

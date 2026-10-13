@@ -7,7 +7,7 @@ internal static class KraidPlatformMovement
     /// Negative 16.16 displacement from KraidLint_XSubSpeed / KraidLint_XSpeed
     /// at $A7:A926/A928, subtracted by $A7:B89B and the riding branch at $A7:B8EB.
     /// </summary>
-    public const int FiringDisplacement = -0x00038000;
+    public const int FiringDisplacement = -229376;
 
     /// <summary>
     /// Minimum whole-pixel extra Samus X displacement at $A7:B8FB-B903. Native

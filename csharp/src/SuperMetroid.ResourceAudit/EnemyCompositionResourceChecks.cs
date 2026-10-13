@@ -14,11 +14,23 @@ internal static class EnemyCompositionResourceChecks
     {
         // Construct only presentation data. The dependency is selected by the
         // compiled program, not by a room probe or an animation search.
-        var pointers = new HashSet<ushort>();
+        var spritemaps = new List<ushort>(operands.Length);
         foreach (ushort operand in operands)
         {
             Require(CompiledEnemyVisualSelectors.TryGet(bank, operand, out ushort pointer),
                 $"compiled {family} visual operand {operand:X4} must resolve");
+            spritemaps.Add(pointer);
+        }
+        RunSpritemaps(family, bank, spritemaps, familyFrameCount, previousVersion, previousFrameCount, familyStart);
+    }
+
+    /// <summary>Checks the compositions a typed program shows (#641), as <see cref="Run"/> does for resolved operands.</summary>
+    public static void RunSpritemaps(string family, byte bank, IEnumerable<ushort> spritemaps,
+        int familyFrameCount, int previousVersion, int previousFrameCount, int? familyStart = null)
+    {
+        var pointers = new HashSet<ushort>();
+        foreach (ushort pointer in spritemaps)
+        {
             if (CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(bank, pointer)) continue;
             pointers.Add(pointer);
         }

@@ -2091,20 +2091,6 @@ internal static class KraidArmCollisionDefinitionsConstants
     }
 }
 
-/// <summary>Cartridge values of <see cref="KraidArmInstructionProgramDefinitions"/> that only verification reads.</summary>
-internal static class KraidArmInstructionProgramDefinitionsConstants
-{
-    /// <summary>First adjacent Kraid-lint instruction program at $A7:8AFE.</summary>
-    public const ushort AdjacentLintProgram = 0x8afe;
-
-    /// <summary>Provides the neighboring lint program boundary for Kraid arm instruction extraction.</summary>
-    extension(KraidArmInstructionProgramDefinitions)
-    {
-        /// <inheritdoc cref="KraidArmInstructionProgramDefinitionsConstants.AdjacentLintProgram"/>
-        internal static ushort AdjacentLintProgram => KraidArmInstructionProgramDefinitionsConstants.AdjacentLintProgram;
-    }
-}
-
 /// <summary>Cartridge values of <see cref="KraidBackgroundRomData"/> that only verification reads.</summary>
 internal static class KraidBackgroundRomDataConstants
 {
@@ -2119,34 +2105,6 @@ internal static class KraidBackgroundRomDataConstants
     {
         /// <inheritdoc cref="KraidBackgroundRomDataConstants.PreservedLowerTailFirstWord"/>
         internal static int PreservedLowerTailFirstWord => KraidBackgroundRomDataConstants.PreservedLowerTailFirstWord;
-    }
-}
-
-/// <summary>Cartridge values of <see cref="KraidLintInstructionProgramDefinitions"/> that only verification reads.</summary>
-internal static class KraidLintInstructionProgramDefinitionsConstants
-{
-    /// <summary>The first adjacent Kraid fingernail program at $A7:8B0A.</summary>
-    public const ushort FirstAdjacentFootProgram = 0x8b0a;
-
-    /// <summary>Provides the first adjacent foot program that bounds Kraid lint instruction extraction.</summary>
-    extension(KraidLintInstructionProgramDefinitions)
-    {
-        /// <inheritdoc cref="KraidLintInstructionProgramDefinitionsConstants.FirstAdjacentFootProgram"/>
-        internal static ushort FirstAdjacentFootProgram => KraidLintInstructionProgramDefinitionsConstants.FirstAdjacentFootProgram;
-    }
-}
-
-/// <summary>Cartridge values of <see cref="KraidNailInstructionProgramDefinitions"/> that only verification reads.</summary>
-internal static class KraidNailInstructionProgramDefinitionsConstants
-{
-    /// <summary>First adjacent unused extended-spritemap record at $A7:8B2E.</summary>
-    public const ushort AdjacentPresentationData = 0x8b2e;
-
-    /// <summary>Provides the presentation-data boundary adjacent to Kraid nail instructions.</summary>
-    extension(KraidNailInstructionProgramDefinitions)
-    {
-        /// <inheritdoc cref="KraidNailInstructionProgramDefinitionsConstants.AdjacentPresentationData"/>
-        internal static ushort AdjacentPresentationData => KraidNailInstructionProgramDefinitionsConstants.AdjacentPresentationData;
     }
 }
 

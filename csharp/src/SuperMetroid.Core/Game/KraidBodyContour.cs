@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 public static class KraidBodyContour
 {
     /// <summary>$A7:B161, first bottom boundary of HitboxDefinitionTable_KraidBody.</summary>
-    private const short FirstBottomBoundary = 0x03ff;
+    private const short FirstBottomBoundary = 1023;
 
     /// <summary>
     /// $A7:B163/B165, HitboxDefinitionTable_KraidBody: each left edge is paired

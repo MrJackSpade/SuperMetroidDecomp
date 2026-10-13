@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static KraidArmInstructionProgramDefinitionsVerification;
+using static KraidArmCollisionDefinitionsVerification;
 using static KraidArmPhysicalFrameMappingsVerification;
 using static SuiteTimingVerification;
 

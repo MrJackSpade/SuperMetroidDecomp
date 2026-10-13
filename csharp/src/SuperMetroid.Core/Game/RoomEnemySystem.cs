@@ -1311,7 +1311,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         StokeBehavior.RegisterStokeOwnedInstructions(table);
         MamaTurtleBehavior.RegisterMamaTurtleOwnedInstructions(table);
         DragonBehavior.RegisterDragonOwnedInstructions(table);
-        KraidBehavior.RegisterKraidOwnedInstructions(table);
+        KraidBehavior.RegisterKraidTypedAnimations(table);
         PhantoonBehavior.RegisterPhantoonOwnedInstructions(table);
         MotherBrainBehavior.RegisterMotherBrainOwnedInstructions(table);
         DraygonBehavior.RegisterDraygonTypedAnimations(table);
@@ -1511,6 +1511,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         KagoBehavior.RegisterKagoProjectiles(table);
         KiHunterBehavior.RegisterKiHunterProjectiles(table);
         KraidBehavior.RegisterKraidProjectiles(table);
+        KraidBehavior.RegisterKraidRockAnimations(table);
         MagdolliteBehavior.RegisterMagdolliteProjectiles(table);
         MotherBrainBehavior.RegisterMotherBrainProjectiles(table);
         NinjaSpacePirateBehavior.RegisterNinjaSpacePirateProjectiles(table);

@@ -1,8 +1,8 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidArmCallbackMappingsVerification;
 using static KraidArmComponentHitboxesVerification;
-using static KraidArmInstructionProgramDefinitionsVerification;
 using static KraidArmPhysicalFrameMappingsVerification;
 using static SuiteTimingVerification;
 
@@ -78,4 +78,11 @@ internal static class KraidArmCollisionDefinitionsVerification
         AssertEqual(0, default(KraidArmHitboxSequence).ToArray().Length, "Default arm slice is empty");
         AssertThrows<IndexOutOfRangeException>(() => _ = default(KraidArmHitboxSequence)[0], "Default arm slice has no rectangle");
     }
+
+    /// <summary>Reads a bank-$A7 arm word from the retail cartridge for selector comparisons.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid arm instruction words")]
+    internal static ushort ReadKraidArmInstructionWord(
+        SuperMetroidAddressSpace source,
+        ushort address) =>
+        CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa70000 | address);
 }

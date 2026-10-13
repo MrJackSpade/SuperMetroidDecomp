@@ -137,8 +137,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             FakeKraidProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "kago_bug", KagoBugProjectileInstructionProgramDefinitions.PresentationWordCount,
             KagoBugProjectileInstructionProgramDefinitions.PresentationWordAddress);
-        Add(frames, "kraid_rock", KraidRockProjectileInstructionProgramDefinitions.PresentationWordCount,
-            KraidRockProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "kraid_rock", KraidRockVisualDefinitions.ProjectileFrameCount,
+            index => KraidRockVisualDefinitions.PresentationKey(KraidRockVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "noob_tube", NoobTubeProjectileInstructionProgramDefinitions.PresentationWordCount,
             NoobTubeProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "nuclear_waffle", NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordCount,

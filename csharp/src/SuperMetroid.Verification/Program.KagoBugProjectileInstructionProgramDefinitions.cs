@@ -57,8 +57,7 @@ internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
 
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(
             candidate => candidate.Kind == RoomEnemyProjectileKind.KagoBug);
-        AssertEqual(KraidRockProjectileInstructionProgramDefinitions.SharedRockAndKagoBug,
-            projectile.InstructionPointer,
+        AssertTrue(projectile.Animation is KraidRockAnimation { Program: KraidRockProgram.SharedPose },
             "real Kago producer retains the cartridge's shared Kraid-rock initial pose");
 
         projectile.InstructionPointer = KagoBugProjectileInstructionProgramDefinitions.Landed;
@@ -172,7 +171,6 @@ internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
         new CartridgeReadGuard(source)
             .Forbid(address =>
                 KagoBugProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                KraidRockProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
                 CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled Kago-bug projectile mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, KagoBugProjectileInstructionProgramDefinitions.PresentationWordCount, KagoBugProjectileInstructionProgramDefinitions.PresentationWordAddress);

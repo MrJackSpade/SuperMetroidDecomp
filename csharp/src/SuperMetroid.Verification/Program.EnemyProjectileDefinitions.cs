@@ -128,6 +128,13 @@ internal static class EnemyProjectileDefinitionsVerification
                     $"{kind} production shot starts the typed shot program");
                 AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
             }
+            else if (kind == RoomEnemyProjectileKind.KraidSpitRock)
+            {
+                // Kraid's rock burst is typed (#641); VerifyKraidRockAnimations matches it to the native list.
+                AssertTrue(projectile.Animation is KraidRockAnimation { Program: KraidRockProgram.SpitRockShot },
+                    $"{kind} production shot starts the typed shot program");
+                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+            }
             else
             {
                 AssertEqual(definition.ShotInstructionList, projectile.InstructionPointer,

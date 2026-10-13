@@ -12,9 +12,9 @@ internal static class KraidCeilingRockPositionsVerification
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidCeilingRockCoordinatesRomByte(rom, a), KraidCeilingRockCoordinatesRomByte(rom, a + 1)));
         for (int offset = 0; offset <= 18; offset++)
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + offset),
-                KraidCeilingRockPositions.AtByteOffset(offset), "Native byte-addressed ceiling rock lookup");
+                KraidCeilingRockPositionDefinitions.AtByteOffset(offset), "Native byte-addressed ceiling rock lookup");
         foreach (int invalid in new[] { int.MinValue, -1, 19, 20, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => KraidCeilingRockPositions.AtByteOffset(invalid),
+            AssertThrows<IndexOutOfRangeException>(() => KraidCeilingRockPositionDefinitions.AtByteOffset(invalid),
                 "Ceiling rock byte-window bounds");
     }
 

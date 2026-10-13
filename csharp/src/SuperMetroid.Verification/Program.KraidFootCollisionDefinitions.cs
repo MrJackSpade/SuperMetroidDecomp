@@ -45,15 +45,12 @@ internal static class KraidFootCollisionDefinitionsVerification
         Suite(nameof(VerifyKraidFootSecondY), () => VerifyKraidFootSecondY(rom));
         Suite(nameof(VerifyKraidFootSharedHitbox), () => VerifyKraidFootSharedHitbox(rom));
 
-        for (int index = 0;
-             index < KraidFootInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort address = KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            ushort selectedFrame = ReadWord(address);
+        // The typed foot programs match bank $A7 (--kraid-part-animations); every frame they show is a physical frame.
+        foreach (ushort selectedFrame in KraidAnimations.Spritemaps(KraidPartProgram.FootInitial, KraidPartProgram.FootNeutral, KraidPartProgram.FootWalkingForward,
+                     KraidPartProgram.FootWalkingForwardFinished, KraidPartProgram.FootLungeForward, KraidPartProgram.FootLungeForwardFinished,
+                     KraidPartProgram.FootWalkingBackward, KraidPartProgram.FootWalkingBackwardLoop))
             AssertTrue(KraidFootCollisionDefinitions.TryGetComponents(selectedFrame, out _),
-                $"Kraid foot instruction $A7:{address:X4} selects compiled physical frame");
-        }
+                $"Kraid foot frame $A7:{selectedFrame:X4} is a compiled physical frame");
 
         KraidFootHitboxSequence hitboxes =
             KraidFootCollisionDefinitions.HitboxesAt(KraidFootCollisionDefinitions.HitboxList);

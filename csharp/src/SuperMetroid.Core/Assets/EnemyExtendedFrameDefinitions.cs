@@ -359,16 +359,9 @@ internal static class EnemyExtendedFrameDefinitions
         if (count != PreKraidArmFrameCount)
             throw new InvalidDataException("Kraid arm extended-frame prefix changed.");
         var kraidArmPointers = new HashSet<ushort>();
-        for (int index = 0;
-             index < KraidArmInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in KraidAnimations.Spritemaps(KraidPartProgram.ArmNormal, KraidPartProgram.ArmNormalPause,
+                     KraidPartProgram.ArmSlow, KraidPartProgram.ArmRisingOrSinking, KraidPartProgram.ArmDyingOrPreparingToLunge))
         {
-            ushort operand = KraidArmInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(0xa7, operand,
-                    out ushort pointer))
-                throw new InvalidDataException(
-                    $"Kraid arm visual operand $A7:{operand:X4} is not compiled.");
             if (kraidArmPointers.Add(pointer))
                 yield return Emit(new EnemyExtendedFrameDefinition(0xa7, pointer,
                     $"kraid_arm_oam_{pointer:X4}"));

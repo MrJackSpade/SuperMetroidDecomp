@@ -10,16 +10,16 @@ internal static class KraidSinkSchedule
     /// </summary>
     public static KraidSinkCallback? CallbackAt(ushort y)
     {
-        if (y < 0x130 || y > 0x208 || (y & 7) != 0)
+        if (y < 304 || y > 520 || (y & 7) != 0)
             return null;
         return y switch
         {
-            0x130 => KraidSinkCallback.CrumbleLeftPlatformLeft,
-            0x148 => KraidSinkCallback.CrumbleRightPlatformMiddle,
-            0x160 => KraidSinkCallback.CrumbleRightPlatformLeft,
-            0x180 => KraidSinkCallback.CrumbleLeftPlatformRight,
-            0x198 => KraidSinkCallback.CrumbleLeftPlatformMiddle,
-            0x1b0 => KraidSinkCallback.CrumbleRightPlatformRight,
+            304 => KraidSinkCallback.CrumbleLeftPlatformLeft,
+            328 => KraidSinkCallback.CrumbleRightPlatformMiddle,
+            352 => KraidSinkCallback.CrumbleRightPlatformLeft,
+            384 => KraidSinkCallback.CrumbleLeftPlatformRight,
+            408 => KraidSinkCallback.CrumbleLeftPlatformMiddle,
+            432 => KraidSinkCallback.CrumbleRightPlatformRight,
             _ => KraidSinkCallback.NoOperation,
         };
     }

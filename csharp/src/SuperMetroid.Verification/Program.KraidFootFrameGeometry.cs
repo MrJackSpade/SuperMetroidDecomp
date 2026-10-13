@@ -8,12 +8,10 @@ internal static class KraidFootFrameGeometryVerification
     /// <summary>Traverses native presentation operands and compares ordered frame keys and bounds.</summary>
     internal static void VerifyKraidFootFrameGeometry(SuperMetroidAddressSpace rom)
     {
-        var selected = new SortedSet<ushort>();
-        for (int index = 0; index < KraidFootInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
-        {
-            int operand = 0xa70000 | KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            selected.Add((ushort)(SnesLittleEndian.Word(KraidFootFrameGeometryRomByte(rom, operand), KraidFootFrameGeometryRomByte(rom, operand + 1))));
-        }
+        // The typed foot programs match bank $A7 (--kraid-part-animations).
+        var selected = new SortedSet<ushort>(KraidAnimations.Spritemaps(KraidPartProgram.FootInitial, KraidPartProgram.FootNeutral, KraidPartProgram.FootWalkingForward,
+                     KraidPartProgram.FootWalkingForwardFinished, KraidPartProgram.FootLungeForward, KraidPartProgram.FootLungeForwardFinished,
+                     KraidPartProgram.FootWalkingBackward, KraidPartProgram.FootWalkingBackwardLoop));
         AssertEqual(35, selected.Count, "original selected Kraid foot roots");
         var expected = selected.Select(pointer => new EnemyExtendedFrameDefinition(0xa7, pointer,
             $"kraid_foot_oam_{pointer:X4}")).ToArray();

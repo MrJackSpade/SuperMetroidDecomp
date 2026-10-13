@@ -33,7 +33,7 @@ internal static class KraidMouthHitboxesVerification
             foreach (int offset in new[] { 4, 6 })
             {
                 ushort pointer = Word(0xa70000 | (cursor + offset));
-                if (pointer != ushort.MaxValue) _ = KraidMouthHitboxes.Resolve(pointer);
+                if (pointer != ushort.MaxValue) _ = KraidMouthHitboxDefinitions.Resolve(pointer);
             }
             cursor += 8;
         }
@@ -83,7 +83,7 @@ internal static class KraidMouthHitboxesVerification
 
             try
             {
-                actual = KraidMouthHitboxes.ResolveCollision(guarded, pointer);
+                actual = KraidMouthHitboxDefinitions.ResolveCollision(guarded, pointer);
             }
             catch (Exception failure)
             {
@@ -116,7 +116,7 @@ internal static class KraidMouthHitboxesVerification
         foreach (ushort pointer in new ushort[] { 0x8000, 0x9787, 0x9789, 0x97c8, 0xffff })
         {
             AssertThrows<InvalidDataException>(
-                () => KraidMouthHitboxes.ResolveCollision(guarded, pointer),
+                () => KraidMouthHitboxDefinitions.ResolveCollision(guarded, pointer),
                 $"Kraid non-catalog cartridge pointer ${pointer:X4} rejects");
         }
 

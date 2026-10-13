@@ -23,22 +23,22 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 32498,
-    "PointerDispatch": 1245,
-    "OpaqueWordArray": 1142,
-    "CatalogHexLiteral": 100300,
+    "RawHexLiteral": 32278,
+    "PointerDispatch": 1224,
+    "OpaqueWordArray": 1136,
+    "CatalogHexLiteral": 99964,
     "JustifiedHexLiteral": 76,
     "OwnedWidthOperation": 123,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 1,
     "CountdownSelfDecrement": 53,
-    "class:NumericQuantity": 55996,
-    "class:DomainIdentity": 6827,
-    "class:ComposableBits": 1746,
-    "class:StructuredInstruction": 44375,
-    "class:CartridgeAddress": 25493,
-    "class:Unknown": 1004,
-    "storageWidthMembers": 1778
+    "class:NumericQuantity": 55967,
+    "class:DomainIdentity": 6814,
+    "class:ComposableBits": 1736,
+    "class:StructuredInstruction": 44318,
+    "class:CartridgeAddress": 25026,
+    "class:Unknown": 997,
+    "storageWidthMembers": 1776
   },
   "subsystems": [
     {
@@ -46,12 +46,12 @@
       "totals": {
         "RawHexLiteral": 306,
         "PointerDispatch": 21,
-        "CatalogHexLiteral": 9658,
+        "CatalogHexLiteral": 9327,
         "OwnedWidthOperation": 2,
-        "class:NumericQuantity": 498,
+        "class:NumericQuantity": 497,
         "class:DomainIdentity": 496,
         "class:ComposableBits": 25,
-        "class:CartridgeAddress": 8854,
+        "class:CartridgeAddress": 8524,
         "class:Unknown": 114,
         "storageWidthMembers": 8
       },
@@ -206,8 +206,8 @@
           "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA7.Definitions.Generated.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 582,
-            "class:CartridgeAddress": 582
+            "CatalogHexLiteral": 252,
+            "class:CartridgeAddress": 252
           }
         },
         {
@@ -305,8 +305,8 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "PointerDispatch": 1,
-            "CatalogHexLiteral": 33,
-            "class:NumericQuantity": 30,
+            "CatalogHexLiteral": 32,
+            "class:NumericQuantity": 29,
             "class:CartridgeAddress": 4
           }
         },
@@ -2277,24 +2277,20 @@
     {
       "name": "Boss: Kraid",
       "totals": {
-        "RawHexLiteral": 138,
-        "PointerDispatch": 28,
-        "CatalogHexLiteral": 171,
+        "RawHexLiteral": 3,
+        "PointerDispatch": 10,
+        "CatalogHexLiteral": 164,
         "CountdownSelfDecrement": 6,
-        "class:NumericQuantity": 141,
-        "class:DomainIdentity": 42,
-        "class:ComposableBits": 16,
-        "class:CartridgeAddress": 131,
-        "class:Unknown": 13,
+        "class:NumericQuantity": 98,
+        "class:DomainIdentity": 29,
+        "class:ComposableBits": 8,
+        "class:CartridgeAddress": 42,
+        "class:Unknown": 6,
         "storageWidthMembers": 14
       },
       "addressInterpretingTypes": [
-        "KraidArmInstructionProgramDefinitions",
         "KraidBehavior",
         "KraidHeadInstructionDefinitions",
-        "KraidLintInstructionProgramDefinitions",
-        "KraidNailInstructionProgramDefinitions",
-        "KraidRockProjectileInstructionProgramDefinitions",
         "KraidRoomPlmProgramDefinitions"
       ],
       "files": [
@@ -2315,13 +2311,36 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Assets/KraidPartFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 8,
+            "class:NumericQuantity": 8
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/KraidRockVisualDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 3,
+            "class:NumericQuantity": 3
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Assets/KraidVisualDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 15,
-            "class:NumericQuantity": 9,
+            "CatalogHexLiteral": 14,
+            "class:NumericQuantity": 8,
             "class:DomainIdentity": 2,
             "class:Unknown": 4
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/KraidAnimations.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "storageWidthMembers": 1
           }
         },
         {
@@ -2331,18 +2350,6 @@
             "CatalogHexLiteral": 29,
             "class:NumericQuantity": 13,
             "class:DomainIdentity": 16
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidArmInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 3,
-            "CatalogHexLiteral": 9,
-            "class:NumericQuantity": 5,
-            "class:DomainIdentity": 1,
-            "class:CartridgeAddress": 3,
-            "class:Unknown": 3
           }
         },
         {
@@ -2358,29 +2365,20 @@
           "path": "csharp/src/SuperMetroid.Core/Game/KraidBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 44,
-            "PointerDispatch": 5,
+            "RawHexLiteral": 3,
+            "PointerDispatch": 1,
             "CountdownSelfDecrement": 6,
-            "class:NumericQuantity": 33,
-            "class:ComposableBits": 14,
-            "class:CartridgeAddress": 7,
-            "class:Unknown": 1,
+            "class:NumericQuantity": 6,
+            "class:ComposableBits": 3,
+            "class:CartridgeAddress": 1,
             "storageWidthMembers": 3
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidBodyContour.cs",
+          "path": "csharp/src/SuperMetroid.Core/Game/KraidCeilingRockPositionDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidCeilingRockPositions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
+            "CatalogHexLiteral": 1,
             "class:NumericQuantity": 1
           }
         },
@@ -2391,15 +2389,6 @@
             "CatalogHexLiteral": 4,
             "class:NumericQuantity": 3,
             "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidFootInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 13,
-            "class:NumericQuantity": 12,
-            "class:Unknown": 1
           }
         },
         {
@@ -2415,22 +2404,12 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidInstructionCodes.cs",
+          "path": "csharp/src/SuperMetroid.Core/Game/KraidMouthFlags.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 9,
-            "class:CartridgeAddress": 9
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidLintInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 2,
-            "CatalogHexLiteral": 3,
-            "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 2,
-            "class:Unknown": 1
+            "CatalogHexLiteral": 5,
+            "class:NumericQuantity": 1,
+            "class:ComposableBits": 4
           }
         },
         {
@@ -2443,38 +2422,20 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidMouthHitboxes.cs",
+          "path": "csharp/src/SuperMetroid.Core/Game/KraidMouthHitboxDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 10,
+            "CatalogHexLiteral": 10,
             "class:CartridgeAddress": 10
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidMovementChoices.cs",
+          "path": "csharp/src/SuperMetroid.Core/Game/KraidNailContourDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 7,
-            "class:DomainIdentity": 6,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidNailContour.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 5,
-            "class:NumericQuantity": 5
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidNailInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 3,
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 3
+            "CatalogHexLiteral": 6,
+            "class:NumericQuantity": 5,
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -2483,14 +2444,6 @@
           "totals": {
             "CatalogHexLiteral": 1,
             "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidPlatformMovement.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
           }
         },
         {
@@ -2510,40 +2463,18 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidRockProjectileInstructionProgramDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Game/KraidSoundDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 6,
-            "CatalogHexLiteral": 7,
-            "class:NumericQuantity": 6,
-            "class:CartridgeAddress": 6,
-            "class:Unknown": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidSinkCallbacks.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 7,
-            "class:CartridgeAddress": 7
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidSinkSchedule.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 8,
-            "class:NumericQuantity": 2,
-            "class:DomainIdentity": 6
+            "CatalogHexLiteral": 3,
+            "class:NumericQuantity": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Core/Game/KraidSoundRequest.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 54,
-            "class:CartridgeAddress": 54,
-            "storageWidthMembers": 11
+            "storageWidthMembers": 10
           }
         },
         {
@@ -5552,7 +5483,7 @@
         "class:ComposableBits": 98,
         "class:CartridgeAddress": 3165,
         "class:Unknown": 12,
-        "storageWidthMembers": 389
+        "storageWidthMembers": 390
       },
       "addressInterpretingTypes": [
         "AlcoonFireballInstructionProgramDefinitions",
@@ -6126,7 +6057,7 @@
           "path": "csharp/src/SuperMetroid.Core/Game/EnemyPaletteBits.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "storageWidthMembers": 4
+            "storageWidthMembers": 5
           }
         },
         {
@@ -7499,14 +7430,14 @@
         "RawHexLiteral": 202,
         "PointerDispatch": 62,
         "OpaqueWordArray": 102,
-        "CatalogHexLiteral": 1696,
+        "CatalogHexLiteral": 1702,
         "JustifiedHexLiteral": 1,
         "OwnedWidthOperation": 1,
-        "class:NumericQuantity": 623,
+        "class:NumericQuantity": 630,
         "class:DomainIdentity": 15,
         "class:ComposableBits": 50,
         "class:StructuredInstruction": 655,
-        "class:CartridgeAddress": 721,
+        "class:CartridgeAddress": 720,
         "storageWidthMembers": 26
       },
       "addressInterpretingTypes": [
@@ -7620,10 +7551,10 @@
           "path": "csharp/src/SuperMetroid.Core/Game/EnemyProjectileDefinitionCatalog.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 536,
-            "class:NumericQuantity": 388,
+            "CatalogHexLiteral": 542,
+            "class:NumericQuantity": 395,
             "class:ComposableBits": 5,
-            "class:CartridgeAddress": 143
+            "class:CartridgeAddress": 142
           }
         },
         {
@@ -9345,18 +9276,18 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 27591,
-        "PointerDispatch": 414,
-        "OpaqueWordArray": 1004,
-        "CatalogHexLiteral": 5442,
+        "RawHexLiteral": 27506,
+        "PointerDispatch": 411,
+        "OpaqueWordArray": 998,
+        "CatalogHexLiteral": 5438,
         "OwnedWidthOperation": 60,
-        "class:NumericQuantity": 10506,
+        "class:NumericQuantity": 10514,
         "class:DomainIdentity": 638,
-        "class:ComposableBits": 570,
-        "class:StructuredInstruction": 14174,
-        "class:CartridgeAddress": 8102,
+        "class:ComposableBits": 568,
+        "class:StructuredInstruction": 14117,
+        "class:CartridgeAddress": 8055,
         "class:Unknown": 521,
-        "storageWidthMembers": 315
+        "storageWidthMembers": 312
       },
       "addressInterpretingTypes": [
         "",
@@ -9445,9 +9376,6 @@
         "KagoBugProjectileInstructionProgramDefinitionsTooling",
         "KagoInstructionProgramDefinitionsTooling",
         "KiHunterAcidSpitInstructionProgramDefinitionsTooling",
-        "KraidFootInstructionProgramDefinitionsTooling",
-        "KraidNailInstructionProgramDefinitionsTooling",
-        "KraidRockProjectileInstructionProgramDefinitionsTooling",
         "KraidRoomPlmsVerification",
         "KzanInstructionProgramDefinitionsTooling",
         "LookupStream1Verification",
@@ -10180,8 +10108,8 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Assets/CompiledEnemyVisualSelectorsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 18,
-            "class:CartridgeAddress": 18
+            "RawHexLiteral": 17,
+            "class:CartridgeAddress": 17
           }
         },
         {
@@ -10731,48 +10659,6 @@
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KiHunterAcidSpitInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KraidArmInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KraidFootInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KraidLintInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KraidNailInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KraidRockProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
             "PointerDispatch": 1,
@@ -11546,6 +11432,15 @@
           "totals": {
             "RawHexLiteral": 1,
             "class:NumericQuantity": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/KraidNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 29,
+            "class:NumericQuantity": 28,
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -14083,8 +13978,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.EnemyInstructionCodePointers.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 7,
-            "class:NumericQuantity": 6,
+            "CatalogHexLiteral": 6,
+            "class:NumericQuantity": 5,
             "class:CartridgeAddress": 1
           }
         },
@@ -16198,25 +16093,9 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "OpaqueWordArray": 1,
-            "CatalogHexLiteral": 16,
-            "class:StructuredInstruction": 17
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Program.KraidArmGeneratedPrograms.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 14,
-            "class:CartridgeAddress": 14
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Program.KraidArmInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 5,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 4
+            "CatalogHexLiteral": 17,
+            "class:StructuredInstruction": 17,
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -16301,27 +16180,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.KraidFootFrameGeometry.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 3,
+            "RawHexLiteral": 2,
             "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Program.KraidFootGeneratedPrograms.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 7,
-            "class:CartridgeAddress": 7
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Program.KraidFootInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 8,
-            "class:NumericQuantity": 2,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -16394,15 +16255,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Program.KraidLintInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 4,
-            "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Verification/Program.KraidMouthHitboxes.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
@@ -16459,16 +16311,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Program.KraidNailInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 6,
-            "class:NumericQuantity": 2,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Verification/Program.KraidNailSibling.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
@@ -16499,31 +16341,12 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Program.KraidRockGeneratedPrograms.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 20,
-            "OpaqueWordArray": 2,
-            "class:NumericQuantity": 1,
-            "class:StructuredInstruction": 21
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Verification/Program.KraidRockLaunchDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 8,
             "class:NumericQuantity": 4,
             "class:CartridgeAddress": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Program.KraidRockProjectileInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 10,
-            "class:NumericQuantity": 7,
-            "class:CartridgeAddress": 3
           }
         },
         {
@@ -16579,16 +16402,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Program.KraidSmallPrograms.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 25,
-            "OpaqueWordArray": 3,
-            "class:NumericQuantity": 1,
-            "class:StructuredInstruction": 27
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Verification/Program.KraidSuperMissileDamage.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
@@ -16601,10 +16414,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.KraidVisualSelectors.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 35,
-            "OpaqueWordArray": 2,
-            "class:StructuredInstruction": 34,
-            "class:CartridgeAddress": 3
+            "RawHexLiteral": 25,
+            "OpaqueWordArray": 1,
+            "class:StructuredInstruction": 25,
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -22530,10 +22343,10 @@
           "path": "csharp/test-support/VerificationAccess/CoreConstantsAccess.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 454,
-            "class:NumericQuantity": 185,
+            "RawHexLiteral": 451,
+            "class:NumericQuantity": 182,
             "class:CartridgeAddress": 269,
-            "storageWidthMembers": 232
+            "storageWidthMembers": 229
           }
         },
         {

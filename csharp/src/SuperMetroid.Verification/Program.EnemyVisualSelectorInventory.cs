@@ -22,7 +22,7 @@ internal static class EnemyVisualSelectorInventoryVerification
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var (keyed, unresolved) = EnemyVisualSelectorInventory.Collect(rom);
+        var (keyed, unresolved, owners) = EnemyVisualSelectorInventory.Collect(rom);
         Console.WriteLine($"Enemy visual selectors: {keyed.Count} unique bank-resolved addresses.");
         if (keyed.Count != CompiledEnemyVisualSelectorsTooling.Count)
         {
@@ -35,9 +35,9 @@ internal static class EnemyVisualSelectorInventoryVerification
             var cataloged = Enumerable.Range(0, CompiledEnemyVisualSelectorsTooling.Count)
                 .Select(index => CompiledEnemyVisualSelectorsTooling.At(index).Address).ToHashSet();
             foreach ((int address, ushort pointer) in keyed.Where(pair => !cataloged.Contains(pair.Key)).OrderBy(pair => pair.Key))
-                Console.WriteLine($"INVENTORY-ONLY ${address:X6} -> ${pointer:X4}");
+                Console.WriteLine($"INVENTORY-ONLY ${address:X6} -> ${pointer:X4} ({owners[address]})");
         }
-        AssertEqual(5032, keyed.Count, "distinct native sprite-selector addresses");
+        AssertEqual(4364, keyed.Count, "distinct native sprite-selector addresses");
         AssertEqual(keyed.Count, CompiledEnemyVisualSelectorsTooling.Count,
             "generated catalog covers every bank-resolved inventory address");
         int catalogIndex = 0;
@@ -60,7 +60,7 @@ internal static class EnemyVisualSelectorInventoryVerification
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(5032, CompiledEnemyVisualSelectorsTooling.Count,
+        AssertEqual(4364, CompiledEnemyVisualSelectorsTooling.Count,
             "generated fixed visual-selector count");
         foreach (int index in new[] { int.MinValue, -1, CompiledEnemyVisualSelectorsTooling.Count, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => CompiledEnemyVisualSelectorsTooling.At(index),

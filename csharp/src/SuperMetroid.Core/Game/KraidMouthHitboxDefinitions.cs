@@ -24,7 +24,7 @@ internal enum KraidMouthHitbox : ushort
 }
 
 /// <summary>Compiled collision geometry, independent of Kraid's editable head artwork.</summary>
-internal static class KraidMouthHitboxes
+internal static class KraidMouthHitboxDefinitions
 {
     /// <summary>Aligned fixed records at $A7:9788..97C7.</summary>
     public static bool IsDefined(ushort pointer) => Enum.IsDefined((KraidMouthHitbox)pointer);

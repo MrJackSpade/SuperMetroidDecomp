@@ -28,8 +28,19 @@ public sealed class RoomEnemyProjectileSlot
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Gets the unchanged native velocity words, interpreted as signed 8.8 by the shared movement helpers or reused by family-specific logic.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
-    /// <summary>Gets the bank-$86 offset of the next instruction-list word to execute; zero while a typed animation runs.</summary>
-    public ushort InstructionPointer { get; internal set; }
+    /// <summary>
+    /// Gets the bank-$86 offset of the next instruction-list word to execute; zero while a typed animation runs.
+    /// Storing a list pointer ends any typed animation, as a native list store replaces the running program.
+    /// </summary>
+    public ushort InstructionPointer
+    {
+        get;
+        internal set
+        {
+            field = value;
+            Animation = null;
+        }
+    }
     /// <summary>
     /// The typed animation replacing this actor's native instruction list (#641), or null when the
     /// bank-$86 interpreter runs <see cref="InstructionPointer"/>.
@@ -115,15 +126,14 @@ public sealed class RoomEnemyProjectileSlot
     /// <summary>Runs <paramref name="animation"/> from its first frame on the next pass, in place of any native list.</summary>
     internal void StartAnimation(EnemyProjectileAnimation animation)
     {
-        Animation = Ensure.NotNull(animation);
         InstructionPointer = 0;
+        Animation = Ensure.NotNull(animation);
         InstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>Runs the native instruction list at <paramref name="instructionList"/> from the next pass, ending any typed animation.</summary>
     internal void StartNativeProgram(ushort instructionList)
     {
-        Animation = null;
         InstructionPointer = instructionList;
         InstructionTimer = NativeCountdown.Start(1);
     }

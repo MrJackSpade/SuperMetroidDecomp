@@ -231,8 +231,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         projectile.Variable0 = unchecked((ushort)(initialIdleTimer + 4));
         projectile.PreInstruction =
             (ushort)EnemyProjectilePreInstruction.KagoBug_Idle;
-        projectile.InstructionPointer =
-            KraidRockProjectileInstructionProgramDefinitions.SharedRockAndKagoBug;
+        projectile.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
         return true;
     }
 

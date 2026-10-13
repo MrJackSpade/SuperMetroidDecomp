@@ -1042,11 +1042,6 @@ internal sealed class EnemyProjectileEngine
         if (OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind))
             return OldTourianEscapeShaftWallExplosionDefinitions.ReadMechanicsWord(address);
 
-        if (KraidRockProjectileInstructionProgramDefinitions.Owns(projectile.Kind, address))
-        {
-            return KraidRockProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
         if (projectile.Kind == RoomEnemyProjectileKind.KagoBug)
         {
             return KagoBugProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);

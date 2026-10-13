@@ -338,14 +338,6 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.DachoraEscape)
             return EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer is
-            EnemyDefinitionId.KraidLintTop or
-            EnemyDefinitionId.KraidLintMiddle or
-            EnemyDefinitionId.KraidLintBottom)
-        {
-            return KraidLintInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo)
             return ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(address);
 
@@ -381,18 +373,6 @@ internal sealed class EnemyInstructionInterpreter
 
         if (PhantoonBehavior.IsPhantoonPartDefinition(slot.EnemyDefinitionPointer))
             return PhantoonInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm)
-            return KraidArmInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot)
-            return KraidFootInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer is
-            EnemyDefinitionId.KraidNail or EnemyDefinitionId.KraidNailBad)
-        {
-            return KraidNailInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue)
         {

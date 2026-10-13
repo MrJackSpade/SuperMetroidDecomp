@@ -154,7 +154,6 @@ using static IntroScientistInstructionsVerification;
 using static IntroScientistPartsVerification;
 using static KraidArmCollisionDefinitionsVerification;
 using static KraidArmComponentHitboxesVerification;
-using static KraidArmGeneratedProgramsVerification;
 using static KraidArmPhysicalFrameMappingsVerification;
 using static KraidCameraMappingsVerification;
 using static KraidCeilingRockPositionsVerification;
@@ -163,7 +162,6 @@ using static KraidDefeatedPlmMappingsVerification;
 using static KraidDrawMappingsVerification;
 using static KraidFootCoordinateMappingsVerification;
 using static KraidFootFrameGeometryVerification;
-using static KraidFootGeneratedProgramsVerification;
 using static KraidGrowthPlmMappingsVerification;
 using static KraidHeadCommandMappingVerification;
 using static KraidHealthThresholdsVerification;
@@ -172,12 +170,10 @@ using static KraidMovementChoicesVerification;
 using static KraidNailContourMappingsVerification;
 using static KraidNailSiblingVerification;
 using static KraidPaletteDefinitionsVerification;
-using static KraidRockGeneratedProgramsVerification;
 using static KraidRockLaunchDefinitionsVerification;
 using static KraidRoomProgramMappingVerification;
 using static KraidRoomVisualSelectionVerification;
 using static KraidSinkScheduleVerification;
-using static KraidSmallProgramsVerification;
 using static KraidVisualSelectorsVerification;
 using static LookupCeresHazeRampVerification;
 using static LookupDachoraColorsVerification;
@@ -4062,10 +4058,9 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(visualOracle.Rom)),
             "Kraid visual oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyKraidNailVisualSelectors), () => VerifyKraidNailVisualSelectors(visualOracle));
         Suite(nameof(VerifyFakeKraidVisualSelectors), () => VerifyFakeKraidVisualSelectors(visualOracle));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
-        Console.WriteLine("Kraid visual selectors: eight nail operands for both actors,24 Fake Kraid operands, holes and bounds pass.");
+        Console.WriteLine("Kraid visual selectors: 24 Fake Kraid operands, holes and bounds pass.");
         return 0;
     }
 
@@ -4317,64 +4312,6 @@ internal static class VerificationAssert
             "Kraid head oracle is NTSC J/U v1.0");
         Suite(nameof(VerifyKraidHeadCommandMapping), () => VerifyKraidHeadCommandMapping(headOracle));
         Console.WriteLine("Kraid head programs: all 28 native commands, frame fields, sound IDs, enumeration, exact cursors and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks Kraid rock projectile instruction lists and frame timing.</summary>
-    [VerificationCommand("--lookup-kraid-rock-programs")]
-    internal static int LookupKraidRockProgramsCommand()
-    {
-        var rockOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rockOracle.Rom)),
-            "Kraid rock program oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyKraidRockMechanicsMapping), () => VerifyKraidRockMechanicsMapping(rockOracle));
-        Suite(nameof(VerifyKraidRockPresentationMapping), () => VerifyKraidRockPresentationMapping());
-        Console.WriteLine("Kraid rock programs: 12 mechanics words, 7 presentation offsets, native domains and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks small-form body instruction lists before growth.</summary>
-    [VerificationCommand("--lookup-kraid-small-programs")]
-    internal static int LookupKraidSmallProgramsCommand()
-    {
-        var smallOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(smallOracle.Rom)),
-            "Kraid small-program oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyKraidLintMechanicsMapping), () => VerifyKraidLintMechanicsMapping(smallOracle));
-        Suite(nameof(VerifyKraidLintPresentationMapping), () => VerifyKraidLintPresentationMapping());
-        Suite(nameof(VerifyKraidNailMechanicsMapping), () => VerifyKraidNailMechanicsMapping(smallOracle));
-        Suite(nameof(VerifyKraidNailPresentationMapping), () => VerifyKraidNailPresentationMapping());
-        Console.WriteLine("Kraid lint/nail programs: 14 mechanics words, 10 presentation offsets, native domains and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks arm instruction lists and native command boundaries.</summary>
-    [VerificationCommand("--lookup-kraid-arm-programs")]
-    internal static int LookupKraidArmProgramsCommand()
-    {
-        var armOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(armOracle.Rom)),
-            "Kraid arm program oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyKraidArmGeneratedMechanics), () => VerifyKraidArmGeneratedMechanics(armOracle));
-        Suite(nameof(VerifyKraidArmGeneratedPresentation), () => VerifyKraidArmGeneratedPresentation(armOracle));
-        Console.WriteLine("Kraid arm programs: 66 mechanics words, 57 presentation positions, native domains and bounds pass.");
-        return 0;
-    }
-
-    /// <summary>Checks foot lunge, retreat, and walking programs.</summary>
-    [VerificationCommand("--lookup-kraid-foot-programs")]
-    internal static int LookupKraidFootProgramsCommand()
-    {
-        var programOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(programOracle.Rom)),
-            "Kraid foot program oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyKraidFootGeneratedMechanics), () => VerifyKraidFootGeneratedMechanics(programOracle));
-        Suite(nameof(VerifyKraidFootGeneratedPresentation), () => VerifyKraidFootGeneratedPresentation(programOracle));
-        Console.WriteLine("Kraid foot programs: 193 mechanics words, 106 presentation positions, native domains and bounds pass.");
         return 0;
     }
 

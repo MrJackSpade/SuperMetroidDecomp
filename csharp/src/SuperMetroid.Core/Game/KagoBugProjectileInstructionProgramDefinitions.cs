@@ -2,8 +2,7 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>
 /// Compiled control for Kago bug's landed, falling, jumping, and shot programs. The
-/// shared initial Kraid-rock pose is owned by
-/// <see cref="KraidRockProjectileInstructionProgramDefinitions"/>; interleaved
+/// shared initial Kraid-rock pose is the typed <see cref="KraidRockProgram.SharedPose"/>; interleaved
 /// spritemap operands select compiled presentation identities.
 /// </summary>
 internal abstract class KagoBugProjectileInstructionProgramDefinitions

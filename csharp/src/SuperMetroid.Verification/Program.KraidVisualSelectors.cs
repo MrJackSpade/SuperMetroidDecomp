@@ -6,14 +6,6 @@ using static SuiteTimingVerification;
 /// <summary>Checks Kraid-family visual selector domains and values against native timed frames.</summary>
 internal static class KraidVisualSelectorsVerification
 {
-    /// <summary>Checks all eight nail-frame operands for both Kraid nail enemy identities.</summary>
-    internal static void VerifyKraidNailVisualSelectors(SuperMetroidAddressSpace rom)
-    {
-        ushort[] operands = [0x8b0c, 0x8b10, 0x8b14, 0x8b18, 0x8b1c, 0x8b20, 0x8b24, 0x8b28];
-        foreach (EnemyDefinitionId enemy in new[] { EnemyDefinitionId.KraidNail, EnemyDefinitionId.KraidNailBad })
-            VerifyKraidVisualSelectorDomain(rom, 0xa70000, enemy, operands);
-    }
-
     /// <summary>Checks the twenty-four Mini Kraid timed-frame visual operands and surrounding holes.</summary>
     internal static void VerifyFakeKraidVisualSelectors(SuperMetroidAddressSpace rom)
     {
@@ -33,9 +25,7 @@ internal static class KraidVisualSelectorsVerification
         // Operand identities are independently recorded from native timed-frame instructions.
         var valid = operands.ToHashSet();
         for (int address = 0; address <= ushort.MaxValue; address++)
-            AssertEqual(valid.Contains((ushort)address), bank == 0xa60000
-                ? FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address)
-                : KraidNailInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+            AssertEqual(valid.Contains((ushort)address), FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
                 "Kraid-family complete presentation membership domain");
         for (int address = operands[0] - 2; address <= operands[^1] + 8; address++)
         {

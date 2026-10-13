@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -8,7 +9,7 @@ using SuperMetroid.Core.Hardware;
 /// or BG2 command payload may coincidentally pass the shallow count check.
 /// Every family still needs a consumer and exact OAM parity test before extraction.
 /// </summary>
-internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keyed, List<string> Unresolved)
+internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keyed, List<string> Unresolved, Dictionary<int, string> Owners)
 {
     /// <summary>
     /// Scans every Core instruction-program catalog's presentation operands against the cartridge:
@@ -19,6 +20,7 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
     {
         var keyed = new Dictionary<int, ushort>();
         var unresolved = new List<string>();
+        var owners = new Dictionary<int, string>();
 
         // One-frame programs declare a single operand instead of an indexed list.
         // Ignoring that shape omitted Kzan's live operand (#1166).
@@ -56,6 +58,26 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
                     throw new InvalidDataException(
                         $"Conflicting visual selector ${source:X6}.");
                 keyed[source] = pointer;
+                owners[source] = name;
+            }
+        }
+        // Typed projectile programs (#641) key their installed frames by the bank-$86 operand address that drew
+        // them; those keys still select the native spritemap through the shared selector table.
+        foreach ((string owner, IEnumerable<ushort> keys) in new (string, IEnumerable<ushort>)[]
+                 {
+                     (nameof(CrocomireProjectileVisualDefinitions), CrocomireProjectileVisualDefinitions.ProjectileFrames.Select(CrocomireProjectileVisualDefinitions.PresentationKey)),
+                     (nameof(DraygonProjectileVisualDefinitions), DraygonProjectileVisualDefinitions.ProjectileFrames.Select(DraygonProjectileVisualDefinitions.PresentationKey)),
+                     (nameof(KraidRockVisualDefinitions), KraidRockVisualDefinitions.ProjectileFrames.Select(KraidRockVisualDefinitions.PresentationKey)),
+                 })
+        {
+            foreach (ushort key in keys)
+            {
+                int source = EnemyProjectileCodePointers.BankBase | key;
+                ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(source);
+                if (keyed.TryGetValue(source, out ushort previous) && previous != pointer)
+                    throw new InvalidDataException($"Conflicting visual selector ${source:X6}.");
+                keyed[source] = pointer;
+                owners[source] = owner;
             }
         }
         // Ceres Baby deliberately split its old mixed presentation list into
@@ -83,7 +105,8 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
             if (!keyed.TryAdd(source, pointer))
                 throw new InvalidDataException(
                     $"Ceres Baby sprite selector ${source:X6} overlaps another owner.");
+            owners[source] = nameof(CeresBabyInstructionProgramDefinitions);
         }
-        return new(keyed, unresolved);
+        return new(keyed, unresolved, owners);
     }
 }

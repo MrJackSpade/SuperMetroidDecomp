@@ -72,7 +72,7 @@ public static class KraidPlmDefinitions
             get
             {
                 if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                byte column = (byte)(KraidCeilingRockPositions.AtByteOffset(2 * index) >> 4);
+                byte column = (byte)(KraidCeilingRockPositionDefinitions.AtByteOffset(2 * index) >> 4);
                 PlmHeaderId header = column == 2 ? PlmHeaderId.CrumbleKraidCeilingIntoBackground1
                     : (column & 1) == 0 ? PlmHeaderId.CrumbleKraidCeilingIntoBackground3
                     : PlmHeaderId.CrumbleKraidCeilingIntoBackground2;

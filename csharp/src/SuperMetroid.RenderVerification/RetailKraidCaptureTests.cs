@@ -54,7 +54,7 @@ internal static class RetailKraidCaptureTests
             // The attack enters with a roar timer before its first head frame selects a mouth
             // shape; until then the hitbox words still hold their initial values.
             while (!(body.VariableA is (ushort)KraidAiFunction.MainAttackWithMouthOpen or (ushort)KraidAiFunction.MouthOpenReaction
-                && KraidMouthHitboxes.IsDefined(boss.InvulnerableMouthHitbox)) && waiting++ < 1400)
+                && KraidMouthHitboxDefinitions.IsDefined(boss.InvulnerableMouthHitbox)) && waiting++ < 1400)
                 runtime.StepFrame(0);
             if (waiting >= 1400) throw new InvalidOperationException("Kraid never opened its mouth.");
             StrikeMouth(bus, runtime, body, boss);
@@ -131,7 +131,7 @@ internal static class RetailKraidCaptureTests
         // Match the established audit: stage a missile at the open-mouth hitbox, then use
         // the real collision/damage dispatcher to initiate growth. Resolve the shape exactly
         // as collision does: compiled $A7:9788 records or a live bank-$A7 low-half alias.
-        var (left, top, bottom) = KraidMouthHitboxes.ResolveCollision(bus, boss.InvulnerableMouthHitbox);
+        var (left, top, bottom) = KraidMouthHitboxDefinitions.ResolveCollision(bus, boss.InvulnerableMouthHitbox);
         var shots = InstalledFixtures.CreateProjectileSystem();
         var shot = shots.Slots[0];
         shot.Type = KraidCaptureDefinitions.AuditMissileType;

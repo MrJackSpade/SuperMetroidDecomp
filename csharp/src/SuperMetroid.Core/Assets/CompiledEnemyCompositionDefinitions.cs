@@ -13,12 +13,27 @@ internal static class CompiledEnemyCompositionDefinitions
     internal static EnemySpritemapDefinition[] Frames(byte bank, ReadOnlySpan<ushort> operands,
         int expectedCount, string name)
     {
-        var frames = new List<EnemySpritemapDefinition>(expectedCount);
-        var seen = new HashSet<ushort>();
+        var spritemaps = new List<ushort>(operands.Length);
         foreach (ushort operand in operands)
         {
             if (!CompiledEnemyVisualSelectors.TryGet(bank, operand, out ushort pointer))
                 throw new InvalidDataException($"{name} selector ${bank:X2}:{operand:X4} is not compiled.");
+            spritemaps.Add(pointer);
+        }
+        return FramesFromSpritemaps(bank, spritemaps, expectedCount, name);
+    }
+
+    /// <summary>
+    /// Names the distinct, visible spritemaps a typed program shows, in first-shown order (#641). The shared zero-part
+    /// frame stays renderer-owned; an unexpected number of distinct compositions fails installation.
+    /// </summary>
+    internal static EnemySpritemapDefinition[] FramesFromSpritemaps(byte bank, IEnumerable<ushort> spritemaps,
+        int expectedCount, string name)
+    {
+        var frames = new List<EnemySpritemapDefinition>(expectedCount);
+        var seen = new HashSet<ushort>();
+        foreach (ushort pointer in spritemaps)
+        {
             if (CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(bank, pointer) ||
                 !seen.Add(pointer)) continue;
             frames.Add(new(bank, pointer, $"{name}_{frames.Count:D2}"));

@@ -85,6 +85,7 @@ using static DragonInstructionProgramDefinitionsVerification;
 using static DraygonBurialEvirDefinitionsVerification;
 using static DraygonHealthPaletteDefinitionsVerification;
 using static DraygonAnimationsVerification;
+using static KraidAnimationsVerification;
 using static DraygonIntroDanceDefinitionsVerification;
 using static ElevatorInputDefinitionsVerification;
 using static ElevatorInstructionProgramDefinitionsVerification;
@@ -147,20 +148,15 @@ using static KagoInstructionProgramDefinitionsVerification;
 using static KiHunterAcidSpitInstructionProgramDefinitionsVerification;
 using static KiHunterInstructionProgramDefinitionsVerification;
 using static KiHunterMotionDefinitionsVerification;
-using static KraidArmInstructionProgramDefinitionsVerification;
 using static KraidBodyContourVerification;
 using static KraidCeilingRockPositionsVerification;
-using static KraidFootInstructionProgramDefinitionsVerification;
 using static KraidHeadInstructionsVerification;
-using static KraidLintInstructionProgramDefinitionsVerification;
 using static KraidMouthHitboxesVerification;
 using static KraidMovementChoicesVerification;
 using static KraidNailBounceVerification;
 using static KraidNailContourVerification;
-using static KraidNailInstructionProgramDefinitionsVerification;
 using static KraidNailSiblingVerification;
 using static KraidRockLaunchDefinitionsVerification;
-using static KraidRockProjectileInstructionProgramDefinitionsVerification;
 using static KraidSinkScheduleVerification;
 using static KzanInstructionProgramDefinitionsVerification;
 using static LowerNorfairRioInstructionProgramDefinitionsVerification;
@@ -356,7 +352,6 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyEyeDoorProjectileInstructionProgramDefinitions), () => VerifyEyeDoorProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEyeDoorSweatInstructionProgramDefinitions), () => VerifyEyeDoorSweatInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifySkreeMetareeParticleInstructionProgramDefinitions), () => VerifySkreeMetareeParticleInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyKraidRockProjectileInstructionProgramDefinitions), () => VerifyKraidRockProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyFakeKraidProjectileInstructionProgramDefinitions), () => VerifyFakeKraidProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyAlcoonFireballInstructionProgramDefinitions), () => VerifyAlcoonFireballInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyWorkRobotLaserInstructionProgramDefinitions), () => VerifyWorkRobotLaserInstructionProgramDefinitions(LoadRepositoryRom())),
@@ -395,6 +390,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyGunshipInstructionProgramDefinitions), () => VerifyGunshipInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyRidleyInstructionProgramDefinitions), () => VerifyRidleyInstructionProgramDefinitions()),
         new(nameof(VerifyDraygonAnimations), () => VerifyDraygonAnimations(LoadRepositoryRom())),
+        new(nameof(VerifyKraidPartAnimations), () => VerifyKraidPartAnimations(LoadRepositoryRom())),
+        new(nameof(VerifyKraidRockAnimations), () => VerifyKraidRockAnimations(LoadRepositoryRom())),
         new(nameof(VerifyWalkingSpacePirateInstructionProgramDefinitions), () => VerifyWalkingSpacePirateInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyWallSpacePirateInstructionProgramDefinitions), () => VerifyWallSpacePirateInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions(LoadRepositoryRom())),
@@ -464,10 +461,6 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyLowerNorfairRioInstructionProgramDefinitions), () => VerifyLowerNorfairRioInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMamaTurtleInstructionProgramDefinitions), () => VerifyMamaTurtleInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyTourianEntranceStatueInstructionProgramDefinitions), () => VerifyTourianEntranceStatueInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyKraidNailInstructionProgramDefinitions), () => VerifyKraidNailInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyKraidArmInstructionProgramDefinitions), () => VerifyKraidArmInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyKraidFootInstructionProgramDefinitions), () => VerifyKraidFootInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyKraidLintInstructionProgramDefinitions), () => VerifyKraidLintInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyPhantoonInstructionProgramDefinitions), () => VerifyPhantoonInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyWorkRobotInstructionProgramDefinitions), () => VerifyWorkRobotInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyYardInstructionProgramDefinitions), () => VerifyYardInstructionProgramDefinitions(LoadRepositoryRom())),

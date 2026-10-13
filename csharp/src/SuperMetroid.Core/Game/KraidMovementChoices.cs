@@ -7,17 +7,17 @@ public static class KraidMovementChoices
     private enum Destination : ushort
     {
         /// <summary>$A7:BA89 position $D0, the leftmost second-phase destination.</summary>
-        Leftmost = 0x00d0,
+        Leftmost = 208,
         /// <summary>$A7:BA7D position $F0, the left destination with a distinct long pause.</summary>
-        Left = 0x00f0,
+        Left = 240,
         /// <summary>$A7:BA8D position $140, the middle destination.</summary>
-        Middle = 0x0140,
+        Middle = 320,
         /// <summary>$A7:BA81 position $160, initial position and default movement-policy row.</summary>
-        Starting = 0x0160,
+        Starting = 352,
         /// <summary>$A7:BA91 position $170, the usual half-probability destination.</summary>
-        Right = 0x0170,
+        Right = 368,
         /// <summary>$A7:BA85 position $180, the rightmost destination.</summary>
-        Rightmost = 0x0180,
+        Rightmost = 384,
     }
 
     /// <summary>
@@ -35,7 +35,7 @@ public static class KraidMovementChoices
     {
         // The $A7:BA7D record search ends on the $0160 row for every unlisted position.
         Destination row = Enum.IsDefined((Destination)position) ? (Destination)position : Destination.Starting;
-        int choice = Math.Min((random & 0x1c) >> 2, 4);
+        int choice = Math.Min((random & 28) >> 2, 4);
         Destination target = choice switch
         {
             0 => row == Destination.Left ? Destination.Rightmost : Destination.Left,

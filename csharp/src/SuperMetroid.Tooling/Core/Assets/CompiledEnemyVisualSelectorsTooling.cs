@@ -9,7 +9,7 @@ internal static class CompiledEnemyVisualSelectorsTooling
     internal static int CalculatedCount => BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount + BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount + BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount + BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount + GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount + HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordCount + (VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitionsTooling.PresentationWordCount +
         BoulderInstructionProgramDefinitionsTooling.PresentationWordCount +
         FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount +
-        KraidNailInstructionProgramDefinitions.PresentationWordCount + PhantoonInstructionProgramDefinitions.PresentationWordCount +
+        PhantoonInstructionProgramDefinitions.PresentationWordCount +
         FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount + AtomicInstructionProgramDefinitionsTooling.PresentationWordCount;
     /// <summary>Total visual selector entries across literal and calculated sources.</summary>
     internal static int Count => CompiledEnemyVisualSelectors.Entries.Length + CalculatedCount;
@@ -111,12 +111,6 @@ internal static class CompiledEnemyVisualSelectorsTooling
             return new(0xa60000 | operand, KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operand));
         }
         index -= FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount;
-        if (index < KraidNailInstructionProgramDefinitions.PresentationWordCount)
-        {
-            ushort operand = KraidNailInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            return new(0xa70000 | operand, KraidVisualDefinitions.FrameAt(EnemyDefinitionId.KraidNail, operand));
-        }
-        index -= KraidNailInstructionProgramDefinitions.PresentationWordCount;
         if (index < PhantoonInstructionProgramDefinitions.PresentationWordCount)
             return new(0xa70000 | PhantoonInstructionProgramDefinitions.PresentationWordAddress(index), PhantoonInstructionProgramDefinitions.PresentationFrame(index));
         index -= PhantoonInstructionProgramDefinitions.PresentationWordCount;

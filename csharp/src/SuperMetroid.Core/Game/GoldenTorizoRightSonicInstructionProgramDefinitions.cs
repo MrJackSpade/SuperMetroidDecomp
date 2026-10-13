@@ -9,7 +9,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class GoldenTorizoRightSonicInstructionProgramDefinitions
 {
+    /// <summary>First right-facing sonic-boom list, with the left foot forward.</summary>
     internal const ushort Start = 0xccdb;
+    /// <summary>Second right-facing sonic-boom list, with the right foot forward.</summary>
     internal const ushort RightFootForward = 0xcd45;
 
     /// <summary><c>InstList_GoldenTorizo_SonicBooms_FacingRight_LeftFootFwd_1</c> at $AA:CCE3.</summary>
@@ -24,6 +26,7 @@ internal abstract class GoldenTorizoRightSonicInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Preserves attack timers, boom spawns, loops, and both entry points in native word order.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xccdb),
         Entry(Start),
@@ -82,6 +85,8 @@ internal abstract class GoldenTorizoRightSonicInstructionProgramDefinitions
         Op((ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate, TorizoSonicBoomsFacingRightRightFootFwd1),
         Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementWalkingFunction),
         Op((ushort)TorizoInstruction.Instruction_Torizo_Return));
+    /// <summary>Counts visual frame operands interleaved with the two attack lists.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Locates an indexed sonic-boom visual operand in bank $AA.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

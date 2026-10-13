@@ -4,13 +4,17 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Builds Samus rendering catalogs from distinctive synthetic tables and installed stock art.</summary>
 internal static class SamusRenderingFixtureVerification
 {
+    /// <summary>Loads the installed body artwork only when a rendering fixture first needs it.</summary>
     private static readonly Lazy<SamusBodyArtworkCatalog> renderingFixtureStock =
         new(() => InstalledFixtures.SamusBody);
 
+    /// <summary>Caches complete catalogs whose every pose uses a requested graphics Y offset.</summary>
     private static readonly Dictionary<sbyte, SamusBodyArtworkCatalog> graphicsOffsetFixtures = [];
 
+    /// <summary>Builds or reuses a stock body catalog with every pose's graphics Y offset replaced.</summary>
     internal static SamusBodyArtworkCatalog SamusGraphicsOffsetFixture(sbyte offset)
     {
         if (graphicsOffsetFixtures.TryGetValue(offset, out var existing)) return existing;
@@ -32,9 +36,11 @@ internal static class SamusRenderingFixtureVerification
         WriteTestWord(bus, SamusSpritemapArtworkCatalog.TopBaseAddress + (int)pose * 2, top);
         WriteTestWord(bus, SamusSpritemapArtworkCatalog.BottomBaseAddress + (int)pose * 2, bottom);
     }
-    // Adapt this fixture's sparse, deliberately distinctive artwork to the installed
-    // catalog boundary. Unspecified complete DMA groups retain valid stock layout;
-    // sprite maps remain the fixture's own compact compositions, including zero pointers.
+    /// <summary>
+    /// Adapts sparse seeded rendering tables to the installed catalog boundary. Unspecified
+    /// complete DMA groups retain stock layout; spritemaps use the fixture's own compact
+    /// compositions, including zero pointers.
+    /// </summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture decoding seeded Samus rendering tables into an artwork catalog")]
     internal static void BindSyntheticSamusRendering(TestAddressSpace bus, SamusState samus)
     {

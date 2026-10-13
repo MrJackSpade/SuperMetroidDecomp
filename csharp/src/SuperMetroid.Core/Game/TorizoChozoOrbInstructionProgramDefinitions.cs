@@ -15,9 +15,12 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_TorizoChozoOrbs</c> at $86:AB68.</summary>
     internal const ushort Shot = 0xab68;
 
+    /// <summary>Counts control words in movement, wall impact, floor impact, and shot impact lists.</summary>
     public static int MechanicsWordCount => 40;
+    /// <summary>Counts spritemap operands interleaved with the four Chozo-orb lists.</summary>
     public static int PresentationWordCount => 18;
 
+    /// <summary>Returns an indexed Chozo-orb timer, property, sound, drop, loop, or delete word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -71,6 +74,7 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
         return new((ushort)(start + offset), value);
     }
 
+    /// <summary>Locates an indexed spritemap operand across movement and impact lists.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -79,10 +83,12 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
         if (index < 13) return (ushort)(FloorImpact + 15 + 4 * (index - 7));
         return (ushort)(Shot + 8 + 4 * (index - 13));
     }
+    /// <summary>Identifies the Bomb and Golden Torizo orb projectile kinds using these lists.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoChozoOrb or
         RoomEnemyProjectileKind.GoldenTorizoChozoOrb;
 
+    /// <summary>Binary-searches compiled Chozo-orb controls and rejects presentation addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

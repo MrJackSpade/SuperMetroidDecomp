@@ -22,13 +22,21 @@ internal static class YardDirectionDefinitions
     /// <summary>The eight mutually exclusive surface orientations at $A3:CD42.</summary>
     private enum SurfaceDirection : ushort
     {
+        /// <summary>Right-side wall orientation with upward crawl.</summary>
         UpsideRightMovingUp,
+        /// <summary>Right-side wall orientation with downward crawl.</summary>
         UpsideRightMovingDown,
+        /// <summary>Left-side wall orientation with upward crawl.</summary>
         UpsideLeftMovingUp,
+        /// <summary>Left-side wall orientation with downward crawl.</summary>
         UpsideLeftMovingDown,
+        /// <summary>Ceiling orientation with leftward crawl.</summary>
         UpsideDownMovingLeft,
+        /// <summary>Ceiling orientation with rightward crawl.</summary>
         UpsideDownMovingRight,
+        /// <summary>Floor orientation with leftward crawl.</summary>
         UpsideUpMovingLeft,
+        /// <summary>Floor orientation with rightward crawl.</summary>
         UpsideUpMovingRight,
     }
 

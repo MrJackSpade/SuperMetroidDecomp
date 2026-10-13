@@ -4,8 +4,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Phantoon HDMA wave, palette fade, and blending state across display latches.</summary>
 internal static class PhantoonWaveVerification
 {
+    /// <summary>Checks setup cadence, native scroll progression, deletion, and debugger state restoration.</summary>
     internal static void VerifyPhantoonWaveLifecycle()
     {
         var boss = new PhantoonEnemyState(new RoomEnemySlot(0))
@@ -50,6 +52,7 @@ internal static class PhantoonWaveVerification
         Console.WriteLine("  Phantoon wave: original-CPU lifecycle, display latch and debugger round-trip agree.");
     }
 
+    /// <summary>Checks captured native palette colors that distinguish signed rounding and fade denominator.</summary>
     private static void VerifyPhantoonFadeColors()
     {
         // Original $A7:D464/$D486 captures: health one, denominator twelve,
@@ -64,6 +67,7 @@ internal static class PhantoonWaveVerification
             "fast fade reaches target on first interpolated update");
     }
 
+    /// <summary>Checks transparency priority, hidden state, NMI latch timing, and deletion persistence.</summary>
     private static void VerifyPhantoonBlendingLifecycle(PhantoonEnemyState boss)
     {
         var blend = boss.Blending;

@@ -35,10 +35,20 @@ internal static class ColoredDoorPlmProgramDefinitions
     private const ushort BlueFlashDraw = 0xa9b3;
 
     /// <summary>The three contiguous per-color instruction blobs, in address order.</summary>
-    private enum ColorBlob { Yellow, Green, Red }
+    private enum ColorBlob
+    {
+        /// <summary>$84:BFFD..C184, including yellow orientation-specific sleep and draw variants.</summary>
+        Yellow,
+        /// <summary>$84:C185..C300, four 95-byte green door orientation groups.</summary>
+        Green,
+        /// <summary>$84:C301..C488, four red door groups with hit-sound bytes.</summary>
+        Red,
+    }
 
+    /// <summary>Traverses the contiguous yellow, green, and red instruction ranges in cartridge order.</summary>
     private static readonly ColorBlob[] ColorBlobs = Enum.GetValues<ColorBlob>();
 
+    /// <summary>Finds the final byte that belongs to a color's instruction blob.</summary>
     private static ushort LastByteOf(ColorBlob blob) => blob switch
     {
         ColorBlob.Yellow => YellowEnd,
@@ -55,6 +65,7 @@ internal static class ColoredDoorPlmProgramDefinitions
         return false;
     }
 
+    /// <summary>Combines two decoded bytes into a bank 84 word without crossing a color-blob boundary.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;

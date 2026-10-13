@@ -8,8 +8,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Indexed artwork and ordered compositions for map sprites; palette inheritance retains live animation.</summary>
 public sealed class MapSpriteCatalog
 {
+    /// <summary>Selected map marker, elevator, indicator, and label compositions.</summary>
     private readonly FrameSet frames;
+    /// <summary>Shared 4-bpp map object characters loaded into the current menu's OBJ region.</summary>
     private readonly MapObjectTileArtwork characters;
+    /// <summary>Retains validated compositions and the decoded indexed character atlas.</summary>
     private MapSpriteCatalog(FrameSet frames, MapObjectTileArtwork characters) { this.frames = frames; this.characters = characters; }
     /// <summary>Draws a named map marker, elevator, label, or indicator at a screen-pixel anchor.</summary>
     public void Draw(MapSpriteId id, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
@@ -53,6 +56,7 @@ public sealed class MapSpriteCatalog
         _ => throw new KeyNotFoundException($"The given key '{id}' was not present in the dictionary."),
     };
 
+    /// <summary>Selects the six world-map label compositions, leaving ordinary markers to the frame path.</summary>
     private WorldMapLabelComposition? GetWorldLabel(MapSpriteId id) => id switch
     {
         MapSpriteId.WorldCrateria => frames.WorldCrateria,
@@ -71,6 +75,7 @@ public sealed class MapSpriteCatalog
         _ => throw new InvalidOperationException($"Undefined MapSpriteId {id}."),
     };
 
+    /// <summary>Retains the 26 named compositions in their drawing roles after JSON validation.</summary>
     private sealed record FrameSet(
         SpriteComposition? ArrowRight,
         SpriteComposition? ArrowLeft,
@@ -164,12 +169,18 @@ public static class MapSpriteFormat
 {
     /// <summary>Supported map sprite schema revision.</summary>
     public const int Version = 1;
-    /// <summary>Installed JSON composition and indexed PNG artwork filenames.</summary>
-    public const string JsonFile = "map-sprites.json", PngFile = "map-objects.png";
-    /// <summary>Atlas dimensions in eight-pixel character columns and rows.</summary>
-    public const int TileColumns = 16, TileRows = 16;
-    /// <summary>Atlas dimensions in pixels.</summary>
-    public const int Width = TileColumns * 8, Height = TileRows * 8;
+    /// <summary>JSON composition file for map markers and world labels.</summary>
+    public const string JsonFile = "map-sprites.json";
+    /// <summary>Indexed PNG file for shared map object characters.</summary>
+    public const string PngFile = "map-objects.png";
+    /// <summary>Sixteen eight-pixel character columns in the map object atlas.</summary>
+    public const int TileColumns = 16;
+    /// <summary>Sixteen eight-pixel character rows in the map object atlas.</summary>
+    public const int TileRows = 16;
+    /// <summary>Atlas width derived from its character columns.</summary>
+    public const int Width = TileColumns * 8;
+    /// <summary>Atlas height derived from its character rows.</summary>
+    public const int Height = TileRows * 8;
     /// <summary>Largest supported number of ordered OBJ parts in one composition.</summary>
     public const int MaximumParts = 128;
     /// <summary>$B6:C000 shared menu object characters, transferred to the active menu's OBJ base.</summary>

@@ -11,8 +11,10 @@ using static LookupTubeDrawsVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 
+/// <summary>Checks Noob Tube draw geometry and editable visual tiles through production PLM drawing.</summary>
 internal static class NoobTubePlmDrawDefinitionsVerification
 {
+    /// <summary>Compares seven physical draw lists and checks that an edited tile leaves collision blocks intact.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Noob Tube PLM draw definitions")]
     internal static void VerifyNoobTubePlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -53,6 +55,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
             "  N00b-tube PLM: seven guarded native layouts and editable stock/override appearance preserve physical blocks.");
     }
 
+    /// <summary>Draws one native layout through the guarded PLM path and compares resulting blocks and streamed art.</summary>
     private static void VerifyNoobTubeNativeDrawPath(
         byte[] bank84,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists,
@@ -117,6 +120,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         }
     }
 
+    /// <summary>Checks extracted stock, selected override, stock replacement, and invalid visual documents.</summary>
     private static void VerifyNoobTubeVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("noob-tube-visual");
@@ -174,6 +178,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         }
     }
 
+    /// <summary>Rejects runtime reads of all seven compiled bank 84 draw payload ranges.</summary>
     private static CartridgeReadGuard NewNoobTubeDrawReadGuard(
         ISnesAddressSpace source, RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>
         new CartridgeReadGuard(source).Forbid(address => lists.Any(list =>

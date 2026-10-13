@@ -15,8 +15,10 @@ using SuperMetroid.Core.Spatial;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks file-select slot field destinations and label sources against bank $81 instructions.</summary>
 internal static class FileSelectSlotDestinationsVerification
 {
+    /// <summary>Compares 24 native destinations with typed layouts and extracted text or numeric anchors.</summary>
     internal static void VerifyFileSelectSlotDestinations()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -75,9 +77,11 @@ internal static class FileSelectSlotDestinationsVerification
         }
     }
 
+    /// <summary>Reads native slot destination instructions for the layout comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select slot destinations")]
     private static byte FileSelectSlotDestinationsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks both slot-label load sites use the compiled source and terminal word.</summary>
     private static void VerifyFileSelectSlotLabelSources(SuperMetroid.Core.Hardware.ISnesAddressSpace rom)
     {
         int[][] loadInstructions = [[0x819f13, 0x819f46, 0x819f7c], [0x819636, 0x819666, 0x819696]];
@@ -94,9 +98,11 @@ internal static class FileSelectSlotDestinationsVerification
             AssertThrows<IndexOutOfRangeException>(() => FileSelectTilemaps.SlotLabel(invalid), "slot label source bounds");
     }
 
+    /// <summary>Reads native slot-label source instructions for the layout comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select slot label sources")]
     private static byte FileSelectSlotLabelSourcesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Runs the slot field destination and source verification command.</summary>
     [VerificationCommand("--lookup-file-select-slot-fields")]
     internal static int LookupFileSelectSlotFieldsCommand()
     {

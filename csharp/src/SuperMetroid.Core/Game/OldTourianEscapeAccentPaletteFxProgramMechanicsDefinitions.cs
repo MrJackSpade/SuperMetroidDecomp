@@ -49,10 +49,14 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
     private const ushort RailingsColorByteIndex = (6 * 16 + 9) * sizeof(ushort);
     /// <summary>$8D:FC5F selects $00AA: palette-five/color-five panels.</summary>
     private const ushort PanelsColorByteIndex = (5 * 16 + 5) * sizeof(ushort);
+    /// <summary>Projects the two palette destinations onto their separate but rhythm-matched lists.</summary>
     private static readonly ProgramDefinitions Definitions = new();
+    /// <summary>Enumerates orange railings before yellow panels in definition order.</summary>
     private sealed class ProgramDefinitions : IReadOnlyList<OldTourianEscapeAccentPaletteFxProgramDefinition>
     {
+        /// <summary>The escape accent has separate railing and panel palette-FX definitions.</summary>
         public int Count => 2;
+        /// <summary>Constructs the selected program with its CGRAM byte and bank 8D entry pointer.</summary>
         public OldTourianEscapeAccentPaletteFxProgramDefinition this[int index] => index switch
         {
             (int)OldTourianEscapeAccentPaletteOwner.OrangeRailings => new(OldTourianEscapeAccentPaletteOwner.OrangeRailings,
@@ -61,17 +65,19 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
                 YellowPanelsDefinitionPointer, YellowPanelsProgramStart, PanelsColorByteIndex),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Visits both accent programs in the same order as the owner enum.</summary>
         public IEnumerator<OldTourianEscapeAccentPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Uses the typed program order for nongeneric collection callers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>The orange-railing and yellow-panel programs in definition order.</summary>
     public static IReadOnlyList<OldTourianEscapeAccentPaletteFxProgramDefinition> All =>
         Definitions;
 
-    /// <summary>Resolves one compiled mechanics word across both programs.</summary>
+    /// <summary>Recognizes setup, timed holds, waits, and loop words in both lists while leaving colors live.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
         foreach (OldTourianEscapeAccentPaletteFxProgramDefinition definition in Definitions)
@@ -84,6 +90,7 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
         return false;
     }
 
+    /// <summary>Applies each five-stage pass's authored neutral hold and extra-tick tint phase.</summary>
     internal static ushort Duration(int frame)
     {
         if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
@@ -96,6 +103,7 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete old-Tourian escape accent control program.</summary>
 public sealed class OldTourianEscapeAccentPaletteFxProgramDefinition
 {
+    /// <summary>Records one accent destination and its independent bank 8D setup list.</summary>
     internal OldTourianEscapeAccentPaletteFxProgramDefinition(
         OldTourianEscapeAccentPaletteOwner owner,
         ushort definitionPointer,
@@ -129,7 +137,7 @@ public sealed class OldTourianEscapeAccentPaletteFxProgramDefinition
         OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.FrameCount *
         OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.FrameByteCount));
 
-    /// <summary>Returns one timed-record pointer.</summary>
+    /// <summary>Locates one of fifteen timed records after this entry's color-index setup.</summary>
     public ushort FramePointer(int frame)
     {
         if ((uint)frame >=
@@ -141,7 +149,7 @@ public sealed class OldTourianEscapeAccentPaletteFxProgramDefinition
             OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.FrameByteCount));
     }
 
-    /// <summary>Returns one live BGR555 color word in a timed record.</summary>
+    /// <summary>Locates one of three live BGR555 words immediately after a record's duration.</summary>
     public ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
@@ -151,7 +159,7 @@ public sealed class OldTourianEscapeAccentPaletteFxProgramDefinition
             color * sizeof(ushort)));
     }
 
-    /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
+    /// <summary>Recognizes this list's color-index setup, authored durations, waits, and terminal loop.</summary>
     public bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
         value = pointer switch

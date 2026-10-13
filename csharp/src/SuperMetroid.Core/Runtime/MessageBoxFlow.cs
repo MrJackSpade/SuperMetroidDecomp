@@ -12,21 +12,36 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class MessageBoxFlow
 {
+    /// <summary>Supplies BG1 offset when resumed PLMs publish tilemap updates.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Suppresses pickup and HUD sounds while a Power Bomb explosion is active.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
+    /// <summary>Handles gunship prompts and save-station electricity on accepted saves.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Provides gameplay freeze state for HUD counter refresh after a box closes.</summary>
     private readonly GameplayTimeFreeze _freeze;
+    /// <summary>Refreshes counters and queues uploads when message completion lacks a suspended frame tail.</summary>
     private readonly HudState _hud;
+    /// <summary>Publishes the confirmation choice consumed by save-station and gunship flows.</summary>
     private readonly GameplayMessageBoxState _messageBox;
+    /// <summary>Supplies Samus inventory and state for HUD refresh and suit pickup.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Continues station and collectible PLM lists after their message boxes close.</summary>
     private readonly RoomPlmSystem _plms;
+    /// <summary>Supplies level data, streamer, and camera for resumed PLM drawing.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Starts Varia or Gravity transformation after its suspended PLM resumes.</summary>
     private readonly SamusSuitPickupState _suitPickup;
+    /// <summary>Marks accepted gunship and room station saves in area progression bits.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Receives tilemap updates emitted by resumed message-box PLMs.</summary>
     private readonly SnesVram _vram;
+    /// <summary>Queues HUD graphics when message completion runs outside a suspended frame.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>Provides the active address space for station, collectible, and HUD completion.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Retains the runtime owners needed to resolve message outcomes after NMI-only execution.</summary>
     internal MessageBoxFlow(MessageBoxFlowDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
@@ -44,9 +59,13 @@ internal sealed class MessageBoxFlow
         _vramWrites = dependencies.VramWrites;
         _addressSpace = dependencies.AddressSpace;
     }
+    /// <summary>Suit transformation to start when its item message returns to the PLM.</summary>
     internal SamusSuitPickupKind? _pendingSuitPickup;
+    /// <summary>Station prompt waiting for a yes/no result from message box $17.</summary>
     internal StationActivationEvent? _pendingSaveStation;
+    /// <summary>Station animation to finish after its confirmation message closes.</summary>
     internal StationActivationEvent? _pendingSaveStationCompletion;
+    /// <summary>Confirmed area and station identity awaiting frontend SRAM persistence.</summary>
     private SaveStationPersistenceRequest? _completedSaveStation;
 
     /// <summary>One-frame bank-$85 request for the save selector's library-one sound $37.</summary>
@@ -168,6 +187,7 @@ internal sealed class MessageBoxFlow
         return;
     }
 
+    /// <summary>Entrance-pad sound pending after the suspended gunship prompt returns.</summary>
     private bool _gunshipExitSoundRequested;
 
     /// <summary>

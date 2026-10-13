@@ -61,6 +61,7 @@ internal abstract class CeresBabyInstructionProgramDefinitions
     /// </summary>
     public static int MechanicsWordCount => 43;
 
+    /// <summary>Calculates one of 43 ordered callback, branch, or duration words across both Baby lists.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -99,7 +100,9 @@ internal abstract class CeresBabyInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Eight initial and twelve expressive pose selectors accompany the compiled control words.</summary>
     internal const int SpritemapOperandCount = 20;
+    /// <summary>Twelve expressive palette selectors and one final restoring selector are compiled.</summary>
     internal const int PaletteOperandCount = 13;
 
     /// <summary>Enumerates the twelve expressive and one final palette operands.</summary>
@@ -143,7 +146,7 @@ internal abstract class CeresBabyInstructionProgramDefinitions
             "Ceres Baby has exactly twenty authored spritemap operands."),
     };
 
-    /// <summary>Returns a fixed visual identity without reading bank-$A6 ROM.</summary>
+    /// <summary>Maps each pose operand to the repeating horizontal, round, vertical, round frame cycle.</summary>
     internal static ushort ReadSpritemapOperand(ushort address)
     {
         for (int index = 0; index < SpritemapOperandCount; index++)

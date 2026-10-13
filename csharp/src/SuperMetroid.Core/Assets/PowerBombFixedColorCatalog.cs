@@ -16,9 +16,12 @@ public enum PowerBombFixedColorSequence
 /// <summary>Editable RGB5 colors for Power Bomb, Crystal Flash and Ceres explosions.</summary>
 public sealed class PowerBombFixedColorCatalog
 {
+    /// <summary>Authored pre-explosion colors that differ from the calculated sixteen-entry stock sequence.</summary>
     private readonly Dictionary<int, (byte Red, byte Green, byte Blue)> preExplosion;
+    /// <summary>Authored explosion colors, including later entries without a calculated stock definition.</summary>
     private readonly Dictionary<int, (byte Red, byte Green, byte Blue)> explosion;
 
+    /// <summary>Retains validated component edits separately for the two radius-selected sequences.</summary>
     private PowerBombFixedColorCatalog(
         Dictionary<int, (byte Red, byte Green, byte Blue)> preExplosion,
         Dictionary<int, (byte Red, byte Green, byte Blue)> explosion)
@@ -27,6 +30,7 @@ public sealed class PowerBombFixedColorCatalog
         this.explosion = explosion;
     }
 
+    /// <summary>Writes camel-case resource JSON while rejecting unmapped members during load.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -89,6 +93,7 @@ public sealed class PowerBombFixedColorCatalog
         throw new InvalidDataException("Power Bomb color has neither supplied content nor a calculated definition.");
     }
 
+    /// <summary>Checks RGB5 channels and keeps entries that differ from the calculated stock sequence.</summary>
     private static Dictionary<int, (byte Red, byte Green, byte Blue)> Compile(
         PaletteRgb5[]? source, int count, PowerBombFixedColorSequence sequence, string name)
     {
@@ -108,6 +113,7 @@ public sealed class PowerBombFixedColorCatalog
         return colors;
     }
 
+    /// <summary>Rejects duplicate JSON properties before deserialization can hide a supplied color.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Power Bomb fixed-color property {name}."));

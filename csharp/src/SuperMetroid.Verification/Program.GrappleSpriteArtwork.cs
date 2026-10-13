@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static GraphDigestVerification;
 
+/// <summary>Checks Grapple endpoint and rope OBJ attributes as editable art independent of mechanics.</summary>
 internal static class GrappleSpriteArtworkVerification
 {
+    /// <summary>Compares native OAM across angles and animation ticks, then isolates tile and palette edits.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple endpoint and segment OBJ attributes")]
     internal static void VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace bus)
@@ -103,6 +105,7 @@ internal static class GrappleSpriteArtworkVerification
         }
     }
 
+    /// <summary>Runs the Grapple sprite-artwork verification command with the retail cartridge.</summary>
     [VerificationCommand("--grapple-sprite-artwork")]
     internal static int GrappleSpriteArtworkCommand()
     {

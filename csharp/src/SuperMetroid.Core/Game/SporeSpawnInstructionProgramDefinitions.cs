@@ -29,7 +29,6 @@ internal abstract class SporeSpawnInstructionProgramDefinitions
     /// <summary><c>$A5:E77D</c>, complete death and hardening program.</summary>
     internal const ushort Death = 0xe77d;
 
-    /// <summary>Number of mechanics words compiled from the five native programs.</summary>
     /// <summary><c>InstList_SporeSpawn_OpenAndStop_0</c> at $A5:E6E3.</summary>
     private const ushort SpawnOpenAndStop0 = 0xe6e3;
     /// <summary><c>InstList_SporeSpawn_OpenAndStop_1</c> at $A5:E715.</summary>
@@ -76,6 +75,7 @@ internal abstract class SporeSpawnInstructionProgramDefinitions
     /// <summary>Native program bank $A5.</summary>
     internal const byte Bank = 0xa5;
 
+    /// <summary>Five compiled bank-$A5 programs covering descent, combat motion, and death while leaving visual selectors to the presentation catalog.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe6b9),
         Entry(InitialDead),

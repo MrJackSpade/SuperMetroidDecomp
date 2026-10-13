@@ -5,15 +5,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static FrontendRomFreeVerification;
 
+/// <summary>Checks Draygon's empty OAM collision frames without claiming Spore Spawn's bank $A5 frames.</summary>
 internal static class EnemyTileArtworkDraygonOamCollisionVerification
 {
+    /// <summary>
+    /// Checks native zero-hitbox components and guarded shot and touch lookup. Version 6 grouped
+    /// 60 bank $A5 roots under Draygon, but the final twelve belong to Spore Spawn and must be excluded.
+    /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Draygon OAM collision")]
     internal static void VerifyCompiledDraygonOamCollision(
         SuperMetroidAddressSpace rom)
     {
-        // Version 6 grouped all 60 selected bank-$A5 OAM roots under a
-        // Draygon key. The final twelve are selected by Spore Spawn's program;
-        // never broaden Draygon's empty-list shortcut to a different enemy.
         var sporePointers = new HashSet<ushort>();
         for (int index = 0;
              index < SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordCount;

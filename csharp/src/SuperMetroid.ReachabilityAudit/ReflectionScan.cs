@@ -7,6 +7,7 @@ namespace SuperMetroid.ReachabilityAudit;
 /// <summary>A reflection lookup site, formatted as repository file, line and source text.</summary>
 internal sealed record ReflectionSite(string File, int Line, string Text)
 {
+    /// <summary>Formats a lookup site as a tab-separated path, line, and compact source expression.</summary>
     public override string ToString() => $"{File}\t{Line}\t{Text}";
 }
 
@@ -18,17 +19,22 @@ internal sealed record ReflectionSite(string File, int Line, string Text)
 /// </summary>
 internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph graph)
 {
+    /// <summary>Single-member Type reflection APIs whose string argument can name a graph target.</summary>
     private static readonly HashSet<string> NamedLookups =
         ["GetMethod", "GetProperty", "GetField", "GetConstructor", "GetMember", "GetEvent", "GetNestedType"];
+    /// <summary>Type reflection APIs that can reach all members of one declaration kind.</summary>
     private static readonly HashSet<string> Enumerations =
         ["GetMethods", "GetProperties", "GetFields", "GetConstructors", "GetMembers", "GetEvents", "GetNestedTypes"];
 
+    /// <summary>Lookup calls whose target name or receiver cannot be fully proven from local constants.</summary>
     public HashSet<ReflectionSite> UnresolvedSites { get; } = [];
+    /// <summary>Member enumeration calls for which the receiving Type cannot be identified.</summary>
     public HashSet<ReflectionSite> EnumerationSites { get; } = [];
 
     /// <summary>Identifier literals near lookups whose receiver type is unknown.</summary>
     public HashSet<(string Name, ReflectionSite Site)> CandidateNames { get; } = [];
 
+    /// <summary>Adds reachability edges for statically resolved Type and Activator calls and records dynamic lookups for later resolution.</summary>
     public void ObserveInvocation(SemanticModel model, InvocationExpressionSyntax invocation, IMethodSymbol method, string owner)
     {
         string container = method.ContainingType.ToDisplayString();
@@ -126,15 +132,20 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
         }
     }
 
+    /// <summary>Deferred reflection call with candidate strings from its containing body or callers.</summary>
     private sealed record ComputedLookup(INamedTypeSymbol? Receiver, HashSet<string> Literals, IParameterSymbol? NameParameter,
         ReflectionSite Site, string Owner);
 
+    /// <summary>Dynamic lookups awaiting constants gathered from all repository call sites.</summary>
     private readonly List<ComputedLookup> computedLookups = [];
+    /// <summary>Constant strings passed to repository helper parameters that may feed reflection names.</summary>
     private readonly HashSet<(string Parameter, string Value)> callerConstants = [];
 
+    /// <summary>Identifies a helper parameter by original method signature and ordinal across call sites.</summary>
     private static string ParameterKey(IParameterSymbol parameter) =>
         $"{parameter.ContainingSymbol.OriginalDefinition.ToDisplayString()}#{parameter.Ordinal}";
 
+    /// <summary>Walks a type and its bases, selecting the member kinds exposed by one Type enumeration API.</summary>
     private static IEnumerable<ISymbol> EnumeratedMembers(INamedTypeSymbol type, string enumeration)
     {
         for (INamedTypeSymbol? current = type; current is not null; current = current.BaseType)
@@ -152,6 +163,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
                     yield return member;
     }
 
+    /// <summary>Finds explicit members with a reflection name on the receiver and its base types.</summary>
     private static IEnumerable<ISymbol> MembersNamed(INamedTypeSymbol type, string name)
     {
         for (INamedTypeSymbol? current = type; current is not null; current = current.BaseType)
@@ -167,6 +179,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
             ? model.GetTypeInfo(getType.Expression).Type as INamedTypeSymbol
         : null;
 
+    /// <summary>Collects identifier-shaped string literals from the lookup's nearest method, accessor, or property body.</summary>
     private static HashSet<string> EnclosingLiterals(SyntaxNode node)
     {
         var scope = node.Ancestors().FirstOrDefault(a => a is BaseMethodDeclarationSyntax or AccessorDeclarationSyntax
@@ -176,6 +189,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
             .Select(l => l.Token.ValueText).ToHashSet();
     }
 
+    /// <summary>Captures a repository-relative path, one-based line, and compact source text for a lookup.</summary>
     private ReflectionSite Site(SyntaxNode node) => new(identity.Relative(node.SyntaxTree.FilePath),
         node.GetLocation().GetLineSpan().StartLinePosition.Line + 1,
         string.Join(' ', node.ToString().Split(['\r', '\n', '\t'], StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim())));

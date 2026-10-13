@@ -14,8 +14,10 @@ using SuperMetroid.Core.Game;
 using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks the file-select swoosh request and audible PCM through isolated and full frontend paths.</summary>
 internal static class FileSelectSoundVerification
 {
+    /// <summary>Checks the driver's delayed acknowledgement and audible output, then both save and accept routes.</summary>
     internal static void VerifyFileSelectSound()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -48,6 +50,7 @@ internal static class FileSelectSoundVerification
             VerifyFullFrontendFileSelectSound(existingSave, accept);
     }
 
+    /// <summary>Compares captured PCM with the swoosh suppressed for one save state and accept button.</summary>
     private static void VerifyFullFrontendFileSelectSound(bool existingSave, SnesButton accept)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -95,6 +98,7 @@ internal static class FileSelectSoundVerification
         Console.WriteLine($"Full frontend existing={existingSave} accept={accept}: {writes} requests at tick {firstSoundTick}; PCM begins {firstDifferenceTick}; {differentSamples} samples differ.");
     }
 
+    /// <summary>Runs the file-select sound verification command.</summary>
     [VerificationCommand("--file-select-sound")]
     internal static int FileSelectSoundCommand()
     {

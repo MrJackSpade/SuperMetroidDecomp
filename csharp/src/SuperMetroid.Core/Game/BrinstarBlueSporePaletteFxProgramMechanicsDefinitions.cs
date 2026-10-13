@@ -25,25 +25,32 @@ public enum BrinstarBlueSporePaletteOwner
 /// </remarks>
 public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
 {
+    /// <summary>The ordinary Brinstar entry without a boss-death pre-instruction.</summary>
     private static readonly BrinstarBlueSporePaletteFxProgramDefinition Standard =
         new(BrinstarBlueSporePaletteOwner.StandardRooms);
+    /// <summary>The Spore Spawn entry that deletes itself after the area's mini-boss dies.</summary>
     private static readonly BrinstarBlueSporePaletteFxProgramDefinition SporeSpawn =
         new(BrinstarBlueSporePaletteOwner.SporeSpawnRoom);
 
+    /// <summary>Exposes both room owners in their native definition order.</summary>
     private sealed class ProgramOwners : IReadOnlyList<BrinstarBlueSporePaletteFxProgramDefinition>
     {
+        /// <summary>Ordinary Brinstar and Spore Spawn have separate entry lists.</summary>
         public int Count => 2;
+        /// <summary>Maps zero to the standard loop and one to the mini-boss-aware variant.</summary>
         public BrinstarBlueSporePaletteFxProgramDefinition this[int index] => index switch
         {
             0 => Standard,
             1 => SporeSpawn,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Visits the standard loop before the Spore Spawn variant.</summary>
         public IEnumerator<BrinstarBlueSporePaletteFxProgramDefinition> GetEnumerator()
         {
             yield return Standard;
             yield return SporeSpawn;
         }
+        /// <summary>Uses the same definition order for nongeneric collection callers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Fourteen ten-frame records form one complete spore-color cycle.</summary>
@@ -61,7 +68,7 @@ public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
     /// <summary>The standard-room and Spore Spawn variants in definition order.</summary>
     public static IReadOnlyList<BrinstarBlueSporePaletteFxProgramDefinition> All { get; } = new ProgramOwners();
 
-    /// <summary>Resolves one compiled mechanics word across both blue-spore programs.</summary>
+    /// <summary>Tries both entry lists for setup, duration, wait, and loop words while excluding live color payloads.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
         if (Standard.TryReadMechanicsWord(pointer, out value) ||
@@ -75,6 +82,7 @@ public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
 /// <summary>One room-specific entry into the fourteen-frame blue-spore palette loop.</summary>
 public sealed class BrinstarBlueSporePaletteFxProgramDefinition
 {
+    /// <summary>Restricts entries to the two room families that share the blue-spore colors.</summary>
     internal BrinstarBlueSporePaletteFxProgramDefinition(BrinstarBlueSporePaletteOwner owner)
     {
         if (owner is not (BrinstarBlueSporePaletteOwner.StandardRooms or BrinstarBlueSporePaletteOwner.SporeSpawnRoom))
@@ -98,7 +106,7 @@ public sealed class BrinstarBlueSporePaletteFxProgramDefinition
 
     /// <summary>The Spore Spawn room installs the area-mini-boss death callback at $8D:EE2D.</summary>
     public bool DeletesWithAreaMiniBoss => Owner == BrinstarBlueSporePaletteOwner.SporeSpawnRoom;
-    /// <summary>Returns one timed-record pointer.</summary>
+    /// <summary>Locates one of fourteen ten-byte timed records after this owner's setup words.</summary>
     public ushort FramePointer(int frame)
     {
         if ((uint)frame >= BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount)
@@ -107,7 +115,7 @@ public sealed class BrinstarBlueSporePaletteFxProgramDefinition
             frame * BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameByteCount));
     }
 
-    /// <summary>Returns one contiguous presentation-color address within a frame.</summary>
+    /// <summary>Locates one of three live BGR555 words immediately after a record's duration.</summary>
     /// <remarks>
     /// Both native lists contain identical presentation colors for frame f=0..13
     /// and color c=0..2, at FirstFramePointer + 10*f + 2 + 2*c.

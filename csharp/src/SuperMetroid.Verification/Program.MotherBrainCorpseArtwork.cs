@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Mother Brain corpse PNG import, VRAM transfers, and rotting buffer setup against native graphics.</summary>
 internal static class MotherBrainCorpseArtworkVerification
 {
+    /// <summary>Extracts the retail corpse sheet and runs its installation and edit checks from a validated stock catalog.</summary>
     internal static void VerifyMotherBrainCorpseStockArtwork()
     {
         using var temporary = new TestScratchDirectory("map-catalog");
@@ -25,12 +27,14 @@ internal static class MotherBrainCorpseArtworkVerification
         Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(temporary.Root, EnemyTileArtworkFiles.Load(temporary.Root, null)));
     }
 
+    /// <summary>Reads the banked native corpse character sheet solely as a verification oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain corpse character sheet")]
     private static byte[] ReadNativeMotherBrainCorpseArtwork(CartridgeImportAddressSpace rom) =>
         RomDataReader.ReadFixedBank(rom,
             MotherBrainCorpseArtworkDefinitions.SourceAddress,
             MotherBrainCorpseArtworkDefinitions.ByteCount);
 
+    /// <summary>Compares six installed VRAM pages and corpse staging with native bytes, then checks one PNG pixel edit and reload.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyInstalledMotherBrainCorpseArtwork(
         string directory, EnemyTileArtworkCatalog stock)
@@ -134,6 +138,7 @@ internal static class MotherBrainCorpseArtworkVerification
         Console.WriteLine("  Mother Brain corpse art: indexed PNG import parity, six RAM-only sprite VRAM pages, independent staging oracle, room/sequence staging, edit/reload and invalid override pass.");
     }
 
+    /// <summary>Routes all corpse page requests through the production encounter into cartridge-free VRAM.</summary>
     private static SnesVram TransferMotherBrainCorpsePages(
         EnemyTileArtworkCatalog artwork, ISnesAddressSpace bus)
     {
@@ -154,9 +159,11 @@ internal static class MotherBrainCorpseArtworkVerification
         return vram;
     }
 
+    /// <summary>Exposes the corpse tile staging range in enemy scratch WRAM for byte comparisons.</summary>
     private static WorkRamByteTable MotherBrainCorpseTiles(ISnesMemoryBus bus) =>
         new EnemyScratchMemory(bus).MotherBrainCorpseTiles;
 
+    /// <summary>Compares the staged graphics buffer and all rotting-table entries with an independent native copy.</summary>
     private static void AssertMotherBrainCorpseBufferParity(
         SuperMetroidAddressSpace expected, SuperMetroidAddressSpace actual)
     {
@@ -170,6 +177,7 @@ internal static class MotherBrainCorpseArtworkVerification
                 MotherBrainCorpseRottingState.ReadEntry(actual, index), "installed native rot-table initialization");
     }
 
+    /// <summary>Runs the installed Mother Brain corpse artwork verification command.</summary>
     [VerificationCommand("--mother-brain-corpse-stock-artwork")]
     internal static int MotherBrainCorpseStockArtworkCommand()
     {

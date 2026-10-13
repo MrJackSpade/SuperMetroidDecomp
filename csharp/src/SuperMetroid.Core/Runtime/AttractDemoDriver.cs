@@ -11,19 +11,32 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class AttractDemoDriver
 {
+    /// <summary>Installs the selected Samus palette before demo room graphics are loaded.</summary>
     private readonly RuntimeArtwork _artwork;
+    /// <summary>Owns the scripted input and the temporary controller substitution scope.</summary>
     private readonly AttractDemoSession _attractSession;
+    /// <summary>Receives the demo Samus suit palette during scene setup.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Player controller replaced by demo input only during Samus updates.</summary>
     private readonly ControllerInputState _controller1;
+    /// <summary>Supplies Kraid's scene-specific function timer setup.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Builds the initial HUD from the demo record's health and ammunition.</summary>
     private readonly GameplayHudSetup _hudSetup;
+    /// <summary>Publishes initial HUD graphics before loading the demo room.</summary>
     private readonly NmiHandler _nmiHandler;
+    /// <summary>Receives Samus state and the selected demo pose or shinespark launch.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Holds demo room viewport, camera scrolls, and load-station state.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Loads the recorded room and door independently using the demo camera position.</summary>
     private readonly RoomLoader _roomLoader;
+    /// <summary>Seeds demo progression bits without reading or writing a player save.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Provides pose setup, palette initialization, and animation data during demo setup.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Retains the runtime owners used to initialize and advance attract scenes.</summary>
     internal AttractDemoDriver(AttractDemoDriverDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
@@ -39,8 +52,10 @@ internal sealed class AttractDemoDriver
         _system = dependencies.System;
         _addressSpace = dependencies.AddressSpace;
     }
+    /// <summary>Reflects whether the current session is substituting an attract demo for gameplay.</summary>
     internal bool IsAttractDemo => _attractSession.IsAttractDemo;
 
+    /// <summary>Advances the recorded input and temporarily substitutes its held and new button edges.</summary>
     internal void BeginAttractSamusInput()
     {
         if (_attractSession.Input is null) return;
@@ -51,6 +66,7 @@ internal sealed class AttractDemoDriver
             _attractSession.Input.Script.Held, _attractSession.Input.Script.NewlyPressed);
     }
 
+    /// <summary>Disposes the demo input scope so the player's controller is restored after Samus updates.</summary>
     internal void RestoreAttractPlayerInput()
     {
         _attractSession.InputRestore?.Dispose();
@@ -114,6 +130,7 @@ internal sealed class AttractDemoDriver
         _attractSession.Input = new AttractDemoInput(scene);
     }
 
+    /// <summary>Applies the recorded entry pose, low-health adjustment, or demo shinespark launch.</summary>
     private void ApplyAttractSamusSetup(AttractDemoSamusSetup pointer)
     {
         var samus = _player.Samus ?? throw new InvalidOperationException("Demo setup requires Samus.");
@@ -148,6 +165,7 @@ internal sealed class AttractDemoDriver
         }
     }
 
+    /// <summary>Applies scene-specific scroll, sky-owner, Kraid timer, or defeated-boss setup.</summary>
     private void ApplyAttractRoomSetup(AttractDemoRoomSetup pointer)
     {
         switch (pointer)

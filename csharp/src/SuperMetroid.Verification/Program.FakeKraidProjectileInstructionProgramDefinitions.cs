@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static FakeKraidProjectileProgramMappingsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Fake Kraid spit and spike instruction programs against retail words and live projectile execution.</summary>
 internal static class FakeKraidProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the Fake Kraid projectile mechanics verification suite.</summary>
     internal static void VerifyFakeKraidProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFakeKraidProjectileInstructionProgramDefinitions), () => VerifyFakeKraidProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises all three real projectile producers through frame selection, terminal sleep, and shared deletion while guarding compiled mechanics bytes.</summary>
     internal static void VerifyFakeKraidProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -146,6 +149,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         }
     }
 
+    /// <summary>Repeatedly reads the compiled spit and spike words to confirm warmed mechanics lookups allocate no memory.</summary>
     private static int ProbeFakeKraidProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -159,12 +163,14 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         return checksum;
     }
 
+    /// <summary>Reads one bank-$86 projectile program word from the retail ROM as an exact verification oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid projectile instruction words")]
     internal static ushort ReadFakeKraidProjectileInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
 
+    /// <summary>Runs the Fake Kraid projectile instruction mechanics command and returns its suite status.</summary>
     [VerificationCommand("--fake-kraid-projectile-instruction-mechanics")]
     internal static int FakeKraidProjectileInstructionMechanicsCommand()
     {

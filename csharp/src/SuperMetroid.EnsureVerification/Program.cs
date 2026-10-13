@@ -12,8 +12,10 @@ using static SuperMetroid.EnsureVerification.WordReadAnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
+/// <summary>Runs focused Ensure API, analyzer, code-fix, and palette FX contract checks.</summary>
 internal static class Program
 {
+    /// <summary>Installs the no-dialog process boundary and runs either the full suite or palette FX contract.</summary>
     private static int Main(string[] args)
     {
         try
@@ -53,6 +55,7 @@ internal static class Program
         }
     }
 
+    /// <summary>Checks Ensure return values, parameter names, bounds, and span length rejection.</summary>
     private static void VerifyEnsure()
     {
         string? text = "okay";
@@ -80,12 +83,14 @@ internal static class Program
         }
     }
 
+    /// <summary>Fails the verification fixture when two values differ under default equality.</summary>
     private static void Equal<T>(T expected, T actual)
     {
         if (!EqualityComparer<T>.Default.Equals(expected, actual))
             throw new InvalidOperationException($"Expected {expected}, got {actual}.");
     }
 
+    /// <summary>Requires an exact argument exception type, parameter name, and optional message detail.</summary>
     private static void Throws<T>(Action action, string parameterName, string? messageFragment = null) where T : ArgumentException
     {
         try
@@ -104,8 +109,10 @@ internal static class Program
     }
 }
 
+/// <summary>Windows process-error policy used before verifier work can fail.</summary>
 internal static partial class NativeConsoleProcess
 {
+    /// <summary>Suppresses Windows process error dialogs so failures reach the console boundary.</summary>
     [LibraryImport("kernel32.dll")]
     internal static partial uint SetErrorMode(uint errorMode);
 }

@@ -13,6 +13,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using static RetailGameFixtureVerification;
 
+/// <summary>Compares the 13% movie's intro dispatch timeline and Samus scene state with a native bsnes capture.</summary>
 internal static class LowPercentIntroTimelineVerification
 {
     /// <summary>
@@ -164,6 +165,7 @@ internal static class LowPercentIntroTimelineVerification
         }
     }
 
+    /// <summary>Runs the captured 7,742-update intro timeline through the verification command.</summary>
     [VerificationCommand("--low-percent-intro-timeline")]
     internal static int LowPercentIntroTimelineCommand()
     {

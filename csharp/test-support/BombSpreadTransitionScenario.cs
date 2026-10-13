@@ -12,20 +12,28 @@ using SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class BombSpreadTransitionScenario
 {
+    /// <summary>Column order shared by the verifier and debug-runner input traces.</summary>
     internal const string TraceHeader = "left,delay,frame,input,pose,x,xsub,y,ysub,charge,spread,bombs";
 
+    /// <summary>Whether the scenario begins facing left.</summary>
     internal bool Left { get; }
+    /// <summary>Whether the charged walljump route supplies the aerial morph.</summary>
     internal bool WallRoute { get; }
+    /// <summary>Index selecting release, morph, or negative-control timing.</summary>
     internal int TimingCase { get; }
     /// <summary>Frames the timed release or morph is late; wall cases 10..13 are the 40..43 controls.</summary>
     internal int Delay { get; }
+    /// <summary>Production gameplay runtime stepped by the scenario.</summary>
     internal SuperMetroidRuntime Runtime { get; }
+    /// <summary>Samus state owned by the scenario runtime.</summary>
     internal SamusState Samus => Runtime.Player.Samus!;
+    /// <summary>Number of updates recorded for the aerial or walljump route.</summary>
     internal int FrameCount => WallRoute ? 300 : 260;
 
     /// <summary>Timing cases per direction: ten delays, plus the wall route's late-success and two negative controls.</summary>
     internal static int TimingCaseCount(bool wallRoute) => wallRoute ? 14 : 10;
 
+    /// <summary>Clears a bounded Landing Site fixture and equips Samus for an input-earned charged spread.</summary>
     internal BombSpreadTransitionScenario(SuperMetroidRuntime runtime, ISnesAddressSpace bus, bool left, int timingCase, bool wallRoute)
     {
         (Runtime, Left, TimingCase, WallRoute) = (runtime, left, timingCase, wallRoute);

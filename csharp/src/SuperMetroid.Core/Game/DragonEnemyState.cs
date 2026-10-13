@@ -32,11 +32,16 @@ public enum DragonEnemyFunction : ushort
 /// </summary>
 public sealed class DragonEnemyState
 {
+    /// <summary>Enemy slot whose ordinary variables hold Dragon's current function and counters.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Extended per-slot animation list requests.</summary>
     private readonly ushort[] _requestedInstructionLists;
+    /// <summary>Extended per-slot list indices already installed in the interpreter.</summary>
     private readonly ushort[] _installedInstructionLists;
+    /// <summary>Extended per-slot completion flags written by Dragon animation instructions.</summary>
     private readonly ushort[] _animationFinishedFlags;
 
+    /// <summary>Binds the ordinary enemy slot to its three extended animation-word arrays.</summary>
     internal DragonEnemyState(
         RoomEnemySlot slot,
         ushort[] requestedInstructionLists,

@@ -13,15 +13,24 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresBabyPaintDefinitions
 {
+    /// <summary>Maximum value of a five-bit RGB channel.</summary>
     private const int Maximum = (1 << 5) - 1;
+    /// <summary>Per-pose increase applied to the Baby/container paint channels.</summary>
     private const int BrightnessStep = 3;
+    /// <summary>Shared Ceres Ridley body paint used for Baby source colors.</summary>
     private readonly CeresRidleyFadeColorDefinitions? body;
+    /// <summary>Standalone Norfair body paint when no Ceres fade owner is present.</summary>
     private readonly CeresRidleyBodyPaintDefinitions? standaloneBody;
+    /// <summary>Number of preserved palette rows, four for Ceres or one for Norfair.</summary>
     private readonly int rowCount;
+    /// <summary>Independent glass-channel inputs retained from the supplied first row.</summary>
     private readonly int glassRed, glassBlue, glassMiddleRed, glassGreenStep;
+    /// <summary>Independent dome and outline inputs retained from the supplied first row.</summary>
     private readonly int domeTint, domeGreen, domeShadeStep, outlineRed;
+    /// <summary>Supplied colors that depart from the calculated material composition.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Matches four Ceres pose rows to shared body paint while preserving independent color edits.</summary>
     internal CeresBabyPaintDefinitions(Bgr555[][] rows, CeresRidleyFadeColorDefinitions body)
         : this(rows[0], 4)
     {
@@ -40,6 +49,7 @@ internal sealed class CeresBabyPaintDefinitions
             if (Calculate(0, color) != initial[color]) edits.Add(color, initial[color]);
     }
 
+    /// <summary>Extracts glass, dome, and outline material inputs from a fifteen-color source row.</summary>
     private CeresBabyPaintDefinitions(ReadOnlySpan<Bgr555> initial, int rowCount)
     {
         if (initial.Length != 15) throw new ArgumentException("Baby paint requires fifteen colors.", nameof(initial));
@@ -50,6 +60,7 @@ internal sealed class CeresBabyPaintDefinitions
         domeShadeStep = domeGreen - initial[2].Green; outlineRed = initial[8].Red;
     }
 
+    /// <summary>Returns an edited color when supplied, otherwise the calculated row and material color.</summary>
     internal Bgr555 Resolve(int row, int color)
     {
         if ((uint)row >= rowCount) throw new ArgumentOutOfRangeException(nameof(row));
@@ -57,6 +68,7 @@ internal sealed class CeresBabyPaintDefinitions
         return edits.TryGetValue(row * 15 + color, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
+    /// <summary>Applies clipped pose brightening with delayed red for the tooth pulse.</summary>
     private Bgr555 Calculate(int row, int color)
     {
         Bgr555 basis = Initial(color);
@@ -74,6 +86,7 @@ internal sealed class CeresBabyPaintDefinitions
         return Bgr555.Saturating(basis.Red + redAddition, green, blue);
     }
 
+    /// <summary>Constructs a base Baby/container color from glass, dome, body, or fang inputs.</summary>
     private Bgr555 Initial(int color) => color switch
     {
         0 => Pack(glassRed, Maximum, glassBlue),
@@ -90,7 +103,9 @@ internal sealed class CeresBabyPaintDefinitions
         _ => Pack(0, Maximum - 2 * glassGreenStep, Maximum - 2 * glassGreenStep),
     };
 
+    /// <summary>Resolves shared body paint from the Ceres fade or standalone Norfair composition.</summary>
     private Bgr555 BodyColor(int color) => body is not null ? body.Resolve(15, color) : standaloneBody!.Color(color);
 
+    /// <summary>Clips calculated material channel values into RGB5 color space.</summary>
     private static Bgr555 Pack(int red, int green, int blue) => Bgr555.Saturating(red, green, blue);
 }

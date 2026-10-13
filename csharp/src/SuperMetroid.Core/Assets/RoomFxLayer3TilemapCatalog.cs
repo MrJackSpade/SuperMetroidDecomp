@@ -9,10 +9,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable BG3 tile references for the six cartridge room-FX pages.</summary>
 public sealed class RoomFxLayer3TilemapCatalog
 {
+    /// <summary>Edited liquid transfer bytes; null selects the stock layout formula for that effect.</summary>
     private readonly byte[]? lava, acid, water;
+    /// <summary>Compressed representation of the authored spore page.</summary>
     private readonly RoomFxSporeTilemap spores;
+    /// <summary>Representations of the rain and fog atmosphere pages.</summary>
     private readonly RoomFxAtmosphereTilemap rain, fog;
 
+    /// <summary>Retains edited liquid payloads while replacing exact stock pages with their calculated forms.</summary>
     private RoomFxLayer3TilemapCatalog(byte[] lava, byte[] acid, byte[] water,
         byte[] spores, byte[] rain, byte[] fog)
     {
@@ -94,6 +98,7 @@ public sealed class RoomFxLayer3TilemapCatalog
         _ => throw new InvalidDataException($"Room-FX BG3 tilemap {type} is not an authored page."),
     };
 
+    /// <summary>Uses camel-case editable fields, rejects unknown properties, and writes readable page documents.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -137,9 +142,12 @@ public static class RoomFxLayer3TilemapFormat
     /// </summary>
     public static IReadOnlyList<RoomFxType> Types { get; } = new CalculatedTypes();
 
+    /// <summary>Exposes the six native room-FX page identities in transfer order without storing an array.</summary>
     private sealed class CalculatedTypes : IReadOnlyList<RoomFxType>
     {
+        /// <summary>Six FX types own authored BG3 pages; the statue effect aliases water.</summary>
         public int Count => 6;
+        /// <summary>Maps a transfer-page index to its lava-through-fog effect type.</summary>
         public RoomFxType this[int index] => index switch
         {
             0 => RoomFxType.Lava,
@@ -151,11 +159,13 @@ public static class RoomFxLayer3TilemapFormat
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
 
+        /// <summary>Walks the six page identities in their bank-$8A transfer order.</summary>
         public IEnumerator<RoomFxType> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
 
+        /// <summary>Provides the same ordered page traversal through the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

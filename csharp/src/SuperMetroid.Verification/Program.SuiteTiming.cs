@@ -1,5 +1,6 @@
 using System.Diagnostics;
 
+/// <summary>Measures named verification suites, reports failures, and tracks time and allocation budgets.</summary>
 internal static class SuiteTimingVerification
 {
     /// <summary>Suites slower than this are logged as needing to be broken down. Reporting only.</summary>
@@ -8,10 +9,11 @@ internal static class SuiteTimingVerification
     /// <summary>A flag whose peak working set, or a suite whose allocation, exceeds this is marked over budget.</summary>
     internal const long MemoryBudgetBytes = 1L << 30;
 
+    /// <summary>Current nesting level used for failure handling and indented timing output.</summary>
     private static int suiteDepth;
-    // Elapsed time of suites nested directly inside each open suite, so a bundle's own work
-    // (its self time) can be told apart from the sum of the suites it runs.
+    /// <summary>Elapsed child-suite time subtracted from each enclosing suite's self time.</summary>
     private static readonly Stack<TimeSpan> nestedSuiteTime = new();
+    /// <summary>Child-suite allocations subtracted from each enclosing suite's self allocation.</summary>
     private static readonly Stack<long> nestedSuiteAllocation = new();
 
     /// <summary>Outermost suites that failed during this run, in the order they failed.</summary>
@@ -70,7 +72,9 @@ internal static class SuiteTimingVerification
         return $"peak {peak / (1024.0 * 1024.0):0} MB" + (peak > MemoryBudgetBytes ? "  [over 1 GB: reduce]" : "");
     }
 
+    /// <summary>Measures elapsed time since the last diagnostic checkpoint.</summary>
     private static readonly Stopwatch checkpointWatch = Stopwatch.StartNew();
+    /// <summary>Allocation counter saved at the previous diagnostic checkpoint.</summary>
     private static long checkpointAllocated;
 
     /// <summary>

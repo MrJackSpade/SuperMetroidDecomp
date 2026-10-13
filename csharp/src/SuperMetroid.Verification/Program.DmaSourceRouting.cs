@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks typed DMA source routing across cartridge, WRAM, SRAM, and unmapped regions.</summary>
 internal static class DmaSourceRoutingVerification
 {
     /// <summary>
@@ -49,43 +50,58 @@ internal static class DmaSourceRoutingVerification
         Console.WriteLine("  PPU DMA sources: runtime rejects ROM, importer resolves ROM/WRAM wrap, and SRAM uses typed routes.");
     }
 
+    /// <summary>Sparse region stores and read counters reveal which source API each PPU transfer uses.</summary>
     [CpuBusBoundary("exact bus test: sparse per-region store whose read counters witness PPU DMA source routing")]
     internal sealed class DmaReadRoutingBus : ISnesMemoryBus,
         IImportCartridgeSource
     {
+        /// <summary>Cartridge bytes available only to import-time palette transfer.</summary>
         private readonly Dictionary<int, byte> cartridge = [];
+        /// <summary>Work RAM bytes supplied through typed mutable-memory reads.</summary>
         private readonly Dictionary<int, byte> workRam = [];
+        /// <summary>Save RAM bytes supplied through typed mutable-memory reads.</summary>
         private readonly Dictionary<int, byte> saveRam = [];
 
+        /// <summary>Counts cartridge reads made by the palette importer.</summary>
         internal int CartridgeReads { get; private set; }
+        /// <summary>Counts work RAM reads made by the transfer paths.</summary>
         internal int WorkRamReads { get; private set; }
+        /// <summary>Counts save RAM reads made by the transfer paths.</summary>
         internal int SaveRamReads { get; private set; }
 
+        /// <summary>Sets a cartridge source byte for an import-time DMA scenario.</summary>
         internal void SetCartridge(int address, byte value) => cartridge.Add(address, value);
+        /// <summary>Sets a work RAM source byte for a runtime DMA scenario.</summary>
         internal void SetWorkRam(int address, byte value) => workRam.Add(address, value);
+        /// <summary>Sets a save RAM source byte for a DMA scenario.</summary>
         internal void SetSaveRam(int address, byte value) => saveRam.Add(address, value);
 
+        /// <summary>Fails if a PPU path bypasses the typed cartridge or mutable-memory route.</summary>
         public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"PPU DMA used an untyped CPU read at ${address:X6}.");
 
+        /// <summary>Returns a cartridge byte and records import-time source access.</summary>
         public byte ReadCartridgeByte(int address)
         {
             CartridgeReads++;
             return cartridge[address];
         }
 
+        /// <summary>Returns a work RAM byte and records mutable-memory source access.</summary>
         public byte ReadWorkRamByte(int address)
         {
             WorkRamReads++;
             return workRam[address];
         }
 
+        /// <summary>Returns a save RAM byte and records mutable-memory source access.</summary>
         public byte ReadSaveRamByte(int address)
         {
             SaveRamReads++;
             return saveRam[address];
         }
 
+        /// <summary>Rejects writes because the routing witness only supplies DMA source bytes.</summary>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(
             "The PPU DMA routing fixture is read-only.");
     }

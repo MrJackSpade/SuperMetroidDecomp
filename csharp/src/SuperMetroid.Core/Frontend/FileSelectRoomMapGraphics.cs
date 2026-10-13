@@ -11,14 +11,19 @@ namespace SuperMetroid.Core.Frontend;
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
 public sealed class FileSelectRoomMapGraphics
 {
+    /// <summary>Menu address space shared with the PPU presentation owner.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Separate file-select PPU memory and installed background artwork.</summary>
     private readonly MenuPpuState ppu;
+    /// <summary>Map landmarks, stations, and boss icons drawn around the saved-station marker.</summary>
     private readonly FileSelectMapIcons icons;
+    /// <summary>Installed map sprite compositions used when drawing the marker and animated arrows.</summary>
     [NonSerialized] private MapSpriteCatalog? sprites;
     /// <summary>Live menu-owned VRAM containing the installed BG1 area map, BG2 frame, and map characters; not the gameplay room's VRAM instance.</summary>
     public SnesVram Vram => ppu.Vram;
     /// <summary>Live menu-owned CGRAM, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
     public SnesCgram Cgram => ppu.Cgram;
+    /// <summary>Persistent downloaded-map and explored-cell state held by the icon owner.</summary>
     internal Bank80SystemState MapSystem => icons.MapSystem;
 
     /// <summary>Installs one area's revealed BG1 map and fixed BG2 frame into a separate menu PPU owner, following $81:A725/$82:9517 without choosing a load station or advancing menu timing.</summary>
@@ -54,6 +59,7 @@ public sealed class FileSelectRoomMapGraphics
         LoadFrame(mapPresentation.Screens, area);
     }
 
+    /// <summary>Installs the selected area's fixed BG2 room frame into menu VRAM.</summary>
     private void LoadFrame(MapScreenPresentation? screens, AreaId area)
     {
         (screens ?? throw new InvalidOperationException(
@@ -114,12 +120,14 @@ public sealed class FileSelectRoomMapGraphics
         return pixels;
     }
 
-    // OBJ scratch reused across draws; never part of saved state (restores reallocate it).
+    /// <summary>Reusable OBJ pixels for map icons; restored saves allocate a fresh scratch buffer.</summary>
     [NonSerialized] private Rgba32[]? objScratch;
-    // Owned frames: each is valid until the same method renders again.
+    /// <summary>Owned BG2-only frame buffer reused by subsequent frame-only renders.</summary>
     [NonSerialized] private Rgba32[]? frameOnlyBuffer;
+    /// <summary>Owned BG1 and BG2 composition buffer reused by background and combined renders.</summary>
     [NonSerialized] private Rgba32[]? backgroundsBuffer;
 
+    /// <summary>Composes landmarks, the saved-station marker, and arrows in native OAM order without advancing animations.</summary>
     private OamBuffer PrepareIcons(Position16<MapPixels> scroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations)
     {

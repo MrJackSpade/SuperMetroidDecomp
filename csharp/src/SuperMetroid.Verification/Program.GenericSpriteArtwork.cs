@@ -18,6 +18,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
+/// <summary>Compares installed title and intro sprite compositions and OAM wrapping with retail spritemaps.</summary>
 internal static class GenericSpriteArtworkVerification
 {
     /// <summary>
@@ -168,6 +169,7 @@ internal static class GenericSpriteArtworkVerification
         }
     }
 
+    /// <summary>Runs title, intro, and generic sprite origin-wrap comparisons using the repository ROM.</summary>
     [VerificationCommand("--generic-sprite-artwork")]
     internal static int GenericSpriteArtworkCommand()
     {

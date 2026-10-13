@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable escape-warning text and visual line placement.</summary>
 public sealed class EscapeTypewriterPresentation
 {
+    /// <summary>Loaded Ceres warning lines and VRAM destinations.</summary>
     private readonly EscapeTypewriterProgram ceres;
+    /// <summary>Loaded Zebes time-bomb warning lines and VRAM destinations.</summary>
     private readonly EscapeTypewriterProgram zebes;
 
+    /// <summary>Retains the two validated programs and the identity of their exact source document bytes.</summary>
     private EscapeTypewriterPresentation(
         Dictionary<EscapeTypewriterProgramId, EscapeTypewriterProgram> programs,
         string contentIdentity)
@@ -100,18 +103,24 @@ public sealed class EscapeTypewriterPresentation
         return new(programs, Convert.ToHexString(SHA256.HashData(source)));
     }
 
+    /// <summary>Reads stock lines from compiled definitions and stores only authored changes by line index.</summary>
     private sealed class LineSequence(EscapeTypewriterProgramId id, int count,
         Dictionary<int, EscapeTypewriterLine> differences) : IReadOnlyList<EscapeTypewriterLine>
     {
+        /// <summary>Edited or added lines that differ from the selected native warning program.</summary>
         private readonly Dictionary<int, EscapeTypewriterLine> overrides = differences;
+        /// <summary>Number of lines selected by the editable document for this warning.</summary>
         public int Count => count;
+        /// <summary>Reads an authored override when present, otherwise the compiled native line.</summary>
         public EscapeTypewriterLine this[int index] => (uint)index < Count
             ? overrides.TryGetValue(index, out EscapeTypewriterLine? line) ? line : EscapeTypewriterDefinitions.Line(id, index)
             : throw new ArgumentOutOfRangeException(nameof(index));
+        /// <summary>Yields warning lines in typewriter order, resolving stock lines lazily.</summary>
         public IEnumerator<EscapeTypewriterLine> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same ordered line sequence through the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

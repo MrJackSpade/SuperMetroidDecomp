@@ -20,8 +20,10 @@ using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 using static ZebesDescentVerification;
 
+/// <summary>Checks rendered cinematic snapshots and packet round trips against live scene rendering.</summary>
 internal static class CinematicSnapshotTestsVerification
 {
+    /// <summary>Samples Ceres flight, destruction, and game-over phases before and after simulation advances.</summary>
     internal static void VerifyCinematicRenderSnapshots()
     {
         Suite(nameof(VerifyCeresExplosionTimeline), () => VerifyCeresExplosionTimeline());
@@ -122,6 +124,7 @@ internal static class CinematicSnapshotTestsVerification
         }
     }
 
+    /// <summary>Compares full intro snapshots with an independent legacy display owner while both scenes advance.</summary>
     private static void VerifyIntroDisplayCapture()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
@@ -171,6 +174,7 @@ internal static class CinematicSnapshotTestsVerification
         Console.WriteLine($"  Intro snapshots: {samples} sampled frames across {phases.Count} phases agree with independent legacy display owner.");
     }
 
+    /// <summary>Runs cinematic snapshot checks together with ending display and credits checks.</summary>
     [VerificationCommand("--cinematic-fixtures")]
     internal static int CinematicFixturesCommand()
     {

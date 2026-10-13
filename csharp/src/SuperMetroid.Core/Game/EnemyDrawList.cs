@@ -12,16 +12,26 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyDrawList
 {
+    /// <summary>Draws Ceres Ridley's tail and wings before its common body spritemap.</summary>
     private readonly CeresRidleyBehavior _ceresRidleyBehavior;
+    /// <summary>Runs the Dead Torizo draw hook after the layer-five ordinary queue.</summary>
     private readonly DeadTorizoBehavior _deadTorizoBehavior;
+    /// <summary>Supplies the shared enemy frame counter used for hit-flash palette phases.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Applies installed extended-frame BG2 changes before drawing visual parts.</summary>
     private readonly EnemyInstructionInterpreter _instructions;
+    /// <summary>Runs Mother Brain's draw hook on its authored layer-five pass.</summary>
     private readonly MotherBrainBehavior _motherBrainBehavior;
+    /// <summary>Emits ordinary enemy spritemaps to OAM.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Supplies Ridley's latched body, wing, and tail palette index.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
+    /// <summary>Supplies installed extended frames and validates active room ownership.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Resolves native queue indices to current enemy slots at draw time.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Retains the behavior and presentation owners used by EnemyMain's draw pass.</summary>
     internal EnemyDrawList(EnemyDrawListDependencies dependencies)
     {
         _ceresRidleyBehavior = dependencies.CeresRidleyBehavior;
@@ -34,6 +44,7 @@ internal sealed class EnemyDrawList
         _room = dependencies.Room;
         _slotTable = dependencies.SlotTable;
     }
+    /// <summary>Native enemy indices grouped into the eight ordered drawing layers.</summary>
     private readonly List<ushort>[] _drawQueues =
         Enumerable.Range(0, 8).Select(_ => new List<ushort>()).ToArray();
 

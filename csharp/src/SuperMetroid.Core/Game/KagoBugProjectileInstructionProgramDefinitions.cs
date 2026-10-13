@@ -27,8 +27,11 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
 
 
 
+    /// <summary>Counts the compiled control words across landed, falling, jumping, and shot lists.</summary>
     public static int MechanicsWordCount => 23;
+    /// <summary>Counts visual operands interleaved with Kago bug projectile controls.</summary>
     public static int PresentationWordCount => 11;
+    /// <summary>Returns an indexed projectile timer, callback, loop, or delete word with its address.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -52,6 +55,7 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Calculates the long hold and two-word backward loop shared by falling and jumping.</summary>
     private static InstructionMechanicsWord HoldLoop(ushort start, int index) => index switch
     {
         0 => new(start, 0x7fff),
@@ -59,6 +63,7 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
         _ => new((ushort)(start + 6), start),
     };
 
+    /// <summary>Locates an indexed spritemap operand across the projectile's five lists.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -73,6 +78,7 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
             _ => JumpLoop + 2,
         };
     }
+    /// <summary>Binary-searches compiled control words and rejects presentation addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

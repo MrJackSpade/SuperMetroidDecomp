@@ -17911,6 +17911,38 @@
       "disposition": "stateless"
     },
     {
+      "type": "LoadingPaletteChannelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess/CoreAssetsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "LoadingPaletteChannelsAccess.extension(SuperMetroid.Core.Assets.LoadingPaletteInputView.Channels)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess/CoreAssetsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "LookupAnimatedAreasVerification",
       "kind": "static class",
       "scope": "test",
@@ -21020,6 +21052,23 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/MessageSnapshotTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "MetadataShape",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.EnsureVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess/MetadataShape.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -25913,40 +25962,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "PrivateState",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.EnsureVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess/PrivateState.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "PrivateState.SpanGetter\u003CT\u003E",
-      "kind": "delegate",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.EnsureVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess/PrivateState.cs"
-      ],
-      "partial": "none",
-      "disposition": "contract"
     },
     {
       "type": "ProductionAssemblyVerification",
@@ -89489,6 +89504,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.ReflectionAuditAttribute",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/ReflectionAuditAttribute.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Rendering.BackgroundMosaicSampling",
       "kind": "struct",
       "scope": "product",
@@ -99700,6 +99728,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.OwnedReflectionAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/OwnedReflectionAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.ParameterListAnalyzer",
       "kind": "class",
       "scope": "tool",
@@ -99959,6 +100000,19 @@
       ],
       "partial": "generated-boundary",
       "disposition": "generated-boundary"
+    },
+    {
+      "type": "SuperMetroid.EnsureVerification.OwnedReflectionAnalyzerTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.EnsureVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureVerification/Program.OwnedReflectionAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.EnsureVerification.PaletteFxContractTests",
@@ -101124,45 +101178,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.ResourceAudit.DoorCatalogAudit",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/DoorCatalogAudit.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.DoorCatalogAudit.Finding",
-      "kind": "record",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/DoorCatalogAudit.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.DoorCatalogManifest",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/DoorCatalogManifest.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.ResourceAudit.EnemyArtworkClosedContractDefinitions",
       "kind": "static class",
       "scope": "tool",
@@ -101694,58 +101709,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.NativeDoorHeader",
-      "kind": "record",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/DoorCatalogManifest.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.NativeDoorManifest",
-      "kind": "record",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/DoorCatalogManifest.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.NativeDoorRoom",
-      "kind": "record",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/DoorCatalogManifest.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.NativeDoorState",
-      "kind": "record",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/DoorCatalogManifest.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.ResourceAudit.NuclearWaffleResourceChecks",

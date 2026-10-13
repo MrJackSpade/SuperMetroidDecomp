@@ -791,9 +791,6 @@ csharp/src/SuperMetroid.ResourceAudit/AuditContractChecks.cs	SME6340	17
 csharp/src/SuperMetroid.ResourceAudit/AuditContractChecks.cs	SME6342	1
 csharp/src/SuperMetroid.ResourceAudit/CrocomireSkeletonResourceChecks.cs	SME6340	1
 csharp/src/SuperMetroid.ResourceAudit/DefinitionAudit.cs	SME6340	10
-csharp/src/SuperMetroid.ResourceAudit/DoorCatalogAudit.cs	SME6340	27
-csharp/src/SuperMetroid.ResourceAudit/DoorCatalogAudit.cs	SME6342	1
-csharp/src/SuperMetroid.ResourceAudit/DoorCatalogManifest.cs	SME6340	4
 csharp/src/SuperMetroid.ResourceAudit/EnemyCompositionResourceChecks.cs	SME6340	3
 csharp/src/SuperMetroid.ResourceAudit/EnemyDisplayArtworkContractChecks.cs	SME6340	1
 csharp/src/SuperMetroid.ResourceAudit/EnemyTileArtworkPresentationContractChecks.cs	SME6340	3

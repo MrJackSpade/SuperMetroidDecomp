@@ -21,18 +21,18 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 33311,
+    "RawHexLiteral": 33280,
     "PointerDispatch": 1292,
-    "OpaqueWordArray": 1152,
+    "OpaqueWordArray": 1151,
     "CatalogHexLiteral": 101607,
     "JustifiedHexLiteral": 76,
     "OwnedWidthOperation": 122,
     "JustifiedWidthOperation": 3,
-    "class:NumericQuantity": 56356,
-    "class:DomainIdentity": 6975,
+    "class:NumericQuantity": 56344,
+    "class:DomainIdentity": 6974,
     "class:ComposableBits": 1902,
-    "class:StructuredInstruction": 44549,
-    "class:CartridgeAddress": 26748,
+    "class:StructuredInstruction": 44541,
+    "class:CartridgeAddress": 26739,
     "class:Unknown": 1033,
     "storageWidthMembers": 1947
   },
@@ -9429,16 +9429,16 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 27811,
+        "RawHexLiteral": 27780,
         "PointerDispatch": 432,
-        "OpaqueWordArray": 1013,
+        "OpaqueWordArray": 1012,
         "CatalogHexLiteral": 5416,
         "OwnedWidthOperation": 59,
-        "class:NumericQuantity": 10551,
-        "class:DomainIdentity": 619,
+        "class:NumericQuantity": 10539,
+        "class:DomainIdentity": 618,
         "class:ComposableBits": 572,
-        "class:StructuredInstruction": 14298,
-        "class:CartridgeAddress": 8164,
+        "class:StructuredInstruction": 14290,
+        "class:CartridgeAddress": 8155,
         "class:Unknown": 527,
         "storageWidthMembers": 316
       },
@@ -10116,28 +10116,6 @@
           "totals": {
             "RawHexLiteral": 10,
             "class:DomainIdentity": 10
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.ResourceAudit/DoorCatalogAudit.cs",
-          "project": "SuperMetroid.ResourceAudit",
-          "totals": {
-            "RawHexLiteral": 27,
-            "OpaqueWordArray": 1,
-            "class:NumericQuantity": 12,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 1,
-            "class:StructuredInstruction": 8,
-            "class:CartridgeAddress": 6
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.ResourceAudit/DoorCatalogManifest.cs",
-          "project": "SuperMetroid.ResourceAudit",
-          "totals": {
-            "RawHexLiteral": 4,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
           }
         },
         {

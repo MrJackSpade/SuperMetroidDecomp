@@ -10,16 +10,21 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class RidleyProjectiles
 {
+    /// <summary>Provides Samus's current area when selecting Ridley projectile damage.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
+    /// <summary>Owns slots used by fireballs and successive afterburn projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Supplies Ridley's current facing and calculated muzzle velocity.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
 
+    /// <summary>Binds the shared Ceres and Lower Norfair fireball chain to encounter state and projectile slots.</summary>
     internal RidleyProjectiles(EnemyDeathsAndDrops deathsAndDrops, EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter)
     {
         _deathsAndDrops = deathsAndDrops;
         _projectiles = projectiles;
         _ridleyEncounter = ridleyEncounter;
     }
+    /// <summary>OBJ palette row used for fireballs and every afterburn stage.</summary>
     private static readonly ushort FireballGraphicsIndex = EnemyPaletteBits.Palette5;
 
     /// <summary>Ports Ridley instruction $A6:E84D and retains its asymmetric aim clamps.</summary>
@@ -60,7 +65,7 @@ internal sealed class RidleyProjectiles
             new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(0x0500, unchecked((byte)(angle + 64)))));
     }
 
-    /// <summary>Allocates and initializes enemy projectile $86:9642.</summary>
+    /// <summary>Allocates projectile $86:9642 at Ridley's facing-dependent muzzle with its calculated velocity and optional three-stage afterburn.</summary>
     internal void SpawnRidleyFireball(RoomEnemySlot ridley, bool spawnAfterburn)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -79,6 +84,7 @@ internal sealed class RidleyProjectiles
         projectile.RemainingAfterburns = spawnAfterburn ? (ushort)3 : (ushort)0;
     }
 
+    /// <summary>Selects the native damage row from Samus's current area, or Crateria for an unbound fixture.</summary>
     private void ApplyRidleyProjectileAreaDamage(RoomEnemyProjectileSlot projectile)
     {
         // EnemyMain binds live Samus before dispatch, including her current room
@@ -87,6 +93,7 @@ internal sealed class RidleyProjectiles
         projectile.Damage = RidleyProjectileDamageDefinitions.ForArea(area);
     }
 
+    /// <summary>Creates the stationary impact center that later emits a perpendicular afterburn pair.</summary>
     internal void SpawnAfterburnCenter(
         RoomEnemyProjectileKind kind,
         Position16<RoomPixels> position,
@@ -102,6 +109,7 @@ internal sealed class RidleyProjectiles
         center.RemainingAfterburns = remaining;
     }
 
+    /// <summary>Emits the left/right or up/down branches from an impact center.</summary>
     internal void SpawnAfterburnPair(RoomEnemyProjectileSlot center, bool horizontal)
     {
         if (horizontal)
@@ -116,6 +124,7 @@ internal sealed class RidleyProjectiles
         }
     }
 
+    /// <summary>Copies the impact position, damage, velocity, and remaining chain count into a directional branch.</summary>
     internal void SpawnDirectionalAfterburn(
         RoomEnemyProjectileSlot source,
         RoomEnemyProjectileKind kind,
@@ -132,6 +141,7 @@ internal sealed class RidleyProjectiles
         afterburn.NextAfterburnKind = (ushort)kind;
     }
 
+    /// <summary>Decrements the native low-byte chain counter and repeats the branch while its sign bit remains clear.</summary>
     internal void SpawnNextAfterburn(RoomEnemyProjectileSlot source)
     {
         byte lowCount = unchecked((byte)(source.RemainingAfterburns - 1));
@@ -144,6 +154,7 @@ internal sealed class RidleyProjectiles
             source.Velocity);
     }
 
+    /// <summary>Switches a collided branch to its final five-frame list without clearing its velocity or damage fields.</summary>
     internal static void BeginAfterburnFinalAnimation(RoomEnemyProjectileSlot projectile)
     {
         projectile.InstructionPointer =
@@ -155,6 +166,7 @@ internal sealed class RidleyProjectiles
     }
 
 
+    /// <summary>Registers collision and motion callbacks for fireballs and both perpendicular afterburn paths.</summary>
     internal void RegisterFireballPreInstructions(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -199,6 +211,7 @@ internal sealed class RidleyProjectiles
     }
 
 
+    /// <summary>Registers bytecode callbacks that spawn an impact pair or extend a directional afterburn chain.</summary>
     internal void RegisterAfterburnInstructions(EnemyProjectileHandlerTable table)
     {
         table.RegisterInstruction(EnemyProjectileInstruction.Spawn_HorizontalAfterburn_EnemyProjectiles, null,

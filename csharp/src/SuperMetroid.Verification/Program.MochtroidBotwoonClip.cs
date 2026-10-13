@@ -14,8 +14,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the frozen Mochtroid pipe clip and its one-pixel failure case against native Botwoon Hallway checkpoints.</summary>
 internal static class MochtroidBotwoonClipVerification
 {
+    /// <summary>Captured native setup, input-frame milestones, collision radius, and final outcome for one clip trajectory.</summary>
     internal readonly record struct MochtroidClipNativeRecord(
         string Case,
         ushort EnemyNativeIndex,
@@ -59,6 +61,7 @@ internal static class MochtroidBotwoonClipVerification
             "one-frame posture radius, successful ceiling passage, and one-pixel failure match the original CPU.");
     }
 
+    /// <summary>Replays one 120-frame retail hallway sequence with a frozen Mochtroid and compares pose, collision, and height checkpoints.</summary>
     private static void VerifyMochtroidClipRecord(MochtroidClipNativeRecord expected)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -159,6 +162,7 @@ internal static class MochtroidBotwoonClipVerification
         AssertEqual(expected.FinalPose, samus.Pose, $"{expected.Case} final pose");
     }
 
+    /// <summary>Parses one invariant-culture CSV row of captured native positions, input timing, and pose milestones.</summary>
     private static MochtroidClipNativeRecord ParseMochtroidClipRecord(string line)
     {
         string[] fields = line.Split(',');
@@ -185,6 +189,7 @@ internal static class MochtroidBotwoonClipVerification
             int.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture);
     }
 
+    /// <summary>Runs the Botwoon Hallway Mochtroid clip verification command.</summary>
     [VerificationCommand("--mochtroid-botwoon-clip")]
     internal static int MochtroidBotwoonClipCommand()
     {

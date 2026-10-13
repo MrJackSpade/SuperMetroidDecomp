@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Zebetite health-tier instruction programs against retail operands and execution.</summary>
 internal static class ZebetiteInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for the Zebetite instruction comparison.</summary>
     internal static void VerifyZebetiteInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyZebetiteInstructionProgramDefinitions), () => VerifyZebetiteInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises all large and small health tiers, sprite handoffs, and terminal sleeps without live mechanics reads.</summary>
     internal static void VerifyZebetiteInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -131,6 +134,7 @@ internal static class ZebetiteInstructionProgramDefinitionsVerification
             "programs, and ten native sprite selections pass with zero live operand reads.");
     }
 
+    /// <summary>Repeatedly reads two compiled tier thresholds to measure allocation on a warmed path.</summary>
     private static int ProbeZebetiteInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -144,12 +148,14 @@ internal static class ZebetiteInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects reads of compiled mechanics bytes while recording presentation operand accesses.</summary>
     private static CartridgeReadGuard NewZebetiteInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(ZebetiteInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Zebetite mechanics byte ${address:X6}.")
             .ObserveWords(0xa60000, ZebetiteInstructionProgramDefinitions.PresentationWordCount, ZebetiteInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Zebetite program verification through the command dispatcher.</summary>
     [VerificationCommand("--zebetite-instruction-program-definitions")]
     internal static int ZebetiteInstructionProgramDefinitionsCommand()
     {

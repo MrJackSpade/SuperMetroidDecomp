@@ -14,6 +14,7 @@ using SuperMetroid.Core.Hardware;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks occupancy-derived SRAM map packing against native lists and production save/load behavior.</summary>
 internal static class ExploredMapPackingDefinitionsVerification
 {
     /// <summary>
@@ -25,6 +26,7 @@ internal static class ExploredMapPackingDefinitionsVerification
     private static readonly ushort[] ExploredMapNativeSourcePointers =
         [0x8146, 0x8196, 0x81e6, 0x8236, 0x8256, 0x82a6];
 
+    /// <summary>Compares six area lists and 327 byte indexes with the cartridge, then round-trips exploration with native codec reads forbidden.</summary>
     internal static void VerifyExploredMapPackingDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -103,9 +105,11 @@ internal static class ExploredMapPackingDefinitionsVerification
             "  Explored-map packing: six area records and all 327 exported byte indexes match the cartridge; production save/load round-trips with the native codec tables forbidden.");
     }
 
+    /// <summary>Reads a native map-packing byte solely for the cartridge-side verification oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for explored map packing definitions")]
     private static byte ExploredMapPackingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks that edited map artwork preserves SRAM layout and that debugger restoration requires artwork rebinding.</summary>
     private static void VerifyCalculatedMapPackingBindings(ISnesAddressSpace native, byte[] explored)
     {
         string parent = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
@@ -185,6 +189,7 @@ internal static class ExploredMapPackingDefinitionsVerification
         }
     }
 
+    /// <summary>Recognizes native count, offset, pointer, and sparse index bytes that production save/load must no longer read.</summary>
     private static bool IsCompiledMapPackingByte(int address)
     {
         if (address is >= 0x818131 and < 0x818146 or
@@ -203,6 +208,7 @@ internal static class ExploredMapPackingDefinitionsVerification
         return false;
     }
 
+    /// <summary>Runs the native explored-map packing comparison and production save/load check.</summary>
     [VerificationCommand("--explored-map-packing-definitions")]
     internal static int ExploredMapPackingDefinitionsCommand()
     {

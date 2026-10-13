@@ -8,8 +8,10 @@ using static DownwardGatePlmsVerification;
 using static LookupDownwardGateStockVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks editable downward-gate PLM art without changing column or trigger collision.</summary>
 internal static class DownwardGateVisualsVerification
 {
+    /// <summary>Checks edited column and trigger tiles survive actual PLM drawing and later camera streaming.</summary>
     internal static void VerifyDownwardGateVisuals()
     {
         RoomPlmDownwardGateVisualCatalog stock = RoomPlmDownwardGateVisualCatalog.Stock();
@@ -92,6 +94,7 @@ internal static class DownwardGateVisualsVerification
         Suite(nameof(VerifyDownwardGateVisualInstallation), () => VerifyDownwardGateVisualInstallation());
     }
 
+    /// <summary>Checks extracted stock, override survival, and rejection of corrupt or physical-bit edits.</summary>
     private static void VerifyDownwardGateVisualInstallation()
     {
         using var testRootScratch = new TestScratchDirectory("downward-gate-visual");

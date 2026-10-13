@@ -29,11 +29,14 @@ internal sealed class EnemyBg2FrameCatalog
             }
         });
 
+    /// <summary>Validated ordered BG2 writes keyed by each native extended-frame pointer.</summary>
     private readonly Dictionary<ushort, EnemyBg2TilemapWrite[]> frames;
 
+    /// <summary>Owns the validated writes for one enemy frame family.</summary>
     private EnemyBg2FrameCatalog(Dictionary<ushort, EnemyBg2TilemapWrite[]> frames) =>
         this.frames = frames;
 
+    /// <summary>Retrieves the ordered tilemap writes selected by a native frame pointer, if present.</summary>
     internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes)
     {
         if (frames.TryGetValue(pointer, out EnemyBg2TilemapWrite[]? found))
@@ -45,6 +48,7 @@ internal sealed class EnemyBg2FrameCatalog
         return false;
     }
 
+    /// <summary>Validates a complete named frame document and compiles its horizontal tile runs to BG2 destinations.</summary>
     internal static EnemyBg2FrameCatalog Load(Stream json,
         EnemyBg2FrameDefinitionSequence definitions, int version, string family)
     {

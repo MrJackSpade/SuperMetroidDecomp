@@ -63,6 +63,7 @@ internal static class FileSelectLayout
     public static int DataSlotDestination(int slot, FileSelectSlotField field) =>
         SlotDestination(slot, field, dataPage: true);
 
+    /// <summary>Converts a slot field's row and column on the selected page to a BG1 byte offset.</summary>
     private static int SlotDestination(int slot, FileSelectSlotField field, bool dataPage)
     {
         if ((uint)slot >= SaveSlotCount) throw new IndexOutOfRangeException();
@@ -94,37 +95,58 @@ internal static class FileSelectLayout
 
     /// <summary>BG1 byte destinations for the main file-select labels and fields.</summary>
     public const int SamusDataDestination = 0x056;
+    /// <summary>BG1 destination of the main menu's Copy label.</summary>
     public const int DataCopyDestination = 0x508;
+    /// <summary>BG1 destination of the main menu's Clear label.</summary>
     public const int DataClearDestination = 0x5c8;
+    /// <summary>BG1 destination of the main menu's Exit label.</summary>
     public const int ExitDestination = 0x688;
 
     /// <summary>BG1 byte destinations used by Copy and Clear prompts.</summary>
     public const int DataModeCopyDestination = 0x52;
+    /// <summary>BG1 destination of the Clear mode heading.</summary>
     public const int DataModeClearDestination = 0x50;
+    /// <summary>BG1 destination of the source-slot prompt during Copy.</summary>
     public const int CopySourcePromptDestination = 0x150;
+    /// <summary>BG1 destination of the destination-slot prompt during Copy.</summary>
     public const int CopyDestinationPromptDestination = 0x148;
+    /// <summary>BG1 destination of the confirmation prompt during Copy.</summary>
     public const int CopyConfirmationPromptDestination = 0x144;
+    /// <summary>BG1 destination of the slot-selection prompt during Clear.</summary>
     public const int ClearPromptDestination = 0x140;
+    /// <summary>BG1 destination of the source slot letter in Copy's destination prompt.</summary>
     public const int CopyDestinationSourceLetterDestination = 0x160;
+    /// <summary>BG1 destination of the source slot letter in Copy's confirmation prompt.</summary>
     public const int CopyConfirmationSourceLetterDestination = 0x15c;
+    /// <summary>BG1 destination of the destination slot letter in Copy's confirmation prompt.</summary>
     public const int CopyConfirmationDestinationLetterDestination = 0x176;
+    /// <summary>BG1 destination of the source slot letter in Clear's confirmation prompt.</summary>
     public const int ClearConfirmationSourceLetterDestination = 0x16a;
+    /// <summary>First letter tile used to draw a save-slot name in Copy and Clear prompts.</summary>
     public const ushort SamusLetterTileBase = 0x206a;
+    /// <summary>BG1 destination of the message shown after copying a slot.</summary>
     public const int CopyCompletedDestination = 0x510;
+    /// <summary>BG1 destination of the message shown after clearing a slot.</summary>
     public const int DataClearedDestination = 0x500;
 
     /// <summary>BG1 byte destinations for the copy/clear confirmation choices.</summary>
     public const int ConfirmationQuestionDestination = 0x514;
+    /// <summary>BG1 destination of the confirmation Yes choice.</summary>
     public const int ConfirmationYesDestination = 0x59c;
+    /// <summary>BG1 destination of the confirmation No choice.</summary>
     public const int ConfirmationNoDestination = 0x65c;
 }
 
 /// <summary>Distinct fields in each native file-select save-slot panel.</summary>
 internal enum FileSelectSlotField
 {
+    /// <summary>Save-slot letter and label.</summary>
     Label,
+    /// <summary>Displayed energy value.</summary>
     Energy,
+    /// <summary>Elapsed-time digits on the line below the labels.</summary>
     TimeValue,
+    /// <summary>Displayed elapsed-time label.</summary>
     TimeLabel,
 }
 

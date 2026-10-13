@@ -12,6 +12,7 @@ public static class RoomStaticPaletteArtworkFiles
 {
     /// <summary>Stock room-palette manifest filename recording cartridge provenance and hashes for all distinct palette JSON sources.</summary>
     public const string ManifestFileName = "room-palettes.json";
+    /// <summary>The schema version required by the installed palette provenance manifest.</summary>
     private const int FormatVersion = 1;
 
     /// <summary>Creates one stock RGB5 JSON palette per distinct room graphics-set color source and writes their provenance manifest.</summary>
@@ -99,6 +100,7 @@ public static class RoomStaticPaletteArtworkFiles
     /// <exception cref="InvalidDataException">Stock provenance, source coverage, hashes, or palette content are invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Maps each distinct room tileset palette file to its native source address.</summary>
     private static Dictionary<string, int> ExpectedSources()
     {
         var sources = new Dictionary<string, int>();
@@ -110,6 +112,7 @@ public static class RoomStaticPaletteArtworkFiles
         return sources;
     }
 
+    /// <summary>Reads and writes palette manifest names in their stable camel-case JSON form.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -117,6 +120,7 @@ public static class RoomStaticPaletteArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Records the cartridge revision and hashes of all installed stock room palette files.</summary>
     private sealed record RoomPaletteFileManifest(
         int Version, string SourceCartridgeSha256, Dictionary<string, string> Sha256);
 }

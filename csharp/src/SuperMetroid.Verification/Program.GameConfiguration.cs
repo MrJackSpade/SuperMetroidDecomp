@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 
+/// <summary>Checks shipped game option defaults, accepted INI values, and configuration error messages.</summary>
 internal static class GameConfigurationVerification
 {
+/// <summary>Compares the INI template with programmatic defaults and checks parsing across game, video, audio, and diagnostics sections.</summary>
 internal static void VerifyGameConfigurationIni()
 {
     AssertEqual(SuperMetroid.Core.Rendering.RendererSelection.Auto,
@@ -136,6 +138,7 @@ internal static void VerifyGameConfigurationIni()
         "  Game INI: startup/map/audio/diagnostic defaults, strict values, and typo rejection agree.");
 }
 
+/// <summary>Requires invalid INI input to fail with a message that identifies the violated option rule.</summary>
 internal static void AssertInvalidGameConfiguration(string contents, string expectedMessagePart)
 {
     try

@@ -3,7 +3,7 @@
 /// <summary>The Zoa species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class ZoaBehavior : IEnemySpecies
 {
-    /// <summary>Executes Zoa's private animation instructions.</summary>
+    /// <summary>Consumes Zoa's three instruction words that change horizontal shot speed, advancing past each operand.</summary>
     private bool TryProcessZoaInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
     {
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Zoa ||
@@ -31,12 +31,15 @@ internal sealed class ZoaBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Samus must be within 128 horizontal pixels before a hidden Zoa rises.</summary>
     private const int ZoaActivationColumnDistance = 0x0080;
+    /// <summary>NTSC upward travel of half a pixel per gameplay frame.</summary>
     private const int ZoaRisingSubpixelSpeed = 0x00008000;
 
+    /// <summary>Room-slot-indexed flight state, cleared when the next enemy population loads.</summary>
     internal readonly ZoaEnemyState?[] _zoaStates = new ZoaEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
-    /// <summary>Ports <c>InitAI_Zoa</c> at $A3:B44A.</summary>
+    /// <summary>Ports <c>InitAI_Zoa</c> at $A3:B44A, saving the population coordinate and hiding the idle actor.</summary>
     internal void InitializeZoa(RoomEnemySlot slot)
     {
         var state = new ZoaEnemyState(slot)
@@ -56,7 +59,7 @@ internal sealed class ZoaBehavior : IEnemySpecies
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
 
-    /// <summary>Ports <c>MainAI_Zoa</c> and its complete three-entry indirect dispatch.</summary>
+    /// <summary>Ports <c>MainAI_Zoa</c>, dispatching proximity wait, rise, or horizontal shot from the room state.</summary>
     private static void RunZoaMain(
         RoomEnemySlot slot,
         ZoaEnemyState state,
@@ -83,6 +86,7 @@ internal sealed class ZoaBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Wakes when Samus enters the 128-pixel column and selects a rising pose from the wrapped horizontal direction.</summary>
     internal static void RunZoaWait(
         RoomEnemySlot slot,
         ZoaEnemyState state,
@@ -105,6 +109,7 @@ internal sealed class ZoaBehavior : IEnemySpecies
         state.Function = ZoaEnemyFunction.Rising;
     }
 
+    /// <summary>Reveals Zoa and rises until it reaches Samus's height, then starts its shooting list and clears loop scratch.</summary>
     internal static void RunZoaRising(
         RoomEnemySlot slot,
         ZoaEnemyState state,
@@ -125,6 +130,7 @@ internal sealed class ZoaBehavior : IEnemySpecies
         state.Function = ZoaEnemyFunction.Shooting;
     }
 
+    /// <summary>Travels in the selected facing direction and resets whole-pixel position when its center exits the camera square.</summary>
     internal static void RunZoaShooting(
         RoomEnemySlot slot,
         ZoaEnemyState state,
@@ -155,6 +161,7 @@ internal sealed class ZoaBehavior : IEnemySpecies
         state.Function = ZoaEnemyFunction.WaitForSamus;
     }
 
+    /// <summary>Restarts animation timers only when the selected Zoa instruction list differs from the previous one.</summary>
     internal static void SetZoaInstructionList(RoomEnemySlot slot, ZoaEnemyState state)
     {
         if (state.InstructionListTableIndex == state.PreviousInstructionListTableIndex)
@@ -166,10 +173,12 @@ internal sealed class ZoaBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Fails if an AI or instruction callback reaches a room slot before Zoa initialization.</summary>
     private ZoaEnemyState RequireZoaState(RoomEnemySlot slot) =>
         _zoaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Zoa state.");
 
+    /// <summary>Registers Zoa's initializer only for slots whose enemy definition identifies Zoa.</summary>
     internal void RegisterZoaInitializationAi(EnemyAiTable table)
     {
 
@@ -179,6 +188,7 @@ internal sealed class ZoaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes the active room frame's Samus and camera state into Zoa's three-phase AI.</summary>
     internal void RegisterZoaMainAi(EnemyAiTable table)
     {
 
@@ -188,6 +198,7 @@ internal sealed class ZoaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Zoa's speed-change instruction words with the common enemy interpreter.</summary>
     internal void RegisterZoaOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -197,13 +208,13 @@ internal sealed class ZoaBehavior : IEnemySpecies
         });
     }
 
-    /// <inheritdoc/>
+    /// <summary>Discards state tied to enemy slots before a new room population is initialized.</summary>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         Array.Clear(_zoaStates);
     }
 
-    /// <inheritdoc/>
+    /// <summary>Zoa has no species-wide frame work; each slot advances through its registered main AI.</summary>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
     }

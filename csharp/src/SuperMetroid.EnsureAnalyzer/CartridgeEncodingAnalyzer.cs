@@ -36,8 +36,10 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
     /// <summary>A baseline entry names a file this project no longer compiles.</summary>
     public const string StaleFileId = "SME6344";
 
+    /// <summary>Guidance appended to each encoding diagnostic so users can find the reviewed exception policy.</summary>
     private const string Guide = "see docs/cartridge-encoding.md";
 
+    /// <summary>Warns when functional code adds an unreviewed hexadecimal literal.</summary>
     private static readonly DiagnosticDescriptor RawHexRule = new(
         RawHexId,
         "Raw hexadecimal literal in functional code",
@@ -49,6 +51,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
             "[Flags], structured definitions and named catalogs replace them; an intrinsic encoded value carries a " +
             "same-line '// cartridge-encoding: allow(Class) - reason' review.");
 
+    /// <summary>Warns when primitive values dispatch on native code or instruction addresses.</summary>
     private static readonly DiagnosticDescriptor PointerDispatchRule = new(
         PointerDispatchId,
         "Address-based dispatch on a primitive",
@@ -59,6 +62,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
         description: "Comparing, offsetting or switching a primitive against address-valued code or instruction " +
             "constants interprets cartridge pointers at run time. Decode at the boundary and dispatch on semantic types.");
 
+    /// <summary>Warns when integral collections encode opaque hexadecimal instruction or table words.</summary>
     private static readonly DiagnosticDescriptor OpaqueWordArrayRule = new(
         OpaqueWordArrayId,
         "Opaque word array",
@@ -69,6 +73,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
         description: "Integral arrays of hexadecimal words carry encoded instructions or packed tables. Express them " +
             "as records, timelines or state transitions with named fields.");
 
+    /// <summary>Warns on raw lane shifts and masks that should use the owning cartridge encoding type.</summary>
     private static readonly DiagnosticDescriptor RawWidthRule = new(
         RawWidthId,
         "Raw storage-width or layout operation",
@@ -82,6 +87,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
             "operation on the type that owns the encoding ([SnesEncodingOwner]) instead; an intrinsic exception carries a " +
             "same-line '// cartridge-encoding: allow(Class) - reason' review.");
 
+    /// <summary>Reports when a file's occurrence count drops below its reviewed baseline allowance.</summary>
     private static readonly DiagnosticDescriptor StaleCountRule = new(
         StaleCountId,
         "Cartridge-encoding baseline is stale",
@@ -90,6 +96,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
+    /// <summary>Reports baseline entries whose source files are no longer compiled by the project.</summary>
     private static readonly DiagnosticDescriptor StaleFileRule = new(
         StaleFileId,
         "Cartridge-encoding baseline names a missing file",
@@ -133,6 +140,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
         });
     }
 
+    /// <summary>Scans a compiled source tree, enforces each occurrence budget, and reports baseline counts that should shrink.</summary>
     private static void AnalyzeTree(
         SemanticModelAnalysisContext context,
         CartridgeEncodingBaseline baseline,

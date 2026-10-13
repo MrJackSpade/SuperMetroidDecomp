@@ -14,10 +14,10 @@ using static MapPresentationVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks file-select map area order and save-station anchors against native metadata and menu behavior.</summary>
 internal static class MapLoadAnchorsVerification
 {
-    // Original compiled coordinate table from5b23a2aa, verification-only. Expected
-    // outputs are independent literals, not the replacement projection formula.
+    /// <summary>Verification-only coordinates preserved from 5b23a2aa, independent of the replacement projection formula.</summary>
     private static readonly (AreaId Area, int Station, ushort X, ushort Y)[] originalMapLoadAnchors =
     [
         (AreaId.Crateria, 0, 216, 40),
@@ -56,6 +56,7 @@ internal static class MapLoadAnchorsVerification
         (AreaId.Tourian, 8, 160, 96),
     ];
 
+    /// <summary>Compares six file-select display areas with the native area-order words and rejects unsupported menu indexes.</summary>
     internal static void VerifyFileSelectMapAreaCases(ISnesAddressSpace bus)
     {
         for (int displayIndex = 0; displayIndex < 6; displayIndex++)
@@ -66,9 +67,12 @@ internal static class MapLoadAnchorsVerification
                 "unsupported menu area identity is not clamped or narrowed");
     }
 
+    /// <summary>Checks all 34 horizontal save-station anchors against preserved coordinates and native records.</summary>
     internal static void VerifyMapLoadAnchorX(ISnesAddressSpace bus) => VerifyMapLoadAnchorField(bus, vertical: false);
+    /// <summary>Checks all 34 vertical save-station anchors against preserved coordinates and native records.</summary>
     internal static void VerifyMapLoadAnchorY(ISnesAddressSpace bus) => VerifyMapLoadAnchorField(bus, vertical: true);
 
+    /// <summary>Checks one coordinate axis and rejects unused stations and invalid area or station indexes.</summary>
     private static void VerifyMapLoadAnchorField(ISnesAddressSpace bus, bool vertical)
     {
         int anchors = 0;
@@ -102,6 +106,7 @@ internal static class MapLoadAnchorsVerification
                 "unsupported map-load area remains rejected");
     }
 
+    /// <summary>Compares native and compiled map scrolling, saved-station entry, and area rendering with cartridge access forbidden on the compiled path.</summary>
     internal static void VerifyMapLoadAnchors(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
         Suite(nameof(VerifyMapLoadAnchorX), () => VerifyMapLoadAnchorX(bus));
@@ -203,6 +208,7 @@ internal static class MapLoadAnchorsVerification
             (value.Scroll, value.Minimum, value.Maximum, value.Direction);
     }
 
+    /// <summary>Derives a saved station's map pixel anchor directly from its native load record and room header.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for native map load-station anchors")]
     private static Position16<MapPixels> ReadNativeMapLoadAnchor(ISnesAddressSpace bus, AreaId area, int station)
     {

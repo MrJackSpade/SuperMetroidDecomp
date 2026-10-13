@@ -11,8 +11,10 @@ using static InstalledFileSelectMapVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed file-select world and room screens, artwork overrides, and menu rebinding against native presentation.</summary>
 internal static class MapScreensVerification
 {
+    /// <summary>Compares six areas' VRAM and pixels, then verifies independent JSON and PNG edits, restored menus, and strict resource validation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMapScreens(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
@@ -137,6 +139,7 @@ internal static class MapScreensVerification
                 catalog.WorldArtwork, catalog.Sprites);
     }
 
+    /// <summary>Runs file-select transition and load phases with edited screens, then restores and rebinds the menu to stock art.</summary>
     private static void VerifyScreenMenuRebinding(ISnesAddressSpace bus, ISnesAddressSpace guard, AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
     {
         var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
@@ -170,6 +173,7 @@ internal static class MapScreensVerification
         AssertTrue(saves.ReadSlot(0)!.ToSnapshot().MapStationBytes.AsSpan().SequenceEqual(data.MapStationBytes), "screen edits preserve saved map progression");
     }
 
+    /// <summary>Forbids runtime cartridge reads across all migrated world pages, room frames, labels, and map character sheets.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle reading the native room-label pointers to forbid every map-screen presentation source")]
     private static MutableCartridgeReadGuard NewMapScreenGuard(ISnesAddressSpace source)
     {

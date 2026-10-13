@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Zero crawler programs, movement callbacks, and compiled visual selectors.</summary>
 internal static class ZeroInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for Zero instruction checks.</summary>
     internal static void VerifyZeroInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyZeroInstructionProgramDefinitions), () => VerifyZeroInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares native words and executes all four surface loops with mechanics reads blocked.</summary>
     internal static void VerifyZeroInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -104,6 +107,7 @@ internal static class ZeroInstructionProgramDefinitionsVerification
             "mechanics bytes forbidden.");
     }
 
+    /// <summary>Advances the production instruction runner through a bounded Zero animation loop.</summary>
     private static void ExecuteZeroProgram(
         RoomEnemySystem enemies,
         RoomEnemySlot slot,
@@ -118,6 +122,7 @@ internal static class ZeroInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates compiled Zero control words to expose warmed-call allocation.</summary>
     private static int ProbeZeroInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -131,12 +136,14 @@ internal static class ZeroInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Blocks compiled control bytes and observes any cartridge visual-word reads.</summary>
     private static CartridgeReadGuard NewZeroInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(ZeroInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Zero mechanics byte ${address:X6}.")
             .ObserveWords(0xa30000, ZeroInstructionProgramDefinitions.PresentationWordCount, ZeroInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Zero crawler instruction-definition command.</summary>
     [VerificationCommand("--zero-instruction-program-definitions")]
     internal static int ZeroInstructionProgramDefinitionsCommand()
     {

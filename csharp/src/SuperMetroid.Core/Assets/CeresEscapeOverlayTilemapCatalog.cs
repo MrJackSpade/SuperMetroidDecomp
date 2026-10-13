@@ -12,7 +12,9 @@ internal readonly record struct CeresEscapeOverlayTilemapDefinition(
 /// <summary>Native identity and queue geometry for the English and Japanese Ceres overlays.</summary>
 internal static class CeresEscapeOverlayTilemapDefinitions
 {
+    /// <summary>Supported editable warning-overlay schema revision.</summary>
     internal const int Version = 1;
+    /// <summary>Installed JSON file containing all five Ceres warning tilemap pages.</summary>
     internal const string FileName = "ceres-escape-overlay-tilemaps.json";
 
     /// <summary>English EMERGENCY title tilemap at $A6:C164.</summary>
@@ -41,9 +43,13 @@ internal static class CeresEscapeOverlayTilemapDefinitions
     // Authored warning wording and font ordering are categorical typography content.
     // The selected two-half packing, foreground priority and Japanese palette role
     // preserve that composition; glyph pixels and RGB paint remain separate obligations.
+    /// <summary>English warning title rendered from the Latin tile alphabet.</summary>
     private const string EmergencyText = "EMERGENCY";
+    /// <summary>First authored Japanese self-destruct subtitle row, shared by its upper and lower tile halves.</summary>
     private const string JapaneseFirstLine = "自爆装置が、作動しました";
+    /// <summary>Second authored Japanese evacuation subtitle row, shared by its upper and lower tile halves.</summary>
     private const string JapaneseSecondLine = "ただちに脱出して下さい";
+    /// <summary>Distinct Japanese characters in the native warning font order used to calculate tile selectors.</summary>
     private const string JapaneseGlyphs = "自爆装置が、作動まただちに脱出して下さい";
     /// <summary>$A6:C164 selects the Latin atlas beginning with A at BG tile $182.</summary>
     private const int LatinFirstTile = CeresEscapeVramTransferDefinitions.WarningBackgroundDestination / (8 * 8 * 4 / 16);
@@ -52,12 +58,16 @@ internal static class CeresEscapeOverlayTilemapDefinitions
         JapaneseLowerTile = JapaneseUpperTile + MainGlyphCount;
     /// <summary>$A6:C432..C438 selects the final four upper halves packed before the first sixteen at BG $19C..19F.</summary>
     private const int JapaneseTrailingUpperTile = LatinFirstTile + ('Z' - 'A' + 1);
+    /// <summary>Number of Japanese upper glyph halves stored after the Latin alphabet.</summary>
     private const int MainGlyphCount = 16;
     /// <summary>$A6:C164 and C3F4 use priority plus BG palettes six and seven respectively.</summary>
+    /// <summary>BG tile attribute selecting the foreground warning layer.</summary>
     private const int Priority = 1 << 13;
+    /// <summary>Foreground priority combined with the English alarm and Japanese subtitle palette rows.</summary>
     private const int EnglishStyle = Priority | (CeresRidleyPaletteRomData.AlarmCgramIndex / 16) << 10,
         JapaneseStyle = Priority | 7 << 10;
 
+    /// <summary>Calculates a stock English or Japanese overlay word from its authored glyph order, tile half, priority, and palette.</summary>
     internal static ushort StockWord(CeresEscapeOverlayTilemapDefinition page, int index)
     {
         if ((uint)index >= page.WordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -73,12 +83,17 @@ internal static class CeresEscapeOverlayTilemapDefinitions
             ? JapaneseUpperTile + glyph : JapaneseTrailingUpperTile + glyph - MainGlyphCount;
         return (ushort)(JapaneseStyle | tile);
     }
+    /// <summary>Five fixed overlays in English-title then Japanese row-half order.</summary>
     internal static PageSequence All => default;
 
+    /// <summary>Enumerates the fixed warning pages without retaining a descriptor array.</summary>
     internal readonly struct PageSequence : IReadOnlyList<CeresEscapeOverlayTilemapDefinition>
     {
+        /// <summary>One English title and four Japanese subtitle tilemaps.</summary>
         public int Count => 5;
+        /// <summary>List length used by the editable document validator.</summary>
         public int Length => Count;
+        /// <summary>Selects a named overlay and native source range by page ordinal.</summary>
         public CeresEscapeOverlayTilemapDefinition this[int index] => index switch
         {
             0 => Emergency,
@@ -88,10 +103,12 @@ internal static class CeresEscapeOverlayTilemapDefinitions
             4 => JapaneseFourth,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Yields the five warning pages in transfer order.</summary>
         public IEnumerator<CeresEscapeOverlayTilemapDefinition> GetEnumerator()
         {
             for (int i = 0; i < Count; i++) yield return this[i];
         }
+        /// <summary>Uses the same transfer-order traversal for non-generic callers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
@@ -99,7 +116,9 @@ internal static class CeresEscapeOverlayTilemapDefinitions
 /// <summary>Human-readable visual tile words; DMA timing and destinations are not editable.</summary>
 internal sealed record CeresEscapeOverlayTilemapDocument
 {
+    /// <summary>Schema revision checked before compiling warning-page edits.</summary>
     public int Version { get; init; }
+    /// <summary>Five named arrays of complete BG tile words, one per fixed Ceres overlay.</summary>
     public required Dictionary<string, ushort[]> Pages { get; init; }
 }
 
@@ -117,9 +136,12 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         }
     });
 
+    /// <summary>Selected tile words differing from the calculated stock warning pages, keyed by source address.</summary>
     private readonly Dictionary<int, ushort> edits;
+    /// <summary>Retains only authored deviations from the stock Ceres warning tilemaps.</summary>
     private CeresEscapeOverlayTilemapCatalog(Dictionary<int, ushort> edits) => this.edits = edits;
 
+    /// <summary>Expands one page's calculated and edited words into the contiguous little-endian DMA payload.</summary>
     private byte[] Transfer(CeresEscapeOverlayTilemapDefinition page)
     {
         // Ephemeral contiguous DMA/hash output, not a retained lookup definition.
@@ -132,6 +154,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         }
         return bytes;
     }
+    /// <summary>Validates the five-page JSON document and compiles its edited source-address words.</summary>
     internal static CeresEscapeOverlayTilemapCatalog Load(Stream json)
     {
         Ensure.NotNull(json);
@@ -140,12 +163,14 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         return new(Compile(document));
     }
 
+    /// <summary>Validates and serializes an editable Ceres warning document as camel-case UTF-8 JSON.</summary>
     internal static byte[] Write(CeresEscapeOverlayTilemapDocument document)
     {
         _ = Compile(document);
         return JsonSerializer.SerializeToUtf8Bytes(document, Options);
     }
 
+    /// <summary>Provides a page's DMA bytes only when both the native source address and exact transfer length match.</summary>
     internal bool TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)
     {
@@ -159,6 +184,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         return false;
     }
 
+    /// <summary>Requires the exact five page names and dimensions while recording only words that differ from stock.</summary>
     private static Dictionary<int, ushort> Compile(
         CeresEscapeOverlayTilemapDocument document)
     {
@@ -188,6 +214,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         return compiled;
     }
 
+    /// <summary>Produces readable camel-case documents and rejects unknown JSON properties.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

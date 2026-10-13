@@ -6,8 +6,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Checks installed Baby Metroid cutscene colors and fade palettes in live CGRAM.</summary>
 internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
 {
+    /// <summary>Compares native colors and selectors, edits one channel, and checks strict override failures.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby Metroid cutscene colors and fade selectors")]
     internal static void VerifyInstalledBabyMetroidCutsceneColors(
@@ -128,6 +130,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         };
     }
 
+    /// <summary>Blocks migrated initial and fade color ranges while the cutscene applies palettes.</summary>
     private static CartridgeReadGuard NewBabyMetroidCutsceneColorReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>

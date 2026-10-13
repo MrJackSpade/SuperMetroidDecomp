@@ -7,6 +7,7 @@ using SuperMetroid.Core.Spatial;
 using static GoldenTorizoRightOrbFramesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Provides matching cartridge-free enemy rooms and mechanical state comparisons.</summary>
 internal static class EnemyAnimationIsolationFixtureVerification
 {
     /// <summary>
@@ -16,20 +17,34 @@ internal static class EnemyAnimationIsolationFixtureVerification
     /// </summary>
     internal sealed class EnemyAnimationFixture
     {
+        /// <summary>Selects nonpublic instance fields when wiring the isolated enemy room.</summary>
         private const BindingFlags PrivateInstance = BindingFlags.Instance | BindingFlags.NonPublic;
+        /// <summary>Y coordinate where solid blocks begin in the synthetic room.</summary>
         internal const int FloorY = 224;
+        /// <summary>RAM-only bus that cannot supply cartridge instructions.</summary>
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        /// <summary>Enemy runtime fed by this fixture's room, RNG, and artwork.</summary>
         internal RoomEnemySystem Enemies { get; }
+        /// <summary>The Boyon or Golden Torizo placed in the first enemy slot.</summary>
         internal RoomEnemySlot Actor => Enemies.SlotTable.Slots[0];
+        /// <summary>Samus position used for the actor's proximity and hit interactions.</summary>
         internal SamusState Samus { get; } = new() { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 16)) };
+        /// <summary>Room collision plane with a flat floor below the actor.</summary>
         internal RoomLevelData Level { get; }
+        /// <summary>Fixture VRAM receiving enemy tile presentation.</summary>
         internal SnesVram Vram { get; } = new();
+        /// <summary>Fixture palette memory receiving enemy colors.</summary>
         internal SnesCgram Colors { get; } = new();
+        /// <summary>Current deterministic RNG word supplied to enemy behavior.</summary>
         internal ushort RandomWord { get; private set; } = 1;
+        /// <summary>Number of RNG steps consumed by the running actor.</summary>
         internal int RandomCalls { get; private set; }
+        /// <summary>Number of boss-defeated event publications.</summary>
         internal int BossBitCalls { get; private set; }
+        /// <summary>Golden Torizo's state when this fixture contains the boss.</summary>
         internal TorizoEnemyState? Torizo => Enemies.BombTorizoBehavior.GoldenTorizo;
 
+        /// <summary>Creates matching terrain and services, then initializes either Boyon or a fixed Torizo attack phase.</summary>
         internal EnemyAnimationFixture(EnemyTileArtworkCatalog artwork, bool golden)
         {
             const int roomBlocks = 32;
@@ -80,12 +95,14 @@ internal static class EnemyAnimationIsolationFixtureVerification
             }
         }
 
+        /// <summary>Advances enemy projectiles before the enemy frame using the same frame counter.</summary>
         internal void Step(int frame)
         {
             Enemies.StepEnemyProjectiles(Level, Samus, nmiFrameCounter8: unchecked((byte)frame));
             Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = Samus, Level = Level, NmiFrameCounter8 = unchecked((byte)frame) });
         }
 
+        /// <summary>Captures a complete enemy and projectile OAM draw for artwork comparison.</summary>
         internal OamBuffer Draw()
         {
             var oam = new OamBuffer();
@@ -95,14 +112,18 @@ internal static class EnemyAnimationIsolationFixtureVerification
             return oam;
         }
 
+        /// <summary>Starts Golden Torizo's compiled death sequence after its orb attack.</summary>
         internal void BeginDeath() => new Action<RoomEnemySlot, TorizoEnemyState>(BombTorizoBehavior.BeginBombTorizoDeath)(Actor, Torizo!);
 
+        /// <summary>Assigns a private enemy-system field for fixture service wiring.</summary>
         private void Bind(string field, object value) => typeof(RoomEnemySystem)
             .GetField(field, PrivateInstance)!.SetValue(Enemies, value);
 
+        /// <summary>Reads a private enemy-system constant by name for fixture setup.</summary>
         private static ushort Code(string name) => (ushort)typeof(RoomEnemySystem).GetField(name,
             BindingFlags.Static | BindingFlags.NonPublic)!.GetRawConstantValue()!;
 
+        /// <summary>Advances the fixture's deterministic RNG and records each consumption.</summary>
         private ushort NextRandom()
         {
             RandomCalls++;
@@ -111,6 +132,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         }
     }
 
+    /// <summary>Compares per-frame enemy, projectile, Samus, memory, audio, RNG, and boss-event state.</summary>
     internal static void AssertEnemyAnimationMechanics(EnemyAnimationFixture baseline,
         EnemyAnimationFixture edited, int frame)
     {
@@ -138,18 +160,20 @@ internal static class EnemyAnimationIsolationFixtureVerification
         AssertEqual(baseline.BossBitCalls, edited.BossBitCalls, context + " preserves boss-event publication");
     }
 
-    // Public value fields include native instruction/frame identities, timers, positions,
-    // health and typed extra state. Do not compare reference owners or editable catalogs:
-    // they intentionally belong to different instances. Non-value collections above are
-    // compared explicitly, so a matching endpoint cannot hide a changed intermediate frame.
+    /// <summary>
+    /// Compares public scalar state, including instruction identities, timers, positions, and health.
+    /// Reference owners and editable catalogs differ by design; collections are compared separately.
+    /// </summary>
     internal static void AssertAnimationValues<T>(T baseline, T edited, string context) where T : class
     {
         foreach (PropertyInfo property in AnimationValueProperties<T>.All)
             AssertEqual(property.GetValue(baseline), property.GetValue(edited), context + " " + typeof(T).Name + "." + property.Name);
     }
 
+    /// <summary>Selects scalar properties that can be compared without traversing fixture-owned references.</summary>
     internal static class AnimationValueProperties<T> where T : class
     {
+        /// <summary>Public non-indexer value and string properties of the state type.</summary>
         internal static readonly PropertyInfo[] All = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .Where(property => property.GetIndexParameters().Length == 0 &&
                 (property.PropertyType.IsValueType && !property.PropertyType.IsByRefLike || property.PropertyType == typeof(string))).ToArray();

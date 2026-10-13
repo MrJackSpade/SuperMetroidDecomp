@@ -50,16 +50,35 @@ internal static class TorizoInstructionVramArtworkDefinitions
     /// <summary>Mutually exclusive artwork roles in the installed manifest and content-hash order.</summary>
     private enum PageRole
     {
-        SharedDeath, StatueCrumble, LeftAttack, RightAttack,
-        GoldenAwakening, GoldenLeftAttack, GoldenRightAttack, ChozoDebris,
+        /// <summary>Characters shared by the death and recovery uploads.</summary>
+        SharedDeath,
+        /// <summary>Alternating statue crumble characters.</summary>
+        StatueCrumble,
+        /// <summary>Left-facing attack and death characters.</summary>
+        LeftAttack,
+        /// <summary>Right-facing attack and death characters.</summary>
+        RightAttack,
+        /// <summary>Golden Torizo's awakening characters.</summary>
+        GoldenAwakening,
+        /// <summary>Golden Torizo's alternate left attack characters.</summary>
+        GoldenLeftAttack,
+        /// <summary>Golden Torizo's alternate right attack characters.</summary>
+        GoldenRightAttack,
+        /// <summary>Bomb Torizo's PLM-uploaded Chozo debris characters.</summary>
+        ChozoDebris,
     }
 
+    /// <summary>Enumerates the eight tile pages in stable installed-manifest and hash order.</summary>
     internal static PageSequence All => default;
 
+    /// <summary>Indexable view of the fixed set of Torizo instruction tile sources.</summary>
     internal readonly struct PageSequence : IReadOnlyList<TorizoInstructionTileSheetDefinition>
     {
+        /// <summary>Gets the number of required tile sheets.</summary>
         public int Count => 8;
+        /// <summary>Gets the sequence length for callers using array-style access.</summary>
         public int Length => Count;
+        /// <summary>Gets the tile sheet assigned to a stable page-role index.</summary>
         public TorizoInstructionTileSheetDefinition this[int index] => (PageRole)index switch
         {
             PageRole.SharedDeath => SharedDeath,
@@ -72,10 +91,12 @@ internal static class TorizoInstructionVramArtworkDefinitions
             PageRole.ChozoDebris => ChozoDebris,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Yields every required tile sheet in page-role order.</summary>
         public IEnumerator<TorizoInstructionTileSheetDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same page-role order to non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
@@ -94,8 +115,10 @@ public sealed class TorizoInstructionVramArtwork
                 content.Append("tiles", page.Transfer.Span);
         });
 
+    /// <summary>Validated selected character transfers in tile-sheet definition order.</summary>
     private readonly RoomCharacterAtlas[] pages;
 
+    /// <summary>Copies and validates one installed character atlas for every required Torizo upload page.</summary>
     internal TorizoInstructionVramArtwork(RoomCharacterAtlas[] pages)
     {
         Ensure.NotNull(pages);
@@ -111,6 +134,7 @@ public sealed class TorizoInstructionVramArtwork
         this.pages = [.. pages];
     }
 
+    /// <summary>Finds the selected bytes for a native upload range wholly contained in one tile page.</summary>
     internal bool TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> characters)
     {

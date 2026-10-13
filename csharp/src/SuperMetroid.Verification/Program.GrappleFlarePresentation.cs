@@ -11,8 +11,10 @@ using static GraphDigestVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Grapple flare timing, OAM, editable offsets, and restored actor binding against native presentation.</summary>
 internal static class GrappleFlarePresentationVerification
 {
+    /// <summary>Compares flare drawing across phases and coordinates with native cadence while checking an edited composition preserves gameplay state.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyGrappleFlarePresentation(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
@@ -129,9 +131,11 @@ internal static class GrappleFlarePresentationVerification
         }
     }
 
+    /// <summary>Reads a native Grapple flare delay byte solely for the verification timing oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple flare presentation")]
     private static byte GrappleFlarePresentationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks the real actor consumes stock and edited flare compositions and rebinds current art after a saved-state restore.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyGrappleFlareActorBinding(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
@@ -186,11 +190,13 @@ internal static class GrappleFlarePresentationVerification
         }
     }
 
+    /// <summary>Forbids production reads from migrated flare cadence and spritemap-selector tables.</summary>
     private static CartridgeReadGuard NewGrappleFlarePresentationGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x90c481 and < 0x90c4b5 or >= 0x93a225 and < 0x93a231,
                 address => $"Grapple flare still reads compiled cadence/selector at {address:X6}.");
 
+    /// <summary>Reads one native facing-row selector offset to check both rows choose the shared main flare.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native Grapple flare spritemap-offset rows")]
     private static ushort ReadNativeGrappleFlareSpritemapOffset(ISnesAddressSpace bus, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);

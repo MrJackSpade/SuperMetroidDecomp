@@ -15,12 +15,15 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Mother Brain ceiling-tube projectile programs, sprites, and shared deletion.</summary>
 internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for ceiling-tube instruction checks.</summary>
     internal static void VerifyMotherBrainTopTubeInstructionProgramDefinitions() =>
         Suite(nameof(VerifyMotherBrainTopTubeInstructionProgramDefinitions), () => VerifyMotherBrainTopTubeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Compares native words and executes four producers through display and terminal sleep.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain top Tube instruction program definitions")]
     internal static void VerifyMotherBrainTopTubeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -124,6 +127,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         }
     }
 
+    /// <summary>Alternates two compiled tube words to expose allocation in warmed lookups.</summary>
     private static int ProbeMotherBrainTopTubeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -137,6 +141,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         return checksum;
     }
 
+    /// <summary>Blocks private and shared control bytes and observes visual operand reads.</summary>
     private static CartridgeReadGuard NewMotherBrainTopTubeInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => MotherBrainTopTubeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -145,6 +150,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
                     $"${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordCount, MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Mother Brain ceiling-tube instruction mechanics command.</summary>
     [VerificationCommand("--mother-brain-top-tube-instruction-mechanics")]
     internal static int MotherBrainTopTubeInstructionMechanicsCommand()
     {

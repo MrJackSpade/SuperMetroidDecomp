@@ -25,29 +25,36 @@ internal static class BombTorizoHandPlmDrawDefinitions
     /// </summary>
     internal readonly record struct Draw(BombTorizoHandDraw Pointer)
     {
+        /// <summary>Whether this list removes the hand's solid blocks instead of drawing intact stone.</summary>
         internal bool IsCleared => Pointer == BombTorizoHandDraw.Cleared;
+        /// <summary>Gets the number of horizontal strips in the selected native draw list.</summary>
         internal int RunCount => IsCleared ? 5 : 4;
+        /// <summary>Gets the block count in a selected strip, rejecting an invalid run index.</summary>
         internal int WordCount(int run)
         {
             CheckRun(run);
             return IsCleared ? (run < 2 ? 2 : 4) : run switch { 1 => 1, 3 => 3, _ => 2 };
         }
+        /// <summary>Gets a strip's horizontal origin relative to the hand PLM block.</summary>
         internal sbyte OriginX(int run)
         {
             CheckRun(run);
             return IsCleared ? (sbyte)(run == 0 ? 0 : -2) : (sbyte)-(run & 1);
         }
+        /// <summary>Gets a strip's vertical origin relative to the hand PLM block.</summary>
         internal sbyte OriginY(int run)
         {
             CheckRun(run);
             return (sbyte)(IsCleared ? run switch { 2 => 1, 3 => -2, 4 => -1, _ => 0 } :
                 run switch { 2 => -1, 3 => 1, _ => 0 });
         }
+        /// <summary>Gets the next strip's relative X origin or zero at list termination.</summary>
         internal sbyte NextX(int run)
         {
             CheckRun(run);
             return run + 1 == RunCount ? (sbyte)0 : OriginX(run + 1);
         }
+        /// <summary>Gets the next strip's relative Y origin or zero at list termination.</summary>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
@@ -65,12 +72,14 @@ internal static class BombTorizoHandPlmDrawDefinitions
             int firstTile = run switch { 0 => 0x65, 1 => 0x64, 2 => 0x45, _ => 0x47 };
             return (ushort)(0x8000 | (firstTile + word));
         }
+        /// <summary>Rejects strip indices outside the selected intact or cleared list.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
         }
     }
 
+    /// <summary>Recognizes one of the two native hand draw pointers and returns its calculated descriptor.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         bool owned = Enum.IsDefined((BombTorizoHandDraw)pointer);
@@ -78,6 +87,7 @@ internal static class BombTorizoHandPlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Enumerates temporary draw DTOs for intact and cleared hand artwork in native order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -89,7 +99,7 @@ internal static class BombTorizoHandPlmDrawDefinitions
         }
     }
 
-    // Temporary DTOs serve artwork import/export; gameplay computes each strip directly.
+    /// <summary>Expands a calculated hand draw into an import/export DTO; gameplay computes its strips directly.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -105,9 +115,11 @@ internal static class BombTorizoHandPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Gets the stable artwork ID for a supported native hand draw pointer.</summary>
     internal static string VisualId(ushort pointer) =>
         VisualId(ClosedNativeWords.Decode<BombTorizoHandDraw>(pointer, "Bomb Torizo hand draw with a visual ID"));
 
+    /// <summary>Maps an intact or cleared hand draw to its stable artwork ID.</summary>
     internal static string VisualId(BombTorizoHandDraw pointer) => pointer switch
     {
         BombTorizoHandDraw.Intact => "intact",
@@ -115,6 +127,7 @@ internal static class BombTorizoHandPlmDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined BombTorizoHandDraw {pointer}."),
     };
 
+    /// <summary>Resolves an ordinal artwork ID to the corresponding temporary hand draw DTO.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

@@ -14,8 +14,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Mother Brain's compiled room-flash program against native timing and CGRAM output.</summary>
 internal static class MotherBrainRoomPaletteProgramDefinitionsVerification
 {
+    /// <summary>Compares the 48-frame room flash loop, installed palettes, mechanics words, and read boundaries.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyMotherBrainRoomPaletteProgramDefinitions()
     {
@@ -111,6 +113,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsVerification
             "and allocation-free lookup pass.");
     }
 
+    /// <summary>Repeats warmed room-palette mechanics lookups for the caller's allocation measurement.</summary>
     private static int ProbeMotherBrainRoomPaletteAllocation()
     {
         int checksum = 0;
@@ -122,6 +125,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects compiled mechanics rereads and records presentation operands requested at runtime.</summary>
     private static CartridgeReadGuard NewMotherBrainRoomPaletteReadGuard(ISnesAddressSpace source)
     {
         var guard = new CartridgeReadGuard(source)
@@ -136,6 +140,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsVerification
             });
     }
 
+    /// <summary>Dispatches the Mother Brain room-palette mechanics verification command.</summary>
     [VerificationCommand("--mother-brain-room-palette-mechanics")]
     internal static int MotherBrainRoomPaletteMechanicsCommand()
     {

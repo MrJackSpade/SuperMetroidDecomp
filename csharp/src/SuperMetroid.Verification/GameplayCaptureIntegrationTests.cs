@@ -12,8 +12,10 @@ using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Compares captured render packets with legacy frames during Ceres startup and a room pause cycle.</summary>
 internal static class GameplayCaptureIntegrationTestsVerification
 {
+    /// <summary>Checks NMI window publication, overlay ordering, packet persistence, and pixel and audio parity through fades.</summary>
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     internal static void VerifyGameplayCaptureIntegration()
     {

@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Rio idle, swoop, and cooldown instruction programs against bank-$A2 data and live animation handoffs.</summary>
 internal static class RioInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail cartridge data for Rio instruction verification.</summary>
     internal static void VerifyRioInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyRioInstructionProgramDefinitions), () => VerifyRioInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares mechanics and visual words with ROM, then runs the initializer and all four animation programs with compiled mechanics reads guarded.</summary>
     internal static void VerifyRioInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0;
@@ -134,6 +137,7 @@ internal static class RioInstructionProgramDefinitionsVerification
             "compiled spritemap selectors pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Starts a Rio instruction entry and forces the requested number of production interpreter calls.</summary>
     internal static void ExecuteRioProgram(
         RoomEnemySystem enemies,
         object?[] processArguments,
@@ -149,6 +153,7 @@ internal static class RioInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates idle and cooldown mechanics lookups to check the warmed path allocates no memory.</summary>
     private static int ProbeRioInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -162,12 +167,14 @@ internal static class RioInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads a native bank-$A2 instruction word for exact mechanics and selector comparisons.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Rio instruction words")]
     internal static ushort ReadRioInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa20000 | address);
 
+    /// <summary>Forbids migrated mechanics reads and optionally forbids, otherwise observes, visual-selector reads.</summary>
     internal static CartridgeReadGuard NewRioInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
@@ -183,6 +190,7 @@ internal static class RioInstructionProgramDefinitionsVerification
             : guard.ObserveWords(0xa20000, RioInstructionProgramDefinitions.PresentationWordCount, RioInstructionProgramDefinitions.PresentationWordAddress);
     }
 
+    /// <summary>Runs the Rio instruction mechanics verification command.</summary>
     [VerificationCommand("--rio-instruction-mechanics")]
     internal static int RioInstructionMechanicsCommand()
     {

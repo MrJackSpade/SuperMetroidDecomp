@@ -14,8 +14,10 @@ using SuperMetroid.Core.Rooms;
 using static ChozoStatueVisualsVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Lower Norfair Chozo hand admission, acid draining, and completed-room re-entry.</summary>
 internal static class LowerNorfairHandVerification
 {
+    /// <summary>Drives retail hand collision and the full statue sequence with PLM data reads blocked.</summary>
     internal static void VerifyLowerNorfairHand()
     {
         var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -127,6 +129,7 @@ internal static class LowerNorfairHandVerification
         Console.WriteLine($"Lower Norfair hand: collision/admission, live FX writes, {displayedHeights.Count} displayed drain heights, control release and re-entry pass.");
     }
 
+    /// <summary>Runs the Lower Norfair Chozo hand and acid-drain fixture.</summary>
     [VerificationCommand("--lower-norfair-hand")]
     internal static int LowerNorfairHandCommand()
     {

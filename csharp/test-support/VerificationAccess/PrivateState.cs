@@ -6,35 +6,44 @@ using System.Reflection;
 /// </summary>
 internal static class PrivateState
 {
+    /// <summary>Search each declaring type separately so inherited private members remain visible.</summary>
     private const BindingFlags Members = BindingFlags.Instance | BindingFlags.Static |
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
+    /// <summary>Reads an instance field from the owner's inheritance chain, including private base fields.</summary>
     internal static T Field<T>(object owner, string name) => (T)FieldInfo(owner.GetType(), name).GetValue(owner)!;
 
+    /// <summary>Reads a static field declared by the given type or one of its base types.</summary>
     internal static T StaticField<T>(Type type, string name) => (T)FieldInfo(type, name).GetValue(null)!;
 
+    /// <summary>Assigns an instance field after converting compatible primitive test constants.</summary>
     internal static void SetField(object owner, string name, object? value)
     {
         FieldInfo field = FieldInfo(owner.GetType(), name);
         field.SetValue(owner, Assignable(field.FieldType, value));
     }
 
+    /// <summary>Assigns a static field after converting compatible primitive test constants.</summary>
     internal static void SetStaticField(Type type, string name, object? value)
     {
         FieldInfo field = FieldInfo(type, name);
         field.SetValue(null, Assignable(field.FieldType, value));
     }
 
+    /// <summary>Calls a private instance getter, preserving exceptions from the getter itself.</summary>
     internal static T Property<T>(object owner, string name) => (T)Get(PropertyInfo(owner.GetType(), name), owner)!;
 
+    /// <summary>Calls a private static getter, preserving exceptions from the getter itself.</summary>
     internal static T StaticProperty<T>(Type type, string name) => (T)Get(PropertyInfo(type, name), null)!;
 
+    /// <summary>Calls a private instance setter with a value compatible with its property type.</summary>
     internal static void SetProperty(object owner, string name, object? value)
     {
         PropertyInfo property = PropertyInfo(owner.GetType(), name);
         Set(property, owner, Assignable(property.PropertyType, value));
     }
 
+    /// <summary>Calls a private static setter with a value compatible with its property type.</summary>
     internal static void SetStaticProperty(Type type, string name, object? value)
     {
         PropertyInfo property = PropertyInfo(type, name);
@@ -50,9 +59,11 @@ internal static class PrivateState
             ? value
             : Convert.ChangeType(value, memberType, System.Globalization.CultureInfo.InvariantCulture);
 
+    /// <summary>Invokes a private instance method, supplying defaults for omitted optional parameters.</summary>
     internal static object? Invoke(object owner, string name, params object?[] arguments) =>
         Call(MethodInfo(owner.GetType(), name, arguments), owner, arguments);
 
+    /// <summary>Invokes a private static method, supplying defaults for omitted optional parameters.</summary>
     internal static object? InvokeStatic(Type type, string name, params object?[] arguments) =>
         Call(MethodInfo(type, name, arguments), null, arguments);
 
@@ -64,6 +75,7 @@ internal static class PrivateState
     internal static object? InvokeStaticWithOut(Type type, string name, object?[] arguments) =>
         Call(MethodInfo(type, name, arguments), null, arguments);
 
+    /// <summary>Captures a span getter without boxing its ref struct return value.</summary>
     private delegate ReadOnlySpan<T> SpanGetter<T>();
 
     /// <summary>A private static span property, read through a typed delegate because spans cannot be boxed.</summary>
@@ -96,7 +108,10 @@ internal static class PrivateState
         AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType(fullName)).FirstOrDefault(t => t is not null)
             ?? throw new TypeLoadException($"No loaded assembly declares {fullName}.");
 
-    // Members throw exactly what a direct call throws, never a TargetInvocationException wrapper.
+    /// <summary>
+    /// Supplies omitted optional defaults and exposes a method's own exception rather than
+    /// a reflection wrapper; copies updated argument values back after an expanded call.
+    /// </summary>
     private static object? Call(MethodBase method, object? owner, object?[] arguments)
     {
         ParameterInfo[] parameters = method.GetParameters();
@@ -109,6 +124,7 @@ internal static class PrivateState
         return result;
     }
 
+    /// <summary>Invokes a selected constructor with its declared defaults for omitted optional arguments.</summary>
     private static object Construct(ConstructorInfo constructor, object?[] arguments)
     {
         ParameterInfo[] parameters = constructor.GetParameters();
@@ -116,12 +132,15 @@ internal static class PrivateState
         return constructor.Invoke(BindingFlags.DoNotWrapExceptions, null, complete, null);
     }
 
+    /// <summary>Requires a getter and invokes it without wrapping its exception.</summary>
     private static object? Get(PropertyInfo property, object? owner) =>
         Call(property.GetMethod ?? throw new MissingMethodException(property.DeclaringType?.FullName, property.Name + ".get"), owner, []);
 
+    /// <summary>Requires a setter and invokes it without wrapping its exception.</summary>
     private static void Set(PropertyInfo property, object? owner, object? value) =>
         Call(property.SetMethod ?? throw new MissingMethodException(property.DeclaringType?.FullName, property.Name + ".set"), owner, [value]);
 
+    /// <summary>Finds a field even when a private declaration lives on a base type.</summary>
     private static FieldInfo FieldInfo(Type type, string name)
     {
         for (Type? current = type; current is not null; current = current.BaseType)
@@ -130,6 +149,7 @@ internal static class PrivateState
         throw new MissingFieldException(type.FullName, name);
     }
 
+    /// <summary>Finds a property even when a private declaration lives on a base type.</summary>
     private static PropertyInfo PropertyInfo(Type type, string name)
     {
         for (Type? current = type; current is not null; current = current.BaseType)
@@ -154,11 +174,13 @@ internal static class PrivateState
         throw new MissingMethodException(type.FullName, name);
     }
 
+    /// <summary>Matches supplied arguments while allowing only optional parameters to be omitted.</summary>
     private static bool Accepts(ParameterInfo[] parameters, object?[] arguments) =>
         arguments.Length <= parameters.Length &&
         parameters.Skip(arguments.Length).All(parameter => parameter.IsOptional) &&
         parameters.Zip(arguments).All(pair => Accepts(pair.First, pair.Second));
 
+    /// <summary>Handles out placeholders, by-reference element types, and nullable parameters during overload selection.</summary>
     private static bool Accepts(ParameterInfo parameter, object? argument)
     {
         if (parameter.IsOut)

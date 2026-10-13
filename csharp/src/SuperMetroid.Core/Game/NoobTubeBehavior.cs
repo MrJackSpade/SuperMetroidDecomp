@@ -5,9 +5,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Noob tube species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class NoobTubeBehavior
 {
+    /// <summary>Provides room-load state and the native RNG for shard and bubble launch angles.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Allocates and advances crack, glass shard, and released-air-bubble projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Binds projectile initialization to the loaded room and its projectile slots.</summary>
     internal NoobTubeBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;
@@ -96,6 +99,7 @@ internal sealed class NoobTubeBehavior
         }
     }
 
+    /// <summary>Converts a native even-byte table offset to a shard or bubble entry index, rejecting odd and out-of-range operands.</summary>
     private static int ValidateEvenNoobTubeParameter(
         ushort parameter,
         int entryCount,
@@ -109,7 +113,7 @@ internal sealed class NoobTubeBehavior
         return parameter / 2;
     }
 
-    /// <summary>Runs the six movement callbacks referenced by the three projectile lists.</summary>
+    /// <summary>Runs the six crack, shard, and bubble callbacks, including flicker timing and off-screen shard deletion.</summary>
     internal void RunNoobTubeProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
         ushort cameraY)
@@ -163,6 +167,7 @@ internal sealed class NoobTubeBehavior
         }
     }
 
+    /// <summary>Uses the native sine table to advance the projectile's separate horizontal word and fraction, then steps its angle.</summary>
     internal static void MoveNoobTubeProjectileHorizontallyAlongArc(
         RoomEnemyProjectileSlot projectile,
         ushort angleStep)
@@ -177,11 +182,13 @@ internal sealed class NoobTubeBehavior
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue + angleStep))));
     }
 
+    /// <summary>Advances the bubble by its vertical velocity and publishes its separately accumulated horizontal word.</summary>
     private static void MoveNoobTubeBubbleVertically(RoomEnemyProjectileSlot projectile)
     {
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).WithWholeX(projectile.Variable1);
     }
 
+    /// <summary>Connects all six native projectile pre-instruction identities to the shared room callback.</summary>
     internal void RegisterNoobTubeProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -191,6 +198,7 @@ internal sealed class NoobTubeBehavior
     }
 
 
+    /// <summary>Registers shard and bubble instruction words that choose an RNG-derived horizontal angle; shards also receive falling speed.</summary>
     internal void RegisterFallingAngleInstructions(EnemyProjectileHandlerTable table)
     {
         table.RegisterInstruction(EnemyProjectileInstruction.NoobTubeShardAssignFallingAngle, null,

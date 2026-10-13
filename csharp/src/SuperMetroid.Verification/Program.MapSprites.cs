@@ -9,8 +9,10 @@ using static InstalledFileSelectMapVerification;
 using static MapSpriteCasesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks imported map sprites and editable overrides in file-select and pause presentation.</summary>
 internal static class MapSpritesVerification
 {
+    /// <summary>Compares native sprite bytes and clipping, then checks composition and PNG edits through rendered maps.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native map OBJ characters")]
     internal static void VerifyMapSprites(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
@@ -131,6 +133,7 @@ internal static class MapSpritesVerification
             CartridgeImportSource.Require(bus), oam, address, origin,
             paletteBits, originIsOnScreen);
 
+    /// <summary>Forbids runtime reads of installed map characters and every native map sprite pointer and body.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle reading the native map spritemap pointers to forbid every migrated sprite source")]
     private static MutableCartridgeReadGuard NewMapSpriteGuard(ISnesAddressSpace source)
     {

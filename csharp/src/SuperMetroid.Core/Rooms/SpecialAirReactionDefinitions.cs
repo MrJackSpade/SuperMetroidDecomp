@@ -182,6 +182,7 @@ public static class SpecialAirReactionDefinitions
         };
     }
 
+    /// <summary>Restricts special-air lookup to retail areas and their sixteen authored BTS entries.</summary>
     private static void Validate(AreaId area, byte areaReactionIndex, string context)
     {
         _ = AreaIds.ToIndex(area);

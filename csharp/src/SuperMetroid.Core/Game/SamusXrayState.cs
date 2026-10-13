@@ -160,7 +160,7 @@ public sealed class SamusXrayState
             >= SamusPoseId.LandingAimUpRightPose and <= SamusPoseId.FiringLandingLeftPose)
             return false;
 
-        if (conditions.GameState != 8 || conditions.PowerBombExplosionStatus != 0 ||
+        if (conditions.GameState != (ushort)Frontend.SuperMetroidGameState.MainGameplay || conditions.PowerBombExplosionStatus != 0 ||
             samus.Kinematics.YSpeed != 0 || samus.Kinematics.YSubspeed != 0)
         {
             return false;

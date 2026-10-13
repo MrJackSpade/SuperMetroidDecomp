@@ -413,7 +413,7 @@ internal static void VerifySamusXray()
     standing.Presentation.InitializeAnimation(bus);
 
     AssertTrue(
-        standing.Xray.TryBegin(bus, standing, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions()),
+        standing.Xray.TryBegin(bus, standing, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
         "standing X-ray setup accepted");
     AssertEqual(SamusPoseId.XrayingStandingRightPose, standing.Pose, "right standing X-ray pose");
     AssertEqual(21, standing.Kinematics.Radius.Y, "standing X-ray radius");
@@ -581,7 +581,7 @@ internal static void VerifySamusXray()
     };
     crouched.PoseMetadata.RefreshCollisionRadii(bus);
     crouched.Presentation.InitializeAnimation(bus);
-    AssertTrue(crouched.Xray.TryBegin(bus, crouched, previousMovementType: SamusMovementType.Crouching, conditions: new XrayBeginConditions()),
+    AssertTrue(crouched.Xray.TryBegin(bus, crouched, previousMovementType: SamusMovementType.Crouching, conditions: new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
         "crouched X-ray setup accepted");
     AssertEqual(SamusPoseId.XrayingCrouchingRightPose, crouched.Pose, "right crouched X-ray pose");
     AssertEqual(16, crouched.Kinematics.Radius.Y, "crouched X-ray radius");
@@ -614,7 +614,7 @@ internal static void VerifySamusXray()
     };
     interrupted.PoseMetadata.RefreshCollisionRadii(bus);
     interrupted.Presentation.InitializeAnimation(bus);
-    AssertTrue(interrupted.Xray.TryBegin(bus, interrupted, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions(), deferActivation: true),
+    AssertTrue(interrupted.Xray.TryBegin(bus, interrupted, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }, deferActivation: true),
         "X-Mode fixture admits deferred left-facing X-Ray setup");
     AssertTrue(interrupted.Xray.IsActive && !interrupted.Xray.OwnsSamusControl,
         "deferred setup starts beam ownership before pose-command arbitration");
@@ -663,17 +663,17 @@ internal static void VerifySamusXray()
     WritePoseAnimationDelays(bus, SamusPoseId.NormalLandingRightPose, 0xc700, [0x01, 0xff]);
     WritePoseAnimationDelays(bus, SamusPoseId.FallingRightPose, 0xc710, [0x01, 0xff]);
     var landing = Rejected(SamusPoseId.NormalLandingRightPose);
-    AssertTrue(!landing.Xray.TryBegin(bus, landing, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions()),
+    AssertTrue(!landing.Xray.TryBegin(bus, landing, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
         "X-ray rejects landing pose");
     var movingVertically = Rejected(SamusPoseId.FacingRightNormalPose, ySubspeed: 1);
-    AssertTrue(!movingVertically.Xray.TryBegin(bus, movingVertically, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions()),
+    AssertTrue(!movingVertically.Xray.TryBegin(bus, movingVertically, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
         "X-ray rejects fractional Y velocity");
     var badPrevious = Rejected(SamusPoseId.FacingRightNormalPose);
-    AssertTrue(!badPrevious.Xray.TryBegin(bus, badPrevious, previousMovementType: SamusMovementType.Falling, conditions: new XrayBeginConditions()),
+    AssertTrue(!badPrevious.Xray.TryBegin(bus, badPrevious, previousMovementType: SamusMovementType.Falling, conditions: new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
         "X-ray rejects unsupported previous movement type");
     var fiveBombQuirk = Rejected(SamusPoseId.FacingRightNormalPose);
     fiveBombQuirk.XSpeedDivisor = 2;
-    AssertTrue(!fiveBombQuirk.Xray.TryBegin(bus, fiveBombQuirk, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { ProjectileCooldownTimer = 7, BombCounter = 5 }),
+    AssertTrue(!fiveBombQuirk.Xray.TryBegin(bus, fiveBombQuirk, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay, ProjectileCooldownTimer = 7, BombCounter = 5 }),
         "X-ray preserves five-bomb cooldown/divisor rejection");
 
     Console.WriteLine(

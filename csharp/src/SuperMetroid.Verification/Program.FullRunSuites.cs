@@ -364,6 +364,7 @@ using static WrapShotWidthsVerification;
 using static WrapShotsVerification;
 using static XrayControlsVerification;
 using static XrayExtensionsVerification;
+using static XrayGameStateVerification;
 using static XrayInputVerification;
 using static XrayOverlaysVerification;
 using static XrayRevealVerification;
@@ -556,6 +557,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyGrappleEnemyDeath), () => VerifyGrappleEnemyDeath()),
         new(nameof(VerifyShutterRiding), () => VerifyShutterRiding()),
         new(nameof(VerifyXrayInput), () => VerifyXrayInput()),
+        new(nameof(VerifyXrayGameState), () => VerifyXrayGameState()),
         new(nameof(VerifyDraygonPrebattleXray), () => VerifyDraygonPrebattleXray()),
         new(nameof(VerifyXrayWindowGeometry), () => VerifyXrayWindowGeometry()),
         new(nameof(VerifyXraySetupBuffers), () => VerifyXraySetupBuffers()),

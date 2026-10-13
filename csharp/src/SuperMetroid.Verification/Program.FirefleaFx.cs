@@ -133,7 +133,7 @@ internal static class FirefleaFxVerification
             "ordinary Fireflea keeps both room maps and subtracts fixed color");
         AssertTrue(SoftwareLayeredSnapshotRenderer.Render(ordinaryDarkness).SequenceEqual(
             SuperMetroidRuntimeFrameRenderer.Render(runtime)), "immediate and packet Fireflea paths agree");
-        AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(bus), new XrayBeginConditions()), "Fireflea display fixture activates X-ray");
+        AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(bus), new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }), "Fireflea display fixture activates X-ray");
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         var packet = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         AssertTrue(packet.Layers[0] is GameplayColorMathRenderLayer, "Fireflea capture uses source-aware X-ray compositor");

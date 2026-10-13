@@ -160,11 +160,12 @@ internal sealed class SamusFramePhases
     /// <remarks>
     /// HUD cursor movement is not yet a general runtime subsystem, so this narrow entry
     /// point represents only the already-selected item. It still requires equipped bit
-    /// `$8000` and passes the live bomb cooldown/count, power-bomb phase, current/previous
+    /// `$8000` and passes the live dispatch game state (states `$0C` and `$12` also run
+    /// this alpha pass but setup rejects them), bomb cooldown/count, power-bomb phase, current/previous
     /// movement types, vertical velocity, landing-pose gate, and speed divisor to native
     /// setup logic. The DebugRunner uses it without substituting a host pose or art frame.
     /// </remarks>
-    public bool TryBeginXrayFromSelectedHudItem(ushort gameState = 8, bool deferActivation = false)
+    public bool TryBeginXrayFromSelectedHudItem(ushort gameState, bool deferActivation)
     {
         if (_player.Samus is null || !_player.GroundedSamusMovementEnabled || _room.LevelData is null)
         {
@@ -208,7 +209,7 @@ internal sealed class SamusFramePhases
                     $"uninitialized pose ${(int)_player.Samus.Pose:X2} has no translated $90:A337 mover.");
         }
     }
-    internal void StepGroundedSamusMovement(SamusHandlerFrame frame, bool enemyMainAlreadyRan, Func<bool> alphaInputLocked, SamusState samus, ScrollBoundaryCamera camera)
+    internal void StepGroundedSamusMovement(SamusHandlerFrame frame, ushort gameState, bool enemyMainAlreadyRan, Func<bool> alphaInputLocked, SamusState samus, ScrollBoundaryCamera camera)
     {
         if (_player.GroundedSamusMovementEnabled)
         {
@@ -280,7 +281,7 @@ internal sealed class SamusFramePhases
                     samus.SelectedHudItem == SamusXrayRomData.SelectedHudItem &&
                     samus.Grapple.Phase == GrapplePhase.Inactive &&
                     (_controller1.Current & (ushort)SnesButton.B) != 0 &&
-                    TryBeginXrayFromSelectedHudItem(deferActivation: true))
+                    TryBeginXrayFromSelectedHudItem(gameState, deferActivation: true))
                 {
                     frame.XrayActivatedThisFrame = true;
                     _player.ProspectiveSamusPose = null;

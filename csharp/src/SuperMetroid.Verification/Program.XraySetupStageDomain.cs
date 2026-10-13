@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
@@ -42,7 +43,7 @@ internal static class XraySetupStageDomainVerification
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
-        AssertTrue(samus.Xray.TryBegin(bus, samus, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions()),
+        AssertTrue(samus.Xray.TryBegin(bus, samus, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
             "X-ray setup accepted");
         foreach (XraySetupStage expected in order)
         {

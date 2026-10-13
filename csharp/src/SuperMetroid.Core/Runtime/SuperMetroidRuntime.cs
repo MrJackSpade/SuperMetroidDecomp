@@ -649,7 +649,7 @@ public sealed class SuperMetroidRuntime
                     frame.DeceleratingFallbackHasMomentum).ProspectivePose;
             }
 
-            SamusPhases.StepGroundedSamusMovement(frame, enemyMainAlreadyRan, AlphaInputLocked, Player.Samus, Room.Camera);
+            SamusPhases.StepGroundedSamusMovement(frame, DispatchGameState, enemyMainAlreadyRan, AlphaInputLocked, Player.Samus, Room.Camera);
 
             // Samus_MovementHandler_Normal calls `$90:EEE7` after the selected movement
             // function and before animation/pose transitions. Every fourth gameplay frame

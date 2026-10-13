@@ -2,8 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
+/// <summary>Checks migration of serialized Shinespark crash fields from an older debugger graph.</summary>
 internal static class DebuggerLegacyShinesparkVerification
 {
+    /// <summary>Restores inactive and crash-phase legacy aliases, then round trips them through the current graph format.</summary>
     private static void VerifyLegacyShinesparkGraph()
     {
         foreach (var phase in new[] { ShinesparkPhase.Inactive, ShinesparkPhase.Crash, ShinesparkPhase.CrashEchoCircle, ShinesparkPhase.CrashFinish })

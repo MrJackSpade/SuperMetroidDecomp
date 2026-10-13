@@ -3,8 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
+/// <summary>Checks Ceres station sprite composition and rendering against imported artwork.</summary>
 internal static class CeresStationPartsVerification
 {
+    /// <summary>Verifies source identity, independent part edits, bounds, and native OAM at visible and wrapped origins.</summary>
     internal static void VerifyCeresStationParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);
@@ -58,6 +60,7 @@ internal static class CeresStationPartsVerification
             }
         }
     }
+    /// <summary>Checks that serialized station art draws the supplied parts at visible and wrapped origins.</summary>
     internal static void CheckCeresStationLoader(ushort pointer, SpriteVisualPart[] visual)
     {
         var definition = CeresFlightSpriteDefinitions.Frames.FirstOrDefault(frame => frame.Pointer == pointer);

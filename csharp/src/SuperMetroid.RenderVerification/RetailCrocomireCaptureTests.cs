@@ -5,8 +5,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks GPU capture through Crocomire's ordinary fight and full death sequence.</summary>
 internal static class RetailCrocomireCaptureTests
 {
+    /// <summary>Compares rendered frames across native death phases and checks when melting HDMA becomes active.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -69,6 +71,7 @@ internal static class RetailCrocomireCaptureTests
     }
 }
 
+/// <summary>Retail room and actor positions that trigger and complete Crocomire's death sequence.</summary>
 internal static class CrocomireCaptureFixture
 {
     /// <summary>Retail bank-$8F Crocomire room header, shared with the production death audit.</summary>

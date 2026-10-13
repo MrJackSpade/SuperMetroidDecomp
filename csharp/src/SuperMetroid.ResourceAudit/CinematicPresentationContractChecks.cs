@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms identified title/opening/Ceres resource boundaries with source-only fixtures.</summary>
 internal static class CinematicPresentationContractChecks
 {
+    /// <summary>Compiles cinematic consumers with and without the closed adapter and checks valid and invalid ownership decisions.</summary>
     internal static void Run()
     {
         var trees = CinematicClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -93,6 +94,7 @@ internal static class CinematicPresentationContractChecks
             "external access to mutable AnchorNames must revoke the fixed timer-anchor proof");
     }
 
+    /// <summary>Raises a contract failure with the specific source-only fixture expectation.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Cinematic provider confirmation failed: " + reason);

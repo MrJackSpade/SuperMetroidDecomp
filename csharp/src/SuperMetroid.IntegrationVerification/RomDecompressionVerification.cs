@@ -2,8 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Checks typed cartridge reads and compressed-stream framing across a LoROM bank edge.</summary>
 internal static class RomDecompressionVerification
 {
+    /// <summary>Compares every compression command family and verifies exact source extent and allocation bounds.</summary>
     [CpuBusBoundary("exact bus test: RomDataReader fixed-bank, word, long and compressed-stream framing reads exactly the declared LoROM bytes")]
     public static int Run()
     {
@@ -71,6 +73,7 @@ internal static class RomDecompressionVerification
         return 0;
     }
 
+    /// <summary>Requires malformed or truncated compressed data to fail within the verifier.</summary>
     private static void Reject(Action action)
     {
         try { action(); }
@@ -78,6 +81,7 @@ internal static class RomDecompressionVerification
         throw new InvalidDataException("Malformed/truncated compressed stream was accepted.");
     }
 
+    /// <summary>Requires fixed-bank imports to reject reads crossing into the mutable low window.</summary>
     private static void RejectRange(Action action)
     {
         try { action(); }
@@ -85,14 +89,20 @@ internal static class RomDecompressionVerification
         throw new InvalidDataException("Fixed-bank cartridge import crossed into a mutable low window.");
     }
 
+    /// <summary>Tracks sequential LoROM byte reads and rejects reads beyond the declared fixture stream.</summary>
     [CpuBusBoundary("exact bus test: witnesses LoROM traversal order and read extent of a cartridge stream")]
     private sealed class StreamBus(byte[] bytes) : ISnesAddressSpace, IImportCartridgeSource
     {
         // Deliberately cross xx:FFFF -> (xx+1):8000 inside the first literal run.
+        /// <summary>Begins four bytes before a bank boundary to exercise the native wrap.</summary>
         public const int Start = 0x94fffc;
+        /// <summary>Next cartridge bus address expected after the previous fixture read.</summary>
         private SnesAddress next = SnesAddress.FromBusAddress(Start);
+        /// <summary>Number of source bytes consumed by the reader.</summary>
         public int Reads { get; private set; }
+        /// <summary>Rejects the untyped byte API so import code must use cartridge reads.</summary>
         public static byte ReadByte(int address) => throw new InvalidOperationException("Decompression must use the typed cartridge source.");
+        /// <summary>Advances through the supplied bytes only in native LoROM order.</summary>
         public byte ReadCartridgeByte(int address)
         {
             if (address != (int)next || Reads >= bytes.Length)
@@ -100,6 +110,7 @@ internal static class RomDecompressionVerification
             next = next.NextLoRomByte();
             return bytes[Reads++];
         }
+        /// <summary>Rejects writes because the decompression source is immutable.</summary>
         public void WriteByte(int address, byte value) => throw new NotSupportedException();
     }
 }

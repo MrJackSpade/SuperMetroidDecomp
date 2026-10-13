@@ -10,6 +10,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class DefinitionAudit
 {
+    /// <summary>Collects enemy and projectile exports, then runs palette and Mother Brain flash audits.</summary>
     public static ResourceIndex Collect(string root, AuditReport report)
     {
         ResourceIndex exports = CollectEnemyVisuals(root, report);
@@ -19,6 +20,7 @@ internal static class DefinitionAudit
         return exports;
     }
 
+    /// <summary>Indexes compiled enemy and projectile visual targets and reports unresolved consumer references.</summary>
     internal static ResourceIndex CollectEnemyVisuals(string root, AuditReport report)
     {
         var exports = new ResourceIndex();
@@ -75,6 +77,7 @@ internal static class DefinitionAudit
         return exports;
     }
 
+    /// <summary>Locates the declaration of a selector in generated tables or calculated visual definitions.</summary>
     private static string SelectorSource(string root, int bank, int address)
     {
         bool calculated = CompiledEnemyVisualSelectors.IsCalculatedSelector(address);

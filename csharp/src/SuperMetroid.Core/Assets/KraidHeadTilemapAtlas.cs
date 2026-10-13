@@ -10,7 +10,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>One editable 32-by-11 Kraid head frame of ordered SNES BG2 tile words.</summary>
 public sealed class KraidHeadTilemapAtlas
 {
+    /// <summary>Owned 32-column BG2 tile words used by the native Kraid head-copy operation.</summary>
     private readonly ushort[] words;
+    /// <summary>Retains the validated native-word frame compiled from JSON.</summary>
     private KraidHeadTilemapAtlas(ushort[] words) => this.words = words;
 
     /// <summary>Read-only view of all 352 compiled BG2 tile words in 32-column row-major order, preserving character, palette, priority, and flip bits for the native head-copy operation at $A7:AF3D.</summary>
@@ -88,6 +90,7 @@ public sealed class KraidHeadTilemapAtlas
         return json;
     }
 
+    /// <summary>Strict camel-case artwork schema settings shared by load and encode.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

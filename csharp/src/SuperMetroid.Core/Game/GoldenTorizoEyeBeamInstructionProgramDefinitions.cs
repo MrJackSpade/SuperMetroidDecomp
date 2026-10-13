@@ -20,13 +20,17 @@ internal abstract class GoldenTorizoEyeBeamInstructionProgramDefinitions
     private const ushort WallHold = 4, LandingHold = 8, FlightHold = 1, ExplosionInitialHold = 4;
     /// <summary>$86:B3FC clears projectile property bit13, enabling Samus damage.</summary>
     private const ushort EnableSamusDamageMask = unchecked((ushort)~(1 << 13));
+    /// <summary>Nonvisual opcode and duration words across the wall, floor, and flight lists.</summary>
     public static int MechanicsWordCount => 28;
+    /// <summary>Spritemap operands supplied by the editable eye-beam presentation.</summary>
     public static int PresentationWordCount => 17;
+    /// <summary>Calculates an indexed native opcode or duration word while skipping visual operands.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
+    /// <summary>Locates an indexed spritemap operand interleaved with the compiled instructions.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -66,17 +70,24 @@ internal abstract class GoldenTorizoEyeBeamInstructionProgramDefinitions
         return layout.Result;
     }
 
+    /// <summary>Walks the three native lists while tracking separate mechanics and presentation indices.</summary>
     private ref struct Layout(int requested, bool visual)
     {
+        /// <summary>Bank-$86 cursor, beginning with the wall-impact instruction list.</summary>
         private ushort cursor = WallImpact;
+        /// <summary>Independent counters for compiled mechanics and extracted spritemap operands.</summary>
         private int mechanics, presentation;
+        /// <summary>The requested word or operand address selected during layout traversal.</summary>
         internal InstructionMechanicsWord Result { get; private set; }
+        /// <summary>Accounts for the one-byte packed floor sound between instruction words.</summary>
         internal void SkipByte() => cursor++;
+        /// <summary>Advances an opcode or duration word, capturing it for a mechanics lookup.</summary>
         internal void Word(ushort value)
         {
             if (!visual && mechanics == requested) Result = new(cursor, value);
             mechanics++; cursor += sizeof(ushort);
         }
+        /// <summary>Places a timed pose and captures its following spritemap address for a visual lookup.</summary>
         internal void Pose(ushort duration)
         {
             Word(duration);
@@ -84,6 +95,7 @@ internal abstract class GoldenTorizoEyeBeamInstructionProgramDefinitions
             presentation++; cursor += sizeof(ushort);
         }
     }
+    /// <summary>Finds a compiled native mechanics value by address, rejecting visual and unsupported words.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

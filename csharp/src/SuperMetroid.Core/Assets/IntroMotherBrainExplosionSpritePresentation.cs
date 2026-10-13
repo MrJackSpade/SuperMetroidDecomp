@@ -7,11 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable explosion OAM art, independent of native placement and timing.</summary>
 public sealed class IntroMotherBrainExplosionSpritePresentation
 {
+    /// <summary>Validated fourth-hit compositions keyed by their native bank-$8C spritemap pointers.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroMotherBrainExplosionSpritePresentation), frames);
 
+    /// <summary>Retains the validated twelve-frame selection after JSON compilation.</summary>
     private IntroMotherBrainExplosionSpritePresentation(
         Dictionary<ushort, SpriteComposition> frames) => this.frames = frames;
 
@@ -84,7 +86,7 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
 /// <summary>Editable JSON schema for the opening flashback's fourth-hit explosion compositions.</summary>
 public sealed record IntroMotherBrainExplosionSpriteDocument
 {
-    /// <summary>Gets the explosion-sprite schema version.</summary>
+    /// <summary>Must match <see cref="IntroMotherBrainExplosionSpriteFormat.Version"/> before any frame is accepted.</summary>
     public required int Version { get; init; }
 
     /// <summary>Gets the twelve named <c>small-explosion-0..5</c> and <c>big-explosion-0..5</c> compositions.</summary>

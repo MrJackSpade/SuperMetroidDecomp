@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 /// </summary>
 internal static class ImportedVramOracle
 {
+    /// <summary>Applies a nonzero queued asset transfer from a reference bus at its encoded VRAM destination.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     public static void ExecuteQueued(SnesVram vram, ISnesAddressSpace source,
         int sourceAddress, ushort sizeInBytes, ushort encodedDestination)
@@ -16,6 +17,7 @@ internal static class ImportedVramOracle
             encodedDestination);
     }
 
+    /// <summary>Models hardware DAS zero as a full 64 KiB DMA, using the word port when the asset API cannot express it.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     public static void ExecuteHardware(SnesVram vram, ISnesAddressSpace source,
         int sourceAddress, ushort dmaSize, ushort encodedDestination)
@@ -35,9 +37,11 @@ internal static class ImportedVramOracle
         }
     }
 
+    /// <summary>Drains queued transfers with mutable-memory reads and an import-only cartridge resolver.</summary>
     public static void Drain(VramWriteQueue queue, SnesVram vram, ISnesAddressSpace source) =>
         queue.DrainTo(vram, ReferenceMutableMemory.From(source), new ImportedTransfers(source));
 
+    /// <summary>Reads a bank-contained DMA span from the cartridge, WRAM, or SRAM region named by each address.</summary>
     [CpuBusBoundary("exact bus test: reference DMA source read (cartridge, WRAM or SRAM) for installed-artwork VRAM comparisons")]
     private static byte[] ReadTransfer(ISnesAddressSpace source, int sourceAddress, int length)
     {
@@ -59,11 +63,14 @@ internal static class ImportedVramOracle
         return bytes;
     }
 
+    /// <summary>Supplies cartridge bytes to a reference transfer while rejecting installed-asset lookups.</summary>
     private sealed class ImportedTransfers(ISnesAddressSpace source) : IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Rejects asset IDs because this oracle represents bus DMA rather than installed resources.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException($"Reference DMA has no installed asset {asset}.");
 
+        /// <summary>Supplies a cartridge span only when the DMA source is mapped to ROM.</summary>
         public bool TryResolve(int address, int count, out ReadOnlyMemory<byte> bytes)
         {
             if (SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) == SnesDmaSourceKind.Cartridge)
@@ -83,15 +90,20 @@ internal static class ImportedVramOracle
 /// </summary>
 internal static class ReferenceMutableMemory
 {
+    /// <summary>Retains an existing mutable bus or wraps a read-only diagnostic bus with region checks.</summary>
     public static ISnesMutableMemory From(ISnesAddressSpace source) =>
         source as ISnesMutableMemory ?? new GuardMemory(source);
 
+    /// <summary>Confines fallback diagnostic reads to the caller-requested mutable region.</summary>
     [CpuBusBoundary("exact bus test: mutable-only projection of a diagnostic bus that rejects reads outside the requested WRAM/SRAM kind")]
     private sealed class GuardMemory(ISnesAddressSpace source) : ISnesMutableMemory
     {
+        /// <summary>Reads WRAM only after confirming the requested address maps to work memory.</summary>
         public byte ReadWorkRamByte(int address) => Read(address, SnesDmaSourceKind.WorkRam);
+        /// <summary>Reads SRAM only after confirming the requested address maps to save memory.</summary>
         public byte ReadSaveRamByte(int address) => Read(address, SnesDmaSourceKind.SaveRam);
 
+        /// <summary>Rejects mismatched regions before forwarding a mutable-memory read to the diagnostic bus.</summary>
         private byte Read(int address, SnesDmaSourceKind kind)
         {
             if (SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) != kind)

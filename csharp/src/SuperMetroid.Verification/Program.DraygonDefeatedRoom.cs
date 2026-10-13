@@ -14,8 +14,10 @@ using SuperMetroid.Core.Rooms;
 using System.Reflection;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks cannon processing and door exit after Draygon has already been defeated.</summary>
 internal static class DraygonDefeatedRoomVerification
 {
+    /// <summary>Verifies cannon WRAM writes without a boss actor and a single scroll finalization before destination fade.</summary>
     internal static void VerifyDraygonDefeatedRoom()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -50,6 +52,7 @@ internal static class DraygonDefeatedRoomVerification
         Console.WriteLine("Space Jump to defeated Draygon: scroll finalization precedes destination OAM and fade.");
     }
 
+    /// <summary>Runs the defeated Draygon room and Space Jump door transition regression.</summary>
     [VerificationCommand("--draygon-defeated-room")]
     internal static int DraygonDefeatedRoomCommand()
     {

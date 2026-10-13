@@ -95,11 +95,8 @@ public static class EnemyTrigonometryTables
         return (ushort)(65535 * UnitHalfWave(index));
     }
 
-    // Reflect to [0, pi/2], with exact endpoints so integer boundaries cannot drift.
-    // Twelve alternating Taylor terms leave an omitted term below 5.2e-21;
-    // 1e-19 covers that remainder, decimal rounding and the 28-place pi constant.
-    // Full-domain ROM proofs establish both scales' exact integer results. This
-    // allocation-free recurrence avoids libm and per-sample correction constants.
+    /// <summary>Reflects into the first quadrant and evaluates sine with exact endpoints and twelve decimal Taylor terms.</summary>
+    /// <remarks>The omitted term is below 5.2e-21; the reviewed 1e-19 margin covers rounding and the 28-place pi constant. Full-domain cartridge comparisons establish the integer outputs without libm or correction tables.</remarks>
     internal static decimal UnitHalfWave(int index)
     {
         if ((uint)index >= 128) throw new IndexOutOfRangeException();

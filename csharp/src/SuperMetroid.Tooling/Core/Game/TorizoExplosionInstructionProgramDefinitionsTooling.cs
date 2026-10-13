@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(TorizoExplosionInstructionProgramDefinitions))]
 internal abstract class TorizoExplosionInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Bounds the explosion's mechanic words exposed to source audits.</summary>
     public static int MechanicsWordCount => TorizoExplosionInstructionProgramDefinitions.MechanicsWordCount;
+    /// <summary>Retrieves an addressed mechanic word from the compiled explosion program.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => TorizoExplosionInstructionProgramDefinitions.MechanicsWord(index);
+    /// <summary>Bounds visual operands separately from mechanic instruction words.</summary>
     public static int PresentationWordCount => TorizoExplosionInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates one explosion presentation operand in the native stream.</summary>
     public static ushort PresentationWordAddress(int index) => TorizoExplosionInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Matches both bytes of each mechanic word inside the enemy projectile bank.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;

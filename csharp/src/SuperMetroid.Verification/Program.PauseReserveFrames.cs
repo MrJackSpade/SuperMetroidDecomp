@@ -7,13 +7,15 @@ using static DoorDefinitionsVerification;
 using static MapSpritesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks all pause reserve-tank visual roles and their authored OAM parts.</summary>
 internal static class PauseReserveFramesVerification
 {
-    // Preconversion sparse visual identities, independent of the production selector.
+    /// <summary>Lists preconversion sparse frame identities independently of the production selector.</summary>
     private static (string Name, ushort Id)[] ReserveFrameOracle() =>
         [("Full", 0x1b), ("EndCap", 0x1f), ("Empty", 0x20), ("Fill1", 0x21), ("Fill2", 0x22),
          ("Fill3", 0x23), ("Fill4", 0x24), ("Fill5", 0x25), ("Fill6", 0x26), ("Fill7", 0x27)];
 
+    /// <summary>Checks exact frame admission and that each edited reserve role changes only its selected OAM composition.</summary>
     internal static void VerifyPauseReserveFrameCases(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
@@ -50,6 +52,7 @@ internal static class PauseReserveFramesVerification
         AssertThrows<IndexOutOfRangeException>(() => stock.Draw(new OamBuffer(), 0, -1), "anchor error precedes unknown visual");
     }
 
+    /// <summary>Compares each stock reserve part and independently edited OAM attribute against its native map.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve stock parts")]
     private static void VerifyPauseReserveStockParts(ISnesAddressSpace rom, PauseReserveTankDocument document)
     {
@@ -89,6 +92,7 @@ internal static class PauseReserveFramesVerification
         }
     }
 
+    /// <summary>Checks native role and partial-fill selectors and OAM capacity for all reserve frames.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve native frames")]
     internal static void VerifyPauseReserveNativeFrames(ISnesAddressSpace rom, PauseReserveTankPresentation presentation)
     {

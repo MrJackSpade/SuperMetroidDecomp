@@ -14,12 +14,13 @@ using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Tourian statue tile animation during a real door transition.</summary>
 internal static class DoorAnimatedTilesVerification
 {
-    // #1269: the door transition runs AnimatedTilesObject_Handler once at $82:E659 and on
-    // every $82:E737 fade step. Entering the Tourian statue room from the left (as the 100%
-    // movie does) the statue programs have therefore advanced by those frames when gameplay
-    // resumes; skipping them left every statue unlock 18 frames late.
+    /// <summary>
+    /// Confirms the statue programs advance at $82:E659 and on every $82:E737 fade step
+    /// when entering from the left; omitted calls left each statue unlock 18 frames late (#1269).
+    /// </summary>
     internal static void VerifyDoorAnimatedTiles()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -91,6 +92,7 @@ internal static class DoorAnimatedTilesVerification
         }
     }
 
+    /// <summary>Runs the statue door-transition animation check against the retail room.</summary>
     [VerificationCommand("--door-animated-tiles")]
     internal static int DoorAnimatedTilesCommand()
     {

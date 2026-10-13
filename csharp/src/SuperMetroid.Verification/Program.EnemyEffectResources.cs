@@ -15,8 +15,10 @@ using static EnemyAnimationIsolationFixtureVerification;
 using static EnemyEffectsFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks missing boss-effect art failures and Crocomire melt document validation.</summary>
 internal static class EnemyEffectResourcesVerification
 {
+    /// <summary>Confirms missing or invalid corpse and melt resources fail before mutating actors, WRAM, or VRAM.</summary>
     internal static void VerifyEnemyEffectResources()
     {
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
@@ -46,6 +48,7 @@ internal static class EnemyEffectResourcesVerification
         Console.WriteLine("  Enemy effect resources: missing/unknown art fails before changing WRAM, phases, actors, graphics or VRAM.");
     }
 
+    /// <summary>Checks every dead Tourian corpse variant with absent artwork and unchanged enemy state.</summary>
     private static void VerifyDeadTourianMissingArtwork()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -69,6 +72,7 @@ internal static class EnemyEffectResourcesVerification
         }
     }
 
+    /// <summary>Checks that one Crocomire resource error leaves effect mechanics, tilemap, graphics, and VRAM intact.</summary>
     private static void CheckCrocomireResourceFailure(CrocomireMeltingArtwork? art,
         Action<CrocomireEffectFixture> operation, string context, bool invalidHeader = false)
     {
@@ -82,6 +86,7 @@ internal static class EnemyEffectResourcesVerification
         AssertTrue(expected.Vram.ImageEquals(actual.Vram), context + " VRAM unchanged");
     }
 
+    /// <summary>Accepts valid melt JSON casing and rejects unknown, repeated, or case-aliased fields.</summary>
     internal static void VerifyCrocomireMeltJson()
     {
         string valid = MeltEffectJson();
@@ -100,6 +105,7 @@ internal static class EnemyEffectResourcesVerification
         Console.WriteLine("  Crocomire melt JSON: valid schema/casing preserved; unknown, duplicate and case-aliased root/cell fields rejected.");
     }
 
+    /// <summary>Runs missing enemy-effect resource checks.</summary>
     [VerificationCommand("--enemy-effect-resources")]
     internal static int EnemyEffectResourcesCommand()
     {
@@ -107,6 +113,7 @@ internal static class EnemyEffectResourcesVerification
         return 0;
     }
 
+    /// <summary>Runs Crocomire melt JSON schema checks.</summary>
     [VerificationCommand("--crocomire-melt-json")]
     internal static int CrocomireMeltJsonCommand()
     {

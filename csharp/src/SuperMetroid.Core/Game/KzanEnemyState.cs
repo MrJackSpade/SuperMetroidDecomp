@@ -25,12 +25,18 @@ public enum KzanEnemyFunction : ushort
 /// </summary>
 public sealed class KzanEnemyState
 {
+    /// <summary>Top-half enemy slot containing the native A-F state words.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot extension words for the top wait's reload value.</summary>
     private readonly ushort[] _fallWaitTimerResetValues;
+    /// <summary>Per-slot previous Y coordinates used for rider displacement.</summary>
     private readonly ushort[] _previousYPositions;
+    /// <summary>Per-slot offsets into the accelerating fall-speed table.</summary>
     private readonly ushort[] _fallingYSpeedTableIndexes;
+    /// <summary>Per-slot post-landing waits before upward travel.</summary>
     private readonly ushort[] _riseWaitTimers;
 
+    /// <summary>Projects a Kzan top slot and its bank-$7E extension arrays into typed state.</summary>
     internal KzanEnemyState(
         RoomEnemySlot slot,
         ushort[] fallWaitTimerResetValues,

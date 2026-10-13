@@ -21,8 +21,10 @@ using SuperMetroid.Core.Rendering;
 using static RenderPacketCodecTestsVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks pause-menu render packets through map, equipment, and fade states.</summary>
 internal static class PauseSnapshotTestsVerification
 {
+    /// <summary>Compares captured packets to direct retail-frame rendering and verifies snapshot ownership.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyPauseRenderSnapshots()
     {
@@ -85,6 +87,7 @@ internal static class PauseSnapshotTestsVerification
         }
     }
 
+    /// <summary>Runs pause rendering, marker, palette, reserve-energy, and HUD fixtures together.</summary>
     [VerificationCommand("--pause-fixtures")]
     internal static int PauseFixturesCommand()
     {

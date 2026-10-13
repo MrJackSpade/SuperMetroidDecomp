@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Multiviola instruction mechanics and visual selectors through production execution.</summary>
 internal static class MultiviolaInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge and runs the Multiviola instruction check.</summary>
     internal static void VerifyMultiviolaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMultiviolaInstructionProgramDefinitions), () => VerifyMultiviolaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares native control words and executes the flying loop with mechanics and sprite ROM reads guarded.</summary>
     internal static void VerifyMultiviolaInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -88,6 +91,7 @@ internal static class MultiviolaInstructionProgramDefinitionsVerification
             "loop and compiled spritemap selectors pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Repeats two compiled mechanics lookups to measure warmed per-frame allocation.</summary>
     private static int ProbeMultiviolaInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -101,12 +105,14 @@ internal static class MultiviolaInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids converted control bytes and observes whether execution rereads visual operands.</summary>
     private static CartridgeReadGuard NewMultiviolaInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => MultiviolaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled Multiviola mechanics byte ${address:X6}.")
             .ObserveWords(0xa20000, MultiviolaInstructionProgramDefinitions.PresentationWordCount, MultiviolaInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Multiviola mechanics verification suite.</summary>
     [VerificationCommand("--multiviola-instruction-mechanics")]
     internal static int MultiviolaInstructionMechanicsCommand()
     {

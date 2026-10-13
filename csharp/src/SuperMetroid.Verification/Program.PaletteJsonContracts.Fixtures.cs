@@ -5,15 +5,19 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static PaletteJsonContractsVerification;
 
+/// <summary>Constructs valid palette JSON baselines for the shared schema-mutation checks.</summary>
 internal static class PaletteJsonContractsFixturesVerification
 {
+    /// <summary>Uses bounded five-bit channels with distinct patterns to expose misplaced color values.</summary>
     private static PaletteRgb5[] PaletteContractColors(int count, int seed = 0) => Enumerable.Range(0, count)
         .Select(index => new PaletteRgb5 { Red = (index + seed) % 32, Green = (index * 3 + seed) % 32,
             Blue = (index * 7 + seed) % 32 }).ToArray();
 
+    /// <summary>Gives each animation row a different seed while retaining the requested native row width.</summary>
     private static PaletteRgb5[][] PaletteContractRows(int rows, int colors) => Enumerable.Range(0, rows)
         .Select(row => PaletteContractColors(colors, row)).ToArray();
 
+    /// <summary>Supplies one valid document per supported palette family, including native frame and CGRAM dimensions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static IEnumerable<PaletteJsonContract> PaletteJsonContracts()
     {

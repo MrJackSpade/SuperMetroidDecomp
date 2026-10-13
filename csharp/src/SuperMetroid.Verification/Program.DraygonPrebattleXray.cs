@@ -13,8 +13,10 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Draygon's pre-battle X-Ray masking and later combat visibility.</summary>
 internal static class DraygonPrebattleXrayVerification
 {
+    /// <summary>Verifies that the native TM HDMA range hides wrapped body art during X-Ray without hiding the combat body.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Draygon offscreen HDMA table")]
     internal static void VerifyDraygonPrebattleXray()
     {
@@ -86,6 +88,7 @@ internal static class DraygonPrebattleXrayVerification
         }
     }
 
+    /// <summary>Runs the Draygon pre-battle masking regression.</summary>
     [VerificationCommand("--draygon-prebattle-xray")]
     internal static int DraygonPrebattleXrayCommand()
     {

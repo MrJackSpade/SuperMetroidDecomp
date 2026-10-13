@@ -1,8 +1,10 @@
 using static SuiteSchedulingVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Runs verification suites and commands behind a no-dialog console error boundary.</summary>
 internal static class Program
 {
+/// <summary>Installs the Windows process policy and reports suite or command failures through stderr and exit status.</summary>
 private static int Main(string[] args)
 {
 // This is deliberately a plain console executable rather than an xUnit/MSTest project.
@@ -30,6 +32,7 @@ catch (Exception exception)
 }
 }
 
+/// <summary>Dispatches one verification command or the full suite and prints elapsed time and peak memory.</summary>
 private static int RunFlags(string[] args)
 {
 var flagWatch = System.Diagnostics.Stopwatch.StartNew();

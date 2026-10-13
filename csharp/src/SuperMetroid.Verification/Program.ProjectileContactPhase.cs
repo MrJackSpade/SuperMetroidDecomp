@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks enemy-projectile contact ordering, damage, and delayed hurt movement.</summary>
 internal static class ProjectileContactPhaseVerification
 {
+    /// <summary>Compares three runtime frames with a native trace of floor snapping and knockback activation.</summary>
     internal static void VerifyProjectileRuntimePhase()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -67,6 +69,7 @@ internal static class ProjectileContactPhaseVerification
         AssertEqual(0, failures.Count, "native projectile frame ordering: " + string.Join("; ", failures));
     }
 
+    /// <summary>Checks suit-scaled damage, five-frame hurt request, invincibility, and projectile deletion on contact.</summary>
     internal static void VerifyProjectileContactPhase(bool verifyPhase)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -105,6 +108,7 @@ internal static class ProjectileContactPhaseVerification
         AssertEqual(0, failures.Count, string.Join("; ", failures));
     }
 
+    /// <summary>Runs the full runtime contact-order trace check.</summary>
     [VerificationCommand("--projectile-runtime-phase")]
     internal static int ProjectileRuntimePhaseCommand()
     {
@@ -112,6 +116,7 @@ internal static class ProjectileContactPhaseVerification
         return 0;
     }
 
+    /// <summary>Runs contact damage checks, optionally asserting that hurt movement begins later.</summary>
     [VerificationCommand("--projectile-contact-phase")]
     [VerificationCommand("--projectile-contact-damage")]
     internal static int ProjectileContactPhaseCommand(string[] args)

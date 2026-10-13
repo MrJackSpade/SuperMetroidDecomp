@@ -39,6 +39,7 @@ internal static class GrappleConnectionDefinitions
             stop.SamusOffset.MirroredX(), stop.Function);
     }
 
+    /// <summary>Reflects only the crouching-down and wall-contact poses used by the four authored stops.</summary>
     private static SamusPoseId MirrorPose(SamusPoseId pose) => pose switch
     {
         GrappleCrouchingDownRightPose => GrappleCrouchingDownLeftPose,

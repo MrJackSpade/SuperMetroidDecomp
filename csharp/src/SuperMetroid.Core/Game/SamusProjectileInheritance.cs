@@ -21,10 +21,14 @@ internal static class ProjectileInheritanceWorkRam
 [CpuBusBoundary("domain view: projectile-inheritance WRAM")]
 internal readonly struct ProjectileInheritanceMemory(ISnesMemoryBus bus)
 {
+    /// <summary>Camera subspeed occupies the word before the four movement records.</summary>
     private const int CameraYSubspeedOffset = 0;
+    /// <summary>Leftward movement begins immediately after camera Y subspeed.</summary>
     private const int FirstRecordOffset = 2;
+    /// <summary>Each signed 16.16 direction record has a whole and fractional word.</summary>
     private const int RecordByteCount = 4;
 
+    /// <summary>Provides byte and word access to the shared WRAM inheritance block.</summary>
     private WorkRamByteTable Records => new(bus, ProjectileInheritanceWorkRam.Records);
 
     /// <summary><c>CameraYSubSpeed</c>; its high byte leaks into leftward launch velocity.</summary>
@@ -53,6 +57,7 @@ internal readonly struct ProjectileInheritanceMemory(ISnesMemoryBus bus)
     internal ushort LaunchVelocityWord(SamusCollisionDirection direction) =>
         Records.ReadWord(RecordOffset(direction) - 1);
 
+    /// <summary>Maps left, right, up, or down to its native 16.16 record offset.</summary>
     private static int RecordOffset(SamusCollisionDirection direction) => direction switch
     {
         SamusCollisionDirection.Left => FirstRecordOffset,
@@ -70,6 +75,7 @@ internal readonly struct ProjectileInheritanceMemory(ISnesMemoryBus bus)
 /// </summary>
 internal static class SamusProjectileInheritance
 {
+    /// <summary>Combines a shot's base speed with direction-specific overlapping WRAM words using native signed arithmetic.</summary>
     internal static EightEightVector<RoomPixels> ReadVelocity(ISnesAddressSpace bus, ushort directionWord, short baseSpeed)
     {
         var word = new SamusProjectileDirectionWord(directionWord);
@@ -105,15 +111,18 @@ internal static class SamusProjectileInheritance
     /// <summary>Native alpha tail clears directional pairs, but not camera Y subspeed.</summary>
     internal static void ClearMovement(ISnesAddressSpace bus) => Memory(bus).ClearMovement();
 
+    /// <summary>Writes camera Y subspeed, whose high byte influences leftward launch inheritance.</summary>
     internal static void PublishCameraYSubspeed(ISnesAddressSpace bus, ushort value)
     {
         ProjectileInheritanceMemory memory = Memory(bus);
         memory.CameraYSubspeed = value;
     }
 
+    /// <summary>Publishes one movement call's signed displacement to the matching direction record.</summary>
     internal static void Record(ISnesAddressSpace bus, SamusCollisionDirection direction, int signedDisplacement) =>
         Memory(bus).Record(direction, signedDisplacement);
 
+    /// <summary>Requires a live WRAM-capable bus for the projectile inheritance view.</summary>
     private static ProjectileInheritanceMemory Memory(ISnesAddressSpace bus) =>
         new(SnesMemoryBusRequirement.Require(bus, "Projectile inheritance requires live WRAM."));
 }

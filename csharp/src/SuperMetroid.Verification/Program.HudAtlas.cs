@@ -7,8 +7,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Desktop;
 using static MapPresentationVerification;
 
+/// <summary>Checks installed HUD artwork against native VRAM transfer bytes and rendered minimap pixels.</summary>
 internal static class HudAtlasVerification
 {
+    /// <summary>Checks NMI upload gating, visible PNG edits, and artwork rebind for displayed and pending HUD states.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed HUD tile atlas")]
     internal static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,

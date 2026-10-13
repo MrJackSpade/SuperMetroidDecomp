@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks compiled enemy populations and graphics sets against retail room-state references.</summary>
 internal static class EnemyRoomListsVerification
 {
+    /// <summary>Compares every ordered enemy placement, death quota, and graphics-set member to the cartridge.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy room lists")]
     internal static void VerifyCompiledEnemyRoomLists()
     {
@@ -93,6 +95,7 @@ internal static class EnemyRoomListsVerification
             "members match the independent import oracle, including order and quotas.");
     }
 
+    /// <summary>Runs the complete enemy room-list comparison against the retail ROM.</summary>
     [VerificationCommand("--enemy-room-lists")]
     internal static int EnemyRoomListsCommand()
     {

@@ -38,8 +38,10 @@ public enum YardMovementFunction : ushort
 /// </summary>
 public sealed class YardEnemyState
 {
+    /// <summary>Physical enemy slot whose variables A-F hold Yard's current movement state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects one Yard enemy slot into typed debugger-visible state.</summary>
     internal YardEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

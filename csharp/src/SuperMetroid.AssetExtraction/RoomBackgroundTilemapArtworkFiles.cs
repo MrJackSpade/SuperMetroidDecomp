@@ -15,6 +15,7 @@ public static class RoomBackgroundTilemapArtworkFiles
 {
     /// <summary>Stock manifest filename recording every library-background source address, native transfer length, and JSON hash.</summary>
     public const string ManifestFileName = "room-backgrounds.json";
+    /// <summary>Manifest revision tying native source addresses and transfer lengths to stock file hashes.</summary>
     private const int FormatVersion = 1;
 
     /// <summary>Creates one editable tilemap JSON file per retail compressed library-background source and records its provenance.</summary>
@@ -107,6 +108,7 @@ public static class RoomBackgroundTilemapArtworkFiles
     /// <exception cref="InvalidDataException">Stock provenance, coverage, transfer sizes, hashes, or tilemap content are invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Strict, required-property JSON settings shared by background manifest load and extraction.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -116,7 +118,9 @@ public static class RoomBackgroundTilemapArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>One stock compressed source's address, decompressed transfer size, and JSON digest.</summary>
     private sealed record RoomBackgroundFileEntry(int SourceAddress, int NativeByteCount, string Sha256);
+    /// <summary>Records cartridge provenance and complete stock background source coverage.</summary>
     private sealed record RoomBackgroundFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomBackgroundFileEntry> Entries);
 }

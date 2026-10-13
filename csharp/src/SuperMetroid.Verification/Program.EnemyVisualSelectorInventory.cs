@@ -14,9 +14,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks that the compiled enemy sprite-selector catalog covers the native inventory.</summary>
 internal static class EnemyVisualSelectorInventoryVerification
 {
-    /// <summary>The bank-resolved selector inventory matches the generated catalog address for address.</summary>
+    /// <summary>Collects bank-resolved selector addresses and reports any differences from the generated catalog.</summary>
     internal static void InspectEnemyVisualSelectors()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -98,6 +99,7 @@ internal static class EnemyVisualSelectorInventoryVerification
             "sorted lookup and unknown-key rejection pass.");
     }
 
+    /// <summary>Runs the diagnostic native selector inventory comparison.</summary>
     [VerificationCommand("--enemy-visual-selector-inventory")]
     internal static int EnemyVisualSelectorInventoryCommand()
     {
@@ -105,6 +107,7 @@ internal static class EnemyVisualSelectorInventoryVerification
         return 0;
     }
 
+    /// <summary>Runs the full compiled selector lookup and cartridge identity verification.</summary>
     [VerificationCommand("--verify-enemy-visual-selectors")]
     internal static int VerifyEnemyVisualSelectorsCommand()
     {

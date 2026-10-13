@@ -18,6 +18,7 @@ internal sealed class CeresLargeAsteroidParts(
     (int X, int Y) left, (int X, int Y) right, (int X, int Y) lower, int priority)
     : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Reconstructs native asteroid atlas parts only when a supplied composition matches the nineteen-part layout.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         // Shared OAM-record pointer space: other compositions belong to other owners.
@@ -38,7 +39,9 @@ internal sealed class CeresLargeAsteroidParts(
                 _ => throw new InvalidOperationException($"Undefined {nameof(CeresLargeAsteroidComposition)} {(int)composition}."),
             }));
     }
+    /// <summary>Six left, seven right, and six lower asteroid OAM parts.</summary>
     public int Count => 19;
+    /// <summary>Places an indexed part relative to its independently supplied rock anchor.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -77,10 +80,12 @@ internal sealed class CeresLargeAsteroidParts(
                 SnesObjAttributeWord.Create(tile + column + 16 * row, 0, priority, 0), true);
         }
     }
+    /// <summary>Emits the three rocks' nineteen parts in native OAM record order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Uses the same native part order for non-generic consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

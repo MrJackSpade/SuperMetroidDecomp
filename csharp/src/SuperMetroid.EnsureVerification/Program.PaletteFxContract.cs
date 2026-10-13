@@ -8,6 +8,7 @@ using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
+/// <summary>Checks that palette FX execution requires a supplied color source at compile and runtime.</summary>
 internal static class PaletteFxContractTests
 {
     /// <summary><c>PalFxDef_CutsceneGunshipEngine</c> at <c>$8D:E1A8</c>.</summary>
@@ -65,6 +66,7 @@ internal static class PaletteFxContractTests
         Console.WriteLine("#1152: eight compiler dependency contracts and pre-mutation null guard pass; no gameplay search.");
     }
 
+    /// <summary>Compiles one caller statement and checks its expected color-provider diagnostic.</summary>
     private static void VerifyPaletteCall(string description, string statement, string? expectedError = null)
     {
         string source = $$"""
@@ -92,8 +94,10 @@ internal static class PaletteFxContractTests
                 $"{description}: expected {expectedError ?? "successful compilation"}; got {string.Join("; ", errors.Select(error => error.ToString()))}");
     }
 
+    /// <summary>Supplies constructed red for the first gunship-engine frame after null rejection.</summary>
     internal sealed class ContractPaletteColors : IPaletteFxColorSource
     {
+        /// <summary>Accepts only the first native engine color pointer to expose timer advancement.</summary>
         public bool TryReadColor(ushort pointer, out Bgr555 color)
         {
             color = new Bgr555(31, 0, 0); // Constructed red confirms the first native frame executes after the rejection.

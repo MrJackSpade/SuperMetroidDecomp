@@ -17,8 +17,10 @@ using static GraphDigestVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks that editable swing frames affect display while native grapple body offsets remain physical.</summary>
 internal static class GrappleBodyPlacementVerification
 {
+    /// <summary>Compares installed and edited swing art across mirrored angles, facing, anchor wrap, and pendulum updates.</summary>
     internal static void VerifyGrappleBodyPlacement(SuperMetroidAddressSpace rom)
     {
         var position = typeof(SamusGrappleMovement).GetMethod("PositionSamusFromPendulum", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -89,9 +91,11 @@ internal static class GrappleBodyPlacementVerification
         Console.WriteLine("Grapple body placement: 524288 extracted/installed updates preserve physical offsets independently of edited JSON frames, mirror angle, facing and anchor wrapping; installed selector ROM reads forbidden.");
     }
 
+    /// <summary>Reads native frame and body-offset tables for the independent placement oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple body placement")]
     private static byte GrappleBodyPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Runs the grapple placement comparison with the retail cartridge image.</summary>
     [VerificationCommand("--grapple-swing-frames")]
     internal static int GrappleSwingFramesCommand()
     {

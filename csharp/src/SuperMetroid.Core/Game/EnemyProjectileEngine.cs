@@ -628,7 +628,7 @@ internal sealed class EnemyProjectileEngine
         level.GetCollisionBlock(new(unchecked((ushort)(pixel.X >> 4)), unchecked((ushort)(pixel.Y >> 4)))).CollisionType != RoomCollisionType.Air;
 
     /// <summary>Checks radius overlap and publishes touch-list or damage behavior for a projectile that reaches Samus.</summary>
-    internal static ushort? ResolveEnemyProjectileSamusCollision(
+    internal ushort? ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
     {
@@ -665,7 +665,9 @@ internal sealed class EnemyProjectileEngine
         // prevents later persistent projectile families from needing bespoke hit effects.
         ushort touchInstruction =
             EnemyProjectileDefinitionCatalog.Get(projectile.Kind).TouchInstructionList;
-        if (touchInstruction != 0)
+        if (Handlers.TryGetTouchAnimation(projectile.Kind, out Func<EnemyProjectileAnimation>? touchAnimation))
+            projectile.StartAnimation(touchAnimation());
+        else if (touchInstruction != 0)
             projectile.StartNativeProgram(touchInstruction);
 
         // Generic enemy-projectile contact deletes Ridley's fireball. Afterburn is a wall-
@@ -684,7 +686,7 @@ internal sealed class EnemyProjectileEngine
     {
         if (projectile.Animation is { } animation)
         {
-            animation.Advance(projectile, Handlers);
+            animation.Advance(projectile, Handlers, samus);
             return;
         }
 
@@ -862,11 +864,6 @@ internal sealed class EnemyProjectileEngine
                         projectile,
                         unchecked((ushort)(cursor + 2)))));
                     cursor = unchecked((ushort)(cursor + 4));
-                    break;
-                case EnemyProjectileInstruction.SetPreInst_DraygonsWallTurretProjectile_Fired when projectile.Kind == RoomEnemyProjectileKind.DraygonWallTurret:
-                    projectile.PreInstruction =
-                        (ushort)EnemyProjectilePreInstruction.DraygonsWallTurretProjectile_Fired;
-                    cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.GotoY:
                     cursor = ReadEnemyProjectileInstructionMechanicsWord(
@@ -1064,11 +1061,6 @@ internal sealed class EnemyProjectileEngine
         if (PhantoonProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return PhantoonProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (DraygonProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return DraygonProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (CeresRidleyProjectileInstructionProgramDefinitions.Owns(projectile.Kind))

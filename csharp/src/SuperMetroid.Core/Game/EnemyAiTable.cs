@@ -60,6 +60,27 @@ internal sealed class EnemyAiTable
     /// <summary>Adds an owner's private instruction handler after those already registered.</summary>
     internal void AddOwnedInstructions(EnemyOwnedInstructionHandler handler) => _ownedInstructions.Add(Ensure.NotNull(handler));
 
+    /// <summary>Owners whose enemies run typed animations in place of the native instruction interpreter (#641).</summary>
+    private readonly List<(Func<RoomEnemySlot, bool> Matches, Action<RoomEnemySlot, EnemyInstructionContext> Advance)> _typedAnimations = [];
+
+    /// <summary>Registers a typed animation that advances matching enemies where the interpreter would run their lists.</summary>
+    internal void AddTypedAnimation(Func<RoomEnemySlot, bool> matches, Action<RoomEnemySlot, EnemyInstructionContext> advance) =>
+        _typedAnimations.Add((Ensure.NotNull(matches), Ensure.NotNull(advance)));
+
+    /// <summary>Advances <paramref name="slot"/>'s typed animation; false when its owner has none and the interpreter runs its list.</summary>
+    internal bool TryAdvanceTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        foreach ((Func<RoomEnemySlot, bool> matches, Action<RoomEnemySlot, EnemyInstructionContext> advance) in _typedAnimations)
+        {
+            if (matches(slot))
+            {
+                advance(slot, context);
+                return true;
+            }
+        }
+        return false;
+    }
+
     /// <summary>Species-specific hurt handlers, with first matching entry taking precedence.</summary>
     private readonly List<(Func<RoomEnemySlot, bool> Matches, EnemyHurtAiHandler Handler)> _hurt = [];
     /// <summary>Frozen private tails that may consume an enemy's frame before common thaw.</summary>

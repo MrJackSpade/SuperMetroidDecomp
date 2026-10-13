@@ -75,7 +75,7 @@ using static DragonFireballInstructionProgramDefinitionsVerification;
 using static DragonInstructionProgramDefinitionsVerification;
 using static DraygonHealthPaletteDefinitionsVerification;
 using static DraygonIntroDanceDefinitionsVerification;
-using static DraygonProjectileInstructionProgramDefinitionsVerification;
+using static DraygonAnimationsVerification;
 using static ElevatorInputDefinitionsVerification;
 using static ElevatorInstructionProgramDefinitionsVerification;
 using static ElevatorPlatformVisualsVerification;
@@ -1808,7 +1808,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyRidleyClawOffsets), () => VerifyRidleyClawOffsets(rom));
         Suite(nameof(VerifySaveRamLayout), () => VerifySaveRamLayout());
         Suite(nameof(VerifyLowerNorfairRioInstructionProgramDefinitions), () => VerifyLowerNorfairRioInstructionProgramDefinitions());
-        Suite(nameof(VerifyDraygonProjectileInstructionProgramDefinitions), () => VerifyDraygonProjectileInstructionProgramDefinitions());
+        Suite(nameof(VerifyDraygonProjectileAnimations), () => VerifyDraygonProjectileAnimations(rom));
         Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));
         Suite(nameof(VerifyBotwoonHoleBottomBounds), () => VerifyBotwoonHoleBottomBounds(rom));
         Suite(nameof(VerifyBotwoonWallStockMapping), () => VerifyBotwoonWallStockMapping(rom));

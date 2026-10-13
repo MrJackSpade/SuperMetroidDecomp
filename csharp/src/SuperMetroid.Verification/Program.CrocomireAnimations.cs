@@ -59,9 +59,9 @@ internal static class CrocomireAnimationsVerification
             }
 
             ushort word = cartridge.ReadCartridgeWord(BodyBank | cursor);
-            switch (ClassifyEnemyWord(word))
+            switch (NativeEnemyListDefinitions.Classify(word))
             {
-                case EnemyWordKind.Frame:
+                case NativeEnemyListDefinitions.WordKind.Frame:
                 {
                     AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
                     AssertEqual((int)word, step.Duration, $"{at}: duration");
@@ -71,23 +71,28 @@ internal static class CrocomireAnimationsVerification
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }
-                case EnemyWordKind.GoTo:
+                case NativeEnemyListDefinitions.WordKind.GoTo:
                     AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
                     AssertEqual(BodyProgramAt(cartridge.ReadCartridgeWord(BodyBank | (cursor + 2))), step.Target, $"{at}: goto target");
                     AssertEqual(steps.Count, index + 1, $"{at}: goto ends the program");
                     return steps.Count;
-                case EnemyWordKind.Sleep:
+                case NativeEnemyListDefinitions.WordKind.Sleep:
                     AssertEqual(AnimationProgramStepKind.Hold, step.Kind, $"{at}: sleep");
                     AssertEqual(steps.Count, index + 1, $"{at}: sleep ends the program");
                     return steps.Count;
-                case EnemyWordKind.Callback:
+                case NativeEnemyListDefinitions.WordKind.Callback:
                     AssertTrue(BodyCallbacks.TryGetValue(word, out CrocomireBodyCue cue), $"{at}: native callback ${word:X4} is a known Crocomire callback");
                     AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: callback");
                     AssertEqual(cue, step.Cue, $"{at}: cue");
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
+                case NativeEnemyListDefinitions.WordKind.Stop:
+                case NativeEnemyListDefinitions.WordKind.SetCounter:
+                case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
+                case NativeEnemyListDefinitions.WordKind.Wait:
+                    throw new InvalidDataException($"{at}: Crocomire's body lists use no stops, counters or waits.");
                 default:
-                    throw new InvalidOperationException($"Undefined {nameof(EnemyWordKind)}.");
+                    throw new InvalidOperationException($"Undefined {nameof(NativeEnemyListDefinitions.WordKind)}.");
             }
         }
         throw new InvalidDataException($"Crocomire {program} ran past its typed steps.");
@@ -131,18 +136,18 @@ internal static class CrocomireAnimationsVerification
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         Start(state, CrocomireBodyProgram.SkeletonFallsApart);
-        var native = new NativeEnemyList(BodyEntry(CrocomireBodyProgram.SkeletonFallsApart), 1);
+        var native = new NativeEnemyListDefinitions.Reader(BodyBankNumber, BodyEntry(CrocomireBodyProgram.SkeletonFallsApart), 1, _ => 0);
         for (int update = 0; update < 200; update++)
         {
             Pass(enemies, state);
-            List<ushort> callbacks = native.Step(cartridge);
+            List<ushort> callbacks = [.. native.Step(cartridge).Select(callback => callback.Word)];
             string at = $"Crocomire skeleton collapse update {update}";
             AssertEqual(native.Timer, state.Body.InstructionTimer.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, state.Body.SpritemapPointer, $"{at}: frame");
             AssertEqual(native.NewFrame, state.Body.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
             AssertEqual(callbacks.Select(BodySound).LastOrDefault(sound => sound is not null), enemies.CrocomireBehavior.LastCrocomireSoundEffect,
                 $"{at}: sound");
-            AssertEqual(native.HasReached(CrocomireBodyProgram.SkeletonStable), state.BodyResidentProgram >= CrocomireBodyProgram.SkeletonStable,
+            AssertEqual(HasReached(native, CrocomireBodyProgram.SkeletonStable), state.BodyResidentProgram >= CrocomireBodyProgram.SkeletonStable,
                 $"{at}: the stable-skeleton test reads the native cursor");
         }
         AssertEqual(CrocomireBodyProgram.SkeletonStable, state.BodyResidentProgram, "the collapse settles on the stable skeleton");
@@ -208,11 +213,11 @@ internal static class CrocomireAnimationsVerification
             state.TongueProgram = program;
             state.TonguePosition = 0;
             tongue.InstructionTimer = NativeCountdown.Start(1);
-            var native = new NativeEnemyList(entry, 1);
+            var native = new NativeEnemyListDefinitions.Reader(BodyBankNumber, entry, 1, _ => 0);
             for (int update = 0; update < 60; update++)
             {
                 enemies.Instructions.ProcessInstructions(tongue, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
-                List<ushort> callbacks = native.Step(cartridge);
+                List<NativeEnemyListDefinitions.Callback> callbacks = native.Step(cartridge);
                 string at = $"Crocomire tongue {program} update {update}";
                 AssertEqual(0, callbacks.Count, $"{at}: the tongue lists have no callbacks");
                 AssertEqual(native.Timer, tongue.InstructionTimer.RawValue, $"{at}: timer");

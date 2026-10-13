@@ -9,24 +9,12 @@ using SuperMetroid.Core.Rom;
 /// </summary>
 internal static class CrocomireNativeListAddresses
 {
+    /// <summary>Crocomire's instruction bank, $A4.</summary>
+    internal const byte BodyBankNumber = 0xa4;
     /// <summary>Crocomire's instruction bank, $A4, as a long-address base.</summary>
     internal const int BodyBank = 0xa40000;
     /// <summary>The bank-$86 projectile instruction lists, as a long-address base.</summary>
     internal const int ProjectileBank = 0x860000;
-    /// <summary>The common enemy goto, <c>Instruction_Common_GotoY</c> at $A0:80ED.</summary>
-    internal const ushort EnemyGoto = 0x80ed;
-    /// <summary>The common enemy sleep, <c>Instruction_Common_Sleep</c> at $A0:812F.</summary>
-    internal const ushort EnemySleep = 0x812f;
-    /// <summary>Bit 15 marks an instruction word; a clear bit makes the word a frame duration.</summary>
-    internal const ushort InstructionBit = 0x8000;
-
-    /// <summary>The common enemy list opcodes the oracle decodes, by native address.</summary>
-    private static readonly Dictionary<ushort, EnemyWordKind> CommonEnemyWords = new()
-    {
-        [EnemyGoto] = EnemyWordKind.GoTo,
-        [EnemySleep] = EnemyWordKind.Sleep,
-    };
-
     /// <summary>The bank-$86 opcodes a Crocomire projectile list uses besides frames.</summary>
     private static readonly Dictionary<ushort, ProjectileWordKind> ProjectileWords = new()
     {
@@ -131,27 +119,11 @@ internal static class CrocomireNativeListAddresses
     /// <summary>Whether the native entries ascend, so the typed declaration order is the authored order.</summary>
     internal static bool BodyEntriesAscend => BodyEntries.Zip(BodyEntries.Skip(1)).All(pair => pair.First.Entry < pair.Second.Entry);
 
+    /// <summary>Whether a native reader's cursor has reached <paramref name="program"/>'s list or a later one.</summary>
+    internal static bool HasReached(NativeEnemyListDefinitions.Reader reader, CrocomireBodyProgram program) => reader.Cursor >= BodyEntry(program);
+
     /// <summary>The sound a native body callback queues, if it is a sound callback.</summary>
     internal static ushort? BodySound(ushort callback) => BodySoundCallbacks.TryGetValue(callback, out ushort sound) ? sound : null;
-
-    /// <summary>What a native enemy list word does.</summary>
-    internal enum EnemyWordKind
-    {
-        /// <summary>A frame: a duration and a spritemap operand.</summary>
-        Frame,
-        /// <summary>The common goto and its target operand.</summary>
-        GoTo,
-        /// <summary>The common sleep.</summary>
-        Sleep,
-        /// <summary>An owner callback.</summary>
-        Callback,
-    }
-
-    /// <summary>Decodes a native enemy list word.</summary>
-    internal static EnemyWordKind ClassifyEnemyWord(ushort word) =>
-        (word & InstructionBit) == 0 ? EnemyWordKind.Frame
-        : CommonEnemyWords.TryGetValue(word, out EnemyWordKind kind) ? kind
-        : EnemyWordKind.Callback;
 
     /// <summary>What a native bank-$86 Crocomire projectile list word does.</summary>
     internal enum ProjectileWordKind
@@ -168,63 +140,9 @@ internal static class CrocomireNativeListAddresses
 
     /// <summary>Decodes a native Crocomire projectile list word, rejecting words outside the compared set.</summary>
     internal static ProjectileWordKind ClassifyProjectileWord(ushort word) =>
-        (word & InstructionBit) == 0 ? ProjectileWordKind.Frame
+        (word & NativeEnemyListDefinitions.InstructionBit) == 0 ? ProjectileWordKind.Frame
         : ProjectileWords.TryGetValue(word, out ProjectileWordKind kind) ? kind
         : throw new InvalidDataException($"Crocomire projectile list word ${word:X4} is outside the compared set.");
-
-    /// <summary>A native bank-$A4 enemy list, read from the cartridge with the enemy interpreter's timer gate.</summary>
-    internal sealed class NativeEnemyList(ushort cursor, ushort timer)
-    {
-        /// <summary>The next native instruction.</summary>
-        private ushort cursor = cursor;
-        /// <summary>Updates remaining before the next native instruction is consumed.</summary>
-        internal ushort Timer { get; private set; } = timer;
-        /// <summary>Spritemap of the latest native frame.</summary>
-        internal ushort Spritemap { get; private set; }
-        /// <summary>Whether the latest update showed a new frame.</summary>
-        internal bool NewFrame { get; private set; }
-
-        /// <summary>Whether the native cursor has reached <paramref name="program"/>'s list or a later one.</summary>
-        internal bool HasReached(CrocomireBodyProgram program) => cursor >= BodyEntry(program);
-
-        /// <summary>Runs one update and returns the callbacks it executed.</summary>
-        internal List<ushort> Step(IImportCartridgeSource cartridge)
-        {
-            var callbacks = new List<ushort>();
-            ushort old = Timer;
-            Timer = NativeWordCounter.Decrement(Timer).Value;
-            if (old != 1)
-            {
-                NewFrame = false;
-                return callbacks;
-            }
-            for (int command = 0; command < 64; command++)
-            {
-                ushort word = cartridge.ReadCartridgeWord(BodyBank | cursor);
-                switch (ClassifyEnemyWord(word))
-                {
-                    case EnemyWordKind.Frame:
-                        Timer = word;
-                        Spritemap = cartridge.ReadCartridgeWord(BodyBank | (cursor + 2));
-                        cursor = unchecked((ushort)(cursor + 4));
-                        NewFrame = true;
-                        return callbacks;
-                    case EnemyWordKind.GoTo:
-                        cursor = cartridge.ReadCartridgeWord(BodyBank | (cursor + 2));
-                        continue;
-                    case EnemyWordKind.Sleep:
-                        return callbacks;
-                    case EnemyWordKind.Callback:
-                        callbacks.Add(word);
-                        cursor = unchecked((ushort)(cursor + 2));
-                        continue;
-                    default:
-                        throw new InvalidOperationException($"Undefined {nameof(EnemyWordKind)}.");
-                }
-            }
-            throw new InvalidDataException("A native Crocomire list ran 64 commands without a frame.");
-        }
-    }
 
     /// <summary>A native bank-$86 Crocomire projectile list with the projectile interpreter's timer gate.</summary>
     internal sealed class NativeProjectileList(ushort cursor, ushort timer)

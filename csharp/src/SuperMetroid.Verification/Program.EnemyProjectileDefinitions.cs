@@ -34,8 +34,6 @@ internal static class EnemyProjectileDefinitionsVerification
 
         Action<RoomEnemyProjectileSlot, RoomEnemyProjectileKind, ushort> initialize =
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition;
-        Func<RoomEnemyProjectileSlot, SamusState, ushort?> collideWithSamus =
-            EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision;
 
         const ushort populationPointer = 0x9400;
         TestAddressSpace setupBus = CreateEmptyEnemyPopulationCartridge(populationPointer);
@@ -43,6 +41,8 @@ internal static class EnemyProjectileDefinitionsVerification
         enemies.Load(new RoomEnemyLoadRequest(setupBus, populationPointer, 0xffff, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
+        Func<RoomEnemyProjectileSlot, SamusState, ushort?> collideWithSamus =
+            enemies.Projectiles.ResolveEnemyProjectileSamusCollision;
 
         foreach (RoomEnemyProjectileKind kind in kinds)
         {
@@ -85,12 +85,21 @@ internal static class EnemyProjectileDefinitionsVerification
             ushort initialList = projectile.InstructionPointer;
             AssertTrue(collideWithSamus(projectile, samus).HasValue,
                 $"{kind} production touch admitted");
-            AssertEqual(
-                definition.TouchInstructionList == 0
-                    ? initialList
-                    : definition.TouchInstructionList,
-                projectile.InstructionPointer,
-                $"{kind} production touch list");
+            if (kind == RoomEnemyProjectileKind.DraygonGoop)
+            {
+                // Draygon's goop touch program is typed (#641); VerifyDraygonProjectileAnimations matches it to the native list.
+                AssertTrue(projectile.Animation is DraygonProjectileAnimation { Cursor.Program: DraygonProjectileProgram.GoopTouch },
+                    $"{kind} production touch starts the typed touch program");
+            }
+            else
+            {
+                AssertEqual(
+                    definition.TouchInstructionList == 0
+                        ? initialList
+                        : definition.TouchInstructionList,
+                    projectile.InstructionPointer,
+                    $"{kind} production touch list");
+            }
 
             initialize(projectile, kind, 0);
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
@@ -107,7 +116,12 @@ internal static class EnemyProjectileDefinitionsVerification
                 shots,
                 new SamusBombProjectileSystem());
             AssertEqual(1, hits, $"{kind} production shot admitted");
-            if (kind == RoomEnemyProjectileKind.CrocomireProjectile)
+            if (kind == RoomEnemyProjectileKind.DraygonGoop)
+            {
+                AssertTrue(projectile.Animation is DraygonProjectileAnimation { Cursor.Program: DraygonProjectileProgram.GoopShot },
+                    $"{kind} production shot starts the typed shot program");
+            }
+            else if (kind == RoomEnemyProjectileKind.CrocomireProjectile)
             {
                 // Crocomire's shot program is typed (#641); VerifyCrocomireAnimations matches it to the native list.
                 AssertTrue(projectile.Animation is CrocomireProjectileAnimation { Kind: CrocomireProjectileFrameKind.Shot },

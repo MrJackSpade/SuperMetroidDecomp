@@ -15,10 +15,6 @@ public static class DraygonCannonData
         DraygonFiringCannon.UnusedBottom => new(DraygonCannonControlWord.UnusedBottom, new(444, 392)),
         _ => throw new InvalidOperationException($"Undefined {nameof(DraygonFiringCannon)} {(int)cannon}."),
     };
-    /// <summary>Checks whether a bank-$7E word pointer names one of the five modeled cannon-disable words, without reading its current value.</summary>
-    /// <param name="address">Bank-relative WRAM byte address, not a cannon selector or a full 24-bit bus address.</param>
-    /// <returns><see langword="true"/> for $8802, $8804, $8806, $8808, or $880A, including the pre-disabled upper-left and unused bottom roles; <see langword="false"/> otherwise.</returns>
-    public static bool IsControlWord(ushort address) => Enum.IsDefined((DraygonCannonControlWord)address);
 }
 
 /// <summary>One bank-$A5 cannon-control word paired with its wall projectile origin.</summary>
@@ -27,21 +23,22 @@ internal readonly record struct DraygonCannonTarget(
     Position16<RoomPixels> Origin);
 
 /// <summary>
-/// The five bank-$7E cannon-control words, valued by their WRAM address. Bank $84 writes one
-/// when a wall cannon is destroyed; bank $A5 reads it before firing.
+/// The five bank-$7E cannon-control words, in WRAM order from <c>$7E:8802</c>. Bank $84 writes one when a wall
+/// cannon is destroyed; bank $A5 reads it before firing. <see cref="DraygonCannonWorkRamAddresses"/> decodes the
+/// addresses room PLM data names them by.
 /// </summary>
 public enum DraygonCannonControlWord : ushort
 {
     /// <summary>Pre-destroyed upper-left cannon word authored by PLM argument <c>$8802</c>.</summary>
-    UpperLeft = 0x8802,
+    UpperLeft,
     /// <summary>Lower-left cannon word authored by PLM argument <c>$8804</c>.</summary>
-    LowerLeft = 0x8804,
+    LowerLeft,
     /// <summary>Upper-right cannon word authored by PLM argument <c>$8806</c>.</summary>
-    UpperRight = 0x8806,
+    UpperRight,
     /// <summary>Lower-right cannon word authored by PLM argument <c>$8808</c>.</summary>
-    LowerRight = 0x8808,
+    LowerRight,
     /// <summary>Unused bottom cannon word initialized to one by Draygon's body setup.</summary>
-    UnusedBottom = 0x880a,
+    UnusedBottom,
 }
 
 /// <summary>Four mutually exclusive cannon roles selected by HandleFiringWallTurret's low random bits.</summary>

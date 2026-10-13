@@ -27,7 +27,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(CrawlerInstruction),
             typeof(DeadSidehopperInstruction),
             typeof(DragonInstruction),
-            typeof(DraygonInstruction),
             typeof(EscapeEtecoonInstruction),
             typeof(EscapeDachoraInstruction),
             typeof(EvirInstruction),
@@ -135,7 +134,6 @@ internal static class EnemyInstructionCodePointersVerification
         [
             (typeof(GunshipInstructionProgramDefinitions), 0xa2),
             (typeof(OrdinaryEnemyInstructionLists), 0xa3),
-            (typeof(DraygonInstructionProgramDefinitions), 0xa5),
             (typeof(RidleyInstructionProgramDefinitions), 0xa6),
             (typeof(KraidLintInstructionLists), 0xa7),
             (typeof(PhantoonInstructionProgramDefinitions), 0xa7),

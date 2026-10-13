@@ -12,8 +12,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyInstructionInterpreter
 {
-    /// <summary>Advances Botwoon's typed head animation in place of its native instruction list.</summary>
-    private readonly BotwoonBehavior _botwoonBehavior;
     /// <summary>Owns the working BG2 tilemap used by Crocomire's extended frames.</summary>
     private readonly CrocomireBehavior _crocomireBehavior;
     /// <summary>Owns the Mother Brain BG2 working tilemap when that encounter is active.</summary>
@@ -26,9 +24,8 @@ internal sealed class EnemyInstructionInterpreter
     private readonly IEnemyDispatch _dispatch;
 
     /// <summary>Captures visual, room, encounter, and species dispatch owners for instruction execution.</summary>
-    internal EnemyInstructionInterpreter(BotwoonBehavior botwoonBehavior, CrocomireBehavior crocomireBehavior, MotherBrainEncounter motherBrainEncounter, EnemyPresentation presentation, EnemyRoomBinding room, IEnemyDispatch dispatch)
+    internal EnemyInstructionInterpreter(CrocomireBehavior crocomireBehavior, MotherBrainEncounter motherBrainEncounter, EnemyPresentation presentation, EnemyRoomBinding room, IEnemyDispatch dispatch)
     {
-        _botwoonBehavior = botwoonBehavior;
         _crocomireBehavior = crocomireBehavior;
         _motherBrainEncounter = motherBrainEncounter;
         _presentation = presentation;
@@ -232,24 +229,10 @@ internal sealed class EnemyInstructionInterpreter
         Position16<RoomPixels> camera,
         ushort controllerInput)
     {
-        // Botwoon's head runs a typed animation in place of its bank-$B3 instruction lists (#641).
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon)
-        {
-            _botwoonBehavior.AdvanceBotwoonHeadAnimation(slot, _botwoonBehavior.RequireBotwoonState(slot));
+        // Migrated owners run typed animations in place of their native instruction lists (#641).
+        if (_dispatch.Ai.TryAdvanceTypedAnimation(slot, new EnemyInstructionContext
+            { Samus = samus, Level = level, Camera = camera, ControllerInput = controllerInput }))
             return;
-        }
-
-        // Crocomire's body runs typed programs in place of its bank-$A4 instruction lists (#641).
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire)
-        {
-            _crocomireBehavior.AdvanceCrocomireBodyAnimation(slot, samus, level, camera.X);
-            return;
-        }
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue)
-        {
-            _crocomireBehavior.AdvanceCrocomireTongueAnimation(slot);
-            return;
-        }
 
         ushort oldTimer = slot.InstructionTimer.RawValue;
         slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
@@ -671,9 +654,6 @@ internal sealed class EnemyInstructionInterpreter
             return RidleyInstructionProgramDefinitions.ReadMechanicsWord(address);
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion)
             return RidleyExplosionInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (DraygonBehavior.IsDraygonDefinition(slot.EnemyDefinitionPointer))
-            return DraygonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         throw new InvalidDataException(
             $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} instruction mechanics pointer " +

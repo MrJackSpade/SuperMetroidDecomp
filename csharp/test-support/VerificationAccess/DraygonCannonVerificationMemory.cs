@@ -11,7 +11,6 @@ internal readonly struct DraygonCannonVerificationMemory(ISnesMemoryBus bus)
     /// <summary>The control word for <paramref name="word"/>: one once that cannon is disabled.</summary>
     internal ushort ControlWord(DraygonCannonControlWord word)
     {
-        int index = ((ushort)word - SnesAddress.FromBusAddress(DraygonCannonWorkRam.ControlWords.Address).Offset) / sizeof(ushort);
-        return new WramWords(bus, DraygonCannonWorkRam.ControlWords)[index].Read();
+        return new WramWords(bus, DraygonCannonWorkRam.ControlWords)[(int)word].Read();
     }
 }

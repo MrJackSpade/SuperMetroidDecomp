@@ -618,6 +618,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         head.Timer = NativeCountdown.Start(0);
     }
 
+    /// <summary>Runs Botwoon's head as a typed animation in place of its bank-$B3 instruction lists (#641).</summary>
+    internal void RegisterBotwoonTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon,
+            (slot, context) => AdvanceBotwoonHeadAnimation(slot, RequireBotwoonState(slot)));
+
     /// <summary>
     /// Runs Botwoon's head animation where the enemy instruction interpreter would: the frame
     /// expires on the update its native timer would, and a newly shown frame raises the

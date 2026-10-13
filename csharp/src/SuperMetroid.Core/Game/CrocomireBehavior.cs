@@ -1392,6 +1392,15 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         fixedPosition = unchecked(fixedPosition + delta);
         return SnesFixedPosition.FromRaw(fixedPosition);
     }
+    /// <summary>Runs Crocomire's body and tongue as typed programs in place of their bank-$A4 instruction lists (#641).</summary>
+    internal void RegisterCrocomireTypedAnimations(EnemyAiTable table)
+    {
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire,
+            (slot, context) => AdvanceCrocomireBodyAnimation(slot, context.Samus, context.Level, context.Camera.X));
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue,
+            (slot, context) => AdvanceCrocomireTongueAnimation(slot));
+    }
+
     /// <summary>
     /// Runs Crocomire's body program where the enemy instruction interpreter would: the frame expires on the
     /// update its native timer would, and a newly shown frame raises the new-frame flag exactly as a native
@@ -1409,13 +1418,20 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         }
 
         AnimationProgramCursor<CrocomireBodyProgram> cursor = state.BodyCursor;
-        AnimationAdvance<CrocomireBodyFrame> advance = CrocomireBodyAnimations.Programs.Advance(ref cursor,
+        NativeCountdown counter = body.Timer;
+        AnimationProgramAdvance<CrocomireBodyFrame> advance = CrocomireBodyAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, continuation) => ApplyCrocomireBodyCue(state, samus, level, cameraX, cue,
                 CrocomireBodyAnimations.Programs.ResidentProgram(continuation)));
         state.BodyCursor = cursor;
-        // A hold is the native sleep: the timer wraps from zero and the last frame stays.
-        if (advance.Held)
+        body.Timer = counter;
+        // A hold is the native sleep: the timer wraps from zero and the last frame stays. The body programs
+        // have no waits or stops.
+        if (advance.Kind != AnimationProgramAdvanceKind.Show)
+        {
+            if (advance.Kind != AnimationProgramAdvanceKind.Hold)
+                throw new InvalidOperationException($"Crocomire's body program ended an update with {advance.Kind}.");
             return;
+        }
         body.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
         state.BodyFrame = advance.Frame;
         body.SpritemapPointer = advance.Frame.Spritemap;
@@ -2349,7 +2365,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     {
         table.RegisterShotAnimation(RoomEnemyProjectileKind.CrocomireProjectile,
             () => new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Shot));
-        table.RegisterCue<CrocomireProjectileCue>((projectile, cue) =>
+        table.RegisterCue<CrocomireProjectileCue>((projectile, samus, cue) =>
         {
             switch (cue)
             {

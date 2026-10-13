@@ -19,7 +19,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using static ColorWordsVerification;
-using static DraygonInstructionProgramDefinitionsVerification;
+using static DraygonAnimationsVerification;
 using static EndingTextPresentationVerification;
 using static EnemyTileArtworkBotwoonColorsVerification;
 using static FrontendRomFreeVerification;
@@ -2504,29 +2504,9 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon presentation layout")]
     internal static void VerifyLookupStream4DraygonPresentationLayout(ISnesAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        AssertEqual(250, DraygonInstructionProgramDefinitionsTooling.PresentationWordCount, "Native Draygon timed-record count");
-        byte[] identities = new byte[500];
-        var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewProjectileCompositionForbiddenBus());
-        var slot = new RoomEnemySlot(0) { EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody,
-            Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 } };
-        var read = new Func<RoomEnemySlot,ushort,ushort>(EnemyInstructionInterpreter.ReadEnemyVisualSelector);
-        for(int index=0;index<250;index++)
-        {
-            ushort address=DraygonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            identities[index*2]=(byte)address; identities[index*2+1]=SnesLittleEndian.HighByte(address);
-            ushort duration=CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa50000+address-2);
-            ushort selector=CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa50000+address);
-            AssertTrue(duration<0x8000,"Native timed record uses low-bit duration");
-            AssertEqual(duration,DraygonInstructionProgramDefinitions.ReadMechanicsWord((ushort)(address-2)),"Derived record duration is native");
-            AssertEqual(selector,read(slot,address),"Actual installed native visual selector without cartridge access");
-            AssertThrows<InvalidDataException>(()=>DraygonInstructionProgramDefinitions.ReadMechanicsWord(address),"Selector remains outside mechanics");
-        }
-        AssertEqual("D35407018D9032B43BC27AE2341FDBE7647C7B87D36E21BBDAB88B65C2DEFAF0",Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(identities)),"Exact ordered native selector-address identity");
-        foreach(int invalid in new[]{-1,250,int.MinValue,int.MaxValue})AssertThrows<IndexOutOfRangeException>(()=>DraygonInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid),"Original presentation enumeration domain");
-        Suite(nameof(VerifyDraygonInstructionProgramDefinitions), () => VerifyDraygonInstructionProgramDefinitions());
-        Console.WriteLine("Draygon presentation layout:250 exact ordered native operand identities/actual selector reads,mechanics separation/domains and existing four-owner reset/IRQ proof pass.");
+        // #1283: the typed programs own the frame layout; the oracle matches every frame to its native operand.
+        Suite(nameof(VerifyDraygonAnimations), () => VerifyDraygonAnimations(rom));
+        Console.WriteLine("Draygon presentation layout: every typed frame matches its native operand and duration.");
     }
 
     /// <summary>Checks Draygon intro palette phases and installed CGRAM colors against native stages.</summary>

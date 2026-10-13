@@ -117,11 +117,10 @@ internal static class EnemyProjectileDefinitionCatalog
             0x1008, 0x4028, 0x0000,
             PhantoonProjectileInstructionProgramDefinitions.DestroyableIdle),
         RoomEnemyProjectileKind.DraygonGoop => new(
-0x8E0F, DraygonProjectileInstructionProgramDefinitions.Goop,
-            0x0808, 0xD000, DraygonProjectileInstructionProgramDefinitions.GoopTouch,
-            DraygonProjectileInstructionProgramDefinitions.GoopShot),
+0x8E0F, 0x8C3A,
+            0x0808, 0xD000, 0x8C38, 0x8C58),
         RoomEnemyProjectileKind.DraygonWallTurret => new(
-0x8DFF, DraygonProjectileInstructionProgramDefinitions.WallTurretBloom,
+0x8DFF, 0x8CA4,
             0x0808, 0x1080, 0x0000, 0xE138),
         RoomEnemyProjectileKind.MotherBrainRoomTurret => new(
 0xBFDF, MotherBrainTurretInstructionProgramDefinitions.TurretDown,

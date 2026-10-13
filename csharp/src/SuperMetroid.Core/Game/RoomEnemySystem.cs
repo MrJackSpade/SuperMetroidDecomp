@@ -518,7 +518,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         BoyonBehavior = new BoyonBehavior();
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles);
         BotwoonBehavior = new BotwoonBehavior(Room, Projectiles, SpriteObjects, SlotTable, Presentation, Collision, DeathsAndDrops);
-        Instructions = new EnemyInstructionInterpreter(BotwoonBehavior, CrocomireBehavior, MotherBrainEncounter, Presentation, Room, this);
+        Instructions = new EnemyInstructionInterpreter(CrocomireBehavior, MotherBrainEncounter, Presentation, Room, this);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { CeresRidleyBehavior = CeresRidleyBehavior, DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, RidleyEncounter = RidleyEncounter, Room = Room, SlotTable = SlotTable });
         BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops });
         BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(Room, Presentation, ElevatorBehavior);
@@ -1314,7 +1314,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         KraidBehavior.RegisterKraidOwnedInstructions(table);
         PhantoonBehavior.RegisterPhantoonOwnedInstructions(table);
         MotherBrainBehavior.RegisterMotherBrainOwnedInstructions(table);
-        DraygonBehavior.RegisterDraygonOwnedInstructions(table);
+        DraygonBehavior.RegisterDraygonTypedAnimations(table);
+        BotwoonBehavior.RegisterBotwoonTypedAnimations(table);
+        CrocomireBehavior.RegisterCrocomireTypedAnimations(table);
         WallSpacePirateBehavior.RegisterWallSpacePirateOwnedInstructions(table);
         NinjaSpacePirateBehavior.RegisterNinjaSpacePirateOwnedInstructions(table);
         WorkRobotBehavior.RegisterWorkRobotOwnedInstructions(table);
@@ -1547,7 +1549,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
         RidleyProjectiles.RegisterAfterburnInstructions(table);
 
-        DraygonBehavior.RegisterDraygonEyeDropProjectiles(table);
 
         CrocomireBehavior.RegisterCrocomireDropProjectiles(table);
 

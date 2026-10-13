@@ -39,16 +39,18 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             {
                 Kind = kind,
             };
-            // Botwoon's and Crocomire's spawners start typed animations (#641); VerifyBotwoonProjectileAnimations
-            // and VerifyCrocomireAnimations match them to these native lists frame by frame, and no interpreter
-            // owns the lists. Crocomire's mouth projectile also starts a typed shot program.
+            // Botwoon's, Crocomire's and Draygon's spawners start typed animations (#641); their oracles match them
+            // to these native lists frame by frame, and no interpreter owns the lists. Crocomire's mouth projectile and
+            // Draygon's goop also start typed shot programs, and the goop a typed touch program.
             bool typed = kind is RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit or
                 RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
-                RoomEnemyProjectileKind.CrocomireSpikeWallPieces;
+                RoomEnemyProjectileKind.CrocomireSpikeWallPieces or RoomEnemyProjectileKind.DraygonGoop or
+                RoomEnemyProjectileKind.DraygonWallTurret;
             if (!typed)
                 VerifyEntry(definition.InitialInstructionList, "initial");
-            VerifyEntry(definition.TouchInstructionList, "touch");
-            if (kind != RoomEnemyProjectileKind.CrocomireProjectile)
+            if (kind != RoomEnemyProjectileKind.DraygonGoop)
+                VerifyEntry(definition.TouchInstructionList, "touch");
+            if (kind is not (RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.DraygonGoop))
                 VerifyEntry(definition.ShotInstructionList, "shot");
 
             void VerifyEntry(ushort address, string role)

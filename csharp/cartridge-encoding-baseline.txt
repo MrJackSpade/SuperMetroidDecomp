@@ -271,14 +271,7 @@ csharp/src/SuperMetroid.Core/Game/DownwardGateProjectileInstructionProgramDefini
 csharp/src/SuperMetroid.Core/Game/DragonBehavior.cs	SME6340	10
 csharp/src/SuperMetroid.Core/Game/DragonEnemyState.cs	SME6340	6
 csharp/src/SuperMetroid.Core/Game/DragonFireballInstructionProgramDefinitions.cs	SME6341	3
-csharp/src/SuperMetroid.Core/Game/DraygonBehavior.cs	SME6340	115
 csharp/src/SuperMetroid.Core/Game/DraygonBehavior.cs	SME6349	1
-csharp/src/SuperMetroid.Core/Game/DraygonCannonData.cs	SME6340	5
-csharp/src/SuperMetroid.Core/Game/DraygonCannonMemory.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Game/DraygonEnemyState.cs	SME6340	31
-csharp/src/SuperMetroid.Core/Game/DraygonEyeEffects.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Game/DraygonProjectileInstructionProgramDefinitions.cs	SME6341	16
-csharp/src/SuperMetroid.Core/Game/DraygonProjectileSpeeds.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Game/ElevatorBehavior.cs	SME6340	7
 csharp/src/SuperMetroid.Core/Game/ElevatorInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/EnemyCollision.cs	SME6340	27
@@ -531,7 +524,6 @@ csharp/src/SuperMetroid.Core/Game/SamusDeathExplosionTimingDefinitions.cs	SME634
 csharp/src/SuperMetroid.Core/Game/SamusDeathSequenceState.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Game/SamusDiscriminants.cs	SME6340	42
 csharp/src/SuperMetroid.Core/Game/SamusDrainedState.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Game/SamusDraygonGrabbedState.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Game/SamusExtraDisplacement.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Game/SamusGrappleMovement.cs	SME6340	26
 csharp/src/SuperMetroid.Core/Game/SamusHorizontalSpeedState.cs	SME6340	13
@@ -691,7 +683,6 @@ csharp/src/SuperMetroid.Core/Rooms/DoorScrollPrograms.cs	SME6340	144
 csharp/src/SuperMetroid.Core/Rooms/DownwardGatePlmProgramDefinitions.cs	SME6341	4
 csharp/src/SuperMetroid.Core/Rooms/DownwardGateShotBlockDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Rooms/DraygonCannonPlmProgramDefinitions.cs	SME6341	1
-csharp/src/SuperMetroid.Core/Rooms/DraygonCannonPlms.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Rooms/EyeDoorPlmProgramDefinitions.cs	SME6341	5
 csharp/src/SuperMetroid.Core/Rooms/EyeDoorPlms.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Rooms/GreyDoorPlmProgramDefinitions.cs	SME6341	6
@@ -854,7 +845,6 @@ csharp/src/SuperMetroid.Tooling/Core/Game/DeadTourianCorpseInstructionProgramDef
 csharp/src/SuperMetroid.Tooling/Core/Game/DownwardGateProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Game/DragonFireballInstructionProgramDefinitionsTooling.cs	SME6341	2
 csharp/src/SuperMetroid.Tooling/Core/Game/DragonInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Game/DraygonProjectileInstructionProgramDefinitionsTooling.cs	SME6341	8
 csharp/src/SuperMetroid.Tooling/Core/Game/ElevatorInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Game/ElevatorInstructionProgramDefinitionsTooling.cs	SME6341	3
 csharp/src/SuperMetroid.Tooling/Core/Game/EnemyDeathInstructionProgramDefinitionsTooling.cs	SME6341	7
@@ -1216,7 +1206,6 @@ csharp/src/SuperMetroid.Verification/Program.DraygonGoopDrops.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Program.DraygonIntroDanceDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.DraygonPrebattleXray.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Program.DraygonPrebattleXray.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Program.DraygonProjectileInstructionProgramDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.DraygonScrollingSpeedCap.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Program.DraygonTilemapProduction.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Program.DraygonTurretCadence.cs	SME6340	9
@@ -1269,7 +1258,7 @@ csharp/src/SuperMetroid.Verification/Program.EnemyEffectResources.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Program.EnemyEffects.Fixture.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Program.EnemyExtendedFrameArtwork.CommonEmpty.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Program.EnemyExtendedFrameArtwork.SporeSpawnSelectors.cs	SME6340	22
-csharp/src/SuperMetroid.Verification/Program.EnemyExtendedFrameArtwork.cs	SME6340	338
+csharp/src/SuperMetroid.Verification/Program.EnemyExtendedFrameArtwork.cs	SME6340	337
 csharp/src/SuperMetroid.Verification/Program.EnemyFireballLaunchDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.EnemyGameplayAcceptance.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Program.EnemyInstructionOwnerCoverage.cs	SME6340	4
@@ -1678,7 +1667,7 @@ csharp/src/SuperMetroid.Verification/Program.LookupStream2.cs	SME6342	3
 csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs	SME6340	474
 csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs	SME6341	4
 csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs	SME6342	19
-csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs	SME6340	582
+csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs	SME6340	578
 csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs	SME6341	3
 csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs	SME6342	5
 csharp/src/SuperMetroid.Verification/Program.LookupStream5.cs	SME6340	132

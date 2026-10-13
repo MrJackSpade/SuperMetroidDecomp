@@ -13,13 +13,13 @@ internal abstract class EnemyProjectileAnimation
     /// on the way may end the animation (deleting the projectile or handing it to another program); the pass
     /// then stops, as the native instruction that did so would.
     /// </summary>
-    internal void Advance(RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers)
+    internal void Advance(RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus)
     {
         ushort oldTimer = projectile.InstructionTimer.RawValue;
         projectile.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
             return;
-        bool shown = TryShowNextFrame(projectile, handlers, out int duration, out ushort presentationKey);
+        bool shown = TryShowNextFrame(projectile, handlers, samus, out int duration, out ushort presentationKey);
         if (projectile.Animation != this)
             return;
         if (!shown)
@@ -36,10 +36,11 @@ internal abstract class EnemyProjectileAnimation
     /// <summary>Advances the timeline to its next frame, or reports that it holds.</summary>
     /// <param name="projectile">The slot the animation runs on, for cues that act on it.</param>
     /// <param name="handlers">The engine's handlers, which carry out published cues.</param>
+    /// <param name="samus">Samus, for cues that act on her; null in fixtures without her.</param>
     /// <param name="duration">How many projectile passes the frame lasts.</param>
     /// <param name="presentationKey">The installed artwork key of the frame.</param>
     private protected abstract bool TryShowNextFrame(
-        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, out int duration, out ushort presentationKey);
+        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out ushort presentationKey);
 }
 
 /// <summary>
@@ -61,14 +62,65 @@ internal abstract class EnemyProjectileTimelineAnimation<TFrame, TCue> : EnemyPr
 
     /// <summary>Plays the timeline, publishing each cue to the family's registered handler.</summary>
     private protected sealed override bool TryShowNextFrame(
-        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, out int duration, out ushort presentationKey)
+        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out ushort presentationKey)
     {
         int position = Position;
-        AnimationAdvance<TFrame> advance = Timeline.Advance(ref position, cue => handlers.PublishCue(projectile, cue));
+        AnimationAdvance<TFrame> advance = Timeline.Advance(ref position, cue => handlers.PublishCue(projectile, samus, cue));
         Position = position;
         duration = advance.Duration;
         presentationKey = advance.Held ? (ushort)0 : PresentationKey(advance.Frame);
         return !advance.Held;
+    }
+}
+
+/// <summary>
+/// A projectile animation that runs programs of an <see cref="AnimationProgramSet{TProgram, TFrame, TCue}"/>: for
+/// families whose native lists run on into, or jump between, one another. Each cue goes to the handler its family
+/// registered with <see cref="EnemyProjectileHandlerTable.RegisterCue{TCue}"/>; projectile programs never redirect.
+/// </summary>
+/// <typeparam name="TProgram">The family's program identity.</typeparam>
+/// <typeparam name="TFrame">The family's frame identity.</typeparam>
+/// <typeparam name="TCue">The family's cue type.</typeparam>
+internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> : EnemyProjectileAnimation
+    where TProgram : struct, Enum
+{
+    /// <summary>Starts <paramref name="program"/>.</summary>
+    private protected EnemyProjectileProgramAnimation(TProgram program) => Cursor = AnimationProgramCursor<TProgram>.Start(program);
+
+    /// <summary>Where the program resumes.</summary>
+    internal AnimationProgramCursor<TProgram> Cursor { get; private set; }
+
+    /// <summary>The program set this animation runs.</summary>
+    private protected abstract AnimationProgramSet<TProgram, TFrame, TCue> Programs { get; }
+
+    /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
+    private protected abstract ushort PresentationKey(TFrame frame);
+
+    /// <summary>Runs the program, publishing each cue to the family's registered handler.</summary>
+    private protected sealed override bool TryShowNextFrame(
+        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out ushort presentationKey)
+    {
+        AnimationProgramCursor<TProgram> cursor = Cursor;
+        // The projectile interpreter has no loop timer, so projectile programs hold no counter steps.
+        NativeCountdown counter = NativeCountdown.Start(0);
+        AnimationProgramAdvance<TFrame> advance = Programs.Advance(ref cursor, ref counter, (cue, continuation) =>
+        {
+            handlers.PublishCue(projectile, samus, cue);
+            return null;
+        });
+        Cursor = cursor;
+        duration = advance.Duration;
+        switch (advance.Kind)
+        {
+            case AnimationProgramAdvanceKind.Show:
+                presentationKey = PresentationKey(advance.Frame);
+                return true;
+            case AnimationProgramAdvanceKind.Hold:
+                presentationKey = 0;
+                return false;
+            default:
+                throw new InvalidOperationException($"A projectile program ended an update with {advance.Kind}.");
+        }
     }
 }
 
@@ -108,7 +160,7 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileAnimation
 
     /// <summary>Advances the segment or spit timeline and maps its frame to installed projectile artwork.</summary>
     private protected override bool TryShowNextFrame(
-        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, out int duration, out ushort presentationKey)
+        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out ushort presentationKey)
     {
         var timeline = Segment is { } segment ? BotwoonAnimations.Segment(segment) : BotwoonAnimations.Spit;
         int position = Position;

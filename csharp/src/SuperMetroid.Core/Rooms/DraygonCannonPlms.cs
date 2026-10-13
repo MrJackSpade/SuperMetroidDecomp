@@ -36,7 +36,7 @@ internal sealed class DraygonCannonPlms
         };
 
         ushort variablePointer = slot.RoomArgument;
-        if (!DraygonCannonData.IsControlWord(variablePointer))
+        if (!DraygonCannonWorkRamAddresses.TryDecode(variablePointer, out _))
         {
             throw new InvalidDataException(
                 $"Draygon cannon header $84:{(int)slot.HeaderPointer:X4} has invalid control " +
@@ -160,7 +160,8 @@ internal sealed class DraygonCannonPlms
         DraygonCannonPlmState state)
     {
         (_bindings.Enemies ?? throw new InvalidOperationException(
-            "Draygon cannon bytecode has no enemy-control-word writer.")).DisableDraygonCannon(state.VariablePointer);
+            "Draygon cannon bytecode has no enemy-control-word writer.")).DisableDraygonCannon(
+                DraygonCannonWorkRamAddresses.Decode(state.VariablePointer));
         WriteDraygonCannonTypeAndBts(
             level,
             slot.BlockIndex,
@@ -181,7 +182,7 @@ internal sealed class DraygonCannonPlms
         ushort original = level.GetPlmCollisionBlockByIndex(blockIndex).LevelWord;
         level.SetPlmForegroundEntry(
             blockIndex,
-            unchecked((ushort)((original & 0x0fff) | (typeAndBts & 0xf000))));
+            new RoomLevelWord(original).WithCollisionType(new RoomLevelWord(typeAndBts).CollisionType).Raw);
         level.SetPlmBehavior(blockIndex, unchecked((byte)typeAndBts));
     }
 

@@ -26,12 +26,10 @@ internal static class EnemyExtendedFrameArtworkVerification
         ISnesAddressSpace rom, HashSet<ushort> draygonOamPointers)
     {
         var draygonBg2Pointers = new HashSet<ushort>();
-        for (int index = 0; index <
-             DraygonInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
+        // The Draygon oracle matches each typed frame to the operand of its native list frame.
+        for (int index = 0; index < DraygonFrameDefinitions.FrameCount; index++)
         {
-            ushort operand = DraygonInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa50000 | operand);
+            ushort pointer = new DraygonFrame(index).Spritemap;
             if (draygonOamPointers.Contains(pointer))
                 continue;
             draygonBg2Pointers.Add(pointer);

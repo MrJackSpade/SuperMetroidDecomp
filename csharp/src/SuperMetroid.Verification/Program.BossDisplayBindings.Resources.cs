@@ -73,7 +73,6 @@ internal static class BossDisplayBindingsResourcesVerification
         var programs = new[]
         {
             (Definition: EnemyDefinitionId.PhantoonTentacles, Program: PhantoonInstructionProgramDefinitions.InitialTentacles, Duration: 8, Count: 4),
-            (Definition: EnemyDefinitionId.DraygonArms, Program: DraygonInstructionProgramDefinitions.ArmsFacingLeftIdle, Duration: 5, Count: 6),
         };
         int transitions = 0;
         foreach (var program in programs)

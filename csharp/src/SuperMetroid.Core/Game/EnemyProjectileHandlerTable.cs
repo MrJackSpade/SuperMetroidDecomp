@@ -41,8 +41,8 @@ internal delegate bool EnemyProjectilePreInstructionInterceptor(RoomEnemyProject
 /// </summary>
 internal delegate bool EnemyProjectileInstructionInterceptor(RoomEnemyProjectileSlot projectile, ushort word, ref ushort cursor);
 
-/// <summary>Carries out one cue a typed projectile timeline published on <paramref name="projectile"/>.</summary>
-internal delegate void EnemyProjectileCueHandler<in TCue>(RoomEnemyProjectileSlot projectile, TCue cue);
+/// <summary>Carries out one cue a typed projectile animation published on <paramref name="projectile"/>.</summary>
+internal delegate void EnemyProjectileCueHandler<in TCue>(RoomEnemyProjectileSlot projectile, SamusState? samus, TCue cue);
 
 /// <summary>An owner of enemy-projectile behavior that registers its handlers with the projectile engine.</summary>
 internal interface IEnemyProjectileHandlerSource
@@ -140,6 +140,20 @@ internal sealed class EnemyProjectileHandlerTable
     /// <summary>Typed animations a shot projectile of each kind starts in place of its native shot list.</summary>
     private readonly Dictionary<RoomEnemyProjectileKind, Func<EnemyProjectileAnimation>> _shotAnimations = [];
 
+    /// <summary>Typed animations a projectile of each kind starts on touching Samus, in place of its native touch list.</summary>
+    private readonly Dictionary<RoomEnemyProjectileKind, Func<EnemyProjectileAnimation>> _touchAnimations = [];
+
+    /// <summary>Registers the typed animation a projectile of <paramref name="kind"/> starts when it touches Samus.</summary>
+    internal void RegisterTouchAnimation(RoomEnemyProjectileKind kind, Func<EnemyProjectileAnimation> animation)
+    {
+        if (!_touchAnimations.TryAdd(kind, Ensure.NotNull(animation)))
+            throw new InvalidOperationException($"Enemy projectile {kind} has two touch animations.");
+    }
+
+    /// <summary>The typed touch animation registered for <paramref name="kind"/>, if its family has one.</summary>
+    internal bool TryGetTouchAnimation(RoomEnemyProjectileKind kind, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Func<EnemyProjectileAnimation>? animation) =>
+        _touchAnimations.TryGetValue(kind, out animation);
+
     /// <summary>Registers the typed animation a shot projectile of <paramref name="kind"/> starts.</summary>
     internal void RegisterShotAnimation(RoomEnemyProjectileKind kind, Func<EnemyProjectileAnimation> animation)
     {
@@ -162,11 +176,11 @@ internal sealed class EnemyProjectileHandlerTable
     }
 
     /// <summary>Carries out <paramref name="cue"/> with its family's registered handler.</summary>
-    internal void PublishCue<TCue>(RoomEnemyProjectileSlot projectile, TCue cue)
+    internal void PublishCue<TCue>(RoomEnemyProjectileSlot projectile, SamusState? samus, TCue cue)
     {
         if (!_cues.TryGetValue(typeof(TCue), out Delegate? handler))
             throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name}.{cue} has no registered handler.");
-        ((EnemyProjectileCueHandler<TCue>)handler)(projectile, cue);
+        ((EnemyProjectileCueHandler<TCue>)handler)(projectile, samus, cue);
     }
 
     /// <summary>The handler registered for <paramref name="id"/>, if any.</summary>

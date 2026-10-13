@@ -15,6 +15,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Checks Ridley's swoop components and tail state changes through pogo, stab, and target selection.</summary>
 internal static class RidleyFlightTailVerification
 {
     /// <summary>The native signed sine sample for <paramref name="angle"/> from the $A0:B443 table.</summary>
@@ -25,6 +26,7 @@ internal static class RidleyFlightTailVerification
         return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
     }
 
+    /// <summary>Compares retail swoop sine motion and production tail transitions, coordinates, and RNG use.</summary>
     internal static void VerifyRidleyFlightTail()
     {
         Action<RidleyEnemyState, int, int, int> update = CeresRidleyBehavior.UpdateRidleySwoopVelocity;
@@ -135,6 +137,7 @@ internal static class RidleyFlightTailVerification
         Console.WriteLine("Ridley tail: real pogo setup, exact segment angles/position, stop, descending stab and neutral recovery confirmed.");
     }
 
+    /// <summary>Runs the focused Ridley flight and tail check.</summary>
     [VerificationCommand("--ridley-flight-tail")]
     internal static int RidleyFlightTailCommand()
     {

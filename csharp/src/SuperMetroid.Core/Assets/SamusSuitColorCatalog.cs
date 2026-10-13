@@ -20,8 +20,11 @@ namespace SuperMetroid.Core.Assets;
 /// their own owners. This exception covers these base inks, not all palettes.</remarks>
 public sealed class SamusSuitColorCatalog
 {
+    /// <summary>Complete authored Power suit palette, including its transparent-slot payload.</summary>
     private readonly Bgr555[] power;
+    /// <summary>Only Varia slots differing from the Power palette's shared inks.</summary>
     private readonly Dictionary<int, Bgr555> varia;
+    /// <summary>Only Gravity slots differing from the Power palette's shared inks.</summary>
     private readonly Dictionary<int, Bgr555> gravity;
 
     /// <summary>Stores a Power palette and only differing colors for the other suits.</summary>
@@ -37,6 +40,7 @@ public sealed class SamusSuitColorCatalog
         this.gravity = Differences(gravity, power);
     }
 
+    /// <summary>Finds independently selected suit inks while omitting slots that reuse the Power palette word.</summary>
     private static Dictionary<int, Bgr555> Differences(Bgr555[] supplied, Bgr555[] power)
     {
         var differences = new Dictionary<int, Bgr555>();
@@ -45,6 +49,7 @@ public sealed class SamusSuitColorCatalog
         return differences;
     }
 
+    /// <summary>Uses stable camel-case resource output and rejects unknown suit-color properties.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -114,6 +119,7 @@ public sealed class SamusSuitColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates all sixteen RGB5 slots, including color zero, and packs them into native words.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusSuitColorFormat.ColorsPerSuit)
@@ -130,6 +136,7 @@ public sealed class SamusSuitColorCatalog
         return result;
     }
 
+    /// <summary>Detects duplicate JSON properties before a suit palette can be silently replaced.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus suit color property {name}."));

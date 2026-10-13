@@ -5,15 +5,24 @@ namespace SuperMetroid.Game;
 /// <summary>First-launch ROM selection and recoverable installation without blocking the UI thread.</summary>
 internal sealed class RomSetupForm : Form
 {
+    /// <summary>Command-line or environment ROM source checked when the dialog first appears.</summary>
     private readonly string? sourcePath;
+    /// <summary>Cancels a background install when the user closes the dialog.</summary>
     private readonly CancellationTokenSource stopping = new();
+    /// <summary>Displays installer progress and recoverable errors in the form.</summary>
     private readonly Label status = new() { AutoSize = false, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft };
+    /// <summary>Opens a picker for a supported user-supplied cartridge.</summary>
     private readonly Button choose = new() { Text = "Choose ROM…", AutoSize = true };
+    /// <summary>Indicates that installation or repair is running on a worker task.</summary>
     private readonly ProgressBar progressBar = new() { Dock = DockStyle.Bottom, Height = 12, Style = ProgressBarStyle.Marquee };
+    /// <summary>Tracks the active installer so closing can request cancellation first.</summary>
     private bool busy;
+    /// <summary>Defers dialog closure until the background installer has observed cancellation.</summary>
     private bool closeRequested;
+    /// <summary>Validated installation returned to the game host after setup succeeds.</summary>
     public GameInstallation? Installation { get; private set; }
 
+    /// <summary>Initializes first-launch setup and accepts at most one explicit ROM path.</summary>
     public RomSetupForm(string[] arguments)
     {
         if (arguments.Length > 1) throw new ArgumentException("Supply at most one ROM path.");
@@ -52,12 +61,14 @@ internal sealed class RomSetupForm : Form
         AcceptButton = choose;
     }
 
+    /// <summary>Checks or repairs the installed game files after the form is displayed.</summary>
     protected override async void OnShown(EventArgs e)
     {
         base.OnShown(e);
         await Prepare(string.IsNullOrWhiteSpace(sourcePath) ? null : sourcePath);
     }
 
+    /// <summary>Installs a selected ROM or opens an existing installation, reporting progress in the form.</summary>
     private async Task Prepare(string? source)
     {
         busy = true;
@@ -84,6 +95,7 @@ internal sealed class RomSetupForm : Form
         else if (Installation is not null) { DialogResult = DialogResult.OK; Close(); }
     }
 
+    /// <summary>Requests cancellation and waits for the active installer before allowing closure.</summary>
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
         if (busy)
@@ -95,6 +107,7 @@ internal sealed class RomSetupForm : Form
         base.OnFormClosing(e);
     }
 
+    /// <summary>Releases the installer cancellation source with the form.</summary>
     protected override void Dispose(bool disposing)
     {
         if (disposing) stopping.Dispose();

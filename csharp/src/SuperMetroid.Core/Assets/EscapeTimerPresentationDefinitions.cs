@@ -60,6 +60,7 @@ public static class EscapeTimerPresentationDefinitions
 
     /// <summary>Exact ordered native digit/label geometry. Font ink pixels remain owned by EscapeTimerTileAtlas.</summary>
     internal static SpriteComposition DefaultFrame(string name) => SpriteComposition.FromCalculated(DefaultParts(name));
+    /// <summary>Selects the calculated TIME label or decimal glyph parts from a canonical frame key.</summary>
     internal static PartSequence DefaultParts(string name)
     {
         if (name == LabelFrame) return new(-1);
@@ -67,9 +68,12 @@ public static class EscapeTimerPresentationDefinitions
             && (uint)digit < DecimalDigitCount) return new(digit);
         throw new ArgumentOutOfRangeException(nameof(name));
     }
+    /// <summary>Yields the native small-OBJ tile order for one digit or the TIME label and separators.</summary>
     internal readonly struct PartSequence(int digit) : IReadOnlyList<CompiledSpritePart>
     {
+        /// <summary>Digits use two parts; the label uses three letters and two separator parts.</summary>
         public int Count => digit < 0 ? LabelTileCount + 2 : 2;
+        /// <summary>Calculates one tile, offset, and priority from the selected native frame shape.</summary>
         public CompiledSpritePart this[int index]
         {
             get
@@ -99,10 +103,12 @@ public static class EscapeTimerPresentationDefinitions
                     SnesObjAttributeWord.Create(tile, 0, TimerPriority), true);
             }
         }
+        /// <summary>Visits parts in native spritemap order.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes native part order to non-generic callers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

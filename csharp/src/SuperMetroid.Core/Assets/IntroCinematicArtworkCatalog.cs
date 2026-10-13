@@ -65,12 +65,15 @@ public sealed class IntroCinematicArtworkCatalog
     public RoomCharacterAtlas CinematicObjectCharacters { get; }
     /// <summary>Four ordered 32x32 BG tilemap pages uploaded at VRAM byte $A000.</summary>
     public ReadOnlyMemory<byte> BackgroundPages => suppliedBackgroundPages ?? IntroBackgroundTilemapDefinitions.Compile();
+    /// <summary>Only a selected four-page BG transfer differing from the compiled intro layout.</summary>
     private readonly byte[]? suppliedBackgroundPages;
     /// <summary>Samus-head portrait BG tilemap uploaded at VRAM byte $9000.</summary>
     public ReadOnlyMemory<byte> PortraitTilemap => suppliedPortrait ?? IntroPortraitTilemapDefinitions.Compile();
+    /// <summary>Copied portrait page when authoring differs from the compiled stock map.</summary>
     private readonly byte[]? suppliedPortrait;
     /// <summary>First, pre-typewriter narration BG3 tilemap uploaded at VRAM byte $9800.</summary>
     public ReadOnlyMemory<byte> InitialNarrationTilemap => suppliedInitialNarration ?? IntroInitialNarrationTilemapDefinitions.Compile();
+    /// <summary>Copied pre-typewriter narration page when authoring differs from stock.</summary>
     private readonly byte[]? suppliedInitialNarration;
     /// <summary>Four BG3 rows mapping Japanese subtitle glyph staging beneath illustrated-page text.</summary>
     public IntroFinalLineTilemap FinalLine { get; }

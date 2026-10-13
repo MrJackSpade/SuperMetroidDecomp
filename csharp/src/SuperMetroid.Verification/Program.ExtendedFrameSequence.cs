@@ -12,8 +12,10 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 
+/// <summary>Checks the published enemy extended-frame roster and sequence slicing contract.</summary>
 internal static class ExtendedFrameSequenceVerification
 {
+    /// <summary>Checks all 588 frame identities, their order, prefix and range slices, and bounds.</summary>
     internal static void VerifyExtendedFrameSequence()
     {
         var frames = EnemyExtendedFrameDefinitions.Frames.ToArray();
@@ -42,6 +44,7 @@ internal static class ExtendedFrameSequenceVerification
         Console.WriteLine("Extended-frame sequence: original 588 entries, ordering, legacy prefixes, ranges and bounds pass.");
     }
 
+    /// <summary>Runs the focused extended-frame roster check.</summary>
     [VerificationCommand("--lookup-extended-frame-sequence")]
     internal static int LookupExtendedFrameSequenceCommand()
     {

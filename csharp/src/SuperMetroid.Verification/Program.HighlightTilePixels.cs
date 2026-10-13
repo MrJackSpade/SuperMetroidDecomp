@@ -2,8 +2,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks editable map highlight tiles against native OBJ bytes and exact VRAM edits.</summary>
 internal static class HighlightTilePixelsVerification
 {
+    /// <summary>Checks stock pixels, independently edited highlight colors, transfer bounds, and resulting planar bytes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyHighlightTilePixels(ISnesAddressSpace rom)
     {
@@ -87,6 +89,7 @@ internal static class HighlightTilePixelsVerification
         }
     }
 
+    /// <summary>Reads a native map OBJ character byte for the highlight-pixel oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for highlight tile pixels")]
     private static byte HighlightTilePixelsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

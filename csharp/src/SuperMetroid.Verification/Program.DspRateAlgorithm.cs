@@ -13,8 +13,10 @@ using static SuiteTimingVerification;
 using System.Text.RegularExpressions;
 using SuperMetroid.Core.Audio;
 
+/// <summary>Checks DSP rate periods against the initializer in the pinned upstream emulator source.</summary>
 internal static class DspRateAlgorithmVerification
 {
+    /// <summary>Compares all 32 selectors with the original table and rejects selectors outside its bounds.</summary>
     internal static void VerifyDspRateAlgorithm()
     {
         // Independent hardware oracle: upstream-sm 578f90b3cc49557bb70060ad033bb90b8cf8ac50.
@@ -33,6 +35,7 @@ internal static class DspRateAlgorithmVerification
                 $"DSP rate invalid selector {invalid}");
     }
 
+    /// <summary>Runs the DSP rate table comparison from the verification command line.</summary>
     [VerificationCommand("--lookup-dsp-rate-algorithm")]
     internal static int LookupDspRateAlgorithmCommand()
     {

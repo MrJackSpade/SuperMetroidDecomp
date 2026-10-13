@@ -13,8 +13,10 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks X-ray setup's staged BG1 capture and frozen reveal-map lifetime.</summary>
 internal static class XraySetupVerification
 {
+    /// <summary>Checks NMI sampling of each BG1 page and stage-four reveal construction with edited art and overlays.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyXraySetupBuffers()
     {
@@ -107,6 +109,7 @@ internal static class XraySetupVerification
         }
     }
 
+    /// <summary>Runs the staged X-ray setup buffer check.</summary>
     [VerificationCommand("--xray-setup")]
     internal static int XraySetupCommand()
     {

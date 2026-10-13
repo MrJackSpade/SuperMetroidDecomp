@@ -30,8 +30,10 @@ public static class CeresDestructionSpriteDefinitions
     /// <summary>8C:98EE, SpaceSpritemaps_CeresFinalExplosionFrame1, six consecutive records.</summary>
     private const ushort StationStart = 0x98ee;
 
+    /// <summary>Uses the shared small-blast identities from the intro Mother Brain explosion catalog.</summary>
     internal static ushort SmallFrame(int frame) => IntroMotherBrainExplosionSpriteDefinitions.FramePointer(false, frame);
 
+    /// <summary>Locates one of four consecutive single-part asteroid explosion frames.</summary>
     internal static ushort LargeFrame(int frame)
     {
         if ((uint)frame >= 4) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -47,6 +49,7 @@ public static class CeresDestructionSpriteDefinitions
         return 4 * (frame < 3 ? 1 : frame == 4 ? 2 : 3);
     }
 
+    /// <summary>Advances through six variable-size station blast maps using their native OAM part counts.</summary>
     internal static ushort StationFrame(int frame)
     {
         if ((uint)frame >= 6) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -66,6 +69,7 @@ public static class CeresDestructionSpriteDefinitions
         CeresDestructionBackdrop.LowerLeftStars, CeresDestructionBackdrop.LowerRightStars,
     ];
 
+    /// <summary>Assigns a stable visual key and native OAM part count to a backdrop pointer.</summary>
     private static CeresDestructionSpriteFrameDefinition BackdropFrame(CeresDestructionBackdrop backdrop) => backdrop switch
     {
         CeresDestructionBackdrop.LargeAsteroids => new("station-under-attack-large-asteroid", (ushort)backdrop, 19, backdrop),
@@ -78,9 +82,12 @@ public static class CeresDestructionSpriteDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(CeresDestructionBackdrop)} {(int)backdrop}."),
     };
 
+    /// <summary>Enumerates backdrops, then small, large, and station blast frames.</summary>
     private sealed class FrameList : IReadOnlyList<CeresDestructionSpriteFrameDefinition>
     {
+        /// <summary>Seven backdrops and sixteen blast frames form the complete catalog.</summary>
         public int Count => 23;
+        /// <summary>Calculates one native pointer, authoring key, and stock part count by catalog ordinal.</summary>
         public CeresDestructionSpriteFrameDefinition this[int index]
         {
             get
@@ -104,10 +111,12 @@ public static class CeresDestructionSpriteDefinitions
                 return BackdropFrame(BackdropOrder[index]);
             }
         }
+        /// <summary>Visits all twenty-three frames in catalog order.</summary>
         public IEnumerator<CeresDestructionSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes catalog order to non-generic callers.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

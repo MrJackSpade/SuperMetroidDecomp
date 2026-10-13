@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Golden Torizo eye-beam controls and separate VRAM descriptors against bank $AA.</summary>
 internal static class GoldenTorizoEyeBeamAttackDefinitionsVerification
 {
+    /// <summary>Compares 41 control words and four transfer records with the retail program.</summary>
     internal static void VerifyGoldenTorizoEyeBeamAttackDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;
@@ -64,6 +66,7 @@ internal static class GoldenTorizoEyeBeamAttackDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>Reads a pinned eye-beam program or transfer-descriptor byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo eye beam attack definitions")]
     private static byte GoldenTorizoEyeBeamAttackDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

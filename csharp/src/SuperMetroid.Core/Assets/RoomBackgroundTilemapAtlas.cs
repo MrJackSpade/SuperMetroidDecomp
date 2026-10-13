@@ -8,7 +8,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable room BG tile references, preserving each native 32x32 page's word order.</summary>
 public sealed class RoomBackgroundTilemapAtlas
 {
+    /// <summary>Owned little-endian BG tile words in native page and row order.</summary>
     private readonly byte[] transfer;
+    /// <summary>Retains a validated one- or two-page native transfer independent of JSON arrays.</summary>
     private RoomBackgroundTilemapAtlas(byte[] transfer) => this.transfer = transfer;
 
     /// <summary>Owned compiled tilemap bytes: complete little-endian SNES BG words in page order, with row-major cells inside each 32-by-32 page.</summary>
@@ -77,6 +79,7 @@ public sealed class RoomBackgroundTilemapAtlas
         json.Write(bytes);
     }
 
+    /// <summary>Accepts casing variations but rejects unknown or duplicate tilemap properties.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

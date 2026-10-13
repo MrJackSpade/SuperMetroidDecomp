@@ -13,12 +13,15 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the Baby Metroid's inherited position fractions when Mother Brain spawns it.</summary>
 internal static class BabyMetroidInheritedFractionsVerification
 {
-    // #1269: SpawnEnemy ($A0:9275) and the cutscene Baby's init ($A9:C710) write the whole
-    // X/Y words but never the fractions, so the Baby keeps those its slot's previous occupant
-    // left. The port's actor zeroed them: in the 100% movie native's Baby carried Y fraction
-    // $2800 into slot 3 and the port's carried $0000.
+    /// <summary>
+    /// Verifies that spawning and initializing the cutscene Baby overwrite only whole X/Y words,
+    /// retaining both fractions from the first free enemy slot for subsequent movement.
+    /// This matches SpawnEnemy ($A0:9275) and Baby initialization ($A9:C710); issue #1269
+    /// exposed the lost Y fraction in the 100% movie.
+    /// </summary>
     internal static void VerifyBabyMetroidInheritedFractions()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -44,6 +47,7 @@ internal static class BabyMetroidInheritedFractionsVerification
         Console.WriteLine("Baby Metroid inherited fractions: spawn and init leave the slot's fractions in place.");
     }
 
+    /// <summary>Runs the inherited fraction regression against a retail Mother Brain room fixture.</summary>
     [VerificationCommand("--baby-metroid-inherited-fractions")]
     internal static int BabyMetroidInheritedFractionsCommand()
     {

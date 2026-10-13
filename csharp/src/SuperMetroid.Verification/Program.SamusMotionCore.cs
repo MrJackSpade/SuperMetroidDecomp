@@ -15,10 +15,11 @@ using static AssertionsVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Samus pose-input matching, horizontal speed, and external displacement arithmetic.</summary>
 internal static class SamusMotionCoreVerification
 {
 
-/// <summary>Pose-transition, horizontal-speed, and extra-displacement verification.</summary>
+/// <summary>Checks ordered pose-input matches, extra held bits, self-pose suppression, and fallback paths.</summary>
 internal static void VerifySamusPoseTransitionMatching()
 {
     var bus = new TestAddressSpace();
@@ -606,12 +607,14 @@ internal static void VerifySamusExtraDisplacement()
 // stage-gated storage, ROM palette indirection, windup timeout, directional installation,
 // 16.16 acceleration, energy drain, and the low-energy crash handoff.
 
+    /// <summary>Runs the isolated horizontal speed fixture.</summary>
     [VerificationCommand("--horizontal-speed-fixture")]
     internal static int HorizontalSpeedFixtureCommand()
     {
      VerifySamusHorizontalSpeed(); return 0; 
     }
 
+    /// <summary>Runs the full Samus horizontal speed comparison.</summary>
     [VerificationCommand("--samus-horizontal-speed")]
     internal static int SamusHorizontalSpeedCommand()
     {

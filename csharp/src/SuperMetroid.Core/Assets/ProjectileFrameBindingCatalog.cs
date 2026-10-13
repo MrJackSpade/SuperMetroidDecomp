@@ -10,7 +10,9 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class ProjectileFrameBindingCatalog
 {
+    /// <summary>Only frame bindings that differ from the compiled sprite selection.</summary>
     private readonly Dictionary<ushort, ushort> sprites;
+    /// <summary>Retains the validated override lookup detached from editable JSON.</summary>
     private ProjectileFrameBindingCatalog(Dictionary<ushort, ushort> sprites) => this.sprites = sprites;
 
     /// <summary>Returns the selected spritemap for one native timed projectile record, using an installed override or its compiled visual binding without reading cartridge memory.</summary>
@@ -74,10 +76,12 @@ public sealed class ProjectileFrameBindingCatalog
         return bytes;
     }
 
+    /// <summary>Rejects repeated frame-binding property names before JSON deserialization can collapse them.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate projectile frame-binding property {name}."), descendArrays: false);
 
+    /// <summary>Strict camel-case schema options used consistently by load and write.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

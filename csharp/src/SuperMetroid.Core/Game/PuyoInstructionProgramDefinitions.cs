@@ -29,6 +29,7 @@ internal abstract class PuyoInstructionProgramDefinitions
 
     /// <summary><c>InstList_Puyo_HoppingRight_4_HoppingLeft_0</c> at $A2:9A01.</summary>
     internal const ushort RightFrame4LeftFrame0 = 0x9a01;
+    /// <summary>Identifies spritemap operands in the grounded four-byte frames or airborne six-byte pose records.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - GroundedFast;
@@ -47,6 +48,7 @@ internal abstract class PuyoInstructionProgramDefinitions
         Slow,
     }
 
+    /// <summary>Maps a native grounded-list ordinal to its fast, medium, or slow cadence.</summary>
     private static GroundedLoop GroundedLoopAt(int ordinal) => ordinal switch
     {
         0 => GroundedLoop.Fast,
@@ -55,6 +57,7 @@ internal abstract class PuyoInstructionProgramDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, "Puyo has three grounded loops."),
     };
 
+    /// <summary>Locates the start of a grounded loop for its terminal goto operand.</summary>
     private static ushort StartOf(GroundedLoop loop) => loop switch
     {
         GroundedLoop.Fast => GroundedFast,
@@ -63,6 +66,7 @@ internal abstract class PuyoInstructionProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(GroundedLoop)} {(int)loop}."),
     };
 
+    /// <summary>Uses five-, eight-, or ten-update poses according to the grounded drop rate.</summary>
     private static ushort FrameDurationOf(GroundedLoop loop) => loop switch
     {
         GroundedLoop.Fast => 5,
@@ -71,6 +75,7 @@ internal abstract class PuyoInstructionProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(GroundedLoop)} {(int)loop}."),
     };
 
+    /// <summary>Reads compiled grounded durations and loop targets or airborne one-frame sleeps.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - GroundedFast;

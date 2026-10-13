@@ -8,11 +8,18 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Versioned editable map cells; exploration rules are supplied by the application.</summary>
 public sealed class AreaMapPresentationAsset : IAreaMapView
 {
+    /// <summary>Validated visual BG words in logical 64-column row order, independent of native page layout.</summary>
     private readonly MapTileWord[] cells;
-    private readonly bool[] discoverable, station, revealsAbove;
+    /// <summary>Snapshot of stock discoverability rules, unaffected by visual tile edits.</summary>
+    private readonly bool[] discoverable;
+    /// <summary>Snapshot of map-station reveal rules, unaffected by visual tile edits.</summary>
+    private readonly bool[] station;
+    /// <summary>Snapshot of sloped-cell reveal-above rules, unaffected by visual tile edits.</summary>
+    private readonly bool[] revealsAbove;
     /// <summary>Area shared by the validated presentation document and its separately supplied exploration rules.</summary>
     public AreaId Area { get; }
 
+    /// <summary>Pairs copied visual cells with a complete independent snapshot of gameplay map rules.</summary>
     private AreaMapPresentationAsset(MapTileWord[] cells, IAreaMapView rules)
     {
         this.cells = cells;
@@ -110,6 +117,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         }, MapPresentationFormat.JsonOptions);
     }
 
+    /// <summary>Validates the native two-page coordinate, then indexes the editable logical row-major array.</summary>
     private static int Index(Position16<MapTiles> cell)
     {
         _ = AreaMapLayout.GetTilemapWordIndex(cell); // Shared coordinate validation; storage here is row-major.
@@ -164,6 +172,7 @@ public static class MapPresentationFormat
     public const int FlipXBit = 0x4000;
     /// <summary>$8000, SNES BG character vertical-mirror mask at bit 15, preserved when exporting or compiling map cells.</summary>
     public const int FlipYBit = 0x8000;
+    /// <summary>Emits stable camel-case map resources and rejects unknown authoring fields.</summary>
     internal static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

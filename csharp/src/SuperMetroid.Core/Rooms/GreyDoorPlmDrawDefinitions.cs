@@ -8,12 +8,15 @@ internal static class GreyDoorPlmDrawDefinitions
 {
     /// <summary>Shared left-facing door-clear frame at $84:A677.</summary>
     private const ushort ClearLeft = 0xa677;
+    /// <summary>Native byte stride between consecutive four-block clear or grey-cap records.</summary>
     internal const int DrawListBytes = 12;
 
     /// <summary>One of twenty twelve-byte records at $84:A677..A766.</summary>
     internal readonly record struct Draw(int Orientation, int Frame)
     {
+        /// <summary>Left and right caps use a vertical four-cell run.</summary>
         internal bool Vertical => Orientation < 2;
+        /// <summary>Encodes four blocks and the native vertical-run flag for the draw interpreter.</summary>
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
 
         /// <summary>
@@ -42,6 +45,7 @@ internal static class GreyDoorPlmDrawDefinitions
         }
     }
 
+    /// <summary>Decodes a pointer on the twelve-byte grid into clear or animated cap orientation and frame.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         int offset = pointer - ClearLeft;
@@ -51,6 +55,7 @@ internal static class GreyDoorPlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Enumerates all twenty native cap records for artwork import and export.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -63,7 +68,7 @@ internal static class GreyDoorPlmDrawDefinitions
         }
     }
 
-    // Temporary import/export DTOs; the runtime calculates cells directly.
+    /// <summary>Builds a temporary import or export draw list; runtime calculates physical cells directly.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -74,6 +79,7 @@ internal static class GreyDoorPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Names a supported clear or grey animation frame by direction and frame number.</summary>
     internal static string VisualId(ushort pointer)
     {
         if (!TryDescribe(pointer, out var draw))
@@ -82,6 +88,7 @@ internal static class GreyDoorPlmDrawDefinitions
         return draw.Frame < 0 ? $"clear-{direction}" : $"grey-{direction}-frame-{draw.Frame}";
     }
 
+    /// <summary>Resolves a stable artwork name to its compiled cap draw pointer and shape.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         for (int index = 0; index < 20; index++)

@@ -12,6 +12,7 @@ internal readonly record struct TorizoInstructionVramTransferDefinition(
 internal static class TorizoInstructionVramTransferDefinitions
 {
 
+    /// <summary>Sorted $814B transfer sites with immutable lengths, source identities, and OBJ destinations.</summary>
     private static readonly TorizoInstructionVramTransferDefinition[] Entries =
     [
         new(0xb0f1, 0x0040, 0xaab479, 0x7300),
@@ -68,6 +69,7 @@ internal static class TorizoInstructionVramTransferDefinitions
         new(0xd1cc, 0x0040, 0xaab339, 0x7d80),
     ];
 
+    /// <summary>Finds a compiled Torizo instruction transfer without consulting the native ROM at runtime.</summary>
     internal static bool TryGet(ushort instruction,
         out TorizoInstructionVramTransferDefinition transfer)
     {

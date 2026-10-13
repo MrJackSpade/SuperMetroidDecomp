@@ -12,8 +12,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
+/// <summary>Checks escape-timer suspension and OAM removal as Samus boards the Landing Site gunship.</summary>
 internal static class GunshipEscapeTimerVerification
 {
+    /// <summary>Confirms boarding suppresses timer sprites and countdown before liftoff reuses their VRAM tiles for dust.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     internal static int VerifyGunshipEscapeTimer()
     {
@@ -87,6 +89,7 @@ internal static class GunshipEscapeTimerVerification
         }
     }
 
+    /// <summary>Runs the gunship boarding escape-timer reproduction.</summary>
     [VerificationCommand("--gunship-escape-timer")]
     internal static int GunshipEscapeTimerCommand()
     {

@@ -11,6 +11,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class PlmProgramContractChecks
 {
+    /// <summary>Confirms reported missing PLM operands, branch roots, installed DMA art, and corrected native records through constructed audit fixtures.</summary>
     internal static void Run()
     {
         var absentDraw = Audit(new Dictionary<ushort, ushort>
@@ -102,6 +103,7 @@ internal static class PlmProgramContractChecks
             "unknown opcode, cycles, reported CBBC omission, missing DMA artwork and corrected native records.");
     }
 
+    /// <summary>Checks exact restored words across bomb, crumble, grapple, escape, and linked restoration families.</summary>
     private static void ConfirmRestoredRecords()
     {
         // Representative native operands from each corrected family, including
@@ -139,10 +141,12 @@ internal static class PlmProgramContractChecks
             "Rescue-wall blank frame must mutate all three vertical terrain words, not just render one block.");
     }
 
+    /// <summary>Requires one compiled bank-$84 instruction word to match its reviewed native value.</summary>
     private static void Word(int address, int expected) => Require(
         RoomPlmProgramDefinitions.TryReadWord(checked((ushort)address), out ushort actual) && actual == expected,
         $"Native record $84:{address:X4} must contain ${expected:X4}.");
 
+    /// <summary>Walks a constructed PLM record set with optional draw ownership for one targeted audit contract.</summary>
     private static PlmProgramAuditReport Audit(Dictionary<ushort, ushort> words, bool ownsDraw = true)
     {
         var report = new PlmProgramAuditReport();
@@ -152,15 +156,20 @@ internal static class PlmProgramContractChecks
         return report;
     }
 
+    /// <summary>Reports the exact PLM contract predicate that failed.</summary>
     private static void Require(bool condition, string description)
     {
         if (!condition) throw new InvalidDataException("PLM audit contract failed: " + description);
     }
 }
 
+/// <summary>Isolated bank-$84 fixture addresses for missing branches and unknown opcodes.</summary>
 internal static class PlmAuditFixtureIds
 {
+    /// <summary>Constructed program root outside the reviewed production records.</summary>
     internal const ushort Start = 0xf000;
+    /// <summary>Branch destination intentionally absent from constructed fixture storage.</summary>
     internal const ushort AbsentTarget = 0xf100;
+    /// <summary>Unsupported opcode used to confirm the audit rejects unknown instruction widths.</summary>
     internal const ushort UnknownOpcode = 0xffff;
 }

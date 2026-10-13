@@ -98,6 +98,7 @@ internal static class SamusRunningCadenceDefinitions
         SoundQueueStageFiveReset = SoundQueueStageFiveResetWord,
     }
 
+    /// <summary>Decodes the ordinary-list pointer or stage-five zero reset word outside the cadence streams.</summary>
     private static ushort StandaloneWordValue(StandaloneWord word) => word switch
     {
         StandaloneWord.OrdinaryPointer => unchecked((ushort)OrdinaryDelays),
@@ -105,6 +106,7 @@ internal static class SamusRunningCadenceDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(StandaloneWord)} {(int)word}."),
     };
 
+    /// <summary>Calculates pointer, ten-frame delay, loop marker, and reset bytes in the bounded bank-$91 catalog.</summary>
     private static bool TryReadCompiledByte(int address, out byte value)
     {
         foreach (StandaloneWord word in Enum.GetValues<StandaloneWord>())

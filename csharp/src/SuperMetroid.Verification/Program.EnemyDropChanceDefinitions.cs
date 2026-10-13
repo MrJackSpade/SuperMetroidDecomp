@@ -15,8 +15,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static EnemyDropsVerification;
 
+/// <summary>Checks the imported enemy drop table against the cartridge and the ROM-free selection path.</summary>
 internal static class EnemyDropChanceDefinitionsVerification
 {
+    /// <summary>Compares every native six-byte record and verifies that production selection rejects invalid restored pointers.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for enemy drop chance definitions")]
     internal static void VerifyEnemyDropChanceDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -88,6 +90,7 @@ internal static class EnemyDropChanceDefinitionsVerification
             "through production selection with RAM-only memory; invalid pointers reject without a ROM fallback.");
     }
 
+    /// <summary>Runs the drop table comparison using the retail ROM as the source oracle.</summary>
     [VerificationCommand("--enemy-drop-chance-definitions")]
     internal static int EnemyDropChanceDefinitionsCommand()
     {

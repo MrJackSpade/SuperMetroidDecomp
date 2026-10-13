@@ -16,6 +16,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroMotherBrainExplosionSystem
 {
+    /// <summary>Three small and five big actors retained in native spawn and OAM order.</summary>
     private readonly List<ExplosionActor> actors = [];
 
     /// <summary>
@@ -57,11 +58,15 @@ internal sealed class IntroMotherBrainExplosionSystem
         }
     }
 
+    /// <summary>One bank-$8B cinematic object's own delayed instruction cursor and visible frame.</summary>
     private sealed class ExplosionActor
     {
+        /// <summary>Next native duration or command word to decode.</summary>
         private ushort instructionPointer;
+        /// <summary>Remaining handler calls before the next instruction word is read.</summary>
         private ushort instructionTimer;
 
+        /// <summary>Starts one explosion at its authored offset and independent launch delay.</summary>
         private ExplosionActor(
             Position16<ScreenPixels> position,
             ushort instructionPointer,
@@ -72,12 +77,16 @@ internal sealed class IntroMotherBrainExplosionSystem
             this.instructionTimer = instructionTimer;
         }
 
+        /// <summary>Fixed cinematic screen origin selected by the small or big placement table.</summary>
         public Position16<ScreenPixels> Position { get; }
 
+        /// <summary>Current bank-$8B visual frame pointer, zero before the first timed pose or after deletion.</summary>
         public ushort SpriteMapPointer { get; private set; }
 
+        /// <summary>Cleared by the native delete command after the later crossfade or list completion.</summary>
         public bool IsActive { get; private set; } = true;
 
+        /// <summary>Starts a big explosion from its five-entry position and delay table.</summary>
         public static ExplosionActor CreateBig(ushort parameter)
         {
             IntroMotherBrainExplosionPlacement placement =
@@ -88,6 +97,7 @@ internal sealed class IntroMotherBrainExplosionSystem
                 instructionTimer: placement.StartTimer);
         }
 
+        /// <summary>Starts a small explosion from its three-entry position and delay table.</summary>
         public static ExplosionActor CreateSmall(ushort parameter)
         {
             IntroMotherBrainExplosionPlacement placement =
@@ -98,6 +108,7 @@ internal sealed class IntroMotherBrainExplosionSystem
                 instructionTimer: placement.StartTimer);
         }
 
+        /// <summary>Consumes one cinematic handler call, following timed frames, loop branches, or deletion.</summary>
         public void Step(ushort introCrossfadeTimer)
         {
             if (!IsActive)
@@ -150,6 +161,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             }
         }
 
+        /// <summary>Advances a bank-$8B instruction pointer with native sixteen-bit wrap.</summary>
         private static ushort Add(ushort pointer, int byteCount) =>
             unchecked((ushort)(pointer + byteCount));
 

@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled fly-family instruction mechanics against retail words and live initializers.</summary>
 internal static class FlyInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge and runs the fly-family instruction check.</summary>
     internal static void VerifyFlyInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFlyInstructionProgramDefinitions), () => VerifyFlyInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks Mellow, Mella, and Menu loops with converted mechanics reads guarded and no per-frame allocation.</summary>
     internal static void VerifyFlyInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -92,6 +95,7 @@ internal static class FlyInstructionProgramDefinitionsVerification
             "without instruction or presentation ROM reads.");
     }
 
+    /// <summary>Repeats compiled instruction lookup to measure warmed per-frame allocations.</summary>
     private static int ProbeFlyInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -101,11 +105,13 @@ internal static class FlyInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads a retail bank-$A2 fly instruction word for the mechanics oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for fly instruction words")]
     internal static ushort ReadFlyInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
+    /// <summary>Runs the fly-family mechanics verification suite.</summary>
     [VerificationCommand("--fly-instruction-mechanics")]
     internal static int FlyInstructionMechanicsCommand()
     {

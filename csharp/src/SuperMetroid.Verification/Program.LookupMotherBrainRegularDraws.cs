@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Checks Mother Brain's regular room draw lists and their compiled shape descriptors.</summary>
 internal static class LookupMotherBrainRegularDrawsVerification
 {
+    /// <summary>Compares all eight draw lists and 63 cells with native words, including ownership and bounds.</summary>
     internal static void VerifyMotherBrainRegularDrawMapping(ISnesAddressSpace rom)
     {
         ushort[] pointers = [0x966d, 0x968b, 0x96a9, 0x96b1, 0x96bf, 0x96cb, 0x96ef, 0x9703];
@@ -81,6 +83,7 @@ internal static class LookupMotherBrainRegularDrawsVerification
         ushort ReadWord(int address) => (ushort)(SnesLittleEndian.Word(MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | address), MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | (address + 1))));
     }
 
+    /// <summary>Reads a native Mother Brain PLM draw-list byte for the shape oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain regular draw mapping")]
     private static byte MotherBrainRegularDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

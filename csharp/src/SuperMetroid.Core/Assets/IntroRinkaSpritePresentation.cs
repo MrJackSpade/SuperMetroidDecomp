@@ -7,11 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable intro Rinka OAM art, without movement or hit behavior.</summary>
 public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Three compiled OAM compositions keyed by their bank-$8C frame pointers.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroRinkaSpritePresentation), frames);
 
+    /// <summary>Retains the validated frame lookup produced by the JSON compiler.</summary>
     private IntroRinkaSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -89,9 +91,9 @@ public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresenta
 /// <summary>Mutable JSON authoring data for the opening flashback's Rinka sprites, not the room-enemy Rinka AI or its physical definitions.</summary>
 public sealed record IntroRinkaSpriteDocument
 {
-    /// <summary>Gets the schema revision, which must equal <see cref="IntroRinkaSpriteFormat.Version"/> when loaded or written.</summary>
+    /// <summary>Schema revision, required to equal <see cref="IntroRinkaSpriteFormat.Version"/> when loaded or written.</summary>
     public required int Version { get; init; }
-    /// <summary>Gets the caller-owned ordered parts keyed by rinka-0, rinka-1, and rinka-2.</summary>
+    /// <summary>Caller-owned ordered parts keyed by rinka-0, rinka-1, and rinka-2.</summary>
     /// <remarks>Stock frames mirror one 8-pixel tile into a 16-by-16-pixel four-part composition, ordered bottom-right, bottom-left, top-right, then top-left. Editable parts use pixel offsets and a 16-column by 32-row tile atlas; null palettes inherit the actor's selector. Loading copies compiled values, not these mutable arrays.</remarks>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
 }

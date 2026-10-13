@@ -48,6 +48,7 @@ internal abstract class CacatacInstructionProgramDefinitions
     /// </summary>
     internal const ushort UpsideDownAttack = 0x9f00;
 
+    /// <summary>Reads a compiled Cacatac duration or callback and rejects artwork or unrelated addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value)) return value;
@@ -55,6 +56,7 @@ internal abstract class CacatacInstructionProgramDefinitions
             $"Cacatac instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
+    /// <summary>Decodes upright and inverted idle loops, attack holds, sound, spike sweep, and return targets.</summary>
     internal static bool TryRead(int address, out ushort value)
     {
         int offset = address - UpsideUpIdle;

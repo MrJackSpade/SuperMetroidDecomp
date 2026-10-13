@@ -31,6 +31,7 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
         }
     });
 
+    /// <summary>Only frames whose visual words differ from the compiled source are stored here.</summary>
     private readonly Dictionary<ushort, ushort[][]>? customWords;
 
     /// <summary>Validates all three elevator-platform draw layouts and copies visual differences while retaining native run geometry, collision words, and animation cadence.</summary>

@@ -7,8 +7,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static PauseEquipmentRulesVerification;
 
+/// <summary>Checks installed equipment labels, editable placement, and the native Plasma overrun during rebind.</summary>
 internal static class PauseEquipmentLabelsVerification
 {
+    /// <summary>Compares inventory tilemaps with ROM reads blocked, then checks edits and strict resource failures.</summary>
     internal static void VerifyPauseEquipmentLabelAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentationCatalog original)
     {
@@ -121,6 +123,7 @@ internal static class PauseEquipmentLabelsVerification
         };
     }
 
+    /// <summary>Blocks bank-$82 equipment-label source reads during installed pause rendering.</summary>
     private static CartridgeReadGuard NewPauseEquipmentLabelReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x82bf32 and < 0x82c0b2,

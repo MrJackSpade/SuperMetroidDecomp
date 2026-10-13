@@ -29,9 +29,12 @@ public enum WreckedShipGhostAiFunction : ushort
 /// </summary>
 public sealed class WreckedShipGhostEnemyState
 {
+    /// <summary>Common enemy words containing the ghost's function and phase timers.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Ghost color target kept separate from currently visible CGRAM colors.</summary>
     private readonly Bgr555[] _targetPalette = new Bgr555[16];
 
+    /// <summary>Projects the ghost's extended state onto its live enemy slot.</summary>
     internal WreckedShipGhostEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Enemy variable A: bank-$A8 indirect main-AI function.</summary>
@@ -100,5 +103,6 @@ public sealed class WreckedShipGhostEnemyState
     /// </summary>
     public ReadOnlyMemory<Bgr555> TargetPalette => _targetPalette;
 
+    /// <summary>Allows the palette transition to update all sixteen target colors in place.</summary>
     internal Span<Bgr555> MutableTargetPalette => _targetPalette;
 }

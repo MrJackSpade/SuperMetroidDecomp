@@ -78,9 +78,12 @@ public static class MotherBrainSpecialSpriteArtworkDefinitions
         definition = default;
         return false;
     }
+    /// <summary>Keeps the four fixed transfer sources in their native list order without a mutable backing array.</summary>
     private sealed class SheetList : IReadOnlyList<MotherBrainSpecialSpriteSheetDefinition>
     {
+        /// <summary>The leg, Baby Metroid, attack, and escape-door lists each have one source sheet.</summary>
         public int Count => 4;
+        /// <summary>Maps a native list index to its corresponding fixed source sheet.</summary>
         public MotherBrainSpecialSpriteSheetDefinition this[int index] => index switch
         {
             0 => Legs,
@@ -89,10 +92,12 @@ public static class MotherBrainSpecialSpriteArtworkDefinitions
             3 => ExplodedDoor,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Visits the fixed sheets in the same order as the native transfer lists.</summary>
         public IEnumerator<MotherBrainSpecialSpriteSheetDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same sheet order to non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

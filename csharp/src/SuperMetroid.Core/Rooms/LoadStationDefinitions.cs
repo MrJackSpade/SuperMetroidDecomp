@@ -42,8 +42,7 @@ public static class LoadStationDefinitions
         return new LoadStationEntry(entry.RoomPointer, entry.DoorPointer, entry.CameraPosition, entry.SamusOffset);
     }
 
-    // Only validated non-Ceres slots reach this selector. The default is the
-    // native unused-station record, not an extension to unknown area/station inputs.
+    /// <summary>Selects a validated non-Ceres station; unused slots receive the native inert record.</summary>
     private static LoadStationDefinition Placement(AreaId area, byte station) => (area, station) switch
     {
         (AreaId.Crateria, 0) => new(0x91f8, 0x896a, new(0x0400, 0x0400), new(0x0000, 0x0040)),
@@ -104,6 +103,7 @@ public static class LoadStationDefinitions
         _ => new(0, 0, new(0x0400, 0x0400), new(0, 0x00b0)),
     };
 
+    /// <summary>Compiled room, door, camera, and Samus offsets before projection into a load entry.</summary>
     private readonly record struct LoadStationDefinition(
         ushort RoomPointer, ushort DoorPointer, Position16<RoomPixels> CameraPosition,
         Offset16<RoomPixels> SamusOffset);

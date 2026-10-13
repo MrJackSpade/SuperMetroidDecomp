@@ -13,8 +13,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+/// <summary>Checks Grapple firing palette selection and beam-palette restoration in gameplay.</summary>
 internal static class GameplayGrapplePaletteVerification
 {
+    /// <summary>Checks normal fire, pose-change refire, fixed flare color, and cancellation for two equipped beams.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyGameplayGrapplePalette()
     {
@@ -83,6 +85,7 @@ internal static class GameplayGrapplePaletteVerification
         }
     }
 
+    /// <summary>Runs the focused gameplay Grapple palette check.</summary>
     [VerificationCommand("--gameplay-grapple-palette")]
     internal static int GameplayGrapplePaletteCommand()
     {

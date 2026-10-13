@@ -17,9 +17,12 @@ internal sealed class CollisionRecordRuns<TElement>
     /// <summary>Bytes in one hitbox rectangle (left, top, right, bottom, touch and shot callbacks).</summary>
     internal const int HitboxBytes = 12;
 
+    /// <summary>Native byte stride of one component or hitbox element.</summary>
     private readonly int elementBytes;
+    /// <summary>Contiguous record groups in native address order.</summary>
     private readonly CollisionRecordRun<TElement>[] runs;
 
+    /// <summary>Captures fixed-stride record runs and their total record count.</summary>
     private CollisionRecordRuns(int elementBytes, CollisionRecordRun<TElement>[] runs)
     {
         this.elementBytes = elementBytes;
@@ -35,11 +38,13 @@ internal sealed class CollisionRecordRuns<TElement>
     internal static CollisionRecordRuns<TElement> HitboxLists(params CollisionRecordRun<TElement>[] runs) =>
         new(HitboxBytes, runs);
 
+    /// <summary>Total records across all native runs.</summary>
     internal int Count { get; }
 
     /// <summary>Address of the <paramref name="index"/>th record in run order.</summary>
     internal ushort PointerAt(int index) => Locate(index, out _);
 
+    /// <summary>Accepts only record starts, advancing over each count word and its fixed-size elements.</summary>
     internal bool TryGet(ushort pointer, out TElement[] elements)
     {
         foreach (CollisionRecordRun<TElement> run in runs)
@@ -59,6 +64,7 @@ internal sealed class CollisionRecordRuns<TElement>
         return false;
     }
 
+    /// <summary>Walks preceding records to calculate one bounded pointer without storing an address table.</summary>
     private ushort Locate(int index, out TElement[] record)
     {
         if ((uint)index >= Count) throw new IndexOutOfRangeException();
@@ -78,6 +84,7 @@ internal sealed class CollisionRecordRuns<TElement>
         throw new IndexOutOfRangeException();
     }
 
+    /// <summary>Advances past a two-byte count followed by the requested number of elements.</summary>
     private ushort Next(ushort pointer, int elements) =>
         (ushort)(pointer + sizeof(ushort) + elementBytes * elements);
 }

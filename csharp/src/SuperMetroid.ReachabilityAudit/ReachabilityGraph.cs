@@ -8,9 +8,12 @@ namespace SuperMetroid.ReachabilityAudit;
 /// </summary>
 internal sealed class ReachabilityGraph
 {
+    /// <summary>Direct source-reference edges between symbol keys.</summary>
     private readonly Dictionary<string, HashSet<string>> edges = [];
+    /// <summary>Framework-driven members reached whenever their containing type is reached.</summary>
     private readonly Dictionary<string, HashSet<string>> typeImplied = [];
 
+    /// <summary>Adds a direct reference, ignoring missing or self-referential symbol keys.</summary>
     public void Edge(string? from, string? to)
     {
         if (from is null || to is null || from == to)
@@ -20,6 +23,7 @@ internal sealed class ReachabilityGraph
         targets.Add(to);
     }
 
+    /// <summary>Records a member whose runtime use follows reachability of its containing type.</summary>
     public void ImpliedByType(string? typeKey, string? memberKey)
     {
         if (typeKey is null || memberKey is null)
@@ -29,6 +33,7 @@ internal sealed class ReachabilityGraph
         members.Add(memberKey);
     }
 
+    /// <summary>Traverses direct and type-implied edges to a fixed point from the supplied roots.</summary>
     public HashSet<string> Reach(IEnumerable<string> roots)
     {
         var reached = new HashSet<string>();

@@ -26,8 +26,10 @@ public enum NorfairLavaJumpingEnemyFunction : ushort
 /// </summary>
 public sealed class NorfairLavaJumpingEnemyState
 {
+    /// <summary>Physical parent or follower slot carrying the family's common enemy variables.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects a Squeept part's common variables from its occupied enemy slot.</summary>
     internal NorfairLavaJumpingEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

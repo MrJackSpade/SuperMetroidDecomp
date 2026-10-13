@@ -15,6 +15,7 @@ using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks that a station notice delays dispatch of a door transition discovered in the same gameplay update.</summary>
 internal static class DoorWaitsForMessageBoxVerification
 {
     /// <summary>
@@ -60,6 +61,7 @@ internal static class DoorWaitsForMessageBoxVerification
         Console.WriteLine("  Door waits for message box: state $09 follows the station notice.");
     }
 
+    /// <summary>Runs the focused 13% movie door and missile-station notice ordering check.</summary>
     [VerificationCommand("--door-waits-for-message-box")]
     internal static int DoorWaitsForMessageBoxCommand()
     {

@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Kraid arm contact through extended-spritemap rectangles instead of its header radius.</summary>
 internal static class KraidArmSamusContactVerification
 {
     /// <summary>
@@ -57,10 +58,12 @@ internal static class KraidArmSamusContactVerification
         Console.WriteLine("  Kraid arm Samus contact: the extended arm frame pushes Samus back and fires the bottom lint.");
     }
 
+    /// <summary>Computes the smaller header-radius overlap used as a negative control for frame-$90FD contact.</summary>
     private static bool RadiusBoxesOverlapForArm(RoomEnemySlot arm, SamusState samus) =>
         Math.Abs(arm.Position.X.Whole - samus.Position.X.Whole) < arm.Radius.X + samus.Kinematics.Radius.X &&
         Math.Abs(arm.Position.Y.Whole - samus.Position.Y.Whole) < arm.Radius.Y + samus.Kinematics.Radius.Y;
 
+    /// <summary>Runs the focused 13% movie Kraid arm collision and bottom-lint response check.</summary>
     [VerificationCommand("--kraid-arm-samus-contact")]
     internal static int KraidArmSamusContactCommand()
     {

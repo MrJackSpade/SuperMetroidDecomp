@@ -15,6 +15,7 @@ using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Reproduces the door sound-queue timing during a negative-status Power Bomb explosion.</summary>
 internal static class DoorSoundsDuringPowerBombVerification
 {
     /// <summary>
@@ -68,6 +69,7 @@ internal static class DoorSoundsDuringPowerBombVerification
         Console.WriteLine("  Door sounds during a power bomb: the cancels are dropped and the wait ends at once.");
     }
 
+    /// <summary>Runs the focused door-transition sound cancellation check.</summary>
     [VerificationCommand("--door-sounds-during-power-bomb")]
     internal static int DoorSoundsDuringPowerBombCommand()
     {

@@ -14,6 +14,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Reproduces a Ridley hit crossing the 9000-health threshold while
+/// his shot reaction leaves acceleration stage changes for the later AI phase.</summary>
 internal static class RidleyShotHealthStageVerification
 {
     /// <summary>
@@ -63,6 +65,7 @@ internal static class RidleyShotHealthStageVerification
         Console.WriteLine("  Ridley shot health stage: a hit crossing 9000 leaves the stage to the AI's palette handler.");
     }
 
+    /// <summary>Runs the focused Ridley shot and health-stage reproduction from the CLI.</summary>
     [VerificationCommand("--ridley-shot-health-stage")]
     internal static int RidleyShotHealthStageCommand()
     {

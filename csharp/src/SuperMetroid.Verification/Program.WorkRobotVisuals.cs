@@ -6,8 +6,12 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static WorkRobotInstructionProgramDefinitionsVerification;
 
+/// <summary>Checks native Work Robot visual selectors, installed editable
+/// OAM frames, and instruction-driven frame selection.</summary>
 internal static class WorkRobotVisualsVerification
 {
+    /// <summary>Compares all 227 selectors with native words and rendered OAM,
+    /// then ensures the instruction runner avoids cartridge presentation reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Work Robot visuals")]
     internal static void VerifyInstalledWorkRobotVisuals(

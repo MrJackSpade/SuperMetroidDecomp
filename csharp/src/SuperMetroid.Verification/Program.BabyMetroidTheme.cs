@@ -13,8 +13,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static BabyMetroidFixtureHeadVerification;
 
+/// <summary>Checks Baby Metroid's fatal-stop and theme-start music requests through the cutscene transition.</summary>
 internal static class BabyMetroidThemeVerification
 {
+    /// <summary>Confirms the frame-72 data-upload and track pair follows the initial stop, each with the native eight-frame queue delay and no duplicate requests.</summary>
     internal static int VerifyBabyMetroidTheme()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -56,6 +58,7 @@ internal static class BabyMetroidThemeVerification
         return 0;
     }
 
+    /// <summary>Runs the focused Baby Metroid cutscene music request check.</summary>
     [VerificationCommand("--baby-metroid-theme")]
     internal static int BabyMetroidThemeCommand()
     {

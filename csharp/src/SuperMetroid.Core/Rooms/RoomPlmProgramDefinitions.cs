@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class RoomPlmProgramDefinitions
 {
+    /// <summary>Dispatches a bank-$84 word read to compiled PLM mechanics or draw-pointer operands; misses leave no cartridge fallback.</summary>
     internal static bool TryReadWord(ushort address, out ushort value) =>
         RoomPlmBombBlockProgramDefinitions.TryReadDrawPointerWord(address, out value) ||
         RoomPlmContactCrumbleProgramDefinitions.TryReadDrawPointerWord(address, out value) ||
@@ -50,6 +51,7 @@ internal static class RoomPlmProgramDefinitions
         EyeDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsWord(address, out value);
 
+    /// <summary>Dispatches byte reads for compiled PLM instruction streams, including unaligned operands.</summary>
     internal static bool TryReadByte(ushort address, out byte value) =>
         EscapeAnimalPlmProgramDefinitions.TryReadByte(address, out value) ||
         SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||

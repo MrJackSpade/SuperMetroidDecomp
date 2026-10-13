@@ -22,16 +22,19 @@ internal abstract class BombTorizoStatueInstructionProgramDefinitions
         return new(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0c), 6);
     }
 
-    // Fragment release delays decrease by eight ticks, with a sixty-four-tick floor.
+    /// <summary>Staggers fragment release by eight ticks per program until the sixty-four-tick floor.</summary>
     private static ushort InitialDuration(int programIndex) => (ushort)Math.Max(64, 128 - 8 * programIndex);
+    /// <summary>Each of sixteen fragment programs has an initial and falling spritemap operand.</summary>
     public static int PresentationWordCount => ProgramCount * 2;
 
+    /// <summary>Locates one of sixteen fragment programs selected by even native parameters.</summary>
     internal static ushort Program(int index)
     {
         if ((uint)index >= ProgramCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         return unchecked((ushort)(FirstProgram + index * ProgramStride));
     }
+    /// <summary>Locates the initial or falling sprite operand within a fragment program.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -40,8 +43,10 @@ internal abstract class BombTorizoStatueInstructionProgramDefinitions
         return unchecked((ushort)(program + ((index & 1) == 0 ? 2 : 13)));
     }
 
+    /// <summary>Separates the two visual operands from a fragment program's control words.</summary>
     internal static bool IsPresentationWord(ushort address) =>
         TryDecodeProgramOffset(address, out _, out int offset) && offset is 2 or 13;
+    /// <summary>Compiles staggered release, sound, falling pre-instruction, hold, and deletion words.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (!TryDecodeProgramOffset(address, out int programIndex, out int offset))
@@ -63,6 +68,7 @@ internal abstract class BombTorizoStatueInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Maps a bank-$86 address to its fragment ordinal and byte offset within the seventeen-byte record.</summary>
     internal static bool TryDecodeProgramOffset(
         ushort address,
         out int programIndex,

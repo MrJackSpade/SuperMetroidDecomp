@@ -2,8 +2,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
+/// <summary>Compares tile-row viewport rendering with a scalar reference
+/// across scroll, priority, clipping, and VRAM wrapping.</summary>
 internal static class ViewportParityVerification
 {
+    /// <summary>Checks exact pixels for seeded viewport cases and prints an
+    /// informational renderer timing comparison without asserting elapsed time.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyViewportTileRowParity()
     {

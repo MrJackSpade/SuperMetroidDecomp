@@ -3,8 +3,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Checks compiled jump, wall-jump, and dry-air launch words against
+/// native vertical physics across equipment and liquid combinations.</summary>
 internal static class SamusVerticalDefinitionsVerification
 {
+    /// <summary>Exercises production launch initialization for every source
+    /// speed word, including independent whole and fractional booster additions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus vertical definitions")]
     internal static void VerifySamusVerticalDefinitions(SuperMetroidAddressSpace rom)
     {

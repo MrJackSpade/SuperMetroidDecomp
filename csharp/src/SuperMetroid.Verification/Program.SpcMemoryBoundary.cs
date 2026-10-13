@@ -12,6 +12,7 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Audio;
 
+/// <summary>Checks typed SPC RAM views, address wrapping, record order, aliasing, and APU port limits.</summary>
 internal static class SpcMemoryBoundaryVerification
 {
     /// <summary>
@@ -62,6 +63,7 @@ internal static class SpcMemoryBoundaryVerification
         AssertEqual(ApuPort.SoundLibrary2, CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, 1).InputPort, "port commands round-trip their port");
     }
 
+    /// <summary>Runs the focused SPC memory and APU port boundary check.</summary>
     [VerificationCommand("--spc-memory-boundary")]
     internal static int SpcMemoryBoundaryCommand()
     {

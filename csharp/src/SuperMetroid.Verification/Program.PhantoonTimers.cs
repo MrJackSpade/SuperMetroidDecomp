@@ -3,8 +3,12 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled Phantoon timer tables and live selector behavior
+/// against native words for RNG and first-round NMI inputs.</summary>
 internal static class PhantoonTimersVerification
 {
+    /// <summary>Compares all twenty-four timer words, full-word RNG masking,
+    /// first-round NMI selection, and RNG call counts without a runtime bus.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon timers")]
     internal static void VerifyCompiledPhantoonTimers(SuperMetroidAddressSpace rom)
     {

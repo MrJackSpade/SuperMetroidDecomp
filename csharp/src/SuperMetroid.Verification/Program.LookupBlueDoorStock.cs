@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks blue door visual catalogs against native frames, physical aliases, and editable asset constraints.</summary>
 internal static class LookupBlueDoorStockVerification
 {
+    /// <summary>Compares all four orientations and their aliases with bank-$84 art, then checks custom-frame isolation and validation.</summary>
     internal static void VerifyBlueDoorStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmBlueDoorVisualCatalog installed)
     {

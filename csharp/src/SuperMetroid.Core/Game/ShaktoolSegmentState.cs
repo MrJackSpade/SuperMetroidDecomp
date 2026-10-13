@@ -29,8 +29,10 @@ public enum ShaktoolPreInstruction : ushort
 /// </summary>
 public sealed class ShaktoolSegmentState
 {
+    /// <summary>Physical enemy record whose variables A through F carry the segment's native state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view over an existing Shaktool enemy record without copying its variables.</summary>
     internal ShaktoolSegmentState(RoomEnemySlot slot) => _slot = slot;
     /// <summary>Native <c>facingAngle</c> at <c>$0FA8 + enemy index</c>, stored in variable A: the chain's target heading, also advanced during straightening and used by attack movement instructions; one wrapped 16-bit turn is <c>$10000</c>.</summary>
     public ushort TargetAngle
@@ -70,10 +72,14 @@ public sealed class ShaktoolSegmentState
     }
 }
 
+/// <summary>Bits in Shaktool's motion state controlling reversal, straightening, and orbital direction.</summary>
 [Flags]
 internal enum ShaktoolMotionFlags : ushort
 {
+    /// <summary>The seven-piece chain has already reversed at a wall once.</summary>
     ReversedOnce = 0x2000,
+    /// <summary>The chain is returning its angular offsets toward the straight configuration.</summary>
     Straightening = 0x4000,
+    /// <summary>Orbital angle increments turn clockwise while this bit is set.</summary>
     Clockwise = 0x8000,
 }

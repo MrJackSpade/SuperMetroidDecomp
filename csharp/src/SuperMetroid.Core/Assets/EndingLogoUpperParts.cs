@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Assets;
 /// native overlap order. The lower S uses the existing half-turn calculation.</summary>
 internal sealed class EndingLogoUpperParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>The upper S outline comprises fourteen overlapping OBJ parts.</summary>
     public int Count => 14;
+    /// <summary>Calculates one atlas tile and offset in the native lower-edge, tip, shoulder, bar, and stem draw order.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -59,9 +61,11 @@ internal sealed class EndingLogoUpperParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Yields the complete upper logo outline in its native overlap order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes that same ordered outline through the non-generic collection interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

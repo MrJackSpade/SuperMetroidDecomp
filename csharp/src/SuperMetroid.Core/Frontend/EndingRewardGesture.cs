@@ -6,11 +6,16 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Runs E342's reward gesture actors until their native jumping-actor handoff.</summary>
 internal sealed class EndingRewardGesture
 {
+    /// <summary>Construction address space retained by the gesture API; actor setup uses compiled definitions.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Reward actor set in native spawn order, advanced before inactive actors are removed.</summary>
     private readonly List<IntroDiscoverySprite> actors = [];
+    /// <summary>Signals that the jumping-actor handoff must be consumed before another gesture tick.</summary>
     public bool JumpRequested { get; private set; }
+    /// <summary>Distinguishes the suitless jump request from the suited handoff.</summary>
     public bool SuitlessJumpRequested { get; private set; }
 
+    /// <summary>Spawns the suitless pair or the suited head, body, and arm in E342 allocation order.</summary>
     public EndingRewardGesture(ISnesAddressSpace bus, EndingReward reward)
     {
         this.bus = bus;
@@ -29,6 +34,7 @@ internal sealed class EndingRewardGesture
         }
     }
 
+    /// <summary>Advances active gesture actors once and records any instruction-triggered jump handoff.</summary>
     public void Step(Func<ushort, ushort>? instructionWord = null)
     {
         if (JumpRequested) throw new InvalidOperationException("Reward gesture handoff must be consumed before advancing again.");
@@ -37,6 +43,7 @@ internal sealed class EndingRewardGesture
         actors.RemoveAll(actor => !actor.IsActive);
     }
 
+    /// <summary>Draws current actors into a supplied OAM frame or creates and finalizes a standalone frame.</summary>
     public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
         var oam = destination ?? new OamBuffer();
@@ -47,6 +54,7 @@ internal sealed class EndingRewardGesture
         return oam;
     }
 
+    /// <summary>Converts the native jump opcode into a suited or suitless handoff while retaining the list cursor.</summary>
     private ushort HandleInstruction(EndingRewardGestureInstruction instruction, ushort cursor)
     {
         switch (instruction)
@@ -63,6 +71,7 @@ internal sealed class EndingRewardGesture
         }
     }
 
+    /// <summary>Creates an actor from compiled initialization and binds its discovery pre-instruction.</summary>
     private void Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition record = EndingRewardActorDefinitions.Get(definition);

@@ -13,8 +13,10 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks native SPC FIR preset indexing through the production music-effect handler.</summary>
 internal static class SpcFirAddressingVerification
 {
+    /// <summary>Confirms MUL YA drops the high byte before indexing eight FIR taps, so all 256 byte presets alias only within the selected RAM page.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC FIR addressing")]
     internal static void VerifySpcFirAddressing()
@@ -57,6 +59,7 @@ internal static class SpcFirAddressingVerification
         Console.WriteLine("SPC FIR: all256 byte presets preserve native low-byte indexing and mutable RAM reads.");
     }
 
+    /// <summary>Runs the focused SPC FIR low-byte address calculation check.</summary>
     [VerificationCommand("--lookup-spc-fir-addressing")]
     internal static int LookupSpcFirAddressingCommand()
     {

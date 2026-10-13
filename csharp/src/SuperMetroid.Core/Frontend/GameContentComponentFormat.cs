@@ -69,6 +69,7 @@ public static class GameContentComponentFormat
         return components;
     }
 
+    /// <summary>Accepts only bounded ASCII catalog identifiers made of letters, digits, hyphens, or underscores.</summary>
     private static void ValidateName(string name)
     {
         if (string.IsNullOrEmpty(name) || name.Length > MaximumNameByteCount ||

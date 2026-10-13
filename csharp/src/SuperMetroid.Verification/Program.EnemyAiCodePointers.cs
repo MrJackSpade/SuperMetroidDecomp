@@ -1,6 +1,7 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
+/// <summary>Audits named enemy AI entry points and bank-local callbacks used by translated code.</summary>
 internal static class EnemyAiCodePointersVerification
 {
     /// <summary>

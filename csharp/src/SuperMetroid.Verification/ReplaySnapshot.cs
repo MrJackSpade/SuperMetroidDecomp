@@ -7,8 +7,10 @@ using System.Text;
 /// </summary>
 internal sealed class ReplaySnapshot
 {
+    /// <summary>Snes9x version-11 snapshot header required before block parsing.</summary>
     private const string Signature = "#!s9xsnp:0011\n";
 
+    /// <summary>Retains the parsed SRAM block for the one-time replay import.</summary>
     private ReplaySnapshot(byte[] saveRam) => SaveRam = saveRam;
 
     /// <summary>Snes9x's whole SRAM buffer (<c>SRA:</c> block); the cartridge uses its first 8 KiB.</summary>

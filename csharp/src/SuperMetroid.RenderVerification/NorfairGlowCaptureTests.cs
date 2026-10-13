@@ -5,8 +5,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks D3D11 capture of Norfair's animated foreground glow against production rendering.</summary>
 internal static class NorfairGlowCaptureTests
 {
+    /// <summary>Compares 232 retail Cathedral frames and isolates palette-only BG1 pixel changes while holding geometry and unrelated colors fixed.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

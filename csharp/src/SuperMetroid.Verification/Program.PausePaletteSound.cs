@@ -4,8 +4,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks the pause palette's 54-tick loop queues its map beep and
+/// produces audible SPC output at the authored cadence.</summary>
 internal static class PausePaletteSoundVerification
 {
+    /// <summary>Advances 500 pause animation ticks and checks request timing,
+    /// port delivery, and generated PCM for each palette-loop beep.</summary>
     internal static void VerifyPausePaletteSound()
     {
         string rom = Path.GetFullPath("Super Metroid.smc");

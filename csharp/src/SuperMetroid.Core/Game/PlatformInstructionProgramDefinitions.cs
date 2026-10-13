@@ -44,6 +44,7 @@ internal abstract class PlatformInstructionProgramDefinitions
             (false, false, true) => TripperStillMovingLeft,
             (false, false, false) => TripperStillMovingRight,
         };
+    /// <summary>Recognizes the four interleaved sprite operands in each of eight platform lists.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - KamerMovingLeft;

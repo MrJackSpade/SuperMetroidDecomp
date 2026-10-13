@@ -12,6 +12,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using static VerificationHelpersVerification;
 
+/// <summary>Reproduces the Ceres slope landing whose zero-distance pose probe
+/// must reject one frame before Samus can land.</summary>
 internal static class SlopeLandingPoseProbeVerification
 {
     /// <summary>
@@ -58,6 +60,7 @@ internal static class SlopeLandingPoseProbeVerification
         Console.WriteLine("Slope landing: a zero-distance pose-change probe rejects the landing on the clipped frame; the next frame lands.");
     }
 
+    /// <summary>Runs the reported clipped-slope landing reproduction from the CLI.</summary>
     [VerificationCommand("--slope-landing-zero-probe")]
     internal static int SlopeLandingZeroProbeCommand()
     {

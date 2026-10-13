@@ -13,8 +13,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the six authored Puyo positions and staggered first-hop timers in the Maridia pile.</summary>
 internal static class MaridiaPuyoPileVerification
 {
+    /// <summary>Loads retail room $D27E and confirms each Puyo stays grounded until its full-word cooldown underflows.</summary>
     internal static void VerifyMaridiaPuyoPile()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -58,6 +60,7 @@ internal static class MaridiaPuyoPileVerification
         Console.WriteLine($"Maridia $04/$10 authored Puyo pile: first hops at {string.Join(',', firstHop)} AI updates; all six spawn coordinates and waiting trajectories match retail data.");
     }
 
+    /// <summary>Runs the focused retail Maridia Puyo pile timing check.</summary>
     [VerificationCommand("--maridia-puyo-pile")]
     internal static int MaridiaPuyoPileCommand()
     {

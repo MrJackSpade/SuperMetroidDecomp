@@ -4,8 +4,12 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 
+/// <summary>Checks conveyor inside-block reactions, standing carry,
+/// Wrecked Ship power gating, and solid-wall clipping.</summary>
 internal static class TreadmillPhysicsVerification
 {
+    /// <summary>Uses a four-by-four terrain fixture to verify every authored
+    /// conveyor direction and the resulting production horizontal motion.</summary>
     internal static void VerifyTreadmillPhysics()
     {
         var bus = new TestAddressSpace();

@@ -16,9 +16,12 @@ using SuperMetroid.Core.Game;
 /// </remarks>
 internal sealed class SamusProjectileSlotObservation
 {
+    /// <summary>Pre-pass occupancy snapshot used to identify the producer's newly allocated slot.</summary>
     private readonly bool[] _occupied;
+    /// <summary>Pre-pass explosion-family snapshot used to observe an in-place collision conversion.</summary>
     private readonly bool[] _explosion;
 
+    /// <summary>Records each ordinary slot before the alpha pass so later observations compare the same slot indices.</summary>
     internal SamusProjectileSlotObservation(SamusProjectileSystem projectiles)
     {
         Ensure.NotNull(projectiles);
@@ -60,6 +63,7 @@ internal sealed class SamusProjectileSlotObservation
         return false;
     }
 
+    /// <summary>Rejects comparisons with a projectile system whose slot table has changed size since capture.</summary>
     private void RequireSameSlots(SamusProjectileSystem projectiles)
     {
         Ensure.NotNull(projectiles);
@@ -69,8 +73,10 @@ internal sealed class SamusProjectileSlotObservation
                 $"{projectiles.Slots.Count}.");
     }
 
+    /// <summary>Uses the native damage word, rather than the active flag, as the allocation occupancy marker.</summary>
     private static bool IsOccupied(SamusProjectileSlot slot) => slot.Damage != 0;
 
+    /// <summary>Recognizes only active beam and missile explosion families as collision conversions.</summary>
     private static bool IsLiveExplosion(SamusProjectileSlot slot) =>
         slot.IsActive && slot.PackedType.Family is
             SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion;

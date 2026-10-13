@@ -700,6 +700,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySaveRamLayout), () => VerifySaveRamLayout()),
         new(nameof(VerifyExploredMapPackingDefinitions), () => VerifyExploredMapPackingDefinitions()),
         new(nameof(VerifyGameSaveJsonPersistence), () => VerifyGameSaveJsonPersistence()),
+        new(nameof(VerifySelectedSaveSlotDecode), () => VerifySelectedSaveSlotDecode()),
         new(nameof(VerifyFileSelectFreshSaveTilemap), () => VerifyFileSelectFreshSaveTilemap()),
         new(nameof(VerifyFileSelectMapWindow), () => VerifyFileSelectMapWindow()),
         new(nameof(VerifySavedGameLoadAppearance), () => VerifySavedGameLoadAppearance()),

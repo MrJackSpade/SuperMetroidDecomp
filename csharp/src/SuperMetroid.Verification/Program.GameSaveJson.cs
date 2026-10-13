@@ -170,6 +170,61 @@ internal static class GameSaveJsonVerification
             "  JSON saves: named schema, all slot domains, canonical SRAM, strict errors, atomic writes, and legacy migration agree.");
     }
 
+    /// <summary>
+    /// Imported SRAM can hold a selected-slot pair the port never writes. The cartridge's
+    /// title-to-file-select initialiser (<c>$81:9ED8-9EF0</c>) and copy-completion reload
+    /// (<c>$81:9B0C-9B24</c>) keep the stored slot when it is signed 0-2 and
+    /// <c>slot &amp; complement == 0</c>; anything else preselects slot A. The boot read,
+    /// file-select initialisation, and JSON capture must all decode the same slot.
+    /// </summary>
+    internal static void VerifySelectedSaveSlotDecode()
+    {
+        string romPath = Path.GetFullPath("Super Metroid.smc");
+        if (!File.Exists(romPath))
+            throw new FileNotFoundException("Selected-slot decode verification requires the private retail ROM.", romPath);
+        AreaMapPresentationCatalog presentation = RetailPresentationFixture();
+        const ushort AllBits = ushort.MaxValue;
+        const ushort SignBit = 1 << 15;
+        (ushort Slot, ushort Complement, int Expected)[] cases =
+        [
+            (0, AllBits, 0), // canonical slot A
+            (1, AllBits ^ 1, 1), // canonical slot B
+            (2, AllBits ^ 2, 2), // canonical slot C
+            (1, 0, 1), // issue #1340: a zero complement is accepted
+            (2, 0, 2),
+            (1, 2, 1), // no bits shared with the slot
+            (2, SignBit | 1, 2),
+            (0, 0, 0),
+            (1, 1, 0), // a shared bit rejects
+            (2, AllBits, 0),
+            (3, 0, 0), // CMP #$0003 / BPL rejects
+            (SignBit - 1, 0, 0),
+            (SignBit | 1, 0, 0), // CMP #$0000 / BMI rejects negative words
+            (AllBits, 0, 0),
+        ];
+        // Every consumer only reads the selected-slot pair, so one imported image is
+        // rewritten per case.
+        SuperMetroidAddressSpace addressSpace =
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        foreach ((ushort slot, ushort complement, int expected) in cases)
+        {
+            string label = $"selected slot ${slot:X4} complement ${complement:X4}";
+            BinaryPrimitives.WriteUInt16LittleEndian(
+                addressSpace.SaveRam[SaveRamLayout.SelectedSlotOffset..], slot);
+            BinaryPrimitives.WriteUInt16LittleEndian(
+                addressSpace.SaveRam[SaveRamLayout.SelectedSlotComplementOffset..], complement);
+
+            AssertEqual(expected, new SuperMetroidSaveRam(addressSpace, presentation).ReadSelectedSlot(),
+                $"{label}: SRAM decode matches the cartridge");
+            AssertEqual(expected, new FileSelectMenuState(addressSpace, mapPresentation: presentation).SelectedItem,
+                $"{label}: file-select initial cursor matches $81:9ED8");
+            AssertEqual(expected, GameSaveJsonCodec.Capture(addressSpace, presentation).SelectedSlot,
+                $"{label}: JSON capture keeps the cartridge-selected slot");
+        }
+
+        Console.WriteLine("  Selected save slot: imported noncanonical SRAM decodes with the cartridge's range and complement rule.");
+    }
+
     internal static void AssertInvalidJsonSave(string json, string expectedMessagePart)
     {
         try
@@ -190,6 +245,14 @@ internal static class GameSaveJsonVerification
     {
         Suite(nameof(VerifyGameSaveJsonPersistence), () => VerifyGameSaveJsonPersistence());
         Suite(nameof(VerifySaveSchemaTranslation), () => VerifySaveSchemaTranslation());
+        Suite(nameof(VerifySelectedSaveSlotDecode), () => VerifySelectedSaveSlotDecode());
+        return 0;
+    }
+
+    [VerificationCommand("--selected-save-slot-decode")]
+    internal static int SelectedSaveSlotDecodeCommand()
+    {
+        Suite(nameof(VerifySelectedSaveSlotDecode), () => VerifySelectedSaveSlotDecode());
         return 0;
     }
 

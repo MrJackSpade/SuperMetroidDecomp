@@ -334,12 +334,19 @@ public sealed class SuperMetroidSaveRam
         WriteSramWord(SaveRamLayout.BackupComplementOffset + slot * 2, 0);
     }
 
-    /// <summary>Reads the persistent menu selection, falling back to slot A if corrupt.</summary>
+    /// <summary>
+    /// Reads the persistent menu selection with the cartridge's validity rule
+    /// (<c>$81:9B0C-9B24</c>, <c>$81:9ED8-9EF0</c>): the stored word must be a signed
+    /// 0-2 and share no bits with its complement word; otherwise slot A is selected.
+    /// The complement need not be the exact inverse, so imported noncanonical SRAM keeps
+    /// the slot the cartridge would preselect.
+    /// </summary>
     public int ReadSelectedSlot()
     {
         ushort slot = ReadSramWord(SelectedSlotOffset);
         ushort complement = ReadSramWord(SelectedSlotOffset + 2);
-        return slot < SlotCount && unchecked((ushort)~slot) == complement ? slot : 0;
+        // Unsigned "slot < SlotCount" also rejects the negative words the BMI excludes.
+        return slot < SlotCount && (slot & complement) == 0 ? slot : 0;
     }
 
     private ushort CalculateChecksum(int slotOffset)

@@ -26,6 +26,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     /// <summary>An enum is interpolated with a numeric format string, which throws at run time.</summary>
     public const string EnumNumericFormatId = "SME6273";
 
+    /// <summary>Reports primitive switches whose labels use multiple constants from one named catalog.</summary>
     private static readonly DiagnosticDescriptor PrimitiveSwitchRule = new(
         PrimitiveSwitchId,
         "Closed domain switched as a primitive",
@@ -35,6 +36,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "Values switched over named constants form a closed domain and must use an enum or domain type end to end.");
 
+    /// <summary>Reports owned, non-flags enum switches that can silently accept an unhandled value.</summary>
     private static readonly DiagnosticDescriptor SilentEnumSwitchRule = new(
         SilentEnumSwitchId,
         "Closed-domain switch ignores unexpected values",
@@ -46,6 +48,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             "A [Flags] enum is exempt: its values are combinations of members, so a catch-all for the " +
             "combinations a switch does not name is part of the domain, not an ignored member.");
 
+    /// <summary>Reports a mask- or shift-extracted local switched as a closed selector.</summary>
     private static readonly DiagnosticDescriptor MaskedSelectorRule = new(
         MaskedSelectorId,
         "Masked primitive used as a selector",
@@ -57,6 +60,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             "A switch with relational patterns is a piecewise numeric function, not a selector, and a switch expression " +
             "whose catch-all throws is itself the validating decoder at the raw boundary; neither is reported.");
 
+    /// <summary>Reports enum interpolation formats unsupported by Enum.ToString.</summary>
     private static readonly DiagnosticDescriptor EnumNumericFormatRule = new(
         EnumNumericFormatId,
         "Enum interpolated with a numeric format string",
@@ -84,6 +88,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     /// <summary>A masked or shifted local is compared against several values as a hand-decoded selector.</summary>
     public const string MaskedComparisonId = "SME6279";
 
+    /// <summary>Reports a mask- or shift-extracted local compared with several nonzero values.</summary>
     private static readonly DiagnosticDescriptor MaskedComparisonRule = new(
         MaskedComparisonId,
         "Masked primitive compared as a selector",
@@ -94,6 +99,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         description: "A masked or shifted local compared for equality against two or more distinct nonzero constants is a " +
             "selector decoded by hand. Zero tests and bit tests of positions or phases are arithmetic and are not reported.");
 
+    /// <summary>Reports storage whose complete writes and identity tests form a small literal state set.</summary>
     private static readonly DiagnosticDescriptor LiteralDomainRule = new(
         LiteralDomainId,
         "Closed domain stored as literals",
@@ -105,6 +111,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             "compared against those constants, is a closed state set; stepped or ordered quantities are excluded.",
         customTags: [WellKnownDiagnosticTags.CompilationEnd]);
 
+    /// <summary>Reports primitive storage compared against multiple constants from one repository catalog.</summary>
     private static readonly DiagnosticDescriptor CatalogComparisonRule = new(
         CatalogComparisonId,
         "Closed domain compared as a primitive",
@@ -115,6 +122,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         description: "A primitive repeatedly compared against members of one constant catalog is a closed domain in disguise.",
         customTags: [WellKnownDiagnosticTags.CompilationEnd]);
 
+    /// <summary>Reports primitive parameters used solely as unchecked casts to one closed enum.</summary>
     private static readonly DiagnosticDescriptor CastOnlyParameterRule = new(
         CastOnlyParameterId,
         "Primitive parameter only cast to a domain enum",
@@ -124,6 +132,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "An API whose primitive parameter is immediately cast to an enum should take the enum, or validate the raw value once at its boundary.");
 
+    /// <summary>Reports arithmetic or stepping that can create an undefined closed-enum value.</summary>
     private static readonly DiagnosticDescriptor EnumArithmeticRule = new(
         EnumArithmeticId,
         "Arithmetic produces a closed-domain value",
@@ -133,6 +142,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "Integer arithmetic or stepping on a closed enum can manufacture an undefined member; a [Flags] enum is exempt.");
 
+    /// <summary>Reports a closed-enum value narrowed to primitive storage before identity use.</summary>
     private static readonly DiagnosticDescriptor PrimitiveInterludeRule = new(
         PrimitiveInterludeId,
         "Closed-domain value carried as a primitive",
@@ -164,6 +174,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         context.RegisterCompilationStartAction(start => new CompilationDomainFlow().Register(start));
     }
 
+    /// <summary>Flags an explicit closed-enum cast when its operand is arithmetic rather than a validated domain transition.</summary>
     private static void AnalyzeEnumConversion(OperationAnalysisContext context)
     {
         var conversion = (IConversionOperation)context.Operation;
@@ -179,6 +190,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>Flags increment, decrement, or compound assignment on a closed enum.</summary>
     private static void AnalyzeEnumStep(OperationAnalysisContext context)
     {
         ITypeSymbol? target = context.Operation switch
@@ -192,6 +204,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                 "Stepping an enum", target!.Name);
     }
 
+    /// <summary>Tracks every parameter reference within a method and reports primitive parameters used only as unvalidated enum casts.</summary>
     private static void AnalyzeCastOnlyParameters(OperationBlockStartAnalysisContext context)
     {
         if (context.OwningSymbol is not IMethodSymbol method || method.IsOverride ||
@@ -276,6 +289,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         });
     }
 
+    /// <summary>Recognizes numeric zero tests, which indicate emptiness rather than a selector member.</summary>
     private static bool IsZero(object key) => NumericValue(key) == 0;
 
     /// <summary>The value of an integral or floating constant; null for strings, chars, booleans and other kinds.</summary>
@@ -286,6 +300,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         _ => null,
     };
 
+    /// <summary>Finds a local initializer's outer mask or right shift after removing parentheses and casts.</summary>
     private static string? MaskExtraction(ILocalSymbol local)
     {
         foreach (SyntaxReference reference in local.DeclaringSyntaxReferences)
@@ -315,33 +330,41 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         return null;
     }
 
+    /// <summary>Recognizes a cast passed to Enum.IsDefined as validation at a raw input boundary.</summary>
     private static bool FeedsIsDefined(IConversionOperation cast) =>
         cast.Parent is IArgumentOperation { Parent: IInvocationOperation invocation } &&
         invocation.TargetMethod.Name == "IsDefined" &&
         invocation.TargetMethod.ContainingType.SpecialType == SpecialType.System_Enum;
 
+    /// <summary>Excludes implicit interface implementations whose parameter types are fixed by the contract.</summary>
     private static bool IsInterfaceImplementation(IMethodSymbol method) =>
         method.ContainingType.AllInterfaces.SelectMany(type => type.GetMembers().OfType<IMethodSymbol>())
             .Any(member => SymbolEqualityComparer.Default.Equals(method.ContainingType.FindImplementationForInterfaceMember(member), method));
 
+    /// <summary>Restricts enum diagnostics to repository-owned enums without composable flags semantics.</summary>
     private static bool IsClosedEnum(ITypeSymbol? type) =>
         type is INamedTypeSymbol { TypeKind: TypeKind.Enum } enumType && IsOwned(enumType) && !IsFlags(enumType);
 
     /// <summary>Compilation-wide evidence for catalog comparisons and primitive interludes.</summary>
     private sealed class CompilationDomainFlow
     {
+        /// <summary>Serializes evidence collected by concurrent operation callbacks.</summary>
         private readonly Lock _gate = new();
+        /// <summary>Groups named-constant comparisons by storage symbol and declaring catalog.</summary>
         private readonly Dictionary<(ISymbol Subject, INamedTypeSymbol Catalog), (HashSet<string> Names, Location First)> _comparisons =
             new(new SubjectCatalogComparer());
-        // Every write to a symbol: the enum it narrows (null for any other value) and where.
+        /// <summary>Records every storage write, including its narrowed enum, site, stepping, and constant value.</summary>
         private readonly Dictionary<ISymbol, List<(ITypeSymbol? Domain, Location Site, bool Stepped, object? Constant)>> _writes = new(SymbolEqualityComparer.Default);
-        // Constants each symbol is compared against, and symbols that are switched.
+        /// <summary>Collects literal equality values used to recognize small closed storage domains.</summary>
         private readonly Dictionary<ISymbol, HashSet<object>> _comparedConstants = new(SymbolEqualityComparer.Default);
+        /// <summary>Tracks storage used as a switch selector.</summary>
         private readonly HashSet<ISymbol> _switched = new(SymbolEqualityComparer.Default);
+        /// <summary>Records whether narrowed primitive storage is later compared or switched.</summary>
         private readonly Dictionary<ISymbol, string> _domainUses = new(SymbolEqualityComparer.Default);
-        // Symbols ordered with < <= > >=: quantities, which an identity domain never is.
+        /// <summary>Excludes ordered quantities from identity-domain inference.</summary>
         private readonly HashSet<ISymbol> _ordered = new(SymbolEqualityComparer.Default);
 
+        /// <summary>Installs evidence collectors and the compilation-end diagnostic pass.</summary>
         internal void Register(CompilationStartAnalysisContext context)
         {
             context.RegisterOperationAction(Comparison, OperationKind.Binary);
@@ -352,6 +375,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             context.RegisterCompilationEndAction(End);
         }
 
+        /// <summary>Collects equality against named or literal constants and excludes ordered quantities.</summary>
         private void Comparison(OperationAnalysisContext context)
         {
             var binary = (IBinaryOperation)context.Operation;
@@ -376,6 +400,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             MarkDomainUse(right, "compared");
         }
 
+        /// <summary>Collects constant patterns and marks their input as an identity comparison.</summary>
         private void IsPattern(OperationAnalysisContext context)
         {
             var pattern = (IIsPatternOperation)context.Operation;
@@ -385,6 +410,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             MarkDomainUse(subject, "compared");
         }
 
+        /// <summary>Marks switch inputs as domain uses and literal-domain candidates.</summary>
         private void SwitchUse(OperationAnalysisContext context)
         {
             IOperation value = context.Operation switch
@@ -399,6 +425,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                     _switched.Add(switched);
         }
 
+        /// <summary>Records a source-owned primitive compared with a named constant in an owned catalog.</summary>
         private void Record(IOperation subject, IOperation constant)
         {
             // Only repository-declared storage can be retyped; a library member such as Length
@@ -418,6 +445,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             }
         }
 
+        /// <summary>Collects numeric constant comparisons for literal-domain inference.</summary>
         private void RecordConstant(IOperation subject, IOperation other)
         {
             if (!IsIntegral(subject.Type) || Subject(subject) is not { } symbol ||
@@ -431,6 +459,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             }
         }
 
+        /// <summary>Records writes and recognizes explicit narrowing from a closed enum to integral storage.</summary>
         private void Narrowing(OperationAnalysisContext context)
         {
             (ISymbol? target, IOperation? value) = context.Operation switch
@@ -459,6 +488,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             }
         }
 
+        /// <summary>Reports nonlocal storage written only with a small literal set and used for identity selection.</summary>
         private void ReportLiteralDomain(CompilationAnalysisContext context, ISymbol symbol,
             List<(ITypeSymbol? Domain, Location Site, bool Stepped, object? Constant)> writes)
         {
@@ -479,10 +509,11 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                 TypeOf(symbol)!.ToDisplayString(), string.Join(", ", written.OrderBy(value => value))));
         }
 
-        // A counter or accumulator is stepped by ++, -- or compound assignment; identities never are.
+        /// <summary>Excludes counters and accumulators modified by stepping from catalog-domain inference.</summary>
         private bool IsStepped(ISymbol symbol) =>
             _writes.TryGetValue(symbol, out var writes) && writes.Any(write => write.Domain is null && write.Stepped);
 
+        /// <summary>Remembers the first comparison or switch use of integral storage.</summary>
         private void MarkDomainUse(IOperation operation, string how)
         {
             if (Subject(operation) is { } symbol && IsIntegral(operation.Type))
@@ -490,6 +521,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                     _domainUses.TryAdd(symbol, how);
         }
 
+        /// <summary>Reconciles compilation-wide evidence and reports catalog comparisons, literal domains, and primitive interludes.</summary>
         private void End(CompilationAnalysisContext context)
         {
             lock (_gate)
@@ -523,6 +555,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             }
         }
 
+        /// <summary>Extracts the referenced local, parameter, mutable field, or property from an operation.</summary>
         private static ISymbol? Subject(IOperation operation) => operation switch
         {
             ILocalReferenceOperation local => local.Local,
@@ -532,6 +565,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             _ => null,
         };
 
+        /// <summary>Reads the stored type of supported symbol kinds.</summary>
         private static ITypeSymbol? TypeOf(ISymbol symbol) => symbol switch
         {
             ILocalSymbol local => local.Type,
@@ -541,18 +575,22 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             _ => null,
         };
 
+        /// <summary>Uses Roslyn symbol identity for both parts of a subject/catalog evidence key.</summary>
         private sealed class SubjectCatalogComparer : IEqualityComparer<(ISymbol Subject, INamedTypeSymbol Catalog)>
         {
+            /// <summary>Matches storage and catalog by semantic symbol identity.</summary>
             public bool Equals((ISymbol Subject, INamedTypeSymbol Catalog) x, (ISymbol Subject, INamedTypeSymbol Catalog) y) =>
                 SymbolEqualityComparer.Default.Equals(x.Subject, y.Subject) &&
                 SymbolEqualityComparer.Default.Equals(x.Catalog, y.Catalog);
 
+            /// <summary>Combines Roslyn symbol hashes for the storage/catalog pair.</summary>
             public int GetHashCode((ISymbol Subject, INamedTypeSymbol Catalog) value) =>
                 (SymbolEqualityComparer.Default.GetHashCode(value.Subject) * 397) ^
                 SymbolEqualityComparer.Default.GetHashCode(value.Catalog);
         }
     }
 
+    /// <summary>Rejects enum interpolation formats beyond the four specifiers accepted by Enum.ToString.</summary>
     private static void AnalyzeInterpolation(OperationAnalysisContext context)
     {
         var operation = (IInterpolationOperation)context.Operation;
@@ -569,6 +607,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             operation.Expression.Syntax.ToString(), type.Name, format);
     }
 
+    /// <summary>Checks primitive and masked selectors, then verifies that owned enum statements handle missing values loudly.</summary>
     private static void AnalyzeSwitchStatement(OperationAnalysisContext context)
     {
         var operation = (ISwitchOperation)context.Operation;
@@ -600,6 +639,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>Checks expression selectors while recognizing throwing discard arms as raw-boundary decoders.</summary>
     private static void AnalyzeSwitchExpression(OperationAnalysisContext context)
     {
         var operation = (ISwitchExpressionOperation)context.Operation;
@@ -626,6 +666,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>Reports integral switches with two or more named case values from one constant catalog.</summary>
     private static void AnalyzePrimitiveSwitch(OperationAnalysisContext context, IOperation value,
         IEnumerable<IOperation> labels, SyntaxNode syntax)
     {
@@ -646,6 +687,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             string.Join(", ", catalogs.Select(catalog => catalog.Name)));
     }
 
+    /// <summary>Reports a switched integral local initialized from a mask or right shift.</summary>
     private static void AnalyzeMaskedSelector(OperationAnalysisContext context, IOperation value)
     {
         if (value is not ILocalReferenceOperation { Local: var local } || !IsIntegral(local.Type))
@@ -676,6 +718,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>Extracts constant values from ordinary and pattern-based switch clauses.</summary>
     private static IEnumerable<IOperation> LabelValues(ICaseClauseOperation clause) => clause switch
     {
         ISingleValueCaseClauseOperation single => [single.Value],
@@ -683,6 +726,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         _ => [],
     };
 
+    /// <summary>Walks constants through combined or negated switch patterns.</summary>
     private static IEnumerable<IOperation> PatternValues(IPatternOperation pattern) => pattern switch
     {
         IConstantPatternOperation constant => [constant.Value],
@@ -691,6 +735,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         _ => [],
     };
 
+    /// <summary>Recognizes numeric range patterns so they are not mistaken for closed selectors.</summary>
     private static bool HasRelational(IPatternOperation pattern) => pattern switch
     {
         IRelationalPatternOperation => true,
@@ -699,6 +744,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         _ => false,
     };
 
+    /// <summary>Checks whether switch labels cover every declared constant value of an enum.</summary>
     private static bool CoversAllMembers(INamedTypeSymbol enumType, IEnumerable<IOperation> labels)
     {
         var handled = new HashSet<object?>(labels.Select(label => Unwrap(label).ConstantValue)
@@ -709,6 +755,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             .All(field => handled.Contains(field.ConstantValue));
     }
 
+    /// <summary>Recognizes a statement default that ends by throwing, including a nested block.</summary>
     private static bool AlwaysThrows(ImmutableArray<IOperation> body)
     {
         IOperation? last = body.LastOrDefault();
@@ -722,21 +769,26 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         };
     }
 
+    /// <summary>Points an enum fallthrough diagnostic at its default clause.</summary>
     private static Location DefaultLocation(ISwitchCaseOperation section) =>
         section.Clauses.First(clause => clause.CaseKind == CaseKind.Default).Syntax.GetLocation();
 
+    /// <summary>Limits closed-domain diagnostics to types declared in the analyzed source compilation.</summary>
     private static bool IsOwned(INamedTypeSymbol type) =>
         type.Locations.Any(location => location.IsInSource);
 
+    /// <summary>Excludes composable flags enums from exhaustive closed-enum handling.</summary>
     private static bool IsFlags(INamedTypeSymbol type) =>
         type.GetAttributes().Any(attribute => attribute.AttributeClass?.ToDisplayString() == "System.FlagsAttribute");
 
+    /// <summary>Accepts only the eight signed and unsigned integral primitive types as raw domain carriers.</summary>
     private static bool IsIntegral(ITypeSymbol? type) => type?.SpecialType is
         SpecialType.System_Byte or SpecialType.System_SByte or
         SpecialType.System_Int16 or SpecialType.System_UInt16 or
         SpecialType.System_Int32 or SpecialType.System_UInt32 or
         SpecialType.System_Int64 or SpecialType.System_UInt64;
 
+    /// <summary>Removes implicit conversions while retaining explicit casts that mark raw boundaries.</summary>
     private static IOperation Unwrap(IOperation operation)
     {
         while (operation is IConversionOperation { IsImplicit: true } conversion)
@@ -744,6 +796,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         return operation;
     }
 
+    /// <summary>Names a switch subject from its referenced symbol, falling back to source syntax.</summary>
     private static string Describe(IOperation value) => value switch
     {
         ILocalReferenceOperation local => local.Local.Name,
@@ -753,6 +806,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         _ => value.Syntax.ToString(),
     };
 
+    /// <summary>Creates an operation diagnostic at the selected source location with descriptor arguments.</summary>
     private static void Report(OperationAnalysisContext context, DiagnosticDescriptor rule, Location location,
         params object[] arguments) =>
         context.ReportDiagnostic(Diagnostic.Create(rule, location, arguments));

@@ -9,6 +9,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Source-only confirmation of the identified projectile provider and partial-factory boundaries.</summary>
 internal static class ProjectilePresentationContractChecks
 {
+    /// <summary>Compiles projectile consumers and checks valid provider coverage and stale partial-factory proofs.</summary>
     internal static void Run()
     {
         var trees = ProjectileClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -99,6 +100,7 @@ internal static class ProjectilePresentationContractChecks
             "external reference to the array-backed timed pointer list revokes binding ownership");
     }
 
+    /// <summary>Reports which source-only projectile ownership expectation failed.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Projectile provider confirmation failed: " + reason);

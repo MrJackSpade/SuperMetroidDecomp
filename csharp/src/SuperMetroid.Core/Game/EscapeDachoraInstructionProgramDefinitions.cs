@@ -50,17 +50,24 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
     /// <summary>$B3:EA80..EAA2: selected every-update terminal cadence; one is the instruction scheduler minimum positive hold.</summary>
     private const ushort MaximumSpeedHold = 1;
 
-    // These reviewed script choices determine movement callback and event/acid branch timing.
-    // The half-gait and every-update policies are selected choreography, not consequences of physics.
-    // No independent movement-step, artwork or room-geometry exemption is implied.
+    /// <summary>Control words in one low-tide pacing direction, including acid and escape branches.</summary>
+    /// <remarks>These script choices determine callback and branch timing; the half-gait and
+    /// every-update policies are authored choreography rather than physics-derived values.</remarks>
     private const int LowDirectionControls = RunFrames * 2 + 8;
+    /// <summary>Control words in one high-tide pacing direction, without the low-tide acid branch.</summary>
     private const int HighDirectionControls = RunFrames * 2 + 6;
+    /// <summary>Timer header and both directional control sequences for low-tide pacing.</summary>
     private const int LowTideControls = 2 + 2 * LowDirectionControls;
+    /// <summary>Timer header and both directional control sequences for high-tide pacing.</summary>
     private const int HighTideControls = 2 + 2 * HighDirectionControls;
+    /// <summary>Three six-pose gaits from departure pause to maximum-speed running.</summary>
     private const int DepartureFrames = 3 * RunFrames;
+    /// <summary>Total compiled timing, movement, and branch words in the Dachora programs.</summary>
     public static int MechanicsWordCount => LowTideControls + HighTideControls + 1 + 2 * DepartureFrames + 2;
+    /// <summary>Spritemap operands kept separate from the compiled pacing and departure controls.</summary>
     public static int PresentationWordCount => 4 * RunFrames + 1 + DepartureFrames;
 
+    /// <summary>Calculates one native Dachora control word across low/high-tide pacing and accelerating escape.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -113,6 +120,7 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
             tail == 0 ? (ushort)CommonEnemyInstruction.Goto : RunningForEscapeMaximumSpeed);
     }
 
+    /// <summary>Locates one artwork operand in a directional pacing or departure frame.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -129,6 +137,7 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
             : (ushort)(RunningForEscapeAccelerating + (index - 4 * RunFrames - 1) * 6 + sizeof(ushort));
     }
 
+    /// <summary>Binary-searches the calculated control domain and rejects visual operands or adjacent data.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

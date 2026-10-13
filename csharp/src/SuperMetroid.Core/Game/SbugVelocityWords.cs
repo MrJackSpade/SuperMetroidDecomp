@@ -84,8 +84,10 @@ public readonly record struct SbugVelocityWords(ushort Pixel, ushort Subpixel)
 /// </summary>
 public sealed class SbugEnemyState
 {
+    /// <summary>Live enemy slot backing Sbug's four common variables and population parameters.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects Sbug's existing slot into named AI and motion state.</summary>
     internal SbugEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Variable A; the long lifetime used only by behavior four.</summary>

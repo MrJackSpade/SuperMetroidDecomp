@@ -6,15 +6,19 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The nuclear waffle species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class NuclearWaffleBehavior : IEnemySpecies
 {
+    /// <summary>Allocates the four collidable links in the articulated body.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Allocates visual body links and turn overlays.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
 
+    /// <summary>Captures the projectile and sprite pools used for body links.</summary>
     internal NuclearWaffleBehavior(EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects)
     {
         _projectiles = projectiles;
         _spriteObjects = spriteObjects;
     }
 
+    /// <summary>Per-slot orbit state, cleared when a new room loads.</summary>
     internal readonly NuclearWaffleEnemyState?[] _nuclearWaffleStates =
         new NuclearWaffleEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -131,6 +135,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
         slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
     }
 
+    /// <summary>Allocates the four damaging projectile links in native association order.</summary>
     private void SpawnNuclearWaffleProjectileSegments(
         RoomEnemySlot owner,
         NuclearWaffleEnemyState state)
@@ -161,6 +166,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Allocates the noncolliding sprite links that interleave with projectile links.</summary>
     private void SpawnNuclearWaffleSpriteSegments(
         RoomEnemySlot slot,
         NuclearWaffleEnemyState state)
@@ -277,6 +283,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
         return new NuclearWaffleOrientation(0, 0);
     }
 
+    /// <summary>Emits a turn overlay and direction sprite, queuing sound on the first half-turn.</summary>
     private void SpawnNuclearWaffleTurnObjects(
         Position16<RoomPixels> position,
         ushort graphicsIndex,
@@ -298,6 +305,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
             LastNuclearWaffleSoundEffect = NuclearWaffleDefinitions.TurnSoundEffect;
     }
 
+    /// <summary>Places the head at the requested angle around its captured room origin.</summary>
     private static void PositionNuclearWaffleHead(
         RoomEnemySlot slot,
         NuclearWaffleEnemyState state,
@@ -312,6 +320,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
             unchecked((short)EnemyMath.ReadEightBitCosineProduct(angle, state.OrbitRadius)),
             unchecked((short)EnemyMath.ReadEightBitNegativeSineProduct(angle, state.OrbitRadius)));
 
+    /// <summary>Advances the signed 16.16 sweep angle with carry from its fractional word.</summary>
     private static void AddNuclearWaffleAngularSpeed(NuclearWaffleEnemyState state)
     {
         uint fraction = (uint)state.AngleSubposition + state.AngularSpeedFraction;
@@ -320,16 +329,20 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
             state.CurrentAngle + state.AngularSpeedWhole + SnesCarry.OutOfWord(fraction)));
     }
 
+    /// <summary>Tests the sign of a wrapped native 16-bit angle difference.</summary>
     private static bool SignedWordDifferenceIsNegative(ushort left, ushort right) =>
         unchecked((short)(left - right)) < 0;
 
+    /// <summary>Tests whether a wrapped native 16-bit angle difference is nonnegative.</summary>
     private static bool SignedWordDifferenceIsNonnegative(ushort left, ushort right) =>
         unchecked((short)(left - right)) >= 0;
 
+    /// <summary>Gets the orbit state attached to a Puromi slot and rejects an uninitialized slot.</summary>
     private NuclearWaffleEnemyState RequireNuclearWaffleState(RoomEnemySlot slot) =>
         _nuclearWaffleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
 
+    /// <summary>Registers the Puromi initialization routine that creates the full articulated body.</summary>
     internal void RegisterNuclearWaffleInitializationAi(EnemyAiTable table)
     {
 
@@ -339,6 +352,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the Puromi main routine that alternates waiting and sweeping.</summary>
     internal void RegisterNuclearWaffleMainAi(EnemyAiTable table)
     {
 

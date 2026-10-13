@@ -38,8 +38,10 @@ public enum StokeAiFunction : ushort
 /// </summary>
 public sealed class StokeEnemyState
 {
+    /// <summary>The live enemy slot whose generic variables hold Stoke's speed and AI state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Binds Stoke's typed state view to its existing room enemy slot.</summary>
     internal StokeEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Fractional half of the positive 16.16 walking displacement.</summary>

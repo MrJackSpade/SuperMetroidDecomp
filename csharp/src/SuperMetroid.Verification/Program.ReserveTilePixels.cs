@@ -2,8 +2,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks calculated reserve-indicator pixels and edited map atlas transfers.</summary>
 internal static class ReserveTilePixelsVerification
 {
+    /// <summary>Compares reserve tiles $47-$4F with retail planar art and preserves every pixel edit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for reserve tile pixels")]
     internal static void VerifyReserveTilePixels(ISnesAddressSpace rom)

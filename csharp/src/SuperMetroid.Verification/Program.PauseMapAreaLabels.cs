@@ -19,8 +19,10 @@ using static MapSpritesVerification;
 using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks pause-map elevator destination labels and area headings against native OAM, pixels, and VRAM words.</summary>
 internal static class PauseMapAreaLabelsVerification
 {
+    /// <summary>Checks five mapped areas through map acquisition, pause transitions, and debugger restore.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause map area-label tiles, palette and heading words")]
     internal static void VerifyPauseMapAreaLabels()
@@ -131,6 +133,7 @@ internal static class PauseMapAreaLabelsVerification
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);
     }
 
+    /// <summary>Runs the focused pause area-label comparison against the repository ROM.</summary>
     [VerificationCommand("--pause-map-area-labels")]
     internal static int PauseMapAreaLabelsCommand()
     {

@@ -13,8 +13,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Records shutter activation, rider carry, and support gaps for the reported Brinstar overlap scenario.</summary>
 internal static class ShutterEmbeddingVerification
 {
+    /// <summary>Runs the existing approach-sequence diagnostic for both shutters; negative gaps require native rounding comparison before interpretation.</summary>
     internal static void VerifyShutterEmbedding()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -62,12 +64,12 @@ internal static class ShutterEmbeddingVerification
             if (carried) carriedCases++;
         }
         AssertTrue(activatedCases > 0 && carriedCases > 0, "approach sweep reaches bomb activation and upward rider carry");
-        // This is an investigation tool, not a passing regression for #347. Small
-        // negative gaps must be compared with native subpixel/carry rounding before
-        // deciding whether they are faulty; none proves the reported trapping alone.
+    // This diagnostic does not itself establish a regression result for #347:
+    // a small negative gap alone does not prove the reported trapping.
         Console.WriteLine($"126 shutter approach sequences: {activatedCases} activate the shutter, {carriedCases} reach upward carry; minimum support gap={minimumGap}.");
     }
 
+    /// <summary>Runs the shutter support-gap diagnostic from the verification command host.</summary>
     [VerificationCommand("--shutter-embedding")]
     internal static int ShutterEmbeddingCommand()
     {

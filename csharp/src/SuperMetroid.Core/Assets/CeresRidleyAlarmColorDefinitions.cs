@@ -13,13 +13,20 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresRidleyAlarmColorDefinitions
 {
+    /// <summary>Initial green component of the bright gold warning text.</summary>
     private const int BrightGreen = 22;
+    /// <summary>Fixed red component of the middle alarm shade.</summary>
     private const int MiddleRed = 23;
+    /// <summary>Initial green component of the middle alarm shade.</summary>
     private const int MiddleGreen = 14;
+    /// <summary>Initial red component of the dark warning shade.</summary>
     private const int DarkRed = 12;
+    /// <summary>Initial green component of the dark warning shade.</summary>
     private const int DarkGreen = 5;
+    /// <summary>Independent supplied colors that differ from the reflected sixteen-row trajectory.</summary>
     internal readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Compares supplied warning colors with calculated rows and retains only independently edited cells.</summary>
     internal CeresRidleyAlarmColorDefinitions(Bgr555[][] rows)
     {
         for (int row = 0; row < CeresRidleyPaletteRomData.AlarmRowCount; row++)
@@ -36,6 +43,7 @@ internal sealed class CeresRidleyAlarmColorDefinitions
         return Math.Min(row, CeresRidleyPaletteRomData.AlarmRowCount - row);
     }
 
+    /// <summary>Uses an edited cell when supplied; otherwise computes its bright, middle, or dark warning shade.</summary>
     internal Bgr555 Resolve(int row, int color)
     {
         _ = SourceRow(row);
@@ -45,6 +53,7 @@ internal sealed class CeresRidleyAlarmColorDefinitions
         return edits.TryGetValue(key, out Bgr555 value) ? value : Calculate(row, color);
     }
 
+    /// <summary>Builds the three copied target colors from the rising and reflected phase's channel rates.</summary>
     private static Bgr555 Calculate(int row, int color)
     {
         int phase = SourceRow(row), halfStep = (phase + 1) / 2;

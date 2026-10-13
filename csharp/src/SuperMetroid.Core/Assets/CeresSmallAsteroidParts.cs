@@ -17,6 +17,7 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Calculates repeated rock shapes only for the matching sixteen-part Ceres asteroid composition.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer != CeresFlightSpriteDefinitions.SmallAsteroids || supplied.PartCount != 16) return supplied;
@@ -30,7 +31,9 @@ internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadO
         if (anchors[2].X > 247 || anchors[3].X > 247 || anchors[5].X > 247 || anchors[6].X > 247) return supplied;
         return supplied.CalculateIfMatching(new CeresSmallAsteroidParts(anchors));
     }
+    /// <summary>Counts the parts in seven small asteroid copies.</summary>
     public int Count => 16;
+    /// <summary>Calculates one asteroid part from its preserved anchor and one of three reusable shapes.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -70,12 +73,15 @@ internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadO
                 SnesObjAttributeWord.Create(tile, 0, 0, flip ? SnesTileFlipFlags.Vertical : 0), true);
         }
     }
+    /// <summary>Enumerates asteroid parts in their original OAM order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same asteroid order through the non-generic collection interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
+/// <summary>Atlas tile identities for the three reusable Ceres asteroid shapes.</summary>
 internal static class CeresSmallAsteroidAtlas
 {
     /// <summary>Tile16E, top of the overlapping vertical asteroid pair in8C:90FE.</summary>

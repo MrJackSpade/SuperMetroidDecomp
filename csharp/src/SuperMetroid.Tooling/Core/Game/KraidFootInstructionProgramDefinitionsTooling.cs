@@ -11,6 +11,7 @@ internal abstract class KraidFootInstructionProgramDefinitionsTooling : IInstruc
     public static int PresentationWordCount => 2 + 2 * 36 + 32;
     /// <summary>Every other word in the bounded native program region is mechanics.</summary>
     public static int MechanicsWordCount => (KraidFootInstructionProgramDefinitions.AdjacentUnusedFastBackward - KraidFootInstructionProgramDefinitions.Initial) / 2 - PresentationWordCount;
+    /// <summary>Runs the shared layout generator selecting one mechanic word and no visuals.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -19,6 +20,7 @@ internal abstract class KraidFootInstructionProgramDefinitionsTooling : IInstruc
         KraidFootInstructionProgramDefinitions.Generate(ref words, ref presentation);
         return words.Selected;
     }
+    /// <summary>Runs the shared layout generator selecting one visual word and no mechanics.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -27,6 +29,7 @@ internal abstract class KraidFootInstructionProgramDefinitionsTooling : IInstruc
         KraidFootInstructionProgramDefinitions.Generate(ref words, ref presentation);
         return presentation.Selected;
     }
+    /// <summary>Uses the generated bank A7 layout to classify an address as mechanic data.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa70000) return false;

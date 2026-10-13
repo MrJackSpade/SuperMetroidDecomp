@@ -15,6 +15,7 @@ using static FrontendRomFreeVerification;
 using static RepositoryInputsVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Compares direct retail-room execution with an installed frontend that has no cartridge allocation.</summary>
 internal static class FrontendRomFreeDirectRoomVerification
 {
     /// <summary>
@@ -31,6 +32,7 @@ internal static class FrontendRomFreeDirectRoomVerification
         VerifyFrontendRomFreeDirectRoom(RoomHeaderPointers.Kraid, 1500, (ushort)(SnesButton.Right | SnesButton.X));
     }
 
+    /// <summary>Runs native and cartridge-free game instances with the same direct room and held input.</summary>
     private static void VerifyFrontendRomFreeDirectRoom(ushort roomPointer, int frameCount, ushort heldInput)
     {
         GameInstallation installation = RepositoryInstallation.Installation;
@@ -50,6 +52,7 @@ internal static class FrontendRomFreeDirectRoomVerification
         VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = roomPointer, RoomName = $"direct retail room $8F:{roomPointer:X4}, input ${heldInput:X4}" }, frameCount, heldInput: heldInput);
     }
 
+    /// <summary>Runs the focused cartridge-free direct-room verification command.</summary>
     [VerificationCommand("--rom-free-direct-room")]
     internal static int RomFreeDirectRoomCommand()
     {

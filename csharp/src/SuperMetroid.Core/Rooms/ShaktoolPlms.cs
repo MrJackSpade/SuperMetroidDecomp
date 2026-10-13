@@ -5,9 +5,12 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Shaktool's room controller PLM and the pre-instruction that follows Shaktool's digging.</summary>
 internal sealed class ShaktoolPlms
 {
+    /// <summary>Room owners needed by the controller's event and Samus-position checks.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Physical PLM slots scanned from highest index for the hardcoded spawn.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Connects Shaktool's room controller to the resident PLM slots and room owners.</summary>
     internal ShaktoolPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
     {
         _bindings = bindings;
@@ -35,6 +38,8 @@ internal sealed class ShaktoolPlms
         return false;
     }
 
+    /// <summary>Opens all scroll cells during a power bomb and retires the controller after Samus passes the cleared-path boundary.</summary>
+    /// <remarks>The full explosion status word admits a pending or time-frozen blast; retiring clears the PLM ID but leaves its instruction words in RAM.</remarks>
     internal void RunShaktoolRoomPreInstruction(PlmSlot slot, RoomScrollGrid? scrolls,
         ushort powerBombExplosionStatus)
     {

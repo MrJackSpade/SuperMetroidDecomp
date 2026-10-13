@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Yellow Pipe Bug instruction words and animation loops while guarding production ROM reads.</summary>
 internal static class YellowPipeBugInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail data and runs the Yellow Pipe Bug instruction suite.</summary>
     internal static void VerifyYellowPipeBugInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYellowPipeBugInstructionProgramDefinitions), () => VerifyYellowPipeBugInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Matches compiled words and four live animation loops to the cartridge while forbidding production source reads.</summary>
     internal static void VerifyYellowPipeBugInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -114,6 +117,7 @@ internal static class YellowPipeBugInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeatedly resolves a live flying-list word to measure warmed lookup allocation.</summary>
     private static int ProbeYellowPipeBugInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -125,6 +129,7 @@ internal static class YellowPipeBugInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids gameplay reads of compiled Yellow Pipe Bug control and visual-selector words.</summary>
     private static CartridgeReadGuard NewYellowPipeBugInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(YellowPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -132,6 +137,7 @@ internal static class YellowPipeBugInstructionProgramDefinitionsVerification
             .ForbidWords(0xb30000, YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount, YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read installed Yellow Pipe Bug selector ${address:X6}.");
 
+    /// <summary>Runs the Yellow Pipe Bug instruction mechanics verification command.</summary>
     [VerificationCommand("--yellow-pipe-bug-instruction-mechanics")]
     internal static int YellowPipeBugInstructionMechanicsCommand()
     {

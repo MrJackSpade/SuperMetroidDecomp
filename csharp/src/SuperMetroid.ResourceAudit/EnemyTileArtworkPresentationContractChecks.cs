@@ -7,6 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified partial ordinary-enemy installation admission gap.</summary>
 internal static class EnemyTileArtworkPresentationContractChecks
 {
+    /// <summary>Confirms empty ordinary artwork is rejected, then checks complete installed artwork and its static ownership contract.</summary>
     internal static void Run()
     {
         bool rejected = false;
@@ -18,6 +19,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
         EnemyArtworkStaticContractChecks.Run();
     }
 
+    /// <summary>Exercises complete identity admission, copied source aliases, and exact VRAM/CGRAM upload boundaries with constructed artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void ConfirmInstalledData()
     {
@@ -91,6 +93,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
             "exact palette upload and unchanged neighbors");
     }
 
+    /// <summary>Requires an invalid installation to fail with an asset-data error.</summary>
     private static void Reject(Action action, string reason)
     {
         try { action(); }
@@ -98,6 +101,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
         throw new InvalidOperationException("Enemy artwork confirmation did not reject " + reason);
     }
 
+    /// <summary>Reports a failed positive artwork contract check with its specific predicate.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Enemy artwork confirmation failed: " + reason);

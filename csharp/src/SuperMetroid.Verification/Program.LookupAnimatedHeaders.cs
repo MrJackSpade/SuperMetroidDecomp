@@ -4,11 +4,14 @@ using static AnimatedTileInstructionCodesVerification;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks typed room-FX animated object headers against the seven native records.</summary>
 internal static class LookupAnimatedHeadersVerification
 {
+    /// <summary>Original bank-$87 object pointers in the cartridge's enumeration order.</summary>
     private static readonly ushort[] OriginalSimpleAnimationObjects =
         [0x8257, 0x8287, 0x828d, 0x82ab, 0x82c9, 0x82e7, 0x82fd];
 
+    /// <summary>Checks complete object identity lookup, enumeration order, and rejection of undefined pointers.</summary>
     internal static void VerifySimpleAnimationObjectDomain()
     {
         AssertTrue(OriginalSimpleAnimationObjects.SequenceEqual(
@@ -31,13 +34,17 @@ internal static class LookupAnimatedHeadersVerification
                 "Undefined animated-tile object is rejected at the typed boundary");
     }
 
+    /// <summary>Compares the seven compiled instruction-start pointers with native headers.</summary>
     internal static void VerifySimpleAnimationInstructionStarts(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 0, definition => definition.InstructionPointer));
+    /// <summary>Compares each compiled tile-transfer size with its native header.</summary>
     internal static void VerifySimpleAnimationTransferSizes(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 2, definition => definition.TransferByteCount));
+    /// <summary>Compares each encoded VRAM destination with its native header.</summary>
     internal static void VerifySimpleAnimationVramDestinations(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 4, definition => definition.EncodedVramDestination));
 
+    /// <summary>Checks a header word through lookup, enumeration, and mechanics-word views.</summary>
     private static void VerifySimpleAnimationHeaderField(SuperMetroidAddressSpace rom, int offset,
         Func<RoomFxAnimatedTileObjectDefinition, ushort> field)
     {

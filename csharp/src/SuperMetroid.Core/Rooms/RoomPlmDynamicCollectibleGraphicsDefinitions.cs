@@ -16,9 +16,12 @@ public sealed record RoomPlmDynamicCollectibleGraphic(
 /// </summary>
 internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
 {
+    /// <summary>First permanent collectible kind whose artwork uses the dynamic PLM upload.</summary>
     internal const int FirstKind = (int)InWorldCollectibleKind.Bombs;
+    /// <summary>Number of permanent-item kinds with a bank $89 graphics block.</summary>
     internal const int GraphicCount = RoomPlmHeaders.PermanentCollectibleKindCount - FirstKind;
 
+    /// <summary>Enumerates the complete set of dynamic permanent-item graphics in collectible-kind order.</summary>
     internal static IEnumerable<RoomPlmDynamicCollectibleGraphic> All
     {
         get
@@ -28,6 +31,7 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
         }
     }
 
+    /// <summary>Combines a permanent item's native graphics pointer, eight palette selectors, and tile bytes.</summary>
     internal static RoomPlmDynamicCollectibleGraphic Get(InWorldCollectibleKind kind)
     {
         int index = (int)kind - FirstKind;
@@ -84,6 +88,7 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
     internal static ushort GraphicsPointer(InWorldCollectibleKind kind) =>
         checked((ushort)(0x8000 + (int)GraphicFor(kind) * 0x100));
 
+    /// <summary>Maps collectible identity to its distinct bank $89 tile block, independent of enum order.</summary>
     private static ItemGraphic GraphicFor(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.Bombs => ItemGraphic.Bombs,

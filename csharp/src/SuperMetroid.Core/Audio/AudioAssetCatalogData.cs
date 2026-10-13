@@ -14,15 +14,20 @@ public static class AudioAssetCatalogData
     /// <summary>Cartridge-order view of24 named music cases, without a stored lookup or cache.</summary>
     public static readonly IReadOnlyList<AudioUploadAssetDefinition> Music = new MusicBankView();
 
+    /// <summary>Calculates the twenty-four aligned music table entries from native byte offsets.</summary>
     private sealed class MusicBankView : IReadOnlyList<AudioUploadAssetDefinition>
     {
+        /// <summary>Twenty-four music banks follow the common driver entry.</summary>
         public int Count => 24;
+        /// <summary>Converts a zero-based music ordinal to its three-byte pointer-table offset.</summary>
         public AudioUploadAssetDefinition this[int index] => (uint)index < Count
             ? ResolveDataIndex((byte)(3 * (index + 1))) : throw new IndexOutOfRangeException();
+        /// <summary>Yields music uploads in cartridge pointer-table order.</summary>
         public IEnumerator<AudioUploadAssetDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same cartridge order to non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

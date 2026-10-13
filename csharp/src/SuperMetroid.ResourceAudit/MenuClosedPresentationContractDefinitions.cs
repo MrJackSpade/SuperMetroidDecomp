@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Reviewed complete menu providers; named arguments still need independent key coverage.</summary>
 internal static class MenuClosedPresentationContractDefinitions
 {
+    /// <summary>Closed reviewed sources for options, game-over, and reserve menu presentation domains.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.GameOptionsPresentation", "options-v1-complete-menu-domains",

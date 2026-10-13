@@ -5,6 +5,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 
+/// <summary>Checks the SNES color value type across word encoding, channel operations, CGRAM, and a production fade.</summary>
 internal static class Bgr555DomainVerification
 {
     /// <summary>

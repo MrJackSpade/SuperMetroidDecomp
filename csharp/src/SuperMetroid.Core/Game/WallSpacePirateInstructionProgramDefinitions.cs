@@ -69,6 +69,7 @@ internal abstract class WallSpacePirateInstructionProgramDefinitions
     /// <summary>Native program bank $B2.</summary>
     internal const byte Bank = 0xb2;
 
+    /// <summary>Compiled left- and right-wall climbing, reversal, laser, and wall-jump control words; frame pointers remain presentation slots.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xecc0),
         Entry(FireAndJumpLeft),
@@ -181,9 +182,12 @@ internal abstract class WallSpacePirateInstructionProgramDefinitions
         Frame(8),
         Op((ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate, PirateWallMovingUpRightWall1),
         Op(PirateWallRandomlyChooseADirectionRightWall));
+    /// <summary>The number of native spritemap operands left for presentation extraction.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Locates a remaining spritemap operand within the bank $B2 instruction lists.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads a compiled control word, rejecting addresses outside the wall-pirate mechanics layout.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

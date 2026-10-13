@@ -47,6 +47,7 @@ public enum EndingObjectTransfer
 /// </summary>
 public sealed class EndingObjectArtworkCatalog
 {
+    /// <summary>Copied four-fragment sequence ordered by explosion VRAM destination page.</summary>
     private readonly RoomCharacterAtlas[] fragments;
 
     /// <summary>Combines already compiled ending artwork and sprite compositions, enforcing the native transfer lengths.</summary>
@@ -89,9 +90,11 @@ public sealed class EndingObjectArtworkCatalog
         this.fragments = parts.Fragments.ToArray();
     }
 
+    /// <summary>Checks an atlas transfer against the cartridge's required byte count.</summary>
     private static bool HasNativeLength(RoomCharacterAtlas atlas, EndingObjectTransfer transfer) =>
         HasNativeLength(atlas.Transfer, transfer);
 
+    /// <summary>Checks raw transfer bytes against the exact length of their ending-artwork role.</summary>
     private static bool HasNativeLength(ReadOnlyMemory<byte> bytes, EndingObjectTransfer transfer) =>
         bytes.Length == EndingObjectArtworkFormat.ByteCount(transfer);
 

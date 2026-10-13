@@ -18,8 +18,10 @@ using static SpeedBoosterCollisionBlocksVerification;
 using static SpeedBoosterPlmProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks the bomb-revealed Speed Booster block's editable image independently of its collision behavior.</summary>
 internal static class SpeedBoosterVisualsVerification
 {
+    /// <summary>Checks native visual identity, exact pointer membership, authored shape, and source-array isolation.</summary>
     private static void VerifySpeedBoosterStockVisualMapping(SuperMetroidAddressSpace rom)
     {
         const ushort pointer = 0xa4f3;
@@ -52,6 +54,7 @@ internal static class SpeedBoosterVisualsVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[native,native])]),"speed visual rejects altered shape");
     }
 
+    /// <summary>Checks extraction and a production bomb reveal with immediate and streamed art but unchanged physical block.</summary>
     internal static void VerifySpeedBoosterVisuals()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -147,6 +150,7 @@ internal static class SpeedBoosterVisualsVerification
             "Speed Booster visuals: native reveal parity, live edit, physical isolation, stock repair and strict failures pass.");
     }
 
+    /// <summary>Runs the focused Speed Booster reveal artwork check against the retail ROM.</summary>
     [VerificationCommand("--speed-booster-visuals")]
     internal static int SpeedBoosterVisualsCommand()
     {

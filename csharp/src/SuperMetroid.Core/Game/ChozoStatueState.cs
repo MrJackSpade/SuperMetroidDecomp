@@ -33,8 +33,10 @@ public enum ChozoStatuePreInstruction : ushort
 /// </summary>
 public sealed class ChozoStatueState
 {
+    /// <summary>Live enemy slot whose common variable words hold movement and bank-$AA pre-instruction state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects the Chozo controller's named variables over its physical room enemy slot.</summary>
     internal ChozoStatueState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Movement-table byte offset consumed by instruction $AA:E5D8.</summary>

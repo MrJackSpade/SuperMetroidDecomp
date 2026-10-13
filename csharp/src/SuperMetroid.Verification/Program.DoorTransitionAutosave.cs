@@ -17,8 +17,10 @@ using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks automatic door recovery snapshots, restored continuation, and protection of manual save slots.</summary>
 internal static class DoorTransitionAutosaveVerification
 {
+    /// <summary>Drives retail Ceres and Landing Site door transitions and checks save timing, atomic replacement, replay exclusion, and restored state.</summary>
     internal static void VerifyDoorTransitionAutosave()
     {
         AssertTrue(new SuperMetroidGameOptions().DoorTransitionAutosave, "new sessions enable door recovery");
@@ -178,6 +180,7 @@ internal static class DoorTransitionAutosaveVerification
         }
     }
 
+    /// <summary>Runs the door-transition autosave verification command.</summary>
     [VerificationCommand("--door-autosave")]
     internal static int DoorAutosaveCommand()
     {

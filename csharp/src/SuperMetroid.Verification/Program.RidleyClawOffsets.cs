@@ -3,8 +3,12 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Compares Ridley's claw geometry, carried Samus placement, and
+/// collision bounds with native offset words across wrapped coordinates.</summary>
 internal static class RidleyClawOffsetsVerification
 {
+    /// <summary>Checks authored facing and foot offsets, carry decay and word
+    /// wrapping, and claw overlap through production behavior.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley claw offsets")]
     internal static void VerifyRidleyClawOffsets(SuperMetroidAddressSpace rom)
     {

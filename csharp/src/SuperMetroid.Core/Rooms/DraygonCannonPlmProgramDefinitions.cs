@@ -31,6 +31,7 @@ internal static class DraygonCannonPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Reads one byte from either compiled cannon program, including the packed hit threshold.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
@@ -39,6 +40,7 @@ internal static class DraygonCannonPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Finds the right or left program containing an address and returns its local offset.</summary>
     private static bool TryLocate(ushort address, out int start, out int offset)
     {
         start = address is >= RightStart and <= RightEnd ? RightStart :
@@ -47,6 +49,7 @@ internal static class DraygonCannonPlmProgramDefinitions
         return start != 0;
     }
 
+    /// <summary>Decodes one program byte across the odd threshold offset and adjacent word fields.</summary>
     private static byte ByteAt(int start, int offset)
     {
         if (offset == 20) return 3;
@@ -54,6 +57,7 @@ internal static class DraygonCannonPlmProgramDefinitions
         return (byte)(WordAt(start, wordOffset) >> ((offset - wordOffset) * 8));
     }
 
+    /// <summary>Constructs a control, timer, or draw word from the selected cannon orientation and phase.</summary>
     private static ushort WordAt(int start, int offset)
     {
         bool right = start == RightStart;

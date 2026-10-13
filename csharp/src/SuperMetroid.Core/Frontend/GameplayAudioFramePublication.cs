@@ -9,7 +9,9 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
 {
+    /// <summary>Per-producer cursors prevent replaying requests when prefix publication runs more than once.</summary>
     private int roomSounds, paletteSounds, paletteMusic, liquidSounds;
+    /// <summary>Prevents a HUD selection request from being queued twice in the same frontend step.</summary>
     private bool selectionPublished;
 
     /// <summary>

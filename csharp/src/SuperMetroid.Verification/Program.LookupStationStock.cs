@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks map, save, and recharge station visual frames against native PLM draw lists.</summary>
 internal static class LookupStationStockVerification
 {
+    /// <summary>Compares twenty stock frames and selected hashes, then checks copied edits and invalid entry rejection.</summary>
     internal static void VerifyStationStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmStationVisualCatalog installed)
     {
@@ -81,6 +83,7 @@ internal static class LookupStationStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmStationVisualCatalog(entries), "Station visual bits only");
     }
 
+    /// <summary>Reads native run-displacement bytes as the stock station draw oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for station stock mapping")]
     private static byte StationStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -18,39 +18,64 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class TitleSequenceState
 {
-    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    /// <summary>Reusable OBJ raster cleared by each render; excluded from saved scene state.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
-    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    /// <summary>Reusable final frame, valid for callers until the next title render.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
-    // Gradient OBJ priority/palette planes; fully rewritten by every resolve.
+    /// <summary>Temporary OBJ priority plane rewritten before the title gradient is resolved.</summary>
     [NonSerialized] private byte[]? gradientPriorityScratch;
+    /// <summary>Temporary OBJ palette plane used to choose the title gradient color per pixel.</summary>
     [NonSerialized] private byte[]? gradientPaletteScratch;
 
+    /// <summary>Runtime address space used by native title state and palette-FX paths.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Queues the opening music and title transitions when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>Holds interleaved Mode 7 background and OBJ character data for title rendering.</summary>
     private readonly SnesVram vram = new();
+    /// <summary>Holds installed title colors and live console palette-FX changes.</summary>
     internal readonly SnesCgram cgram = new();
+    /// <summary>Runs the two console-light palette-FX programs during the title sequence.</summary>
     private RoomPaletteFxSystem consolePaletteFx = new();
+    /// <summary>Receives title and copyright spritemaps in native drawing order.</summary>
     internal readonly OamBuffer oam = new();
+    /// <summary>Preserves newly pressed input edges for title skip and file-select entry.</summary>
     private readonly ControllerInputState controller = new();
+    /// <summary>Extracted source pages copied into Mode 7 VRAM for Baby Metroid animation.</summary>
     private readonly byte[] babyMetroidCharacters;
+    /// <summary>Host-selected scanline gradient rebound after debugger-state restoration.</summary>
     [NonSerialized] private TitleGradientPresentation? titleGradientPresentation;
+    /// <summary>Host-selected title palette rebound after debugger-state restoration.</summary>
     [NonSerialized] private TitlePalettePresentation? titlePalettePresentation;
+    /// <summary>Host-selected title graphics rebound after debugger-state restoration.</summary>
     [NonSerialized] private TitleGraphicsPresentation? titleGraphicsPresentation;
+    /// <summary>Countdown for the active title phase, including fade and idle stages.</summary>
     internal int phaseTimer;
+    /// <summary>Bank-$8B cursor into the current timed title text instruction list.</summary>
     private int sequenceEntry;
+    /// <summary>Frames left before the next title text list entry is interpreted.</summary>
     private int sequenceEntryTimer;
+    /// <summary>Spritemap selected by the active title text or logo entry.</summary>
     internal ushort activeSpritemap;
+    /// <summary>Screen origin used when drawing the active title spritemap.</summary>
     internal Position16<ScreenPixels> activeOrigin;
+    /// <summary>Character and palette offset supplied to the title sprite drawer.</summary>
     internal ushort activeCharacterOffset;
-    // Background position; the whole words are read as signed pixels.
+    /// <summary>Mode 7 background position whose whole words are interpreted as signed pixels.</summary>
     private FixedPosition<Mode7Pixels> mode7;
+    /// <summary>Native 8.8 Mode 7 matrix scale animated from the close-up scene to identity.</summary>
     internal int zoom;
+    /// <summary>Current SNES screen brightness applied after composing title layers.</summary>
     internal int brightness;
+    /// <summary>Index into the Baby Metroid character page cycle.</summary>
     private int babyFrame;
+    /// <summary>Frames left before the next Baby Metroid character page transfer.</summary>
     private int babyFrameTimer;
+    /// <summary>Tracks the TM bit that exposes Mode 7 BG1 behind title objects.</summary>
     private bool mode7BackgroundEnabled;
+    /// <summary>Enables the installed scanline gradient during the final title stages.</summary>
     private bool gradientEnabled;
+    /// <summary>Selects the demo destination after the shared title fade-out.</summary>
     private bool fadingToDemo;
 
     /// <summary>Creates the native initial title setup performed by <c>$8B:9B68</c>.</summary>
@@ -64,6 +89,7 @@ public sealed class TitleSequenceState
     {
     }
 
+    /// <summary>Builds the initial title VRAM and palette state, optionally queuing opening music for a new session.</summary>
     private TitleSequenceState(
         ISnesAddressSpace bus,
         CartridgeAudioState? audio,
@@ -308,6 +334,7 @@ public sealed class TitleSequenceState
             ResetConsolePaletteFx();
     }
 
+    /// <summary>Restarts the slow and fast console-light palette programs at the native title seam.</summary>
     private void ResetConsolePaletteFx()
     {
         consolePaletteFx = new RoomPaletteFxSystem();
@@ -380,6 +407,7 @@ public sealed class TitleSequenceState
             checked((byte)brightness), gradientEnabled ? ResolveTitleGradient() : default);
     }
 
+    /// <summary>Resolves the installed title gradient at the current Mode 7 scale.</summary>
     private ReadOnlySpan<TitleGradientLine> ResolveTitleGradient()
     {
         if (titleGradientPresentation is null)
@@ -388,6 +416,7 @@ public sealed class TitleSequenceState
         return titleGradientPresentation.Resolve((ushort)zoom);
     }
 
+    /// <summary>Draws the active title spritemap and stage-dependent copyright into finalized OAM.</summary>
     internal void PrepareRenderOam()
     {
         TitleGraphicsPresentation artwork = titleGraphicsPresentation
@@ -412,6 +441,7 @@ public sealed class TitleSequenceState
         oam.FinalizeFrame();
     }
 
+    /// <summary>Advances timed text records and executes scene or delete commands from the compiled bank-$8B list.</summary>
     private void StepTextSequence()
     {
         if (--sequenceEntryTimer > 0)
@@ -473,6 +503,7 @@ public sealed class TitleSequenceState
         }
     }
 
+    /// <summary>Starts a title card's instruction list with OBJ visible and Mode 7 BG1 hidden.</summary>
     private void BeginTextSequence(TitleTextSequenceDefinition definition)
     {
         Phase = definition.Phase;
@@ -490,6 +521,7 @@ public sealed class TitleSequenceState
         mode7BackgroundEnabled = false;
     }
 
+    /// <summary>Installs the logo, gradient, copyright colors, and identity Mode 7 scene used after a skip.</summary>
     private void EnterImmediateTitleObjects()
     {
         gradientEnabled = true;
@@ -506,6 +538,7 @@ public sealed class TitleSequenceState
         zoom = TitleSequenceRomData.Scenes.IdentityScale;
     }
 
+    /// <summary>Opens the idle title screen at full brightness with its native demo countdown.</summary>
     private void EnterTitleScreen()
     {
         EnterImmediateTitleObjects();
@@ -514,6 +547,7 @@ public sealed class TitleSequenceState
         brightness = TitleSequenceRomData.Timing.MaximumBrightness;
     }
 
+    /// <summary>Recreates the title's high-byte character DMA, low-byte fill, and map transfer in Mode 7 VRAM.</summary>
     private void LoadMode7InterleavedVram(byte[] characterBytes, byte[] mapBytes)
     {
         if (characterBytes.Length < TitleSequenceRomData.Vram.Mode7CharacterByteCount)
@@ -533,6 +567,7 @@ public sealed class TitleSequenceState
             mapBytes.AsSpan(0, TitleSequenceRomData.Vram.Mode7MapByteCount));
     }
 
+    /// <summary>Advances the Baby Metroid page cycle when its authored frame duration expires.</summary>
     private void StepBabyMetroidAnimation()
     {
         if (--babyFrameTimer > 0)
@@ -543,6 +578,7 @@ public sealed class TitleSequenceState
         UpdateBabyMetroidCharacterFrame();
     }
 
+    /// <summary>Uploads the selected Baby Metroid source page to Mode 7 character destination $3800.</summary>
     private void UpdateBabyMetroidCharacterFrame()
     {
         // The instruction list cycles source pages 0,1,2,1 into Mode 7 destination word
@@ -557,11 +593,14 @@ public sealed class TitleSequenceState
             babyMetroidCharacters.AsSpan(source, TitleSequenceRomData.Vram.BabyCharacterPageByteCount));
     }
 
+    /// <summary>Reads a compiled bank-$8B title instruction word without a cartridge access.</summary>
     private static ushort ReadWord(int address) => TitleSequenceInstructionDefinitions.ReadWord(address);
 
+    /// <summary>Advances a title list cursor within its original SNES bank.</summary>
     private static int AddWithinBank(int address, int bytes) =>
         (int)SnesAddress.FromBusAddress(address).AddWithinBank(bytes);
 
+    /// <summary>Installs a compiled Mode 7 scene's position and scale while clearing the previous text sprite.</summary>
     private void ApplyScene(TitleMode7SceneDefinition definition)
     {
         Phase = definition.Phase;
@@ -571,6 +610,7 @@ public sealed class TitleSequenceState
         activeSpritemap = TitleSequenceRomData.Sprites.Blank;
     }
 
+    /// <summary>Applies the SNES brightness level to a composed title pixel, retaining transparency.</summary>
     private static Rgba32 ApplyBrightness(Rgba32 color, int level)
     {
         if (color.A == 0 || level >= TitleSequenceRomData.Timing.MaximumBrightness)

@@ -65,8 +65,11 @@ public sealed class EnemyTileArtworkCatalog
             content.AppendIdentity("AuxiliaryColors", AuxiliaryColors?.ContentIdentity);
         });
 
+    /// <summary>Ordinary enemy tile sheets keyed by the native enemy definition pointer.</summary>
     private readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
+    /// <summary>Palette paired with each installed ordinary enemy tile sheet.</summary>
     private readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
+    /// <summary>Tile sheets addressable by the native source and byte count of a DMA request.</summary>
     private readonly Dictionary<(int Source, int ByteCount), RoomCharacterAtlas> byDmaSource;
 
 
@@ -240,6 +243,7 @@ public sealed class EnemyTileArtworkCatalog
         });
     }
 
+    /// <summary>Copies installed artwork and builds DMA aliases, rejecting missing or conflicting sheets.</summary>
     internal EnemyTileArtworkCatalog(EnemyTileArtworkParts parts)
     {
         Ensure.NotNull(parts);
@@ -304,6 +308,7 @@ public sealed class EnemyTileArtworkCatalog
         AuxiliaryColors = parts.AuxiliaryColors;
     }
 
+    /// <summary>Requires a complete, correctly sized tile sheet and palette for every retail definition.</summary>
     private static void ValidateInstalledSheets(Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
         Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes)
     {
@@ -320,6 +325,7 @@ public sealed class EnemyTileArtworkCatalog
                     $"Installed enemy ${(int)definition.DefinitionPointer:X4} lacks its complete tile sheet or palette.");
     }
 
+    /// <summary>Checks supplied DMA aliases against compiled graphics sources and returns the complete mapping.</summary>
     private static Dictionary<EnemyDefinitionId, int> InstalledDmaSources(IReadOnlyDictionary<EnemyDefinitionId, int>? sources)
     {
         var expected = EnemyTileSourceDefinitions.All.ToDictionary(

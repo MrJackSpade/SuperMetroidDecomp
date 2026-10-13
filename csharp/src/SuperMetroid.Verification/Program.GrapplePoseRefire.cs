@@ -6,8 +6,10 @@ using SuperMetroid.Desktop;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks grapple restart after Samus changes aim while the beam is firing.</summary>
 internal static class GrapplePoseRefireVerification
 {
+    /// <summary>Confirms early pose changes refire with a reset endpoint and stop/start sounds, while frame ten cancels and debugger saves retain the remaining window.</summary>
     internal static void VerifyGrapplePoseRefire()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

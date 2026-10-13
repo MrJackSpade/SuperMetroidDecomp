@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>The Maridia glass tube (N00b tube) PLM: its crack and shatter, earthquake, layer-3 FX and projectile spawns.</summary>
 internal sealed class NoobTubePlms
 {
+    /// <summary>Room services receiving tube event, Samus, FX, and projectile effects.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Queue used for ineffective shot feedback while the tube waits.</summary>
     private readonly PlmSoundQueue _sounds;
 
+    /// <summary>Shares the room service bindings and sound queue used by the tube PLM interpreter.</summary>
     internal NoobTubePlms(PlmRoomBindings bindings, PlmSoundQueue sounds)
     {
         _bindings = bindings;
@@ -72,6 +75,7 @@ internal sealed class NoobTubePlms
         }
     }
 
+    /// <summary>Executes tube-only instructions, including crack, shatter, event, water, and control-lock effects.</summary>
     internal bool TryExecuteNoobTubeInstruction(
         ISnesAddressSpace bus,
         PlmSlot slot,
@@ -177,13 +181,16 @@ internal sealed class NoobTubePlms
         }
     }
 
+    /// <summary>Requires the room event owner before testing the broken-tube event.</summary>
     private IGlobalEventFlags RequireNoobTubeEvents() =>
         _bindings.Events ?? throw new InvalidOperationException("N00b tube has no event reader.");
 
+    /// <summary>Requires a live Samus actor for tube script locks or water-physics publication.</summary>
     private SamusState RequireNoobTubeSamus() =>
         _bindings.Samus?.Current ?? throw new InvalidOperationException(
             "N00b tube has no active Samus actor.");
 
+    /// <summary>Routes a crack, shard, or bubble spawn to the enemy system at the tube's block.</summary>
     private void SpawnNoobTubeProjectile(PlmSlot slot, NoobTubeProjectileDefinition definition, ushort parameter) =>
         (_bindings.Enemies ?? throw new InvalidOperationException(
             "N00b tube has no enemy-projectile spawner.")).SpawnNoobTubeProjectile(

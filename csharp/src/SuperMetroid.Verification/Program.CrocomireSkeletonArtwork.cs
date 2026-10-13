@@ -5,8 +5,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Checks Crocomire skeleton tile uploads against native source bytes and full VRAM results.</summary>
 internal static class CrocomireSkeletonArtworkVerification
 {
+    /// <summary>Exercises six installed uploads and a single-pixel PNG override with cartridge reads forbidden.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire skeleton artwork")]
     internal static void VerifyCrocomireSkeletonArtwork(
@@ -143,11 +145,13 @@ internal static class CrocomireSkeletonArtworkVerification
         }
     }
 
+    /// <summary>Blocks all cartridge reads and writes during installed skeleton uploads.</summary>
     private static CartridgeReadGuard NewCrocomireSkeletonNoReadBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed Crocomire skeleton read cartridge byte ${address:X6}.")
             .RejectWrites(address => $"Installed Crocomire skeleton wrote cartridge byte ${address:X6}.");
 
+    /// <summary>Reads a native destination or source-table word for the independent upload oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire's native skeleton destination and source tables")]
     private static ushort ReadNativeCrocomireSkeletonWord(ISnesAddressSpace rom, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);

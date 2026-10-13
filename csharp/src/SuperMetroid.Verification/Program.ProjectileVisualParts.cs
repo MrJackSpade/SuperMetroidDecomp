@@ -17,8 +17,10 @@ using static AssertionsVerification;
 using static ProjectileCompositionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks authored projectile OAM parts against packed cartridge drawing semantics.</summary>
 internal static class ProjectileVisualPartsVerification
 {
+    /// <summary>Exhausts X/size words across wrapped origins while preserving Y, attributes, and OAM high bits.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyProjectileVisualParts()
     {
@@ -65,6 +67,7 @@ internal static class ProjectileVisualPartsVerification
         WriteTestWord(bus, 0x93f705, attribute);
     }
 
+    /// <summary>Runs single-part packing checks with the retail projectile composition comparison.</summary>
     [VerificationCommand("--projectile-sprite-compositions")]
     internal static int ProjectileSpriteCompositionsCommand()
     {

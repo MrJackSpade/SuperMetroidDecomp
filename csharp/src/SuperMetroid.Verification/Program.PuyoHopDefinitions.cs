@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Compares Puyo hop records and initial vertical-curve integration with retail bank-$A2 data.</summary>
 internal static class PuyoHopDefinitionsVerification
 {
+    /// <summary>Checks seven native records and the six non-dropping integrations, then rejects invalid byte selectors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Puyo hops")]
     internal static void VerifyCompiledPuyoHops(SuperMetroidAddressSpace rom)
     {

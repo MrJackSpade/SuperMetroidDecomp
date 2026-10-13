@@ -9,8 +9,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Samus's presentation: spritemap selection, tile transfers, suit, cycle and charge palettes, and the animation-frame sequencing that drives them.</summary>
 internal sealed class SamusPresentation
 {
+    /// <summary>Gameplay state whose pose, equipment, animation, and echo positions drive rendering.</summary>
     private readonly SamusState _samus;
 
+    /// <summary>Binds presentation operations to their owning Samus state.</summary>
     internal SamusPresentation(SamusState owner)
     {
         _samus = owner;
@@ -235,6 +237,7 @@ internal sealed class SamusPresentation
         _samus.AnimationFrameTimer = NativeCountdown.FromRaw(timer);
     }
 
+    /// <summary>Consumes a pose delay byte or native animation command after the frame timer expires.</summary>
     private void HandleAnimationDelay(ISnesAddressSpace bus, ushort controllerInput,
         SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false,
         Func<ushort>? queueEchoSound = null)
@@ -441,6 +444,7 @@ internal sealed class SamusPresentation
         _samus.AnimationFrameTimer = NativeCountdown.FromRaw(unchecked((ushort)(_samus.AnimationFrameBuffer + selectedDelay)));
     }
 
+    /// <summary>Rejects animation updates after a pose change that did not refresh its delay list.</summary>
     private void EnsureAnimationInitialized()
     {
         int expectedList = ResolveAnimationDelayList();
@@ -451,12 +455,14 @@ internal sealed class SamusPresentation
         }
     }
 
+    /// <summary>Resolves the current pose's bank-$91 animation-delay list address.</summary>
     internal int ResolveAnimationDelayList()
     {
         ushort pointer = SamusAnimationDelayDefinitions.PointerForPose(_samus.Pose);
         return SamusMovementRomData.Banks.Pose | pointer;
     }
 
+    /// <summary>Reads one compiled delay byte from the animation list selected for this pose.</summary>
     private byte ReadAnimationByte(ISnesAddressSpace bus, ushort byteIndex) =>
         SamusAnimationDelayDefinitions.ReadAnimationByte(bus,
             unchecked((ushort)_samus.AnimationDelayListAddress), byteIndex);
@@ -818,6 +824,7 @@ internal sealed class SamusPresentation
         }
     }
 
+    /// <summary>Draws a populated echo slot with current Samus spritemaps after native Y clipping.</summary>
     private void DrawActiveSpeedBoosterEcho(
         ISnesAddressSpace bus,
         OamBuffer oam,

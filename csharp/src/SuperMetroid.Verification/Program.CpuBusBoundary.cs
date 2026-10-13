@@ -13,6 +13,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks catalog ownership and the WRAM/SRAM cell primitives against the real address-space mapping.</summary>
 internal static class CpuBusBoundaryVerification
 {
     /// <summary>
@@ -83,6 +84,7 @@ internal static class CpuBusBoundaryVerification
         }
     }
 
+    /// <summary>Writes an alias-overlap byte through the SRAM or WRAM view declared by its catalog cell.</summary>
     [CpuBusBoundary("exact bus test: byte access through a cell's own primitive")]
     private static void WriteCellByte(ISnesMemoryBus bus, CpuBusCell cell, int index, byte value)
     {
@@ -92,6 +94,7 @@ internal static class CpuBusBoundaryVerification
             new WramBytes(bus, cell).Write(index, value);
     }
 
+    /// <summary>Reads an alias-overlap byte through the SRAM or WRAM view declared by its catalog cell.</summary>
     [CpuBusBoundary("exact bus test: byte access through a cell's own primitive")]
     private static byte ReadCellByte(ISnesMemoryBus bus, CpuBusCell cell, int index) =>
         cell.Region == CpuBusRegion.SaveRam ? new SramBytes(bus, cell).Read(index) : new WramBytes(bus, cell).Read(index);
@@ -250,21 +253,27 @@ internal static class CpuBusBoundaryVerification
     [CpuBusBoundary("exact bus test: write-order recording double")]
     internal sealed class WriteOrderRecordingBus : ISnesMemoryBus
     {
+        /// <summary>Backing address space used so recorded writes retain normal WRAM and SRAM behavior.</summary>
         private readonly SuperMetroidAddressSpace inner = SuperMetroidAddressSpace.CreateWithoutCartridge();
 
+        /// <summary>CPU addresses and bytes in the order they reached the bus.</summary>
         public List<(int Address, byte Value)> Writes { get; } = [];
 
+        /// <summary>Records the requested write before forwarding it to the backing address space.</summary>
         public void WriteByte(int address, byte value)
         {
             Writes.Add((address, value));
             inner.WriteByte(address, value);
         }
 
+        /// <summary>Uses the real WRAM bank mapping when inspecting a recorded write.</summary>
         public byte ReadWorkRamByte(int cpuAddress) => inner.ReadWorkRamByte(cpuAddress);
 
+        /// <summary>Uses the real SRAM bank mapping when inspecting a recorded write.</summary>
         public byte ReadSaveRamByte(int cpuAddress) => inner.ReadSaveRamByte(cpuAddress);
     }
 
+    /// <summary>Runs the CPU-bus catalog and primitive boundary suite from the verification command.</summary>
     [VerificationCommand("--cpu-bus-boundary")]
     internal static int CpuBusBoundaryCommand()
     {

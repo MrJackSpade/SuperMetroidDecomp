@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
+/// <summary>Checks Golden Torizo linked walking programs and selected collision frames against retail bank $AA.</summary>
 internal static class GoldenTorizoWalkingDefinitionsVerification
 {
+    /// <summary>Compares seventy controls, ten frame selectors, their components, and eleven physical hitbox lists.</summary>
     internal static void VerifyGoldenTorizoWalkingDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
@@ -117,6 +119,7 @@ internal static class GoldenTorizoWalkingDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>Reads a native bank-$AA byte for walking-control and collision comparisons.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo walking definitions")]
     private static byte GoldenTorizoWalkingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

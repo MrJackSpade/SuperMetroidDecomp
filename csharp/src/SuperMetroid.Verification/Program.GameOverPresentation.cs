@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static MapPresentationVerification;
 
+/// <summary>Checks installed game-over artwork and Baby animation against cartridge playback.</summary>
 internal static class GameOverPresentationVerification
 {
+    /// <summary>Compares a No-to-title sequence, then checks visible overrides, live rebinding, and malformed assets.</summary>
     internal static void VerifyGameOverPresentationAssets(
         ISnesAddressSpace bus,
         string stock,

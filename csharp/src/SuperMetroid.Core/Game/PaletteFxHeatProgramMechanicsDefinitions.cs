@@ -16,27 +16,35 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class PaletteFxHeatProgramMechanicsDefinitions
 {
+    /// <summary>Compiled heat palette control for the Power Suit.</summary>
     private static readonly PaletteFxHeatProgramDefinition Power = new(PaletteFxHeatSuit.Power);
+    /// <summary>Compiled heat palette control for the Varia Suit.</summary>
     private static readonly PaletteFxHeatProgramDefinition Varia = new(PaletteFxHeatSuit.Varia);
+    /// <summary>Compiled heat palette control for the Gravity Suit.</summary>
     private static readonly PaletteFxHeatProgramDefinition Gravity = new(PaletteFxHeatSuit.Gravity);
 
     /// <summary>The Power, Varia, and Gravity programs in native selection order.</summary>
     public static IReadOnlyList<PaletteFxHeatProgramDefinition> All { get; } = new ProgramList();
 
+    /// <summary>Exposes the three fixed suit programs in native selection order without a mutable array.</summary>
     private sealed class ProgramList : IReadOnlyList<PaletteFxHeatProgramDefinition>
     {
+        /// <summary>Gets the number of native Samus-in-heat suit programs.</summary>
         public int Count => 3;
+        /// <summary>Gets the Power, Varia, or Gravity program at its native selection index.</summary>
         public PaletteFxHeatProgramDefinition this[int index] => index switch
         {
             0 => Power, 1 => Varia, 2 => Gravity,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Yields Power, Varia, and Gravity heat programs in native order.</summary>
         public IEnumerator<PaletteFxHeatProgramDefinition> GetEnumerator()
         {
             yield return Power;
             yield return Varia;
             yield return Gravity;
         }
+        /// <summary>Exposes the same suit order to non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -57,6 +65,7 @@ public sealed class PaletteFxHeatProgramDefinition
     /// <summary>Fifteen BGR555 colors follow every timed duration word.</summary>
     public const int ColorsPerFrame = 15;
 
+    /// <summary>Binds a suit identity to its calculated native frame address sequence.</summary>
     internal PaletteFxHeatProgramDefinition(PaletteFxHeatSuit suit)
     {
         Suit = suit;
@@ -88,9 +97,12 @@ public sealed class PaletteFxHeatProgramDefinition
     /// <summary>The sixteen timed records, calculated on access without stored rows.</summary>
     public IReadOnlyList<PaletteFxHeatProgramFrameDefinition> Frames { get; }
 
+    /// <summary>Calculates sixteen fixed-stride frame descriptors for a selected suit.</summary>
     private sealed class FrameList(PaletteFxHeatSuit suit) : IReadOnlyList<PaletteFxHeatProgramFrameDefinition>
     {
+        /// <summary>Gets the number of timed heat palette records per suit.</summary>
         public int Count => 16;
+        /// <summary>Gets a phase's native duration-word address as a frame descriptor.</summary>
         public PaletteFxHeatProgramFrameDefinition this[int index]
         {
             get
@@ -99,10 +111,12 @@ public sealed class PaletteFxHeatProgramDefinition
                 return new(PaletteFxHeatInstructionListDefinitions.Resolve(suit, (ushort)index));
             }
         }
+        /// <summary>Yields all sixteen calculated phase descriptors in program order.</summary>
         public IEnumerator<PaletteFxHeatProgramFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same phase order to non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

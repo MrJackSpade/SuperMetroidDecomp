@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled grapple radial points and swing-release velocity against retail trigonometry.</summary>
 internal static class GrappleCompiledMathVerification
 {
     /// <summary>Independent cartridge samples exercise the production radial and
@@ -68,6 +69,7 @@ internal static class GrappleCompiledMathVerification
         Console.WriteLine($"Compiled grapple: {pointCount} native radial coordinates/biases and {releaseCount} release velocities match without a production bus.");
     }
 
+    /// <summary>Reads original signed trigonometry samples only for the independent oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled grapple math")]
     private static byte CompiledGrappleMathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

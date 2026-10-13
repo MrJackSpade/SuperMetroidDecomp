@@ -24,6 +24,7 @@ internal static class AutomaticCheckpointSaver
     public static void SaveCeresDeparture(ISnesAddressSpace bus, SuperMetroidRuntime runtime, int slot) =>
         SaveCeresCheckpoint(bus, runtime, slot, SaveLoadingGameStates.CeresDestruction);
 
+    /// <summary>Publishes the requested Ceres loading state, then saves Samus, system state, game time, and player options through the ordinary SRAM encoder.</summary>
     private static void SaveCeresCheckpoint(
         ISnesAddressSpace bus, SuperMetroidRuntime runtime, int slot, ushort loadingGameState)
     {

@@ -109,6 +109,7 @@ public sealed class MaridiaElevatubeRoomMainState
         return movement;
     }
 
+    /// <summary>Rejects a door setup callback when the room has not selected elevatube main $8F:E2B6.</summary>
     private void EnsureActive(DoorSetupCode setupCode)
     {
         if (IsActive)

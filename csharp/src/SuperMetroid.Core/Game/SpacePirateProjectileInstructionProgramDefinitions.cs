@@ -33,7 +33,9 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitions
     /// <summary>Laser startup dwell at $86:9F41/9F45/9F49 and right-facing equivalents. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort LaserStartupFrames = 2;
 
+    /// <summary>Counts laser and claw timers, callbacks, and loop controls for both facings.</summary>
     public static int MechanicsWordCount => 58;
+    /// <summary>Counts visual frame operands across the two lasers and two claw programs.</summary>
     public static int PresentationWordCount => 42;
 
     /// <summary>
@@ -77,6 +79,7 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitions
         }
     }
 
+    /// <summary>Locates an indexed laser or claw spritemap operand in the native lists.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -90,10 +93,12 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitions
         return (ushort)(loop + (index - 26) % 8 * 4 + 2);
     }
 
+    /// <summary>Identifies laser and Pirate claw projectiles that use these compiled lists.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.PirateMotherBrainLaser or
         RoomEnemyProjectileKind.PirateClaw;
 
+    /// <summary>Binary-searches compiled Pirate projectile controls and rejects visual addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

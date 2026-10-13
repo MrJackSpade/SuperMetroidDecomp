@@ -4,8 +4,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Yard kick distance publication and airborne fixed-point trajectories.</summary>
 internal static class YardAirborneVerification
 {
+    /// <summary>Confirms the per-frame Samus distance includes native pixel bias and fractional camera movement.</summary>
     internal static void VerifyYardRuntimeDistancePublication()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -27,6 +29,7 @@ internal static class YardAirborneVerification
             "native integer-only direction test allows biased distance below one pixel");
     }
 
+    /// <summary>Checks dropped, kicked, and beam-launched motion across signed carry and vertical speed caps.</summary>
     internal static void VerifyYardAirborneTrajectories(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
         var empty = new ushort[64 * 64];

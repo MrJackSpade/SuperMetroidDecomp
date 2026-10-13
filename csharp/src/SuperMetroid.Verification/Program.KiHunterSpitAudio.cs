@@ -15,8 +15,10 @@ using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks that one Ki-Hunter spit requests one sound and cannot prolong a door sound wait.</summary>
 internal static class KiHunterSpitAudioVerification
 {
+    /// <summary>Checks the native sound opcode, real projectile spawn, single APU write, and door transition.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the KiHunter spit instruction that queues sound $4C")]
     internal static void VerifyKiHunterSpitAudio()
     {
@@ -97,6 +99,7 @@ internal static class KiHunterSpitAudioVerification
         AssertTrue(waitFrames <= 1, "already-drained spit queue allows the first door sound-wait pass to finish");
     }
 
+    /// <summary>Runs the focused Ki-Hunter spit sound-routing check.</summary>
     [VerificationCommand("--kihunter-spit-audio")]
     internal static int KihunterSpitAudioCommand()
     {

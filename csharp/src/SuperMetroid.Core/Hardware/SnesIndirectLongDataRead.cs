@@ -30,6 +30,7 @@ public static class SnesIndirectLongDataRead
         return (ushort)(SnesLittleEndian.Word(low, high));
     }
 
+    /// <summary>Routes an indirect operand through live memory, a compiled cartridge span, or the proven open-bus window.</summary>
     private static byte ReadDataByte(ISnesAddressSpace bus, int address, byte busLatch,
         ReadOnlySpan<byte> cartridgeDefinition, int definitionAddress)
     {

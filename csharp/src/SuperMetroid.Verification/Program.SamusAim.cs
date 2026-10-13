@@ -15,6 +15,7 @@ using static AssertionsVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks bank-$91 aiming poses, movement transitions and their command-line verification routes.</summary>
 internal static class SamusAimVerification
 {
 
@@ -850,6 +851,7 @@ internal static void VerifySamusGunExtendedMovement()
 // Fixes the two ROM tables and signed formulas used by Landing Site's actual BTS-$12
 // non-square floor path at $94:84D6 and $94:87F4.
 
+    /// <summary>Runs the aimed jump, fall, landing and walk-off pose checks through the suite harness.</summary>
     [VerificationCommand("--samus-aimed-aerial")]
     internal static int SamusAimedAerialCommand()
     {
@@ -857,6 +859,7 @@ internal static void VerifySamusGunExtendedMovement()
         return 0;
     }
 
+    /// <summary>Runs the horizontal-fire body and held-Shot landing checks through the suite harness.</summary>
     [VerificationCommand("--samus-gun-extended")]
     internal static int SamusGunExtendedCommand()
     {

@@ -7,10 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// and their adjoining cells. Preserve the native publication order.</summary>
 internal sealed class CeresStationParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Uses calculated station pieces only for the matching under-attack frame pointer.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
         pointer == CeresFlightSpriteDefinitions.StationUnderAttack
             ? supplied.CalculateIfMatching(new CeresStationParts()) : supplied;
+    /// <summary>Native under-attack station composition spans forty-one OAM parts.</summary>
     public int Count => 41;
+    /// <summary>Calculates strip, shoulder, edge patch, or cap tile placement in native drawing order.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -95,12 +98,15 @@ internal sealed class CeresStationParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
+    /// <summary>Enumerates the station pieces in their authored OAM overlap order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same station overlap order to non-generic callers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
+/// <summary>Native tile anchors for the station's strips and irregular edge patches.</summary>
 internal static class CeresStationAtlas
 {
     /// <summary>TileE6, top strip at Y=-48 in8C:9150.</summary>

@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks Crocomire bridge and wall PLM visuals against native draw words.</summary>
 internal static class LookupCrocomireStockVerification
 {
+    /// <summary>Compares five frame shapes, stock and imported identity, edit ownership, and invalid entries.</summary>
     internal static void VerifyCrocomireStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmCrocomireVisualCatalog installed)
     {
@@ -70,6 +72,7 @@ internal static class LookupCrocomireStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmCrocomireVisualCatalog(entries), "Crocomire visual bits only");
     }
 
+    /// <summary>Reads native draw-stream bytes for the independent stock catalog oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire stock mapping")]
     private static byte CrocomireStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 

@@ -16,8 +16,11 @@ internal abstract class ZebetiteInstructionProgramDefinitions
     /// <summary><c>InstList_Big_HealthGreaterThanEqualTo800</c> at $A6:FDCC.</summary>
     internal const ushort BigHealthAtLeast800 = 0xfdcc;
 
+    /// <summary>Five health poses each for large and paired-small Zebetites.</summary>
     internal static int ProgramCount => 10;
+    /// <summary>One duration and one sleep command per health-tier program.</summary>
     public static int MechanicsWordCount => ProgramCount * 2;
+    /// <summary>One separately installed spritemap operand per health-tier program.</summary>
     public static int PresentationWordCount => ProgramCount;
 
     /// <summary>
@@ -31,12 +34,14 @@ internal abstract class ZebetiteInstructionProgramDefinitions
         return Program((ushort)(BigHealthAtLeast800 + index * 3 * sizeof(ushort)));
     }
 
+    /// <summary>Enumerates the one-frame duration or terminal sleep word at a bounded index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Word(ProgramAt(index / 2).Entry, (ushort)((index & 1) * 4));
     }
 
+    /// <summary>Locates the visual operand between a health tier's duration and sleep command.</summary>
     public static ushort PresentationWordAddress(int index) => ProgramAt(index).Presentation;
     /// <summary>Returns fixed Zebetite control or rejects pointers outside its ten lists.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
@@ -59,9 +64,11 @@ internal abstract class ZebetiteInstructionProgramDefinitions
             $"Zebetite instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
 
+    /// <summary>Pairs a native list origin with its following visual operand.</summary>
     private static ZebetiteInstructionProgram Program(ushort entry) =>
         new(entry, unchecked((ushort)(entry + 2)));
 
+    /// <summary>Builds the one-frame duration or sleep control word within a tier's list.</summary>
     private static InstructionMechanicsWord Word(ushort entry, ushort offset) =>
         new(
             unchecked((ushort)(entry + offset)),

@@ -45,6 +45,7 @@ public static class EscapeTypewriterDefinitions
     /// <summary>$A6:C4A2, TypewriterText_ZebesEscapeTimer: BG2 tilemap VRAM identity.</summary>
     private const int ZebesTilemapBase = 0x4800;
 
+    /// <summary>Ceres uses three warning lines while Zebes uses two.</summary>
     internal static int LineCount(EscapeTypewriterProgramId id) => id switch
     {
         EscapeTypewriterProgramId.Ceres => CeresLineCount,
@@ -52,6 +53,7 @@ public static class EscapeTypewriterDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
+    /// <summary>Builds one selected warning line and its BG tilemap destination from reviewed wording and line spacing.</summary>
     internal static EscapeTypewriterLine Line(EscapeTypewriterProgramId id, int index)
     {
         if ((uint)index >= LineCount(id)) throw new ArgumentOutOfRangeException(nameof(index));

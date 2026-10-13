@@ -152,6 +152,7 @@ internal abstract class DraygonInstructionProgramDefinitions
     /// <summary>Native program bank $A5.</summary>
     internal const byte Bank = 0xa5;
 
+    /// <summary>Preserves Draygon's interleaved body, eye, tail, and arm control words and frame timing across native program offsets.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0x97b9),
         Entry(Sleep),
@@ -589,6 +590,7 @@ internal abstract class DraygonInstructionProgramDefinitions
         Frame(6),
         Op((ushort)CommonEnemyInstruction.Goto, TailFacingRightIdle0));
 
+    /// <summary>Reads a compiled control word at a bank-$A5 pointer and rejects addresses outside the program layout.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

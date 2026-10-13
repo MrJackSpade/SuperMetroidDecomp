@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Evir body, arms, and projectile instruction streams.</summary>
 internal static class EvirInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for Evir instruction comparison.</summary>
     internal static void VerifyEvirInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEvirInstructionProgramDefinitions), () => VerifyEvirInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks native words, guarded loops, body-owned regeneration callbacks, sprite selectors, and allocation-free reads.</summary>
     internal static void VerifyEvirInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -179,6 +182,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             "programs, complete regeneration callbacks, and 49 compiled spritemap selectors pass.");
     }
 
+    /// <summary>Creates an enemy system bound to the supplied guarded address space.</summary>
     internal static RoomEnemySystem NewEvirInstructionSystem(
         ISnesAddressSpace bus)
     {
@@ -187,6 +191,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>Seeds an Evir body or projectile slot with its bank-$A8 definition and starting program.</summary>
     internal static void PrepareEvirInstructionSlot(
         RoomEnemySlot slot,
         EnemyDefinitionId definition,
@@ -198,6 +203,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
+    /// <summary>Repeatedly reads body and regeneration control words for steady-state allocation measurement.</summary>
     private static int ProbeEvirInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -211,6 +217,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids compiled control reads and observes or forbids native spritemap operands.</summary>
     internal static CartridgeReadGuard NewEvirInstructionGuard(ISnesAddressSpace rom, bool forbidPresentation = false)
     {
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
@@ -224,6 +231,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
                 EvirInstructionProgramDefinitions.PresentationWordAddress);
     }
 
+    /// <summary>Runs retail-cartridge Evir instruction verification.</summary>
     [VerificationCommand("--evir-instruction-program-definitions")]
     internal static int EvirInstructionProgramDefinitionsCommand()
     {

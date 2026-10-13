@@ -8,8 +8,10 @@ using SuperMetroid.Core.Runtime;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Ceres and Norfair Ridley palette installation against native CGRAM rows.</summary>
 internal static class CeresRidleyColorsVerification
 {
+    /// <summary>Verifies extracted colors, edited palette effects, legacy override migration, and guarded ROM access.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyCeresRidleyColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom,
@@ -368,10 +370,12 @@ internal static class CeresRidleyColorsVerification
         }
     }
 
+    /// <summary>Rejects reads from every retail color word covered by installed Ceres Ridley palettes.</summary>
     private static CartridgeReadGuard NewCeresRidleyColorReadGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
         new MutableCartridgeReadGuard(source)
             .Forbid(forbidden.Contains, address => $"Ceres Ridley color reread ${address:X6}.");
 
+    /// <summary>Reads one BGR555 word from the pinned retail palette oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Ridley's native palette rows")]
     private static ushort ReadNativeCeresRidleyColor(ISnesAddressSpace rom, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);

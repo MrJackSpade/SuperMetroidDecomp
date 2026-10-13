@@ -12,6 +12,7 @@ public sealed record BgSubscreenAddRenderLayer(ushort TilemapWord, ushort Charac
     Bg4BppRenderLayer? MainCoverage = null, bool FourBpp = false, bool IncludeObjects = false,
     bool MainObjects = false, ushort VerticalScroll = 0) : RenderLayer
 {
+    /// <summary>Copied per-scanline BG scroll registers; an empty array selects the uniform scroll properties.</summary>
     private Position16<BgPlanePixels>[] scrolls = [];
     /// <summary>Owned physical-line registers; empty means the uniform scroll fields.</summary>
     public ReadOnlySpan<Position16<BgPlanePixels>> Scrolls => scrolls;

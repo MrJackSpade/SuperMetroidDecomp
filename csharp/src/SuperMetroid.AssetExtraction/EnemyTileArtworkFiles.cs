@@ -16,6 +16,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM enemy graphics sheets, palettes and tile copy programs → enemy tile artwork")]
 public static class EnemyTileArtworkFiles
 {
+    /// <summary>Serializer settings shared by the stock enemy-art manifest and its supplemental JSON resources.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -1145,6 +1146,7 @@ public static class EnemyTileArtworkFiles
     /// <exception cref="InvalidDataException">Stock provenance, coverage, dimensions, or an artwork document is invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Rejects missing or substituted retail enemy graphics identities using the pinned ordered ID digest.</summary>
     private static void ValidateDefinitionIds(IEnumerable<ushort> pointers)
     {
         string joined = string.Join(",", pointers.Order().Select(pointer => $"{pointer:X4}"));
@@ -1154,6 +1156,7 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a retail graphics definition.");
     }
 
+    /// <summary>Reconstructs one Crocomire melt DMA pass as indexed PNG and checks its planar-byte roundtrip.</summary>
     private static byte[] ExtractCrocomireMelt(ISnesAddressSpace bus,
         CrocomireMeltingPass pass, int encodedByteCount)
     {
@@ -1182,6 +1185,7 @@ public static class EnemyTileArtworkFiles
         return encoded;
     }
 
+    /// <summary>Decompresses a native Kraid background tilemap and writes its editable document form.</summary>
     private static byte[] ExtractKraidTilemap(ISnesAddressSpace bus, int sourceAddress)
     {
         byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress,
@@ -1189,6 +1193,7 @@ public static class EnemyTileArtworkFiles
         return RoomBackgroundTilemapExtractor.Encode(native);
     }
 
+    /// <summary>Exports Kraid's room background character data to PNG after verifying a lossless planar roundtrip.</summary>
     private static byte[] ExtractKraidRoomBackground(ISnesAddressSpace bus)
     {
         byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -1209,6 +1214,7 @@ public static class EnemyTileArtworkFiles
         return encoded;
     }
 
+    /// <summary>Exports a Mother Brain special sprite sheet and checks that indexed PNG retains native tile bytes.</summary>
     private static byte[] ExtractMotherBrainSpecialSpritePng(ISnesAddressSpace bus,
         MotherBrainSpecialSpriteSheetDefinition sheet)
     {
@@ -1228,11 +1234,13 @@ public static class EnemyTileArtworkFiles
         return png;
     }
 
+    /// <summary>Exports one Torizo instruction tile page with its definition's source range.</summary>
     private static byte[] ExtractTorizoInstructionPage(ISnesAddressSpace bus,
         TorizoInstructionTileSheetDefinition page) =>
         IndexedTilePageExtractor.Extract(bus, page.SourceAddress, page.ByteCount,
             $"Torizo instruction page {page.FileName}");
 
+    /// <summary>Writes Kraid's backdrop, target, health, secondary, and death-arm palettes as one editable color document.</summary>
     private static byte[] ExtractKraidColors(ISnesAddressSpace bus) =>
         KraidColorCatalog.Write(new KraidColorDocument
         {
@@ -1244,6 +1252,7 @@ public static class EnemyTileArtworkFiles
             DeathArm = ReadKraidColors(bus, KraidPaletteSource.DeathArm),
         });
 
+    /// <summary>Decodes one native Kraid palette and rejects color words whose high bit cannot be represented.</summary>
     private static PaletteRgb5[] ReadKraidColors(ISnesAddressSpace bus,
         KraidPaletteSource source)
     {
@@ -1267,6 +1276,7 @@ public static class EnemyTileArtworkFiles
         return colors;
     }
 
+    /// <summary>Decodes a Crocomire melt tilemap into editable cells and verifies its $FFFF terminator.</summary>
     private static byte[] ExtractCrocomireMeltTilemap(ISnesAddressSpace bus,
         int sourceAddress)
     {
@@ -1301,6 +1311,7 @@ public static class EnemyTileArtworkFiles
         return json.ToArray();
     }
 
+    /// <summary>Records cartridge provenance and hashes for every stock enemy-art resource in the installation.</summary>
     private sealed record EnemyTileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<ushort, EnemyTileFileEntry> Entries,
         string CrocomireFirstSha256, string CrocomireSecondSha256,
@@ -1342,5 +1353,6 @@ public static class EnemyTileArtworkFiles
         string CrocomireSkeletonSha256,
         string AuxiliaryColorsSha256);
 
+    /// <summary>Pairs an enemy sheet's native transfer size with its indexed PNG and palette digests.</summary>
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

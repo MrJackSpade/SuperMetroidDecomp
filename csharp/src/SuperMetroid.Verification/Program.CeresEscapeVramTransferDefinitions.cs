@@ -15,8 +15,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Ceres escape VRAM descriptors and installed timer and Japanese overlay transfers.</summary>
 internal static class CeresEscapeVramTransferDefinitionsVerification
 {
+    /// <summary>Compares nineteen native records and three terminators, then queues production transfers without descriptor reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape VRAM transfer definitions")]
     internal static void VerifyCeresEscapeVramTransferDefinitions(ISnesAddressSpace rom)
     {
@@ -137,11 +139,13 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             "both installed timer lists and Japanese overlay execute with descriptor reads blocked.");
     }
 
+    /// <summary>Rejects native descriptor reads while installed Ceres transfer lists are queued.</summary>
     private static CartridgeReadGuard NewCeresEscapeTransferReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address),
                 address => $"Installed Ceres transfer read native descriptor ${address:X6}.");
 
+    /// <summary>Imports indexed character pages needed to run the installed Ceres escape transfer path.</summary>
     [CpuBusBoundary("exact bus test: imports the Ceres escape tile pages from their retail ROM source addresses")]
     private static RoomCharacterAtlas[] ImportCeresEscapeTilePages(ISnesAddressSpace rom) =>
         CeresEscapeTileArtworkDefinitions.All.ToArray().Select(page =>
@@ -150,6 +154,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
                     page.ByteCount, page.FileName), writable: false),
                 page.ByteCount)).ToArray();
 
+    /// <summary>Runs the focused Ceres escape descriptor check against the retail ROM.</summary>
     [VerificationCommand("--ceres-escape-transfers")]
     internal static int CeresEscapeTransfersCommand()
     {

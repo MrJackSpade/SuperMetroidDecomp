@@ -17,8 +17,10 @@ using static LookupPaletteFxAreasVerification;
 using static LookupPaletteFxDispatchVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled palette-FX definitions, area selection, and production spawn metadata.</summary>
 internal static class RoomPaletteFxDefinitionsVerification
 {
+    /// <summary>Audits 63 entries and eight area lists, then checks spawns and room loads without metadata reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room palette FX definitions")]
     internal static void VerifyRoomPaletteFxDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -134,6 +136,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             "with fixed metadata reads forbidden.");
     }
 
+    /// <summary>Checks each definition's live slot ID, timer, pre-instruction, and initial list.</summary>
     internal static void VerifyPaletteFxDispatchSpawns(ISnesAddressSpace guardedRom, IEnumerable<ushort> pointers)
     {
         foreach (ushort pointer in pointers)
@@ -161,6 +164,7 @@ internal static class RoomPaletteFxDefinitionsVerification
 
     }
 
+    /// <summary>Enumerates native fixed-size definition records within one bank-$8D range.</summary>
     private static IEnumerable<ushort> DefinitionRange(ushort first, ushort last)
     {
         for (int pointer = first; pointer <= last; pointer +=
@@ -170,6 +174,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         }
     }
 
+    /// <summary>Finds the populated private slot after a production spawn or room load.</summary>
     private static RoomPaletteFxSystem.PaletteFxSlot ActivePaletteFxSlot(RoomPaletteFxSystem system)
     {
         var slots = system.slots;
@@ -182,10 +187,12 @@ internal static class RoomPaletteFxDefinitionsVerification
         throw new InvalidOperationException("Expected one active palette-FX slot.");
     }
 
+    /// <summary>Rejects runtime reads of compiled definition and area-list metadata bytes.</summary>
     internal static CartridgeReadGuard NewRoomPaletteFxDefinitionGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
         new CartridgeReadGuard(source).Forbid(forbidden.Contains,
             address => $"Palette-FX runtime reread compiled metadata byte ${address:X6}.");
 
+    /// <summary>Loads retail data and runs the palette-FX metadata audit from the command dispatcher.</summary>
     [VerificationCommand("--room-palette-fx-definitions")]
     internal static int RoomPaletteFxDefinitionsCommand()
     {

@@ -15,6 +15,7 @@ using SuperMetroid.Core.Rom;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks ending planet VRAM transfers and final-scene rendering against cartridge and native PPU data.</summary>
 internal static class EndingPlanetBoundaryVerification
 {
     /// <summary>
@@ -84,6 +85,7 @@ internal static class EndingPlanetBoundaryVerification
     /// <summary>Planet-explosion frames to serialize for the native PPU comparison, into a caller-owned scratch directory.</summary>
     internal sealed record PlanetFrameCapture(string Directory, IReadOnlySet<int> Frames);
 
+    /// <summary>Reconstructs native explosion DMA ranges and compares crossfade and flyaway pixels frame by frame.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending planet-explosion VRAM reconstruction")]
     internal static void VerifyEndingPlanetBoundary(PlanetFrameCapture? capture)
     {
@@ -149,6 +151,7 @@ internal static class EndingPlanetBoundaryVerification
         AssertEqual(0, memoryDifferences, "explosion setup executes exactly the native DMA byte ranges");
     }
 
+    /// <summary>Runs the planet VRAM and rendered-boundary comparison without frame capture.</summary>
     [VerificationCommand("--ending-planet-boundary")]
     internal static int EndingPlanetBoundaryCommand()
     {
@@ -156,6 +159,7 @@ internal static class EndingPlanetBoundaryVerification
         return 0;
     }
 
+    /// <summary>Compares explosion frame 512 with the pinned native PPU raster.</summary>
     [VerificationCommand("--ending-native-ppu")]
     internal static int EndingNativePpuCommand()
     {
@@ -163,6 +167,7 @@ internal static class EndingPlanetBoundaryVerification
         return 0;
     }
 
+    /// <summary>Compares nineteen sampled finale frames with the pinned native PPU raster.</summary>
     [VerificationCommand("--ending-native-finale")]
     internal static int EndingNativeFinaleCommand()
     {
@@ -170,6 +175,7 @@ internal static class EndingPlanetBoundaryVerification
         return 0;
     }
 
+    /// <summary>Compares five sampled explosion burst frames with native burst register setup.</summary>
     [VerificationCommand("--ending-native-burst")]
     internal static int EndingNativeBurstCommand()
     {

@@ -12,8 +12,10 @@ using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks file-select map render packets against the legacy raster path.</summary>
 internal static class FileMapSnapshotTestsVerification
 {
+    /// <summary>Compares area, room, navigation, and saved-file map scenes across capture and raster rendering.</summary>
     internal static void VerifyFileMapSnapshots()
     {
         VerifyWindowedSceneContract();
@@ -106,6 +108,7 @@ internal static class FileMapSnapshotTestsVerification
         }
     }
 
+    /// <summary>Checks window replacement pixels, round-trip serialization, and malformed nested-scene rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyWindowedSceneContract()
     {

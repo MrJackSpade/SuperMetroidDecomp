@@ -46,10 +46,14 @@ public static class RoomFxAtmosphereTilemapDefinitions
 /// </summary>
 internal sealed class RoomFxAtmosphereTilemap
 {
+    /// <summary>Rain or fog determines which tilemap attribute bits are calculated.</summary>
     private readonly RoomFxType type;
+    /// <summary>Authored character, orientation, and unconverted attribute bits for every page cell.</summary>
     internal readonly ushort[] preservedBits;
+    /// <summary>Per-cell edited attributes that differ from the calculated rain or fog defaults.</summary>
     internal readonly Dictionary<int, ushort>? customFields;
 
+    /// <summary>Separates authored visual bits from calculable atmosphere attributes in a full native page.</summary>
     public RoomFxAtmosphereTilemap(RoomFxType type, ReadOnlySpan<byte> bytes)
     {
         ushort mask = RoomFxAtmosphereTilemapDefinitions.CalculatedMask(type);

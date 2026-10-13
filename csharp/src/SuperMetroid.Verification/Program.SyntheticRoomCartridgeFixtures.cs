@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Seeds sparse cartridge address spaces with focused room PLM and enemy population records.</summary>
 internal static class SyntheticRoomCartridgeFixturesVerification
 {
     /// <summary>

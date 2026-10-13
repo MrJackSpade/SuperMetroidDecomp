@@ -46,26 +46,32 @@ internal static class DraygonCannonPlmDrawDefinitions
     /// </summary>
     internal readonly record struct Draw(bool Right, bool Shield, int Frame)
     {
+        /// <summary>Right frames draw two horizontal runs; left frames split the first row.</summary>
         internal int RunCount => Right ? 2 : 3;
+        /// <summary>Rejects a draw-run index outside this frame's native write order.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
         }
+        /// <summary>Counts cells in a horizontal cannon row or split left-side run.</summary>
         internal int WordCount(int run)
         {
             CheckRun(run);
             return Right || run == 2 ? 2 : 1;
         }
+        /// <summary>Moves left between split top-row cells and otherwise keeps the X cursor.</summary>
         internal sbyte NextX(int run)
         {
             CheckRun(run);
             return !Right && run < 2 ? (sbyte)-1 : (sbyte)0;
         }
+        /// <summary>Advances to the lower row after the right row or left split pair.</summary>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
             return run == (Right ? 0 : 1) ? (sbyte)1 : (sbyte)0;
         }
+        /// <summary>Calculates a cannon cell's collision nibble, mirror bit, and shield or damage tile.</summary>
         internal ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
@@ -78,6 +84,7 @@ internal static class DraygonCannonPlmDrawDefinitions
         }
     }
 
+    /// <summary>Decodes one of the twelve reachable cannon draw pointers into facing, shield state, and frame.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         if (!Enum.IsDefined((DraygonCannonDraw)pointer)) { draw = default; return false; }
@@ -100,10 +107,12 @@ internal static class DraygonCannonPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Enumerates only the right and left cannon lists reached by the PLM programs.</summary>
     private static IEnumerable<ushort> Pointers()
     {
         foreach (DraygonCannonDraw draw in Enum.GetValues<DraygonCannonDraw>()) yield return (ushort)draw;
     }
+    /// <summary>Builds temporary draw-list views for all reachable cannon frames.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -115,7 +124,7 @@ internal static class DraygonCannonPlmDrawDefinitions
             }
         }
     }
-    // Temporary artwork DTOs. Runtime drawing calculates cells directly.
+    /// <summary>Builds a temporary artwork draw-list DTO; runtime drawing calculates cells directly.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -130,6 +139,7 @@ internal static class DraygonCannonPlmDrawDefinitions
         list = new(pointer, runs);
         return true;
     }
+    /// <summary>Finds a reachable cannon draw list by its editable visual ID.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (ushort pointer in Pointers())
@@ -137,6 +147,7 @@ internal static class DraygonCannonPlmDrawDefinitions
         list = default;
         return false;
     }
+    /// <summary>Maps a native cannon draw pointer to its facing, condition, and pose ID.</summary>
     internal static string VisualId(ushort pointer) =>
         ClosedNativeWords.Decode<DraygonCannonDraw>(pointer, "Draygon cannon draw with a visual ID") switch
         {

@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks KiHunter body and wing instruction programs, acid spawning, and compiled visual selectors.</summary>
 internal static class KiHunterInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge oracle for KiHunter instruction verification.</summary>
     internal static void VerifyKiHunterInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKiHunterInstructionProgramDefinitions), () => VerifyKiHunterInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises thirteen flight, swoop, wing, ground, and spit lists while forbidding migrated bank-$A8 reads.</summary>
     internal static void VerifyKiHunterInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -204,6 +207,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Consumes warmed KiHunter mechanics words for a per-frame allocation check.</summary>
     private static int ProbeKiHunterInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -215,6 +219,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects runtime cartridge reads of compiled mechanics and visual selector words.</summary>
     private static CartridgeReadGuard NewKiHunterInstructionProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(KiHunterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -223,6 +228,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 KiHunterInstructionProgramDefinitions.PresentationWordAddress,
                 address => $"Production read compiled KiHunter visual byte ${address:X6}.");
 
+    /// <summary>Runs the KiHunter instruction check against the local retail cartridge image.</summary>
     [VerificationCommand("--kihunter-instruction-mechanics")]
     internal static int KihunterInstructionMechanicsCommand()
     {

@@ -16,15 +16,22 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class RoomPaletteFxSystem
 {
+    /// <summary>Native bank-$8D allocator capacity and descending handler range.</summary>
     private const int SlotCount = 8;
 
+    /// <summary>Persistent interpreter state for the eight palette-FX objects.</summary>
     internal readonly PaletteFxSlot[] slots = Enumerable.Range(0, SlotCount)
         .Select(_ => new PaletteFxSlot())
         .ToArray();
+    /// <summary>Momentary sound publications cleared at the start of each handler pass.</summary>
     private readonly List<PaletteFxSoundRequest> soundRequests = [];
+    /// <summary>Live Power Bomb state used to suppress palette-FX sound requests.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
+    /// <summary>Momentary music publications cleared at the start of each handler pass.</summary>
     private readonly List<PaletteFxMusicRequest> musicRequests = [];
+    /// <summary>Heat palette selector published by the Norfair object for the next descending-slot pass.</summary>
     internal ushort samusInHeatPaletteIndex;
+    /// <summary>Last heat palette selector applied to Samus; prevents redundant program restarts.</summary>
     internal ushort previousSamusInHeatPaletteIndex;
 
     /// <summary>
@@ -79,6 +86,7 @@ public sealed class RoomPaletteFxSystem
         bool areaMiniBossDefeated) =>
         LoadRoomCore(bus, fxPointer, doorPointer, area, equippedItems, areaMiniBossDefeated, null);
 
+    /// <summary>Clears the old room's slots and spawns the selected FX record's area-specific palette bits.</summary>
     internal void LoadRoomCore(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer,
         AreaId area, ushort equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
@@ -152,6 +160,7 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
+    /// <summary>Allocates the highest free native slot and applies definition-specific setup for Intro, Norfair, or Brinstar.</summary>
     private void Spawn(
         ushort definition,
         ushort equippedItems,
@@ -211,6 +220,7 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
+    /// <summary>Runs the slot's condition handler before timer and bytecode execution, including room heat and cutscene gates.</summary>
     private void RunPreInstruction(PaletteFxSlot slot, int slotIndex, PaletteFxConditions conditions)
     {
         var preInstruction = (PaletteFxPreInstruction)slot.PreInstruction;
@@ -316,6 +326,7 @@ public sealed class RoomPaletteFxSystem
             samusInHeatPaletteIndex);
     }
 
+    /// <summary>Executes bounded bank-$8D control words until a timed color record, wait, or delete command yields.</summary>
     private void ExecuteProgram(
         SnesCgram cgram,
         IPaletteFxColorSource colors,
@@ -437,6 +448,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} exceeded 256 leading commands at $8D:{cursor:X4}.");
     }
 
+    /// <summary>Writes a mixed color record to CGRAM, honoring inline destination skips and the native wait cursor.</summary>
     [PpuLayoutBoundary("codec: palette-FX instruction colour-index operands ($8D SetColorIndex)")]
     private static void WritePaletteRecord(
         SnesCgram cgram,
@@ -526,6 +538,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} did not terminate its color record.");
     }
 
+    /// <summary>Reads a compiled palette-FX control word and rejects an unconverted mechanics address.</summary>
     private static ushort ReadBank8dWord(ushort pointer)
     {
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
@@ -555,6 +568,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX word $8D:{pointer:X4} has no compiled mechanics or installed color definition.");
     }
 
+    /// <summary>Reads a compiled byte operand for timers, audio, or heat-palette selection.</summary>
     private static byte ReadBank8dByte(ushort pointer)
     {
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
@@ -568,15 +582,23 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX byte $8D:{pointer:X4} has no compiled mechanics definition.");
     }
 
+    /// <summary>Serializable native object state retained between palette-FX handler passes.</summary>
     internal sealed class PaletteFxSlot
     {
+        /// <summary>Definition pointer; zero marks an available object slot.</summary>
         public ushort Id { get; set; }
+        /// <summary>Byte offset into CGRAM selected by the most recent SetColorIndex command.</summary>
         public ushort ColorByteIndex { get; set; }
+        /// <summary>Pre-instruction pointer evaluated before this slot's program timer.</summary>
         public ushort PreInstruction { get; set; }
+        /// <summary>Next compiled bank-$8D command or color record for this object.</summary>
         public ushort InstructionPointer { get; set; }
+        /// <summary>Frames remaining before this object's next bytecode step.</summary>
         public NativeCountdown InstructionTimer { get; set; }
+        /// <summary>Loop counter consumed by the decrement-and-goto command.</summary>
         public NativeCountdown Timer { get; set; }
 
+        /// <summary>Releases the object and clears every native interpreter word for reuse.</summary>
         public void Clear()
         {
             Id = 0;

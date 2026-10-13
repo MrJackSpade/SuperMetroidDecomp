@@ -24,6 +24,7 @@ internal static class EndingWavySamusDefinitions
     /// <summary>$8B:E193 / CinematicFunction_PostCredits_WavySamus advances BG3Y by two per call.</summary>
     private const int VerticalStep = 2;
 
+    /// <summary>Reconstructs all 224 BG3 scanline offsets from cinematic age, retaining the setup-only first pass and native sine phase.</summary>
     internal static Position16<BgPlanePixels>[] ScrollsAtAge(int age)
     {
         var result = new Position16<BgPlanePixels>[224];

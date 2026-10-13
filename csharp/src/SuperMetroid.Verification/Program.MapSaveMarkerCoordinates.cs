@@ -8,8 +8,10 @@ using static DoorDefinitionsVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks editable save-marker coordinates against all six native area tables.</summary>
 internal static class MapSaveMarkerCoordinatesVerification
 {
+    /// <summary>Builds the independent 34-marker cartridge corpus and compares its serialized presentation.</summary>
     internal static void VerifyMapSaveMarkerCoordinates(ISnesAddressSpace rom)
     {
         var points = new Dictionary<string, Position16<MapPixels>>();
@@ -35,11 +37,14 @@ internal static class MapSaveMarkerCoordinatesVerification
         Suite(nameof(VerifyMapSaveMarkerY), () => VerifyMapSaveMarkerY(original, extracted));
     }
 
+    /// <summary>Exercises independent X edits within the map's 512-pixel width.</summary>
     private static void VerifyMapSaveMarkerX(MapSaveMarkerDocument original, byte[] extracted) =>
         Suite(nameof(VerifyMapSaveMarkerCoordinateField), () => VerifyMapSaveMarkerCoordinateField(original, extracted, vertical: false));
+    /// <summary>Exercises independent Y edits within the map's 256-pixel height.</summary>
     private static void VerifyMapSaveMarkerY(MapSaveMarkerDocument original, byte[] extracted) =>
         Suite(nameof(VerifyMapSaveMarkerCoordinateField), () => VerifyMapSaveMarkerCoordinateField(original, extracted, vertical: true));
 
+    /// <summary>Round trips single-axis and full-corpus edits while rejecting out-of-range positions.</summary>
     private static void VerifyMapSaveMarkerCoordinateField(MapSaveMarkerDocument original, byte[] extracted, bool vertical)
     {
         MapSaveMarkerLayout stock = MapSaveMarkerLayout.Load(new MemoryStream(extracted, writable: false));

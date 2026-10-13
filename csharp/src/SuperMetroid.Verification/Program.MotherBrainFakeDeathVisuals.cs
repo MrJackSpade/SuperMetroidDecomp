@@ -18,8 +18,10 @@ using static LookupMotherBrainStockVerification;
 using static MotherBrainFakeDeathPlmsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks fake-death artwork replacement while retaining Mother Brain's native collision and draw state.</summary>
 internal static class MotherBrainFakeDeathVisualsVerification
 {
+    /// <summary>Checks fake-death stock draws, live visual edits, collision isolation, override persistence, and failures.</summary>
     internal static void VerifyMotherBrainFakeDeathVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -107,6 +109,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
             "Mother Brain fake-death visuals: 22 stock draws, live row/tube edits, collision isolation, override persistence and strict failures pass.");
     }
 
+    /// <summary>Checks a selected mutation's physical block and redrawn visual tile with source reads guarded.</summary>
     private static void VerifyMotherBrainVisualDraw(PlmHeaderId header,
         Offset16<RoomBlocks> blockOffset, ushort physicalWord, ushort visualWord,
         RoomPlmMotherBrainFakeDeathVisualCatalog? visuals, ushort cameraX)
@@ -138,6 +141,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
             $"Mother Brain visual header ${(int)header:X4} reads no compiled source");
     }
 
+    /// <summary>Runs the Mother Brain fake-death visual asset suite.</summary>
     [VerificationCommand("--mother-brain-fake-death-visuals")]
     internal static int MotherBrainFakeDeathVisualsCommand()
     {

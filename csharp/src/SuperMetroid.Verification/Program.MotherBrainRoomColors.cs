@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Installed and edited Mother Brain room-color checks across entry, flash, phase two, and recovery-light CGRAM writes.</summary>
 internal static class MotherBrainRoomColorsVerification
 {
+    /// <summary>Compares installed colors with extracted retail rows through production enemy paths, then checks isolated edits, legacy migration, and malformed overrides.</summary>
     internal static void VerifyMotherBrainRoomColors(ISnesAddressSpace rom, string stock,
         string overrides, AreaMapPresentationCatalog original,
         GameplayBasePaletteCatalog initialPalettes)
@@ -177,12 +179,14 @@ internal static class MotherBrainRoomColorsVerification
             .ContentIdentity, "removing Mother Brain room override restores stock identity");
         Console.WriteLine("Mother Brain room colors: entry, 14 flash frames, final grey, phase-two and seven recovery-light palettes match native CGRAM; ROM-free production paths, isolated edits, legacy overrides and strict validation pass.");
 
+        // Change one red RGB5 channel while keeping it within the legal zero-to-31 range.
         static PaletteRgb5 Change(PaletteRgb5 color) => color with
         {
             Red = color.Red == 31 ? 30 : color.Red + 1,
         };
     }
 
+    /// <summary>Compares all seven two-slice recovery transfers with retail CGRAM and rejects a nonnative source before copying colors.</summary>
     private static void VerifyMotherBrainRecoveryLights(ISnesAddressSpace rom,
         MotherBrainRoomColorPresentation installed,
         MotherBrainRoomColorPresentation extracted)
@@ -213,6 +217,7 @@ internal static class MotherBrainRoomColorsVerification
         }
     }
 
+    /// <summary>Checks edits in both recovery-light slices reach exactly two live CGRAM words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertRecoveryLightsEdited(AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited)
@@ -237,12 +242,14 @@ internal static class MotherBrainRoomColorsVerification
             "recovery-light edits change only two selected CGRAM words");
     }
 
+    /// <summary>Constructs the native source, two destinations, and slice width for one recovery-light frame.</summary>
     private static MotherBrainBackgroundPaletteTransferRequest RecoveryRequest(ushort frame) =>
         new(frame, (uint)MotherBrainRoomColorRomData.RecoveryLightsSource(frame),
             (ushort)(MotherBrainRoomColorRomData.RecoveryLightsFirstColor * sizeof(ushort)),
             (ushort)(MotherBrainRoomColorRomData.RecoveryLightsSecondColor * sizeof(ushort)),
             MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination);
 
+    /// <summary>Checks room-entry glass and tube edits change exactly their two selected CGRAM words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertRoomEntryEdited(AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited)
@@ -266,6 +273,7 @@ internal static class MotherBrainRoomColorsVerification
             "room-entry edits change only the two selected CGRAM colors");
     }
 
+    /// <summary>Checks a selected flash/final/phase-two color edit reaches CGRAM without changing body phase or palette-program timing.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertEdited(string methodName, Func<MotherBrainBehavior, Action<MotherBrainEnemyState>> select,
         AreaMapPresentationCatalog original,
@@ -305,6 +313,7 @@ internal static class MotherBrainRoomColorsVerification
             $"edited {methodName} preserves palette-program timer");
     }
 
+    /// <summary>Binds one installed room-color catalog and CGRAM destination to a fresh Mother Brain enemy system.</summary>
     private static RoomEnemySystem CreateEnemy(ISnesAddressSpace bus, SnesCgram cgram,
         MotherBrainRoomColorPresentation? colors)
     {
@@ -316,6 +325,7 @@ internal static class MotherBrainRoomColorsVerification
     }
 
 
+    /// <summary>Seeds every CGRAM word with a distinct bounded color so unintended palette writes remain observable.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void Seed(SnesCgram cgram)
     {

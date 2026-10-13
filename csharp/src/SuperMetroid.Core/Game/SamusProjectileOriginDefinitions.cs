@@ -31,6 +31,7 @@ internal static class SamusProjectileOriginDefinitions
     };
 
 
+    /// <summary>Reads the selected X/Y muzzle offsets using the native low-nibble direction and running table layout.</summary>
     internal static (short X, short Y) Read(bool running, ushort direction)
     {
         int offset = (direction & 0x0f) * sizeof(ushort);
@@ -39,6 +40,7 @@ internal static class SamusProjectileOriginDefinitions
         return (ReadWord(x + offset), ReadWord(y + offset));
     }
 
+    /// <summary>Resolves authored muzzle words first, then reproduces adjacent cooldown bytes reached by out-of-range low-nibble directions.</summary>
     private static short ReadWord(int address)
     {
         int offset = address - SamusProjectileRomData.Origins.DefaultX;
@@ -48,8 +50,6 @@ internal static class SamusProjectileOriginDefinitions
             var muzzle = Muzzle(word >= 20, SamusProjectileDirections.At(word % 10));
             return word % 20 < 10 ? muzzle.X : muzzle.Y;
         }
-        // Resolve addresses before table ownership: low-nibble directions ten through
-        // fifteen cross into adjacent rows, and running Y eventually reaches cooldowns.
         return unchecked((short)(SnesLittleEndian.Word(SamusProjectileCooldownDefinitions.ReadByte(address), SamusProjectileCooldownDefinitions.ReadByte(address + 1))));
     }
 }

@@ -4,17 +4,23 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using static VerificationHelpersVerification;
 
+/// <summary>Confirms the extracted SPC command-port model reproduces the emulated driver (#1304).</summary>
 internal static class SpcCommandPortsVerification
 {
+    /// <summary>Updates in the recorded queue scenario.</summary>
     private const int ScenarioFrames = 120;
 
-    // Recorded from the emulated driver before SpcCommandPorts was extracted (#1304 stage 1):
-    // SHA-256 of the 120 frames' four acknowledgement bytes, and of their 48-kHz PCM.
+    /// <summary>
+    /// Recorded from the emulated driver before <see cref="SpcCommandPorts"/> was extracted (#1304 stage 1):
+    /// SHA-256 of the scenario's four acknowledgement bytes per update.
+    /// </summary>
     private const string EmulatedAcknowledgementsSha256 =
         "069F5A367FA36A896F9CEC9A45949DE1C517DA16DEC7B3195083898FFECBFF59";
+    /// <summary>SHA-256 of the same scenario's 48-kHz PCM from the emulated driver.</summary>
     private const string EmulatedPcmSha256 =
         "5D07590F2219F6AC6C69D61BF3B9BFDB69E988A2C0E34AD8C4037FD35C6B8633";
 
+    /// <summary>Audio data bank index of the Green Brinstar music upload.</summary>
     private static byte GreenBrinstarDataIndex => AudioAssetCatalogData.Music
         .Single(bank => bank.Name == "Music_GreenBrinstar").DataIndex;
 

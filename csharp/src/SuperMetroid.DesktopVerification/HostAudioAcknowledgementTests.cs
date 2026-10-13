@@ -11,8 +11,10 @@ using static DesktopVerificationSupport;
 /// </summary>
 internal static class HostAudioAcknowledgementTests
 {
+    /// <summary>Cursor moves made on the file-select screen, each queuing a menu sound.</summary>
     private const int FileSelectCursorMoves = 6;
 
+    /// <summary>Drives an audio-disabled desktop host and a plain Core session through the same file-select input.</summary>
     internal static async Task Verify()
     {
         using var directoryScratch = new TestScratchDirectory("desktop-audio-acknowledgements");
@@ -64,6 +66,7 @@ internal static class HostAudioAcknowledgementTests
         Console.WriteLine($"  Audio-disabled desktop host: SFX queues and acknowledgements match Core across {cursorRequests} cursor sound writes.");
     }
 
+    /// <summary>Requires both sessions to hold identical SFX queues and acknowledgements.</summary>
     private static void AssertSameAudio(SuperMetroidGame host, SuperMetroidGame reference, string context)
     {
         Check(host.FrameNumber == reference.FrameNumber && host.GameState == reference.GameState,

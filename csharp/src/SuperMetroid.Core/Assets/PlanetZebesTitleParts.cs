@@ -8,10 +8,13 @@ namespace SuperMetroid.Core.Assets;
 /// X=-48 and Y=-8, leaving the space empty; all parts are small and unflipped.</summary>
 internal sealed class PlanetZebesTitleParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Reconstructs the title lettering only for the Ceres destruction title backdrop.</summary>
     internal static SpriteComposition CalculateIfMatching(CeresDestructionBackdrop? backdrop, SpriteComposition supplied) =>
         backdrop == CeresDestructionBackdrop.Title
             ? supplied.CalculateIfMatching(new PlanetZebesTitleParts()) : supplied;
+    /// <summary>All non-space glyphs in the twelve-column title.</summary>
     public int Count => PlanetZebesTitleAtlas.Text.Length - 1;
+    /// <summary>Places one atlas glyph in reverse native draw order while skipping the word space.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -23,17 +26,21 @@ internal sealed class PlanetZebesTitleParts : IReadOnlyList<CompiledSpritePart>
                 unchecked((byte)-8), SnesObjAttributeWord.Create(PlanetZebesTitleAtlas.Tile(PlanetZebesTitleAtlas.Text[column]), 0, 0, 0), true);
         }
     }
+    /// <summary>Enumerates title letters from the rightmost glyph to the leftmost.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Uses the same reverse glyph order for non-generic enumeration.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Title lettering and Ceres OBJ atlas glyph selection.</summary>
 internal static class PlanetZebesTitleAtlas
 {
     /// <summary>English title selected by native8C:9654; the space occupies column6.</summary>
     internal const string Text = "PLANET ZEBES";
+    /// <summary>Column reserved for the undrawn space between PLANET and ZEBES.</summary>
     internal const int SpaceColumn = 6;
     /// <summary>Named glyph selection in the Ceres OBJ atlas: P at8F and
     /// the remaining distinct title letters L,A,N,E,T,Z,B,S at97..9E.

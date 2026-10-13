@@ -6,8 +6,10 @@ namespace SuperMetroid.Android;
 internal sealed record AndroidSettingDefinition(string Label, string Section, string Key,
     string[] Values, Func<SuperMetroidGameOptions, string> Read);
 
+/// <summary>Menu choices that read and edit the same INI settings used by the shared game host.</summary>
 internal static class AndroidSettingDefinitions
 {
+    /// <summary>Defines the editable game and audio options, their allowed menu values, and their current-value readers.</summary>
     internal static readonly AndroidSettingDefinition[] All =
     [
         new("Door-transition autosaves", "Game", "DoorTransitionAutosave", ["true", "false"], o => o.DoorTransitionAutosave.ToString().ToLowerInvariant()),

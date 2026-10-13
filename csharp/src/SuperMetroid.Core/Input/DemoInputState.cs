@@ -222,6 +222,7 @@ public sealed class DemoInputState
         PreviousNewlyPressed = NewlyPressed;
     }
 
+    /// <summary>Decodes shared bank-$91 demo opcodes or delegates private routines until a timed input record or deletion yields.</summary>
     private void ProcessInstructionList(IDemoInputProgram program)
     {
         ushort Read(ushort pointer) => program.ReadInstructionWord(pointer);
@@ -314,6 +315,7 @@ public sealed class DemoInputState
         }
     }
 
+    /// <summary>Diagnoses a non-RTS initializer or pre-instruction whose object owner supplied no callback.</summary>
     private static InvalidOperationException UnsupportedRoutine(string kind, ushort pointer) =>
         new($"Demo-input {kind} $91:{pointer:X4} was not supplied by the owning object.");
 }

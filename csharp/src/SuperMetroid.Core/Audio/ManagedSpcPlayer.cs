@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 public sealed class ManagedSpcPlayer
 {
+    /// <summary>Interpolates the native pan table into stereo DSP volumes unless a sound effect currently borrows the voice.</summary>
     internal void WriteVolume(ManagedSpcMusicChannel channel, ushort volume)
     {
         // A sound effect owns this hardware voice while its bit is set. Music state continues
@@ -48,6 +49,7 @@ public sealed class ManagedSpcPlayer
         }
     }
 
+    /// <summary>Converts a fractional note through the twelve-semitone table and instrument pitch base into DSP frequency.</summary>
     private void WritePitchInner(ManagedSpcMusicChannel channel, ushort pitch)
     {
         byte note = unchecked((byte)(SpcFixedPoint.Whole(pitch) & SpcDriverData.Music.NoteNumberMask));
@@ -70,6 +72,7 @@ public sealed class ManagedSpcPlayer
         }
     }
 
+    /// <summary>Applies the driver's high/low note correction before DSP pitch conversion.</summary>
     private void WritePitch(ManagedSpcMusicChannel channel, ushort pitch)
     {
         if (SpcFixedPoint.Whole(pitch) >= 0x34) // allow(HardwareMagnitude): native high-note correction threshold
@@ -79,6 +82,7 @@ public sealed class ManagedSpcPlayer
         WritePitchInner(channel, pitch);
     }
 
+    /// <summary>Restores eight music voices, fades, transposition and tempo to the driver's track defaults.</summary>
     private void ResetMusicChannels()
     {
         for (int index = channels.Length - 1, bit = 0x80; index >= 0; index--, bit >>= 1) // allow(BitMask): highest voice bit
@@ -107,6 +111,7 @@ public sealed class ManagedSpcPlayer
         tempo = SpcFixedPoint.WithWhole(tempo, SpcDriverData.Music.DefaultTrackTempo);
     }
 
+    /// <summary>Installs an instrument's source, envelope, gain and pitch base without replacing the channel's remembered ID.</summary>
     private void SetInstrumentWithoutSavingId(ManagedSpcMusicChannel channel, byte instrument)
     {
         if ((instrument & 0x80) != 0) // allow(BitMask): percussion instrument marker
@@ -133,12 +138,14 @@ public sealed class ManagedSpcPlayer
         channel.InstrumentPitchBase = record.PitchBase;
     }
 
+    /// <summary>Remembers the selected instrument before installing its DSP voice registers.</summary>
     private void SetInstrument(ManagedSpcMusicChannel channel, byte instrument)
     {
         channel.InstrumentId = instrument;
         SetInstrumentWithoutSavingId(channel, instrument);
     }
 
+    /// <summary>Derives the signed per-tick pitch-slide increment toward a transposed target note.</summary>
     private static void ComputePitchAdd(ManagedSpcMusicChannel channel, byte pitch)
     {
         channel.PitchTarget = unchecked((byte)(pitch & SpcDriverData.Music.NoteNumberMask));
@@ -146,6 +153,7 @@ public sealed class ManagedSpcPlayer
             channel.PitchTarget - SpcFixedPoint.Whole(channel.Pitch), channel.PitchSlideLength);
     }
 
+    /// <summary>Consumes a following slide opcode immediately after a note when no slide is already active.</summary>
     private void CheckPitchSlideToNote(ManagedSpcMusicChannel channel)
     {
         if (channel.PitchSlideLength != 0 || PeekSequenceByte(channel.PatternOrderPointer) != (byte)SpcMusicEffect.PitchSlide)
@@ -157,6 +165,7 @@ public sealed class ManagedSpcPlayer
             globalTransposition + channel.ChannelTransposition)));
     }
 
+    /// <summary>Decodes one music effect and its native operand length, updating channel or global driver state.</summary>
     internal void HandleEffect(ManagedSpcMusicChannel channel, byte rawEffect)
     {
         int tableIndex = rawEffect - SpcDriverData.Music.FirstEffect;
@@ -323,6 +332,7 @@ public sealed class ManagedSpcPlayer
         }
     }
 
+    /// <summary>Looks ahead through pattern calls, effects and loops to keep a tied note keyed on.</summary>
     private bool WantsKeyOff(ManagedSpcMusicChannel channel)
     {
         int loops = channel.SubroutineLoops;
@@ -354,6 +364,7 @@ public sealed class ManagedSpcPlayer
         throw new InvalidDataException("SPC key-off lookahead did not reach a note boundary.");
     }
 
+    /// <summary>Combines master, channel and tremolo volume with the driver's repeated fixed-point scaling.</summary>
     private void CalculateFinalVolume(ManagedSpcMusicChannel channel, byte volume)
     {
         int scaled = SpcFixedPoint.Scale(SpcFixedPoint.Whole(masterVolume), volume);
@@ -362,6 +373,7 @@ public sealed class ManagedSpcPlayer
         channel.FinalVolume = (byte)SpcFixedPoint.Scale(scaled, scaled);
     }
 
+    /// <summary>Folds the tremolo wave and applies depth before recalculating final voice volume.</summary>
     private void CalculateTremolo(ManagedSpcMusicChannel channel, byte value)
     {
         value = (value & 0x80) != 0 // allow(BitMask): tremolo waveform phase
@@ -371,12 +383,14 @@ public sealed class ManagedSpcPlayer
         CalculateFinalVolume(channel, unchecked((byte)(value ^ byte.MaxValue)));
     }
 
+    /// <summary>Marks volume dirty and samples tremolo at the current tempo accumulator.</summary>
     private void HandleTremolo(ManagedSpcMusicChannel channel)
     {
         affectedVolumeOrPitch |= 0x80; // allow(BitMask): dirty result marker
         CalculateTremolo(channel, (byte)SpcFixedPoint.Scale(channel.TremoloRate, mainTempoAccumulator));
     }
 
+    /// <summary>Folds the vibrato phase into a signed pitch offset, including the driver's deep-vibrato branch.</summary>
     private void CalculateVibratoPitch(ManagedSpcMusicChannel channel, ushort pitch, byte value)
     {
         int scaled = value << 2;
@@ -387,6 +401,7 @@ public sealed class ManagedSpcPlayer
         WritePitch(channel, AddWord(pitch, (value & 0x80) != 0 ? -delta : delta)); // allow(BitMask): vibrato direction
     }
 
+    /// <summary>Interpolates active pan and pitch sweeps between full music ticks and publishes affected DSP registers.</summary>
     private void HandlePanAndSweep(ManagedSpcMusicChannel channel)
     {
         affectedVolumeOrPitch = 0;
@@ -419,6 +434,7 @@ public sealed class ManagedSpcPlayer
             WritePitch(channel, pitch);
     }
 
+    /// <summary>Advances note key-off, pitch slide and vibrato, honoring tie lookahead before releasing the voice.</summary>
     private void HandleNoteTick(ManagedSpcMusicChannel channel)
     {
         if (channel.NoteKeyOffTicksLeft != 0 &&
@@ -465,6 +481,7 @@ public sealed class ManagedSpcPlayer
             WritePitch(channel, pitch);
     }
 
+    /// <summary>Advances channel volume, tremolo and pan envelopes for one full tempo tick.</summary>
     private void HandleChannelTick(ManagedSpcMusicChannel channel)
     {
         if (channel.VolumeFadeTicks != 0)
@@ -509,6 +526,7 @@ public sealed class ManagedSpcPlayer
             WriteVolume(channel, channel.PanValue);
     }
 
+    /// <summary>Consumes the CPU music port and advances track blocks, sequence channels and tempo state.</summary>
     private void HandleMusicCommand()
     {
         byte command = commandPorts.TakeMusicCommand();
@@ -696,6 +714,7 @@ public sealed class ManagedSpcPlayer
         currentChannelBit = 0;
     }
 
+    /// <summary>Resolves a numbered track's top-level pointer and resets its music-channel state.</summary>
     private void StartTrack(byte track)
     {
         musicPortToSnes = track;
@@ -705,6 +724,7 @@ public sealed class ManagedSpcPlayer
         keyOff |= unchecked((byte)~channelOnMask);
     }
 
+    /// <summary>Applies note or percussion pitch, volume and key-on state to the selected music voice.</summary>
     private void PlayNote(ManagedSpcMusicChannel channel, byte note)
     {
         if (note >= SpcDriverData.Music.FirstPercussionNote)
@@ -826,6 +846,7 @@ public sealed class ManagedSpcPlayer
     private void HandleSoundLibraryCommand(int libraryIndex, SpcSoundEffectPoll poll) =>
         ApplySoundLibraryCommand(libraryIndex, poll.Changed, poll.Command);
 
+    /// <summary>Applies native library priority/cancellation gates, then selects a new sound stream or advances the active one.</summary>
     private void ApplySoundLibraryCommand(int libraryIndex, bool changed, byte command)
     {
         ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
@@ -938,6 +959,7 @@ public sealed class ManagedSpcPlayer
         }
     }
 
+    /// <summary>Allocates borrowed voices on first service and then ticks each sound-effect stream.</summary>
     private void ProcessSoundLibrary(int libraryIndex)
     {
         ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
@@ -958,6 +980,7 @@ public sealed class ManagedSpcPlayer
             RunSoundChannel(library, channel);
     }
 
+    /// <summary>Scans hardware voices high to low and captures music state before assigning them to a sound library.</summary>
     private void InitializeSoundLibrary(
         int libraryIndex,
         ManagedSpcSoundLibrary library,
@@ -1016,6 +1039,7 @@ public sealed class ManagedSpcPlayer
         }
     }
 
+    /// <summary>Releases a borrowed DSP voice and restores its music instrument, pan and volume ownership.</summary>
     private void ResetSoundChannel(ManagedSpcSoundLibrary library, ManagedSpcSoundChannel soundChannel)
     {
         soundChannel.Disabled = SpcDriverData.SoundEffects.Active;
@@ -1037,6 +1061,7 @@ public sealed class ManagedSpcPlayer
     }
 
 
+    /// <summary>Interprets one sound stream's timed note, repeat, noise, ADSR and pitch-slide commands.</summary>
     private void RunSoundChannel(ManagedSpcSoundLibrary library, ManagedSpcSoundChannel soundChannel)
     {
         if (soundChannel.Disabled == SpcDriverData.SoundEffects.Active)
@@ -1165,20 +1190,24 @@ public sealed class ManagedSpcPlayer
             SnesLittleEndian.Word(soundChannel.Subnote, soundChannel.Note))));
     }
 
+    /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
     [SpcMemoryAccess]
     internal readonly byte[] ram = new byte[SpcDriverData.ApuRamSize];
-    // Input latches, sound-effect acknowledgement ports and the driver timer (#1304).
+    /// <summary>Input latches, sound-effect acknowledgement ports and the driver timer (#1304).</summary>
     internal readonly SpcCommandPorts commandPorts = new();
-    // Output port 0: the sequencer's echo of the playing track.
+    /// <summary>Output port zero: the sequencer's echo of the playing track.</summary>
     internal byte musicPortToSnes;
+    /// <summary>Eight music sequencer states that continue advancing under borrowed DSP voices.</summary>
     private readonly ManagedSpcMusicChannel[] channels = Enumerable
         .Range(0, SpcDriverData.ChannelCount)
         .Select(index => new ManagedSpcMusicChannel { Index = unchecked((byte)index) })
         .ToArray();
+    /// <summary>Priority, mode and voice-allocation state for the three SFX libraries.</summary>
     internal readonly ManagedSpcSoundLibrary[] soundLibraries = Enumerable
         .Range(0, SpcDriverData.SoundEffects.LibraryCount)
         .Select(_ => new ManagedSpcSoundLibrary())
         .ToArray();
+    /// <summary>Per-library SFX instruction cursors and borrowed voice state.</summary>
     internal readonly ManagedSpcSoundChannel[][] soundChannels =
     [
         Enumerable.Range(0, SpcDriverData.SoundEffects.LibraryOneChannelCount)
@@ -1189,41 +1218,77 @@ public sealed class ManagedSpcPlayer
             .Select(_ => new ManagedSpcSoundChannel()).ToArray(),
     ];
 
+    /// <summary>DSP renderer reading BRR and echo data from this driver's APU RAM.</summary>
     internal readonly ManagedSnesDsp dsp;
+    /// <summary>Music block countdown before selecting the next top-level phrase.</summary>
     private ushort counter;
+    /// <summary>Dirty marker shared by pan/tremolo and pitch/vibrato publication.</summary>
     private byte affectedVolumeOrPitch;
+    /// <summary>Hardware voice bits currently borrowed by SFX libraries.</summary>
     private byte channelOnMask;
+    /// <summary>Music sequence fast-forward flag written by its control effect.</summary>
     private byte fastForward;
+    /// <summary>Current track's top-level phrase-list address.</summary>
     private ushort musicTopLevelPointer;
+    /// <summary>Remaining repetitions of the current top-level music block.</summary>
     private byte blockCount;
+    /// <summary>Pending DSP voice key-on bits published by the next loop-part-one pass.</summary>
     internal byte keyOn;
+    /// <summary>Pending DSP voice key-off bits published before key-on.</summary>
     internal byte keyOff;
+    /// <summary>One-hot music voice bit selected during descending channel traversal.</summary>
     private byte currentChannelBit;
+    /// <summary>Current DSP flags, including noise rate and echo-write disable.</summary>
     internal byte dspFlags;
+    /// <summary>Voice mask whose DSP noise generator is enabled.</summary>
     internal byte noiseEnable;
+    /// <summary>Voice mask admitted to the DSP echo path after settling.</summary>
     internal byte echoEnable;
+    /// <summary>Signed countdown while a changed echo delay settles.</summary>
     internal byte echoStoredTime;
+    /// <summary>Requested DSP echo delay byte.</summary>
     internal byte echoDelay;
+    /// <summary>Signed DSP echo feedback written after the delay settles.</summary>
     internal byte echoFeedback;
+    /// <summary>Semitone offset applied to note and slide targets across the track.</summary>
     private byte globalTransposition;
+    /// <summary>Carry accumulator scheduling full music ticks and intermediate sweeps.</summary>
     private byte mainTempoAccumulator;
+    /// <summary>Current fixed-point music tempo selected by track or fade effects.</summary>
     private ushort tempo;
+    /// <summary>Remaining full ticks in a tempo fade.</summary>
     private byte tempoFadeTicks;
+    /// <summary>Whole-byte tempo endpoint for an active fade.</summary>
     private byte tempoFadeTarget;
+    /// <summary>Signed fixed-point increment applied per tempo-fade tick.</summary>
     private ushort tempoFadeAdd;
+    /// <summary>Global fixed-point music volume before per-channel scaling.</summary>
     private ushort masterVolume;
+    /// <summary>Remaining full ticks in a master-volume fade.</summary>
     private byte masterVolumeFadeTicks;
+    /// <summary>Whole-byte endpoint for a master-volume fade.</summary>
     private byte masterVolumeFadeTarget;
+    /// <summary>Signed fixed-point master-volume increment per tick.</summary>
     private ushort masterVolumeFadeAdd;
+    /// <summary>Music voices whose volume registers need a fresh DSP write.</summary>
     private byte volumeDirty;
+    /// <summary>Base instrument ID for the track's percussion-note mapping.</summary>
     private byte percussionBaseId;
+    /// <summary>Fixed-point left echo volume before DSP publication.</summary>
     internal ushort echoVolumeLeft;
+    /// <summary>Fixed-point right echo volume before DSP publication.</summary>
     internal ushort echoVolumeRight;
+    /// <summary>Left echo-volume increment per fade tick.</summary>
     private ushort echoVolumeFadeAddLeft;
+    /// <summary>Right echo-volume increment per fade tick.</summary>
     private ushort echoVolumeFadeAddRight;
+    /// <summary>Remaining ticks of a stereo echo-volume fade.</summary>
     private byte echoVolumeFadeTicks;
+    /// <summary>Left echo-volume target when its fade ends.</summary>
     private byte echoVolumeFadeTargetLeft;
+    /// <summary>Right echo-volume target when its fade ends.</summary>
     private byte echoVolumeFadeTargetRight;
+    /// <summary>Last DSP delay value, used to detect a requested echo-buffer reconfiguration.</summary>
     private byte lastWrittenEchoDelay;
 
     /// <summary>Creates an independent SPC sequencer and DSP over owned 64-KiB APU RAM, applying native driver reset state without loading an audio bank or opening a host audio device.</summary>
@@ -1416,6 +1481,7 @@ public sealed class ManagedSpcPlayer
         dsp.CopyResampledSamples(destination, SpcDriverData.HostStereoFramesPerVideoFrame);
     }
 
+    /// <summary>Resets DSP/work RAM and publishes the driver's initial echo and master-register state.</summary>
     private void InitializeDriver()
     {
         dsp.Reset();
@@ -1459,6 +1525,7 @@ public sealed class ManagedSpcPlayer
         keyOff = keyOn = 0;
     }
 
+    /// <summary>Advances sound and music accumulators, servicing latched commands only on their native carry ticks.</summary>
     private void LoopPartTwo(SpcDriverTick tick)
     {
         byte ticks = tick.Ticks;
@@ -1496,6 +1563,7 @@ public sealed class ManagedSpcPlayer
         }
     }
 
+    /// <summary>Disables echo during delay changes, computes its countdown and selects the native buffer page.</summary>
     private void SetupEchoDelay(byte requestedDelay)
     {
         echoDelay = requestedDelay;
@@ -1520,6 +1588,7 @@ public sealed class ManagedSpcPlayer
         Dsp.Global.WriteEchoBufferPage(echoPage);
     }
 
+    /// <summary>Typed register writer over the shared managed S-DSP.</summary>
     private SnesDspControls Dsp => new(dsp);
 
     /// <summary>
@@ -1535,5 +1604,6 @@ public sealed class ManagedSpcPlayer
     }
 
 
+    /// <summary>Applies signed arithmetic with the SPC driver's 16-bit word wrap.</summary>
     private static ushort AddWord(ushort left, int right) => unchecked((ushort)(left + right));
 }

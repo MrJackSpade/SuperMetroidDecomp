@@ -16,16 +16,19 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroRinkaSystem
 {
-    // Native cinematic sprite slots: Mother Brain owns slot 0 and the text caret slot 15,
-    // so the spawner and its Rinkas live in 1..14. $8B:938A spawns into the highest free
-    // slot and $8B:93EF/$8B:9746 walk from the highest slot down.
+    /// <summary>Highest freeable cinematic slot; the invisible spawner starts here while Mother Brain owns slot zero.</summary>
     private const int SpawnerSlot = 14;
+    /// <summary>Lowest slot available to Rinkas; the native pass visits slots 14 down through one.</summary>
     private const int LowestSlot = 1;
 
+    /// <summary>Native cinematic slots shared by the spawner and its four Rinkas.</summary>
     internal readonly IntroDiscoverySprite?[] slots = new IntroDiscoverySprite?[SpawnerSlot + 1];
+    /// <summary>Invisible actor whose instruction list schedules the two spawn pairs.</summary>
     internal readonly IntroDiscoverySprite spawner;
+    /// <summary>Prevents allocating Rinkas after Mother Brain's explosions occupy the shared slot range.</summary>
     private bool spawnsForbidden;
 
+    /// <summary>Creates the invisible spawner in the highest free native slot before its timed instruction list runs.</summary>
     public IntroRinkaSystem()
     {
         // $8B:AEB8 spawns the invisible spawner while slots 1..14 are all free. Reusing the
@@ -89,6 +92,7 @@ internal sealed class IntroRinkaSystem
         }
     }
 
+    /// <summary>Handles the two spawner commands, allocating Rinkas zero and one or two and three.</summary>
     private ushort HandleSpawnerInstruction(IntroRinkaSpawnerInstruction opcode, ushort next)
     {
         switch (opcode)
@@ -108,6 +112,7 @@ internal sealed class IntroRinkaSystem
         }
     }
 
+    /// <summary>Starts a Rinka's movement, selecting the sole hit route for parameter zero and miss routes for the others.</summary>
     private static ushort HandleRinkaInstruction(
         IntroDiscoverySprite rinka,
         IntroRinkaInstruction opcode,
@@ -125,6 +130,7 @@ internal sealed class IntroRinkaSystem
         return next;
     }
 
+    /// <summary>Allocates one definition-selected Rinka in the highest available cinematic slot.</summary>
     private void Spawn(int parameter)
     {
         if (spawnsForbidden)
@@ -152,6 +158,7 @@ internal sealed class IntroRinkaSystem
         slots[slot] = rinka;
     }
 
+    /// <summary>Moves a Rinka, publishes Samus knockback on the hit route, or deletes it at its exit bounds.</summary>
     private static void RunPreInstruction(
         IntroDiscoverySprite rinka,
         SamusState samus,
@@ -198,6 +205,7 @@ internal sealed class IntroRinkaSystem
         }
     }
 
+    /// <summary>Advances horizontal whole motion plus a half-pixel fractional carry with native word wrapping.</summary>
     private static void MoveHalfPixelX(IntroDiscoverySprite rinka, int wholeDelta)
     {
         SnesFixedPosition x = rinka.Position.X;
@@ -207,6 +215,7 @@ internal sealed class IntroRinkaSystem
             unchecked((ushort)(x.Whole + wholeDelta + carry)), unchecked((ushort)subSum)));
     }
 
+    /// <summary>Advances the Rinka's vertical half-pixel fraction and carries into its whole position.</summary>
     private static void MoveHalfPixelY(IntroDiscoverySprite rinka)
     {
         SnesFixedPosition y = rinka.Position.Y;

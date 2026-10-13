@@ -40,9 +40,13 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
     /// <summary>Five irregular final flicker holds at $86:D407-D417. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static ReadOnlySpan<ushort> CrackFlickerTailDurations => [2,3,6,9,8];
 
+    /// <summary>Calculates the ten bank-$86 shard entry pointers from their native spawn ordinals.</summary>
     internal static NoobTubeShardProgramSequence ShardInstructionLists => default;
+    /// <summary>Mechanics words covering crack, shard, and released-air-bubble control programs.</summary>
     public static int MechanicsWordCount => 207;
+    /// <summary>Spritemap operand words selected by those programs and owned by installed presentation.</summary>
     public static int PresentationWordCount => 90;
+    /// <summary>Calculates one mechanics address and value in native program order across crack, shard, and bubble lists.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -63,6 +67,7 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
         return new((ushort)(ReleasedAirBubble+70),(ushort)EnemyProjectileInstruction.Delete);
     }
 
+    /// <summary>Maps a visual-selector ordinal to its native bank-$86 operand address, including the compact ninth shard.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -82,6 +87,7 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
         return (ushort)(ReleasedAirBubble+28+4*(index-79));
     }
 
+    /// <summary>Calculates a crack animation or control word through flicker, falling, and counted deletion.</summary>
     private static InstructionMechanicsWord CrackWord(int index)
     {
         if (index < 6) return new((ushort)(Crack+4*index),(ushort)Math.Max(6,12-2*index));
@@ -104,6 +110,7 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Calculates a shard's timer, flicker, fall handoff, repeat branch, or deletion word.</summary>
     private static InstructionMechanicsWord ShardWord(int shard,int index)
     {
         ushort start = ShardInstructionLists[shard];
@@ -135,11 +142,13 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
         };
         return new((ushort)(start+offset),value);
     }
+    /// <summary>Recognizes the crack, glass shard, and released-air-bubble projectile kinds served by these programs.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.NoobTubeCrack or
         RoomEnemyProjectileKind.NoobTubeShard or
         RoomEnemyProjectileKind.NoobTubeReleasedAirBubble;
 
+    /// <summary>Finds a compiled mechanics value by native pointer and rejects visual operands or unrelated bank-$86 data.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
@@ -180,5 +189,6 @@ public readonly struct NoobTubeShardProgramSequence : IReadOnlyList<ushort>
     {
         for(int index=0;index<Count;index++) yield return this[index];
     }
+    /// <summary>Enumerates the same ten shard pointers through the non-generic collection interface.</summary>
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 }

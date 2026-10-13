@@ -18,7 +18,9 @@ internal abstract class KraidArmInstructionProgramDefinitions
     /// <summary><c>InstList_KraidArm_Dying_PreparingToLungeForward</c> at $A7:8AF0.</summary>
     internal const ushort DyingOrPreparingToLunge = 0x8af0;
 
+    /// <summary>Control-word count across normal, slow, rising/sinking, and final arm programs.</summary>
     public static int MechanicsWordCount => 2 * 21 + 20 + 4;
+    /// <summary>Spritemap-selector count across the three full loops and three final frames.</summary>
     public static int PresentationWordCount => 3 * 18 + 3;
 
     /// <summary>Normal and slow loops each have eighteen frames, a health

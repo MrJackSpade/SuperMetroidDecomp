@@ -30,8 +30,10 @@ public enum EscapeEtecoonPreInstruction : ushort
 /// </summary>
 public sealed class EscapeEtecoonEnemyState
 {
+    /// <summary>Underlying enemy slot whose common variables A and F carry Etecoon's speed and bank-$B3 callback.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects escape Etecoon's common WRAM words without allocating parallel movement state.</summary>
     internal EscapeEtecoonEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Variable A, a signed 8.8 horizontal speed consumed by <c>$B3:E680</c>.</summary>
@@ -57,7 +59,9 @@ public sealed class EscapeEtecoonEnemyState
 /// </summary>
 public sealed class EscapeDachoraEnemyState
 {
+    /// <summary>Native Dachora enemy slot; movement remains in its bank-$B3 instruction lists.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Retains the underlying slot for debugger inspection of script-driven Dachora state.</summary>
     internal EscapeDachoraEnemyState(RoomEnemySlot slot) => _slot = slot;
 }

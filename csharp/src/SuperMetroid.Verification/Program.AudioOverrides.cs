@@ -13,8 +13,10 @@ using SuperMetroid.Core.Frontend;
 using static AudioInstrumentsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks persistent audio overrides and their contribution to installed content identity.</summary>
 internal static class AudioOverridesVerification
 {
+    /// <summary>Checks initialization, instrument edits, stock repair, and malformed override rejection.</summary>
     internal static void VerifyPersistentAudioOverrides()
     {
         string source = RepositoryInstallation.Installation.AudioDirectory;
@@ -132,6 +134,7 @@ internal static class AudioOverridesVerification
             "stable installation identity, compatibility guards and loud corruption failures pass.");
     }
 
+    /// <summary>Checks component digests and build identity affect compatibility warnings independently.</summary>
     internal static void VerifyGameContentIdentityComposition()
     {
         string audio = new('A', 64);
@@ -185,6 +188,7 @@ internal static class AudioOverridesVerification
             "unexplained aggregate drift cannot pass component comparison");
     }
 
+    /// <summary>Runs persistent audio override checks from the command dispatcher.</summary>
     [VerificationCommand("--audio-overrides")]
     internal static int AudioOverridesCommand()
     {

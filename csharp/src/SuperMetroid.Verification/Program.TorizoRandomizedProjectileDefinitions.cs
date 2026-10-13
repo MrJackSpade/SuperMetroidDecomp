@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Bomb and Golden Torizo projectile tuples and live randomized spawns.</summary>
 internal static class TorizoRandomizedProjectileDefinitionsVerification
 {
+    /// <summary>Compares eight five-word tuples with the cartridge and checks RNG-adjusted projectiles.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo randomized projectile definitions")]
     internal static void VerifyTorizoRandomizedProjectileDefinitions(
         SuperMetroidAddressSpace rom)
@@ -95,6 +97,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             "Torizo randomized projectiles: all forty tuple words, signed-jitter boundaries, and eight real Bomb/Golden orb, egg and eye-beam spawns pass with every tuple forbidden.");
     }
 
+    /// <summary>Checks each direction's spawner uses its compiled instruction, offset, and velocity policy.</summary>
     private static void VerifyTorizoRandomizedSpawn(
         ISnesAddressSpace guarded,
         string methodName,
@@ -129,6 +132,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         }
     }
 
+    /// <summary>Rejects live reads of all eight migrated projectile tuple ranges.</summary>
     private static CartridgeReadGuard NewTorizoRandomizedProjectileReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x86ac08 and < 0x86ac1c or
                 >= 0x86ac99 and < 0x86acad or

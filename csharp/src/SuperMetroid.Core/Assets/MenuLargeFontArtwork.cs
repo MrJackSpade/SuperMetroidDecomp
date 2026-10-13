@@ -14,10 +14,14 @@ namespace SuperMetroid.Core.Assets;
 /// Replacing their coordinates with cases would merely recite the artwork.</summary>
 internal sealed class MenuLargeFontArtwork
 {
+    /// <summary>Reviewed native tile span includes the transparent $0F cell and selected large-letter halves.</summary>
     internal const int TileCount = 43;
+    /// <summary>Index-14 ink silhouettes, one eight-bit row per selected nonblank tile.</summary>
     internal readonly byte[] faces = new byte[(TileCount - 1) * 8];
+    /// <summary>Authored pixels where the native shading departs from the shared shadow rule.</summary>
     internal readonly Dictionary<int, byte>? edits;
 
+    /// <summary>Separates supplied letter ink from its calculable shadow and retains only nonuniform art edits.</summary>
     internal MenuLargeFontArtwork(IndexedPngImage image)
     {
         foreach (int tile in Tiles())
@@ -38,16 +42,19 @@ internal sealed class MenuLargeFontArtwork
     internal static bool Contains(int tile) => tile is >= 0x0a and <= 0x0f or 0x11 or 0x17 or >= 0x1a and <= 0x1f or
         >= 0x21 and <= 0x27 or >= 0x2b and <= 0x2d or 0x2f or 0x30 or 0x31 or
         >= 0x33 and <= 0x3b or >= 0x3e and <= 0x42 or 0x50 or 0x52;
+    /// <summary>Enumerates the reviewed large-letter cell set in native tile order.</summary>
     private static IEnumerable<int> Tiles()
     {
         for (int tile = 0; tile <= 0x52; tile++) if (Contains(tile)) yield return tile;
     }
+    /// <summary>Compacts a native tile number into the stored ink-row array, omitting transparent tile $0F.</summary>
     private static int Index(int tile)
     {
         int index = 0;
         for (int candidate = 0; candidate < tile; candidate++) if (candidate != 0x0f && Contains(candidate)) index++;
         return index;
     }
+    /// <summary>Finds the upper letter half when a lower half's shadow needs ink across the tile boundary.</summary>
     private static int UpperHalf(int tile) => tile switch
     {
         0x1a => 0x0a, // A
@@ -75,6 +82,7 @@ internal sealed class MenuLargeFontArtwork
         0x52 => 0x42, // Z
         _ => -1,
     };
+    /// <summary>Retrieves the authored pixel when it differs from the calculated ink/shadow basis.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
@@ -82,6 +90,7 @@ internal sealed class MenuLargeFontArtwork
             ? pixel : Basis(tile, point);
     }
 
+    /// <summary>Calculates index-13 shadow from index-14 ink, including touching corners and upper-half continuation.</summary>
     private byte Basis(int tile, Position16<CharacterPixels> point)
     {
         if (tile == 0x0f) return 0;

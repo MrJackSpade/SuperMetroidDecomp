@@ -12,23 +12,32 @@ internal static class RoomPlmBombBlockProgramDefinitions
     /// <summary>Projectile-triggered library-two sound at the eight $84:CC3C-$CD3E heads.</summary>
     internal const byte ProjectileBreakSoundId = 0x0a;
 
+    /// <summary>One bomb-block shape's collision and projectile entries, shared tail, and respawn behavior.</summary>
     internal readonly record struct Program(
         ushort CollisionHead, ushort ReactionHead, bool Respawns, int Dimension)
     {
+        /// <summary>Whether the program restores one block without a linked shape.</summary>
         internal bool SingleBlock => Dimension == 0;
+        /// <summary>First animation word after the projectile sound operand.</summary>
         internal ushort Tail => checked((ushort)(ReactionHead + 3));
+        /// <summary>Respawning blocks play a reverse reveal after the forward break frames.</summary>
         internal int FrameCount => Respawns ? 7 : 4;
+        /// <summary>First word following all animation frames.</summary>
         internal ushort Terminal => checked((ushort)(Tail + 4 * FrameCount));
     }
 
+    /// <summary>Four bomb-block sizes in each of the respawning and permanent groups.</summary>
     internal const int ProgramCount = 8;
 
-    // BTS low bits select size; bit two selects permanent versus respawning.
-    // The collision and projectile heads enter the same shape-specific tail.
+    /// <summary>
+    /// Selects size from the low BTS bits and permanence from bit two. Collision and
+    /// projectile heads enter the same shape-specific animation tail.
+    /// </summary>
     internal static Program ProgramAt(int index) => new(
         RoomPlmInstructionLists.CollisionBombByReactionIndex(index),
         RoomPlmInstructionLists.ReactionBombByReactionIndex(index), index < 4, index & 3);
 
+    /// <summary>Resolves animation and linked-block restore draw operands separately from collision payloads.</summary>
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -57,6 +66,7 @@ internal static class RoomPlmBombBlockProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves native sound, branch, frame-delay, and terminal control words.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -111,6 +121,7 @@ internal static class RoomPlmBombBlockProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves the distinct collision and projectile break sound operands.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         for (int index = 0; index < ProgramCount; index++)

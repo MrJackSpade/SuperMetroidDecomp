@@ -11,6 +11,7 @@ internal static class RoomPlmSharedDeleteProgramDefinitions
     /// <summary>$84:AAE4, high byte of the same sole opcode.</summary>
     internal const ushort End = Start + 1;
 
+    /// <summary>Recognizes only the shared delete list's opcode word, not the delete handler address.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address == Start)
@@ -22,9 +23,9 @@ internal static class RoomPlmSharedDeleteProgramDefinitions
         return false;
     }
 
+    /// <summary>Reads either byte of the sole little-endian delete opcode at $84:AAE3-AAE4.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        // The low then high byte of the sole opcode word.
         if (address is < Start or > End)
         {
             value = 0;

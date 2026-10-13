@@ -4,6 +4,7 @@ using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
+/// <summary>Uses compiler fixtures to check that parent service contracts expose only their intended child capabilities.</summary>
 internal static class ParameterContractsTests
 {
     /// <summary>
@@ -46,6 +47,7 @@ internal static class ParameterContractsTests
         Console.WriteLine("#633: parameter contracts compose child capabilities and reject unrelated or omitted ones.");
     }
 
+    /// <summary>Compiles a caller statement and compares its diagnostics to the required capability boundary.</summary>
     private static void VerifyContract(string description, string statement, string? expectedError = null)
     {
         string source = $$"""

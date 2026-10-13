@@ -15,6 +15,7 @@ using SuperMetroid.Core.Assets;
 using static EnemyContentIdentityFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks canonical identity and compatibility reporting for the selected enemy artwork bundle.</summary>
 internal static class EnemyContentIdentityVerification
 {
     /// <summary>Tests this statically inventoried bundle; it never runs gameplay to discover reads.</summary>
@@ -61,6 +62,7 @@ internal static class EnemyContentIdentityVerification
             [KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, digest)]);
     }
 
+    /// <summary>Checks that legacy OAM, extended-frame, and projectile overrides inherit current stock identities.</summary>
     private static void VerifyLegacyEnemyIdentityMerges()
     {
         var baseline = new EnemyIdentityFixture();
@@ -109,6 +111,7 @@ internal static class EnemyContentIdentityVerification
             "inherited projectile program-frame changes contribute to the selected identity");
     }
 
+    /// <summary>Runs selected enemy-artwork identity and legacy-merge checks.</summary>
     [VerificationCommand("--enemy-content-identity")]
     internal static int EnemyContentIdentityCommand()
     {

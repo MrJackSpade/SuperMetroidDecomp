@@ -13,8 +13,10 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Crystal Flash movement, palette and input ownership across Mother Brain, Super Metroid and Ceres interruptions.</summary>
 internal static class CinematicCrystalFlashVerification
 {
+    /// <summary>Replays each cinematic interruption around the active Flash window and compares retained or replaced handlers with the native trace.</summary>
     internal static void VerifyCinematicCrystalFlash(string nativeTracePath)
     {
         Suite(nameof(VerifyNativeCinematicFlashOwnership), () => VerifyNativeCinematicFlashOwnership(nativeTracePath));
@@ -187,6 +189,7 @@ internal static class CinematicCrystalFlashVerification
             "Cinematic Crystal Flash: native ownership, Mother Brain beta suspension/resume, Super Metroid success/failure, immobility/X-Ray recovery and Ceres replacement pass.");
     }
 
+    /// <summary>Reads the recorded native ownership rows to distinguish preserved movement pointers from Ceres replacement and completed Flash timing.</summary>
     private static void VerifyNativeCinematicFlashOwnership(string path)
     {
         string[] lines = File.ReadAllLines(path);
@@ -244,6 +247,7 @@ internal static class CinematicCrystalFlashVerification
             "native post-crouch Flash restores ordinary input");
     }
 
+    /// <summary>Creates a retail-backed runtime with controlled resources and advances Flash to the selected movement-call boundary.</summary>
     private static (SuperMetroidAddressSpace Bus, SuperMetroidRuntime Runtime, SamusState Samus)
         CreateCinematicFlashRuntime(int movementCalls, bool admitFlash = true)
     {
@@ -280,6 +284,7 @@ internal static class CinematicCrystalFlashVerification
         return (bus, runtime, samus);
     }
 
+    /// <summary>Runs cinematic Flash ownership verification against the pinned native trace.</summary>
     [VerificationCommand("--cinematic-flash")]
     internal static int CinematicFlashCommand()
     {

@@ -12,13 +12,21 @@ namespace SuperMetroid.Core.Rendering;
 /// </remarks>
 public sealed class LatestRenderFrameMailbox
 {
+    /// <summary>Serializes ownership transfer and generation changes without holding the lock during rendering.</summary>
     internal readonly Lock sync = new();
+    /// <summary>At most one unpublished immutable visual packet; a newer publish replaces it.</summary>
     internal RenderFrameSnapshot? pending;
+    /// <summary>Current simulation load/reset identity accepted for publication.</summary>
     internal long generation;
+    /// <summary>Highest published sequence, retained across generations to reject rewinds.</summary>
     private long lastSequence;
+    /// <summary>Total valid publications observed by this mailbox.</summary>
     internal long published;
+    /// <summary>Total packets claimed by a consumer.</summary>
     internal long taken;
+    /// <summary>Packets superseded by a newer publication before consumption.</summary>
     internal long replaced;
+    /// <summary>Pending packets discarded on a load/reset generation change.</summary>
     internal long invalidated;
 
     /// <summary>Creates an empty visual mailbox for one positive simulation load/reset generation.</summary>

@@ -14,6 +14,7 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static RoomFxAnimatedTileArtworkVerification;
 
+/// <summary>Checks Maridia sand animation selection, timing, NMI transfers, and room departure.</summary>
 internal static class SandAnimatedTilesVerification
 {
     /// <summary>ROM-free bank-$83 selection, bank-$87 cadence, and NMI transfer regression for sand.</summary>
@@ -91,6 +92,7 @@ internal static class SandAnimatedTilesVerification
         Console.WriteLine("  Sand animation: FX selection, timed loops, NMI visibility, and room reset agree.");
     }
 
+    /// <summary>Runs the ROM-free sand animation transfer check.</summary>
     [VerificationCommand("--sand-animated-tiles")]
     internal static int SandAnimatedTilesCommand()
     {

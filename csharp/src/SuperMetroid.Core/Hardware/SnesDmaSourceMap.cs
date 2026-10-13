@@ -3,9 +3,13 @@ namespace SuperMetroid.Core.Hardware;
 /// <summary>The mutually exclusive mapped sources a PPU DMA transfer can read.</summary>
 internal enum SnesDmaSourceKind
 {
+    /// <summary>Direct WRAM bank or its low-bank mirror supplies the DMA byte.</summary>
     WorkRam,
+    /// <summary>A low-address SRAM window supplies the DMA byte.</summary>
     SaveRam,
+    /// <summary>The upper LoROM cartridge window supplies the DMA byte.</summary>
     Cartridge,
+    /// <summary>No mapped memory source owns this bank and offset.</summary>
     Unmapped,
 }
 
@@ -16,6 +20,7 @@ internal enum SnesDmaSourceKind
 /// </summary>
 internal static class SnesDmaSourceMap
 {
+    /// <summary>Classifies one DMA A-bus address after offset wrapping, honoring direct WRAM, mirrors, SRAM, and LoROM windows.</summary>
     internal static SnesDmaSourceKind Classify(SnesAddress address)
     {
         byte bank = address.Bank;

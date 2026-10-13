@@ -15,6 +15,7 @@ internal sealed record PlmInstructionFormat(int Length, int[] Words, int[] Bytes
     internal static PlmInstructionFormat? Get(ushort opcode) =>
         Enum.IsDefined((RoomPlmInstruction)opcode) ? Get((RoomPlmInstruction)opcode) : null;
 
+    /// <summary>Assigns operand widths and branch edges from the PLM interpreter's concrete opcode contracts.</summary>
     private static PlmInstructionFormat? Get(RoomPlmInstruction opcode) => opcode switch
     {
         RoomPlmInstruction.Delete or RoomPlmInstruction.Sleep =>

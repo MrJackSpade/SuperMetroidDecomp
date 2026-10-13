@@ -25,7 +25,9 @@ internal abstract class CeresFallingDebrisInstructionProgramDefinitions
     /// </summary>
     internal const ushort Dark = 0x9756;
 
+    /// <summary>One duration and one sleep word for each of the two debris poses.</summary>
     public static int MechanicsWordCount => 4;
+    /// <summary>One visual operand for each of the light and dark debris poses.</summary>
     public static int PresentationWordCount => 2;
 
     /// <summary>Two six-byte programs each display one frame for one tick, then sleep.</summary>
@@ -49,10 +51,13 @@ internal abstract class CeresFallingDebrisInstructionProgramDefinitions
             throw new IndexOutOfRangeException();
         return (ushort)(Light + 6 * index + 2);
     }
+    /// <summary>Identifies the light and dark Ceres debris projectile kinds handled by these programs.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.CeresFallingDebrisLight or
         RoomEnemyProjectileKind.CeresFallingDebrisDark;
 
+    /// <summary>Reads a compiled frame duration or sleep opcode, rejecting visual
+    /// operands and unrelated bank-$86 instruction addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

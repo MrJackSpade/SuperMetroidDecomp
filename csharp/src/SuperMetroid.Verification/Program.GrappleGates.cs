@@ -18,8 +18,10 @@ using static DownwardGatePlmsVerification;
 using static GrappleDoorsVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 
+/// <summary>Checks that rejected Grapple shots leave both green gate sprites visible.</summary>
 internal static class GrappleGatesVerification
 {
+    /// <summary>Compares gate OAM across twelve frames around each rejected Grapple impact and checks the dud sound.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyGrappleGreenGateVisibility()
     {
@@ -69,6 +71,7 @@ internal static class GrappleGatesVerification
         Console.WriteLine("  Grapple green gates: both sides retain exact gate OAM before, during and after impact.");
     }
 
+    /// <summary>Reads a retail gate sprite-map byte for the fixture's exact OAM comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple green gate visibility")]
     private static byte GrappleGreenGateVisibilityRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
@@ -81,12 +84,14 @@ internal static class GrappleGatesVerification
         bus.WriteBytes(0x8d8000, maps);
     }
 
+    /// <summary>Runs the gate, enemy-death, and Draygon artwork fixture checks together.</summary>
     [VerificationCommand("--enemy-art-fixtures")]
     internal static int EnemyArtFixturesCommand()
     {
      VerifyGrappleGreenGateVisibility(); VerifyGrappleEnemyDeath(); VerifyDraygonTilemapProduction(); return 0; 
     }
 
+    /// <summary>Runs only the green-gate Grapple visibility verification suite.</summary>
     [VerificationCommand("--grapple-gates")]
     internal static int GrappleGatesCommand()
     {

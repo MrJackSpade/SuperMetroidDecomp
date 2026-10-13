@@ -14,8 +14,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ExtendedCollisionReferenceVerification;
 
+/// <summary>Retail oracle and guarded runtime comparison for bank-$B2 Space Pirate extended collision frames and hitbox lists.</summary>
 internal static class SpacePirateCollisionDefinitionsVerification
 {
+    /// <summary>Checks all compiled Pirate frame and list bytes against the cartridge, then compares collision callbacks and hits through the production walker.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Space Pirate collision definitions")]
     internal static void VerifySpacePirateCollisionDefinitions()
     {
@@ -276,10 +278,12 @@ internal static class SpacePirateCollisionDefinitionsVerification
         }
     }
 
+    /// <summary>Rejects runtime reads of the exact native frame and list byte ranges already compiled into the Pirate catalog.</summary>
     private static CartridgeReadGuard NewSpacePirateCollisionReadGuard(ISnesAddressSpace source, HashSet<int> blocked) =>
         new CartridgeReadGuard(source).Forbid(blocked.Contains,
             address => $"Compiled Space Pirate collision read native byte ${address:X6}.");
 
+    /// <summary>Runs the Space Pirate collision definition comparison from its verification command.</summary>
     [VerificationCommand("--verify-space-pirate-collision")]
     internal static int VerifySpacePirateCollisionCommand()
     {

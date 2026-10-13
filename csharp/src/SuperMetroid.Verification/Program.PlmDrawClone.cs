@@ -14,17 +14,16 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 
+/// <summary>Checks that both native PLM draw opcodes restore and publish the same block state.</summary>
 internal static class PlmDrawCloneVerification
 {
+    /// <summary>Executes each draw opcode from a low-WRAM probe program and checks the restored word, visible update, one-frame yield, and subsequent delete.</summary>
     internal static void VerifyPlmDrawClone()
     {
         foreach (ushort instruction in new[] { RoomPlmInstruction.DrawPlmBlock,
             RoomPlmInstruction.DrawPlmBlockClone })
         {
             var bus = new TestAddressSpace();
-            // The explicit probe cursor keeps this constructed opcode stream away
-            // from immutable retail PLM programs, including future compiled families.
-            // Constructed probes run from low work RAM, where wrapped `$84` pointers execute.
             const ushort probePointer = 0x1100;
             var words = new ushort[16 * 16];
             const int block = 3 * 16 + 3;
@@ -45,6 +44,7 @@ internal static class PlmDrawCloneVerification
         Console.WriteLine("  Both native PLM draw entry points restore terrain, redraw, yield, and resume identically.");
     }
 
+    /// <summary>Runs the focused PLM draw-opcode equivalence check from the verification command line.</summary>
     [VerificationCommand("--plm-draw-clone")]
     internal static int PlmDrawCloneCommand()
     {

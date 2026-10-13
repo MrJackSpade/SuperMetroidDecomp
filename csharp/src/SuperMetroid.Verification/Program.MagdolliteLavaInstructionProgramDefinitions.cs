@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks migrated Magdollite lava projectile bytecode, presentation selectors, and shared delete command.</summary>
 internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge oracle and runs the directional projectile program comparison.</summary>
     internal static void VerifyMagdolliteLavaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMagdolliteLavaInstructionProgramDefinitions), () => VerifyMagdolliteLavaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises left, right, and shot/drop paths while forbidding runtime reads from migrated instruction bytes.</summary>
     internal static void VerifyMagdolliteLavaInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -181,6 +184,7 @@ internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Consumes warmed private and shared instruction words to measure lookup allocations.</summary>
     private static int ProbeMagdolliteLavaInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -198,6 +202,7 @@ internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids migrated mechanics bytes and observes any attempted cartridge reads of visual operands.</summary>
     private static CartridgeReadGuard NewMagdolliteLavaInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -206,6 +211,7 @@ internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
                 address => $"Production read compiled Magdollite/shared mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount, MagdolliteLavaInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Magdollite lava instruction check against the local retail cartridge.</summary>
     [VerificationCommand("--magdollite-lava-instruction-mechanics")]
     internal static int MagdolliteLavaInstructionMechanicsCommand()
     {

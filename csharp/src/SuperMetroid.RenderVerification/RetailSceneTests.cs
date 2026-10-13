@@ -3,6 +3,7 @@ using SuperMetroid.Rendering.Direct3D11;
 /// <summary>Ordered retail qualification inventory; aggregate execution reuses one GPU renderer.</summary>
 internal static class RetailSceneTests
 {
+    /// <summary>Command-to-scene mapping in the order used by aggregate GPU qualification.</summary>
     private static readonly (string Command, Action<D3D11RenderDevice, D3D11FrameRenderer> Run)[] scenes =
     [
         ("--retail-frontend", RetailFrontendTests.Run),
@@ -28,6 +29,7 @@ internal static class RetailSceneTests
         ("--retail-ending-handoff", RetailEndingHandoffTests.Run),
     ];
 
+    /// <summary>Runs the selected retail scenes on each GPU device kind with one renderer reused per device.</summary>
     internal static bool TryRun(string command)
     {
         bool all = command == "--retail-all";

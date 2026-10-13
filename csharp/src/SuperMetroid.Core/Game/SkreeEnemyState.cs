@@ -24,8 +24,10 @@ public enum SkreeEnemyFunction : ushort
 /// </summary>
 public sealed class SkreeEnemyState
 {
+    /// <summary>Native enemy slot containing Skree's overlaid variables A through E.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Binds the typed Skree view to its existing enemy slot.</summary>
     internal SkreeEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets or sets variable A, reloaded to 21 while diving and counted down while burrowing.</summary>

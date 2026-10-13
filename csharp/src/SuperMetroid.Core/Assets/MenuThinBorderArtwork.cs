@@ -8,10 +8,14 @@ namespace SuperMetroid.Core.Assets;
 /// independently supplied artwork differences, never a generated tile cache.</summary>
 internal sealed class MenuThinBorderArtwork
 {
+    /// <summary>The authored border uses only the horizontal-line and left-corner cells.</summary>
     internal const int TileCount = 2;
+    /// <summary>Only pixels differing from the calculable stock line pattern are retained.</summary>
     internal readonly Dictionary<int, byte>? edits;
+    /// <summary>Admits atlas tile $AD or $AE, the two thin-border cells.</summary>
     internal static bool Contains(int tile) => tile is 0xad or 0xae;
 
+    /// <summary>Compares both tile cells with the stock line pattern and records independent pixel edits.</summary>
     internal MenuThinBorderArtwork(IndexedPngImage image)
     {
         for (int tile = 0xad; tile <= 0xae; tile++)
@@ -23,12 +27,14 @@ internal sealed class MenuThinBorderArtwork
         }
     }
 
+    /// <summary>Returns an edited pixel when present, otherwise the stock line or transparent zero.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
+    /// <summary>Draws palette index six across row one and down the left edge of the corner cell.</summary>
     private static byte Basis(int tile, Position16<CharacterPixels> point) =>
         point.Y == 1 || tile == 0xae && point.X == 0 && point.Y > 1 ? (byte)6 : (byte)0;
 }

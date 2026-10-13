@@ -34,6 +34,7 @@ internal static class DraygonCollisionDefinitions
     private const ushort FirstLeftBodyFrame = 0xa31b;
     /// <summary>$A5:A643, ExtendedSpritemap_Draygon_3A: first right-facing BG2 body frame.</summary>
     private const ushort FirstRightBodyFrame = 0xa643;
+    /// <summary>Left-facing body rectangles: one shootable center and three touch-only regions.</summary>
     private static readonly DraygonCollisionHitbox[] FirstBodyHitboxes =
     [
         new(-17, -16, 18, 30, EnemyAiCodePointers.BankA0.NoOp,
@@ -46,6 +47,7 @@ internal static class DraygonCollisionDefinitions
             EnemyAiCodePointers.BankA0.DudShot),
     ];
 
+    /// <summary>Mirrored right-facing body rectangles with the same shootable-center rule.</summary>
     private static readonly DraygonCollisionHitbox[] SecondBodyHitboxes =
     [
         new(-18, -7, 18, 30, EnemyAiCodePointers.BankA0.NoOp,
@@ -58,13 +60,16 @@ internal static class DraygonCollisionDefinitions
             EnemyAiCodePointers.BankA0.DudShot),
     ];
 
+    /// <summary>A BG2 frame's single zero-offset collision component, or no component for ordinary OAM art.</summary>
     internal readonly record struct ComponentSequence(bool HasComponent, DraygonHitboxList HitboxPointer)
         : IEnumerable<DraygonCollisionComponent>
     {
+        /// <summary>Yields one body component only when the BG2 frame owns a hitbox list.</summary>
         public IEnumerator<DraygonCollisionComponent> GetEnumerator()
         {
             if (HasComponent) yield return new(Offset16<RoomPixels>.Zero, HitboxPointer);
         }
+        /// <summary>Exposes the same optional component through the non-generic interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -89,6 +94,7 @@ internal static class DraygonCollisionDefinitions
         return new(true, hitboxes);
     }
 
+    /// <summary>Finds the left/right body rectangles or either empty list by native pointer.</summary>
     internal static ReadOnlySpan<DraygonCollisionHitbox> HitboxesAt(
         DraygonHitboxList pointer) => pointer switch
     {
@@ -115,6 +121,7 @@ internal static class DraygonCollisionDefinitions
     /// <summary><c>ExtendedSpritemap_Draygon_60</c> at $A5:A7F7: mirrored growing component frames and terminal eight-component frame.</summary>
     private const ushort RightExpandingFrames = 0xa7f7;
 
+    /// <summary>Recognizes collision-free ordinary OAM frame roots in fixed and expanding runs.</summary>
     internal static bool IsEmptyOamFrame(ushort pointer) =>
         InFixedFrames(pointer, LeftSingleFrames, 6, 1) ||
         InFixedFrames(pointer, RightSingleFrames, 6, 1) ||
@@ -125,6 +132,7 @@ internal static class DraygonCollisionDefinitions
         InExpandingFrames(pointer, LeftExpandingFrames) ||
         InExpandingFrames(pointer, RightExpandingFrames);
 
+    /// <summary>Checks exact roots in a run whose frame stride is a count word plus fixed-size components.</summary>
     private static bool InFixedFrames(ushort pointer, ushort first, int frames, int components)
     {
         int stride = 2 + components * 8;
@@ -132,6 +140,7 @@ internal static class DraygonCollisionDefinitions
         return offset >= 0 && offset < frames * stride && offset % stride == 0;
     }
 
+    /// <summary>Checks the seven roots whose component counts grow from three through eight, then repeat eight.</summary>
     private static bool InExpandingFrames(ushort pointer, ushort first)
     {
         // Two-byte counts and eight-byte components; the component count starts
@@ -142,6 +151,7 @@ internal static class DraygonCollisionDefinitions
                 return true;
         return false;
     }
+    /// <summary>Accepts a known OAM-only frame as physically empty and rejects unknown frame identities.</summary>
     private static ReadOnlySpan<DraygonCollisionComponent> OamComponentsAt(
         ushort pointer)
     {

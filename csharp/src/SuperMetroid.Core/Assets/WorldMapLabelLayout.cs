@@ -7,13 +7,20 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Cosmetic world-map label anchors. Area availability and navigation are not content.</summary>
 public sealed class WorldMapLabelLayout
 {
+    /// <summary>Drawing anchor for Crateria's world-map name.</summary>
     private readonly Position16<OamPixels> crateria;
+    /// <summary>Drawing anchor for Brinstar's world-map name.</summary>
     private readonly Position16<OamPixels> brinstar;
+    /// <summary>Drawing anchor for Norfair's world-map name.</summary>
     private readonly Position16<OamPixels> norfair;
+    /// <summary>Drawing anchor for the Wrecked Ship's world-map name.</summary>
     private readonly Position16<OamPixels> wreckedShip;
+    /// <summary>Drawing anchor for Maridia's world-map name.</summary>
     private readonly Position16<OamPixels> maridia;
+    /// <summary>Drawing anchor for Tourian's world-map name.</summary>
     private readonly Position16<OamPixels> tourian;
 
+    /// <summary>Retains six independently supplied label positions without deriving one area from another.</summary>
     private WorldMapLabelLayout(Position16<OamPixels> crateria, Position16<OamPixels> brinstar, Position16<OamPixels> norfair,
         Position16<OamPixels> wreckedShip, Position16<OamPixels> maridia, Position16<OamPixels> tourian)
     {

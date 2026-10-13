@@ -12,11 +12,13 @@ namespace SuperMetroid.Core.Game;
 internal sealed class EnemySlotTable
 {
 
+    /// <summary>Fixed physical slot storage; native indexes address $40-byte records within this array.</summary>
     internal readonly RoomEnemySlot[] _slots = new RoomEnemySlot[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>All 32 physical enemy slots, including unused zero-pointer slots.</summary>
     public IReadOnlyList<RoomEnemySlot> Slots => _slots;
 
+    /// <summary>Converts an aligned native byte offset to a physical slot and rejects out-of-range or unaligned indexes.</summary>
     internal RoomEnemySlot SlotFromNativeIndex(ushort nativeIndex)
     {
         if ((nativeIndex & (RoomEnemySystem.NativeSlotSize - 1)) != 0 || nativeIndex >= RoomEnemySystem.MaximumEnemyCount * RoomEnemySystem.NativeSlotSize)

@@ -6,20 +6,28 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Sbug species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class SbugBehavior : IEnemySpecies
 {
+    /// <summary>Provides the shared random seed and draws for wandering variants.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Resolves wall and floor collisions for random movement segments.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Binds Sbug AI to the loaded room's RNG and collision geometry.</summary>
     internal SbugBehavior(EnemyRoomBinding room, EnemyTerrain terrain)
     {
         _room = room;
         _terrain = terrain;
     }
 
+    /// <summary>Random-wandering activation resets the shared enemy RNG to $000B.</summary>
     private const ushort SbugRandomSeed = 0x000b;
+    /// <summary>Random and forward-then-wait legs last $20 enemy frames before selection changes.</summary>
     private const ushort SbugMovementSegmentFrames = 0x0020;
+    /// <summary>Long wandering mode tracks $200 frames before dropping its distance-based reversal gate.</summary>
     private const ushort SbugLongRandomLifetime = 0x0200;
+    /// <summary>Both axes must be at least six blocks from Samus for the special reversal.</summary>
     private const int SbugReverseDistance = 0x0060;
 
+    /// <summary>Slot-indexed activation, velocity, and animation state for room Sbugs.</summary>
     internal readonly SbugEnemyState?[] _sbugStates = new SbugEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Sbug</c> at $A3:A14D.</summary>
@@ -148,6 +156,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Arms the population-selected behavior only when Samus enters its square trigger region.</summary>
     private static void RunSbugWait(RoomEnemySlot slot, SbugEnemyState state, SamusState samus)
     {
         int threshold = state.ActivationRadius;
@@ -159,6 +168,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         state.Function = SbugMovementDefinitions.ActivationFunction(state.ActivationBehavior);
     }
 
+    /// <summary>Converts Samus's cartridge bearing into Sbug's angular convention and chosen direction.</summary>
     private static void ActivateSbugTowardOrAway(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -177,6 +187,7 @@ internal sealed class SbugBehavior : IEnemySpecies
             : SbugEnemyFunction.MoveTowardSamus;
     }
 
+    /// <summary>Alternates left and right diagonal legs using bit four of the enemy frame counter.</summary>
     private static void RunSbugZigZag(RoomEnemySlot slot, SbugEnemyState state)
     {
         // The global enemy frame counter divides motion into alternating 16-frame diagonal
@@ -193,6 +204,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Moves straight through its signed countdown, then returns to the proximity wait.</summary>
     private static void RunSbugForwardThenWait(RoomEnemySlot slot, SbugEnemyState state)
     {
         state.MovementTimer = state.MovementTimer.Decrement().Remaining;
@@ -205,6 +217,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         MoveSbugForward(slot, state);
     }
 
+    /// <summary>Stops a random leg on its first axis collision or chooses a new leg after timeout.</summary>
     private void RunSbugCollisionAwareSegment(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -234,6 +247,7 @@ internal sealed class SbugBehavior : IEnemySpecies
             state.Function = SbugEnemyFunction.WaitForSamus;
     }
 
+    /// <summary>Reverses only when both Samus distances reach six blocks during the long leg.</summary>
     private static void RunSbugStraightReverseSegment(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -260,6 +274,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         AddSbugVelocity(slot, state.CustomXVelocity, state.CustomYVelocity);
     }
 
+    /// <summary>Offsets the current angle by a random byte, then begins a $20-frame movement leg.</summary>
     private void ChooseSbugRandomDirection(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -277,6 +292,7 @@ internal sealed class SbugBehavior : IEnemySpecies
             : SbugEnemyFunction.MoveRandomlyUntilCollision;
     }
 
+    /// <summary>Rebuilds signed velocity words and facing animation from the chosen custom angle.</summary>
     private static void RecalculateSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
         CalculateSignedSbugVelocities(
@@ -291,6 +307,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         SetSbugFacing(slot, state, state.CustomInstructionIndex);
     }
 
+    /// <summary>Preserves the native independent word negation and odd animation-index mask on reversal.</summary>
     private static void ReverseSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
         // The original negates pixel and subpixel words separately. For a nonzero low word
@@ -306,11 +323,13 @@ internal sealed class SbugBehavior : IEnemySpecies
         SetSbugFacing(slot, state, state.CustomInstructionIndex);
     }
 
+    /// <summary>Negates pixel and subpixel words separately, retaining the cartridge's fractional error.</summary>
     private static SbugVelocityWords NegateSbugWordsIndependently(SbugVelocityWords value) =>
         new(
             unchecked((ushort)-value.Pixel),
             unchecked((ushort)-value.Subpixel));
 
+    /// <summary>Applies unsigned quarter-wave magnitudes with signs from the original angle.</summary>
     private static void MoveSbugForward(RoomEnemySlot slot, SbugEnemyState state)
     {
         // MoveEnemyAccordingToAngleAndXYSpeeds applies signs to the unsigned magnitudes by
@@ -327,6 +346,7 @@ internal sealed class SbugBehavior : IEnemySpecies
             subtractY));
     }
 
+    /// <summary>Adds both signed 16.16 custom velocity words to the actor position.</summary>
     private static void AddSbugVelocity(
         RoomEnemySlot slot,
         SbugVelocityWords xVelocity,
@@ -342,6 +362,7 @@ internal sealed class SbugBehavior : IEnemySpecies
             subtract: false));
     }
 
+    /// <summary>Adds or subtracts one raw 16.16 displacement with native word wrapping.</summary>
     private static SnesFixedPosition AddRawSbugVelocity(
         SnesFixedPosition position,
         uint velocity,
@@ -354,6 +375,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         return SnesFixedPosition.FromRaw(fixedPosition);
     }
 
+    /// <summary>Multiplies a quarter-wave table value by population speed into unsigned 16.16 words.</summary>
     internal static SbugVelocityWords CalculateUnsignedSbugMagnitude(
         byte angle,
         byte speed,
@@ -369,6 +391,7 @@ internal sealed class SbugBehavior : IEnemySpecies
             unchecked((ushort)product));
     }
 
+    /// <summary>Samples the signed eight-bit multiply path for X and Y phase offsets.</summary>
     private static void CalculateSignedSbugVelocities(
         byte angle,
         byte speed,
@@ -379,6 +402,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         yVelocity = CalculateSignedSbugComponent(angle, speed, phase: 0x80);
     }
 
+    /// <summary>Reproduces the native eight-bit sine multiply and independent negative-word conversion.</summary>
     internal static SbugVelocityWords CalculateSignedSbugComponent(byte angle, byte speed, int phase)
     {
         // $A0:B0DA multiplies two bytes, swaps the product's bytes into 16.16 words, then
@@ -397,9 +421,11 @@ internal sealed class SbugBehavior : IEnemySpecies
         return new SbugVelocityWords(pixel, subpixel);
     }
 
+    /// <summary>Quantizes an angle to one of eight two-byte facing-table offsets.</summary>
     private static ushort CalculateSbugInstructionIndex(byte angle) =>
         unchecked((ushort)(2 * (unchecked((byte)(angle - 0x30)) >> 5)));
 
+    /// <summary>Restarts the selected animation only when its facing list differs from the installed one.</summary>
     private static void SetSbugFacing(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -422,15 +448,18 @@ internal sealed class SbugBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
     }
 
+    /// <summary>Resets the shared enemy random seed when random wandering is activated.</summary>
     private void SetSbugRandomSeed()
     {
         _room.Random.Seed(SbugRandomSeed);
     }
 
+    /// <summary>Rejects a Sbug dispatch before its slot's initializer has run.</summary>
     private SbugEnemyState RequireSbugState(RoomEnemySlot slot) =>
         _sbugStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Sbug state.");
 
+    /// <summary>Routes both Sbug definitions through the parameter-selected initializer.</summary>
     internal void RegisterSbugInitializationAi(EnemyAiTable table)
     {
 
@@ -440,6 +469,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Advances either Sbug definition through its active movement function.</summary>
     internal void RegisterSbugMainAi(EnemyAiTable table)
     {
 

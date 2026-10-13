@@ -12,10 +12,11 @@ using static MotherBrainBodyInstructionProgramsVerification;
 using static SignedSineFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Constructed-cartridge checks for Mother Brain's rainbow-beam Samus movement and full drain attack chain.</summary>
 internal static class MotherBrainRainbowVerification
 {
 
-/// <summary>Mother Brain rainbow-beam movement and attack-sequence verification.</summary>
+/// <summary>Checks recoil, floor and ceiling clamps, 8.8 sine movement and previous-position publication through the rainbow-beam Samus controller.</summary>
 internal static void VerifyMotherBrainRainbowBeamSamusMovement()
 {
     var bus = new TestAddressSpace();

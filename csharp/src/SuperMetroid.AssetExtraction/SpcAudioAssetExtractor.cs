@@ -24,6 +24,7 @@ public static class SpcAudioAssetExtractor
         return Extract(definition => SpcUploadStreamReader.Read(cartridge, definition.SnesAddress, includeExecutionAddress: true), audioDirectory);
     }
 
+    /// <summary>Writes validated SPC streams, decoded programs, and deduplicated WAV samples from a supplied reader.</summary>
     internal static AudioAssetManifest Extract(Func<AudioUploadAssetDefinition, byte[]> readStream, string audioDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);
@@ -101,6 +102,7 @@ public static class SpcAudioAssetExtractor
         return manifest;
     }
 
+    /// <summary>Decodes one uploaded bank's track pointers, instrument records, and BRR sample directory.</summary>
     private static AudioBankMetadata ExtractBankMetadata(
         AudioUploadAssetDefinition definition,
         byte[] ram,
@@ -198,6 +200,7 @@ public static class SpcAudioAssetExtractor
             samples);
     }
 
+    /// <summary>Resolves common-RAM sound commands to reusable channel programs across three libraries.</summary>
     private static List<AudioSoundLibraryMetadata> ExtractSoundLibraries(
         byte[] commonRam,
         bool[] commonWritten,
@@ -351,6 +354,7 @@ public static class SpcAudioAssetExtractor
         return false;
     }
 
+    /// <summary>Rejects malformed SPC upload records before publishing a raw stream asset.</summary>
     private static void ValidateUploadStream(ReadOnlySpan<byte> stream, string name)
     {
         byte[] scratch = new byte[SpcDriverData.ApuRamSize];
@@ -365,6 +369,7 @@ public static class SpcAudioAssetExtractor
         }
     }
 
+    /// <summary>Copies upload records into APU RAM and marks each byte populated for later decoding.</summary>
     private static void ApplyUpload(byte[] ram, bool[] written, ReadOnlySpan<byte> stream)
     {
         int offset = 0;
@@ -397,6 +402,7 @@ public static class SpcAudioAssetExtractor
         }
     }
 
+    /// <summary>Reads an SPC pointer from two little-endian RAM bytes.</summary>
     private static ushort ReadWord(byte[] bytes, int address) =>
         unchecked((ushort)(SnesLittleEndian.Word(bytes[address], bytes[address + 1])));
 
@@ -407,19 +413,26 @@ public static class SpcAudioAssetExtractor
     /// </summary>
     private sealed class CanonicalSampleBuilder
     {
+        /// <summary>Installation root used to publish stable relative WAV paths.</summary>
         private readonly string audioDirectory;
+        /// <summary>Generated WAV directory rebuilt for the current extraction.</summary>
         private readonly string samplesDirectory;
+        /// <summary>Deduplicates identical waveforms and loop positions across upload banks.</summary>
         private readonly Dictionary<string, string> idsByContent = new(StringComparer.Ordinal);
+        /// <summary>Manifest records for each distinct published PCM sample.</summary>
         private readonly List<AudioCanonicalSampleMetadata> metadata = [];
 
+        /// <summary>Prepares stable sample IDs relative to the installed audio root.</summary>
         internal CanonicalSampleBuilder(string audioDirectory, string samplesDirectory)
         {
             this.audioDirectory = audioDirectory;
             this.samplesDirectory = samplesDirectory;
         }
 
+        /// <summary>Published sample metadata in first-cartridge-occurrence order.</summary>
         internal IReadOnlyList<AudioCanonicalSampleMetadata> Metadata => metadata;
 
+        /// <summary>Reuses a matching waveform or writes a stable-ID WAV with its integrity hash.</summary>
         internal string Add(byte dataIndex, byte source, short[] pcm, int? loopSampleIndex)
         {
             byte[] pcmBytes = new byte[checked(pcm.Length * sizeof(short))];

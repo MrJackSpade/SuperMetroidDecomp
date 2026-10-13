@@ -3,8 +3,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks front and rear Ceres flight actor metadata against the native setup instructions.</summary>
 internal static class CeresFlightActorMetadataVerification
 {
+    /// <summary>Compares actor programs, positions, callbacks, speeds, and nine-bit wrap masks with bank $8B.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight actor metadata")]
     internal static void VerifyCeresFlightActorMetadata(ISnesAddressSpace retail)
     {

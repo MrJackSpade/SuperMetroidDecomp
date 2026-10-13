@@ -16,12 +16,15 @@ using static EnemyProjectileProgramOracleVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail-word and guarded-execution checks for Ceres Ridley fireball and afterburn programs.</summary>
 internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail data for the Ceres Ridley projectile instruction check.</summary>
     internal static void VerifyCeresRidleyProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyCeresRidleyProjectileInstructionProgramDefinitions), () => VerifyCeresRidleyProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Runs fireball, center, directional, and final-impact projectiles through callbacks, frame selection, and deletion.</summary>
     internal static void VerifyCeresRidleyProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -227,6 +230,7 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerifica
         }
     }
 
+    /// <summary>Alternates warmed fireball and afterburn control lookups for allocation accounting.</summary>
     private static int ProbeCeresRidleyProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -240,6 +244,7 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerifica
         return checksum;
     }
 
+    /// <summary>Rejects private and shared control reads while observing native visual-operand accesses.</summary>
     private static CartridgeReadGuard NewCeresRidleyProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => CeresRidleyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -247,6 +252,7 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerifica
                 address => $"Production read compiled Ceres Ridley mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordCount, CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the retail-backed Ceres Ridley projectile instruction migration command.</summary>
     [VerificationCommand("--ceres-ridley-projectile-instruction-mechanics")]
     internal static int CeresRidleyProjectileInstructionMechanicsCommand()
     {

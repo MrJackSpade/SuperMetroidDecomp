@@ -264,6 +264,7 @@ public sealed record ControllerInputRecording
         return Read(source);
     }
 
+    /// <summary>Rejects incomplete startup state, malformed digests, and SRAM of the wrong cartridge size.</summary>
     private void Validate()
     {
         Ensure.NotNull(RomSha256);
@@ -290,6 +291,7 @@ public sealed record ControllerInputRecording
         }
     }
 
+    /// <summary>Requires each installed-content component identity to carry a full SHA-256 digest.</summary>
     private static void ValidateDigest(byte[]? digest, string component)
     {
         if (digest is null || digest.Length != ControllerInputRecordingFormat.DigestByteCount)

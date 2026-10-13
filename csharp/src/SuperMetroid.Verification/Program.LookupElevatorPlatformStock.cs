@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks the three elevator platform draw lists against native PLM words and edited catalog behavior.</summary>
 internal static class LookupElevatorPlatformStockVerification
 {
+    /// <summary>Checks stock runs, custom words, identity hashes, copy isolation, and invalid frame shapes.</summary>
     internal static void VerifyElevatorPlatformStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmElevatorPlatformVisualCatalog installed)
     {
@@ -76,6 +78,7 @@ internal static class LookupElevatorPlatformStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmElevatorPlatformVisualCatalog(entries), "Elevator platform visual bits only");
     }
 
+    /// <summary>Reads a native elevator platform draw-list byte for the stock oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for elevator platform stock mapping")]
     private static byte ElevatorPlatformStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled intro Mother Brain instructions against the pinned bank-$8B slice.</summary>
 internal static class IntroMotherBrainInstructionsVerification
 {
+    /// <summary>Compares bytes and overlapping words in $CB05-$CB32 and rejects out-of-slice reads.</summary>
     internal static void VerifyIntroMotherBrainInstructions(ISnesAddressSpace rom)
     {
         foreach ((int start, int end) in new[] { (0xcb05, 0xcb33) })
@@ -23,6 +25,7 @@ internal static class IntroMotherBrainInstructionsVerification
         }
     }
 
+    /// <summary>Reads one native byte for the cartridge-only comparison path.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain instructions")]
     private static byte IntroMotherBrainInstructionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

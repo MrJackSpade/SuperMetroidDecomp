@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(LowerNorfairRioInstructionProgramDefinitions))]
 internal abstract class LowerNorfairRioInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Rio instruction words excluding drawing operands before the adjacent movement data.</summary>
     public static int MechanicsWordCount => 51;
+    /// <summary>Rio drawing operands in the instruction region before movement definitions.</summary>
     public static int PresentationWordCount => 32;
+    /// <summary>Walks the Rio instruction region and reads the indexed non-presentation word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -20,6 +23,7 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitionsTooling : II
         }
         throw new IndexOutOfRangeException();
     }
+    /// <summary>Walks the same region to locate the indexed drawing operand.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -31,6 +35,7 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitionsTooling : II
         }
         throw new IndexOutOfRangeException();
     }
+    /// <summary>Checks that a bank-$A2 word belongs to a Rio program and is not presentation data.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000)

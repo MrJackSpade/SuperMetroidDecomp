@@ -3,8 +3,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
+/// <summary>Checks calculated intro Mother Brain portrait parts against
+/// native spritemaps while preserving independently edited artwork.</summary>
 internal static class IntroMotherBrainPartsVerification
 {
+    /// <summary>Compares all stock part fields and OAM at visible and wrapped
+    /// origins, then checks per-field edits bypass calculated substitution.</summary>
     internal static void VerifyIntroMotherBrainParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("MotherBrain", value.AppendIdentity);

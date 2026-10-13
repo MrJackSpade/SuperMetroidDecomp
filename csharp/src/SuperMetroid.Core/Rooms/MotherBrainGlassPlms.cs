@@ -7,22 +7,32 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Mother Brain's glass PLM ($D6DE): its setup, shatter projectiles and the room argument it keeps after deletion.</summary>
 internal sealed class MotherBrainGlassPlms
 {
+    /// <summary>Boss and event services used by the glass PLM's conditional instructions.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Physical PLM slots used to retain the glass argument across deletion.</summary>
     private readonly PlmSlotTable _slotTable;
+    /// <summary>Room sound queue receiving the glass-shatter effect.</summary>
     private readonly PlmSoundQueue _sounds;
 
+    /// <summary>Binds glass instruction handling to the room's PLM slots, event services, and sound queue.</summary>
     internal MotherBrainGlassPlms(PlmRoomBindings bindings, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _bindings = bindings;
         _slotTable = slotTable;
         _sounds = sounds;
     }
+    /// <summary>Only pre-instruction accepted from the installed Mother Brain glass header.</summary>
     private const ushort MotherBrainGlassPreInstruction = MotherBrainGlassPlmProgramDefinitions.HitPreInstruction;
+    /// <summary>Enemy projectile definition spawned for each glass fragment.</summary>
     private const ushort MotherBrainGlassShardDefinition = 0xcefc;
+    /// <summary>Four shard spawns emitted by the most recent shatter instruction.</summary>
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
+    /// <summary>Physical slot of the live glass PLM, or minus one after deletion.</summary>
     private int _motherBrainGlassSlotIndex = -1;
+    /// <summary>Whether the current room loaded the glass PLM before head damage can update it.</summary>
     internal bool _motherBrainGlassWasLoaded;
+    /// <summary>Last shot count retained when the glass PLM's physical slot has been deleted.</summary>
     internal ushort _motherBrainGlassLastRoomArgument;
 
     /// <summary>Shard actors requested by the most recent PLM handler pass.</summary>
@@ -81,8 +91,10 @@ internal sealed class MotherBrainGlassPlms
                 _motherBrainGlassLastRoomArgument + 1));
     }
 
+    /// <summary>Clears shard spawn requests before processing the next room frame.</summary>
     internal void BeginMotherBrainGlassFrame() => _motherBrainGlassProjectileRequests.Clear();
 
+    /// <summary>Discards cached glass slot, shot count, room dimensions, and pending shard requests.</summary>
     internal void ResetMotherBrainGlassState()
     {
         _motherBrainGlassProjectileRequests.Clear();
@@ -92,6 +104,7 @@ internal sealed class MotherBrainGlassPlms
         _motherBrainGlassRoomWidth = 0;
     }
 
+    /// <summary>Counts missile or super-missile block hits through the installed glass pre-instruction.</summary>
     internal static void RunMotherBrainGlassPreInstruction(PlmSlot slot)
     {
         if (slot.HeaderPointer != PlmHeaderId.MotherBrainGlass || slot.PreInstruction == 0)
@@ -110,6 +123,7 @@ internal sealed class MotherBrainGlassPlms
         slot.LoopTimer = 0;
     }
 
+    /// <summary>Executes a supported glass PLM opcode, including branches, shatter spawns, and event writes.</summary>
     internal bool TryExecuteMotherBrainGlassInstruction(
         ISnesAddressSpace bus,
         PlmSlot slot,
@@ -209,8 +223,10 @@ internal sealed class MotherBrainGlassPlms
         return EventNumber.MotherBrainGlassDestroyed;
     }
 
+    /// <summary>Room width in blocks used to turn the glass block index into shard spawn coordinates.</summary>
     private int _motherBrainGlassRoomWidth;
 
+    /// <summary>Finds the original live glass slot without accepting a later PLM that reused its index.</summary>
     internal bool TryGetMotherBrainGlassSlot(out PlmSlot? slot)
     {
         if ((uint)_motherBrainGlassSlotIndex < (uint)_slotTable._slots.Length)
@@ -226,6 +242,7 @@ internal sealed class MotherBrainGlassPlms
         return false;
     }
 
+    /// <summary>Retains the glass hit count and clears the deleted slot's glass-only instruction identity.</summary>
     internal void OnPlmDeleted(PlmSlot slot)
     {
         if (slot.HeaderPointer != PlmHeaderId.MotherBrainGlass)

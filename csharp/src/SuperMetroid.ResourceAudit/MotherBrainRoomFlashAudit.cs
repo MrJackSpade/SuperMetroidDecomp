@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Finite adapter for the identified palette-program coverage gap; no ROM or gameplay reads.</summary>
 internal static class MotherBrainRoomFlashAudit
 {
+    /// <summary>Loads a constructed room-color document and exports its actual timed flash-entry keys for audit membership.</summary>
     internal static void Install(ResourceIndex exports)
     {
         // The importer maps each declared pointer operand to a JSON row; the
@@ -19,13 +20,16 @@ internal static class MotherBrainRoomFlashAudit
             exports.Add(ResourceDomains.MotherBrainRoomFlash, Key(pointer));
     }
 
+    /// <summary>Exercises the palette importer with declared pointer slots and bounded synthetic RGB5 payloads.</summary>
     internal static byte[] ExtractDeclarationDocument() =>
         MotherBrainRoomColorExtractor.Extract(ConstructedColorSource());
 
+    /// <summary>Checks all compiled Mother Brain flash presentation operands against the exported entry domain.</summary>
     internal static void Inspect(string source, ResourceIndex exports, AuditReport report) =>
         RequireOperands(Enumerable.Range(0, MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
             .Select(MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress).ToArray(), source, exports, report);
 
+    /// <summary>Converts palette operand addresses to timed-entry keys and records resolved coverage for the resource audit.</summary>
     internal static void RequireOperands(ReadOnlySpan<ushort> operands, string source,
         ResourceIndex exports, AuditReport report)
     {
@@ -37,6 +41,7 @@ internal static class MotherBrainRoomFlashAudit
             exports.Count(ResourceDomains.MotherBrainRoomFlash)));
     }
 
+    /// <summary>Formats a Mother Brain room-flash pointer with its native source bank for resource indexing.</summary>
     private static string Key(ushort pointer) => ResourceIndex.Address(
         MotherBrainRoomColorRomData.SourceBank >> 16, pointer);
 

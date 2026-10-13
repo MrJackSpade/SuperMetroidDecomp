@@ -29,10 +29,14 @@ public sealed class PhantoonColorCatalog
             content.AppendColorFrames("healthBands", frames);
         });
 
+    /// <summary>Health-band colors that differ from the calculated material and damage shades.</summary>
     internal readonly Dictionary<int, Bgr555> healthEdits = [];
+    /// <summary>Nonblack targets supplied for Phantoon's fade-out palette.</summary>
     internal readonly Dictionary<int, Bgr555> fadeOutEdits = [];
+    /// <summary>Powered-ship colors that differ from the calculated paint palette.</summary>
     internal readonly Dictionary<int, Bgr555> powerEdits = [];
 
+    /// <summary>Retains only authored deviations from the calculated health, fade, and ship-power colors.</summary>
     private PhantoonColorCatalog(Bgr555[][] healthBands, Bgr555[] fadeOut, Bgr555[] powerOn)
     {
         for (int band = 0; band < healthBands.Length; band++)
@@ -45,6 +49,7 @@ public sealed class PhantoonColorCatalog
             if (powerOn[color] != WreckedShipPowerPaintDefinitions.Color(color)) powerEdits.Add(color, powerOn[color]);
     }
 
+    /// <summary>Writes camel-case asset documents and rejects unknown properties on load.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -122,12 +127,14 @@ public sealed class PhantoonColorCatalog
         return bytes;
     }
 
+    /// <summary>Rejects a health palette index outside the eight Phantoon bands.</summary>
     private static int CheckBand(int band) =>
         (uint)band < PhantoonColorRomData.HealthBandCount
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
 
 
+    /// <summary>Checks a palette row's length and five-bit channels before converting it to hardware color words.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -145,6 +152,7 @@ public sealed class PhantoonColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects duplicate JSON members before deserialization can hide an authored color value.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Phantoon color property {name}."));

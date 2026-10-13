@@ -15,8 +15,11 @@ public static class GrappleTileDefinitions
     public const ushort PointDestination = 0x6200;
     /// <summary>$9B:C02B selects VRAM word $6210 for the four segment characters.</summary>
     public const ushort SegmentDestination = 0x6210;
+    /// <summary>Installed tile identity for horizontal rope segments.</summary>
     private const VramAssetId Horizontal = VramAssetId.GrappleHorizontalSegmentTiles;
+    /// <summary>Installed tile identity for diagonal rope segments.</summary>
     private const VramAssetId Diagonal = VramAssetId.GrappleDiagonalSegmentTiles;
+    /// <summary>Installed tile identity for vertical rope segments.</summary>
     private const VramAssetId Vertical = VramAssetId.GrappleVerticalSegmentTiles;
     /// <summary>
     /// $9A:8A00, the $9B:C344 exclusive end pointer. Builds before a988015bc read the begin/end pair
@@ -29,6 +32,7 @@ public static class GrappleTileDefinitions
     private const int PointSourceStride = 0x200;
     /// <summary>Horizontal, diagonal and vertical beam groups occupy $800-byte source strides.</summary>
     private const int SegmentSourceStride = 0x800;
+    /// <summary>Calculates the seven endpoint and rope upload descriptors in native order.</summary>
     private static readonly TransferList transfers = new();
     /// <summary>$9A:8200/8A00/9200 Tiles_GrappleBeam groups; only endpoint and segment-owned characters are extracted.</summary>
     public static IReadOnlyList<GrappleTileTransfer> Transfers => transfers;
@@ -71,9 +75,12 @@ public static class GrappleTileDefinitions
         return transfers[index];
     }
 
+    /// <summary>Indexed transfer view over four endpoint frames and three rope orientations.</summary>
     private sealed class TransferList : IReadOnlyList<GrappleTileTransfer>
     {
+        /// <summary>Four endpoint transfers plus three four-tile segment transfers.</summary>
         public int Count => 7;
+        /// <summary>Calculates source address, atlas offset, and byte count for one native upload.</summary>
         public GrappleTileTransfer this[int index]
         {
             get
@@ -94,11 +101,13 @@ public static class GrappleTileDefinitions
                     128 * (orientation + 1), 128);
             }
         }
+        /// <summary>Yields the native endpoint transfers before horizontal, diagonal, and vertical segments.</summary>
         public IEnumerator<GrappleTileTransfer> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Exposes the same transfer order through the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

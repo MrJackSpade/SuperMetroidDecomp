@@ -15,6 +15,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SamusMovementRomDataVerification;
 
+/// <summary>Checks the cartridge ranges and catalogued callback identities used by Grapple firing, swing, and release.</summary>
 internal static class SamusGrappleRomDataVerification
 {
     /// <summary>
@@ -137,6 +138,7 @@ internal static class SamusGrappleRomDataVerification
             $"{segmentPointerCount} segment sets, three connection tables, and special angles are in range.");
     }
 
+    /// <summary>Runs Grapple data-range and swing/release checks against the repository ROM.</summary>
     [VerificationCommand("--grapple-movement")]
     internal static int GrappleMovementCommand()
     {

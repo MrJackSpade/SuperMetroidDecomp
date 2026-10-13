@@ -13,8 +13,10 @@ using static ExtendedFrameSequenceVerification;
 using SuperMetroid.Core.Assets;
 using static SuiteTimingVerification;
 
+/// <summary>Checks published Walking and Wall Pirate artwork keys and their ordering.</summary>
 internal static class PirateArtworkNamesVerification
 {
+    /// <summary>Checks 37 walking, firing, looking, and flinching frame names.</summary>
     internal static void VerifyWalkingPirateArtworkNames()
     {
         string[] expected = [
@@ -41,6 +43,7 @@ internal static class PirateArtworkNamesVerification
         Suite(nameof(VerifyPirateArtworkNames), () => VerifyPirateArtworkNames(expected, PirateArtworkNameDefinitions.Walking));
     }
 
+    /// <summary>Checks 18 wall-climb and firing-jump frame names.</summary>
     internal static void VerifyWallPirateArtworkNames()
     {
         string[] expected = [
@@ -57,7 +60,7 @@ internal static class PirateArtworkNamesVerification
         Suite(nameof(VerifyPirateArtworkNames), () => VerifyPirateArtworkNames(expected, PirateArtworkNameDefinitions.Wall));
     }
 
-    // Original published keys, copied before removing their production lists.
+    /// <summary>Compares preserved published keys and rejects out-of-range frame indices.</summary>
     private static void VerifyPirateArtworkNames(string[] expected, Func<int, string> actual)
     {
         for (int index = 0; index < expected.Length; index++)
@@ -71,6 +74,7 @@ internal static class PirateArtworkNamesVerification
         }
     }
 
+    /// <summary>Runs both Pirate key lists and the extended-frame sequence audit.</summary>
     [VerificationCommand("--lookup-pirate-artwork-names")]
     internal static int LookupPirateArtworkNamesCommand()
     {

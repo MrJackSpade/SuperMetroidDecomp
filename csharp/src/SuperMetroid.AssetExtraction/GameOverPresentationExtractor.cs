@@ -123,6 +123,7 @@ public static class GameOverPresentationExtractor
             RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GameOverRomData.SpriteBank | pointer);
     }
 
+    /// <summary>Compares each Baby pose's duration, sprite, palette, sound handoff, and restart marker with the compiled dispatcher.</summary>
     private static void VerifyCompiledAnimation(ISnesAddressSpace bus)
     {
         foreach (GameOverBabyInstruction instruction in GameOverBabyAnimationDefinitions.All)

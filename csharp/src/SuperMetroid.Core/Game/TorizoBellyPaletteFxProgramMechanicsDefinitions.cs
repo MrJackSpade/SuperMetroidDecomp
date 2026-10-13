@@ -32,9 +32,12 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
     /// <summary>Golden Torizo belly setup program at $8D:E331.</summary>
     private const ushort GoldenProgram = 0xe331;
 
+    /// <summary>Enumerates the Bomb and Golden program layouts from their named native starts.</summary>
     private sealed class ProgramDefinitions : IReadOnlyList<TorizoBellyPaletteFxProgramDefinition>
     {
+        /// <summary>Exactly one belly palette loop for each Torizo variant.</summary>
         public int Count => 2;
+        /// <summary>Builds the requested variant's entry, first color record, and loop-command pointers.</summary>
         public TorizoBellyPaletteFxProgramDefinition this[int index] => index switch
         {
             (int)TorizoBellyPaletteOwner.BombTorizo => Create(TorizoBellyPaletteOwner.BombTorizo, BombDefinition, BombProgram),
@@ -42,16 +45,19 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
 
+        /// <summary>Derives record and loop offsets from the native setup length and six fixed-size frames.</summary>
         private static TorizoBellyPaletteFxProgramDefinition Create(
             TorizoBellyPaletteOwner owner, ushort definition, ushort start) =>
             new(owner, definition, start, (ushort)(start + 8),
                 (ushort)(start + 8 + FrameCount * FrameByteCount));
 
+        /// <summary>Yields both variant definitions in palette-definition order.</summary>
         public IEnumerator<TorizoBellyPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Exposes the same two definitions to non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>
@@ -98,6 +104,7 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
 /// <summary>One Torizo-specific entry and six-frame belly palette loop.</summary>
 public sealed class TorizoBellyPaletteFxProgramDefinition
 {
+    /// <summary>Stores the native definition and derived instruction offsets for one Torizo palette loop.</summary>
     internal TorizoBellyPaletteFxProgramDefinition(
         TorizoBellyPaletteOwner owner,
         ushort definitionPointer,

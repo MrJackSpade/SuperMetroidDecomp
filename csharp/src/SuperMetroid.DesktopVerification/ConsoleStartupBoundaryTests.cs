@@ -6,9 +6,12 @@ using System.Diagnostics;
 /// </summary>
 internal static class ConsoleStartupBoundaryTests
 {
+    /// <summary>Argument that selects the child process's deliberate startup failure path.</summary>
     public const string FailingChildFlag = "--console-startup-failure-child";
+    /// <summary>Exception text the parent must find on the failing child's standard error.</summary>
     public const string ExpectedFailure = "Expected console startup-boundary fixture failure.";
 
+    /// <summary>Starts the failing child and requires a nonzero exit with its exception reported on standard error.</summary>
     public static void Run()
     {
         var start = new ProcessStartInfo("dotnet")

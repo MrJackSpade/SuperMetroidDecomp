@@ -131,6 +131,7 @@ internal static class ReplayTraceCompactor
             throw new InvalidDataException("The compact trace holds records the full capture does not.");
     }
 
+    /// <summary>Writes each full-capture record's layout payload XORed with the previous one; returns the record count.</summary>
     private static int WriteRecords(string sourceDirectory, string destinationDirectory, ReplayTraceLayout layout, int initialRecord)
     {
         using FileStream sourceFile = File.OpenRead(Path.Combine(sourceDirectory, ReplayTrace.CheckpointStreamFile));
@@ -167,6 +168,7 @@ internal static class ReplayTraceCompactor
         return read == record.Length ? true : throw new InvalidDataException("The full native capture ends inside a checkpoint record.");
     }
 
+    /// <summary>Requires two streams to hold identical bytes.</summary>
     private static void RequireSameStream(Stream expected, Stream actual)
     {
         var left = new byte[1 << 16];

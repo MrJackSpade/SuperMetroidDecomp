@@ -10,6 +10,7 @@ namespace SuperMetroid.BuildPolicyVerification;
 /// </summary>
 internal static class Program
 {
+    /// <summary>Runs the policy fixture checks with a no-dialog process boundary and reports failures to stderr.</summary>
     private static int Main(string[] args)
     {
         try
@@ -38,6 +39,7 @@ internal static class Program
         }
     }
 
+    /// <summary>Requires one error-level setting per gated diagnostic and build-time style enforcement.</summary>
     private static void VerifyPolicyConfiguration(string root)
     {
         string editorConfig = File.ReadAllText(Path.Combine(root, "csharp", ".editorconfig"));
@@ -103,6 +105,7 @@ internal static class Program
                 string.Join(Environment.NewLine, findings));
     }
 
+    /// <summary>Requires the violating fixture to fail specifically on every gated diagnostic.</summary>
     private static void VerifyViolationsFail(string root)
     {
         BuildResult result = Build(root, "Violations");
@@ -122,6 +125,7 @@ internal static class Program
                 Environment.NewLine + result.Output);
     }
 
+    /// <summary>Requires the compliant fixture to build without reporting any gated diagnostic.</summary>
     private static void VerifyCompliantBuilds(string root)
     {
         BuildResult result = Build(root, "Compliant");
@@ -157,6 +161,7 @@ internal static class Program
         return new BuildResult(process.ExitCode, output + error.Result);
     }
 
+    /// <summary>Enumerates maintained C# and workflow files while skipping build output and fixture directories.</summary>
     private static IEnumerable<string> MaintainedFiles(string root)
     {
         var pending = new Stack<string>([Path.Combine(root, "csharp"), Path.Combine(root, ".github")]);
@@ -174,6 +179,7 @@ internal static class Program
         }
     }
 
+    /// <summary>Walks upward from the executable until the full C# solution identifies the repository root.</summary>
     private static string FindRepositoryRoot(string start)
     {
         for (DirectoryInfo? directory = new(start); directory is not null; directory = directory.Parent)
@@ -184,9 +190,11 @@ internal static class Program
         throw new DirectoryNotFoundException($"No repository root above {start}.");
     }
 
+    /// <summary>Formats a maintained file path relative to the repository for policy error reports.</summary>
     private static string Relative(string root, string path) =>
         Path.GetRelativePath(root, path).Replace('\\', '/');
 
+    /// <summary>Exit status and combined process output from one plain fixture build.</summary>
     private sealed record BuildResult(int ExitCode, string Output);
 }
 

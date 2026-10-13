@@ -7,16 +7,26 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable reserve labels, digits and arrow appearance; energy and mode behavior stay compiled.</summary>
 public sealed class PauseReserveUiPresentation
 {
+    /// <summary>Mode, Reserve Tank, Manual, and Auto strips retaining only departures from stock artwork.</summary>
     private readonly Dictionary<string, ReserveLabel> labels;
+    /// <summary>Byte position of the leftmost reserve-supply digit in the equipment tilemap.</summary>
     private readonly int digitOffset;
+    /// <summary>Optional authored digit words; null reuses the consecutive stock glyph sequence.</summary>
     internal readonly byte[][]? digits;
+    /// <summary>Optional authored arrow-cell positions; null uses the native stem and arm layout.</summary>
     internal readonly int[]? arrowOffsets;
+    /// <summary>BG palette selections used for active and inactive arrow tile cells.</summary>
     private readonly int enabledPalette, disabledPalette;
+    /// <summary>Two bevel colors shown when AUTO pulse animation is inactive.</summary>
     private readonly Bgr555 solidColor6, solidColor11;
+    /// <summary>Only pulse starting colors that differ from the reversed solid bevel colors.</summary>
     private readonly (Bgr555? Color6, Bgr555? Color11) arrowStartEdits;
+    /// <summary>Grey midpoint levels from which each mirrored pulse ramp is calculated.</summary>
     private readonly (int Color6, int Color11) arrowGreyLevels;
+    /// <summary>Independently edited pulse colors that depart from the mirrored ramp.</summary>
     internal readonly Dictionary<int, Bgr555> arrowColorEdits = [];
 
+    /// <summary>Compacts stock-equivalent digit/arrow positions and derives sparse label and pulse-color edits.</summary>
     private PauseReserveUiPresentation(PauseReserveUiParts parts)
     {
         this.labels = parts.Labels; this.digitOffset = parts.DigitOffset;
@@ -151,6 +161,7 @@ public sealed class PauseReserveUiPresentation
         });
     }
 
+    /// <summary>Uses the supplied independent bevel shade when present; otherwise mirrors the calculated 32-phase ramp.</summary>
     private Bgr555 ArrowColor(int frame, bool second)
     {
         frame &= PauseReserveUiDefinitions.ArrowFrames - 1;
@@ -191,6 +202,7 @@ public sealed class PauseReserveUiPresentation
             (Color(frame?.Color6, $"arrow frame {index} color 6"), Color(frame?.Color11, $"arrow frame {index} color 11"))).ToArray();
         return new(new PauseReserveUiParts { Labels = labels, DigitOffset = Offset(document.Digits.Anchor, "Digits"), Digits = digits, ArrowOffsets = arrowOffsets, EnabledPalette = document.Arrow.EnabledPalette, DisabledPalette = document.Arrow.DisabledPalette, SolidColor6 = Color(document.Arrow.SolidColor6, "solid color 6"), SolidColor11 = Color(document.Arrow.SolidColor11, "solid color 11"), ArrowFrames = frames });
 
+        // Converts a bounded equipment-page cell coordinate to its little-endian byte offset.
         static int Offset(PauseGridPoint? point, string name)
         {
             if (point is null || (uint)point.Column >= PauseReserveUiDefinitions.TilemapColumns ||
@@ -198,6 +210,7 @@ public sealed class PauseReserveUiPresentation
                 throw new InvalidDataException($"Pause reserve UI {name} anchor is outside the 32x32 tilemap.");
             return (point.Row * PauseReserveUiDefinitions.TilemapColumns + point.Column) * sizeof(ushort);
         }
+        // Requires nonnull five-bit RGB components before packing an arrow color.
         static Bgr555 Color(PaletteRgb5? color, string name)
         {
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
@@ -206,13 +219,18 @@ public sealed class PauseReserveUiPresentation
         }
     }
 
+    /// <summary>Resolves unchanged reserve-label cells from stock and stores only edited placement or tile words.</summary>
     private sealed class ReserveLabel(string name, int? offsetEdit, Dictionary<int, ushort> edits)
     {
+        /// <summary>Uses an authored placement when changed, otherwise the native label anchor.</summary>
         internal int Offset => offsetEdit ?? PauseReserveUiDefinitions.StockLabelOffset(name);
+        /// <summary>Uses the native strip width for the selected label.</summary>
         internal int WordCount => PauseReserveUiDefinitions.StockLabelWords(name);
+        /// <summary>Returns an edited tile word or the corresponding stock glyph and attributes.</summary>
         internal ushort Word(int index) => edits.TryGetValue(index, out ushort selected)
             ? selected : PauseReserveUiDefinitions.StockLabelWord(name, index);
 
+        /// <summary>Compares every supplied little-endian word and destination with stock, retaining only differences.</summary>
         internal static ReserveLabel Load(string name, int offset, ReadOnlySpan<byte> bytes)
         {
             var edits = new Dictionary<int, ushort>();
@@ -239,31 +257,31 @@ public sealed class PauseReserveUiPresentation
     /// <summary>The pause screen's reserve-tank labels, digits and arrow colours (#633).</summary>
     private sealed record PauseReserveUiParts
     {
-        /// <summary>Labels.</summary>
+        /// <summary>The four compiled strips with stock-equivalent cells omitted.</summary>
         public required Dictionary<string, ReserveLabel> Labels { get; init; }
 
-        /// <summary>Digit offset.</summary>
+        /// <summary>Byte anchor of the three-place reserve supply in the equipment tilemap.</summary>
         public required int DigitOffset { get; init; }
 
-        /// <summary>Digits.</summary>
+        /// <summary>Ten compiled decimal glyph words before stock-equivalent compression.</summary>
         public required byte[][] Digits { get; init; }
 
-        /// <summary>Arrow offsets.</summary>
+        /// <summary>Ten distinct arrow-cell byte positions, vertical stem before horizontal arm.</summary>
         public required int[] ArrowOffsets { get; init; }
 
-        /// <summary>Enabled palette.</summary>
+        /// <summary>BG palette selector used when the pause owner enables reserve control.</summary>
         public required int EnabledPalette { get; init; }
 
-        /// <summary>Disabled palette.</summary>
+        /// <summary>BG palette selector used when reserve control is unavailable.</summary>
         public required int DisabledPalette { get; init; }
 
-        /// <summary>Solid color6.</summary>
+        /// <summary>Static arrow bevel color for palette slot six outside pulse animation.</summary>
         public required Bgr555 SolidColor6 { get; init; }
 
-        /// <summary>Solid color11.</summary>
+        /// <summary>Static arrow bevel color for palette slot eleven outside pulse animation.</summary>
         public required Bgr555 SolidColor11 { get; init; }
 
-        /// <summary>Arrow frames.</summary>
+        /// <summary>Two RGB5 bevel colors for each of the 32 mirrored pulse phases.</summary>
         public required (Bgr555, Bgr555)[] ArrowFrames { get; init; }
     }
 }

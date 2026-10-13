@@ -3,7 +3,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Physical water-entry particle layouts selected by Samus's movement type.</summary>
 internal enum WaterSplashKind : byte
 {
+    /// <summary>Single diving water-entry splash used by airborne movement.</summary>
     Diving = 0,
+    /// <summary>Paired surface splashes used by grounded postures.</summary>
     GroundedPair = 1,
 }
 
@@ -13,9 +15,13 @@ internal enum WaterSplashKind : byte
 [Flags]
 internal enum CrateriaAtmosphericEffectFlags : byte
 {
+    /// <summary>No special landing, entrance, or wet-footstep behavior.</summary>
     None = 0,
+    /// <summary>Landing Site atmospheric effect policy.</summary>
     LandingSite = 1,
+    /// <summary>Wrecked Ship entrance atmospheric effect policy.</summary>
     WreckedShipEntrance = 2,
+    /// <summary>Wet-floor footstep policy for selected Crateria rooms.</summary>
     WetFootsteps = 4,
 }
 

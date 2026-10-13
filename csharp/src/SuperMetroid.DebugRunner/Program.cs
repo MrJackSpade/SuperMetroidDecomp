@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 /// </summary>
 internal static class Program
 {
+    /// <summary>Dispatches tool commands behind the no-dialog process boundary and returns a failing exit code on error.</summary>
     private static int Main(string[] args)
     {
         if (OperatingSystem.IsWindows())
@@ -44,6 +45,7 @@ internal static class Program
 /// </summary>
 static partial class NativeConsoleProcess
 {
+    /// <summary>Disables Windows error-reporting dialogs before the command dispatcher performs fallible work.</summary>
     [LibraryImport("kernel32.dll")]
     internal static partial uint SetErrorMode(uint errorMode);
 }

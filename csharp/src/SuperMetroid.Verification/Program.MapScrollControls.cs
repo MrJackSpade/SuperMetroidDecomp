@@ -6,8 +6,10 @@ using SuperMetroid.Core.Rom;
 using static InstalledFileSelectMapVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled file-map controller masks and direction priority against native arrow records.</summary>
 internal static class MapScrollControlsVerification
 {
+    /// <summary>Compares every direction combination, scroll trajectory, sound boundary, and installed menu under a guarded bus.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native map-arrow controller masks and direction order")]
     internal static void VerifyCompiledMapScrollControls(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
@@ -53,6 +55,7 @@ internal static class MapScrollControlsVerification
         Console.WriteLine("Compiled map controls: four native masks/order, 16 direction combinations, trajectories/sound boundaries and guarded full menu parity pass.");
     }
 
+    /// <summary>Forbids runtime reads of controller binding and direction operands in native arrow records.</summary>
     private static CartridgeReadGuard NewMapScrollControlGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => (uint)(address - FileSelectMapRomData.ScrollArrows) < MapScrollControls.DirectionCount * 10 &&

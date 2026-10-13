@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 
+/// <summary>Checks reported Kraid head, nail, lint, and body collision behavior.</summary>
 internal static class KraidReportedCollisionsVerification
 {
+    /// <summary>Runs each reported contact path and collects failures before leaving the verifier.</summary>
     internal static int VerifyKraidReportedCollisions(ISnesAddressSpace bus, SuperMetroidGame game,
         SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState state)
     {

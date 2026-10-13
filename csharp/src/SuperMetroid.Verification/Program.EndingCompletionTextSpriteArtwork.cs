@@ -9,8 +9,10 @@ using SuperMetroid.Core.Rom;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Checks ending completion-text OAM and live replacement in the actual credits scene.</summary>
 internal static class EndingCompletionTextSpriteArtworkVerification
 {
+    /// <summary>Compares every installed completion frame at on-screen and wrapped off-screen anchors.</summary>
     internal static void VerifyEndingCompletionTextSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
@@ -42,6 +44,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
         }
     }
 
+    /// <summary>Edits operation text art and checks its live pixel change without rereading sprite ROM.</summary>
     internal static void VerifyEndingCompletionTextVisualOverride(GameInstallation installation,
         EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
     {

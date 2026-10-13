@@ -10,8 +10,10 @@ using static EndingRewardIconArtworkVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Compares installed ending Mode-7 scenes with retail art and checks live override rebinding.</summary>
 internal static class EndingMode7ArtworkVerification
 {
+    /// <summary>Checks three installed scenes against decompressed cartridge data and rendered output, then verifies map/PNG edits, partial DMA preservation, and stock repair.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending Mode-7 scene artwork")]
     internal static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
@@ -224,6 +226,7 @@ internal static class EndingMode7ArtworkVerification
     }
 
 
+    /// <summary>Denies reads of the ending scene, reward-icon, and post-credits art sources while production presentation uses installed assets.</summary>
     internal static MutableCartridgeReadGuard NewEndingMode7SourceReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);

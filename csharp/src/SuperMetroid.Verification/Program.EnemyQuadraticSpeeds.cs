@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled quadratic speed words and their Polyp, Beetom, Hopper, KiHunter, and Maw consumers.</summary>
 internal static class EnemyQuadraticSpeedsVerification
 {
+    /// <summary>Compares native word windows and focused production integrations, including odd offsets and wrap.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled quadratic enemy speeds")]
     internal static void VerifyCompiledQuadraticEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {

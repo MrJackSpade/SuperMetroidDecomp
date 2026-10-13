@@ -7,8 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Named complete presentation palettes; no native offsets, palette programs or selection rules.</summary>
 public sealed class MapStaticPalettes
 {
-    private readonly Bgr555[] pause, fileSelect;
+    /// <summary>Complete pause-screen CGRAM selection copied from the asset document.</summary>
+    private readonly Bgr555[] pause;
+    /// <summary>Complete file-select CGRAM selection copied from the asset document.</summary>
+    private readonly Bgr555[] fileSelect;
+    /// <summary>Six Zebes area-map CGRAM selections keyed by area identity.</summary>
     private readonly Dictionary<AreaId, Bgr555[]> world;
+    /// <summary>Takes ownership of validated complete map palettes.</summary>
     internal MapStaticPalettes(Bgr555[] pause, Bgr555[] fileSelect, Dictionary<AreaId, Bgr555[]> world)
     { this.pause = pause; this.fileSelect = fileSelect; this.world = world; }
 
@@ -44,6 +49,7 @@ public sealed class MapStaticPalettes
         return new(Compile(document.Pause, "pause"), Compile(document.FileSelect, "fileSelect"), world);
     }
 
+    /// <summary>Requires exactly 256 RGB5 entries and converts each validated channel triplet to a SNES color word.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? colors, string name)
     {
         if (colors is null || colors.Length != CgramPalettes.ColorCount)

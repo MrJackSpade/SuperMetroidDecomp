@@ -2,8 +2,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks reconstructed menu beveled-square tiles and their editable atlas upload.</summary>
 internal static class MenuBeveledSquarePixelsVerification
 {
+    /// <summary>Compares both native square tile colorways with pixel calculations and verifies isolated PNG edits survive VRAM encoding.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu beveled square pixels")]
     internal static void VerifyMenuBeveledSquarePixels(ISnesAddressSpace rom)

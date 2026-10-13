@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Debug-runner command that publishes the validated production CPU-bus catalog inventory.</summary>
 internal static class CpuBusInventoryGenerator
 {
     /// <summary>

@@ -7,8 +7,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Shitroid's normal palette cycle and three target fades against installed art and native RGB5 data.</summary>
 internal static class EnemyTileArtworkShitroidColorsVerification
 {
+    /// <summary>Exercises edited colors through live CGRAM consumers while preserving native timer selection and forbidding source reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Shitroid colors")]
     internal static void VerifyInstalledShitroidColors(

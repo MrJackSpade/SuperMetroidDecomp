@@ -5,9 +5,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Shinespark echo projectile: its spawn and per-frame step.</summary>
 internal sealed class ShinesparkEchoProjectile
 {
+    /// <summary>Animation owner that clears an echo when its installed handler completes.</summary>
     private readonly ProjectileAnimation _animation;
+    /// <summary>Live Samus projectile slots, including the two fixed indices reserved for released crash echoes.</summary>
     private readonly ProjectileSlotTable _slotTable;
 
+    /// <summary>Binds projectile animation and slot ownership for Shinespark's departing echoes.</summary>
     internal ShinesparkEchoProjectile(ProjectileAnimation animation, ProjectileSlotTable slotTable)
     {
         _animation = animation;

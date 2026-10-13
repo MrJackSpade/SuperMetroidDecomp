@@ -16,7 +16,9 @@ internal abstract class YappingMawBodyProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort FacingUp = 0xec5c;
 
+    /// <summary>Each facing program has one duration word and one terminal sleep word.</summary>
     public static int MechanicsWordCount => 4;
+    /// <summary>Each facing program has one interleaved spritemap operand.</summary>
     public static int PresentationWordCount => 2;
 
     /// <summary>$86:EC56-EC61 contains two six-byte single-pose/sleep programs, down then up.</summary>
@@ -27,8 +29,10 @@ internal abstract class YappingMawBodyProjectileInstructionProgramDefinitions
         return new((ushort)(FacingDown + index / 2 * 6 + operation * 4),
             operation == 0 ? (ushort)1 : (ushort)EnemyProjectileInstruction.Sleep);
     }
+    /// <summary>Locates the pose operand following the duration word of each facing list.</summary>
     public static ushort PresentationWordAddress(int index) => (uint)index < PresentationWordCount
         ? (ushort)(FacingDown + index * 6 + sizeof(ushort)) : throw new IndexOutOfRangeException();
+    /// <summary>Reads a compiled duration or sleep word and rejects any other bank-$86 address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

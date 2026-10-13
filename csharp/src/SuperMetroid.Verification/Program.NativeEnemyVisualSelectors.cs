@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Reads the retail selector operands used as the oracle for enemy visual verification.</summary>
 internal static class NativeEnemyVisualSelectorsVerification
 {
     /// <summary>

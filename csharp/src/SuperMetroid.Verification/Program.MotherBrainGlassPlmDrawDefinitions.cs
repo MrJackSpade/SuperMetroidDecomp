@@ -12,8 +12,10 @@ using static MotherBrainGlassPlmProgramVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 
+/// <summary>Checks compiled Mother Brain glass draw layouts through the guarded production PLM path.</summary>
 internal static class MotherBrainGlassPlmDrawDefinitionsVerification
 {
+    /// <summary>Compares eleven physical draw lists with cartridge data and verifies editable visual words leave collision blocks intact.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass PLM draw definitions")]
     internal static void VerifyMotherBrainGlassPlmDrawDefinitions(
         SuperMetroidAddressSpace rom)
@@ -56,6 +58,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             "  Mother Brain glass PLM: 11 guarded native layouts and editable stock/override appearance preserve physical blocks.");
     }
 
+    /// <summary>Draws one selected glass layout in a synthetic room while denying reads of its original cartridge payload.</summary>
     private static void VerifyMotherBrainGlassNativeDrawPath(
         byte[] bank84,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists,
@@ -122,6 +125,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         }
     }
 
+    /// <summary>Checks extracted stock validation, override persistence, and rejection of malformed or tampered visual files.</summary>
     private static void VerifyMotherBrainGlassVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
@@ -181,6 +185,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         }
     }
 
+    /// <summary>Blocks cartridge reads across every compiled glass draw list's run headers and tile words.</summary>
     private static CartridgeReadGuard NewMotherBrainGlassDrawReadGuard(
         ISnesAddressSpace source, RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>
         new CartridgeReadGuard(source).Forbid(address => lists.Any(list =>

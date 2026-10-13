@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Seven shell-remnant poses: a sixteen-pixel left piece and two small right pieces.</summary>
 internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Uses calculated shell parts only for one of the seven remnant frame pointers.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 7; frame++)
@@ -13,7 +14,9 @@ internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSp
                 return supplied.CalculateIfMatching(new IntroEggRemnantParts(frame));
         return supplied;
     }
+    /// <summary>Each remnant pose consists of one large left piece and two small right pieces.</summary>
     public int Count => 3;
+    /// <summary>Selects early strip or late patch tiles and native position for one shell piece.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -36,13 +39,16 @@ internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSp
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Enumerates the three shell pieces in source order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same shell pieces through non-generic enumeration.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Atlas origins used by early and late intro egg shell-remnant poses.</summary>
 internal static class IntroEggRemnantAtlas
 {
     /// <summary>Tile$107, first early top-right remnant drawing;left pieces occupy the next atlas row.

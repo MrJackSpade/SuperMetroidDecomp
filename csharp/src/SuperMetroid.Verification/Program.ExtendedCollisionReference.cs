@@ -2,12 +2,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 
+/// <summary>Independent cartridge walker for extended enemy spritemap collision
+/// used as a reference for compiled overlap geometry.</summary>
 internal static class ExtendedCollisionReferenceVerification
 {
-    // Test-only cartridge walker for $A0:9A5A/$9B7F. Kept independent of the
-    // compiled geometry and production overlap helper after removal of the
-    // runtime ROM fallback in a15b3aea0. Arguments mirror the reflected subject,
-    // including its output callback, so existing boundary assertions stay intact.
+    /// <summary>Walks native component and rectangle records for $A0:9A5A/$9B7F,
+    /// retaining shot versus touch edge rules and the selected reaction pointer.</summary>
+    /// <remarks>The argument array mirrors the reflected production helper, including
+    /// its output slot; this oracle remains independent of compiled geometry.</remarks>
     [CpuBusBoundary("exact bus test: retail ROM reference model of extended spritemap collision")]
     internal static bool ReferenceExtendedCollision(CartridgeImportAddressSpace source, object?[] arguments)
     {

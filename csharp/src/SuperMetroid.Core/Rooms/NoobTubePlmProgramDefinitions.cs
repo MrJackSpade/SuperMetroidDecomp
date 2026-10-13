@@ -67,6 +67,7 @@ internal static class NoobTubePlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Reads only the packed library-two break-sound byte between the two word-aligned portions of the main list.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == BreakSoundAddress)
@@ -78,6 +79,7 @@ internal static class NoobTubePlmProgramDefinitions
         return false;
     }
 
+    /// <summary>Recognizes word starts within a reachable contiguous portion of the PLM program.</summary>
     private static bool IsEvenStep(ushort address, ushort first, ushort last) =>
         address >= first && address <= last && ((address - first) & 1) == 0;
 }

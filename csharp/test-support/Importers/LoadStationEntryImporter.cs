@@ -10,6 +10,8 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM bank-$80 load-station pointer table and entries → LoadStationEntry")]
 internal static class LoadStationEntryImporter
 {
+    /// <summary>Follows the area's bank-$80 station table to import its room, door,
+    /// camera position, and signed Samus offsets from one native entry.</summary>
     public static LoadStationEntry Load(ISnesAddressSpace bus, AreaId areaIndex, byte stationIndex)
     {
         Ensure.NotNull(bus);
@@ -25,6 +27,7 @@ internal static class LoadStationEntryImporter
             SamusOffset: new(unchecked((short)ReadWord(bus, address + 12)), unchecked((short)ReadWord(bus, address + 10))));
     }
 
+    /// <summary>Reads one little-endian entry word through the cartridge import boundary.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 }

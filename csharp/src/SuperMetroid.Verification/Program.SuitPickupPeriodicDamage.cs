@@ -5,6 +5,7 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Confirms periodic damage is deferred during the suit pickup transformation (#1337).</summary>
 internal static class SuitPickupPeriodicDamageVerification
 {
     /// <summary>
@@ -84,6 +85,7 @@ internal static class SuitPickupPeriodicDamageVerification
         Console.WriteLine($"  Suit pickup periodic damage: {pickupFrames} pickup frames keep energy; the deferred damage lands afterwards.");
     }
 
+    /// <summary>Runs the suit pickup periodic damage suite.</summary>
     [VerificationCommand("--suit-pickup-periodic-damage")]
     internal static int SuitPickupPeriodicDamageCommand()
     {

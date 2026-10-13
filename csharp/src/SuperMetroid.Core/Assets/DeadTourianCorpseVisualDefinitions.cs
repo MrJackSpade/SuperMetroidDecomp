@@ -12,6 +12,7 @@ internal static class DeadTourianCorpseVisualDefinitions
     /// <summary>The native corpse instruction and OAM bank, $A9.</summary>
     internal const byte Bank = 0xa9;
 
+    /// <summary>Distinct dead Zoomer, Ripper, and Skree operand-to-frame identities in bank $A9.</summary>
     private static readonly (ushort Operand, ushort Frame, string Name)[] Entries =
     [
         (0xecf7, 0xed79, "dead_zoomer_corpse_0"),
@@ -24,6 +25,7 @@ internal static class DeadTourianCorpseVisualDefinitions
         (0xed21, 0xede1, "dead_skree_corpse_4"),
     ];
 
+    /// <summary>Dead Sidehopper hop, idle, corpse, and initially-dead selectors, including reused OAM roots.</summary>
     private static readonly (ushort Operand, ushort Frame)[] SidehopperSelectors =
     [
         (0xecae, 0xee3c), (0xecb2, 0xee61),
@@ -34,6 +36,7 @@ internal static class DeadTourianCorpseVisualDefinitions
         (0xecf1, 0xed4f),
     ];
 
+    /// <summary>Provides each installed corpse spritemap once for the four dead Tourian enemy families.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         .. Entries.Select(entry => new EnemySpritemapDefinition(
@@ -45,6 +48,7 @@ internal static class DeadTourianCorpseVisualDefinitions
         new(Bank, 0xed4f, "dead_sidehopper_initially_dead"),
     ];
 
+    /// <summary>Resolves a compiled Zoomer, Ripper, or Skree visual operand, rejecting addresses outside that set.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {
         foreach ((ushort operand, ushort frame, _) in Entries)
@@ -56,6 +60,7 @@ internal static class DeadTourianCorpseVisualDefinitions
             $"Dead Tourian corpse visual selector $A9:{operandAddress:X4} is not compiled.");
     }
 
+    /// <summary>Resolves the separate dead Sidehopper selector range, including repeated hop poses.</summary>
     internal static ushort SidehopperFrameAt(ushort operandAddress)
     {
         foreach ((ushort operand, ushort frame) in SidehopperSelectors)

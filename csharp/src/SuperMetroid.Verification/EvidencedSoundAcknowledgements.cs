@@ -29,14 +29,19 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementSour
         ClearAcknowledgement = 3,
     }
 
+    /// <summary>The three sound-effect libraries occupy adjacent handler-state bytes.</summary>
     private const int LibraryCount = 3;
 
+    /// <summary>Last captured APU_SoundStateLib values used to detect waiting-state exits.</summary>
     private readonly byte[] states = new byte[LibraryCount];
+    /// <summary>Last captured APU_CurrentSoundLib values compared with port echoes.</summary>
     private readonly byte[] currents = new byte[LibraryCount];
-    // False after an update without a native checkpoint, until the next capture.
+    /// <summary>False after an update without a native checkpoint, until the next capture.</summary>
     private bool captured;
+    /// <summary>Native memory expected after the current update, captured once that update completes.</summary>
     private NativeCheckpointMemory? expectedAfter;
 
+    /// <summary>Seeds sound-handler states from the native memory before replay starts.</summary>
     public EvidencedSoundAcknowledgements(NativeCheckpointMemory nativeMemory) => Capture(nativeMemory);
 
     /// <summary>

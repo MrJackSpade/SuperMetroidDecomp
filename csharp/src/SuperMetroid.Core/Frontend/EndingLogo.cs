@@ -7,16 +7,26 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Native logo actors followed by E58A's sixteen palette transfers.</summary>
 internal sealed class EndingLogo
 {
+    /// <summary>Instruction source for the four native logo actors.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Scene callback fired when the top logo half reaches its landing point.</summary>
     private readonly Action landed;
+    /// <summary>Two moving halves and two supporting logo sprites.</summary>
     private readonly IntroDiscoverySprite[] actors = new IntroDiscoverySprite[4];
+    /// <summary>Accelerating per-frame speeds of the two moving halves.</summary>
     private readonly int[] speeds = [EndingLogoDefinitions.InitialSpeed, EndingLogoDefinitions.InitialSpeed];
+    /// <summary>Stops each half at its respective landing point.</summary>
     private readonly bool[] settled = new bool[2];
+    /// <summary>Selected palette source rebound after scene-state restoration.</summary>
     [NonSerialized] private EndingPaletteCatalog? paletteArtwork;
+    /// <summary>Becomes true when the grey-out instruction begins paired background and OBJ transfers.</summary>
     public bool CrossfadeStarted { get; internal set; }
+    /// <summary>Number of paired palette transfers already applied.</summary>
     public int PaletteStep { get; internal set; }
+    /// <summary>The logo hands off to percentage text after its sixteenth palette step.</summary>
     public bool Completed => PaletteStep == EndingLogoDefinitions.PaletteSteps;
 
+    /// <summary>Creates four logo actors and loads the initial artwork palette into CGRAM.</summary>
     public EndingLogo(ISnesAddressSpace bus, SnesCgram cgram, Action landed,
         EndingPaletteCatalog? paletteArtwork = null)
     {
@@ -41,6 +51,7 @@ internal sealed class EndingLogo
     /// <summary>Restored scene state keeps its current CGRAM; only future transfers change.</summary>
     public void BindPaletteArtwork(EndingPaletteCatalog? value) => paletteArtwork = value;
 
+    /// <summary>Applies the pending crossfade pair before moving actors and interpreting their next instructions.</summary>
     public void Step(SnesCgram cgram, Func<ushort, ushort>? instructionWord = null)
     {
         if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
@@ -65,6 +76,7 @@ internal sealed class EndingLogo
         }
     }
 
+    /// <summary>Accelerates one logo half toward its landing point and signals arrival for the top half.</summary>
     private void MoveHalf(int index)
     {
         var actor = actors[index];
@@ -82,6 +94,7 @@ internal sealed class EndingLogo
         else speeds[index] += EndingLogoDefinitions.Acceleration;
     }
 
+    /// <summary>Handles the grey-out opcode by starting crossfade on the following step.</summary>
     private ushort Instruction(EndingLogoInstruction opcode, ushort cursor)
     {
         if (opcode != EndingLogoInstruction.GreyOut)
@@ -90,6 +103,7 @@ internal sealed class EndingLogo
         return cursor;
     }
 
+    /// <summary>Draws active logo actors into supplied OAM or a newly finalized frame buffer.</summary>
     public OamBuffer Draw(EndingLogoSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
         var oam = destination ?? new OamBuffer();

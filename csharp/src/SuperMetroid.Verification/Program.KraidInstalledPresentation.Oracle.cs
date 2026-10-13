@@ -4,6 +4,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Import-only Kraid BG2 and head-program reference data, kept
+/// separate from the gameplay constructors and installed presentation path.</summary>
 internal static class KraidInstalledPresentationOracleVerification
 {
     /// <summary>
@@ -33,6 +35,8 @@ internal static class KraidInstalledPresentationOracleVerification
         return result;
     }
 
+    /// <summary>Copies one native head tilemap transfer into reference VRAM
+    /// without changing the body map that later updates from working memory.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for one Kraid head tilemap frame")]
     internal static (KraidEnemyState State, SnesVram Vram) ReadImportedKraidHeadFrame(

@@ -29,5 +29,9 @@ public static class BackgroundBlockConversions
     public static Position16<RoomBlocks> ToSourceBlocks(this Position16<Bg2Pixels> layer) =>
         new(SignExtendedBlock(layer.X), SignExtendedBlock(layer.Y));
 
+    /// <summary>
+    /// Arithmetic-shifts the signed pixel word by one block width, preserving the native
+    /// sign extension when a layer position crosses the twelve-bit source boundary.
+    /// </summary>
     private static ushort SignExtendedBlock(ushort position) => unchecked((ushort)((short)position >> 4));
 }

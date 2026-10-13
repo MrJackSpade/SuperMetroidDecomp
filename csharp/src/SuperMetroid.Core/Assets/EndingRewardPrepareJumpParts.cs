@@ -7,11 +7,14 @@ namespace SuperMetroid.Core.Assets;
 /// grid; draw order traverses edge strips before the interior rows.</summary>
 internal sealed class EndingRewardPrepareJumpParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Uses calculated jump-preparation geometry only for the matching stock frame; supplied edits and other reward poses keep their parts.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
         pointer == EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.LargeSamusFromEndingPreparingToJump)
             ? supplied.CalculateIfMatching(new EndingRewardPrepareJumpParts()) : supplied;
 
+    /// <summary>The suited preparation pose has 22 parts spanning boundary strips and interior rows.</summary>
     public int Count => 22;
+    /// <summary>Derives one part's atlas tile, centered offset, and size in the native edge-first draw order.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -37,10 +40,12 @@ internal sealed class EndingRewardPrepareJumpParts : IReadOnlyList<CompiledSprit
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Yields the complete jump-preparation pose in native OAM order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same ordered pose pieces to non-generic collection consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

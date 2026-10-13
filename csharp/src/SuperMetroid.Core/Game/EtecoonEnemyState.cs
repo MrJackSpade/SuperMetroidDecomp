@@ -59,8 +59,10 @@ public enum EtecoonAiFunction : ushort
 /// </summary>
 public sealed class EtecoonEnemyState
 {
+    /// <summary>Physical enemy record whose variables A through F hold Etecoon's native state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates a typed view over the existing Etecoon slot without copying its variables.</summary>
     internal EtecoonEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

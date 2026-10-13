@@ -10,10 +10,12 @@ internal static class WreckedShipGhostVisualDefinitions
     /// <summary>Three Coven floating compositions at $A8:9E46..9E72.</summary>
     internal const int FrameCount = 3;
 
+    /// <summary>Collects spritemap operands from the ghost's compiled presentation instructions.</summary>
     internal static ushort[] Operands() => Enumerable.Range(0,
         WreckedShipGhostInstructionProgramDefinitions.PresentationWordCount)
         .Select(WreckedShipGhostInstructionProgramDefinitions.PresentationWordAddress).ToArray();
 
+    /// <summary>Resolves the three ordinary floating compositions from bank-$A8 operand words.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
         CompiledEnemyCompositionDefinitions.Frames(Bank, Operands(), FrameCount, "wrecked_ship_ghost");
 }

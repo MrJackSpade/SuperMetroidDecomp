@@ -15,8 +15,10 @@ using SuperMetroid.Core.Audio;
 using static ManagedAudioVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks DSP voice retirement and music playback across SPC sample-bank uploads.</summary>
 internal static class AudioBankTransitionVerification
 {
+    /// <summary>Confirms a released voice remains silent after its sample disappears while BRR headers still set ENDX and a new key-on plays.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     internal static void VerifyReleasedVoiceBankSwitch()
     {
@@ -52,6 +54,7 @@ internal static class AudioBankTransitionVerification
         }, "an audible unmapped source must still fail loudly");
     }
 
+    /// <summary>Checks that each installed music bank can transition to the captivity track with audible output.</summary>
     internal static void VerifyAudioBankTransition(string directory)
     {
         Suite(nameof(VerifyReleasedVoiceBankSwitch), () => VerifyReleasedVoiceBankSwitch());
@@ -73,6 +76,7 @@ internal static class AudioBankTransitionVerification
         }
     }
 
+    /// <summary>Runs the DSP release and installed music-bank transition checks.</summary>
     [VerificationCommand("--audio-bank-transition")]
     internal static int AudioBankTransitionCommand()
     {

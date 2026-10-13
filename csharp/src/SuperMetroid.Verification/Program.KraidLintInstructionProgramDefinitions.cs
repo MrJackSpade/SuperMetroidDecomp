@@ -16,14 +16,17 @@ using static ImportedSpritemapsVerification;
 using static KraidSmallProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kraid lint instruction timing and sprite selection against the bank A7 cartridge programs.</summary>
 internal static class KraidLintInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge to compare Kraid lint instructions with compiled definitions.</summary>
     internal static void VerifyKraidLintInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidLintInstructionProgramDefinitions), () => VerifyKraidLintInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs both lint programs for all three lint positions and checks their duration, sprite, and cartridge access.</summary>
     internal static void VerifyKraidLintInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -105,6 +108,7 @@ internal static class KraidLintInstructionProgramDefinitionsVerification
             "bytes forbidden.");
     }
 
+    /// <summary>Repeatedly reads the compiled initial instruction to detect allocations in the mechanics lookup.</summary>
     private static int ProbeKraidLintInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -116,6 +120,7 @@ internal static class KraidLintInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects live mechanics reads while recording bank A7 presentation operand reads.</summary>
     private static CartridgeReadGuard NewKraidLintInstructionGuard(ISnesAddressSpace source)
     {
         var guard = new CartridgeReadGuard(source)
@@ -135,6 +140,7 @@ internal static class KraidLintInstructionProgramDefinitionsVerification
         return guard;
     }
 
+    /// <summary>Exposes the Kraid lint instruction checks to the verification command dispatcher.</summary>
     [VerificationCommand("--kraid-lint-instruction-mechanics")]
     internal static int KraidLintInstructionMechanicsCommand()
     {

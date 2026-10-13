@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks the elevator enemy's two-frame instruction loop and native bank $A3 word ownership.</summary>
 internal static class ElevatorInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the pinned cartridge and runs the elevator instruction comparison.</summary>
     internal static void VerifyElevatorInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyElevatorInstructionProgramDefinitions), () => VerifyElevatorInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks control and visual mappings, live loop execution, read guards, and lookup allocation.</summary>
     internal static void VerifyElevatorInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -77,6 +80,7 @@ internal static class ElevatorInstructionProgramDefinitionsVerification
             "mechanics and selector reads forbidden.");
     }
 
+    /// <summary>Checks four owned control words and rejects adjacent bytes and other banks.</summary>
     private static void VerifyElevatorMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x94d6, 0x94da, 0x94de, 0x94e0];
@@ -104,6 +108,7 @@ internal static class ElevatorInstructionProgramDefinitionsVerification
         foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => ElevatorInstructionProgramDefinitionsTooling.MechanicsWord(index), "elevator mechanics bounds");
     }
+    /// <summary>Checks the two exact visual operand addresses across the 16-bit pointer domain.</summary>
     private static void VerifyElevatorPresentationMapping()
     {
         ushort[] expected = [0x94d8, 0x94dc];
@@ -115,6 +120,7 @@ internal static class ElevatorInstructionProgramDefinitionsVerification
         foreach (int index in new[] { int.MinValue, -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => ElevatorInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "elevator visual ordinal bounds");
     }
+    /// <summary>Checks each calculated spritemap pointer and shared selector against its native operand.</summary>
     private static void VerifyElevatorVisualPointers(SuperMetroidAddressSpace rom)
     {
         foreach (ushort operand in new ushort[] { 0x94d8, 0x94dc })
@@ -134,6 +140,7 @@ internal static class ElevatorInstructionProgramDefinitionsVerification
                 AssertEqual((ushort)0, missing, "elevator missing output cleared");
             }
     }
+    /// <summary>Repeats warmed elevator mechanics lookups for the caller's allocation measurement.</summary>
     private static int ProbeElevatorInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -145,6 +152,7 @@ internal static class ElevatorInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids compiled control-byte rereads and observes native visual operands.</summary>
     private static CartridgeReadGuard NewElevatorInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(ElevatorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -152,6 +160,7 @@ internal static class ElevatorInstructionProgramDefinitionsVerification
             .ObserveWords(0xa30000, ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount,
                 ElevatorInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Dispatches the elevator instruction-program verification command.</summary>
     [VerificationCommand("--elevator-instruction-program-definitions")]
     internal static int ElevatorInstructionProgramDefinitionsCommand()
     {

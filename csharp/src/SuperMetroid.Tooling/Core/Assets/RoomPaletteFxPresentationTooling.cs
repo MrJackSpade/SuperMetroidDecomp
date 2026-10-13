@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Development-tool instance members of <see cref="RoomPaletteFxPresentation"/>.</summary>
 internal static class RoomPaletteFxPresentationToolingExtensions
 {
+    /// <summary>Inspects installed palette identities for the development dependency audit.</summary>
     extension(RoomPaletteFxPresentation self)
     {
         /// <summary>

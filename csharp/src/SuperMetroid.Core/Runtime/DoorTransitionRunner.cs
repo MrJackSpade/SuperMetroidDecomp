@@ -9,26 +9,46 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class DoorTransitionRunner
 {
+    /// <summary>Draws Samus and room actors during door waits and fades.</summary>
     private readonly GameplayActorDrawing _actorDrawing;
+    /// <summary>Provides scroll state to the enemy projectile pass.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Supplies shared bomb state and Power Bomb audio during door dispatch.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
+    /// <summary>Clears the Ceres elevator Mode 7 room state on its exit door.</summary>
     private readonly CeresElevatorShaftRoomMainState _ceresElevatorShaft;
+    /// <summary>Holds active and NMI-published display transforms across transitions.</summary>
     private readonly GameplayDisplayState _display;
+    /// <summary>Runs enemy projectile instructions and checks elevator drawing state.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Runs the enemy main phase while Samus gameplay is suspended.</summary>
     private readonly EnemyFramePhase _enemyPhase;
+    /// <summary>Advances HDMA pre-instructions during the main-loop door prologue.</summary>
     private readonly HdmaObjectPhase _hdmaPhase;
+    /// <summary>Sets and resets the Maridia elevatube room behavior at its doors.</summary>
     private readonly MaridiaElevatubeRoomMainState _maridiaElevatube;
+    /// <summary>Provides native frame counters to enemy projectile processing.</summary>
     private readonly NmiClock _nmi;
+    /// <summary>Runs NMI on each sound-wait dispatch before the door state handler.</summary>
     private readonly NmiHandler _nmiHandler;
+    /// <summary>Collects transition actor sprites for the current frame.</summary>
     private readonly OamBuffer _oam;
+    /// <summary>Provides the locked Samus state and its presentation during transitions.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Spawns door setup PLMs and manages their sound queue.</summary>
     private readonly RoomPlmSystem _plms;
+    /// <summary>Holds destination room data, camera, and background streamer.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Applies room liquid state during the door HDMA pass.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Provides boss bits and advances main-loop random state.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Starts Wrecked Ship treadmill animation at a door entrance.</summary>
     private readonly WreckedShipTreadmillAnimatedTilesState _wreckedShipTreadmill;
+    /// <summary>Address space used for door setup and projectile drawing.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Captures the runtime services used by native-order door setup and wait dispatch.</summary>
     internal DoorTransitionRunner(DoorTransitionRunnerDependencies dependencies)
     {
         _actorDrawing = dependencies.ActorDrawing;
@@ -131,6 +151,7 @@ internal sealed class DoorTransitionRunner
         }
     }
 
+    /// <summary>Starts animated treadmill tiles and attempts the matching entrance PLM spawn.</summary>
     private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction)
     {
         if (_room.LevelData is null || _room.BackgroundStreamer is null || _room.ActiveRoom is null)
@@ -150,6 +171,7 @@ internal sealed class DoorTransitionRunner
             _system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss));
     }
 
+    /// <summary>Positions Samus for the selected elevatube entrance and attempts its room PLM spawn.</summary>
     private void SetUpMaridiaElevatube(bool fromSouth)
     {
         if (_room.LevelData is null)
@@ -214,10 +236,6 @@ internal sealed class DoorTransitionRunner
                 _room.Camera.PixelPosition, mode7Transform: _display.ActiveSamusMode7Transform);
         _oam.FinalizeFrame();
     }
-    /// <summary>
-    /// <c>Enemy_Projectile_Handler</c> ($86:8104): runs every projectile unless
-    /// <c>EnemyProjectile_Enable</c> is clear (time freeze or X-ray suspension).
-    /// </summary>
     /// <summary>
     /// <c>Enemy_Projectile_Handler</c> ($86:8104). State eight calls it unconditionally and it
     /// checks only the enable bit X-ray clears, so its instructions keep running while time

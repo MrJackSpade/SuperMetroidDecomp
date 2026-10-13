@@ -70,9 +70,11 @@ public static class QuicksandDefinitions
                 header,
                 "Quicksand reaction header must be one of the eight bank-$84 sand entries.");
 
+    /// <summary>Unsuit-adjusted surface displacement and 2.5-pixel upward speed cap in unsigned 8.8 units.</summary>
     private static readonly QuicksandSurfacePhysics withoutGravitySuit =
         new(0x0200, 0x0120, 0x0280);
 
+    /// <summary>Gravity-suit surface displacement and 3.5-pixel upward speed cap in unsigned 8.8 units.</summary>
     private static readonly QuicksandSurfacePhysics withGravitySuit =
         new(0x0200, 0x0100, 0x0380);
 }

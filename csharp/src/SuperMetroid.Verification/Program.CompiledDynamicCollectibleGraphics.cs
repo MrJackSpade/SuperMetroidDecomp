@@ -9,8 +9,10 @@ using static LookupDynamicCollectiblePalettesVerification;
 using static LookupDynamicCollectibleSourcesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled item graphics through retail room population loading.</summary>
 internal static class CompiledDynamicCollectibleGraphicsVerification
 {
+    /// <summary>Checks Bombs item VRAM after a real room load while blocking compiled graphics ROM reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyCompiledDynamicCollectibleGraphics(
         SuperMetroidAddressSpace rom)
@@ -42,10 +44,12 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
         Suite(nameof(VerifyInstalledDynamicCollectibleArt), () => VerifyInstalledDynamicCollectibleArt(rom));
     }
 
+    /// <summary>Reads a bank-$84 native graphics instruction word for the independent oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for collectible graphics words")]
     internal static ushort ReadCollectibleGraphicsWord(
         ISnesAddressSpace bus, int address) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | address);
 
+    /// <summary>Rejects live reads of compiled collectible tiles and item-list upload records.</summary>
     private static CartridgeReadGuard NewRetailCollectibleGraphicsReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => RoomPlmDynamicCollectibleGraphicsDefinitions.All.Any(graphic =>

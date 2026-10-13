@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using static EnemyExtendedFrameArtworkVerification;
 using static FrontendRomFreeVerification;
 
+/// <summary>Checks bank-local shared empty enemy frames across ordinary draw, extended draw, and collision.</summary>
 internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
 {
+    /// <summary>Compares the 12 native empty-frame records and blocks cartridge reads during installed draw and callback selection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for shared empty extended frames")]
     internal static void VerifySharedEmptyExtendedFrames(
@@ -78,6 +80,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
         Console.WriteLine("  Shared empty frames: 12 bank-local ordinary and extended records match the ROM; ordinary draw and extended draw/collision forbid cartridge reads.");
     }
 
+    /// <summary>Runs the extended hitbox walker at the point origin to select its touch or shot callback.</summary>
     private static ushort FindSharedEmptyCallback(
         ISnesAddressSpace bus, byte bank, bool selectShot)
     {

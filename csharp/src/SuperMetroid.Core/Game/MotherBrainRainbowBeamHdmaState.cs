@@ -61,6 +61,7 @@ public sealed class MotherBrainRainbowBeamHdmaState
         ResolveGeometry(head, angle, angularWidth);
     }
 
+    /// <summary>Projects the beam's two angular edges into scanline window words using native quadrant dispatch and mouth offsets.</summary>
     private void ResolveGeometry(Position16<RoomPixels> head,
         SnesAngle angle, ushort angularWidth)
     {
@@ -83,6 +84,7 @@ public sealed class MotherBrainRainbowBeamHdmaState
         Geometry = new(unchecked((byte)(head.X + MotherBrainBeamRomData.MouthXOffset)), originY, a, b, direction);
     }
 
+    /// <summary>Reads the installed color cycle and fails if rainbow presentation colors were never bound.</summary>
     private bool TryReadColor(int cursor, out Bgr555 color) =>
         (PresentationColors ?? throw new InvalidOperationException(
             "Mother Brain rainbow beam requires installed colors."))

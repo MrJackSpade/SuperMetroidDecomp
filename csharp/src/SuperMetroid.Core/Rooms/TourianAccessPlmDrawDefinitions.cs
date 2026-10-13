@@ -50,7 +50,7 @@ internal static class TourianAccessPlmDrawDefinitions
         return true;
     }
 
-    // Temporary DTOs retain the artwork import/export contract; no draw cache remains.
+    /// <summary>Calculates temporary DTOs for artwork import/export without retaining a draw cache.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -63,9 +63,11 @@ internal static class TourianAccessPlmDrawDefinitions
         }
     }
 
+    /// <summary>Gets a stable artwork identity after validating a native draw pointer.</summary>
     internal static string VisualId(ushort pointer) =>
         VisualId(ClosedNativeWords.Decode<TourianAccessDraw>(pointer, "Tourian access draw with a visual ID"));
 
+    /// <summary>Names the empty, three crumble, or six-row clear frame for visual files.</summary>
     internal static string VisualId(TourianAccessDraw pointer) => pointer switch
     {
         TourianAccessDraw.EmptyRow => "crumble-empty-row",
@@ -76,6 +78,7 @@ internal static class TourianAccessPlmDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined TourianAccessDraw {pointer}."),
     };
 
+    /// <summary>Finds a compiled floor draw by its case-sensitive visual identity.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
@@ -91,6 +94,7 @@ internal static class TourianAccessPlmDrawDefinitions
         return false;
     }
 
+    /// <summary>Maps the four visible crumble stages to three tile rows followed by the empty row.</summary>
     internal static ushort CrumbleFramePointer(int frame) => frame switch
     {
         0 => (ushort)TourianAccessDraw.CrumbleFirst,
@@ -100,6 +104,7 @@ internal static class TourianAccessPlmDrawDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 
+    /// <summary>Builds four-air-cell runs for a supported draw, including all six rows of the final clear.</summary>
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

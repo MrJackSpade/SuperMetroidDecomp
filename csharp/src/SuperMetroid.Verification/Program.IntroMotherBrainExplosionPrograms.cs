@@ -2,8 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Mother Brain intro explosion instructions and frame catalog against native records.</summary>
 internal static class IntroMotherBrainExplosionProgramsVerification
 {
+    /// <summary>Compares every compiled explosion byte, overlapping word, delete operation, and range boundary.</summary>
     internal static void VerifyIntroMotherBrainExplosionPrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(IntroMotherBrainExplosionProgramsRomByte(rom, address), IntroMotherBrainExplosionProgramsRomByte(rom, address + 1)));
@@ -25,9 +27,11 @@ internal static class IntroMotherBrainExplosionProgramsVerification
             AssertThrows<InvalidDataException>(() => IntroMotherBrainExplosionInstructionDefinitions.ReadWord(pointer), "explosion word crosses boundary");
     }
 
+    /// <summary>Reads a native intro explosion byte for independent program comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain explosion programs")]
     private static byte IntroMotherBrainExplosionProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks twelve named explosion frames, their native pointers and part counts, and lookup bounds.</summary>
     internal static void VerifyIntroMotherBrainExplosionFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["small-explosion-0", "small-explosion-1", "small-explosion-2", "small-explosion-3", "small-explosion-4", "small-explosion-5",
@@ -51,6 +55,7 @@ internal static class IntroMotherBrainExplosionProgramsVerification
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "explosion enumeration preserves indexed order");
     }
 
+    /// <summary>Reads a native explosion frame operand or spritemap header for catalog comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain explosion frame catalog")]
     private static byte IntroMotherBrainExplosionFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

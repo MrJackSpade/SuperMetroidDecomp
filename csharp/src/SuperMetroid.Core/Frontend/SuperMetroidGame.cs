@@ -19,7 +19,9 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class SuperMetroidGame
 {
+    /// <summary>Shared fade clock for frontend transitions between rendered phases.</summary>
     internal readonly ScreenFadeTimer screenFade = new();
+    /// <summary>Accepted menu NMI counters used by frontend animation and input timing.</summary>
     internal readonly MenuNmiFrameCounters menuNmi = new();
 
     /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
@@ -276,49 +278,83 @@ public sealed class SuperMetroidGame
         }
     }
 
+    /// <summary>Mutable emulated address space retained for the whole game session.</summary>
     internal readonly ISnesAddressSpace bus;
 
     /// <summary>Current host options; interactive state restoration rebinds these to the active session.</summary>
     public SuperMetroidGameOptions ConfiguredOptions { get; private set; }
+    /// <summary>Owns scene capture and raster publication for the current frontend frame.</summary>
     private readonly FrontendDisplay display;
+    /// <summary>Battery-backed save data and selected-slot operations.</summary>
     internal readonly SuperMetroidSaveRam saveRam;
 
     /// <summary>Boot-time <see cref="Bank80SystemState.MainGameLoopCarry"/>; fixed for the session.</summary>
     private readonly bool bootMainLoopCarry;
     /// <summary>Boot-time <c>NumberOfDemoSets</c> ($1F59); fixed for the session.</summary>
     private readonly int bootDemoSetCount;
+    /// <summary>Native music and SFX queues shared across menus and gameplay.</summary>
     internal readonly CartridgeAudioState audio = new();
+    /// <summary>Core-owned SPC port model and synthesizer advanced at the end of every update.</summary>
     internal readonly CartridgeAudioSession audioSession = new();
+    /// <summary>Opening logo and title sequence while the corresponding state is active.</summary>
     private TitleSequenceState? title;
+    /// <summary>Save-slot selection menu state.</summary>
     private FileSelectMenuState? fileSelect;
+    /// <summary>Saved-game map selection and loading screen state.</summary>
     private FileSelectMapMenuState? fileSelectMap;
+    /// <summary>Controller and display option menu state.</summary>
     internal GameOptionsMenuState? options;
+    /// <summary>Game-over choice screen after death.</summary>
     internal GameOverMenuState? gameOver;
+    /// <summary>New-game prologue and flashback cinematic.</summary>
     internal IntroCinematicState? intro;
+    /// <summary>Ceres destruction scene after Ridley's escape.</summary>
     internal CeresDestructionCinematicState? ceresDestruction;
+    /// <summary>Post-escape ending and staff credits.</summary>
     internal EndingCreditsState? endingCredits;
+    /// <summary>Pause-map and equipment menu state.</summary>
     internal PauseMenuState? pauseMenu;
+    /// <summary>Live gameplay runtime, absent during frontend-only phases.</summary>
     internal SuperMetroidRuntime? runtime;
+    /// <summary>Ceres elevator departure and blackout transition state.</summary>
     private readonly CeresDepartureState ceresDeparture = new();
+    /// <summary>Reserve-tank recovery state that can temporarily own the dispatcher.</summary>
     internal readonly SamusReserveAutoRecoveryState reserveRecovery = new();
+    /// <summary>Door approach and destination loading state across gameplay states.</summary>
     internal readonly DoorTransitionState doorTransition = new();
 
+    /// <summary>Current battery-backed save slot selected by the frontend.</summary>
     private int selectedSaveSlot;
+    /// <summary>Distinguishes a saved-game load from fresh Ceres setup.</summary>
     internal bool loadingExistingSave;
+    /// <summary>Save state retained for restart after the Space-Time intro sequence.</summary>
     private SuperMetroidSaveSlot? spacetimeIntroRestartSlot;
+    /// <summary>Brightness during the fade into Landing Site or Ceres arrival.</summary>
     private byte postCeresFadeBrightness;
+    /// <summary>Cadence counter for the post-Ceres fade.</summary>
     private int postCeresFadeCounter = 1;
+    /// <summary>Selects Ceres arrival rather than Landing Site at the fade destination.</summary>
     private bool gameplayFadeLeadsToCeresArrival;
+    /// <summary>Gameplay brightness retained through pause and unpause fades.</summary>
     internal byte pauseBrightness = PauseFadeTiming.FullyLit;
+    /// <summary>Palette transition for Samus's death sequence, when active.</summary>
     private CartridgePaletteTransition? deathPaletteFade;
+    /// <summary>Palette transition for the escape time-up sequence.</summary>
     private CartridgePaletteTransition? timeUpPaletteFade;
+    /// <summary>Brightness during the death-state blackout.</summary>
     internal byte deathFadeBrightness = 15;
+    /// <summary>Cadence counter for the death fade.</summary>
     internal int deathFadeCounter;
+    /// <summary>Brightness during the ending transition after Zebes escape.</summary>
     private byte endingFadeBrightness = 15;
+    /// <summary>Cadence counter for the ending fade.</summary>
     private int endingFadeCounter;
+    /// <summary>Audio commands published by the most recent frontend frame.</summary>
     private IReadOnlyList<CartridgeAudioCommand> lastAudioCommands =
         Array.Empty<CartridgeAudioCommand>();
+    /// <summary>Runtime publication number last copied into the frontend audio queue.</summary>
     private ulong? lastAudioRuntimeGameplayPublication;
+    /// <summary>Room-state pointer associated with the last copied audio publication.</summary>
     internal ushort? lastAudioRoomStatePointer;
 
     /// <summary>Creates a reset-state session, reading the selected SRAM slot and capturing the native boot carry before any dispatcher frame runs.</summary>
@@ -1459,6 +1495,7 @@ public sealed class SuperMetroidGame
                 soundSuppressed: request.SoundSuppressed);
     }
 
+    /// <summary>Collects only enemy and Samus audio emitted during the door music-wait pass.</summary>
     private void CollectDoorSoundWaitAudioRequests(SuperMetroidRuntime source)
     {
         // This coroutine completes no ordinary gameplay publication. Only the
@@ -1474,6 +1511,7 @@ public sealed class SuperMetroidGame
                     soundSuppressed: request.SoundSuppressed);
     }
 
+    /// <summary>Human-readable active subphase for diagnostics without changing native state.</summary>
     private string PhaseName => GameState switch
     {
         SuperMetroidGameState.Reset => "Reset",
@@ -1530,6 +1568,7 @@ public sealed class SuperMetroidGame
         _ => throw new InvalidOperationException($"Undefined SuperMetroidGameState {GameState}."),
     };
 
+    /// <summary>Checks the native state-eight pause gate, including Samus handler locks and new Start input.</summary>
     private bool CanEnterPause(
         bool messageBoxOwnedFrame,
         bool samusInputLockedAtFrameStart)
@@ -1648,6 +1687,7 @@ public sealed class SuperMetroidGame
         }
     }
 
+    /// <summary>Freezes gameplay and enters reserve recovery or death after Samus reaches zero health.</summary>
     private bool RouteOutOfHealth()
     {
         if (runtime?.Player.Samus is not SamusState samus || unchecked((short)samus.Health) > 0)
@@ -1776,6 +1816,7 @@ public sealed class SuperMetroidGame
         finally { display.EndCapture(); }
     }
 
+    /// <summary>Writes frontend brightness and retains its last level for pause fades.</summary>
     private void ApplyDisplayBrightness(byte brightness)
     {
         // Every published level is a write of the brightness register $51; pause entry
@@ -1894,6 +1935,7 @@ public sealed class SuperMetroidGame
         display.PublishBlack();
     }
 
+    /// <summary>Applies live menu controller and gameplay choices to a newly created runtime.</summary>
     private void ApplySelectedGameOptions()
     {
         // Live edits in options take precedence over the snapshot loaded at file select.
@@ -1924,6 +1966,7 @@ public sealed class SuperMetroidGame
             slot.ReserveEnergy,
             slot.ReserveMode));
 
+    /// <summary>Builds fresh Ceres or saved-game runtime state, including the selected HUD and room.</summary>
     internal bool SetupSelectedGame()
     {
         CreateGameplayRuntime();
@@ -2081,6 +2124,7 @@ public sealed class SuperMetroidGame
         GameState = SuperMetroidGameState.MainGameplayFadeIn;
     }
 
+    /// <summary>Persists the automatic Landing Site checkpoint after the gunship lands.</summary>
     private void HandleGunshipLandingSave()
     {
         if (runtime is null ||
@@ -2089,6 +2133,7 @@ public sealed class SuperMetroidGame
         SaveRamChanged?.Invoke();
     }
 
+    /// <summary>Consumes a confirmed station save and writes the selected SRAM slot.</summary>
     private void HandleSaveStationPersistence()
     {
         if (runtime?.MessageBoxes.ConsumeSaveStationPersistenceRequest() is not { } request)
@@ -2102,14 +2147,22 @@ public sealed class SuperMetroidGame
         SaveRamChanged?.Invoke();
     }
 
+    /// <summary>Current attract-demo set selected by the title sequence.</summary>
     private int demoSet;
+    /// <summary>Next scene index within the current attract-demo set.</summary>
     internal int demoScene;
+    /// <summary>Remaining scripted input frames in the active demo scene.</summary>
     internal int demoFramesRemaining;
+    /// <summary>Remaining still-frame hold after a demo scene's scripted input.</summary>
     internal int demoHoldFramesRemaining;
+    /// <summary>Remaining blank enemy-transfer waits before the demo becomes visible.</summary>
     private int demoLoadFramesRemaining = -1;
+    /// <summary>Whether live controller input canceled the current demo.</summary>
     private bool demoCancelled;
+    /// <summary>Whether another scene follows before returning to the title.</summary>
     private bool demoHasNextScene;
 
+    /// <summary>Advances demo loading, scripted gameplay, holds, cancellation, and title return.</summary>
     private void StepAttractDemo(ushort controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         switch (GameState)
@@ -2221,6 +2274,7 @@ public sealed class SuperMetroidGame
         }
     }
 
+    /// <summary>Starts the native transition out of a completed or canceled demo scene.</summary>
     private void FinishAttractPlayback(bool cancelled)
     {
         demoCancelled = cancelled;
@@ -2228,6 +2282,7 @@ public sealed class SuperMetroidGame
         display.PublishBlack();
     }
 
+    /// <summary>Unlocks the fourth demo set only after a valid completed-game save exists.</summary>
     internal int AvailableDemoSetCount() => bootDemoSetCount;
 
     /// <summary>
@@ -2250,7 +2305,9 @@ public sealed class SuperMetroidGame
 
     // NMI continuations still owed by the current $82:8000 loading dispatch, and the
     // dispatcher state it selects after its final wait returns.
+    /// <summary>Accepted blank NMI waits remaining in state-five game loading.</summary>
     private int gameLoadingWaitsRemaining;
+    /// <summary>Destination to enter when game-loading waits finish.</summary>
     private GameLoadingCompletion gameLoadingCompletion;
 
     /// <summary>
@@ -2304,7 +2361,9 @@ public sealed class SuperMetroidGame
 
     // State $09's door function before state $0A. Every door hit installs $82:E17D; a
     // downward elevator replaces it with the $82:E19F delay.
+    /// <summary>Whether room loading is paused for the downward elevator entry wait.</summary>
     private bool waitingForDownwardsElevator;
+    /// <summary>Countdown before a downward elevator resumes destination loading.</summary>
     private int downwardsElevatorDelayTimer;
 
     /// <summary>
@@ -2349,12 +2408,14 @@ public sealed class SuperMetroidGame
         ConfiguredOptions = hostOptions;
     }
 
-    // Before a room exists, the frontend still owns the cartridge's live RNG word.
+    /// <summary>Cartridge RNG owner before a gameplay room exists or after runtime release.</summary>
     private Bank80SystemState? menuRandom;
 
+    /// <summary>Uses gameplay RNG when live and otherwise retains the frontend RNG word.</summary>
     internal Bank80SystemState FrontendRandomOwner =>
         runtime?.System ?? (menuRandom ??= new Bank80SystemState());
 
+    /// <summary>Transfers RNG and NMI counters back to the frontend before dropping gameplay state.</summary>
     private void ReleaseRuntimePreservingRandom()
     {
         (menuRandom ??= new()).SetRandomNumber(FrontendRandomOwner.RandomNumber);

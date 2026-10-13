@@ -15,8 +15,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Checks the compiled Samus pose-input graph against every native transition list.</summary>
 internal static class PoseInputDefinitionsVerification
 {
+    /// <summary>Compares first-match, self-match, and fallback results across the input-bit domain without ROM reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pose input definitions")]
     internal static void VerifyPoseInputDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -118,6 +120,7 @@ internal static class PoseInputDefinitionsVerification
         Console.WriteLine($"Pose input graph: 253 mappings, 86 lists, 598 conditions and {comparisons} complete lookup comparisons match native with ROM reads forbidden; non-authored indexes fail loudly before parsing adjacent code.");
     }
 
+    /// <summary>Runs the focused pose-input graph comparison.</summary>
     [VerificationCommand("--pose-input-definitions")]
     internal static int PoseInputDefinitionsCommand()
     {

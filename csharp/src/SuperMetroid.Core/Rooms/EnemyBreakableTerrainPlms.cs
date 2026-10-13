@@ -3,13 +3,18 @@
 /// <summary>Terrain PLMs that enemies break, spawned by enemy contact instead of Samus or projectiles.</summary>
 internal sealed class EnemyBreakableTerrainPlms
 {
+    /// <summary>Finite native PLM slots searched in descending order for a free break effect.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Uses the room's live PLM pool so enemy-triggered breaks share native allocation limits.</summary>
     internal EnemyBreakableTerrainPlms(PlmSlotTable slotTable)
     {
         _slotTable = slotTable;
     }
-    /// <summary>Spawn_PLM and $84:B3D4: clear collision immediately, retain artwork until the PLM draws.</summary>
+    /// <summary>
+    /// Spawn_PLM and $84:B3D4: allocate a slot, clear collision immediately, and retain
+    /// artwork until the PLM draws. A full pool skips setup and reports failure.
+    /// </summary>
     public bool TrySpawnEnemyBreakableBlock(RoomLevelData level, int blockIndex)
     {
         Ensure.NotNull(level);

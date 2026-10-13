@@ -4,6 +4,10 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using static TilemapJsonContractsVerification;
 
+/// <summary>
+/// Exercises the environmental, intro, and room-metatile JSON compilers with constructed
+/// documents to verify their shared version, shape, and word-order contracts.
+/// </summary>
 internal static class TilemapJsonContractsEnvironmentVerification
 {
     /// <summary>

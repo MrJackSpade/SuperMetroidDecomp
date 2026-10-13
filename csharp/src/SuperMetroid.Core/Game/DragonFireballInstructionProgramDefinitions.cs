@@ -17,14 +17,17 @@ internal abstract class DragonFireballInstructionProgramDefinitions
 
     /// <summary><c>InstList_EnemyProjectile_DragonFireball_Falling_Right</c> at $86:B4E3.</summary>
     internal const ushort FallingRight = 0xb4e3;
+    /// <summary>Two visual operands per rising or falling directional loop.</summary>
     public static int PresentationWordCount => 8;
 
+    /// <summary>Locates a separately installed spritemap operand within one of the four loops.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(RisingLeft + index / 2 * 12 + index % 2 * 4 + 2);
     }
 
+    /// <summary>Reads only compiled fireball timing and loop-control words.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value)) return value;
@@ -32,6 +35,7 @@ internal abstract class DragonFireballInstructionProgramDefinitions
             $"Dragon-fireball instruction mechanics pointer $86:{address:X4} is not compiled.");
     }
 
+    /// <summary>Recognizes five-frame durations, goto commands, and loop targets across the four lists.</summary>
     internal static bool TryRead(int address, out ushort value)
     {
         int offset = address - RisingLeft;

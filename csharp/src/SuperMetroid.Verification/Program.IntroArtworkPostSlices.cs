@@ -20,6 +20,7 @@ using static EndingMode7ArtworkVerification;
 using static EndingObjectArtworkVerification;
 using static EndingPaletteArtworkVerification;
 
+/// <summary>Checks installed intro and ending artwork after the frontend parity setup phase.</summary>
 internal static class IntroArtworkPostSlicesVerification
 {
     /// <summary>
@@ -47,6 +48,7 @@ internal static class IntroArtworkPostSlicesVerification
         }
     }
 
+    /// <summary>Runs focused flight, destruction, flyaway, Mode 7, object, and palette artwork checks.</summary>
     [VerificationCommand("--intro-artwork-post-slices")]
     internal static int IntroArtworkPostSlicesCommand()
     {

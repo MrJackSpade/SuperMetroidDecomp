@@ -12,20 +12,41 @@ internal static class SamusSpritemapFrameDefinitions
     private const int AppearanceDischargeEnd = 80;
     /// <summary>$92:86F3/8777: upper grapple composition repeats after one32-position turn; the two final entries select its center orientation.</summary>
     private const int GrappleTurnPhases = GrappleSwingFrameDefinitions.FrameCount;
-    /// <summary>$92:8EAD/8EC1: preserved right/left morph sequences; their first eight spin pictures reverse, followed by memory and bounce slots.</summary>
-    private const int FirstRightMorph = 0x710, FirstLeftMorph = 0x71a;
+    /// <summary>$92:8EAD begins the right morph sequence's spin, memory, and bounce slots.</summary>
+    private const int FirstRightMorph = 0x710;
+    /// <summary>$92:8EC1 begins the mirrored left morph sequence used to derive its phase span.</summary>
+    private const int FirstLeftMorph = 0x71a;
 
-    /// <summary>$92:D7D3/$92:D858, adjacent bubble and diving OAM allocations in native phase order.</summary>
-    private const ushort BubbleAllocation = 0xd7d3, DivingAllocation = 0xd858;
-    /// <summary>$92:C8B7/$92:C580, facing-specific nine-phase suit-explosion OAM allocations.</summary>
-    private const ushort DeathRightAllocation = 0xc8b7, DeathLeftAllocation = 0xc580;
-    /// <summary>$92:A8D4/A46C/A981: three packed right-facing grapple angular allocation runs, selected in reverse record order.</summary>
-    private const ushort GrappleRightFirstQuadrant = 0xa8d4, GrappleRightHalfTurn = 0xa46c, GrappleRightLastQuadrant = 0xa981;
-    /// <summary>$92:AB8B/A5B0/AA18: three packed left-facing grapple angular runs, selected in forward record order.</summary>
-    private const ushort GrappleLeftFirstQuadrant = 0xab8b, GrappleLeftHalfTurn = 0xa5b0, GrappleLeftLastQuadrant = 0xaa18;
-    /// <summary>$92:8399/83AB and90C5/90D7 identify bubbles, diving splash and the two death-OAM sequence domains.</summary>
-    private const int Bubbles = 0x186, Diving = 0x18f, DeathRight = 0x81c, DeathLeft = 0x825;
+    /// <summary>$92:D7D3 begins consecutive bubble spritemap allocations.</summary>
+    private const ushort BubbleAllocation = 0xd7d3;
+    /// <summary>$92:D858 begins consecutive diving-splash spritemap allocations.</summary>
+    private const ushort DivingAllocation = 0xd858;
+    /// <summary>$92:C8B7 begins the right-facing suit-explosion OAM sequence.</summary>
+    private const ushort DeathRightAllocation = 0xc8b7;
+    /// <summary>$92:C580 begins the left-facing suit-explosion OAM sequence.</summary>
+    private const ushort DeathLeftAllocation = 0xc580;
+    /// <summary>$92:A8D4 starts right-facing grapple angles zero through eight in reverse record order.</summary>
+    private const ushort GrappleRightFirstQuadrant = 0xa8d4;
+    /// <summary>$92:A46C starts the middle right-facing grapple arc, selected in reverse order.</summary>
+    private const ushort GrappleRightHalfTurn = 0xa46c;
+    /// <summary>$92:A981 starts the final right-facing grapple quadrant.</summary>
+    private const ushort GrappleRightLastQuadrant = 0xa981;
+    /// <summary>$92:AB8B starts left-facing grapple angles in forward record order.</summary>
+    private const ushort GrappleLeftFirstQuadrant = 0xab8b;
+    /// <summary>$92:A5B0 starts the middle left-facing grapple arc.</summary>
+    private const ushort GrappleLeftHalfTurn = 0xa5b0;
+    /// <summary>$92:AA18 starts the final left-facing grapple quadrant.</summary>
+    private const ushort GrappleLeftLastQuadrant = 0xaa18;
+    /// <summary>Top-half pointer index $186 begins the bubble OAM sequence.</summary>
+    private const int Bubbles = 0x186;
+    /// <summary>Top-half pointer index $18F begins the diving OAM sequence.</summary>
+    private const int Diving = 0x18f;
+    /// <summary>Pointer index $81C begins right-facing suit-explosion maps.</summary>
+    private const int DeathRight = 0x81c;
+    /// <summary>Pointer index $825 begins left-facing suit-explosion maps.</summary>
+    private const int DeathLeft = 0x825;
 
+    /// <summary>Calculates pointers for contiguous native sprite runs and recognizes non-drawing control slots.</summary>
     internal static bool TryPointer(int index, IReadOnlyDictionary<ushort, SamusSpritemapDefinition> definitions, out ushort pointer)
     {
         if (IsControlOrOmittedHalf(index)) { pointer = 0; return true; }
@@ -120,6 +141,7 @@ internal static class SamusSpritemapFrameDefinitions
         int leaving = Phase(false, SamusPoseId.UnusedPoseDd);
         return leaving is 0 or 1 || Phase(false, SamusPoseId.UnusedPoseDe) is 0 or 1;
     }
+    /// <summary>Walks variable-length OAM records from a native allocation's first pointer.</summary>
     private static bool Advance(ushort start, int ordinal, IReadOnlyDictionary<ushort, SamusSpritemapDefinition> definitions, out ushort pointer)
     {
         pointer = start;
@@ -130,6 +152,7 @@ internal static class SamusSpritemapFrameDefinitions
         }
         return true;
     }
+    /// <summary>Resolves authored pose-half image sharing to an earlier physical composition slot.</summary>
     internal static int SourceIndex(int index)
     {
         if ((uint)index >= SamusSpritemapArtworkCatalog.PointerCount) throw new ArgumentOutOfRangeException(nameof(index));

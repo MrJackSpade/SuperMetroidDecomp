@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// separately positioned arm strips in the jumping pose.</summary>
 internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Recalculates only the three suitless frame compositions represented by atlas grids.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.SuitlessSamusLowerBody))
@@ -18,6 +19,7 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
             return supplied.CalculateIfMatching(new EndingRewardSuitlessGridParts(Pose.SuitlessSamusJumping));
         return supplied;
     }
+    /// <summary>Counts the grid and arm-strip parts in the selected suitless pose.</summary>
     public int Count => pose switch
     {
         Pose.SuitlessSamusLowerBody => 14,
@@ -26,6 +28,7 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
         _ => throw new ArgumentOutOfRangeException(nameof(pose)),
     };
 
+    /// <summary>Selects an atlas tile and its native size and offset; jumping arm strips precede the body grid.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -79,10 +82,12 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Visits the pose's parts in the order used by its compiled spritemap.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same native part ordering to non-generic callers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

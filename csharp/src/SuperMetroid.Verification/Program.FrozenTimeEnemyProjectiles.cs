@@ -14,6 +14,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Reproduces enemy death-explosion animation during a reserve-refill
+/// gameplay freeze, when projectile instructions still advance.</summary>
 internal static class FrozenTimeEnemyProjectilesVerification
 {
     /// <summary>
@@ -47,6 +49,7 @@ internal static class FrozenTimeEnemyProjectilesVerification
         Console.WriteLine("  Frozen-time enemy projectiles: instructions keep running under a reserve-refill freeze.");
     }
 
+    /// <summary>Runs the focused frozen-time enemy-projectile check from the CLI.</summary>
     [VerificationCommand("--frozen-time-enemy-projectiles")]
     internal static int FrozenTimeEnemyProjectilesCommand()
     {

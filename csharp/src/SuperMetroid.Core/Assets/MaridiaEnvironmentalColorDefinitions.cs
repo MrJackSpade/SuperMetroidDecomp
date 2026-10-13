@@ -6,6 +6,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Native $8D:F4EF..F61A sand/waterfall color rotations. Sixteen first-row colors remain required source inputs.</summary>
 internal static class MaridiaEnvironmentalColorDefinitions
 {
+    /// <summary>Maps a bounded sand or waterfall color word to its first-frame source after native cyclic rotation.</summary>
+    /// <remarks>Sand falls take their edited colors from the lower sand-pit band; rejected pointers clear the output.</remarks>
     internal static bool TrySourcePointer(ushort pointer, out ushort source)
     {
         foreach (var program in MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
@@ -19,7 +21,6 @@ internal static class MaridiaEnvironmentalColorDefinitions
             int rotated = (color + frame) % program.FrameCount;
             if (program.Owner == MaridiaEnvironmentalPaletteOwner.SandFalls)
             {
-                // Sand falls use the lower sand-pit band, preserving their own edits.
                 var pits = MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All[0];
                 source = pits.ColorPointer(0, pits.FrameCount + rotated);
             }

@@ -6,15 +6,19 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Eye-door PLMs (Tourian and Kraid lair): eye projectile spawning, hit reaction and conversion to a blue door.</summary>
 internal sealed class EyeDoorPlms
 {
+    /// <summary>Supplies Samus, persistence bits, and enemy projectile spawning to eye-door bytecode.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Queues rejected-shot and launched-projectile sounds.</summary>
     private readonly PlmSoundQueue _sounds;
 
+    /// <summary>Binds eye-door PLM handling to room services and sound requests.</summary>
     internal EyeDoorPlms(PlmRoomBindings bindings, PlmSoundQueue sounds)
     {
         _bindings = bindings;
         _sounds = sounds;
     }
 
+    /// <summary>Recognizes the eye, middle, and bottom headers for either door orientation.</summary>
     internal static bool IsEyeDoorHeader(PlmHeaderId header) => header is
         PlmHeaderId.EyeDoorEyeFacingRight or
         PlmHeaderId.EyeDoorFacingRight or
@@ -23,6 +27,7 @@ internal sealed class EyeDoorPlms
         PlmHeaderId.EyeDoorFacingLeft or
         PlmHeaderId.EyeDoorBottomFacingLeft;
 
+    /// <summary>Initializes a door component and its closed collision blocks unless its persistent bit is set.</summary>
     internal void SetupEyeDoorSlot(
         RoomLevelData level,
         PlmSlot slot)
@@ -70,6 +75,7 @@ internal sealed class EyeDoorPlms
         RoomPlmSystem.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.ClosedComponentWord);
     }
 
+    /// <summary>Wakes opened components or consumes a pending missile hit before instruction dispatch.</summary>
     internal void RunEyeDoorPreInstruction(PlmSlot slot)
     {
         if (slot.EyeDoor is null || slot.PreInstruction == 0)
@@ -122,6 +128,7 @@ internal sealed class EyeDoorPlms
         }
     }
 
+    /// <summary>Handles eye-door branches, hit counts, projectile spawns, and blue-door conversion.</summary>
     internal bool TryExecuteEyeDoorInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -267,6 +274,7 @@ internal sealed class EyeDoorPlms
         }
     }
 
+    /// <summary>Reads an optional bytecode parameter, spawns a projectile, and advances the instruction cursor.</summary>
     private void SpawnEyeDoorProjectile(
         ISnesAddressSpace bus,
         PlmSlot slot,
@@ -281,6 +289,7 @@ internal sealed class EyeDoorPlms
             slot.InstructionPointer + (hasParameter ? 4 : 2)));
     }
 
+    /// <summary>Sends an eye-door projectile request with the source block and room argument to enemy services.</summary>
     private void SpawnEyeDoorProjectile(
         PlmSlot slot,
         EyeDoorProjectileDefinition definitionPointer,
@@ -295,6 +304,7 @@ internal sealed class EyeDoorPlms
             slot.RoomArgument));
     }
 
+    /// <summary>Moves the eye PLM up one block and writes the oriented blue cap and extension collision rows.</summary>
     private static void ConvertEyeToBlueDoor(
         RoomLevelData level,
         PlmSlot slot,
@@ -315,10 +325,14 @@ internal sealed class EyeDoorPlms
         slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
     }
 
+    /// <summary>Per-component hit state retained across eye-door instruction frames.</summary>
     internal sealed class EyeDoorPlmState(EyeDoorComponent component)
     {
+        /// <summary>Identifies whether this slot is the eye, middle, or bottom component.</summary>
         public EyeDoorComponent Component { get; } = component;
+        /// <summary>Missile-hit count used by the door's threshold instruction.</summary>
         public byte HitCounter { get; set; }
+        /// <summary>Whether a projectile collision awaits the eye's missile pre-instruction.</summary>
         public bool HasPendingHit { get; set; }
     }
 }

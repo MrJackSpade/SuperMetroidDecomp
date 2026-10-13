@@ -6,13 +6,20 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Kago species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class KagoBehavior : IEnemySpecies
 {
+    /// <summary>Provides the room random word sampled by bug spawns and jumps without advancing the generator.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Allocates Kago bugs from the ordinary enemy projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Receives the short quake requested by each shell hit.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Resolves a bug's native parent index when enabling shot collision and homing jumps.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Creates the parent-header drop requested by a shot Kago bug.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
+    /// <summary>Tracks the Kago death request in the room's defeated-enemy count.</summary>
     private readonly EnemyRoomStatus _roomStatus;
 
+    /// <summary>Binds shell AI and bug projectile behavior to the shared room systems that own their effects.</summary>
     internal KagoBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemySlotTable slotTable, EnemyDeathsAndDrops deathsAndDrops, EnemyRoomStatus roomStatus)
     {
         _room = room;
@@ -23,6 +30,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         _roomStatus = roomStatus;
     }
 
+    /// <summary>Holds shell hit counters and animation state at the native enemy slot indices.</summary>
     internal readonly KagoEnemyState?[] _kagoStates =
         new KagoEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -97,10 +105,12 @@ internal sealed class KagoBehavior : IEnemySpecies
             state.SpawnedBugCount++;
     }
 
+    /// <summary>Rejects a shot or main callback that arrived before the shell initialized its slot state.</summary>
     private KagoEnemyState RequireKagoState(RoomEnemySlot slot) =>
         _kagoStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Kago state.");
 
+    /// <summary>Routes bomb hits through common shot AI before applying Kago's quake, counter, and bug spawn.</summary>
     internal void RegisterKagoBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago &&
@@ -110,6 +120,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Connects the bug's idle, rising, falling, jump, landing, and drop handlers to projectile dispatch.</summary>
     internal void RegisterKagoProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -152,6 +163,7 @@ internal sealed class KagoBehavior : IEnemySpecies
             });
     }
 
+    /// <summary>Runs Kago shell initialization only for slots bearing the Kago definition.</summary>
     internal void RegisterKagoInitializationAi(EnemyAiTable table)
     {
 
@@ -161,6 +173,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Dispatches the shell's install-once and no-op main phases for Kago slots.</summary>
     internal void RegisterKagoMainAi(EnemyAiTable table)
     {
 
@@ -170,6 +183,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Applies Kago's shell response after the common projectile-shot callback has resolved damage.</summary>
     internal void RegisterKagoShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago &&
@@ -178,10 +192,15 @@ internal sealed class KagoBehavior : IEnemySpecies
             AfterCommon = (c, _) => ResolveKagoShotAfterCommon(c.Enemy, RequireKagoState(c.Enemy)),
         });
     }
+    /// <summary>Signed eight-eight acceleration added to a bug's vertical velocity each unobstructed airborne frame.</summary>
     private const ushort KagoBugGravity = 0x00e0;
+    /// <summary>Signed eight-eight horizontal jump speed, negated for leftward launches.</summary>
     private const ushort KagoBugHorizontalSpeed = 0x0200;
+    /// <summary>Horizontal parent separation that enables the bug to block Samus's projectiles.</summary>
     private const ushort KagoBugSourceCollisionEnableDistance = 23;
+    /// <summary>Beyond this parent separation, the next jump homes toward the shell.</summary>
     private const ushort KagoBugSourceHomingDistance = 48;
+    /// <summary>Library-two cue emitted when a live bug's sound countdown reaches zero.</summary>
     private const ushort KagoBugSoundEffect = 0x006c;
 
     /// <summary>Last library-two Kago bug sound request produced during this enemy frame.</summary>
@@ -314,6 +333,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + KagoBugGravity))));
     }
 
+    /// <summary>Switches an airborne bug to the falling list when rising ends or a wall interrupts it.</summary>
     private static void BeginKagoBugFall(RoomEnemyProjectileSlot projectile)
     {
         projectile.PreInstruction =
@@ -371,6 +391,7 @@ internal sealed class KagoBehavior : IEnemySpecies
             EnemyDefinitionId.Kago);
     }
 
+    /// <summary>Samples the shared random word without consuming a new value, matching the bug routines' seed reuse.</summary>
     private ushort ReadKagoRandomNumber() =>
         _room.Random.Read();
 

@@ -13,6 +13,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the canonical selected-content digest for the opening and Ceres presentation bundle.</summary>
 internal static class IntroContentIdentityVerification
 {
     /// <summary>Verifies source-identified opening/Ceres presentation coverage; no gameplay read discovery.</summary>
@@ -72,16 +73,20 @@ internal static class IntroContentIdentityVerification
         Console.WriteLine($"  Opening content: {edits.Count} independent bundle edits, all actor coordinates, " +
             "canonical frames, legacy caret selection, encoding invariance and host warnings pass without a ROM.");
 
+        // Place an opening-bundle digest into a host identity for compatibility-warning checks.
         static GameContentIdentity IntroIdentity(string digest) => GameContentIdentity.Create(
             new string('A', 64), new string('B', 64), new string('C', 64), Guid.Empty,
             [KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, digest)]);
     }
 
+    /// <summary>Builds a complete synthetic opening asset bundle with one selected edit or encoding-only change.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static IntroCinematicArtworkCatalog CreateIntroIdentityFixture(string? edit = null, bool reverse = false)
     {
+        // Serialize a fixture document, optionally changing only whitespace formatting.
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = edit == "json-indent" }));
+        // Create indexed artwork with an optional last-pixel edit and separately variable display colors.
         MemoryStream Png(string name, int width, int height, int colors)
         {
             var pixels = new byte[width * height];
@@ -92,29 +97,36 @@ internal static class IntroContentIdentityVerification
             png.Position = 0;
             return png;
         }
+        // Size a synthetic character atlas to the requested SNES tile byte count.
         RoomCharacterAtlas Characters(string name, int bytes)
         {
             int tiles = bytes / RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tiles);
             return RoomCharacterAtlas.Load(Png(name, columns * 8, (tiles + columns - 1) / columns * 8, 16), bytes);
         }
+        // Build a page of visual cells with an optional edit in its last tile column.
         RoomBackgroundTilemapCell[] Cells(string name, int count, int seed = 0) => Enumerable.Range(0, count)
             .Select(index => new RoomBackgroundTilemapCell
             {
                 TileColumn = index == count - 1 && edit == name ? seed + 1 : seed,
                 TileRow = 0, Palette = 0, Priority = false, FlipX = false, FlipY = false,
             }).ToArray();
+        // Wrap visual cells in a one-page tilemap document.
         MemoryStream MapJson(string name, int seed = 0) => Json(new RoomBackgroundTilemapDocument
         {
             Version = RoomBackgroundTilemapFormat.Version,
             Pages = [new RoomBackgroundTilemapPage { Cells = Cells(name, RoomBackgroundTilemapFormat.CellsPerPage, seed) }],
         });
+        // Load a generated page through the production background-tilemap codec.
         RoomBackgroundTilemapAtlas Map(string name, int seed = 0) => RoomBackgroundTilemapAtlas.Load(
             MapJson(name, seed), RoomBackgroundTilemapFormat.BytesPerPage);
+        // Build a full black CGRAM image with an optional last-color red-channel edit.
         PaletteRgb5[] Colors(string name) => Enumerable.Range(0, SnesCgram.ColorCount).Select(index =>
             new PaletteRgb5 { Red = index == SnesCgram.ColorCount - 1 && edit == name ? 1 : 0, Green = 0, Blue = 0 }).ToArray();
+        // Encode a complete editable palette document for one opening asset family.
         MemoryStream PaletteJson(string name) => Json(new { Version = 1, Colors = Colors(name) });
 
+        // Build semantic sprite frames, optionally reversing key insertion or using the legacy caret selection.
         MemoryStream Sprites(string family, IEnumerable<string> sourceNames, int version = 1)
         {
             var part = new SpriteVisualPart
@@ -143,6 +155,7 @@ internal static class IntroContentIdentityVerification
                 Id = CeresFlightActorDefinitions.RearViewPlacementSource(index).Id, X = index + (edit == $"flight-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"flight-actor-{index}-y" ? 1 : 0),
             }).ToArray();
+        // Build a Mode 7 flight view with an optional final-cell edit.
         int[] FlightMap(string name)
         {
             var cells = new int[CeresFlightArtworkFormat.MapCellsPerView];
@@ -208,6 +221,7 @@ internal static class IntroContentIdentityVerification
             })), CaretSprites = IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name), (int)IntroCaretSpriteVersion.Current)), MotherBrainSprites = IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), MotherBrainExplosionSprites = IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), RinkaSprites = IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), EggEffectSprites = IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), DiscoveryActorSprites = IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), ScientistSprites = IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), Palette = IntroCinematicPalette.Load(PaletteJson("intro-palette")), CeresFlight = flight, CeresDestruction = destruction });
     }
 
+    /// <summary>Runs selected-content identity checks for opening and Ceres assets.</summary>
     [VerificationCommand("--intro-content-identity")]
     internal static int IntroContentIdentityCommand()
     {

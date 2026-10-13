@@ -15,9 +15,11 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class HyperBeamPaletteFxState
 {
+    /// <summary>CGRAM destination for the Hyper Beam projectile cycle, converted from its byte offset.</summary>
     private const int DestinationColorIndex =
         SamusPaletteRomData.HyperBeamFx.DestinationByteIndex / sizeof(ushort);
 
+    /// <summary>Native bank-$8D program cursor retained between palette handler calls.</summary>
     internal ushort _instructionPointer;
 
     /// <summary>True after controller function three has spawned object <c>$E1F0</c>.</summary>

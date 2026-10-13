@@ -15,6 +15,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification;
 
+/// <summary>Checks compiled Spore Spawn mechanics and selector words across its five production program entries.</summary>
 internal static class SporeSpawnInstructionProgramDefinitionsVerification
 {
     /// <summary>
@@ -136,6 +137,7 @@ internal static class SporeSpawnInstructionProgramDefinitionsVerification
             "reads forbidden.");
     }
 
+    /// <summary>Runs a selected Spore Spawn instruction entry for a fixed number of enemy frames on an initialized fixture.</summary>
     internal static (RoomEnemySystem System, RoomEnemySlot Body) RunSporeSpawnProgram(
         MutableCartridgeReadGuard bus,
         ushort initialPointer,
@@ -177,12 +179,14 @@ internal static class SporeSpawnInstructionProgramDefinitionsVerification
         return (enemies, body);
     }
 
+    /// <summary>Reads one native bank-A5 word for independent mechanics and selector comparisons.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn program words")]
     internal static ushort ReadSporeSpawnProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa50000 | address);
 
+    /// <summary>Rejects production reads from compiled mechanics and installed visual selector addresses.</summary>
     internal static MutableCartridgeReadGuard NewSporeSpawnInstructionReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -194,6 +198,7 @@ internal static class SporeSpawnInstructionProgramDefinitionsVerification
         return guard;
     }
 
+    /// <summary>Runs the Spore Spawn instruction suite through the verification command dispatcher.</summary>
     [VerificationCommand("--spore-spawn-instruction-mechanics")]
     internal static int SporeSpawnInstructionMechanicsCommand()
     {

@@ -12,10 +12,14 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class BackgroundScrollPhase
 {
+    /// <summary>Scroll-register and row/column request producer driven by the camera.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Active room camera, door mode, and background streamer.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Live VRAM receiving expanded background stream transfers.</summary>
     private readonly SnesVram _vram;
 
+    /// <summary>Binds the background phase to shared scroll state, room ownership, and VRAM.</summary>
     internal BackgroundScrollPhase(BackgroundScrollState backgroundScroll, ActiveRoomState room, SnesVram vram)
     {
         _backgroundScroll = backgroundScroll;

@@ -13,9 +13,8 @@ public static class ShaktoolOrbitTables
     /// </remarks>
     internal static short Sample(int index) => (short)UnquantizedSample(index);
 
-    // Twenty-four decimal Taylor terms through x^47/47! avoid platform libm.
-    // The full-cycle remainder and decimal roundoff fit inside 1e-19 before scaling;
-    // the one original-table proof checks both ends of that interval at every index.
+    /// <summary>Evaluates Shaktool's native-angle sine with 24 decimal Taylor terms instead of platform math functions.</summary>
+    /// <remarks>Terms through x^47/47! keep full-cycle remainder and decimal roundoff below 1e-19 before scaling; the original-table proof checks both bounds at every index.</remarks>
     internal static decimal UnquantizedSample(int index)
     {
         if ((uint)index >= 320) throw new IndexOutOfRangeException();

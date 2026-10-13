@@ -14,6 +14,7 @@ internal static class MochtroidVisualDefinitions
     /// <summary>$A3:AA06: first attached composition; each preceding record has four parts.</summary>
     private const ushort AttachedFrame = 0xaa06;
 
+    /// <summary>Publishes three free-flight and three attached poses in their native pointer order.</summary>
     internal static IEnumerable<EnemySpritemapDefinition> Frames()
     {
         for (int pose = 0; pose < 3; pose++)
@@ -22,9 +23,11 @@ internal static class MochtroidVisualDefinitions
             yield return new(Bank, PosePointer(true, pose), $"mochtroid_attached_{pose}");
     }
 
+    /// <summary>Uses each pose's native record size: six parts in flight or four while attached.</summary>
     private static ushort PosePointer(bool attached, int pose) =>
         checked((ushort)((attached ? AttachedFrame : FlightFrame) + pose * (2 + 5 * (attached ? 4 : 6))));
 
+    /// <summary>Maps either loop's four visual operands through a three-pose forward-and-back cycle.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {
         int offset = operandAddress - FlightOperand;

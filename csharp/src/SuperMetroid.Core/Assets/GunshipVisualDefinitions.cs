@@ -22,6 +22,7 @@ internal static class GunshipVisualDefinitions
         Bottom = 0xaddd,
     }
 
+    /// <summary>Exports each selected OAM identity once even though closing reuses opening poses in reverse.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var frames = new List<EnemySpritemapDefinition>(FrameCount);

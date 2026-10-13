@@ -8,14 +8,18 @@ using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Compares captured death and reserve-recovery frames with the legacy raster and audio path.</summary>
 internal static class RetailDeathCaptureTests
 {
+    /// <summary>Drives a zero-health fixture through death, blackouts, and game-over handoff.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
         => Run(device, renderer, reserveRecovery: false);
 
+    /// <summary>Drives automatic reserve recovery and checks the return to unlocked gameplay.</summary>
     internal static void RunReserveRecovery(D3D11RenderDevice device, D3D11FrameRenderer renderer)
         => Run(device, renderer, reserveRecovery: true);
 
+    /// <summary>Checks frame state, audio commands, PCM, and rendered pixels through the selected death path.</summary>
     private static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer, bool reserveRecovery)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
@@ -88,6 +92,7 @@ internal static class RetailDeathCaptureTests
     }
 }
 
+/// <summary>Reserve capacity and mode used to exercise the native automatic recovery path.</summary>
 internal static class ReserveCaptureFixtureDefinitions
 {
     /// <summary>One acquired reserve tank supplies 100 energy units for the focused recovery fixture.</summary>

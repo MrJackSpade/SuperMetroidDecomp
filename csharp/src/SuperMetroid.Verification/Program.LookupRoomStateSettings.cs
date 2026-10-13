@@ -3,10 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
 
+/// <summary>Checks every compiled retail room-state field against bank-$8F source records.</summary>
 internal static class LookupRoomStateSettingsVerification
 {
-    // Original identities captured from f2e63273eef07b384814af455e129d560fb8e109.
-    // Field expectations come from original bank-$8F bytes via the import-only reader.
+    /// <summary>Sorted native state identities captured from f2e63273eef07b384814af455e129d560fb8e109; fields use the import-only reader.</summary>
     private static readonly ushort[] OriginalRoomStatePointers =
     [
         0x9213, 0x922D, 0x9247, 0x9261, 0x92C5, 0x92DF, 0x9314, 0x932E, 0x9348, 0x93B7, 0x93E2, 0x940B,
@@ -38,6 +38,7 @@ internal static class LookupRoomStateSettingsVerification
         0xDF71, 0xDF9F, 0xDFB9, 0xDFE9, 0xE003, 0xE033, 0xE04D, 0xE07D, 0xE097, 0xE0C7, 0xE0E1,
     ];
 
+    /// <summary>Compares 323 state identities and all sixteen native setting fields.</summary>
     internal static void VerifyRoomStateSettings(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRoomStateIdentities), () => VerifyRoomStateIdentities());
@@ -58,6 +59,7 @@ internal static class LookupRoomStateSettingsVerification
         Suite(nameof(VerifyRoomStateSetupCodePointer), () => VerifyRoomStateSetupCodePointer(rom));
     }
 
+    /// <summary>Checks sorted enumeration and rejects every non-state ushort pointer.</summary>
     private static void VerifyRoomStateIdentities()
     {
         var original = OriginalRoomStatePointers.ToHashSet();
@@ -75,6 +77,7 @@ internal static class LookupRoomStateSettingsVerification
         }
     }
 
+    /// <summary>Checks each compressed level source and the complete distinct visual-layout source view.</summary>
     private static void VerifyRoomStateCompressedLevelDataAddress(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRoomStateField), () => VerifyRoomStateField(rom, state => state.CompressedLevelDataAddress, "CompressedLevelDataAddress"));
@@ -85,15 +88,25 @@ internal static class LookupRoomStateSettingsVerification
         AssertTrue(RoomVisualLayoutSourceDefinitions.All.SequenceEqual(original),
             "Layout-source view is repeatable after complete enumeration");
     }
+    /// <summary>Checks the selected room graphics-set identity for every state.</summary>
     private static void VerifyRoomStateGraphicsSet(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.GraphicsSet, "GraphicsSet");
+    /// <summary>Checks each room state's music data bank selection.</summary>
     private static void VerifyRoomStateMusicDataIndex(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.MusicDataIndex, "MusicDataIndex");
+    /// <summary>Checks each room state's track selection within its music data.</summary>
     private static void VerifyRoomStateMusicTrackIndex(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.MusicTrackIndex, "MusicTrackIndex");
+    /// <summary>Checks effect-header pointer selection for every state.</summary>
     private static void VerifyRoomStateFxPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.FxPointer, "FxPointer");
+    /// <summary>Checks which native enemy population each state installs.</summary>
     private static void VerifyRoomStateEnemyPopulationPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.EnemyPopulationPointer, "EnemyPopulationPointer");
+    /// <summary>Checks the enemy graphics-set pointer paired with each population.</summary>
     private static void VerifyRoomStateEnemyTilesetPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.EnemyTilesetPointer, "EnemyTilesetPointer");
+    /// <summary>Checks horizontal layer-two scroll configuration in every room state.</summary>
     private static void VerifyRoomStateLayer2ScrollX(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2Scroll.Horizontal, "Layer2ScrollX");
+    /// <summary>Checks vertical layer-two scroll configuration in every room state.</summary>
     private static void VerifyRoomStateLayer2ScrollY(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.Layer2Scroll.Vertical, "Layer2ScrollY");
+    /// <summary>Checks the room-scroll data pointer in each native state.</summary>
     private static void VerifyRoomStateScrollPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.ScrollPointer, "ScrollPointer");
+    /// <summary>Checks X-ray overlay pointers and the complete nonzero overlay-source view.</summary>
     private static void VerifyRoomStateXrayPointer(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRoomStateField), () => VerifyRoomStateField(rom, state => state.XrayPointer, "XrayPointer"));
@@ -104,11 +117,16 @@ internal static class LookupRoomStateSettingsVerification
         AssertTrue(XrayRoomOverlaySourceDefinitions.All.SequenceEqual(original),
             "X-ray source view is repeatable after complete enumeration");
     }
+    /// <summary>Checks the per-frame room callback pointer in each state.</summary>
     private static void VerifyRoomStateMainCodePointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.MainCodePointer, "MainCodePointer");
+    /// <summary>Checks the room's PLM population pointer in each state.</summary>
     private static void VerifyRoomStatePlmPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.PlmPointer, "PlmPointer");
+    /// <summary>Checks the scripted background-data pointer in each state.</summary>
     private static void VerifyRoomStateBackgroundDataPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.BackgroundDataPointer, "BackgroundDataPointer");
+    /// <summary>Checks the one-time room setup callback pointer in each state.</summary>
     private static void VerifyRoomStateSetupCodePointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.SetupCodePointer, "SetupCodePointer");
 
+    /// <summary>Compares a selected field both through lookup and sorted enumeration for all native identities.</summary>
     private static void VerifyRoomStateField(SuperMetroidAddressSpace rom,
         Func<CartridgeRoomState, int> field, string name)
     {

@@ -13,8 +13,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks selected X-ray scope input against beam firing and frozen projectile updates.</summary>
 internal static class XrayControlsVerification
 {
+    /// <summary>Checks default and remapped Run/Shoot bindings through activation, held scanning, release, and resumed fire.</summary>
     internal static void VerifyXrayControls()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -101,6 +103,7 @@ internal static class XrayControlsVerification
         }
     }
 
+    /// <summary>Runs the X-ray input and projectile-freeze verification.</summary>
     [VerificationCommand("--xray-controls")]
     internal static int XrayControlsCommand()
     {

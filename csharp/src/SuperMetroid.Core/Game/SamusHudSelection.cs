@@ -5,8 +5,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One frame of HandleSwitchingHudSelection ($90:C4B5): HUD item cycling and availability.</summary>
 internal sealed class SamusHudSelection
 {
+    /// <summary>Samus state whose selected item and native stabilization counter this handler updates.</summary>
     private readonly SamusState _samus;
 
+    /// <summary>Binds HUD selection logic to the owning Samus state.</summary>
     internal SamusHudSelection(SamusState owner)
     {
         _samus = owner;
@@ -78,6 +80,7 @@ internal sealed class SamusHudSelection
         return new HudSelectionOutcome(itemHandlerAccepted);
     }
 
+    /// <summary>Applies the native switched-to handlers' ammo and equipment admission rules.</summary>
     private bool IsHudItemAvailable(ushort index) => index switch
     {
         0 => true,

@@ -12,8 +12,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the falling Mother Brain tube's trajectory, hiding, head follow, and landing effects.</summary>
 internal static class MotherBrainTubeDescentVerification
 {
+    /// <summary>Compares fractional acceleration and head position every frame through tube deletion and room rebuild.</summary>
     internal static int VerifyMotherBrainTubeDescent()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -60,6 +62,7 @@ internal static class MotherBrainTubeDescentVerification
         return 0;
     }
 
+    /// <summary>Runs the focused Mother Brain tube descent verification command.</summary>
     [VerificationCommand("--mother-brain-tube-descent")]
     internal static int MotherBrainTubeDescentCommand()
     {

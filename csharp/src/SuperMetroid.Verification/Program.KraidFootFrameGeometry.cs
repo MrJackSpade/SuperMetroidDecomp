@@ -2,8 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the 35 Kraid foot OAM frame identities and two-part geometry against cartridge data.</summary>
 internal static class KraidFootFrameGeometryVerification
 {
+    /// <summary>Traverses native presentation operands and compares ordered frame keys and bounds.</summary>
     internal static void VerifyKraidFootFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var selected = new SortedSet<ushort>();
@@ -32,6 +34,7 @@ internal static class KraidFootFrameGeometryVerification
         AssertThrows<IndexOutOfRangeException>(() => KraidFootVisualDefinitions.Frame(35), "foot index past end");
     }
 
+    /// <summary>Reads a native foot presentation operand or spritemap count byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid foot frame geometry")]
     private static byte KraidFootFrameGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

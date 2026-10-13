@@ -3,8 +3,10 @@
 /// <summary>Script ownership of Samus's movement: the stationary script control lock, the refill-station lock and the Rainbow Beam handlers.</summary>
 internal sealed class SamusScriptLocks
 {
+    /// <summary>Samus owner whose handler and input-lock state the script commands update.</summary>
     private readonly SamusState _samus;
 
+    /// <summary>Binds script lock commands to the active Samus actor.</summary>
     internal SamusScriptLocks(SamusState owner)
     {
         _samus = owner;

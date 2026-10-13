@@ -11,6 +11,7 @@ internal static class BotwoonHealthPaletteDefinitions
 
     /// <summary>Eight complete sixteen-color palette images at $B3:971B-$981A.</summary>
     public const int PaletteCount = 8;
+    /// <summary>Each Botwoon health-band image occupies one sixteen-color sprite palette.</summary>
     public const int ColorsPerPalette = 16;
 
     /// <summary>Retail Botwoon writes sprite palette seven, CGRAM colors $F0-$FF.</summary>

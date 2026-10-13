@@ -18,8 +18,10 @@ using static LookupMotherBrainRegularDrawsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Mother Brain's fake-death terrain mutation programs, draws, and reachable production PLMs.</summary>
 internal static class MotherBrainFakeDeathPlmsVerification
 {
+    /// <summary>Compares native programs and geometry, then exercises twenty room mutations without source reads.</summary>
     internal static void VerifyCompiledMotherBrainFakeDeathPlms()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -82,6 +84,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
             "Mother Brain fake-death PLMs: 66 instruction words, 22 full draws, and 20 reachable production mutations match ROM without source reads.");
     }
 
+    /// <summary>Checks one spawned PLM's exact collision blocks, draw-frame lifetime, deletion, and source-read guard.</summary>
     private static void VerifyMotherBrainFakeDeathMutation(
         PlmHeaderId header, ushort program)
     {
@@ -131,6 +134,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
             $"Mother Brain mutation ${(int)header:X4} reads no migrated source bytes");
     }
 
+    /// <summary>Forbids bank-$84 reads of the migrated fake-death instruction and draw ranges.</summary>
     internal static CartridgeReadGuard NewMotherBrainFakeDeathSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
         {
@@ -144,6 +148,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
                              4 + run.LevelWords.Length * 2)));
         }, address => $"Mother Brain mutation reread migrated source ${address:X6}.");
 
+    /// <summary>Runs the focused Mother Brain terrain mutation comparison against the retail ROM.</summary>
     [VerificationCommand("--mother-brain-fake-death-plms")]
     internal static int MotherBrainFakeDeathPlmsCommand()
     {

@@ -15,8 +15,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Samus atmospheric animation timers and lava/acid damage rates against bank 90.</summary>
 internal static class SamusAtmosphericAnimationDefinitionsVerification
 {
+    /// <summary>Compares all active frame timers and liquid-damage words with the cartridge, then exercises their consumers.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus atmospheric animation definitions")]
     internal static void VerifySamusAtmosphericAnimationDefinitions(
         SuperMetroidAddressSpace rom)
@@ -73,6 +75,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             "Samus atmospheric animation: 37 timers, seven frame counts, four liquid-damage words, and all real cadence/damage consumers pass with mechanics ranges forbidden.");
     }
 
+    /// <summary>Checks frame expiry and delayed handoff for each of the seven atmospheric effect types.</summary>
     internal static void VerifyProductionAtmosphericCadence(ISnesAddressSpace guarded)
     {
         var atmosphericArt = new SamusAtmosphericArtworkCatalog(
@@ -116,6 +119,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         }
     }
 
+    /// <summary>Checks that a null bank 90 atmospheric pointer obtains OAM attributes from mirrored low WRAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: a null bank-$90 atmospheric pointer reads low WRAM through the $90:0000 system-bank mirror")]
     private static void VerifyNullAtmosphericPointerReadsMirroredWorkRam(
@@ -146,6 +150,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         }
     }
 
+    /// <summary>Checks the periodic whole and fractional damage installed for submerged Samus in lava or acid.</summary>
     private static void VerifyProductionLiquidDamage(
         ISnesAddressSpace guarded,
         RoomFxType fxType,
@@ -168,6 +173,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             $"production {fxType} whole damage accumulation");
     }
 
+    /// <summary>Rejects runtime reads of compiled atmosphere timing and liquid-damage table bytes.</summary>
     internal static MutableCartridgeReadGuard NewSamusAtmosphericAnimationReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -176,6 +182,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         return guard;
     }
 
+    /// <summary>Runs atmospheric cadence and liquid-damage checks with the repository cartridge.</summary>
     [VerificationCommand("--samus-atmospheric-cadence")]
     internal static int SamusAtmosphericCadenceCommand()
     {

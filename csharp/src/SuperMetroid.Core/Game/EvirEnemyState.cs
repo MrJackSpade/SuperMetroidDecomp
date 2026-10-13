@@ -21,8 +21,10 @@ public enum EvirAiFunction : ushort
 /// </summary>
 public sealed class EvirEnemyState
 {
+    /// <summary>Common 64-byte enemy record backing Evir's native B, C, E, and F variables.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Attaches Evir's typed common-word view to one physical body, arms, or projectile record.</summary>
     internal EvirEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Zero for left and one for right; native common variable B.</summary>

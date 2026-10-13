@@ -11,6 +11,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class VramDmaOwnership
 {
+    /// <summary>Recognizes a source-address and byte-count pair only when it belongs to a reviewed native HUD, actor, PLM, room FX, or sky transfer.</summary>
     internal static bool OwnsNative(int source, int count)
     {
         if (source == HudTileAtlasFormat.SourceAddress && count == HudTileAtlasFormat.TransferByteCount) return true;
@@ -37,6 +38,7 @@ internal static class VramDmaOwnership
              ((source & 1) == 0 && count == RoomFxRomData.ScrollingSky.TilemapRowByteCount));
     }
 
+    /// <summary>Recognizes a typed installed VRAM asset only with its reviewed transfer length, including separate ice/wave and missile trail ranges.</summary>
     internal static bool OwnsTyped(VramAssetId asset, int count)
     {
         if (asset == VramAssetId.StandardHudTiles) return count == HudTileAtlasFormat.TransferByteCount;

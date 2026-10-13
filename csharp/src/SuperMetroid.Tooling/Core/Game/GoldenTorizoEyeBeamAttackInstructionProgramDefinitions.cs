@@ -25,8 +25,10 @@ internal abstract class GoldenTorizoEyeBeamAttackInstructionProgramDefinitions :
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
+    /// <summary>Exposes the native bank to the program-layout auditor.</summary>
     static int IDeclaredProgramBank.Bank => Bank;
 
+    /// <summary>Timed eye-beam spawns followed by four repeating VRAM transfer descriptors.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd10d),
         Entry(Start),
@@ -63,12 +65,15 @@ internal abstract class GoldenTorizoEyeBeamAttackInstructionProgramDefinitions :
         Op((ushort)TorizoInstruction.Instruction_Torizo_FunctionInY, TorizoNormalMovementFunction),
         Op((ushort)TorizoInstruction.Instruction_Torizo_Return));
 
+    /// <summary>All timing and control words; this callable list has no drawing operands.</summary>
     public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    /// <summary>Reads a bank-$AA timing or control word from the compiled layout.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
 
+    /// <summary>Checks whether a byte belongs to the compiled eye-beam layout.</summary>
     public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

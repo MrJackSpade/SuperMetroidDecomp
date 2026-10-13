@@ -18,17 +18,22 @@ internal abstract class RinkaInstructionProgramDefinitions
     /// <summary><c>$A2:BA0C</c>, off-screen Mother Brain Rinka animation program.</summary>
     internal const ushort SpecialInitial = 0xba0c;
 
-    // Authored timing/content choices (reviewed under #1165): initial hidden hold, seed hold, minimum
-    // pulse hold and eight-pose cycle. Mirrored dwell follows the same returning
-    // sprite stages in A2:B9EC-BA04 and BA18-BA30; no chosen magnitude is exempt.
+    /// <summary>Initial invisible wait of sixty-four interpreter ticks before a Rinka fires.</summary>
     private const ushort HiddenHold = 64;
+    /// <summary>First visible pose remains for sixteen ticks after firing.</summary>
     private const ushort SeedHold = 16;
+    /// <summary>The central pulse pose has a five-tick minimum; neighboring poses dwell longer.</summary>
     private const int MinimumPulseHold = 5;
+    /// <summary>Eight authored poses form the mirrored expansion and return cycle.</summary>
     internal const int PoseCount = 8;
+    /// <summary>Setup includes the visibility callback, hidden hold and frame, and fire callback.</summary>
     internal const int SetupBytes = 8;
+    /// <summary>Each Rinka list contains setup, eight timed poses, and a terminal loop command.</summary>
     internal const int ListBytes = SetupBytes + PoseCount * 4 + 4;
+    /// <summary>Nine visual operands per list include the hidden frame and eight pulse poses.</summary>
     public static int PresentationWordCount => 2 * (PoseCount + 1);
 
+    /// <summary>Locates a hidden-frame or timed-pose spritemap operand in either Rinka list.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -37,6 +42,7 @@ internal abstract class RinkaInstructionProgramDefinitions
             (part == 0 ? 4 : SetupBytes + (part - 1) * 4 + 2));
     }
 
+    /// <summary>Compiles visibility, firing, pulse timing, and loop control for both native lists.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int relative = address - OrdinaryInitial;
@@ -59,6 +65,7 @@ internal abstract class RinkaInstructionProgramDefinitions
         throw new InvalidDataException($"Rinka instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
+    /// <summary>Excludes interleaved spritemap operands from a list's mechanical word reads.</summary>
     internal static bool IsPresentationOffset(int offset) => offset == 4 ||
         (offset >= SetupBytes && offset < ListBytes - 4 && (offset - SetupBytes) % 4 == 2);
 }

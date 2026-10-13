@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks the horizontal shutter's stationary instruction, selector, and exact bank $A2 ownership.</summary>
 internal static class HorizontalShutterInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the pinned cartridge and runs the horizontal shutter comparison.</summary>
     internal static void VerifyHorizontalShutterInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyHorizontalShutterInstructionProgramDefinitions), () => VerifyHorizontalShutterInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks native word mappings, live initialization and sleep, read guards, and lookup allocation.</summary>
     internal static void VerifyHorizontalShutterInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -85,6 +88,7 @@ internal static class HorizontalShutterInstructionProgramDefinitionsVerification
             "bytes forbidden.");
     }
 
+    /// <summary>Checks the two owned mechanics words and rejects adjacent bytes and other banks.</summary>
     private static void VerifyHorizontalShutterMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xe9d4, 0xe9d8];
@@ -115,6 +119,7 @@ internal static class HorizontalShutterInstructionProgramDefinitionsVerification
             AssertThrows<IndexOutOfRangeException>(() => HorizontalShutterInstructionProgramDefinitionsTooling.MechanicsWord(index), "Horizontal shutter mechanics bounds");
     }
 
+    /// <summary>Checks the single spritemap operand address and complete 16-bit membership domain.</summary>
     private static void VerifyHorizontalShutterPresentationMapping()
     {
         ushort[] addresses = [0xe9d6];
@@ -127,6 +132,7 @@ internal static class HorizontalShutterInstructionProgramDefinitionsVerification
         foreach (int index in new[] { int.MinValue, -1, addresses.Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Horizontal shutter visual bounds");
     }
+    /// <summary>Repeats warmed stationary-word lookups for the caller's allocation measurement.</summary>
     private static int ProbeHorizontalShutterInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -138,11 +144,13 @@ internal static class HorizontalShutterInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads a native bank $A2 word for the independent mechanics comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for horizontal shutter instruction words")]
     internal static ushort ReadHorizontalShutterInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
+    /// <summary>Forbids compiled mechanics rereads and observes the native spritemap operand.</summary>
     private static CartridgeReadGuard NewHorizontalShutterInstructionProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(HorizontalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -150,6 +158,7 @@ internal static class HorizontalShutterInstructionProgramDefinitionsVerification
             .ObserveWords(0xa20000, 1,
                 _ => HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
 
+    /// <summary>Dispatches the horizontal shutter instruction verification command.</summary>
     [VerificationCommand("--horizontal-shutter-instruction-mechanics")]
     internal static int HorizontalShutterInstructionMechanicsCommand()
     {

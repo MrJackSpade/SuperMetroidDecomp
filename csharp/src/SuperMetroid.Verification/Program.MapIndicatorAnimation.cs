@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static MapPresentationVerification;
 
+/// <summary>Checks pause-map save marker frames and timing against the native animation.</summary>
 internal static class MapIndicatorAnimationVerification
 {
+    /// <summary>Compares all four sprite phases to bank $82 and rejects invalid phase indices.</summary>
     internal static void VerifyMapIndicatorSprites(ISnesAddressSpace rom)
     {
         for (int frame = 0; frame < 4; frame++)
@@ -18,6 +20,7 @@ internal static class MapIndicatorAnimationVerification
                 "unsupported marker sprite phase");
     }
 
+    /// <summary>Compares native frame delays and 49 ticks of marker phase and backing alternation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for map indicator delays")]
     internal static void VerifyMapIndicatorDelays(ISnesAddressSpace rom)
     {

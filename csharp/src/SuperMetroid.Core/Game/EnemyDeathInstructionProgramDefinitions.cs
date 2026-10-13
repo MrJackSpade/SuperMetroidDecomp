@@ -44,8 +44,10 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
 
     /// <summary>Samus-contact death pose hold 2 at $86:EDFF..EE3D. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort ContactDeathPoseDuration = 2;
+    /// <summary>Frame operands across the respawn tail and five generic death animations.</summary>
     public static int PresentationWordCount => 31;
 
+    /// <summary>Finds the native bank-$86 address of one separately installed death spritemap operand.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -60,17 +62,21 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Accounts for the inserted sound opcode when locating a later timed frame's visual word.</summary>
     private static int FrameVisualOffset(int frame, int framesBeforeSound) =>
         frame * 4 + 2 + (frame >= framesBeforeSound ? 2 : 0);
 
+    /// <summary>Admits generic explosion programs and only the bounded respawn-tail portion of pickup processing.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) =>
         (kind == RoomEnemyProjectileKind.EnemyDeathExplosion ||
          (kind == RoomEnemyProjectileKind.EnemyDeathPickup && address >= RespawnTail && address < BigExplosion)) &&
         TryWord(address, out _);
 
+    /// <summary>Reads compiled death control or fails when the pointer names art or unsupported code.</summary>
     internal static ushort ReadMechanicsWord(ushort address) => TryWord(address, out ushort value)
         ? value : throw new InvalidDataException($"Generic enemy-death mechanics pointer $86:{address:X4} is not compiled.");
 
+    /// <summary>Dispatches aligned native words among the respawn, repeated explosion, and timed-frame programs.</summary>
     internal static bool TryWord(ushort address, out ushort value)
     {
         ushort? result = null;
@@ -96,8 +102,7 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
         return result.HasValue;
     }
 
-    // Big and Mini-Kraid deaths repeat two or three sprite spawns, one blank frame,
-    // sound and timer/goto control before becoming a pickup.
+    /// <summary>Repeats two or three sprite spawns, a blank frame, sound, and timer branch before becoming a pickup.</summary>
     private static ushort? RepeatedExplosionWord(int offset, bool miniKraid)
     {
         int firstFrameOffset = miniKraid ? 16 : 12;
@@ -120,8 +125,7 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
         };
     }
 
-    // Six normal/small frames or sixteen contact frames, with one sound command
-    // inserted before the second phase and the same pickup/delete tail.
+    /// <summary>Reads six normal/small or sixteen contact frames, accounting for the inserted sound before the pickup/delete tail.</summary>
     private static ushort? AnimatedExplosionWord(int offset, bool small, bool contact)
     {
         int sound = contact ? 28 : 12;

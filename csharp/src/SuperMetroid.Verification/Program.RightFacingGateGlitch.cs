@@ -14,8 +14,10 @@ using static GraphDigestVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks two reported right-facing gate activations against captured native success and control records.</summary>
 internal static class RightFacingGateGlitchVerification
 {
+    /// <summary>One East Tunnel trace containing frozen-enemy placement, shot timing, gate result, and final actor coordinates.</summary>
     internal readonly record struct EastTunnelGateRecord(
         int EnemyX,
         int ShootFrame,
@@ -26,12 +28,14 @@ internal static class RightFacingGateGlitchVerification
         int Pose,
         Position16<RoomPixels> Shot);
 
+    /// <summary>Runs the Pink Brinstar high-speed shot and East Tunnel frozen-enemy gate reproductions.</summary>
     internal static void VerifyRightFacingGateGlitches()
     {
         Suite(nameof(VerifyPinkBrinstarRightFacingGateGlitch), () => VerifyPinkBrinstarRightFacingGateGlitch());
         Suite(nameof(VerifyEastTunnelFrozenEnemyGateGlitch), () => VerifyEastTunnelFrozenEnemyGateGlitch());
     }
 
+    /// <summary>Compares every actual-room launch origin with ten native right-gate positives and their negative controls.</summary>
     private static void VerifyPinkBrinstarRightFacingGateGlitch()
     {
         string[] expected = File.ReadLines(
@@ -119,6 +123,7 @@ internal static class RightFacingGateGlitchVerification
             "right-gate activations and every negative match the original CPU.");
     }
 
+    /// <summary>Compares nine native frozen-Boyon shot timings, including the successful resumed frame, with production gameplay.</summary>
     private static void VerifyEastTunnelFrozenEnemyGateGlitch()
     {
         EastTunnelGateRecord[] expected = File.ReadLines(
@@ -148,6 +153,7 @@ internal static class RightFacingGateGlitchVerification
             "exactly as on the original CPU.");
     }
 
+    /// <summary>Loads East Tunnel, positions a frozen Boyon, and records the gate switch after the specified resumed shot frame.</summary>
     private static EastTunnelGateRecord RunEastTunnelFrozenEnemyGateGlitch(
         int frozenEnemyX,
         int shootFrame)
@@ -234,6 +240,7 @@ internal static class RightFacingGateGlitchVerification
             shotPosition);
     }
 
+    /// <summary>Parses one ten-field native East Tunnel outcome from the recorded CSV fixture.</summary>
     private static EastTunnelGateRecord ParseEastTunnelRecord(string line)
     {
         int[] fields = line.Split(',').Select(int.Parse).ToArray();
@@ -250,6 +257,7 @@ internal static class RightFacingGateGlitchVerification
             new Position16<RoomPixels>(checked((ushort)fields[8]), checked((ushort)fields[9])));
     }
 
+    /// <summary>Runs both reported gate-glitch comparisons against the local retail cartridge.</summary>
     [VerificationCommand("--right-facing-gate-glitch")]
     internal static int RightFacingGateGlitchCommand()
     {

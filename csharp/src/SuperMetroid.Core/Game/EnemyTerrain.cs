@@ -257,6 +257,7 @@ internal sealed class EnemyTerrain
         return false;
     }
 
+    /// <summary>Classifies the next horizontal block, including square-slope quadrants and spike-block PLM reactions.</summary>
     private bool EnemyHorizontalProbeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -298,6 +299,7 @@ internal sealed class EnemyTerrain
         };
     }
 
+    /// <summary>Classifies the next vertical block and may align the enemy against a non-square slope.</summary>
     private bool EnemyVerticalProbeIsSolid(RoomLevelData level, RoomEnemySlot slot, int nativeIndex, EnemyVerticalProbe probe)
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, nativeIndex);
@@ -382,6 +384,7 @@ internal sealed class EnemyTerrain
             $"Enemy collision BTS chain from native block {nativeIndex} is cyclic.");
     }
 
+    /// <summary>Reads the native level allocation past the authored room, rejecting types that require unbounded BTS.</summary>
     private static RoomCollisionBlock ReadEnemyMoverAllocationTail(RoomLevelData level, int blockIndex)
     {
         var block = new RoomCollisionBlock(
@@ -446,6 +449,7 @@ internal sealed class EnemyTerrain
             $"Enemy collision BTS chain from block ({start.X},{start.Y}) is cyclic.");
     }
 
+    /// <summary>Tests the target half-tile quadrant and the enemy's vertical span against a square slope.</summary>
     private static bool SquareHorizontalSlopeIsSolid(
         RoomEnemySlot slot,
         ushort targetEdge,
@@ -471,6 +475,7 @@ internal sealed class EnemyTerrain
         return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 2) & 0x80) != 0;
     }
 
+    /// <summary>Tests the target half-tile quadrant and the enemy's horizontal span against a square slope.</summary>
     private static bool SquareVerticalSlopeIsSolid(
         RoomEnemySlot slot,
         ushort targetEdge,
@@ -496,6 +501,7 @@ internal sealed class EnemyTerrain
         return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 1) & 0x80) != 0;
     }
 
+    /// <summary>Checks slope height under the enemy center and snaps its Y position to the floor or underside.</summary>
     private static bool NonSquareVerticalSlopeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -559,6 +565,7 @@ internal sealed class EnemyTerrain
         return adjustedFloor || adjustedCeiling;
     }
 
+    /// <summary>Adjusts the enemy center when the sampled floor or ceiling pixel penetrates a matching non-square slope.</summary>
     internal static bool AlignAgainstSlopeAtPixel(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -592,12 +599,16 @@ internal sealed class EnemyTerrain
         return true;
     }
 
+    /// <summary>Looks up the authored height of a slope shape at an already oriented block-local X.</summary>
     internal static int ReadNonSquareSlopeHeight(RoomBlockBehavior bts, int xWithinBlock) =>
         SlopeHeightDefinitions.Read(bts.SlopeShape, xWithinBlock);
-    // This is a synchronous call context, not emulated persistent state. Every enemy
-    // frame supplies its room's existing PLM owner, including after debugger restoration.
+    /// <summary>
+    /// The active frame's room PLM owner for enemy-breakable blocks. This synchronous call
+    /// context is not persisted; every enemy frame supplies it again after debugger restoration.
+    /// </summary>
     [NonSerialized] private RoomPlmSystem? _collisionPlms;
 
+    /// <summary>Spawns the breakable-block PLM for an enemy spike reaction and clears collision even if its pool is full.</summary>
     internal bool ReactToEnemySpikeBlock(RoomLevelData level, int blockIndex, RoomCollisionBlock block)
     {
         if (!EnemyBreakableTerrainDefinitions.IsEnemyBreakable(block.Behavior)) return true;
@@ -609,14 +620,18 @@ internal sealed class EnemyTerrain
     /// <summary>Supplies the active room PLM owner to <see cref="EnemyTerrain"/> for one enemy frame.</summary>
     internal readonly struct EnemyTerrainScope : IDisposable
     {
+        /// <summary>Terrain owner whose active PLM context is temporarily replaced.</summary>
         private readonly EnemyTerrain owner;
+        /// <summary>PLM context restored when the enemy frame leaves this scope.</summary>
         private readonly RoomPlmSystem? previous;
+        /// <summary>Installs the frame's room PLM owner while retaining the previous context.</summary>
         public EnemyTerrainScope(EnemyTerrain owner, RoomPlmSystem? current)
         {
             this.owner = owner;
             previous = owner._collisionPlms;
             owner._collisionPlms = current;
         }
+        /// <summary>Restores the terrain owner's prior PLM context.</summary>
         public void Dispose() => owner._collisionPlms = previous;
     }
 }

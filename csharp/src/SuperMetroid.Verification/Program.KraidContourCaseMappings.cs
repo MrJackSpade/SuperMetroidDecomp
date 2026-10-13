@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidBodyContourVerification;
 
+/// <summary>Checks Kraid contour and growth-resume selectors against native comparison logic.</summary>
 internal static class KraidContourCaseMappingsVerification
 {
+    /// <summary>Walks the seven native contour records using wrapped CMP/BPL subtraction.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid body contour left-edge records")]
     internal static short NativeKraidBodyLeftEdge(SuperMetroidAddressSpace rom, short relativeY)
     {
@@ -19,6 +21,7 @@ internal static class KraidContourCaseMappingsVerification
         throw new InvalidOperationException("Native Kraid body contour did not terminate within its records.");
     }
 
+    /// <summary>Checks every relative Y mapping and strict projectile overlap at wrapped edge cases.</summary>
     internal static void VerifyKraidBodyContourCases(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -45,6 +48,7 @@ internal static class KraidContourCaseMappingsVerification
         }
     }
 
+    /// <summary>Decodes native tilemap comparisons and offsets to find Kraid's head-resume pointer and timer.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth head-resume immediates")]
     internal static KraidHeadResumeDefinition NativeKraidGrowthResume(SuperMetroidAddressSpace rom, ushort tilemap)
     {
@@ -60,6 +64,7 @@ internal static class KraidContourCaseMappingsVerification
         return new((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c047) + offset), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa70000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c04d) + offset))));
     }
 
+    /// <summary>Checks the compiled growth-resume selector for every sixteen-bit tilemap value.</summary>
     internal static void VerifyKraidGrowthResumeCases(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

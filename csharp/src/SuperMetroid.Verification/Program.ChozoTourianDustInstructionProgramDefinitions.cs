@@ -15,12 +15,15 @@ using static DoorDefinitionsVerification;
 using static EnemyProjectileProgramOracleVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Chozo footstep and Tourian dust projectile programs against ROM and their runtime producers.</summary>
 internal static class ChozoTourianDustInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the compiled projectile program verification suite.</summary>
     internal static void VerifyChozoTourianDustInstructionProgramDefinitions() =>
         Suite(nameof(VerifyChozoTourianDustInstructionProgramDefinitions), () => VerifyChozoTourianDustInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Compares mechanics and presentation words with ROM, then checks projectile motion, cadence, deletion, and guarded runtime reads.</summary>
     internal static void VerifyChozoTourianDustInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -151,6 +154,7 @@ internal static class ChozoTourianDustInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeatedly reads live compiled mechanics words so the caller can measure warmed lookup allocations.</summary>
     private static int ProbeChozoTourianDustInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -164,12 +168,14 @@ internal static class ChozoTourianDustInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids mechanics byte reads while observing the separate spritemap selector reads.</summary>
     private static CartridgeReadGuard NewChozoTourianDustInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(ChozoTourianDustInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Chozo/Tourian dust mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount, ChozoTourianDustInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Chozo and Tourian dust instruction checks through the verification command dispatcher.</summary>
     [VerificationCommand("--chozo-tourian-dust-instruction-mechanics")]
     internal static int ChozoTourianDustInstructionMechanicsCommand()
     {

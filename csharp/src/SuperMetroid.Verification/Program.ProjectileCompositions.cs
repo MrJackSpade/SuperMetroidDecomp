@@ -19,8 +19,10 @@ using static IntroProjectileArtworkVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks imported projectile OAM against native records, production draw owners, and installed edits.</summary>
 internal static class ProjectileCompositionsVerification
 {
+    /// <summary>Compares extracted bank-$93 sprites across coordinate wraps and verifies edits without draw-time ROM access.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom,
         bool compositionOnly = false, string sourceRom = "Super Metroid.smc")
@@ -110,6 +112,7 @@ internal static class ProjectileCompositionsVerification
         }
     }
 
+    /// <summary>Checks shot, explosion, and bomb draw owners preserve OAM, flicker, and projectile state without ROM reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyProjectileCompositionOwners(ISnesAddressSpace rom, ProjectileSpriteCatalog content)
     {
@@ -157,11 +160,13 @@ internal static class ProjectileCompositionsVerification
         Console.WriteLine($"Projectile composition owners: {comparisons} stock OAM comparisons with every ROM access forbidden.");
     }
 
+    /// <summary>Rejects every cartridge read and bus write during installed composition drawing.</summary>
     internal static CartridgeReadGuard NewProjectileCompositionForbiddenBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Composition draw read ROM {address:X6}.")
             .RejectWrites(_ => "Composition draw mutated the bus.");
 
+    /// <summary>Checks frontend gameplay drawing binds selected projectile art for each production owner family.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeProjectileCompositions(ISnesAddressSpace bus,
         ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite,
@@ -265,6 +270,7 @@ internal static class ProjectileCompositionsVerification
         }
     }
 
+    /// <summary>Checks stock digests, persistent overrides, invalid content, and stock repair in projectile installation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyProjectileFiles(ISnesAddressSpace bus, byte[] editedJson)
     {
@@ -509,6 +515,7 @@ internal static class ProjectileCompositionsVerification
         Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
     }
 
+    /// <summary>Runs native projectile composition verification against the pinned cartridge.</summary>
     [VerificationCommand("--projectile-compositions-fixture")]
     internal static int ProjectileCompositionsFixtureCommand()
     {

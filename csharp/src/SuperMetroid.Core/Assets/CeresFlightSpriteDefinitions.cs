@@ -23,11 +23,29 @@ public static class CeresFlightSpriteDefinitions
     /// <summary>Immutable six-name bank-$8C catalog in stable stars, large-asteroid, station, small-asteroid, and two-vortex order; maps editable composition names to native visual identities and descriptive stock OAM counts, not instruction timing.</summary>
     public static IReadOnlyList<CeresFlightSpriteFrameDefinition> Frames { get; } = new FrameList();
 
-    private enum Visual { Stars, LargeAsteroids, StationUnderAttack, SmallAsteroids, VortexEven, VortexOdd }
+    /// <summary>Stable ordinal positions of the six published Ceres flight compositions.</summary>
+    private enum Visual
+    {
+        /// <summary>Star field drawing selected by the flight background stream.</summary>
+        Stars,
+        /// <summary>Large asteroid composition selected during the explosion flight.</summary>
+        LargeAsteroids,
+        /// <summary>Damaged station drawing selected during the attack sequence.</summary>
+        StationUnderAttack,
+        /// <summary>Small asteroid composition selected beside the station.</summary>
+        SmallAsteroids,
+        /// <summary>First of the two alternating purple vortex drawings.</summary>
+        VortexEven,
+        /// <summary>Second of the two alternating purple vortex drawings.</summary>
+        VortexOdd,
+    }
 
+    /// <summary>Projects stable visual ordinals to native pointers and stock OAM counts.</summary>
     private sealed class FrameList : IReadOnlyList<CeresFlightSpriteFrameDefinition>
     {
+        /// <summary>Four single-frame streams and the vortex stream's two alternating frames.</summary>
         public int Count => 6;
+        /// <summary>Pairs a visual ordinal with its published name, native pointer, and stock part count.</summary>
         public CeresFlightSpriteFrameDefinition this[int index]
         {
             get
@@ -45,10 +63,12 @@ public static class CeresFlightSpriteDefinitions
                 };
             }
         }
+        /// <summary>Yields the six compositions in published catalog order.</summary>
         public IEnumerator<CeresFlightSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes published catalog order to non-generic callers.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

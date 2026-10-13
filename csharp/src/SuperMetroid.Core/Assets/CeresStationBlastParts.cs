@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// quadrants and peripheral tips in native OAM order; retain no full-part table.</summary>
 internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Uses calculated reflected parts only for one of the six native station-blast compositions.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 6; frame++)
@@ -14,7 +15,9 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
                 return supplied.CalculateIfMatching(new CeresStationBlastParts(frame));
         return supplied;
     }
+    /// <summary>Uses each animation frame's native OAM part count.</summary>
     public int Count => CeresDestructionSpriteDefinitions.StationPartCount(frame);
+    /// <summary>Calculates one core, lobe, or detached tip from frame geometry and atlas tiles.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -85,13 +88,16 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
         }
     }
+    /// <summary>Emits all calculated blast parts in native OAM order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Preserves that OAM order for non-generic consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Tile anchors for the expanded core, lobes, and detached blast tips.</summary>
 internal static class CeresStationBlastAtlas
 {
     /// <summary>Tile B0, large core quadrant of native frame 8C:9930.</summary>

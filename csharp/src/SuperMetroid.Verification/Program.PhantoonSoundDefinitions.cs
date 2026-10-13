@@ -15,8 +15,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Phantoon's three materialization sounds and their production callback cycle.</summary>
 internal static class PhantoonSoundDefinitionsVerification
 {
+    /// <summary>Compares native sound words and confirms two callback cycles advance the index without rereading the table.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon sound definitions")]
     internal static void VerifyPhantoonSoundDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -63,10 +65,12 @@ internal static class PhantoonSoundDefinitionsVerification
             "Phantoon sound definitions: all three native selections and two complete production callback cycles pass with the source table forbidden.");
     }
 
+    /// <summary>Forbids production reads of the compiled materialization sound table.</summary>
     private static CartridgeReadGuard NewPhantoonSoundReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa7cded and < 0xa7cdf3,
             address => $"Phantoon attempted migrated materialization sound read ${address:X6}.");
 
+    /// <summary>Runs the Phantoon sound definition check with a retail cartridge oracle.</summary>
     [VerificationCommand("--phantoon-sound-definitions")]
     internal static int PhantoonSoundDefinitionsCommand()
     {

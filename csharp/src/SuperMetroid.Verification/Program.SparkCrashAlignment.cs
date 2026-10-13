@@ -13,8 +13,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Checks diagonal shinespark crash alignment and its one-time previous-position adjustment.</summary>
 internal static class SparkCrashAlignmentVerification
 {
+    /// <summary>Confirms the delayed standing pose shifts whole Y by two pixels, retains the fraction, and consumes its previous-position checkpoint once.</summary>
     internal static void VerifySparkCrashAlignment()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -36,6 +38,7 @@ internal static class SparkCrashAlignmentVerification
         }
     }
 
+    /// <summary>Runs crash alignment and related face-forward checks from the verification command line.</summary>
     [VerificationCommand("--spark-crash-alignment")]
     internal static int SparkCrashAlignmentCommand()
     {

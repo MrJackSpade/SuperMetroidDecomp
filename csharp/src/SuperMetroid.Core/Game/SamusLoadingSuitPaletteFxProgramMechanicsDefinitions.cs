@@ -116,9 +116,12 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
     /// Native header words and all program ownership are independently checked for1165.</remarks>
     public static IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition> All { get; } = new ProgramList();
 
+    /// <summary>Exposes the three named program owners in native definition order without an indexed descriptor array.</summary>
     private sealed class ProgramList : IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition>
     {
+        /// <summary>One program each for Power, Varia, and Gravity suit loading.</summary>
         public int Count => 3;
+        /// <summary>Maps native definition ordinal zero through two to its named suit program.</summary>
         public SamusLoadingSuitPaletteFxProgramDefinition this[int index] => index switch
         {
             0 => Power,
@@ -126,12 +129,14 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
             2 => Gravity,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Yields Power, Varia, then Gravity to match the compiled definition order.</summary>
         public IEnumerator<SamusLoadingSuitPaletteFxProgramDefinition> GetEnumerator()
         {
             yield return Power;
             yield return Varia;
             yield return Gravity;
         }
+        /// <summary>Uses the same suit order for non-generic enumeration.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Returns the bank-local offset of one counted group.</summary>
@@ -171,9 +176,12 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete Samus-loading palette control program.</summary>
 public sealed class SamusLoadingSuitPaletteFxProgramDefinition
 {
+    /// <summary>Bank-local position of the one-frame record following four counted groups.</summary>
     private const ushort FinalFrameOffset = 0x0140;
+    /// <summary>Bank-local position of deletion after the terminal palette record.</summary>
     private const ushort DeleteInstructionOffset = 0x0164;
 
+    /// <summary>Pairs one suit's palette-FX header with its bank-$8D instruction-list entry.</summary>
     internal SamusLoadingSuitPaletteFxProgramDefinition(
         SamusLoadingSuitPaletteFxProgramOwner owner,
         ushort definitionPointer,

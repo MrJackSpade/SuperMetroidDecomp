@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static BabyMetroidFixtureHeadVerification;
 
+/// <summary>Checks the drained-pose, wall-jump, command-cancel, and Baby touch mechanics in the Mother Brain glitch movie.</summary>
 internal static class MotherBrainGlitchMechanicsVerification
 {
     /// <summary>

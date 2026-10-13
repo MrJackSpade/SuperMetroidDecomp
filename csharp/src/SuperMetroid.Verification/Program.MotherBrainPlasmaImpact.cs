@@ -13,8 +13,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Mother Brain head damage and shot removal after a charged Plasma impact.</summary>
 internal static class MotherBrainPlasmaImpactVerification
 {
+    /// <summary>Confirms one accepted hit, recoil, immunity, first-form restriction, and later Hyper Beam behavior.</summary>
     internal static int VerifyMotherBrainPlasmaImpact()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -87,6 +89,7 @@ internal static class MotherBrainPlasmaImpactVerification
         }
     }
 
+    /// <summary>Runs the focused Mother Brain Plasma collision reproduction.</summary>
     [VerificationCommand("--mother-brain-plasma-impact")]
     internal static int MotherBrainPlasmaImpactCommand()
     {

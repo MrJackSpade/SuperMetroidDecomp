@@ -70,6 +70,7 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
     /// pinned NTSC J/U v1.0 ROM. Its five spritemap operands stay live.
     /// </remarks>
     internal const ushort DirectionalAfterburn = 0x9606;
+    /// <summary>The fireball and four afterburn lists contain 26 live spritemap operands.</summary>
     public static int PresentationWordCount => 26;
 
     /// <summary>Calculated locations of the interleaved bank-$86 spritemap operands.</summary>
@@ -85,6 +86,7 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
         return (ushort)(SpawnProgram((index - 11) / 5) + 4 + frame * 4 + (frame == 0 ? 0 : 2));
     }
 
+    /// <summary>Maps horizontal center, vertical center, and directional child indices to their list starts.</summary>
     internal static ushort SpawnProgram(int kind) => kind switch
     {
         0 => HorizontalCenter,
@@ -92,6 +94,7 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
         2 => DirectionalAfterburn,
         _ => throw new IndexOutOfRangeException(),
     };
+    /// <summary>Identifies the fireball and six Ceres afterburn kinds handled by these compiled lists.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.CeresRidleyFireball or
         RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter or
@@ -101,6 +104,7 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
         RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp or
         RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown;
 
+    /// <summary>Reads a compiled bank 86 control word and rejects presentation or unrelated addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -109,6 +113,7 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
             $"Ceres Ridley projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
+    /// <summary>Recognizes fireball timing, branch, and afterburn callback words while leaving spritemaps live.</summary>
     internal static bool TryRead(int address, out ushort value)
     {
         int offset = address - Fireball;
@@ -151,6 +156,7 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitions
         return false;
     }
 
+    /// <summary>Decodes a final or spawning afterburn list's clear, callback, five-tick frames, and delete.</summary>
     private static bool TryAfterburn(int offset, bool spawns, ushort callback, out ushort value)
     {
         if (offset == 0)

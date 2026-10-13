@@ -46,25 +46,29 @@ public static class EndingTextDefinitions
     /// <summary>Alphabet index of the first letter stored in the second large group.</summary>
     public const int LargeSecondGroupFirstLetter = 16;
 
-    /// <summary>Gets the centered region containing the result's producer line.</summary>
+    /// <summary>Eleven-cell producer line centered on result-panel row zero.</summary>
     public static EndingTextRegionDefinition ResultProducedBy => Centered(0, 11, EndingTextStyle.ResultSmall);
-    /// <summary>Gets the centered region containing the item-percentage heading.</summary>
+    /// <summary>Thirteen-cell percentage heading centered on tile row ten.</summary>
     public static EndingTextRegionDefinition PercentageHeading => Centered(10, 13, EndingTextStyle.PercentageSmall);
-    /// <summary>Gets the centered region containing the item-percentage detail line.</summary>
+    /// <summary>Nineteen-cell percentage detail centered on tile row twelve.</summary>
     public static EndingTextRegionDefinition PercentageDetail => Centered(12, 19, EndingTextStyle.PercentageSmall);
-    /// <summary>Gets the centered region containing the final large message.</summary>
+    /// <summary>Twenty-cell two-row message centered from tile row two.</summary>
     public static EndingTextRegionDefinition FinalMessage => Centered(2, 20, EndingTextStyle.FinalLarge);
 
+    /// <summary>Native copyright spacing: four year glyphs, two blank cells, and eight company glyphs.</summary>
     private const int CopyrightYearWidth = 4, CopyrightCompanyWidth = 8, CopyrightGap = 2;
+    /// <summary>First column of the centered year-and-company composition.</summary>
     private static int CopyrightStart => CenteredColumn(CopyrightYearWidth + CopyrightGap + CopyrightCompanyWidth);
-    /// <summary>Gets the large-glyph region containing the copyright year.</summary>
+    /// <summary>Four large year digits beginning at the centered copyright origin.</summary>
     public static EndingTextRegionDefinition CopyrightYear => new(0, CopyrightStart, CopyrightYearWidth, EndingTextStyle.CopyrightLarge);
-    /// <summary>Gets the large-glyph region containing the copyright company name.</summary>
+    /// <summary>Eight large company glyphs after the year and two-cell gap.</summary>
     public static EndingTextRegionDefinition CopyrightCompany => new(0, CopyrightStart + CopyrightYearWidth + CopyrightGap,
         CopyrightCompanyWidth, EndingTextStyle.CopyrightLarge);
 
     // Odd spare columns leave the extra cell on the right, matching native tilemaps.
+    /// <summary>Centers a field within 32 cells, leaving an odd spare column on the right.</summary>
     private static int CenteredColumn(int width) => (TilemapWidth - width) / 2;
+    /// <summary>Places an ending-text field at a native centered column with the selected font style.</summary>
     private static EndingTextRegionDefinition Centered(int row, int width, EndingTextStyle style) =>
         new(row, CenteredColumn(width), width, style);
 
@@ -139,6 +143,7 @@ public static class EndingTextDefinitions
             $"Ending {style} tile word ${word:X4} has no safe UTF-8 mapping.");
     }
 
+    /// <summary>Maps A-Z into the split large-font tile ranges and optionally selects the bottom half.</summary>
     private static ushort CompileLarge(int letter, ushort attributes, bool bottom)
     {
         int tile = letter < LargeSecondGroupFirstLetter

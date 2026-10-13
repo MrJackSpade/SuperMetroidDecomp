@@ -57,12 +57,15 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// <summary><c>$84:9717</c>: first byte of the following glass draw region.</summary>
     internal const ushort EndExclusive = 0x9717;
 
+    /// <summary>Enumerates wall, door, mural rows and tube-clear draws in native family order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
         BoundaryDraws().Concat(BackgroundDraws()).Concat(RegularDraws());
 
+    /// <summary>Validates a native draw pointer before assigning its editable artwork ID.</summary>
     internal static string VisualId(ushort pointer) => VisualId(
         ClosedNativeWords.Decode<MotherBrainFakeDeathDraw>(pointer, "Mother Brain fake-death draw with a visual ID"));
 
+    /// <summary>Maps the closed bank-$84 draw domain to stable visual document names.</summary>
     internal static string VisualId(MotherBrainFakeDeathDraw pointer) => pointer switch
     {
         MotherBrainFakeDeathDraw.FillWall => "fill-wall",
@@ -90,6 +93,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined MotherBrainFakeDeathDraw {pointer}."),
     };
 
+    /// <summary>Finds a compiled physical draw by its case-sensitive editable visual ID.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
@@ -114,17 +118,21 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// </summary>
     internal readonly record struct RegularDraw(MotherBrainFakeDeathDraw Pointer, int RunLength, int RunCount, bool Ceiling, bool Fill, int Side)
     {
+        /// <summary>Uses one cell for a side-tube's second run and the full authored length elsewhere.</summary>
         internal int Count(int run)
         {
             if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
             return Side != 0 && run == 1 ? 1 : RunLength;
         }
+        /// <summary>Tube clears run vertically except for a side-tube's extra centerward cell.</summary>
         internal bool Vertical(int run) => !Fill && !(Side != 0 && run == 1);
+        /// <summary>Moves to the next paired tube column, using signed direction for the side clears.</summary>
         internal sbyte NextX(int run)
         {
             Count(run);
             return run + 1 == RunCount ? (sbyte)0 : (sbyte)(Side == 0 ? 1 : Side);
         }
+        /// <summary>Preserves solid fill rows or clears tube interiors while restoring ceiling and floor endpoints.</summary>
         internal ushort WordAt(int run, int block)
         {
             int count = Count(run);
@@ -136,6 +144,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
+    /// <summary>Recognizes only the two unused fill rows and six tube-clear lists in the shared draw-pointer space.</summary>
     internal static bool TryDescribeRegular(ushort pointer, out RegularDraw draw)
     {
         draw = default;
@@ -166,6 +175,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
+    /// <summary>Expands a regular shape into ordered PLM runs with native vertical flags and continuation offsets.</summary>
     internal static bool TryGetRegular(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
@@ -181,6 +191,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Walks contiguous bank-$84 regular records by their encoded run sizes through $9716.</summary>
     private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> RegularDraws()
     {
         // Each next record follows its counts, cells and two-byte continuation pairs.
@@ -224,6 +235,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// </summary>
     internal readonly record struct BackgroundDraw(int Row)
     {
+        /// <summary>Combines a selected mural tile with solid collision only on its upper and lower border rows.</summary>
         internal ushort WordAt(int column)
         {
             if ((uint)column >= 13) throw new IndexOutOfRangeException();
@@ -231,6 +243,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
+    /// <summary>Recognizes the twelve 30-byte-spaced mural row pointers from $9505 through $964F.</summary>
     internal static bool TryDescribeBackground(ushort pointer, out BackgroundDraw draw)
     {
         int offset = pointer - (int)MotherBrainFakeDeathDraw.BackgroundRow2;
@@ -239,6 +252,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Builds one thirteen-cell horizontal mural run from its selected row and collision boundary.</summary>
     internal static bool TryGetBackground(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
@@ -249,6 +263,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Enumerates all twelve mural rows at their native 30-byte pointer stride.</summary>
     private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BackgroundDraws()
     {
         for (int pointer = (int)MotherBrainFakeDeathDraw.BackgroundRow2;
@@ -270,7 +285,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// <summary>84:94B7/94C3: repeated lower-interior strip across both columns.</summary>
     private const ushort DoorLowerInterior = 0x1d0;
 
-    // Called only after validating the two-column/four-row door domain.
+    /// <summary>Selects the authored tile for one validated column and row of the two-wide escape door.</summary>
     private static ushort EscapeDoorVisualAt(int column, int row) => row switch
     {
         0 => (ushort)(DoorUpperEdgeLeft + column),
@@ -288,21 +303,25 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// </summary>
     internal readonly record struct BoundaryDraw(MotherBrainFakeDeathDraw Pointer)
     {
+        /// <summary>Chooses four cells per escape-door column or the wall's two-cell and one-cell runs.</summary>
         internal int Count(int run)
         {
             if ((uint)run >= 2) throw new IndexOutOfRangeException();
             return Pointer == MotherBrainFakeDeathDraw.EscapeDoor ? 4 : 2 - run;
         }
+        /// <summary>Steps from the escape door's left column to its right air column.</summary>
         internal sbyte NextX(int run)
         {
             Count(run);
             return Pointer == MotherBrainFakeDeathDraw.EscapeDoor && run == 0 ? (sbyte)1 : (sbyte)0;
         }
+        /// <summary>Raises the second wall cap above its first run's centered tile.</summary>
         internal sbyte NextY(int run)
         {
             Count(run);
             return Pointer == MotherBrainFakeDeathDraw.FillWall && run == 0 ? (sbyte)-1 : (sbyte)0;
         }
+        /// <summary>Builds solid wall caps or the escape door's parent, extensions and air-backed artwork.</summary>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)block >= Count(run)) throw new IndexOutOfRangeException();
@@ -314,6 +333,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
+    /// <summary>Recognizes only the wall-fill and escape-door pointers among the shared fake-death draws.</summary>
     internal static bool TryDescribeBoundary(ushort pointer, out BoundaryDraw draw)
     {
         draw = default;
@@ -325,6 +345,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Expands a validated wall or escape-door shape into two vertical PLM runs.</summary>
     internal static bool TryGetBoundary(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
@@ -340,6 +361,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Yields the wall-fill then escape-door lists at their native pointers.</summary>
     private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BoundaryDraws()
     {
         TryGetBoundary((ushort)MotherBrainFakeDeathDraw.FillWall, out var wall);

@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks downward gate column and colored trigger draw lists against bank-$84 PLM data.</summary>
 internal static class LookupDownwardGateStockVerification
 {
+    /// <summary>Checks fourteen stock frames, run shapes, edited words, content identity, and rejection bounds.</summary>
     internal static void VerifyDownwardGateStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmDownwardGateVisualCatalog installed)
     {
@@ -81,6 +83,7 @@ internal static class LookupDownwardGateStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmDownwardGateVisualCatalog(entries), "Gate visual bits only");
     }
 
+    /// <summary>Reads a native downward-gate draw-list byte for the stock oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for downward gate stock mapping")]
     private static byte DownwardGateStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

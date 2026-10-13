@@ -38,6 +38,7 @@ internal abstract class KiHunterInstructionProgramDefinitions
     /// <summary>Native program bank $A8.</summary>
     internal const byte Bank = 0xa8;
 
+    /// <summary>Native body and wing pose holds, AI callbacks, loop targets, and separately addressed visual selectors.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe9fa),
         Entry(FlyingLeft),
@@ -135,9 +136,12 @@ internal abstract class KiHunterInstructionProgramDefinitions
         Op((ushort)KiHunterInstruction.SetFunctionToWinglessThinking),
         Frame(1),
         Op((ushort)CommonEnemyInstruction.Sleep));
+    /// <summary>Number of installed spritemap selectors interleaved through the body and wing lists.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Locates a KiHunter visual selector without loading its artwork into the mechanics layout.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads a compiled bank-$A8 control word and rejects visual or unsupported pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

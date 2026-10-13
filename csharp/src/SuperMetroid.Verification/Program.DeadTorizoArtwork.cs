@@ -8,8 +8,10 @@ using static FrontendRomFreeVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Verifies installed Dead Torizo sheet, sand, spritemap, and VRAM transfer behavior against retail data.</summary>
 internal static class DeadTorizoArtworkVerification
 {
+    /// <summary>Checks installed corpse staging, native OAM, and the visible effect of an edited sheet pixel.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledDeadTorizoArtwork(
         string directory, EnemyTileArtworkCatalog stock)
@@ -87,6 +89,7 @@ internal static class DeadTorizoArtworkVerification
         Console.WriteLine("  Dead Torizo artwork: guarded initial corpse and sand-line ROM parity, visible PNG edit and reload pass.");
     }
 
+    /// <summary>Matches the installed stationary frame's 25 OAM parts against the native spritemap.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo stationary visual")]
     private static void VerifyDeadTorizoStationaryVisual(
@@ -119,6 +122,7 @@ internal static class DeadTorizoArtworkVerification
         Console.WriteLine("  Dead Torizo stationary visual: compiled selector, editable 25-part OAM, and native composition parity pass.");
     }
 
+    /// <summary>Compares both corpse-animation transfer tables and their live queues with retail descriptors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo VRAM transfer definitions")]
     private static void VerifyDeadTorizoVramTransferDefinitions(
         EnemyTileArtworkCatalog stock)
@@ -180,8 +184,10 @@ internal static class DeadTorizoArtworkVerification
         Console.WriteLine("  Dead Torizo VRAM queues: fourteen native descriptors and both real frame builders match with installed ROM reads forbidden.");
     }
 
-    // Independent transcription of Torizo_CorpseRottingInitFunc ($A9:DE18)
-    // from the pinned sm_a9.c. Do not derive expected copies from runtime definitions.
+    /// <summary>
+    /// Independently transcribes <c>Torizo_CorpseRottingInitFunc</c> at $A9:DE18 from pinned
+    /// <c>sm_a9.c</c>; expected copies must remain independent of runtime definitions.
+    /// </summary>
     private static void ReferenceDeadTorizoCorpseGraphics(SuperMetroidAddressSpace bus)
     {
         WorkRamByteTable tiles = new EnemyScratchMemory(bus).CorpseTiles;
@@ -200,7 +206,7 @@ internal static class DeadTorizoArtworkVerification
                 tiles[copy.Destination + offset] = ReadNativeDeadTorizoSheetByte(bus, copy.Source + offset);
     }
 
-    // $A9:D5EA copies eighteen words selected by the two cartridge offset tables.
+    /// <summary>Copies eighteen sand words from the sheet using the two native $A9:D5EA offset tables.</summary>
     private static void ReferenceDeadTorizoSandLine(SuperMetroidAddressSpace bus, ushort line)
     {
         (int destination, int source) = ReadNativeDeadTorizoSandLineOffsets(bus, line);
@@ -210,16 +216,19 @@ internal static class DeadTorizoArtworkVerification
                 sand[destination + row * 16 + part] = ReadNativeDeadTorizoSheetByte(bus, source + row * 16 + part);
     }
 
+    /// <summary>Reads one oracle byte from the corpse sheet at $B7:A800.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Dead Torizo corpse tile sheet at $B7:A800")]
     private static byte ReadNativeDeadTorizoSheetByte(ISnesAddressSpace rom, int sheetOffset) =>
         rom.ReadCartridgeByte(0xb7a800 + sheetOffset);
 
+    /// <summary>Obtains a sand line's WRAM destination and sheet source from separate retail tables.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Dead Torizo sand-line destination and source offset tables")]
     private static (int Destination, int Source) ReadNativeDeadTorizoSandLineOffsets(ISnesAddressSpace rom, ushort line)
     {
         return (CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d67c + line * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d69c + line * 2)));
     }
 
+    /// <summary>Initializes the corpse actor with installed artwork while forbidding reads from its ROM sheet.</summary>
     private static RoomEnemySystem InitializeDeadTorizoArtwork(
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork)
     {
@@ -231,12 +240,14 @@ internal static class DeadTorizoArtworkVerification
         return enemies;
     }
 
+    /// <summary>Invokes the live corpse behavior's sand-line copy for comparison with the independent oracle.</summary>
     private static void CopyDeadTorizoSandLine(RoomEnemySystem enemies, ushort line)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         new Action<ushort>(enemies.DeadTorizoBehavior.CopyDeadTorizoSandLine)(line);
     }
 
+    /// <summary>Renders the corpse hook into a fresh OAM buffer with its native map reads guarded.</summary>
     internal static OamBuffer DrawDeadTorizoCorpseFrame(
         EnemyTileArtworkCatalog artwork, SuperMetroidAddressSpace bus,
         Position16<RoomPixels> camera)
@@ -250,6 +261,7 @@ internal static class DeadTorizoArtworkVerification
         return oam;
     }
 
+    /// <summary>Compares each initialized corpse or sand staging byte with the independent retail copy.</summary>
     private static void AssertDeadTorizoBufferParity(
         WorkRamByteTable expected, WorkRamByteTable actual, int length,
         string description)
@@ -258,6 +270,7 @@ internal static class DeadTorizoArtworkVerification
             AssertEqual(expected[offset], actual[offset], description);
     }
 
+    /// <summary>Blocks sheet reads from $B7:A800 through $B7:BFFF after artwork installation.</summary>
     private static MutableCartridgeReadGuard NewDeadTorizoArtworkReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -266,6 +279,7 @@ internal static class DeadTorizoArtworkVerification
         return guard;
     }
 
+    /// <summary>Blocks the native corpse spritemap interval so rendering must use installed parts.</summary>
     private static MutableCartridgeReadGuard NewDeadTorizoOamReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);

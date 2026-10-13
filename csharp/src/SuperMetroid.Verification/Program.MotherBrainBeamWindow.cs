@@ -8,8 +8,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static AssertionsVerification;
 
+/// <summary>Checks Mother Brain rainbow beam HDMA windows, palette cycling, and captured render data.</summary>
 internal static class MotherBrainBeamWindowVerification
 {
+    /// <summary>Checks apex geometry, HUD exclusion, native color stride, quadrant signs, and paint purity.</summary>
     internal static void VerifyMotherBrainBeamWindow()
     {
         AssertOwnsNoScanlineTable(typeof(MotherBrainRainbowBeamHdmaState));
@@ -149,6 +151,7 @@ internal static class MotherBrainBeamWindowVerification
     /// <summary>Native 8.8 angular-width word for a whole number of 256-unit-turn table units.</summary>
     private static ushort Width(int wholeTableUnits) => (ushort)SnesEightEight.FromWhole(wholeTableUnits);
 
+    /// <summary>Hashes a window table's little-endian words for a stable comparison.</summary>
     private static string Digest(ushort[] windows)
     {
         var bytes = new byte[windows.Length * 2];
@@ -168,6 +171,7 @@ internal static class MotherBrainBeamWindowVerification
             AssertTrue(!field.FieldType.IsArray, $"{owner.Name}.{field.Name} stores a per-scanline table in the simulation");
     }
 
+    /// <summary>Runs the focused Mother Brain beam window and color check.</summary>
     [VerificationCommand("--mother-brain-beam-fixture")]
     internal static int MotherBrainBeamFixtureCommand()
     {

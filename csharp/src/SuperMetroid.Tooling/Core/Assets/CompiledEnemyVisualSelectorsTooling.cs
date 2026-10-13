@@ -5,12 +5,15 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Development-tool members of <see cref="CompiledEnemyVisualSelectors"/>; never linked by player hosts.</summary>
 internal static class CompiledEnemyVisualSelectorsTooling
 {
+    /// <summary>Presentation operands calculated by the individual projectile and enemy instruction catalogs.</summary>
     internal static int CalculatedCount => BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount + BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount + BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount + BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount + GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount + HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordCount + (VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitionsTooling.PresentationWordCount +
         BoulderInstructionProgramDefinitionsTooling.PresentationWordCount +
         FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount +
         KraidNailInstructionProgramDefinitions.PresentationWordCount + PhantoonInstructionProgramDefinitions.PresentationWordCount +
         FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount + AtomicInstructionProgramDefinitionsTooling.PresentationWordCount;
+    /// <summary>Total visual selector entries across literal and calculated sources.</summary>
     internal static int Count => CompiledEnemyVisualSelectors.Entries.Length + CalculatedCount;
+    /// <summary>Returns one selector from the bank/address-ordered merge of literal and calculated entries.</summary>
     internal static CompiledEnemyVisualSelector At(int index)
     {
         if ((uint)index >= Count) throw new IndexOutOfRangeException();
@@ -35,6 +38,7 @@ internal static class CompiledEnemyVisualSelectorsTooling
         }
         return CompiledEnemyVisualSelectors.Entries[index - low];
     }
+    /// <summary>Calculates an indexed presentation operand and its installed visual frame across native banks.</summary>
     internal static CompiledEnemyVisualSelector CalculatedAt(int index)
     {
         if (index < AlcoonFireballInstructionProgramDefinitions.PresentationWordCount)

@@ -18,6 +18,7 @@ internal readonly record struct InstructionWord(ushort Value, bool IsPresentatio
     /// <summary>Two packed byte operands (for example X/Y radii) read as one native word.</summary>
     internal static InstructionWord Bytes(byte low, byte high) => new((ushort)(SnesLittleEndian.Word(low, high)), false);
 
+    /// <summary>Treats a literal native word as control data rather than an artwork operand.</summary>
     public static implicit operator InstructionWord(ushort value) => new(value, false);
 }
 
@@ -37,6 +38,7 @@ internal enum InstructionItemKind : byte
 /// <summary>One item of a program in native address order.</summary>
 internal readonly struct InstructionItem
 {
+    /// <summary>Captures a word run, named entry, address origin, or unowned byte gap.</summary>
     private InstructionItem(InstructionItemKind kind, InstructionWord[] words, ushort value)
     {
         Kind = kind;
@@ -44,7 +46,9 @@ internal readonly struct InstructionItem
         Value = value;
     }
 
+    /// <summary>Determines whether this item contributes words or only changes the layout cursor.</summary>
     internal InstructionItemKind Kind { get; }
+    /// <summary>Ordered words owned by this item; empty for entries, origins, and gaps.</summary>
     internal InstructionWord[] Words { get; }
 
     /// <summary>Entry or origin address, or the skipped byte count.</summary>
@@ -71,10 +75,13 @@ internal readonly struct InstructionItem
     internal static InstructionItem Frame(ushort duration, ushort visual) =>
         new(InstructionItemKind.Words, [duration, InstructionWord.Visual(visual)], 0);
 
+    /// <summary>Asserts that preceding items land exactly at a native named entry point.</summary>
     internal static InstructionItem Entry(ushort address) => new(InstructionItemKind.Entry, [], address);
 
+    /// <summary>Resumes layout at a later native address after bytes owned by another program.</summary>
     internal static InstructionItem Origin(ushort address) => new(InstructionItemKind.Origin, [], address);
 
+    /// <summary>Advances over a bounded number of unowned bytes such as a packed sound operand.</summary>
     internal static InstructionItem Skip(int bytes)
     {
         if (bytes is <= 0 or > ushort.MaxValue) throw new ArgumentOutOfRangeException(nameof(bytes));
@@ -92,11 +99,14 @@ internal readonly struct InstructionItem
 /// </remarks>
 internal sealed class InstructionProgramLayout
 {
+    /// <summary>Immutable native-order item sequence from which word addresses are calculated.</summary>
     internal readonly InstructionItem[] items;
     // Lookups run per instruction and per byte; the layout is immutable, so its words are laid
     // out once and indexed by address instead of walked on every query.
+    /// <summary>Address index built once on first lookup instead of walking items on every instruction frame.</summary>
     internal readonly Lazy<WordIndex> index;
 
+    /// <summary>Checks the declared origin and named entries while counting mechanics and presentation words.</summary>
     internal InstructionProgramLayout(byte bank, params InstructionItem[] items)
     {
         if (items.Length == 0 || items[0].Kind != InstructionItemKind.Origin)
@@ -137,8 +147,11 @@ internal sealed class InstructionProgramLayout
         EndAddress = address;
     }
 
+    /// <summary>Native bank containing this compiled instruction layout.</summary>
     internal byte Bank { get; }
+    /// <summary>Number of control, duration, and other nonvisual words owned by the layout.</summary>
     internal int MechanicsWordCount { get; }
+    /// <summary>Number of visual operand slots, including compiled visual identities.</summary>
     internal int PresentationSlotCount { get; }
 
     /// <summary>Exclusive end of the last item.</summary>
@@ -151,6 +164,7 @@ internal sealed class InstructionProgramLayout
         return this.index.Value.Words[this.index.Value.Presentation[index]].Address;
     }
 
+    /// <summary>Reads a compiled control word while refusing artwork operand slots.</summary>
     internal bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (index.Value.TryGet(address, out InstructionWord word))
@@ -177,6 +191,7 @@ internal sealed class InstructionProgramLayout
         return false;
     }
 
+    /// <summary>Checks whether an exact native word address is a visual operand slot.</summary>
     internal bool IsPresentationWord(ushort address) =>
         index.Value.TryGet(address, out InstructionWord word) && word.IsPresentation;
 
@@ -186,10 +201,14 @@ internal sealed class InstructionProgramLayout
     /// <summary>Every laid-out word in address order, its address index, and its two orderings.</summary>
     internal sealed class WordIndex
     {
+        /// <summary>All owned native words in address order.</summary>
         internal readonly (ushort Address, InstructionWord Word)[] Words;
+        /// <summary>Positions of control and artwork words within the ordered word array.</summary>
         internal readonly int[] Mechanics, Presentation;
+        /// <summary>Maps an exact native word address to its ordered position.</summary>
         private readonly Dictionary<ushort, int> byAddress = [];
 
+        /// <summary>Indexes one walk of the immutable program layout by address and word kind.</summary>
         internal WordIndex(WordWalker walker)
         {
             var words = new List<(ushort, InstructionWord)>();
@@ -206,6 +225,7 @@ internal sealed class InstructionProgramLayout
             Presentation = [.. presentation];
         }
 
+        /// <summary>Finds an owned word without scanning the program's item sequence.</summary>
         internal bool TryGet(ushort address, out InstructionWord word)
         {
             bool found = byAddress.TryGetValue(address, out int position);
@@ -217,15 +237,21 @@ internal sealed class InstructionProgramLayout
     /// <summary>Allocation-free walk of every laid-out word in address order.</summary>
     internal struct WordWalker(InstructionItem[] items)
     {
+        /// <summary>Current item cursor, beginning before the declared origin.</summary>
         private int item = -1;
+        /// <summary>Current word within an item, reset at each origin or gap.</summary>
         private int word = -1;
+        /// <summary>Native address of the current word, advanced across owned and skipped bytes.</summary>
         private int address;
 
+        /// <summary>Uses this mutable walker directly to avoid iterator allocation.</summary>
         public readonly WordWalker GetEnumerator() => this;
 
+        /// <summary>Native address and value/kind of the current laid-out word.</summary>
         public readonly (ushort Address, InstructionWord Word) Current =>
             ((ushort)address, items[item].Words[word]);
 
+        /// <summary>Advances to the next owned word, honoring origins and unowned gaps.</summary>
         public bool MoveNext()
         {
             if (item >= 0 && word >= 0) address += sizeof(ushort);

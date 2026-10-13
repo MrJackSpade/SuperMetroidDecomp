@@ -3,8 +3,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks Mother Brain ascent's per-line layer mask, floor occlusion, and CPU/GPU packet parity.</summary>
 internal static class MotherBrainAscentMaskTests
 {
+    /// <summary>Compares ascent and ordinary visibility at representative band and floor pixels after packet round-trip.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {

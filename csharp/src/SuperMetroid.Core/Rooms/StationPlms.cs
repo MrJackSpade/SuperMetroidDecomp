@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Save, refill, map and recharge station PLMs: activation, lockout, collision notification and their draws.</summary>
 internal sealed class StationPlms
 {
+    /// <summary>Provides the live Samus and persistent area state used by station activation.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Applies the station and access-arm draw lists to the room tilemap.</summary>
     private readonly PlmBlockDrawing _drawing;
+    /// <summary>Locates resident station PLMs when collision or frontend confirmation arrives.</summary>
     private readonly PlmSlotTable _slotTable;
+    /// <summary>Queues extension, retraction, and save-animation sounds.</summary>
     private readonly PlmSoundQueue _sounds;
 
+    /// <summary>Connects station activation to room state, PLM drawing, resident slots, and sound requests.</summary>
     internal StationPlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _bindings = bindings;
@@ -19,11 +24,17 @@ internal sealed class StationPlms
         _slotTable = slotTable;
         _sounds = sounds;
     }
+    /// <summary>Native instruction-list offset for a station's ordinary animation.</summary>
     private const int StationNormalAnimationOffset = 4;
+    /// <summary>Native instruction-list offset for the map station's acquired animation.</summary>
     private const int MapStationAcquiredAnimationOffset = 20;
+    /// <summary>Frames spent extending or retracting the station access arm.</summary>
     private const ushort StationAccessMovementFrames = 6;
+    /// <summary>Native hold before a fully extended arm publishes station activation.</summary>
     private const ushort StationAccessExtendedHoldFrames = 0x60;
+    /// <summary>Messages and frontend actions produced in the current PLM handler pass.</summary>
     internal readonly List<StationActivationEvent> _stationActivationEvents = [];
+    /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
     internal bool _saveStationLockedOut;
 
     /// <summary>
@@ -116,6 +127,7 @@ internal sealed class StationPlms
         _saveStationLockedOut = true;
     }
 
+    /// <summary>Requires exactly one resident save PLM matching a frontend confirmation event.</summary>
     private StationPlmState FindSaveStation(StationActivationEvent activation)
     {
         StationPlmState[] matches = _slotTable._slots
@@ -134,6 +146,7 @@ internal sealed class StationPlms
         };
     }
 
+    /// <summary>Installs station collision blocks and animation state, or deactivates an elevator platform's collision bits.</summary>
     internal static bool TrySetupStationOrElevator(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -176,6 +189,7 @@ internal sealed class StationPlms
         }
     }
 
+    /// <summary>Installs station and access BTS blocks and selects the current animation for saved map state.</summary>
     private static void SetupStation(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -242,6 +256,7 @@ internal sealed class StationPlms
             animationFrameCount: 3);
     }
 
+    /// <summary>Marks an in-room access block with station-trigger collision and its directional BTS.</summary>
     private static void WriteAccessBlock(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -263,6 +278,7 @@ internal sealed class StationPlms
             new RoomBlockBehavior((byte)behavior));
     }
 
+    /// <summary>Changes a station block's collision nibble while preserving its visual word and optional BTS.</summary>
     private static void WriteStationBlock(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -295,6 +311,7 @@ internal sealed class StationPlms
             roomWidthInBlocks,
             bypassSetupGate: false);
 
+    /// <summary>Checks the entry pose and direction, then arms a matching resident station's PLM sequence.</summary>
     internal bool TryNotifyStationCollision(
         int accessBlockIndex,
         RoomBlockBehavior behavior,
@@ -398,6 +415,7 @@ internal sealed class StationPlms
         return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == blockIndex % roomWidthInBlocks;
     }
 
+    /// <summary>Advances station draw timers, access-arm phases, and activation messages during the PLM pass.</summary>
     internal bool TryStepStation(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
         StationPlmState? station = slot.Station;
@@ -531,6 +549,7 @@ internal sealed class StationPlms
         return true;
     }
 
+    /// <summary>Runs the accepted save's two-frame loop until the saved-game message can be published.</summary>
     private bool StepSaveStationAnimation(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, StationPlmState station, PlmView view)
     {
         if (station.SavePhase is SaveStationPhase.Idle or
@@ -588,6 +607,7 @@ internal sealed class StationPlms
             station.SaveAnimationLoopsRemaining = station.SaveAnimationLoopsRemaining.Decrement().Remaining;
     }
 
+    /// <summary>Applies map or refill effects and publishes the station's frontend message.</summary>
     private void PublishStationActivation(
         StationPlmState station,
         PlmSlot slot,
@@ -632,6 +652,7 @@ internal sealed class StationPlms
             slot.BlockIndex));
     }
 
+    /// <summary>Draws the station access arm at its captured collision block in the short or extended pose.</summary>
     private void DrawStationAccess(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, StationPlmState station, bool extended, PlmView view)
     {
         StationAccessBehavior accessBehavior = station.AccessBehavior
@@ -642,6 +663,7 @@ internal sealed class StationPlms
         _drawing.DrawPlmInstruction(bus, level, streamer, station.AccessBlockIndex, drawPointer, view);
     }
 
+    /// <summary>Resident PLM state for station appearance, access-arm timing, and save confirmation.</summary>
     internal sealed class StationPlmState(
         StationKind kind,
         AreaId area,
@@ -649,32 +671,54 @@ internal sealed class StationPlms
         StationAnimationList completedAnimationList,
         int animationFrameCount)
     {
+        /// <summary>Determines whether activation opens the map, refills a resource, or starts a save.</summary>
         public StationKind Kind { get; } = kind;
+        /// <summary>Area whose map-acquired or save-station state is affected.</summary>
         public AreaId AreaIndex { get; } = area;
+        /// <summary>Animation currently used by the resident station PLM.</summary>
         public StationAnimationList AnimationList { get; set; } = animationList;
+        /// <summary>Animation selected after the station has completed its first activation.</summary>
         public StationAnimationList CompletedAnimationList { get; } = completedAnimationList;
+        /// <summary>Number of timed draws in the current normal animation loop.</summary>
         public int AnimationFrameCount { get; } = animationFrameCount;
+        /// <summary>Next frame index in the resident station's draw list.</summary>
         public int AnimationFrame { get; set; }
+        /// <summary>Ticks remaining before the next station draw.</summary>
         public NativeCountdown AnimationTimer { get; set; } = NativeCountdown.Start(1);
+        /// <summary>Keeps the save trigger asleep after its one initial draw.</summary>
         public bool InitialDrawCompleted { get; set; }
+        /// <summary>Records accepted BTS collision for the next PLM handler pass.</summary>
         public bool Triggered { get; set; }
+        /// <summary>Current extension, hold, retraction, or map-unpause phase.</summary>
         public StationOperationPhase OperationPhase { get; set; }
+        /// <summary>Ticks remaining in the current access-arm phase.</summary>
         public NativeCountdown OperationTimer { get; set; }
+        /// <summary>Room block index where the activated access arm must be drawn.</summary>
         public int AccessBlockIndex { get; set; } = -1;
+        /// <summary>Directional BTS type identifying the selected access draw list.</summary>
         public StationAccessBehavior? AccessBehavior { get; set; }
+        /// <summary>Tracks frontend confirmation and save animation separately from arm motion.</summary>
         public SaveStationPhase SavePhase { get; set; }
+        /// <summary>Remaining two-frame save animation loops before the completion message.</summary>
         public NativeCountdown SaveAnimationLoopsRemaining { get; set; }
     }
 
+    /// <summary>Phases of the non-save station's access-arm PLM list.</summary>
     internal enum StationOperationPhase : byte
     {
+        /// <summary>No access sequence is in progress.</summary>
         Idle,
+        /// <summary>The first access draw is waiting to extend.</summary>
         Extending,
+        /// <summary>The extended arm is holding before station activation.</summary>
         Extended,
+        /// <summary>Station activation finished; the arm has not begun retraction.</summary>
         PostActivationHold,
+        /// <summary>The arm is retracting after its sound request.</summary>
         Retracting,
+        /// <summary>The short arm pose is holding before the access list ends.</summary>
         FinalRetractionHold,
-        // The access actor has finished; command $0C still owns the Samus release.
+        /// <summary>The access actor has finished; command <c>$0C</c> still owns Samus release.</summary>
         AwaitingMapUnpause,
     }
 }

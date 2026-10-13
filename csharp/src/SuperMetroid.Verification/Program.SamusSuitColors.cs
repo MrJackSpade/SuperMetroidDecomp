@@ -16,8 +16,10 @@ using SuperMetroid.AssetExtraction;
 using static DoorDefinitionsVerification;
 using static MapPresentationVerification;
 
+/// <summary>Checks extracted suit palettes and edited installed colors through Samus's normal palette paths.</summary>
 internal static class SamusSuitColorsVerification
 {
+    /// <summary>Compares all three suit palettes to retail colors and checks catalog bounds and CGRAM installation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyNormalSuitCatalogBoundary()
     {
@@ -104,6 +106,7 @@ internal static class SamusSuitColorsVerification
         Console.WriteLine("Normal suit catalog boundary: all 48 stock colors, native pointers, Power copy, and missing-content errors pass without a runtime bus.");
     }
 
+    /// <summary>Checks edited suit colors through live loading, restoration, hurt recovery, and Ceres entry.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusSuitColorOverride(
         string stockDirectory,
@@ -222,6 +225,7 @@ internal static class SamusSuitColorsVerification
         }
     }
 
+    /// <summary>Native addresses of Power, Varia, and Gravity palette words guarded during runtime checks.</summary>
     private static readonly int[] SuitColorSources =
     [
         SamusRenderingRomData.Body.PowerSuitPalette,
@@ -229,6 +233,7 @@ internal static class SamusSuitColorsVerification
         SamusRenderingRomData.Body.GravitySuitPalette,
     ];
 
+    /// <summary>Rejects runtime reads from the three cartridge suit color tables.</summary>
     private static MutableCartridgeReadGuard NewSuitColorReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -238,10 +243,12 @@ internal static class SamusSuitColorsVerification
         return guard;
     }
 
+    /// <summary>Reads a native suit palette word solely for comparison with extracted colors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus normal-suit palette colors")]
     private static ushort ReadNativeSuitColor(IImportCartridgeSource cartridge, int sourceAddress, int color) =>
         RomDataReader.ReadWordFixedBank(cartridge, sourceAddress + color * sizeof(ushort));
 
+    /// <summary>Runs the standalone normal suit catalog boundary verification command.</summary>
     [VerificationCommand("--normal-suit-catalog-boundary")]
     internal static int NormalSuitCatalogBoundaryCommand()
     {

@@ -2,11 +2,15 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks Mother Brain escape-gate PLM program and draw fields against native data.</summary>
 internal static class LookupEscapeGateVerification
 {
+    /// <summary>Checks escape-gate control opcodes and operands over the complete program domain.</summary>
     internal static void VerifyEscapeGateProgramControls(SuperMetroidAddressSpace rom) => VerifyEscapeGateProgramField(rom, false);
+    /// <summary>Checks escape-gate draw operands over the complete program domain.</summary>
     internal static void VerifyEscapeGateProgramDraws(SuperMetroidAddressSpace rom) => VerifyEscapeGateProgramField(rom, true);
 
+    /// <summary>Compares control or draw bytes and overlapping words with bank-$84 instructions.</summary>
     private static void VerifyEscapeGateProgramField(SuperMetroidAddressSpace rom, bool draw)
     {
         ushort[] controls = [0xbb34,0xbb38,0xbb3a,0xbb3e,0xbb42,0xbb44,0xbb48,0xbb4c,0xbb50];
@@ -41,13 +45,18 @@ internal static class LookupEscapeGateVerification
         }
     }
 
+    /// <summary>Reads a native escape-gate program byte for independent field comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for escape gate program field")]
     private static byte EscapeGateProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks three draw identities, vertical run geometry, and lookup bounds.</summary>
     internal static void VerifyEscapeGateDrawGeometry(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 0);
+    /// <summary>Checks collision bits of the four cells in each escape-gate frame.</summary>
     internal static void VerifyEscapeGateDrawCollision(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 1);
+    /// <summary>Checks visual tile bits of the four cells in each escape-gate frame.</summary>
     internal static void VerifyEscapeGateDrawVisuals(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 2);
 
+    /// <summary>Compares geometry, collision, or visuals across open, half-closed, and closed layouts.</summary>
     private static void VerifyEscapeGateDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9473,0x947f,0x948b];

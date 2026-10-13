@@ -156,6 +156,7 @@ internal static class CpuBusCatalogInventory
         return json.ReplaceLineEndings("\n") + "\n";
     }
 
+    /// <summary>Locates the declaration of the same cell object referenced by an alias.</summary>
     private static CpuBusCatalogEntry? Find(IReadOnlyList<CpuBusCatalogEntry> entries, CpuBusCell cell) =>
         entries.FirstOrDefault(entry => ReferenceEquals(entry.Cell, cell));
 
@@ -168,6 +169,7 @@ internal static class CpuBusCatalogInventory
         return false;
     }
 
+    /// <summary>Checks whether one physical store range wholly contains another.</summary>
     private static bool Covers(CpuBusCell outer, CpuBusCell inner)
     {
         if (outer.Region != inner.Region)
@@ -176,6 +178,7 @@ internal static class CpuBusCatalogInventory
         return outerStart <= innerStart && innerStart + inner.ByteCount <= outerStart + outer.ByteCount;
     }
 
+    /// <summary>Collects repository C# paths for inventory consumer references, excluding build output.</summary>
     private static string[] SourceFiles(string repositoryRoot)
     {
         string root = Path.Combine(repositoryRoot, "csharp");

@@ -188,6 +188,10 @@ public static class SamusPaletteRomData
             TryPalettePointer(suitByteOffset, phaseByteOffset, 6, 0x9c20,
                 pingPong: false, out pointer);
 
+        /// <summary>
+        /// Resolves a valid suit/phase pair to a bank-$9B palette, mirroring later phases
+        /// back toward the first shade for stored shine.
+        /// </summary>
         private static bool TryPalettePointer(
             ushort suitByteOffset,
             ushort phaseByteOffset,
@@ -209,6 +213,10 @@ public static class SamusPaletteRomData
             return true;
         }
 
+        /// <summary>
+        /// Reads the selected full-body palette-list word after native 16-bit phase-offset wrap;
+        /// rejects reads outside the contiguous three-suit compiled allocation.
+        /// </summary>
         private static ushort ReadCompiledListWord(
             ushort suitByteOffset,
             ushort phaseByteOffset,

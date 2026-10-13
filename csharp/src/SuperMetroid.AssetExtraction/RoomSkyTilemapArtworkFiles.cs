@@ -12,6 +12,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM bank-$8A sky tilemap pages → room sky tilemap artwork files")]
 public static class RoomSkyTilemapArtworkFiles
 {
+    /// <summary>Schema version recorded with the extracted sky-page manifest.</summary>
     private const int FormatVersion = 1;
 
     /// <summary>Exports seven contiguous bank-$8A scrolling-sky pages to editable BG tile-word JSON and creates their hashed provenance manifest.</summary>
@@ -92,6 +93,7 @@ public static class RoomSkyTilemapArtworkFiles
     /// <param name="stockDirectory">Installed stock scrolling-sky directory.</param>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Strict, camel-case JSON settings shared by sky-page manifest export and import.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -101,6 +103,7 @@ public static class RoomSkyTilemapArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Source cartridge identity and hashes for all seven stock sky-page files.</summary>
     private sealed record RoomSkyFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> Sha256);
 }

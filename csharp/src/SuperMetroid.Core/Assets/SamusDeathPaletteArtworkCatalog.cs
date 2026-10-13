@@ -50,14 +50,23 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <summary>Native9BA12A suitless ink5: full red,green and blue in RGB5.</summary>
     private static readonly Bgr555 WhiteInkColor = new(31, 31, 31);
 
+    /// <summary>Independent edits to selected suited RGB5 ink words.</summary>
     internal readonly Dictionary<int, Bgr555> suited = new();
+    /// <summary>Channel overrides for suited fade rows derived from base inks.</summary>
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> suitedFadeInputs = new();
+    /// <summary>Independent edits to selected suitless RGB5 ink words.</summary>
     internal readonly Dictionary<int, Bgr555> suitless = new();
+    /// <summary>Channel overrides for suitless fade rows derived from base inks.</summary>
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> suitlessFadeInputs = new();
+    /// <summary>Edits to neutral shades shared by death palette derivations.</summary>
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> neutralInputs = new();
+    /// <summary>Overrides to calculated warm shades without changing neighboring inks.</summary>
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> warmShadeInputs = new();
+    /// <summary>Overrides to calculated tint shades without changing neighboring inks.</summary>
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> tintShadeInputs = new();
+    /// <summary>Owns the separately indexed two-rate whiteout shade edits.</summary>
     internal readonly WhiteoutInputs whiteout;
+    /// <summary>Overrides to the death explosion's frame-to-palette-row selection.</summary>
     internal readonly Dictionary<int, ushort> explosionPaletteIndices = new();
 
     /// <summary>Captures selected death artwork as owned inputs and independent channel overrides; no caller arrays are retained or modified.</summary>
@@ -389,8 +398,10 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// supplied shade remain independent of every other supplied shade.</remarks>
     internal sealed class WhiteoutInputs
     {
+        /// <summary>Only whiteout channels that differ from the calculated two-rate ramp.</summary>
         internal readonly Dictionary<int, LoadingPaletteInputView.Channels> inputs = new();
 
+        /// <summary>Captures independent shade edits while leaving native ramp values implicit.</summary>
         internal WhiteoutInputs(Bgr555[] source)
         {
             for (int index = 0; index < source.Length; index++)
@@ -400,6 +411,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
             }
         }
 
+        /// <summary>Applies an edited shade's channels over the calculated ramp at that index.</summary>
         internal Bgr555 Resolve(int index)
         {
             Bgr555 expected = DefaultWhiteoutColor(index);
@@ -446,6 +458,7 @@ public sealed class SamusDeathPaletteArtworkCatalog
         return explosionPaletteIndices.TryGetValue(frame, out ushort value) ? value : expected;
     }
 
+    /// <summary>Maps frame zero to base row zero and later frames past the flash-only row.</summary>
     private static ushort DefaultExplosionPaletteIndex(int frame)
     {
         if ((uint)frame >= SamusDeathExplosionTimingDefinitions.RecordCount) throw new IndexOutOfRangeException();

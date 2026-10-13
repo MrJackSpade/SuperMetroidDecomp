@@ -15,8 +15,10 @@ using SuperMetroid.Core.Rom;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Compares ending scene B's cloud placement and motion with independently stepped actors.</summary>
 internal static class EndingCloudPlacementVerification
 {
+    /// <summary>Checks ending scene B's cloud origins and motion through fade-out against independently stepped actors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyEndingCloudPlacement()
     {
@@ -83,6 +85,7 @@ internal static class EndingCloudPlacementVerification
         Console.WriteLine($"Ending scene B: {checkedFrames} full frames match independently stepped native cloud origins/motion; graphics source is shared, not a full cartridge pixel oracle.");
     }
 
+    /// <summary>Checks takeoff Mode 7 wrapping or BG1 subscreen color math against a direct pixel calculation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyEndingTakeoffColorMath(bool checkWrapping)
     {
@@ -156,6 +159,7 @@ internal static class EndingCloudPlacementVerification
         }
     }
 
+    /// <summary>Dispatches the requested ending takeoff wrapping or color-math suite.</summary>
     [VerificationCommand("--ending-takeoff-wrap")]
     [VerificationCommand("--ending-takeoff-math")]
     internal static int EndingTakeoffWrapCommand(string[] args)

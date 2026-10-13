@@ -61,6 +61,7 @@ internal static class WreckedShipPowerPaintDefinitions
     /// <summary>$A7:CB07/CB19/CB1B: dark green, red indicator and gold indicator selected intensities.</summary>
     private const int BackgroundGreenDark = 6, RedIndicator = 21, GoldIndicatorRed = 27, GoldIndicatorGreen = 18;
 
+    /// <summary>Gets a powered Wrecked Ship color from seven sixteen-ink BG palette rows.</summary>
     internal static Bgr555 Color(int index)
     {
         if ((uint)index >= 112) throw new ArgumentOutOfRangeException(nameof(index));
@@ -78,6 +79,7 @@ internal static class WreckedShipPowerPaintDefinitions
             _ => ink == 14 ? White : Neutral(CommonNeutral),
         };
     }
+    /// <summary>Builds shared gold, machinery, indicator, and neutral inks for the common row.</summary>
     private static Bgr555 Common(int ink) => ink switch
     {
         >= 1 and <= 3 => Gold(ink - 1),
@@ -86,6 +88,7 @@ internal static class WreckedShipPowerPaintDefinitions
         10 or 12 or 14 => White, 11 => Bgr555.Black,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Builds the green door's highlights, metal facets, neutral shadows, and accents.</summary>
     private static Bgr555 GreenDoor(int ink) => ink switch
     {
         1 => GreenHighlight, 2 => GreenMiddle, 3 => GreenDark,
@@ -94,12 +97,14 @@ internal static class WreckedShipPowerPaintDefinitions
         11 => Bgr555.Black, 12 => White, 13 => Gold(0), 14 => Rgb(31, 0, 0),
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Builds the magenta door's three selected shades and neutral fill.</summary>
     private static Bgr555 MagentaDoor(int ink) => ink switch
     {
         1 => Rgb(MagentaLight, MagentaLightGreen, MagentaLight),
         2 => MagentaMiddle, 3 => Rgb(MagentaDarkRed, 0, MagentaDarkBlue),
         14 => White, _ => Neutral(CommonNeutral),
     };
+    /// <summary>Builds the blue door's bright, middle, and dark painted facets.</summary>
     private static Bgr555 BlueDoor(int ink) => ink switch
     {
         1 => Rgb(DoorBlueLightRed, DoorBlueLightGreen, DoorBlueBright),
@@ -107,6 +112,7 @@ internal static class WreckedShipPowerPaintDefinitions
         3 => Rgb(DoorBlueDarkRed, DoorBlueDarkGreen, DoorBlueDark),
         14 => White, _ => Neutral(CommonNeutral),
     };
+    /// <summary>Builds foreground wall, conduit, outline, and green-indicator inks.</summary>
     private static Bgr555 Foreground(int ink) => ink switch
     {
         >= 1 and <= 3 => Warm(ShipLight - ShadeStep * (ink - 1), GreenMaterialTint),
@@ -116,6 +122,7 @@ internal static class WreckedShipPowerPaintDefinitions
         12 => GreenMiddle, 13 => GreenHighlight, 14 => White,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Builds darker background materials and the red and gold indicators.</summary>
     private static Bgr555 Background(int ink) => ink switch
     {
         1 => Subtract(GreenMiddle, BackgroundGreenReduction), 2 => GreenDark,
@@ -125,12 +132,14 @@ internal static class WreckedShipPowerPaintDefinitions
         12 => Rgb(RedIndicator, 0, 0), 13 => Rgb(GoldIndicatorRed, GoldIndicatorGreen, 0), 14 => White,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Interpolates a gold accent shade between the selected light and dark endpoints.</summary>
     private static Bgr555 Gold(int shade)
     {
         int red = shade switch { 0 => 31, 1 => GoldMiddleRed, _ => GoldDarkRed };
         int green = GoldDarkGreen + (red - GoldDarkRed) * (GoldLightGreen - GoldDarkGreen) / (31 - GoldDarkRed);
         return Rgb(red, green, 0);
     }
+    /// <summary>Combines a machinery facet's red and green levels with its blue steel tint.</summary>
     private static Bgr555 CommonMetal(int shade)
     {
         (int red, int green) = shade switch
@@ -140,13 +149,20 @@ internal static class WreckedShipPowerPaintDefinitions
         };
         return Rgb(red, green, green + (shade < 2 ? MetalLightBlueTint : MetalDarkBlueTint));
     }
+    /// <summary>Builds warm wall paint with a clipped blue deficit and optional green tint.</summary>
     private static Bgr555 Warm(int intensity, int greenTint = 0) =>
         Rgb(intensity, intensity + greenTint, Math.Max(WarmBlueFloor, intensity - WarmBlueSeparation));
+    /// <summary>Builds conduit paint by adding the selected blue tint to a neutral level.</summary>
     private static Bgr555 Cool(int intensity) => Rgb(intensity, intensity, intensity + CoolBlueTint);
+    /// <summary>Darkens each RGB5 channel without passing below zero.</summary>
     private static Bgr555 Subtract(Bgr555 color, int amount) =>
         Rgb(Math.Max(0, (color.Red) - amount), Math.Max(0, (color.Green) - amount), Math.Max(0, (color.Blue) - amount));
+    /// <summary>Gets the green door and background's dark green shade.</summary>
     private static Bgr555 GreenDark => Rgb(GreenDarkRed, GreenDarkRed * 2, 0);
+    /// <summary>Builds an equal-channel neutral material ink.</summary>
     private static Bgr555 Neutral(int intensity) => Rgb(intensity, intensity, intensity);
+    /// <summary>Gets the shared maximum-intensity white accent.</summary>
     private static Bgr555 White => Neutral(31);
+    /// <summary>Packs selected five-bit red, green, and blue levels into a BG palette word.</summary>
     private static Bgr555 Rgb(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

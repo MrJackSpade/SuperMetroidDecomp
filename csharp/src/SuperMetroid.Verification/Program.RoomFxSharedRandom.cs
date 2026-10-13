@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static RoomFxRomDataVerification;
 
+/// <summary>Checks the liquid HDMA callback's use of shared RNG across freeze and room reload boundaries.</summary>
 internal static class RoomFxSharedRandomVerification
 {
+    /// <summary>Confirms lava and acid byte swaps, frozen callback installation, and reset after leaving or reloading a liquid room.</summary>
     internal static void VerifyRoomFxSharedRandomState(TestAddressSpace bus, SnesVram vram,
         SnesCgram cgram, RoomLayer3FxState fx, ushort record, RoomFxType type)
     {

@@ -13,6 +13,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusCeresRidleyEjectionState
 {
+    /// <summary>Native signed whole-pixel downward speed threshold during Ridley's shove.</summary>
     private const ushort TerminalDownwardSpeed = 5;
 
     /// <summary>True while `$90:E12E/$E1C8` owns Samus movement.</summary>

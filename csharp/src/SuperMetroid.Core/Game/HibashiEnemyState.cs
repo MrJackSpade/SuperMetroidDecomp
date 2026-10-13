@@ -19,8 +19,10 @@ public enum HibashiEnemyFunction : ushort
 /// </summary>
 public sealed class HibashiEnemyState
 {
+    /// <summary>Physical graphics or collision-part slot carrying Hibashi's native variables.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects Hibashi's per-part variables from its occupied enemy slot.</summary>
     internal HibashiEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Graphics part's same-bank function word in common variable A, initialized to inactive; nonzero population parts do not dispatch this state machine.</summary>

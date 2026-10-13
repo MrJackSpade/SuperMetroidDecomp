@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the two admitted intro Baby discovery input ranges against retail bank-$91 bytes.</summary>
 internal static class IntroBabyDiscoveryInputVerification
 {
+    /// <summary>Compares every byte and overlapping word, then checks both range boundaries reject reads that cross them.</summary>
     internal static void VerifyIntroBabyDiscoveryInput(ISnesAddressSpace rom)
     {
         foreach ((int start, int end) in new[] { (0x860d, 0x864f), (0x877e, 0x8784) })
@@ -23,6 +25,7 @@ internal static class IntroBabyDiscoveryInputVerification
         }
     }
 
+    /// <summary>Reads a native source byte through the cartridge oracle for the range comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Baby discovery input")]
     private static byte IntroBabyDiscoveryInputRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

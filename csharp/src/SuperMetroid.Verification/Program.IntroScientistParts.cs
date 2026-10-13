@@ -3,8 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
+/// <summary>Checks calculated intro scientist sprites against native OAM and both caret artwork schemas.</summary>
 internal static class IntroScientistPartsVerification
 {
+    /// <summary>Compares stock parts at visible and wrapped origins and preserves independent edits through the caret loader.</summary>
     internal static void VerifyIntroScientistParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("Scientist", value.AppendIdentity);

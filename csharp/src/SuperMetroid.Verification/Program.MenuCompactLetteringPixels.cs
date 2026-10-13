@@ -2,8 +2,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks reconstructed compact menu glyph pixels and edited atlas uploads against native tiles.</summary>
 internal static class MenuCompactLetteringPixelsVerification
 {
+    /// <summary>Compares every selected glyph pixel, Tourian's distinct T cap, and edited VRAM encodings.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu compact lettering pixels")]
     internal static void VerifyMenuCompactLetteringPixels(ISnesAddressSpace rom)

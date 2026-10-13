@@ -39,6 +39,7 @@ internal static class DeadMonsterRottingDefinitions
         new(0x0011, 0xffe1, 0x0028, 0xfff9),
     ];
 
+    /// <summary>Publishes Dead Torizo's seven asymmetric corpse touch rectangles in native order.</summary>
     internal static ReadOnlySpan<DeadCorpseTouchHitbox> TorizoTouchHitboxes => TorizoHitboxRecords;
 
     /// <summary>
@@ -74,9 +75,11 @@ internal static class DeadMonsterRottingDefinitions
         return (variant == 0 ? column < 2 : column >= 2) ? 8 : 0;
     }
 
+    /// <summary>Decodes one bank-$A9 corpse row-offset table before calculating its tile-row stride.</summary>
     internal static ushort RotationOffset(ushort table, ushort yOffset) =>
         RotationOffset(ClosedNativeWords.Decode<CorpseRotationTable>(table, "compiled corpse rotation table"), yOffset);
 
+    /// <summary>Converts an eight-pixel corpse row offset into its species-specific staged tile byte offset.</summary>
     internal static ushort RotationOffset(CorpseRotationTable table, ushort yOffset)
     {
         (int count, int tiles) = table switch
@@ -92,6 +95,7 @@ internal static class DeadMonsterRottingDefinitions
         return (ushort)(row * tiles * 32);
     }
 
+    /// <summary>Calculates live-WRAM DMA rows for supported Sidehopper, Zoomer, Ripper, and Skree variant tables.</summary>
     internal static TransferRows ForTransferTable(ushort table)
     {
         int offset = table - SidehopperTransfers;
@@ -129,7 +133,9 @@ internal static class DeadMonsterRottingDefinitions
     internal readonly struct TransferRows(int count, ushort stride, ushort source, ushort destination,
         ushort firstSize = 0, ushort firstDestinationOffset = 0) : IReadOnlyList<DeadMonsterVramTransferDefinition>
     {
+        /// <summary>Number of live corpse tile rows uploaded by the selected variant.</summary>
         public int Count => count;
+        /// <summary>Calculates one WRAM-to-VRAM row, including Sidehopper's clipped first-row adjustment.</summary>
         public DeadMonsterVramTransferDefinition this[int index]
         {
             get
@@ -140,10 +146,12 @@ internal static class DeadMonsterRottingDefinitions
                     (ushort)(destination + 0x100 * index + (index == 0 ? firstDestinationOffset : 0)));
             }
         }
+        /// <summary>Visits calculated row transfers in native descriptor order.</summary>
         public IEnumerator<DeadMonsterVramTransferDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same native row order to non-generic consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -162,5 +170,6 @@ internal readonly record struct DeadCorpseTouchHitbox(ushort Left, ushort Top, u
 internal readonly record struct DeadMonsterVramTransferDefinition(
     ushort SizeInBytes, ushort SourceBankWord, ushort SourceOffset, ushort EncodedVramDestination)
 {
+    /// <summary>Combines the live bank-$7E source word with its bank byte for DMA addressing.</summary>
     internal int SourceAddress => ((SourceBankWord & 0xff00) << 8) | SourceOffset;
 }

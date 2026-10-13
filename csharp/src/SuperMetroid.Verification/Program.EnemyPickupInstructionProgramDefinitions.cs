@@ -16,12 +16,15 @@ using static EnemyProjectileProgramOracleVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks five live enemy-drop pickup programs and their installed sprite selectors against bank-$86 ROM data.</summary>
 internal static class EnemyPickupInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge and starts the enemy-pickup instruction suite.</summary>
     internal static void VerifyEnemyPickupInstructionProgramDefinitions() =>
         Suite(nameof(VerifyEnemyPickupInstructionProgramDefinitions), () => VerifyEnemyPickupInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Compares mechanics words, executes each pickup loop and converted death actor, and guards against runtime ROM reads.</summary>
     internal static void VerifyEnemyPickupInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -157,6 +160,7 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Exercises the compiled small-energy and power-bomb lookups repeatedly to detect warmed allocations.</summary>
     private static int ProbeEnemyPickupInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -170,6 +174,7 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids compiled pickup mechanics reads and observes reads of migrated presentation operands.</summary>
     private static CartridgeReadGuard NewEnemyPickupInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(EnemyPickupInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -177,6 +182,7 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
             .ObserveWords(EnemyProjectileCodePointers.BankBase, EnemyPickupInstructionProgramDefinitions.PresentationWordCount,
                 EnemyPickupInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the enemy pickup instruction mechanics verification command.</summary>
     [VerificationCommand("--enemy-pickup-instruction-mechanics")]
     internal static int EnemyPickupInstructionMechanicsCommand()
     {

@@ -16,8 +16,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static FrontendRomFreeVerification;
 
+/// <summary>Cross-checks compiled Spore Spawn component lists and collision callbacks against cartridge data.</summary>
 internal static class EnemyTileArtworkSporeSpawnCollisionVerification
 {
+    /// <summary>Compares all twelve visual roots, their hitbox records, and live touch/shot overlap results with an independent cartridge walker.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Spore Spawn collision")]
     internal static void VerifyCompiledSporeSpawnCollision(
         SuperMetroidAddressSpace rom)
@@ -141,9 +143,9 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         AssertThrows<IndexOutOfRangeException>(() => _ = openSpore[2], "Spore open frame has exactly two components");
         Console.WriteLine($"  Spore Spawn collision: {frameCount} roots, {seenLists.Count} lists and {callbackComparisons} live touch/shot comparisons match the cartridge with installed ROM reads denied.");
 
-        // Independent cartridge oracle: bank A0:9ADF..9B78 orders touch rectangles;
-        // 9C43..9D20 supplies the distinct shot boundaries and callback operand.
-        // Only this fixture reads original frame/list bytes; the real walker remains guarded.
+        // Walks cartridge component and hitbox records to determine the first overlapping callback.
+        // Bank A0:9ADF..9B78 orders touch rectangles; 9C43..9D20 supplies the distinct shot
+        // boundaries and callback operand. Only this fixture reads original bytes.
         bool NativeCallback(int root, ushort targetX, ushort targetY, bool shot, out ushort callback)
         {
             callback = 0;
@@ -180,6 +182,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         }
     }
 
+    /// <summary>Runs the cartridge comparison for compiled Spore Spawn collision data.</summary>
     [VerificationCommand("--lookup-stream4-spore-collision")]
     internal static int LookupStream4SporeCollisionCommand()
     {

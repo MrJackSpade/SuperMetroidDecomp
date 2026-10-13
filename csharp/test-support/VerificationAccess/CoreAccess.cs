@@ -16,15 +16,22 @@ using System.Runtime.CompilerServices;
 /// </summary>
 internal static class CoreAccess
 {
+    /// <summary>Exposes frontend-owned gameplay runtime, attract timing, audio, and Samus observations for verification.</summary>
     extension(SuperMetroidGame game)
     {
+        /// <summary>Reads the gameplay runtime currently owned by the frontend state machine.</summary>
         internal SuperMetroidRuntime? RuntimeForVerification => game.runtime;
+        /// <summary>Remaining authored hold frames before the attract demo advances.</summary>
         internal int AttractDemoHoldFramesRemaining => game.demoHoldFramesRemaining;
+        /// <summary>Whether the current runtime permits ordinary grounded Samus movement.</summary>
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.Player.GroundedSamusMovementEnabled ?? false;
+        /// <summary>Reads the frontend audio queue owner across gameplay and menus.</summary>
         internal CartridgeAudioState AudioForVerification => game.audio;
         /// <summary>The acknowledgements the session's SPC port model published for the next update.</summary>
         internal CartridgeAudioAcknowledgements AudioAcknowledgementsForVerification => game.audioSession.Acknowledgements;
+        /// <summary>Reads the menu NMI frame counter used by frontend animation timing.</summary>
         internal ushort MenuNmiFrameCounterForVerification => game.menuNmi.FrameCounter;
+        /// <summary>Reads the active Ceres destruction cinematic, if that phase owns the frontend.</summary>
         internal CeresDestructionCinematicState? CeresDestructionForVerification =>
             game.ceresDestruction;
 
@@ -41,35 +48,51 @@ internal static class CoreAccess
                     $"A door music-wait controller read arrived in game state {game.GameState}.");
             runtime.Controller1.Latch(runtime.Options.ControllerBindings.Normalize(controllerInput));
         }
+        /// <summary>Live Samus pose in gameplay, or zero before a runtime is available.</summary>
         internal SamusPoseId GameplaySamusPose => game.RuntimeForVerification?.Player.Samus?.Pose ?? 0;
+        /// <summary>Whole-pixel gameplay X position, defaulting to zero outside gameplay.</summary>
         internal ushort GameplaySamusX => game.RuntimeForVerification?.Player.Samus?.Position.X.Whole ?? 0;
+        /// <summary>Whole-pixel gameplay Y position, defaulting to zero outside gameplay.</summary>
         internal ushort GameplaySamusY => game.RuntimeForVerification?.Player.Samus?.Position.Y.Whole ?? 0;
     }
 
+    /// <summary>Reads private projectile, Samus, and Mother Brain state during the intro flashback.</summary>
     extension(IntroCinematicState intro)
     {
+        /// <summary>Native projectile counter for the intro flashback's private shot system.</summary>
         internal ushort ActiveFlashbackProjectileCount =>
             intro.flashbackProjectiles.SlotTable.ProjectileCounter;
+        /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>
         internal ushort FlashbackSamusX => intro.flashbackSamus?.Position.X.Whole ?? 0;
+        /// <summary>Flashback Samus's whole-pixel Y coordinate when that actor exists.</summary>
         internal ushort FlashbackSamusY => intro.flashbackSamus?.Position.Y.Whole ?? 0;
+        /// <summary>Hits recorded by the intro's flashback Mother Brain sprite.</summary>
         internal ushort MotherBrainHitCount =>
             intro.flashbackMotherBrain?.HitCount ?? 0;
     }
 
+    /// <summary>Observes credits brightness, cinematic frame, and vertical crawl position.</summary>
     extension(EndingCreditsState ending)
     {
+        /// <summary>Current credits fade brightness from the private cinematic state.</summary>
         internal byte Brightness => ending.brightness;
+        /// <summary>Native frame counter for the ending cinematic.</summary>
         internal ushort CinematicFrame => ending.cinematicFrame;
+        /// <summary>Current credits scroll position, or zero before credits exist.</summary>
         internal ushort CreditsVerticalScroll => ending.credits?.VerticalScroll ?? 0;
     }
 
+    /// <summary>Exposes pause indicator placement, page transition, and displayed map tile state.</summary>
     extension(PauseMenuState pause)
     {
+        /// <summary>Last OAM origin used for the pause menu's selection indicator.</summary>
         internal Position16<OamPixels> LastIndicatorOrigin => pause.lastIndicatorOrigin;
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
         internal bool PageTransitionActive => pause.transition != PauseMenuTransition.None;
+        /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>
         internal Position16<MapPixels> MapScroll => pause.mapScrollPosition;
 
+        /// <summary>Reads the displayed BG1 map tile word from pause-menu VRAM.</summary>
         [PpuLayoutBoundary("rendering view: the pause map BG1 tilemap word displayed at a map cell")]
         internal MapTileWord ReadDisplayedMapTile(Position16<MapTiles> cell)
         {
@@ -78,45 +101,62 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>Reads the shooting-star array in its native update order.</summary>
     extension(EndingShootingStars shootingStars)
     {
+        /// <summary>Current private star array in its native update order.</summary>
         internal ReadOnlySpan<EndingShootingStar> Stars => shootingStars.stars;
     }
 
+    /// <summary>Observes canonical sample totals and source mappings after audio extraction.</summary>
     extension(ExtractedAudioAssetCatalog catalog)
     {
+        /// <summary>Number of unique samples retained after canonicalization.</summary>
         internal int CanonicalSampleCount => catalog.canonicalSampleCount;
+        /// <summary>Total source-sample mappings across installed audio banks.</summary>
         internal int SourceMappingCount => catalog.sampleBanks
             .Values.Sum(bank => bank.Samples.Count);
     }
 
+    /// <summary>Copies frontend pixels so later renders cannot mutate a recorded frame.</summary>
     extension(FrontendFrame frame)
     {
+        /// <summary>Copies the pixel array so later rendering cannot mutate an observed frame.</summary>
         internal FrontendFrame WithCopiedPixels() => frame with { Pixels = frame.Pixels.ToArray() };
     }
 
+    /// <summary>Identifies captured frontend frames that still use the legacy raster path.</summary>
     extension(CapturedFrontendFrame frame)
     {
+        /// <summary>Identifies frames captured before the snapshot renderer supplied a scene record.</summary>
         internal bool UsedLegacyRaster => frame.Snapshot is null;
     }
 
+    /// <summary>Reads the installed initial gameplay palette for exact color comparisons.</summary>
     extension(GameplayBasePaletteCatalog palettes)
     {
+        /// <summary>Initial gameplay CGRAM colors retained by the loaded palette catalog.</summary>
         internal ReadOnlySpan<Bgr555> Initial => palettes.initial;
     }
 
+    /// <summary>Observes staged HUD tile words before their VRAM transfer.</summary>
     extension(HudState hud)
     {
+        /// <summary>Live mutable HUD tilemap words before their next transfer.</summary>
         internal ReadOnlySpan<ushort> Tiles => hud._tiles;
     }
 
+    /// <summary>Extracts the high-bit flip flags from a rendered map tile word.</summary>
     extension(MapTileWord tile)
     {
+        /// <summary>Horizontal and vertical flip bits encoded in a map tile word.</summary>
         internal SnesTileFlipFlags FlipFlags => (SnesTileFlipFlags)(tile.Raw & 0xc000);
     }
 
+    /// <summary>Builds the exact OAM upload byte payload from a prepared sprite buffer.</summary>
     extension(OamBuffer oam)
     {
+        /// <summary>Concatenates OAM low and high tables into the native DMA upload order.</summary>
         [PpuLayoutBoundary("codec: OAM low/high-table DMA upload payload")]
         internal byte[] CreateUploadPayload()
         {
@@ -127,8 +167,10 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>Resets render publication counters to a baseline for frame-path verification.</summary>
     extension(RenderPublicationProfile profile)
     {
+        /// <summary>Validates the profile owner and clears ticks, allocations, and publications.</summary>
         internal void Reset()
         {
             profile.VerifyOwner();
@@ -138,27 +180,37 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>Reads the room's background tilemap entries independently of collision blocks.</summary>
     extension(RoomLevelData level)
     {
+        /// <summary>Private background-entry array used when assembling room layers.</summary>
         internal ReadOnlyMemory<ushort> BackgroundEntries => level._backgroundEntries;
     }
 
+    /// <summary>Counts occupied room palette-FX slots in the private effect pool.</summary>
     extension(RoomPaletteFxSystem fx)
     {
+        /// <summary>Counts palette FX slots whose native ID word is nonzero.</summary>
         internal int ActiveCount => fx.slots.Count(slot => slot.Id != 0);
     }
 
+    /// <summary>Exposes emulated WRAM and SRAM bytes for exact state assertions.</summary>
     extension(SuperMetroidAddressSpace bus)
     {
+        /// <summary>Mutable emulated WRAM for focused verifier setup.</summary>
         internal Span<byte> WorkRam => bus._workRam;
+        /// <summary>Mutable emulated SRAM for focused verifier setup.</summary>
         internal Span<byte> SaveRam => bus._saveRam;
     }
 
+    /// <summary>Reads queued VRAM writes before the display upload consumes them.</summary>
     extension(VramWriteQueue queue)
     {
+        /// <summary>Pending VRAM transfer entries in queue order.</summary>
         internal IReadOnlyList<VramWriteEntry> Entries => queue._entries;
     }
 
+    /// <summary>Invokes the internal accepted-grapple connection path with its anchor-owner arguments.</summary>
     extension(SamusGrappleMovement)
     {
         /// <summary>Accepted grapple firing with its connection pose applied immediately, as ordinary firing does.</summary>
@@ -168,12 +220,14 @@ internal static class CoreAccess
             SamusGrappleMovement.ConnectAcceptedFiringCore(bus, samus, grapple, previousPosition, validateAnchorBlock, validateAnchorEnemy, false);
     }
 
+    /// <summary>Observes per-priority enemy draw queues before OAM construction.</summary>
     extension(EnemyDrawList drawing)
     {
         /// <summary>The per-layer native draw queues the last enemy pass built, in layer order.</summary>
         internal IReadOnlyList<List<ushort>> QueuesForVerification => drawing._drawQueues;
     }
 
+    /// <summary>Rebinds enemy fixtures and inspects Kraid collision, statue requests, and pirate slot state.</summary>
     extension(RoomEnemySystem enemies)
     {
         /// <summary>
@@ -189,18 +243,23 @@ internal static class CoreAccess
             return scratch.OverlapsMouth(new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage));
         }
 
+        /// <summary>Room PLM requests emitted by Chozo statue AI in their publication order.</summary>
         internal IReadOnlyList<ChozoStatuePlmRequest> ChozoStatuePlmRequests =>
             enemies.ChozoStatueBehavior._chozoStatuePlmRequests;
+        /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
         internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
             enemies.ChozoStatueBehavior._chozoStatueStates;
+        /// <summary>Per-slot ninja pirate states for native slot-index verification.</summary>
         internal IReadOnlyList<NinjaSpacePirateEnemyState?> NinjaSpacePirateStates =>
             enemies.NinjaSpacePirateBehavior._ninjaSpacePirateStates;
     }
 
+    /// <summary>Reads Ceres pad and concealer positions and their projectile-slot activity.</summary>
     extension(CeresElevatorArrivalState arrival)
     {
         /// <summary>Whole room position of the moving pad; its X is the X word both projectiles copy from Samus at $86:A313.</summary>
         internal Position16<RoomPixels> PadPosition => arrival.pad.Position;
+        /// <summary>Whole room position of the Ceres elevator's level-data platform.</summary>
         internal Position16<RoomPixels> PlatformPosition => arrival.platform.Position;
         /// <summary>True while the moving pad occupies native enemy-projectile slot $22.</summary>
         internal bool PadActive => arrival.pad.Active;
@@ -208,12 +267,16 @@ internal static class CoreAccess
         internal bool PlatformActive => arrival.platform.Active;
     }
 
+    /// <summary>Observes Samus's room-load appearance timer before ordinary movement resumes.</summary>
     extension(SuperMetroidRuntime runtime)
     {
+        /// <summary>Remaining frames of Samus's room-load appearance state.</summary>
         internal ushort SamusLoadAppearanceFramesRemaining => runtime.Player._samusLoadAppearanceFramesRemaining.RawValue;
+        /// <summary>Whether the room-load appearance timer still owns Samus.</summary>
         internal bool SamusLoadAppearanceActive => runtime.SamusLoadAppearanceFramesRemaining != 0;
     }
 
+    /// <summary>Finds a unique population PLM and snapshots active save stations in descending native slot order.</summary>
     extension(RoomPlmSystem plms)
     {
 
@@ -249,6 +312,7 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>Exposes physical PLM slots to the station snapshot reader.</summary>
     private static PlmSlot[] PlmSlots(RoomPlmSystem plms) => plms.SlotTable._slots;
 
     /// <summary>Every room-FX record the compiled catalog defines, in pointer order.</summary>
@@ -259,15 +323,18 @@ internal static class CoreAccess
                 yield return record;
     }
 
+    /// <summary>Keeps per-game projectile observations without extending frontend lifetime.</summary>
     private static readonly ConditionalWeakTable<SuperMetroidGame, GameplayProjectileFireObserver>
         GameplayProjectileFireObservers = new();
 
+    /// <summary>Captures ordinary projectile slot occupancy and families around an alpha pass.</summary>
     extension(SamusProjectileSystem projectiles)
     {
         /// <summary>Captures slot occupancy and families before an alpha pass.</summary>
         internal SamusProjectileSlotObservation ObserveSlots() => new(projectiles);
     }
 
+    /// <summary>Attributes a newly fired ordinary projectile to the latest consecutively observed frontend frame.</summary>
     extension(SuperMetroidGame game)
     {
         /// <summary>
@@ -282,13 +349,19 @@ internal static class CoreAccess
                 .Observe(game);
     }
 
+    /// <summary>Attributes an ordinary projectile allocation to exactly one observed frontend frame.</summary>
     private sealed class GameplayProjectileFireObserver
     {
+        /// <summary>Projectile owner observed in the preceding frame.</summary>
         private SamusProjectileSystem? _projectiles;
+        /// <summary>Frontend frame number associated with the preceding slot snapshot.</summary>
         private ushort _frameNumber;
+        /// <summary>Prior occupancy and projectile-family snapshot.</summary>
         private SamusProjectileSlotObservation? _slots;
+        /// <summary>Allocation attributed to the most recently observed frame.</summary>
         private int? _firedSlot;
 
+        /// <summary>Rejects skipped frames and infers a newly allocated slot from consecutive snapshots.</summary>
         internal int? Observe(SuperMetroidGame game)
         {
             SamusProjectileSystem? projectiles = game.RuntimeForVerification?.Projectiles;
@@ -330,6 +403,7 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>Reads the contact latch of the unique live scroll PLM at a room block.</summary>
     extension(RoomPlmSystem plms)
     {
         /// <summary>
@@ -351,6 +425,7 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>Exposes the two byte-sized timer operands following Crateria lightning SetTimer instructions.</summary>
     extension(CrateriaLightningPaletteFxProgramDefinition self)
     {
         /// <summary>
@@ -364,6 +439,7 @@ internal static class CoreAccess
         ];
     }
 
+    /// <summary>Observes the two released crash echoes' travel angles and first echo radius.</summary>
     extension(SamusShinesparkState self)
     {
         /// <summary>Angular-travel word of departing crash-echo projectile slot three.</summary>
@@ -379,6 +455,7 @@ internal static class CoreAccess
             self._firstReleasedCrashEcho.Radius;
     }
 
+    /// <summary>Lists active PLM block positions and collectible phases and artwork in slot order.</summary>
     extension(RoomPlmSystem self)
     {
         /// <summary>Block index of every active PLM, in native slot order.</summary>
@@ -400,6 +477,7 @@ internal static class CoreAccess
         ];
     }
 
+    /// <summary>Snapshots mailbox publication counters and pending-frame state under its synchronization lock.</summary>
     extension(LatestRenderFrameMailbox self)
     {
         /// <summary>Reads every private counter under the mailbox's own lock.</summary>
@@ -421,6 +499,7 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>Reads the gameplay window cache's last accepted TS subscreen byte.</summary>
     extension(SuperMetroidRuntime self)
     {
         /// <summary>Cached gameplay TS byte the last accepted NMI uploaded with the window registers.</summary>
@@ -431,12 +510,15 @@ internal static class CoreAccess
             .ReadByte(GameplayWindowRegisterAddresses.Subscreen);
     }
 
+    /// <summary>Visits active physical PLM slots in native slot order.</summary>
     private static IEnumerable<PlmSlot> Group4ActivePlmSlots(RoomPlmSystem plms) =>
         plms.SlotTable._slots.Where(slot => slot.Active);
 
+    /// <summary>Extracts live collectible state from the active PLM slots.</summary>
     private static IEnumerable<CollectiblePlms.CollectiblePlmState> Group4CollectibleItems(RoomPlmSystem plms) =>
         Group4ActivePlmSlots(plms).Select(slot => slot.Item).OfType<CollectiblePlms.CollectiblePlmState>();
 
+    /// <summary>Reads the mailbox generation used to reject stale frame publications.</summary>
     extension(LatestRenderFrameMailbox mailbox)
     {
         /// <summary>
@@ -460,6 +542,7 @@ internal readonly record struct StationPlmSnapshot(
 /// <summary>Verification access to <see cref="CartridgeAudioState"/> queues, which production reads only to dispatch.</summary>
 internal static class CartridgeAudioStateQueueAccess
 {
+    /// <summary>Exposes music timing and per-library SFX queue positions from cartridge audio state.</summary>
     extension(CartridgeAudioState self)
     {
         /// <summary>Music queue read/write indices, current timer and slot delays ($063B/$0639/$063F/$0629).</summary>
@@ -478,8 +561,10 @@ internal static class CartridgeAudioStateQueueAccess
              self._soundStates[queue]);
     }
 }
+/// <summary>Verifier-facing step seam for one ordinary gameplay frame.</summary>
 internal static class SuperMetroidRuntimeFrameAccess
 {
+    /// <summary>Advances one ordinary gameplay frame with the default runtime request.</summary>
     extension(SuperMetroid.Core.Runtime.SuperMetroidRuntime self)
     {
         /// <summary>One ordinary state-eight frame: departure allowed, game time advancing, deferred audio (#633).</summary>
@@ -487,8 +572,10 @@ internal static class SuperMetroidRuntimeFrameAccess
             self.StepFrame(controller1Input, new SuperMetroid.Core.Runtime.RuntimeFrameRequest());
     }
 }
+/// <summary>Fixture codec for constructing native 16.16 positions from WRAM words.</summary>
 internal static class FixedPositionAccess
 {
+    /// <summary>Assembles spatial positions from the four native whole and fractional WRAM words.</summary>
     extension<TSpace>(SuperMetroid.Core.Spatial.FixedPosition<TSpace>) where TSpace : SuperMetroid.Core.Spatial.ISpatialSpace
     {
         /// <summary>Assembles both axes from native whole and subpixel words, as verifier fixtures state them.</summary>

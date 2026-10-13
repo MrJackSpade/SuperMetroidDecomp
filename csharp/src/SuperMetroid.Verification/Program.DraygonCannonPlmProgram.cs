@@ -17,8 +17,10 @@ using static LookupCannonLayoutsVerification;
 using static LookupCannonProgramVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Draygon cannon PLM controls, visual layouts, and compiled damage programs.</summary>
 internal static class DraygonCannonPlmProgramVerification
 {
+    /// <summary>Runs both retail cannon sequences through shield redraws and Super Missile damage under a program read guard.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon cannon PLM program")]
     internal static void VerifyDraygonCannonPlmProgram()
     {
@@ -139,6 +141,7 @@ internal static class DraygonCannonPlmProgramVerification
         Console.WriteLine("  Draygon cannon PLM: both retail programs match ROM and execute through damage without program reads.");
     }
 
+    /// <summary>Rejects live reads of both cannon instruction lists and their compiled draw records.</summary>
     private static CartridgeReadGuard NewDraygonCannonProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -153,6 +156,7 @@ internal static class DraygonCannonPlmProgramVerification
                     }),
                 address => $"Draygon cannon reread compiled program byte ${address:X6}.");
 
+    /// <summary>Runs the cannon PLM verification from the command dispatcher.</summary>
     [VerificationCommand("--draygon-cannon-plm-program")]
     internal static int DraygonCannonPlmProgramCommand()
     {

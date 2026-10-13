@@ -24,8 +24,10 @@ public sealed class WorkRobotPaletteCycle
             }
         });
 
+    /// <summary>Edited RGB5 rows, or null when every cell follows the compiled stock color pattern.</summary>
     internal readonly Bgr555[][]? frames;
 
+    /// <summary>Keeps authored rows only when at least one color differs from the native rotation.</summary>
     private WorkRobotPaletteCycle(Bgr555[][] frames)
     {
         for (int frame = 0; frame < frames.Length; frame++)
@@ -51,6 +53,7 @@ public sealed class WorkRobotPaletteCycle
         return new Bgr555(31 - 16 * (position >> 1) - 7 * (position & 1), 0, 0);
     }
 
+    /// <summary>Strict camel-case options for the editable six-frame document.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -140,6 +143,7 @@ public sealed class WorkRobotPaletteCycle
         return bytes;
     }
 
+    /// <summary>Rejects repeated JSON properties before a later value can silently replace a color row.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Work Robot palette property {name}."));
@@ -148,10 +152,10 @@ public sealed class WorkRobotPaletteCycle
 /// <summary>JSON schema for the six ordered Work Robot RGB5 palette records.</summary>
 public sealed record WorkRobotPaletteCycleDocument
 {
-    /// <summary>Gets the schema version required by <see cref="WorkRobotPaletteCycleFormat.Version"/>.</summary>
+    /// <summary>Schema revision; loading requires <see cref="WorkRobotPaletteCycleFormat.Version"/>.</summary>
     public required int Version { get; init; }
 
-    /// <summary>Gets six frames of four editable RGB5 colors each.</summary>
+    /// <summary>Six ordered frames of four editable RGB5 colors, independent of native frame timing.</summary>
     public required PaletteRgb5[][] Frames { get; init; }
 }
 

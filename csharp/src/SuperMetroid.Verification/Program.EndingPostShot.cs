@@ -5,8 +5,11 @@ using SuperMetroid.Core.Rom;
 using static EndingLogoTablesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks post-shot ending rotation, palette fades, VRAM uploads, and white-flash timing.</summary>
 internal static class EndingPostShotVerification
 {
+    /// <summary>Compares every post-shot frame with native timing and exact palette and VRAM contents.</summary>
+    /// <param name="bus">Retail cartridge data used as the expected artwork and palette source.</param>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the post-shot palette, font, logo tiles and map")]
     internal static void VerifyEndingPostShot(ISnesAddressSpace bus)
@@ -60,6 +63,7 @@ internal static class EndingPostShotVerification
         Console.WriteLine("  Post-shot: 36 rotation frames, delayed palette fades, six exact uploads, 180-frame hold.");
     }
 
+    /// <summary>Rejects runtime rereads of the fixed post-shot transfer table after import.</summary>
     private static CartridgeReadGuard NewPostShotUploadTableReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .ForbidRange(EndingPostShotUploadDefinitions.TableAddress,

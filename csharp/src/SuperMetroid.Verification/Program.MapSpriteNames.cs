@@ -12,8 +12,10 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 
+/// <summary>Checks the installed map-sprite role catalog against independent native IDs.</summary>
 internal static class MapSpriteNamesVerification
 {
+    /// <summary>Lists original arrows, stations, markers, elevators, and world labels in document order.</summary>
     internal static (ushort NativeId, string Name)[] MapSpriteRoleOracle() =>
         [
             (0x4, "Arrow.Right"),
@@ -44,6 +46,7 @@ internal static class MapSpriteNamesVerification
             (0x3e, "World.Tourian")
         ];
 
+    /// <summary>Checks document order, the complete ushort membership domain, and invalid names.</summary>
     internal static void VerifyMapSpriteNameCases()
     {
         // Independent original table from9b54e512, retained only for verification.
@@ -59,6 +62,7 @@ internal static class MapSpriteNamesVerification
             AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteDefinitions.Name((MapSpriteId)invalid), "unsupported map sprite name");
     }
 
+    /// <summary>Runs the native map-sprite role audit.</summary>
     [VerificationCommand("--lookup-map-sprite-names")]
     internal static int LookupMapSpriteNamesCommand()
     {

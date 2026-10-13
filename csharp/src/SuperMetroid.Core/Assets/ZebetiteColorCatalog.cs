@@ -19,17 +19,21 @@ public sealed class ZebetiteColorCatalog
             }
         });
 
+    /// <summary>Only palette cells edited away from the calculated native pulse, keyed by frame and color.</summary>
     internal readonly Dictionary<int, Bgr555> edits;
 
+    /// <summary>Captures validated color overrides for an eight-frame barrier pulse.</summary>
     private ZebetiteColorCatalog(Dictionary<int, Bgr555> edits) => this.edits = edits;
 
     /// <summary>Calculated symmetric pulse of the two selected barrier-core paints.</summary>
     private static Bgr555 NativeColor(int frame, int color) => ZebetitePulsePaintDefinitions.Color(frame, color);
 
+    /// <summary>Selects an edited pulse color when present, otherwise the symmetric native color.</summary>
     private Bgr555 Resolve(int frame, int color) =>
         edits.TryGetValue(frame * ZebetiteColorFormat.ColorsPerFrame + color, out Bgr555 edited)
             ? edited : NativeColor(frame, color);
 
+    /// <summary>Strict camel-case JSON options shared by load and write.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -100,6 +104,7 @@ public sealed class ZebetiteColorCatalog
         return bytes;
     }
 
+    /// <summary>Rejects repeated property names before deserialization can overwrite an earlier value.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate Zebetite color property."));

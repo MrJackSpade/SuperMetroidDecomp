@@ -6,11 +6,16 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 internal sealed class StereoPcmContinuityMeter
 {
+    /// <summary>Whether a previous complete L/R frame exists for the next buffer boundary.</summary>
     private bool hasPreviousFrame;
+    /// <summary>Last left sample from the preceding nonempty submission.</summary>
     private short previousLeft;
+    /// <summary>Last right sample from the preceding nonempty submission.</summary>
     private short previousRight;
 
+    /// <summary>Largest adjacent-frame change found wholly inside one submitted buffer.</summary>
     public int MaximumWithinBufferDelta { get; private set; }
+    /// <summary>Largest adjacent-frame change measured across two nonempty buffer submissions.</summary>
     public int MaximumBoundaryDelta { get; private set; }
 
     /// <summary>

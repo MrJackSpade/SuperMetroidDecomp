@@ -21,13 +21,20 @@ public enum ChootEnemyFunction : ushort
 /// </summary>
 public sealed class ChootEnemyState
 {
+    /// <summary>Common enemy slot holding Choot's native-width variable words.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot whole-pixel room positions restored after a falling cycle.</summary>
     private readonly Position16<RoomPixels>[] _spawnPositions;
+    /// <summary>Per-slot apex positions calculated from each Choot's jump height.</summary>
     private readonly Position16<RoomPixels>[] _initialFallingPositions;
+    /// <summary>Per-slot base positions to which falling-pattern offsets are added.</summary>
     private readonly Position16<RoomPixels>[] _fallingOrigins;
+    /// <summary>Per-slot ascent cursors restored when the jump cycle finishes.</summary>
     private readonly ushort[] _initialYSpeedTableIndexes;
+    /// <summary>Per-slot delays that underflow before the next jump begins.</summary>
     private readonly ushort[] _jumpDelayTimers;
 
+    /// <summary>Binds the common slot and the per-enemy WRAM arrays without copying their state.</summary>
     internal ChootEnemyState(
         RoomEnemySlot slot,
         Position16<RoomPixels>[] spawnPositions,

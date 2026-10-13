@@ -14,8 +14,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using static EnemyDropsVerification;
 
+/// <summary>Checks the Evir body, arm, and spit slot behavior across a contact-kill frame boundary.</summary>
 internal static class EvirDeathFrameVerification
 {
+    /// <summary>Confirms already-scheduled child AI observes the cleared body slot before deleted children are removed next frame.</summary>
     internal static void VerifyEvirDeathFrame()
     {
         var samus = CreateDropTestSamus();
@@ -69,6 +71,7 @@ internal static class EvirDeathFrameVerification
         Console.WriteLine("Evir death frame: real contact kill, cleared-slot arm/spit reads, single death and next-frame removal confirmed.");
     }
 
+    /// <summary>Runs the focused Evir contact-death ordering check.</summary>
     [VerificationCommand("--evir-death-frame")]
     internal static int EvirDeathFrameCommand()
     {

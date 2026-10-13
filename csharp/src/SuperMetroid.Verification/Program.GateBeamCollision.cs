@@ -15,8 +15,10 @@ using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 using static WaveDoorBandsVerification;
 
+/// <summary>Checks beam impact and gate scan termination in the Kronic Boost room.</summary>
 internal static class GateBeamCollisionVerification
 {
+    /// <summary>Checks native impact position and same-frame instruction advance without waking the wrong-side switch.</summary>
     internal static void VerifyKronicGateBeamCollision()
     {
         Suite(nameof(VerifyGateScanTermination), () => VerifyGateScanTermination());
@@ -47,6 +49,7 @@ internal static class GateBeamCollisionVerification
         Console.WriteLine("PASS Kronic Boost native initial gate-beam impact and no switch activation.");
     }
 
+    /// <summary>Checks vertical and horizontal wave or ordinary scans stop after the first gate probe.</summary>
     private static void VerifyGateScanTermination()
     {
         // Two adjacent gate probes make an unwanted second scan observable as a
@@ -80,6 +83,7 @@ internal static class GateBeamCollisionVerification
         }
     }
 
+    /// <summary>Runs the gate beam impact and scan termination regression.</summary>
     [VerificationCommand("--gate-beam-collision")]
     internal static int GateBeamCollisionCommand()
     {

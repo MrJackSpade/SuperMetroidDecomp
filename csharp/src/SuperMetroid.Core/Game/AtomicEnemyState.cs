@@ -32,12 +32,18 @@ public enum AtomicHorizontalMovement : ushort
 /// </summary>
 public sealed class AtomicEnemyState
 {
+    /// <summary>Enemy slot whose common variables hold the movement dispatch words.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot positive fractional speeds loaded from Atomic's shared speed table.</summary>
     private readonly ushort[] _speedFractions;
+    /// <summary>Per-slot positive whole-word speeds for downward or rightward motion.</summary>
     private readonly ushort[] _speedWholes;
+    /// <summary>Per-slot negative fractions retained exactly as table data for upward or leftward motion.</summary>
     private readonly ushort[] _negativeSpeedFractions;
+    /// <summary>Per-slot negative whole-word speeds paired with the native negative fractions.</summary>
     private readonly ushort[] _negativeSpeedWholes;
 
+    /// <summary>Binds the debugger view to Atomic's physical enemy slot and shared speed arrays.</summary>
     internal AtomicEnemyState(
         RoomEnemySlot slot,
         ushort[] speedFractions,

@@ -7,8 +7,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Checks installed Norfair Ridley palette rows against native CGRAM writes and reveal cadence.</summary>
 internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 {
+    /// <summary>Compares all initial and reveal colors, guarded production updates, isolated edits, and override validation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Norfair Ridley colors and reveal pointers")]
     internal static void VerifyInstalledNorfairRidleyColors(ISnesAddressSpace bus,
@@ -128,6 +130,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         File.WriteAllBytes(stockPath, stockBytes);
         Console.WriteLine("  Norfair Ridley colors: 242 native RGB5 words, initial/reveal full-CGRAM parity, three-call cadence and terminator, ROM guard, isolated edits, override persistence and strict failures pass.");
 
+        // Matches one installed RGB5 word to its native address and marks both source bytes forbidden.
         void CheckSource(int address, ushort expected)
         {
             forbidden.Add(address);
@@ -136,6 +139,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
                 $"Norfair Ridley color source ${address:X6}");
         }
 
+        // Checks full CGRAM while allowing only the selected initial red or current reveal blue edit.
         void CheckEditedCgram(string context, bool revealRowVisible)
         {
             for (int color = 0; color < SnesCgram.ColorCount; color++)
@@ -149,8 +153,8 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             }
         }
 
-        // Independent native initialization and reveal ($A6:A478/A4D6), using raw
-        // palette words and the terminated cartridge pointer table rather than the catalog.
+        // Seeds the independent native initial CGRAM image and Ridley reveal state using
+        // raw $A6:A478 palette words and the terminated $A6:A4D6 pointer table.
         (SnesCgram, RidleyEnemyState) CreateReference()
         {
             var cgram = new SnesCgram();
@@ -166,6 +170,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             return (cgram, new RidleyEnemyState { Function = RidleyAiFunction.WaitBeforeLiftoff });
         }
 
+        // Applies one native reveal update, including the three-call timer and terminating pointer.
         void TickReference(SnesCgram cgram, RidleyEnemyState state)
         {
             state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
@@ -184,9 +189,11 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             state.Function = RidleyAiFunction.ClearVelocity;
         }
 
+        // Reads a raw cartridge word for the independent palette oracle.
         ushort ReadReferenceWord(int address) =>
             (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1)));
 
+        // Initializes the production Norfair Ridley actor with selected artwork and seeded CGRAM.
         static (RoomEnemySystem, SnesCgram, RoomEnemySlot, RidleyEnemyState) Create(
             ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
@@ -208,6 +215,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             return (enemy, cgram, slot, state);
         }
 
+        // Executes one production arena-reveal callback.
         static void Tick(RoomEnemySystem enemy, RoomEnemySlot slot, RidleyEnemyState state)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

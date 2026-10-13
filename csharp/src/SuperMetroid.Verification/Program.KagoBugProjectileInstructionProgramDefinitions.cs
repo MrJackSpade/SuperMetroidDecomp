@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kago bug projectile landing, jump, and shot programs against compiled native words.</summary>
 internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for the Kago bug program comparison.</summary>
     internal static void VerifyKagoBugProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKagoBugProjectileInstructionProgramDefinitions), () => VerifyKagoBugProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs a real spawn through movement loops and its drop-producing shot sequence under read guards.</summary>
     internal static void VerifyKagoBugProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -150,6 +153,7 @@ internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates landed and shot words to detect allocation during warmed instruction reads.</summary>
     private static int ProbeKagoBugProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -163,6 +167,7 @@ internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects Kago and shared-program mechanics reads while observing sprite operand access.</summary>
     private static CartridgeReadGuard NewKagoBugProjectileInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -172,6 +177,7 @@ internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
                 address => $"Production read compiled Kago-bug projectile mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, KagoBugProjectileInstructionProgramDefinitions.PresentationWordCount, KagoBugProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Kago bug instruction check from the command dispatcher.</summary>
     [VerificationCommand("--kago-bug-projectile-instruction-mechanics")]
     internal static int KagoBugProjectileInstructionMechanicsCommand()
     {

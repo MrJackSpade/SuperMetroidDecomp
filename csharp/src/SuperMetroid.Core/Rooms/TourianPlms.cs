@@ -5,9 +5,12 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Tourian PLMs: the access gate, the Metroids-cleared states, and the old Tourian escape-shaft wall.</summary>
 internal sealed class TourianPlms
 {
+    /// <summary>Room event, Samus, and enemy-projectile owners used by Tourian PLM callbacks.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Native forty-slot PLM table scanned from the final slot during hardcoded spawns.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Binds Tourian room callbacks to the active room's services and PLM slots.</summary>
     internal TourianPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
     {
         _bindings = bindings;

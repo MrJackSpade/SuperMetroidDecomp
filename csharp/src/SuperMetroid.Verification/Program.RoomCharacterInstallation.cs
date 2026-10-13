@@ -21,6 +21,7 @@ using static RoomBackgroundLibraryParityVerification;
 using static RoomVisualLayoutsVerification;
 using static XrayRevealVisualInstallationVerification;
 
+/// <summary>Checks stock and overridden room characters, palettes, blocks, backgrounds, and sky artwork.</summary>
 internal static class RoomCharacterInstallationVerification
 {
     /// <summary>Full stock import, live edit, repair and invalid-override contract for room art.</summary>
@@ -363,6 +364,7 @@ internal static class RoomCharacterInstallationVerification
         }
     }
 
+    /// <summary>Runs the room-art installation contract through the character-focused command alias.</summary>
     [VerificationCommand("--room-character-installation")]
     internal static int RoomCharacterInstallationCommand()
     {
@@ -371,6 +373,7 @@ internal static class RoomCharacterInstallationVerification
         return 0;
     }
 
+    /// <summary>Runs the room-art installation contract through the general artwork command alias.</summary>
     [VerificationCommand("--room-artwork-installation")]
     internal static int RoomArtworkInstallationCommand()
     {

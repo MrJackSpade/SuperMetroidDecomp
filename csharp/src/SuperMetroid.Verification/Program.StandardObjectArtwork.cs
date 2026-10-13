@@ -15,8 +15,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static FrontendRomFreeVerification;
 
+/// <summary>Checks installed standard OBJ characters and their override path through gameplay DMA.</summary>
 internal static class StandardObjectArtworkVerification
 {
+    /// <summary>Compares every native OBJ byte, then checks edited PNG transfer, provenance, and ROM-free queued DMA.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for standard object artwork")]
     internal static void VerifyStandardObjectArtwork(string sourceRom)
@@ -97,6 +99,7 @@ internal static class StandardObjectArtworkVerification
         }
     }
 
+    /// <summary>Runs the standard object-artwork check against the repository's retail ROM.</summary>
     [VerificationCommand("--standard-object-artwork")]
     internal static int StandardObjectArtworkCommand()
     {

@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Individually reviewed complete enemy color sources; no AI, battle or palette cadence is exercised.</summary>
 internal static class RemainingEnemyColorClosedContractDefinitions
 {
+    /// <summary>Reviewed complete color-source contracts for ten enemy and cinematic palette families.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.BotwoonColorCatalog", "botwoon-complete-health-colors", ["HealthColor"],

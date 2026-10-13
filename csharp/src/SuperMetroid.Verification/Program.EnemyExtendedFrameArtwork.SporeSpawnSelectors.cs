@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SporeSpawnInstructionProgramDefinitionsVerification;
 
+/// <summary>Compares installed Spore Spawn frame selectors with an independent cartridge instruction trace.</summary>
 internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
 {
     /// <summary>
@@ -54,9 +55,11 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         Console.WriteLine($"  Installed Spore Spawn visual selectors: {allNativeSelectors.Count} compiled operands and {framesCompared} native-parity program ticks, with presentation ROM reads forbidden.");
     }
 
-    // Test-only bank-$A5 stream reader. Opcode lengths and effects are taken
-    // from pinned sm_a0.c / sm_a5.c, independently of the compiled catalogs.
-    // Palette, sound and particle side effects have their own focused fixtures.
+    /// <summary>
+    /// Reads bank-A5 opcode lengths and effects from the pinned cartridge stream,
+    /// independently of the compiled catalogs. Tracks instruction timing, selected
+    /// frames, and relevant state; palette, sound, and particles have separate fixtures.
+    /// </summary>
     internal static List<SporeSpawnProgramFrame> ReadReferenceSporeSpawnProgram(
         SuperMetroidAddressSpace rom, ushort initial, int frames, HashSet<ushort> selectors)
     {
@@ -124,6 +127,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         }
         return trace;
     }
+    /// <summary>Captures the live state compared with one native Spore Spawn instruction tick.</summary>
     private static SporeSpawnProgramFrame CaptureSporeSpawnProgramFrame(
         RoomEnemySystem system, RoomEnemySlot slot)
     {
@@ -136,6 +140,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
             state.DeathStarted, state.DeathDropRequested);
     }
 
+    /// <summary>Instruction, frame, position, health, and fight-state values compared across Spore Spawn program ticks.</summary>
     internal readonly record struct SporeSpawnProgramFrame(
         ushort Instruction, ushort Timer, ushort VisualFrame,
         Position16<RoomPixels> Position, ushort Health,
@@ -143,6 +148,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         SporeSpawnFunction Function, ushort Angle, ushort MaximumXRadius,
         bool DeathStarted, bool DeathDropRequested);
 
+    /// <summary>Checks that replacing compatible display frames leaves all five programs' timing and gameplay state intact.</summary>
     internal static void VerifySporeSpawnVisualRemapKeepsMechanics(
         SuperMetroidAddressSpace rom,
         EnemyTileArtworkCatalog stock,

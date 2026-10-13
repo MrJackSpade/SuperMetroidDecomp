@@ -8,13 +8,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Projectile trails: spawning a trail behind a shot, its animation frame, and drawing each side.</summary>
 internal sealed class ProjectileTrails
 {
+    /// <summary>Projectile-owned left and right trail pairs shared with the slot allocator.</summary>
     private readonly ProjectileSlotTable _slotTable;
 
+    /// <summary>Uses the owning projectile table so trail allocation and drawing see the same slots.</summary>
     internal ProjectileTrails(ProjectileSlotTable slotTable)
     {
         _slotTable = slotTable;
     }
 
+    /// <summary>Selects native trail lists and positions both sides from the shot's current animation record.</summary>
     internal void SpawnTrail(ISnesAddressSpace bus, SamusProjectileSlot projectile)
     {
         int pointerIndex;
@@ -88,6 +91,7 @@ internal sealed class ProjectileTrails
         trail.Right.Position = trail.Right.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, rightX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, rightY, -4));
     }
 
+    /// <summary>Reads the native word immediately before the shot's next instruction pointer.</summary>
     internal static ushort GetTrailAnimationFrame(SamusProjectileSlot projectile)
     {
         // $93:81D8-$81E3 unconditionally reads (instruction pointer - 8) + 6.
@@ -96,9 +100,11 @@ internal sealed class ProjectileTrails
         return SamusProjectileInstructionDefinitions.ReadWord(SamusProjectileRomData.Banks.Projectile | frameAddress);
     }
 
+    /// <summary>Applies a signed byte displacement and fixed bias with 16-bit position wrap.</summary>
     private static ushort AddSignedOffset(ushort origin, byte encodedOffset, int constant) =>
         unchecked((ushort)(origin + unchecked((sbyte)encodedOffset) + constant));
 
+    /// <summary>Advances one side's instruction stream unless frozen, then draws only in-range screen coordinates.</summary>
     internal static void HandleTrailSideAndDraw(
         ISnesAddressSpace bus,
         OamBuffer oam,

@@ -29,8 +29,10 @@ public enum CrawlerEnemyFunction : ushort
 /// </summary>
 public sealed class CrawlerEnemyState
 {
+    /// <summary>Common enemy slot backing attached velocity and AI function variables.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Binds the crawler view to its existing enemy slot.</summary>
     internal CrawlerEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

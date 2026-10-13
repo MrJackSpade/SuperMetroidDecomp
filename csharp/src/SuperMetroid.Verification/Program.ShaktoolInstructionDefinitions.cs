@@ -15,8 +15,10 @@ using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Shaktool orientation and collision selectors alongside compiled segment instruction programs.</summary>
 internal static class ShaktoolInstructionDefinitionsVerification
 {
+    /// <summary>Compares orientation and collision lists with the cartridge and checks live Shaktool handoffs.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool instruction definitions")]
     internal static void VerifyShaktoolInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -80,12 +82,14 @@ internal static class ShaktoolInstructionDefinitionsVerification
             "Shaktool instruction definitions: 22 native selectors and all orientation and collision-reversal production handoffs pass with source tables forbidden.");
     }
 
+    /// <summary>Loads the retail cartridge and runs Shaktool instruction program checks.</summary>
     internal static void VerifyShaktoolInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyShaktoolInstructionProgramDefinitions), () => VerifyShaktoolInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises steady and collision programs while rejecting compiled mechanics reads.</summary>
     internal static void VerifyShaktoolInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -166,6 +170,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
             "programs and 15 compiled spritemap selectors pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Forces successive instruction steps and reports whether they moved the segment.</summary>
     private static bool RunForcedShaktoolInstructions(
         RoomEnemySystem enemies,
         RoomEnemySlot segment,
@@ -184,6 +189,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         return moved;
     }
 
+    /// <summary>Repeatedly resolves a compiled aiming program to detect warmed lookup allocations.</summary>
     private static int ProbeShaktoolInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -195,6 +201,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Creates and initializes all seven Shaktool segments behind an instruction read guard.</summary>
     private static RoomEnemySystem CreateCompiledShaktoolGroup(
         ISnesAddressSpace rom)
     {
@@ -213,6 +220,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>Rejects migrated mechanics and selector-table reads while recording presentation operands.</summary>
     private static CartridgeReadGuard NewShaktoolInstructionReadGuard(ISnesAddressSpace source)
     {
         var guard = new CartridgeReadGuard(source).Forbid(ShaktoolInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -232,6 +240,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         });
     }
 
+    /// <summary>Runs the standalone Shaktool instruction mechanics verification command.</summary>
     [VerificationCommand("--shaktool-instruction-mechanics")]
     internal static int ShaktoolInstructionMechanicsCommand()
     {

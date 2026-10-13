@@ -2,15 +2,23 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static MotherBrainGlassShardDefinitionsVerification;
 
+/// <summary>Checks Mother Brain glass shard and sparkle program addresses and control values against native streams.</summary>
 internal static class LookupGlassProjectileProgramVerification
 {
+    /// <summary>Checks the compiled mechanics address enumeration and exact byte ownership.</summary>
     internal static void VerifyGlassMechanicsAddresses(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 0);
+    /// <summary>Checks the ordered artwork operand addresses across all nine glass programs.</summary>
     internal static void VerifyGlassPresentationAddresses(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 1);
+    /// <summary>Checks the shard frame durations in native program order.</summary>
     internal static void VerifyGlassShardCadence(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 2);
+    /// <summary>Checks the sparkle frame durations in the final glass program.</summary>
     internal static void VerifyGlassSparkleCadence(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 3);
+    /// <summary>Checks the native goto and delete opcodes that terminate glass programs.</summary>
     internal static void VerifyGlassProjectileControls(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 4);
+    /// <summary>Checks the eight self-loop targets following shard goto commands.</summary>
     internal static void VerifyGlassProjectileLoopTargets(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 5);
 
+    /// <summary>Parses bounded native programs independently before comparing one selected field with compiled definitions.</summary>
     private static void VerifyGlassProjectileField(SuperMetroidAddressSpace rom, int field)
     {
         // Parse the original bounded programs; never obtain expected addresses or values

@@ -19,6 +19,7 @@ internal static class EnemyInstructionRunner
             Value<Position16<RoomPixels>>(arguments, 3),
             Value<ushort>(arguments, 4));
 
+    /// <summary>Accepts a nullable fixture reference at an argument index and reports mismatched runtime types.</summary>
     private static T? Optional<T>(object?[] arguments, int index) where T : class => arguments[index] switch
     {
         null => null,
@@ -26,6 +27,7 @@ internal static class EnemyInstructionRunner
         object other => throw new ArgumentException($"Element {index} is {other.GetType()}, not {typeof(T)}.", nameof(arguments)),
     };
 
+    /// <summary>Restores reflection's default-value behavior for a null fixture value type while rejecting wrong types.</summary>
     private static T Value<T>(object?[] arguments, int index) where T : struct => arguments[index] switch
     {
         null => default,

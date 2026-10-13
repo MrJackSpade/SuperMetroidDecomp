@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks normal and strong Brinstar Pipe Bug instruction loops and visual selectors against bank-$B3 data.</summary>
 internal static class BrinstarPipeBugInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail cartridge data for the Brinstar Pipe Bug instruction suite.</summary>
     internal static void VerifyBrinstarPipeBugInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled words with ROM and runs all eight Zeb and Zebbo animation loops with mechanics and visual reads forbidden.</summary>
     internal static void VerifyBrinstarPipeBugInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -167,6 +170,7 @@ internal static class BrinstarPipeBugInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Reads the compiled rising-left program repeatedly to detect allocations in warmed mechanics lookup.</summary>
     private static int ProbeBrinstarPipeBugInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -178,6 +182,7 @@ internal static class BrinstarPipeBugInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Runs the Brinstar Pipe Bug instruction mechanics verification command.</summary>
     [VerificationCommand("--brinstar-pipe-bug-instruction-mechanics")]
     internal static int BrinstarPipeBugInstructionMechanicsCommand()
     {

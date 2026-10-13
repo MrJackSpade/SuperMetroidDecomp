@@ -3,8 +3,10 @@ using SuperMetroid.Core.Rendering;
 using static QueuedPcmSinkVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Android run gating, controller persistence, frame pacing, viewport scaling, and input latching.</summary>
 internal static class AndroidHostVerification
 {
+    /// <summary>Verifies host policy boundaries and representative Retroid viewport and input cases.</summary>
     internal static void VerifyAndroidHostPolicies()
     {
         Suite(nameof(VerifyQueuedPcmSink), () => VerifyQueuedPcmSink());

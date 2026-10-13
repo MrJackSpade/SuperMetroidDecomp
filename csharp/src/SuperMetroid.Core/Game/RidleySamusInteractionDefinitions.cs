@@ -8,7 +8,16 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 internal static class RidleySamusInteractionDefinitions
 {
-    private enum GrabPolicy { Immune, Ordinary, Morphed }
+    /// <summary>Separates movement handlers by Ridley's grab eligibility and release delay.</summary>
+    private enum GrabPolicy
+    {
+        /// <summary>Ridley's contact cannot start a grab in this movement handler.</summary>
+        Immune,
+        /// <summary>A non-ball grab uses the longer post-release intangibility interval.</summary>
+        Ordinary,
+        /// <summary>A ball-form grab uses the shorter post-release intangibility interval.</summary>
+        Morphed
+    }
 
     /// <summary>$A6:BD04..BD1F dispatches by the named Samus movement handler; unknown byte values retain the managed no-grab/default-release boundary.</summary>
     private static GrabPolicy Policy(SamusMovementType movement) => movement switch

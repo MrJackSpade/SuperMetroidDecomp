@@ -9,8 +9,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class GoldenTorizoJumpLandingInstructionProgramDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>$AA:CDAF, first backward-jump landing choice for the left-facing, left-foot-forward case.</summary>
     internal const ushort Start = 0xcdaf;
 
+    /// <summary>Four facing and forward-foot cases each contain five attack-choice and return-control words.</summary>
     public static int MechanicsWordCount => 4 * 5;
 
     /// <summary>
@@ -47,6 +49,7 @@ internal abstract class GoldenTorizoJumpLandingInstructionProgramDefinitions : I
         return new((ushort)(Start + index * sizeof(ushort)), value);
     }
 
+    /// <summary>Accepts either byte of a landing control word in bank $AA, excluding neighboring animation data.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xaa0000)

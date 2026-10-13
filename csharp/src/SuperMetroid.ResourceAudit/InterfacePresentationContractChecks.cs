@@ -10,6 +10,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the two identified interface-adapter gaps without running a cinematic or palette interpreter.</summary>
 internal static class InterfacePresentationContractChecks
 {
+    /// <summary>Checks real interface loaders and verifies audit closure responds to new owners or changed routing.</summary>
     internal static void Run()
     {
         var document = new IntroDiscoveryActorSpriteDocument {
@@ -77,6 +78,7 @@ internal static class InterfacePresentationContractChecks
         Require(Inspect(Compile(stale), true).Classifications.Count == 1, "changed palette query semantics revoke its proof");
     }
 
+    /// <summary>Fails the contract check with context for an unreviewed presentation adapter.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Interface presentation confirmation failed: " + reason);

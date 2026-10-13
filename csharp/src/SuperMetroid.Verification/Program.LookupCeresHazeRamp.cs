@@ -4,8 +4,10 @@ using SuperMetroid.Core.Rendering;
 using static DoorDefinitionsVerification;
 using static LookupFxBlendSelectorsVerification;
 
+/// <summary>Checks Ceres haze HDMA scanline amplitudes and editable tint scaling.</summary>
 internal static class LookupCeresHazeRampVerification
 {
+    /// <summary>Replays the native descending fill and HDMA bands to produce 224 expected haze rows.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres haze ramp")]
     private static byte[] OriginalCeresHazeRamp(ISnesAddressSpace rom, int counter)
     {
@@ -39,6 +41,7 @@ internal static class LookupCeresHazeRampVerification
         return rows;
     }
 
+    /// <summary>Compares every fade counter and scanline with captured windows and rendered RGB channels.</summary>
     internal static void VerifyCeresHazeNativeRamp(ISnesAddressSpace rom)
     {
         int fadeLimit = ReadVerificationWord(rom, 0x88de43);
@@ -72,6 +75,7 @@ internal static class LookupCeresHazeRampVerification
         }
     }
 
+    /// <summary>Checks nearest-integer haze scaling over all reachable amplitudes and RGB5 channel values.</summary>
     internal static void VerifyCeresHazeTintScaling(ISnesAddressSpace rom)
     {
         int lastCounter = ReadVerificationWord(rom, 0x88de43);

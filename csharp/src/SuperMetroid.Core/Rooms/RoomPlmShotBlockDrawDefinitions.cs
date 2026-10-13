@@ -35,10 +35,23 @@ internal static class RoomPlmShotBlockDrawDefinitions
         ReadOnlyMemory<ushort> LevelWords,
         Offset16<RoomBlocks> Next);
 
+    /// <summary>One native shot-block draw pointer with its ordered, immutable level-word runs.</summary>
     internal readonly record struct DrawList(ushort Pointer, ReadOnlyMemory<Run> Runs);
 
+    /// <summary>Sixteen breakup frames and three parent/child restoration draws.</summary>
     internal const int DrawCount = 19;
-    internal enum Shape { Single, Horizontal, Vertical, Square }
+    /// <summary>Physical block arrangement affected by a shot-block draw list.</summary>
+    internal enum Shape
+    {
+        /// <summary>One breakable block.</summary>
+        Single,
+        /// <summary>Two adjacent blocks in a row.</summary>
+        Horizontal,
+        /// <summary>Two stacked blocks in a column.</summary>
+        Vertical,
+        /// <summary>Four blocks arranged in two rows.</summary>
+        Square,
+    }
 
     /// <summary>Bounded native draw: four breakup stages per shape at $84:A345-$A3DC,
     /// or parent/child restoration at $84:A47B-$A49A. Breakup uses consecutive
@@ -46,10 +59,14 @@ internal static class RoomPlmShotBlockDrawDefinitions
     /// consecutive columns and a 32-index row stride, with native collision links.</summary>
     internal readonly record struct Draw(ushort Pointer, Shape Layout, int Frame, bool Restore)
     {
+        /// <summary>Gets two runs for a square or one for the other block arrangements.</summary>
         internal int RunCount => Layout == Shape.Square ? 2 : 1;
+        /// <summary>Gets the number of level words in each run for this shape.</summary>
         internal int WordsPerRun => Layout == Shape.Single ? 1 : 2;
+        /// <summary>Whether the native draw writes its words down a column.</summary>
         internal bool Vertical => Layout == Shape.Vertical;
 
+        /// <summary>Calculates breakup air or a restored parent/child collision word at a block position.</summary>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)run >= RunCount || (uint)block >= WordsPerRun)
@@ -70,6 +87,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
         }
     }
 
+    /// <summary>Recognizes a breakup frame or restoration pointer and returns its calculated draw.</summary>
     internal static bool TryGet(ushort pointer, out Draw draw)
     {
         if (TryFrames(pointer, SingleFrame0, 6, Shape.Single, out draw) ||
@@ -93,6 +111,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
         return true;
     }
 
+    /// <summary>Checks whether a pointer is one of four fixed-stride breakup frames for a shape.</summary>
     private static bool TryFrames(ushort pointer, ushort first, int stride, Shape shape, out Draw draw)
     {
         int relative = pointer - first;
@@ -105,8 +124,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
         return false;
     }
 
-    // Preserve the published interleaved export order; materialize DTOs only for
-    // asset tooling. Runtime uses the calculated draw directly.
+    /// <summary>Yields breakup frames interleaved by shape, followed by the three restoration draws.</summary>
     internal static IEnumerable<Draw> Calculated
     {
         get
@@ -124,14 +142,17 @@ internal static class RoomPlmShotBlockDrawDefinitions
         }
     }
 
+    /// <summary>Materializes draw-list DTOs for asset tooling; runtime uses calculated draws directly.</summary>
     internal static IEnumerable<DrawList> All => Calculated.Select(Export);
 
+    /// <summary>Gets a calculated draw for an owned pointer and rejects unsupported native addresses.</summary>
     private static Draw Describe(ushort pointer)
     {
         if (!TryGet(pointer, out Draw draw)) throw new InvalidDataException($"Unknown shot-block draw ${pointer:X4}.");
         return draw;
     }
 
+    /// <summary>Expands a calculated shot-block draw into ordered level-word runs and offsets.</summary>
     private static DrawList Export(Draw draw)
     {
         var runs = new Run[draw.RunCount];

@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks grey-door stock visuals and catalog validation against native draw frames.</summary>
 internal static class LookupGreyDoorStockVerification
 {
+    /// <summary>Compares twenty four-row frames, content identity, clone isolation, and rejected pointers and document shapes.</summary>
     internal static void VerifyGreyDoorStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmGreyDoorVisualCatalog installed)
     {

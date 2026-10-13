@@ -9,16 +9,26 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Bomb Torizo species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class BombTorizoBehavior : IEnemySpecies
 {
+    /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Resolves body movement against room blocks and slopes.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Owns the eighteen-slot enemy projectile pool used by Torizo attacks.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Receives the impact quake when a falling or jumping statue lands.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Queues the statue-break sound with the enemy audio limits.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Exposes the two live CGRAM rows occupied by Torizo's body.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Provides the NMI counter used by Torizo instruction choices.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Applies shot, bomb, and touch damage through the shared collision rules.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>Spawns the orb drops and the death scatter after the authored sequences.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
+    /// <summary>Connects the Bomb and Golden Torizo callbacks to their room-scoped services.</summary>
     internal BombTorizoBehavior(BombTorizoBehaviorDependencies dependencies)
     {
         _room = dependencies.Room;
@@ -32,10 +42,15 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         _deathsAndDrops = dependencies.DeathsAndDrops;
     }
 
+    /// <summary>Instruction reached when the first body-break health threshold interrupts active AI.</summary>
     private const ushort BombTorizoLowHealthInterruptInstruction = 0xb0e5;
+    /// <summary>Instruction reached for the later core-break recovery sequence.</summary>
     private const ushort BombTorizoLowHealthRecoveryInstruction = 0xb155;
+    /// <summary>Entry into the death animation after damage reduces health to zero.</summary>
     private const ushort BombTorizoDeathInstruction = 0xb1c8;
+    /// <summary>Initial extended spritemap shared by the two statue definitions.</summary>
     private const ushort BombTorizoInitialExtendedSpritemap = 0x87d0;
+    /// <summary>Native awakening guard value that rejects Bomb Torizo hits until the list clears it.</summary>
     private const ushort BombTorizoShotGuardValue = 0x7777;
 
     /// <summary>
@@ -101,11 +116,15 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         if (torizo.Health == 0)
             BeginBombTorizoDeath(torizo, state);
     }
+    /// <summary>Health below which the head-break list interrupts active Bomb Torizo AI.</summary>
     private const ushort BombTorizoHeadExplosionHealth = 350;
+    /// <summary>Health below which the later core-break list interrupts active AI.</summary>
     private const ushort BombTorizoCoreExplosionHealth = 100;
 
 
+    /// <summary>Current statue state, cleared when the room reloads.</summary>
     internal TorizoEnemyState? _torizoState;
+    /// <summary>Drop requests published by the Chozo-orb projectile instruction.</summary>
     internal readonly List<TorizoOrbDropRequest> _torizoOrbDropRequests = new();
 
     /// <summary>Golden Torizo's state while definition $EF7F owns slot zero.</summary>
@@ -118,6 +137,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
     /// <summary>Last delayed music request emitted by awakening/death bytecode.</summary>
     public BombTorizoMusicRequest? LastBombTorizoMusicRequest { get; private set; }
 
+    /// <summary>Discards the previous statue, orb requests, and frame-level sound/music publications on room load.</summary>
     internal void ResetBombTorizoRoomState()
     {
         _torizoState = null;
@@ -191,6 +211,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             LoadBombTorizoPalette();
     }
 
+    /// <summary>Writes the two palette rows shared by both statue variants to live CGRAM.</summary>
     private void LoadTorizoSharedPaletteRows()
     {
         ReadOnlySpan<Bgr555> rows = TorizoPaletteDefinitions.SharedRows;
@@ -201,28 +222,34 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         }
     }
 
-    // Palette rows nine and ten are used by the two extended-spritemap halves of the body.
+    /// <summary>Installs Bomb Torizo's initial body and belly colors in palette rows nine and ten.</summary>
     private void LoadBombTorizoPalette() =>
         LoadTorizoBodyPalette(TorizoPaletteDefinitions.BombInitial[..16], TorizoPaletteDefinitions.BombInitial[16..]);
 
-    // Later hurt frames use bank $84's health-indexed gradient; keeping this initial write
-    // separate mirrors the cartridge's target-palette setup before the first live damage callback.
+    /// <summary>
+    /// Installs Golden Torizo's initial body colors before hurt frames begin using the
+    /// health-indexed bank-$84 gradient.
+    /// </summary>
     private void LoadGoldenTorizoBasePalette() =>
         LoadTorizoBodyPalette(TorizoPaletteDefinitions.GoldenInitial[..16], TorizoPaletteDefinitions.GoldenInitial[16..]);
 
+    /// <summary>Restores the normal body rows on alternating Bomb Torizo hurt frames.</summary>
     private void LoadTorizoDeathPalette() =>
         LoadTorizoBodyPalette(TorizoPaletteDefinitions.Normal[..16], TorizoPaletteDefinitions.Normal[16..]);
 
+    /// <summary>Creates the per-statue gradual color transition against the live CGRAM image on first use.</summary>
     private CartridgePaletteTransition GetTorizoPaletteTransition(TorizoEnemyState state) =>
         state.PaletteTransition ??= new CartridgePaletteTransition(
             _presentation.CgramRows.Image, TorizoPaletteDefinitions.FadeDenominator, _presentation.GradualColorChange);
 
+    /// <summary>Sets target colors beginning at the first body entry for the authored palette fade.</summary>
     private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<Bgr555> colors)
     {
         var transition = GetTorizoPaletteTransition(state);
         for (int color = 0; color < colors.Length; color++)
             transition.SetTargetColor(TorizoPaletteDefinitions.FirstBodyColor + color, colors[color]);
     }
+    /// <summary>Selects Golden Torizo's body and belly gradient row from health bits 11 through 14.</summary>
     private void LoadGoldenTorizoHealthPalette(ushort health)
     {
         // $84:8000 selects one of eight 16-color rows using bits 11..14 of health, clamping
@@ -247,6 +274,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Copies the supplied body and belly rows into their live boss-palette slots.</summary>
     private void LoadTorizoBodyPalette(
         ReadOnlySpan<Bgr555> rowNine,
         ReadOnlySpan<Bgr555> rowTen)
@@ -323,6 +351,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Counts consecutive Samus space-jump poses before running the shared statue dispatcher.</summary>
     private void RunGoldenTorizoMain(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -338,6 +367,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         RunBombTorizoMain(torizo, state, samus, level);
     }
 
+    /// <summary>Interrupts active AI at the head and core health thresholds before normal pre-instructions resume.</summary>
     private void RunBombTorizoActiveState(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -370,6 +400,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         RunBombTorizoPreInstruction(torizo, state, level);
     }
 
+    /// <summary>Dispatches the movement callback installed by the current Bomb or Golden instruction list.</summary>
     private void RunBombTorizoPreInstruction(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -412,6 +443,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Moves the statue vertically and starts a landing quake when downward motion hits terrain.</summary>
     private void ApplyBombTorizoGravity(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -433,6 +465,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + 40))));
     }
 
+    /// <summary>Advances a jump across slopes; landing restores the saved list and triggers the impact quake.</summary>
     private void RunBombTorizoJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -461,6 +494,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             state.Velocity.Y.RawValue + state.VerticalAcceleration))));
     }
 
+    /// <summary>Waits for Bomb Torizo's landing timer or selects the airborne list while a downward probe is clear.</summary>
     private void RunBombTorizoAirTransition(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -497,6 +531,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Uses Golden Torizo's timed facing transition and landing lists during an airborne probe.</summary>
     private void RunGoldenTorizoAirTransition(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -530,6 +565,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Uses the room RNG to emit drool only while a living Torizo is below the head-break threshold.</summary>
     private void MaybeSpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo)
     {
         if (torizo.Health is 0 or >= BombTorizoHeadExplosionHealth)
@@ -562,6 +598,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Enters the authored death list once and removes the dying statue from Samus collision.</summary>
     internal static void BeginBombTorizoDeath(RoomEnemySlot torizo, TorizoEnemyState state)
     {
         if (state.DeathStarted)
@@ -577,6 +614,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         torizo.Properties = torizo.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }
 
+    /// <summary>Records the area boss bit, scatters sixteen drops in the variant's arena, and requests post-fight music.</summary>
     private void FinishBombTorizoDeath(TorizoEnemyState state)
     {
         _room.Services.Bosses.SetDefeated(BossBits.AreaTorizo);
@@ -598,22 +636,26 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             MusicCommandDelay.EightFrames);
     }
 
+    /// <summary>Requires a collision layer for movement callbacks that cannot run outside a loaded room.</summary>
     private static RoomLevelData RequireBombTorizoLevel(RoomLevelData? level) =>
         level ?? throw new InvalidOperationException(
             "Bomb Torizo movement requires the active room collision layer.");
 
+    /// <summary>Rejects a slot unless it is the statue currently bound to this room owner.</summary>
     internal TorizoEnemyState RequireBombTorizoState(RoomEnemySlot torizo) =>
         _torizoState is not null && ReferenceEquals(_torizoState.Slot, torizo)
             ? _torizoState
             : throw new InvalidOperationException(
                 $"Enemy slot {torizo.SlotIndex} has no initialized Bomb Torizo state.");
 
+    /// <summary>Routes overlapping normal bombs through the selected Torizo hitbox callback.</summary>
     internal void RegisterBombTorizoBombReactions(EnemyAiTable table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
             c => ResolveTorizoNormalBomb(c.Enemy, c.Bomb, c.SelectedShotAiPointer));
     }
 
+    /// <summary>Installs movement and bytecode handlers for statue fragments, orbs, attacks, and reflected missiles.</summary>
     internal void RegisterBombTorizoProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -712,6 +754,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         table.RegisterInstruction(EnemyProjectileInstruction.AimSuperMissile_Leftwards, null, aimSuperMissile);
     }
 
+    /// <summary>Maps both Torizo definitions to the shared native initialization routine.</summary>
     internal void RegisterBombTorizoInitializationAi(EnemyAiTable table)
     {
 
@@ -721,6 +764,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers variant-specific main callbacks while retaining the shared state dispatcher.</summary>
     internal void RegisterBombTorizoMainAi(EnemyAiTable table)
     {
 
@@ -739,12 +783,14 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Feeds room, Samus, input, and NMI state to the statue-owned instruction interpreter.</summary>
     internal void RegisterBombTorizoOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
             TryProcessBombTorizoInstruction(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounterLow = unchecked((byte)_frameContext._enemyFrameNmiFrameCounter) }, word, ref cursor, out yieldInterpreter));
     }
 
+    /// <summary>Validates extended hitbox callbacks, handles catches, and defers death to Torizo's own sequence.</summary>
     internal void RegisterBombTorizoShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
@@ -776,6 +822,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers extended body touch damage without invoking the generic death animation.</summary>
     internal void RegisterBombTorizoTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
@@ -1255,6 +1302,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Branches to the grounded-ball response only when Samus is four to 39 pixels away behind the statue.</summary>
     private static ushort SelectGoldenTorizoMorphBallBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -1280,6 +1328,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         return target;
     }
 
+    /// <summary>Uses the room RNG to select a forward-facing attack at medium horizontal range.</summary>
     private ushort SelectGoldenTorizoMediumRangeBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -1300,6 +1349,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         return target;
     }
 
+    /// <summary>Launches the forward leap when distant Samus movement or sustained space jumping breaks the wait.</summary>
     private ushort SelectGoldenTorizoSpaceJumpCounter(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -1328,6 +1378,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         return target;
     }
 
+    /// <summary>Starts a backward jump after enough decisions or when Samus closes inside 32 pixels.</summary>
     private static ushort SelectGoldenTorizoRepeatedJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -1349,6 +1400,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         return target;
     }
 
+    /// <summary>Moves by the Golden walk table, branches on wall collision, and arms a sixteen-frame air transition near Samus.</summary>
     internal ushort ProcessGoldenTorizoWalkInstruction(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -1376,6 +1428,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         return unchecked((ushort)(cursor + 4));
     }
 
+    /// <summary>Sets the facing-dependent forward leap velocity and restarts its instruction timer.</summary>
     private static void StartGoldenTorizoForwardJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state)
@@ -1386,6 +1439,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         torizo.InstructionTimer = NativeCountdown.Start(1);
     }
 
+    /// <summary>Sets the faster reverse leap velocity used by Golden Torizo's repeated-jump branch.</summary>
     private static void StartGoldenTorizoBackwardJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state)
@@ -1396,10 +1450,12 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         torizo.InstructionTimer = NativeCountdown.Start(1);
     }
 
+    /// <summary>Requires the active Samus actor for distance and attack decisions in Golden bytecode.</summary>
     private static SamusState RequireGoldenTorizoSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
             "Golden Torizo instruction selection requires the active Samus actor.");
 
+    /// <summary>Applies or reverses the posture offset indexed by a Bomb Torizo movement table operand.</summary>
     internal static void ApplyBombTorizoMapOffset(
         RoomEnemySlot torizo,
         ushort tableOffset,
@@ -1409,6 +1465,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         torizo.Position += subtract ? -displacement : displacement;
     }
 
+    /// <summary>Uses the walk table's velocity and wall branches, arming a 72-frame air transition when Samus crosses the facing test.</summary>
     internal ushort ProcessBombTorizoWalkInstruction(RoomEnemySlot torizo, TorizoEnemyState state, SamusState? samus, RoomLevelData level, ushort cursor, TorizoWalkStep step)
     {
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(BombTorizoMovementDefinitions.WalkVelocity(step.TableOffset)));
@@ -1430,6 +1487,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         return unchecked((ushort)(cursor + 4));
     }
 
+    /// <summary>Saves the next instruction and branches when Samus is within 56 pixels behind the statue.</summary>
     private static ushort SelectBombTorizoCloseBehindBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -1445,6 +1503,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         return target;
     }
 
+    /// <summary>Launches the reverse jump when Samus is within 32 pixels in the selected facing half-plane.</summary>
     private static ushort SelectBombTorizoCloseFrontJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -1467,6 +1526,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         return target;
     }
 
+    /// <summary>
+    /// Compares the facing bit with Samus-X minus enemy-X for walking branches; the
+    /// cartridge's other facing helper deliberately uses the inverse subtraction.
+    /// </summary>
     private static bool BombTorizoParameterMatchesSamusDelta(
         RoomEnemySlot torizo,
         SamusState samus)
@@ -1479,6 +1542,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             short.MinValue) == 0;
     }
 
+    /// <summary>Tests the native parameter-one XOR enemy-X minus Samus-X sign used by attack branches.</summary>
     internal static bool BombTorizoFunction12IsNonNegative(
         RoomEnemySlot torizo,
         SamusState samus)
@@ -1488,12 +1552,15 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         return (((short)torizo.Parameter1 ^ unchecked((short)(torizo.Position.X.Whole - samus.Position.X.Whole))) &
             short.MinValue) == 0;
     }
+    /// <summary>Requests the recurring hurt-state drool variant with randomized flight.</summary>
     internal void SpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo) =>
         SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoLowHealthDrool);
 
+    /// <summary>Requests the awakening drool variant whose position and speed use carry-sensitive jitter.</summary>
     internal void SpawnBombTorizoInitialDrool(RoomEnemySlot torizo) =>
         SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoInitialDrool);
 
+    /// <summary>Allocates either drool program and consumes room RNG in the native variant-specific order.</summary>
     private void SpawnBombTorizoDrool(
         RoomEnemySlot torizo,
         RoomEnemyProjectileKind kind)
@@ -1563,6 +1630,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             : unchecked((ushort)(torizo.Position.X.Whole - 8)));
     }
 
+    /// <summary>Places a swipe explosion at the attack-table hand offset, mirroring it for right-facing Torizo.</summary>
     internal void SpawnBombTorizoExplosiveSwipe(RoomEnemySlot torizo, ushort parameter)
     {
         Offset16<RoomPixels> placement = BombTorizoAttackDefinitions.Swipe(parameter);
@@ -1580,6 +1648,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             ((torizo.Parameter1 & 0x8000) != 0 ? placement.MirroredX() : placement));
     }
 
+    /// <summary>Places a body-break explosion at the facing-adjusted table offset and records its impact coordinates.</summary>
     internal void SpawnBombTorizoLowHealthExplosion(RoomEnemySlot torizo, ushort parameter)
     {
         Offset16<RoomPixels> placement =
@@ -1599,6 +1668,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         projectile.Variable1 = projectile.Position.Y.Whole;
     }
 
+    /// <summary>Starts a death explosion at the statue center and stores that center for its later instruction frames.</summary>
     internal void SpawnBombTorizoDeathExplosion(RoomEnemySlot torizo)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -1613,6 +1683,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         projectile.Variable1 = torizo.Position.Y.Whole;
     }
 
+    /// <summary>Allocates Bomb Torizo's Chozo orb with facing-dependent placement and randomized velocity.</summary>
     internal void SpawnBombTorizoChozoOrb(RoomEnemySlot torizo)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -1630,18 +1701,21 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                 facingRight: (torizo.Parameter1 & 0x8000) != 0));
     }
 
+    /// <summary>Starts Bomb Torizo's sonic-boom program at one of two randomized body heights.</summary>
     internal void SpawnBombTorizoSonicBoom(RoomEnemySlot torizo, ushort parameter)
         => SpawnTorizoSonicBoom(
             torizo,
             parameter,
             RoomEnemyProjectileKind.BombTorizoSonicBoom);
 
+    /// <summary>Starts Golden Torizo's sonic-boom variant with the shared directional flight setup.</summary>
     internal void SpawnGoldenTorizoSonicBoom(RoomEnemySlot torizo, ushort parameter)
         => SpawnTorizoSonicBoom(
             torizo,
             parameter,
             RoomEnemyProjectileKind.GoldenTorizoSonicBoom);
 
+    /// <summary>Places a sonic boom 32 pixels ahead and selects the fired-left or fired-right list.</summary>
     private void SpawnTorizoSonicBoom(
         RoomEnemySlot torizo,
         ushort parameter,
@@ -1674,6 +1748,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Allocates Golden Torizo's orb using the variant's facing-specific offset and randomized speed.</summary>
     internal void SpawnGoldenTorizoChozoOrb(RoomEnemySlot torizo)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -1691,6 +1766,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                 facingRight: (torizo.Parameter1 & 0x8000) != 0));
     }
 
+    /// <summary>Starts a Golden egg with the cartridge's fixed 66-frame hatch timer and randomized launch speed.</summary>
     internal void SpawnGoldenTorizoEgg(RoomEnemySlot torizo)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -1713,6 +1789,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                 movingRight: unchecked((short)torizo.Parameter1) < 0));
     }
 
+    /// <summary>Attaches a caught super missile above the active hand and selects its facing-dependent program.</summary>
     internal void SpawnGoldenTorizoSuperMissile(RoomEnemySlot torizo)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -1730,6 +1807,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(facingRight);
     }
 
+    /// <summary>Fires an eye beam from the facing-specific offset with room-RNG angular spread.</summary>
     internal void SpawnGoldenTorizoEyeBeam(RoomEnemySlot torizo, ushort parameter)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -1757,6 +1835,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             EnemyTrigonometryTables.SignedNegativeCosineWord(sineIndex)))));
     }
 
+    /// <summary>Applies the projectile definition and draws horizontal jitter before vertical jitter.</summary>
     internal void InitializeTorizoRandomizedProjectile(
         RoomEnemyProjectileSlot projectile,
         RoomEnemySlot torizo,
@@ -1772,6 +1851,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         projectile.Velocity = new EightEightVector<RoomPixels>(xVelocity, yVelocity);
     }
 
+    /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
     internal void SpawnBombTorizoLandingDust(RoomEnemySlot torizo, bool rightFoot)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -1784,6 +1864,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(torizo.Position.X.Whole + (rightFoot ? 24 : -24))), unchecked((ushort)(torizo.Position.Y.Whole + 48))));
     }
 
+    /// <summary>Moves Bomb Torizo's orb through walls and floor, disabling damage on impact and adding gravity in flight.</summary>
     internal static void RunBombTorizoChozoOrbPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -1814,6 +1895,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             projectile.Clear();
     }
 
+    /// <summary>Accelerates the sonic boom horizontally and switches to its non-damaging wall-impact program.</summary>
     internal static void RunBombTorizoSonicBoomPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -1879,6 +1961,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             projectile.Clear();
     }
 
+    /// <summary>Bounces Golden Torizo's orb off walls and the floor, slowing horizontal motion until floor impact.</summary>
     internal static void RunGoldenTorizoChozoOrbPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -1909,6 +1992,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 24))));
     }
 
+    /// <summary>Counts down the egg's hatch timer while bouncing it off terrain with horizontal drag and gravity.</summary>
     internal static void RunGoldenTorizoEggPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -1943,6 +2027,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             projectile.Clear();
     }
 
+    /// <summary>Accelerates the hatched egg sideways and changes to its fall phase when it hits a wall.</summary>
     internal static void RunGoldenTorizoEggHorizontalCharge(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -1959,6 +2044,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             ((projectile.Variable0 & 0x8000) != 0 ? 48 : -48)))));
     }
 
+    /// <summary>Accelerates the egg downward until floor contact selects the facing-specific break program.</summary>
     internal static void RunGoldenTorizoEggFall(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -1975,6 +2061,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 48))));
     }
 
+    /// <summary>Keeps the held super missile beside Golden Torizo's hand, clearing it if its owner is gone.</summary>
     internal void RunGoldenTorizoSuperMissilePreInstruction(RoomEnemyProjectileSlot projectile)
     {
         TorizoEnemyState? state = GoldenTorizo;
@@ -1989,6 +2076,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             ((torizo.Parameter1 & 0x8000) != 0 ? 32 : -32))), unchecked((ushort)(torizo.Position.Y.Whole - 52))));
     }
 
+    /// <summary>Moves the thrown super missile until wall or downward floor impact, applying gravity in flight.</summary>
     internal static void RunGoldenTorizoSuperMissileFlight(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -2013,6 +2101,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             projectile.Clear();
     }
 
+    /// <summary>Aims the thrown missile toward or away from Samus using the native up-zero angle convention.</summary>
     internal static void SetGoldenTorizoSuperMissileVelocity(
         RoomEnemyProjectileSlot projectile,
         SamusState samus,
@@ -2032,6 +2121,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             EnemyTrigonometryTables.SignedNegativeCosineWord(angle)))));
     }
 
+    /// <summary>Selects wall or floor impact artwork when the eye beam strikes terrain.</summary>
     internal static void RunGoldenTorizoEyeBeamPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -2168,6 +2258,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         LastBombTorizoMusicRequest = null;
     }
 
+    /// <summary>
+    /// Handles flash/awakening guards and Golden Torizo missile catches before shared
+    /// shot damage; returns true when the hit was consumed by a special reaction.
+    /// </summary>
     internal bool ResolveTorizoShotBeforeImpact(in EnemyShotContext c)
     {
         RoomEnemySlot enemy = c.Enemy;
@@ -2253,6 +2347,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         audio.QueueLegacyMusic(LastBombTorizoMusicRequest?.Command, LastBombTorizoMusicRequest?.Delay);
     }
 
+    /// <summary>Registers the statue-fragment bytecode sound, consuming its inline queue-limit operand.</summary>
     internal void RegisterStatueBreakingSoundInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterInstruction(EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6, projectile => projectile.Kind == RoomEnemyProjectileKind.BombTorizoStatueBreaking,
@@ -2265,8 +2360,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             });
     }
 
-    // Torizo_Hurt owns the actor for the selected hurt frame. The common
-    // instruction interpreter still advances afterward, matching $A0:8FF7.
+    /// <summary>
+    /// Registers Torizo_Hurt for each variant; the common instruction interpreter still
+    /// advances after the hurt callback, matching <c>$A0:8FF7</c>.
+    /// </summary>
     internal void RegisterBombTorizoHurtAi(EnemyAiTable table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
             (slot, _) => ApplyBombTorizoHurt(slot));

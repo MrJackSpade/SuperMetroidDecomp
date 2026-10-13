@@ -18,6 +18,7 @@ internal static class CrateriaMainstreetEscapePassagePlmDefinitions
     internal const ushort ClearPairDraw = 0x9253;
 
 
+    /// <summary>Reads the six compiled control words that draw two air-block pairs and delete the escape PLM.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = address switch
@@ -33,6 +34,7 @@ internal static class CrateriaMainstreetEscapePassagePlmDefinitions
         return value != 0;
     }
 
+    /// <summary>Recognizes the escape passage draw pointer and supplies its two adjacent air blocks.</summary>
     internal static bool TryGetDraw(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         if (pointer != ClearPairDraw)

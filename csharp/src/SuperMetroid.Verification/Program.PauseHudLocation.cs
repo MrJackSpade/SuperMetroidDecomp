@@ -9,8 +9,10 @@ using SuperMetroid.Core.Rom;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the gameplay minimap marker's colors and position through paused HUD updates.</summary>
 internal static class PauseHudLocationVerification
 {
+    /// <summary>Compares native minimap pixels with pause rendering and captured packets for both blink phases.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause palette and HUD tile graphics")]
     internal static void VerifyPauseHudLocation()

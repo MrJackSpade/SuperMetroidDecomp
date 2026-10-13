@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Supplies sparse cartridge animation-delay streams for targeted Samus timing checks.</summary>
 internal static class SyntheticSamusAnimationDelaysVerification
 {
     /// <summary>

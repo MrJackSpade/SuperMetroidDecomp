@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Speed Booster state reconciliation when gameplay resumes from pause.</summary>
 internal static class PauseMomentumVerification
 {
+    /// <summary>Confirms unpause preserves numeric speed, reconciles equipment and momentum, and clears abandoned echo state.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause momentum reconciliation")]
     internal static void VerifyPauseMomentumReconciliation()
     {

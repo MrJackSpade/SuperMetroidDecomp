@@ -26,6 +26,7 @@ public static class RoomStateDefinitions
         throw new ArgumentOutOfRangeException(nameof(statePointer), statePointer,
             "Pointer is not one of the 323 selected retail room states.");
 
+    /// <summary>Maps a bank-$8F state pointer to its compiled retail settings, leaving unrecognized pointers unselected.</summary>
     private static CartridgeRoomState? Select(ushort statePointer) => statePointer switch
     {
         0x9213 =>

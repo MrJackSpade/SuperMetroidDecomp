@@ -38,6 +38,7 @@ public static class ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 34;
 
+    /// <summary>Crust and grey-cloud one-shot fades with distinct destinations and authored holds.</summary>
     private static readonly ZebesExplosionLayerFadePaletteFxProgramDefinition[] Definitions =
     [
         new(
@@ -74,6 +75,7 @@ public static class ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
 /// <summary>One complete exploding-Zebes layer-fade control program.</summary>
 public sealed class ZebesExplosionLayerFadePaletteFxProgramDefinition
 {
+    /// <summary>Binds one layer's native setup pointer, CGRAM destination, and uniform hold duration.</summary>
     internal ZebesExplosionLayerFadePaletteFxProgramDefinition(
         ZebesExplosionLayerFadePaletteFxProgramOwner owner,
         ushort definitionPointer,

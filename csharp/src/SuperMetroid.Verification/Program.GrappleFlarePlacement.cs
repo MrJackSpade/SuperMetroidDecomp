@@ -20,8 +20,10 @@ using static GrappleFiringDefinitionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks editable Grapple flare origins against cartridge offsets and unchanged grapple mechanics.</summary>
 internal static class GrappleFlarePlacementVerification
 {
+    /// <summary>Exercises authored launch poses and live artwork rebinding while comparing stock and offset-edited Samus state.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple flare placement offsets")]
     internal static void VerifyGrappleFlarePlacement(SuperMetroidAddressSpace rom)
     {
@@ -135,11 +137,13 @@ internal static class GrappleFlarePlacementVerification
         AssertTrue(ReferenceEquals(swingFrames, runtime.Player.Samus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
         Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections preserve physical state under visual edits and ROM guard.");
     }
+    /// <summary>Rejects live reads of the two cartridge flare-offset tables after artwork installation.</summary>
     private static CartridgeReadGuard NewGrappleFlareReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x9bc14a and < 0x9bc172 or >= 0x9bc19a and < 0x9bc1c2,
                 _ => "Grapple still reads visual flare origins from ROM.");
 
+    /// <summary>Loads the retail cartridge and runs the Grapple flare placement verification.</summary>
     [VerificationCommand("--grapple-flare-placement")]
     internal static int GrappleFlarePlacementCommand()
     {

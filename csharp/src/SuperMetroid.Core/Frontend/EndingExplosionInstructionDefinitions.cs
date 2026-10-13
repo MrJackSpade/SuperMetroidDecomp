@@ -30,6 +30,7 @@ internal static class EndingExplosionInstructionDefinitions
     /// pre-instruction installed after the right starfield ends the explosion.</summary>
     private const ushort StarsPreInstruction = 0xf35a;
 
+    /// <summary>Reconstructs a bounded, aligned bank-$8B explosion instruction word from the actor's timed program.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         int offset = pointer - Start;
@@ -75,6 +76,7 @@ internal static class EndingExplosionInstructionDefinitions
         return pointer < Afterglow ? HoldWord(pointer, LeftStars, EndingExplosionSpriteDefinitions.Pointer(Pose.Stars)) : HoldWord(pointer, Afterglow, EndingExplosionSpriteDefinitions.Pointer(Pose.Afterglow));
     }
 
+    /// <summary>Sequences repeated planet-damage poses, palette fade, flash poses, and silhouette spawn.</summary>
     private static ushort PlanetWord(int word)
     {
         if (word == 0) return (ushort)CinematicSpriteInstruction.SetTimer;
@@ -88,8 +90,10 @@ internal static class EndingExplosionInstructionDefinitions
         return word == 21 ? (ushort)EndingSpriteInstruction.SpawnExplosionSilhouette : (ushort)CinematicSpriteInstruction.Delete;
     }
 
+    /// <summary>Resolves a compiled exploding-planet frame record to its sprite pointer.</summary>
     private static ushort PlanetFrame(int record) => EndingExplosionSpriteDefinitions.PlanetPointer(record);
 
+    /// <summary>Loops a sixteen-tick star or afterglow frame at its native program start.</summary>
     private static ushort HoldWord(ushort pointer, ushort start, ushort frame) => ((pointer - start) / 2) switch
     {
         0 => 16,

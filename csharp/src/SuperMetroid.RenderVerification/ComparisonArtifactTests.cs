@@ -9,6 +9,8 @@ using SuperMetroid.Rendering.Direct3D11;
 /// </summary>
 internal static class ComparisonArtifactTests
 {
+    /// <summary>Confirms that two deliberately altered pixels produce exact
+    /// mismatch evidence, then verifies the unaltered frame through GPU readback.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new Rgba32(31, 73, 127));

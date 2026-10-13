@@ -4,8 +4,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Checks that invalid bindings, brightness, PLM identities, and unloaded enemy services fail explicitly.</summary>
 internal static class StrictFailuresVerification
 {
+/// <summary>Exercises specific invalid inputs at the controller, display, PLM, and enemy-service boundaries.</summary>
 internal static void VerifyStrictFailureBoundaries()
 {
     var duplicateBindings = new ControllerBindings(

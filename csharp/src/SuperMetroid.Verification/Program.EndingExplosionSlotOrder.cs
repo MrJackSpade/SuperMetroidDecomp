@@ -6,8 +6,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using static RetailGameFixtureVerification;
 
+/// <summary>Checks ending flyaway OAM priority when the afterglow competes with both starfields.</summary>
 internal static class EndingExplosionSlotOrderVerification
 {
+    /// <summary>Confirms native descending actor slots give all 37 afterglow pieces OAM space before the starfields and preserve ship occlusion.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyEndingExplosionSlotOrder()
     {
@@ -29,9 +31,6 @@ internal static class EndingExplosionSlotOrderVerification
         expected.BeginFrame();
         afterglow.Draw(expected, installedArt: RepositoryInstallation.Installation.LoadEndingObjectArt().ExplosionSprites);
         expected.FinalizeFrame();
-        // F2FA installs the afterglow at byte slot 6 (index 3); the starfields occupy
-        // byte slots 2 and 0. The native descending draw must give the complete
-        // afterglow first access to OAM, ahead of both 53-entry starfields.
         AssertEqual(37, expected.LastFinalizedSpriteCount, "retail afterglow component count");
         var actual = ending.Presentation.CaptureRenderSnapshot().Memory;
         AssertTrue(actual.Oam[..(37 * 4)].SequenceEqual(expected.LowTable[..(37 * 4)]),

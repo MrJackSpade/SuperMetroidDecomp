@@ -29,15 +29,18 @@ internal abstract class MorphBallEyeInstructionProgramDefinitions
     /// <summary><c>InstList_Eye_Mount_FacingUp</c> at $A8:904A.</summary>
     internal const ushort MountFacingUp = 0x904a;
 
+    /// <summary>Tracking loop's sixteen ten-tick frames before its branch back to $8FAC.</summary>
     internal const int ActiveFrameCount = 16;
 
-    // Authored eyelid cadence (reviewed under #1165): closing uses these holds forward,
-    // opening reverses them after its activation delay; the reversal is calculated.
+    /// <summary>Authored eyelid holds (#1165): closing consumes these forward; opening reverses them after its activation delay.</summary>
     private static readonly ushort[] EyelidDurations = [8, 48, 5];
 
+    /// <summary>Control words across tracking, left/right eyelid transitions, and four mount directions.</summary>
     public static int MechanicsWordCount => 46;
+    /// <summary>Separately installed visual operands in the same eleven bank-$A8 instruction lists.</summary>
     public static int PresentationWordCount => 36;
 
+    /// <summary>Reconstructs native timed holds, sleep commands, and the tracking loop branch by control-word ordinal.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));

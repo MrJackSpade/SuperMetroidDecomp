@@ -18,6 +18,7 @@ public static class FileCopyArrowDefinitions
     /// <summary>$82:BB0E: all file-copy arrows use screen X = $14.</summary>
     internal const ushort OriginX = 20;
 
+    /// <summary>Chooses one of four up/down, short/long arrows and its screen Y from two distinct file-slot indexes.</summary>
     internal static (int Shape, ushort Y) Select(int source, int destination)
     {
         if ((uint)source >= 3 || (uint)destination >= 3 || source == destination)
@@ -27,12 +28,14 @@ public static class FileCopyArrowDefinitions
         return (shape, (ushort)(distance == 2 ? 104 : 88 + 32 * Math.Min(source, destination)));
     }
 
+    /// <summary>Exposes the selected native OAM part order for the four file-copy arrow shapes.</summary>
     internal static ReadOnlySpan<CompiledSpritePart> Parts(int shape) => Shapes[shape];
+    /// <summary>Builds one 16-pixel OBJ part in palette three, optionally flipping it vertically for an upward arrow.</summary>
     private static CompiledSpritePart Part(Offset16<OamPixels> offset, int tile, bool flipY) => new(
         SnesSpritemapXWord.Create(offset.X, false), unchecked((byte)offset.Y),
         SnesObjAttributeWord.Create(tile, 1, 3, flipY ? SnesTileFlipFlags.Vertical : 0), true);
 
-    // Native sprite order is retained, including the interleaved shaft and arrowhead tiles.
+    /// <summary>Four native sprite orders, including interleaved shaft and arrowhead tiles for short/long and upward/downward arrows.</summary>
     private static readonly CompiledSpritePart[][] Shapes =
     [
         [

@@ -27,10 +27,10 @@ public sealed class VramWriteQueue
     [PpuLayoutAccess]
     public const int EntryByteCount = 7;
 
-    // A two-byte zero-size terminator is written at TailInBytes during NMI. Consequently,
-    // an otherwise fitting final record is invalid if it leaves fewer than two bytes.
+    /// <summary>NMI writes a zero-size terminator at the tail, so every accepted record must leave two free bytes.</summary>
     private const int TerminatorByteCount = 2;
 
+    /// <summary>Typed records in native insertion order, drained with append-during-drain behavior.</summary>
     internal readonly List<VramWriteEntry> _entries = [];
 
     /// <summary>
@@ -61,6 +61,7 @@ public sealed class VramWriteQueue
         Append(new VramWriteEntry(sizeInBytes, 0, destination.Encoded) { AssetId = asset });
     }
 
+    /// <summary>Adds one packed-size record only when the two-byte NMI terminator still fits.</summary>
     private void Append(VramWriteEntry entry)
     {
         int newTail = TailInBytes + EntryByteCount;

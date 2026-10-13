@@ -6,12 +6,17 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable ordered visual parts. No collision, attack or attachment mechanics are stored here.</summary>
 public sealed class SpriteComposition
 {
+    /// <summary>Ordered immutable OAM parts, including per-part palette inheritance choices.</summary>
     internal readonly IReadOnlyList<CompiledSpritePart> parts;
+    /// <summary>Copies authored parts so later document edits cannot alter a compiled composition.</summary>
     internal SpriteComposition(CompiledSpritePart[] parts) => this.parts = (CompiledSpritePart[])parts.Clone();
+    /// <summary>Retains an already immutable calculated view without another array copy.</summary>
     private SpriteComposition(IReadOnlyList<CompiledSpritePart> parts) => this.parts = parts;
     /// <summary>Wraps an immutable calculated part view. The caller must supply an immutable view, never a mutable document/list.</summary>
     internal static SpriteComposition FromCalculated(IReadOnlyList<CompiledSpritePart> parts) => new(parts);
+    /// <summary>Number of OAM parts emitted in composition order.</summary>
     internal int PartCount => parts.Count;
+    /// <summary>Selects one compiled OAM part by its drawing ordinal.</summary>
     internal CompiledSpritePart Part(int index) => parts[index];
 
     /// <summary>Use an immutable calculated view only when every supplied visual field matches.
@@ -61,22 +66,22 @@ internal readonly record struct CompiledSpritePart(SnesSpritemapXWord X, byte Y,
 [SpatialComponents("External format: sprite composition JSON stores each OAM part displacement as offsetX/offsetY.")]
 public sealed record SpriteVisualPart
 {
-    /// <summary>Gets the signed horizontal pixel offset from the composition origin.</summary>
+    /// <summary>Signed horizontal pixel displacement from the composition origin.</summary>
     public required int OffsetX { get; init; }
-    /// <summary>Gets the signed vertical pixel offset from the composition origin.</summary>
+    /// <summary>Signed vertical pixel displacement from the composition origin.</summary>
     public required int OffsetY { get; init; }
-    /// <summary>Gets the zero-based tile column in the presentation's indexed artwork atlas.</summary>
+    /// <summary>Zero-based tile column in the presentation's indexed artwork atlas.</summary>
     public required int TileColumn { get; init; }
-    /// <summary>Gets the zero-based tile row in the presentation's indexed artwork atlas.</summary>
+    /// <summary>Zero-based tile row in the presentation's indexed artwork atlas.</summary>
     public required int TileRow { get; init; }
-    /// <summary>Gets the square OBJ size in pixels, either 8 or 16.</summary>
+    /// <summary>Square OBJ size in pixels, either 8 or 16.</summary>
     public required int Size { get; init; }
-    /// <summary>Gets the SNES OBJ priority tier from 0 through 3.</summary>
+    /// <summary>SNES OBJ priority tier from 0 through 3.</summary>
     public required int Priority { get; init; }
-    /// <summary>Gets the OBJ palette selector, or <see langword="null"/> to inherit the drawing owner's palette.</summary>
+    /// <summary>OBJ palette selector, or <see langword="null"/> to inherit the drawing owner's palette.</summary>
     public required int? Palette { get; init; }
-    /// <summary>Gets whether the selected artwork region is reflected horizontally.</summary>
+    /// <summary>Horizontal reflection applied to the selected artwork region.</summary>
     public required bool FlipX { get; init; }
-    /// <summary>Gets whether the selected artwork region is reflected vertically.</summary>
+    /// <summary>Vertical reflection applied to the selected artwork region.</summary>
     public required bool FlipY { get; init; }
 }

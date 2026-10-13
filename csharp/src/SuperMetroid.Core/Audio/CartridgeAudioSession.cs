@@ -14,12 +14,16 @@ namespace SuperMetroid.Core.Audio;
 /// </remarks>
 public sealed class CartridgeAudioSession
 {
+    /// <summary>Synthesis-free SPC port model that produces the acknowledgements gameplay reads.</summary>
     private readonly SpcCommandPorts ports = new();
-    // The synthesizer's APU state, kept with the session so a restored session continues its PCM.
+    /// <summary>The synthesizer's APU state, kept with the session so a restored session continues its PCM.</summary>
     private ManagedSpcPlayer? player;
+    /// <summary>Whether any update has advanced the session, so PCM exists to copy.</summary>
     private bool hasAdvanced;
+    /// <summary>Host-bound renderer that drives <see cref="player"/> from the bound audio catalog.</summary>
     [NonSerialized]
     private CartridgeAudioRenderer? synthesizer;
+    /// <summary>The most recent update's interleaved 48-kHz PCM, copied out by hosts.</summary>
     [NonSerialized]
     private short[]? lastPcm;
 

@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks growing-shutter stage programs and their mechanics and presentation address ownership.</summary>
 internal static class GrowingShutterInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the growing-shutter instruction suite.</summary>
     internal static void VerifyGrowingShutterInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyGrowingShutterInstructionProgramDefinitions), () => VerifyGrowingShutterInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled words and all four production growth-stage transitions without runtime ROM reads.</summary>
     internal static void VerifyGrowingShutterInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -101,6 +104,7 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
             "bytes forbidden.");
     }
 
+    /// <summary>Compares eight control words with ROM and checks byte ownership, bank aliases, and invalid offsets.</summary>
     private static void VerifyGrowingShutterMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xe998, 0xe99c, 0xe99e, 0xe9a2, 0xe9a4, 0xe9a8, 0xe9aa, 0xe9ae];
@@ -131,6 +135,7 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
             AssertThrows<IndexOutOfRangeException>(() => GrowingShutterInstructionProgramDefinitionsTooling.MechanicsWord(index), "Growing shutter mechanics bounds");
     }
 
+    /// <summary>Checks all four visual operand addresses and the full bank-relative membership domain.</summary>
     private static void VerifyGrowingShutterPresentationMapping()
     {
         ushort[] addresses = [0xe99a, 0xe9a0, 0xe9a6, 0xe9ac];
@@ -143,6 +148,7 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
         foreach (int index in new[] { int.MinValue, -1, addresses.Length, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Growing shutter visual bounds");
     }
+    /// <summary>Checks the four native stage starts and rejects out-of-range stage indices.</summary>
     private static void VerifyGrowingShutterProgramEntries()
     {
         ushort[] entries = [0xe998, 0xe99e, 0xe9a4, 0xe9aa];
@@ -152,6 +158,7 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
         foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => GrowingShutterInstructionProgramDefinitions.ProgramEntryPoint(index), "growing shutter stage bounds");
     }
+    /// <summary>Consumes repeated stage-start lookups for the warmed allocation check.</summary>
     private static int ProbeGrowingShutterInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -163,11 +170,13 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads one native bank-A2 word for the independent cartridge comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for growing shutter instruction words")]
     internal static ushort ReadGrowingShutterInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
+    /// <summary>Forbids compiled mechanics reads and records attempts to fetch visual operands from bank A2.</summary>
     private static CartridgeReadGuard NewGrowingShutterInstructionProgramGuard(ISnesAddressSpace source)
     {
         var guard = new CartridgeReadGuard(source)
@@ -187,6 +196,7 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
         return guard;
     }
 
+    /// <summary>Runs the growing-shutter instruction suite through the verification command dispatcher.</summary>
     [VerificationCommand("--growing-shutter-instruction-mechanics")]
     internal static int GrowingShutterInstructionMechanicsCommand()
     {

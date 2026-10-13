@@ -12,7 +12,9 @@ internal abstract class WreckedShipGhostInstructionProgramDefinitions
     /// <summary>The terminal <c>Instruction_Common_GotoY</c> word at $A8:9A98.</summary>
     internal const ushort LoopOpcode = 0x9a98;
 
+    /// <summary>Three pose durations plus the goto opcode and its loop target.</summary>
     public static int MechanicsWordCount => 5;
+    /// <summary>One installed spritemap selection follows each of the three pose durations.</summary>
     public static int PresentationWordCount => 3;
 
     /// <summary>Three sixteen-tick poses followed by the native goto and loop target.</summary>
@@ -25,11 +27,13 @@ internal abstract class WreckedShipGhostInstructionProgramDefinitions
             : new((ushort)(LoopOpcode + 2), Floating);
     }
 
+    /// <summary>Locates a visual operand two bytes after its pose duration in bank $A8.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Floating + 2 + 4 * index);
     }
+    /// <summary>Reads one compiled duration or loop-control word while rejecting spritemap operands.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

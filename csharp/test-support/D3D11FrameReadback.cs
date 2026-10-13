@@ -12,6 +12,7 @@ namespace SuperMetroid.Rendering.Direct3D11;
 /// </summary>
 internal static class D3D11FrameReadback
 {
+    /// <summary>Diagnostic GPU readback helpers attached to the D3D11 renderer.</summary>
     extension(D3D11FrameRenderer self)
     {
         /// <summary>Diagnostic convenience; production presentation must use Render without readback.</summary>

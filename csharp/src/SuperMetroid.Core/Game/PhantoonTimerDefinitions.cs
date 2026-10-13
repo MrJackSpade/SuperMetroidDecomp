@@ -6,8 +6,26 @@ public static class PhantoonTimerDefinitions
     /// <summary>$A7:CE2B, InitAI_PhantoonBody: Japan/USA initial flame countdown is 120 frames. PAL uses 96.</summary>
     public const ushort InitialFlameDelayFrames = 120;
 
-    private enum DurationChoice { Short, Medium, Long }
-    internal enum TimerKind { Vulnerable, EyeClosed, RainHiding }
+    /// <summary>Three selected exposure tiers used by the native RNG-bucket policies.</summary>
+    private enum DurationChoice
+    {
+        /// <summary>Shortest open-eye, closed-eye, or rain-hiding interval for its phase.</summary>
+        Short,
+        /// <summary>Middle interval, scaled from the phase's shortest exposure.</summary>
+        Medium,
+        /// <summary>Longest interval, twice the phase's middle exposure.</summary>
+        Long
+    }
+    /// <summary>Phantoon phases with independent eight-bucket duration tables.</summary>
+    internal enum TimerKind
+    {
+        /// <summary>Open-eye damage opportunity selected from RNG bits.</summary>
+        Vulnerable,
+        /// <summary>Closed-eye moving period selected from RNG or first-round NMI bits.</summary>
+        EyeClosed,
+        /// <summary>Hidden wait after flame-rain fading completes.</summary>
+        RainHiding
+    }
 
     // Narrow approved nonsense retention: RNG/frame buckets have no temporal or
     // physical ordering. These exact permutations specify the random choice policy;
@@ -29,7 +47,9 @@ public static class PhantoonTimerDefinitions
     /// <summary>$A7:CD45 and D03F-D075/D60D-D65B: selected shortest fifteen-call opportunity to hit the open eye. The waiting state has no movement-derived duration; changing this choice changes the attack opportunity.</summary>
     private const int ShortestVulnerableExposureFrames = 15;
     /// <summary>$A7:CD53 and D5E7-D60C: selected closed-eye moving phase lasts4 exposure units, then6 times that for medium, then doubles for long. Expiry opens the eye at its current position, independently of path completion; these ratios select attack pacing.</summary>
-    private const int EyeShortScale = 4, EyeMediumScale = 6;
+    private const int EyeShortScale = 4;
+    /// <summary>The medium closed-eye duration is six times the phase's short base.</summary>
+    private const int EyeMediumScale = 6;
     /// <summary>$A7:CD63 and D7D5-D829: selected hidden wait begins only after fading completes. Its shortest duration is two exposure units, with doubled medium/long tiers; the next location is chosen only on expiry, so neither fading nor travel determines this wait.</summary>
     private const int RainShortScale = 2;
     /// <summary>$A7:CD41/CD53/CD63: exposure and hidden-wait tiers, plus the long closed-eye phase, double the preceding tier. These selected phase timings do not exempt separately timed swoop, fade, placement or projectile behavior.</summary>
@@ -47,8 +67,11 @@ public static class PhantoonTimerDefinitions
     /// <summary>Allocation-free calculated view of one native eight-bucket Phantoon phase-timer table.</summary>
     public readonly struct Schedule : IReadOnlyList<ushort>
     {
+        /// <summary>Selects which native phase's buckets and duration scale this view exposes.</summary>
         private readonly TimerKind kind;
+        /// <summary>Binds a calculated schedule to one Phantoon combat phase.</summary>
         internal Schedule(TimerKind kind) => this.kind = kind;
+        /// <summary>Reads the authored short/medium/long permutation for this phase.</summary>
         private DurationChoice[] Choices => kind switch
         {
             TimerKind.Vulnerable => VulnerableChoices,
@@ -84,6 +107,7 @@ public static class PhantoonTimerDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same eight phase buckets to non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

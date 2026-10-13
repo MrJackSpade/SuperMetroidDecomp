@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Hardware;
 
+/// <summary>
+/// Converts raw cartridge palette words in verification fixtures into fifteen-bit colors
+/// before passing them to typed presentation APIs.
+/// </summary>
 internal static class ColorWordsVerification
 {
-    // Verification fixtures read cartridge palettes as raw words; each decodes strictly as a
-    // fifteen-bit color before entering a typed color API.
-
     /// <summary>Decodes cartridge color words.</summary>
     internal static Bgr555[] ToColors(ushort[] words) => Array.ConvertAll(words, Bgr555.FromWord);
 

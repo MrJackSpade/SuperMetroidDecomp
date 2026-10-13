@@ -9,6 +9,7 @@ using SuperMetroid.Core.Assets;
 /// </summary>
 internal static class MapPresentationJsonContractVerification
 {
+    /// <summary>Checks manifest-listed JSON resources reject duplicate properties and preserve authored override bytes.</summary>
     internal static int Run(string installationRoot)
     {
         GameInstallation installation = GameAssetInstallerTooling.ValidateExtractedContent(installationRoot);
@@ -100,9 +101,11 @@ internal static class MapPresentationJsonContractVerification
         }
     }
 
+    /// <summary>Captures installed stock file digests to detect unintended mutation during validation.</summary>
     private static Dictionary<string, string> HashFiles(string directory) => Directory.GetFiles(directory)
         .ToDictionary(path => Path.GetFileName(path), path => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))));
 
+    /// <summary>Updates a test copy's stock digest so duplicate-property rejection reaches the JSON parser.</summary>
     private static void RewriteHash(string path, byte[] baseline, string file, byte[] content)
     {
         var manifest = System.Text.Json.Nodes.JsonNode.Parse(baseline)!;
@@ -110,6 +113,7 @@ internal static class MapPresentationJsonContractVerification
         File.WriteAllText(path, manifest.ToJsonString());
     }
 
+    /// <summary>Creates ambiguous root and nested JSON documents from an otherwise valid resource.</summary>
     private static IEnumerable<byte[]> DuplicateDocuments(JsonElement root)
     {
         // Repeating a valid property is still ambiguous authored JSON. Before
@@ -120,6 +124,7 @@ internal static class MapPresentationJsonContractVerification
         if (nested is not null) yield return DuplicateAt(root, nested);
     }
 
+    /// <summary>Finds a populated nested object, traversing dictionary values and array elements.</summary>
     private static string[]? FirstNestedObject(JsonElement root, string[]? path = null)
     {
         path ??= [];
@@ -140,6 +145,7 @@ internal static class MapPresentationJsonContractVerification
         return null;
     }
 
+    /// <summary>Copies JSON while writing the first property twice at a selected object path.</summary>
     private static byte[] DuplicateAt(JsonElement root, string[] target)
     {
         using var bytes = new MemoryStream();
@@ -178,6 +184,7 @@ internal static class MapPresentationJsonContractVerification
         }
     }
 
+    /// <summary>Fails the integration check with its specific JSON contract message.</summary>
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidDataException(message);

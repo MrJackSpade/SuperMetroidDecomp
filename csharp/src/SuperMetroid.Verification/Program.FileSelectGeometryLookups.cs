@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks file-select cursor rows and helmet anchors against native geometry and extracted presentation.</summary>
 internal static class FileSelectGeometryLookupsVerification
 {
+    /// <summary>Runs cartridge comparisons for the main, data, and helmet positions using the pinned ROM revision.</summary>
     internal static void VerifyFileSelectGeometryLookups()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -32,6 +34,7 @@ internal static class FileSelectGeometryLookupsVerification
         Console.WriteLine("File select geometry: six main rows, both four-row data views, three helmet anchors, extracted output and bounds pass.");
     }
 
+    /// <summary>Compares six main-menu cursor rows with native records and extracted positions.</summary>
     private static void VerifyFileSelectMainCursorY(ISnesAddressSpace rom, FileSelectPresentation presentation)
     {
         AssertEqual(6, FileSelectLayout.MainSelectionCount, "main selection count");
@@ -45,6 +48,7 @@ internal static class FileSelectGeometryLookupsVerification
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectLayout.MainSelectionY, 6));
     }
 
+    /// <summary>Compares four data-menu cursor rows from both native views with extracted positions.</summary>
     private static void VerifyFileSelectDataCursorY(ISnesAddressSpace rom, FileSelectPresentation presentation)
     {
         AssertEqual(4, FileSelectLayout.DataSelectionCount, "data selection count");
@@ -59,6 +63,7 @@ internal static class FileSelectGeometryLookupsVerification
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectLayout.DataSelectionY, 4));
     }
 
+    /// <summary>Compares three helmet anchors with native immediate operands and extracted artwork positions.</summary>
     private static void VerifyFileSelectHelmetY(ISnesAddressSpace rom, FileSelectPresentationDocument document)
     {
         AssertEqual(3, FileSelectLayout.SaveSlotCount, "helmet slot count");
@@ -75,15 +80,18 @@ internal static class FileSelectGeometryLookupsVerification
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectLayout.HelmetY, 3));
     }
 
+    /// <summary>Reads a native helmet placement opcode as the cartridge comparison oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select helmet Y")]
     private static byte FileSelectHelmetYRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks that each indexed geometry lookup rejects values outside its native row count.</summary>
     private static void VerifyFileSelectGeometryBounds(Func<int, ushort> lookup, int count)
     {
         foreach (int index in new[] { int.MinValue, -1, count, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => lookup(index), $"unsupported geometry index {index}");
     }
 
+    /// <summary>Runs the file-select cursor and helmet geometry checks.</summary>
     [VerificationCommand("--lookup-file-select-geometry")]
     internal static int LookupFileSelectGeometryCommand()
     {

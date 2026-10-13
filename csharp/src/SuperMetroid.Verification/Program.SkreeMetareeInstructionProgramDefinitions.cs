@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Retail-word and guarded-execution checks for the paired Skree and Metaree instruction programs.</summary>
 internal static class SkreeMetareeInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail source for the Skree and Metaree program check.</summary>
     internal static void VerifySkreeMetareeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySkreeMetareeInstructionProgramDefinitions), () => VerifySkreeMetareeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs every phase for both species, checking attack-ready and off-screen callbacks with compiled reads forbidden.</summary>
     internal static void VerifySkreeMetareeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -171,8 +174,10 @@ internal static class SkreeMetareeInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Labels per-species assertions according to the selected enemy implementation.</summary>
     private static string SpeciesName(bool metaree) => metaree ? "Metaree" : "Skree";
 
+    /// <summary>Repeatedly reads warmed control words from both species for allocation accounting.</summary>
     private static int ProbeSkreeMetareeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -186,6 +191,7 @@ internal static class SkreeMetareeInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects migrated mechanics and frame-selector reads for either species during production execution.</summary>
     private static CartridgeReadGuard NewSkreeMetareeInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(SkreeMetareeInstructionProgramDefinitions.IsCompiledMechanicsByte,
@@ -197,6 +203,7 @@ internal static class SkreeMetareeInstructionProgramDefinitionsVerification
                 index => SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(false, index),
                 address => $"Production read installed Skree/Metaree selector ${address:X6}.");
 
+    /// <summary>Runs the retail-backed paired instruction-program verification command.</summary>
     [VerificationCommand("--skree-metaree-instruction-mechanics")]
     internal static int SkreeMetareeInstructionMechanicsCommand()
     {

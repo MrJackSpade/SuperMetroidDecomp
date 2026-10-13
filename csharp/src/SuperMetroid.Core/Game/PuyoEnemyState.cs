@@ -72,8 +72,10 @@ public enum PuyoDirection : ushort
 /// </summary>
 public sealed class PuyoEnemyState
 {
+    /// <summary>The actor slot that owns Puyo's five ordinary native variable words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Exposes an enemy slot's native Puyo variables through named state properties.</summary>
     internal PuyoEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

@@ -13,6 +13,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the asymmetric Mama Turtle shell contour and its effect
+/// on sleeping-parent collision geometry.</summary>
 internal static class MamaTurtleShellContourVerification
 {
     /// <summary>
@@ -84,6 +86,7 @@ internal static class MamaTurtleShellContourVerification
             "production distance cases pass without a ROM bus.");
     }
 
+    /// <summary>Runs the native contour and production collision checks from the CLI.</summary>
     [VerificationCommand("--mama-turtle-shell-contour")]
     internal static int MamaTurtleShellContourCommand()
     {

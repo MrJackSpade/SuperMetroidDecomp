@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks four Norfair palette-FX streams by their exact CGRAM colors and hold cadence.</summary>
 internal static class NorfairGlowVerification
 {
     /// <summary>

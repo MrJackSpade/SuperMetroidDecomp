@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Input;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the camera after Samus breaks through the Dachora speed-boost floor.</summary>
 internal static class BoostFloorScrollVerification
 {
+    /// <summary>Verifies the opened shaft stays scrollable, Samus remains in view, and both reach the retail bottom alignment.</summary>
     internal static void VerifyBoostFloorScroll()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -61,6 +63,7 @@ internal static class BoostFloorScrollVerification
         Console.WriteLine($"Dachora floor descent completed: SamusY={samus.Position.Y.Whole}, cameraY={runtime.Room.Camera.PixelPosition.Y}.");
     }
 
+    /// <summary>Runs the Dachora floor descent and camera scroll regression.</summary>
     [VerificationCommand("--boost-floor-scroll")]
     internal static int BoostFloorScrollCommand()
     {

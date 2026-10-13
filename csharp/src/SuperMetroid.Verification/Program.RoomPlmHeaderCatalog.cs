@@ -3,6 +3,7 @@ using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Checks named PLM header uniqueness and coverage of retail room-population records.</summary>
 internal static class RoomPlmHeaderCatalogVerification
 {
     /// <summary>
@@ -75,6 +76,7 @@ internal static class RoomPlmHeaderCatalogVerification
             "  PLM headers: unique catalog and all 70 retail-population headers agree.");
     }
 
+    /// <summary>Extracts a bank $8F population pointer from an upstream room-PLM symbol line.</summary>
     private static ushort ParseRoomPlmPopulationPointer(string line)
     {
         int separator = line.IndexOf(' ');
@@ -89,6 +91,7 @@ internal static class RoomPlmHeaderCatalogVerification
         return unchecked((ushort)address);
     }
 
+    /// <summary>Reads a native population word while scanning retail PLM records.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room PLM words")]
     private static ushort ReadRoomPlmWord(SuperMetroidAddressSpace bus, ushort pointer) =>
         unchecked((ushort)(

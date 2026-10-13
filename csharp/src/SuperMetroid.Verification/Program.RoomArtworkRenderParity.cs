@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Compares installed room artwork with cartridge pixels in Ceres and Landing Site.</summary>
 internal static class RoomArtworkRenderParityVerification
 {
     /// <summary>

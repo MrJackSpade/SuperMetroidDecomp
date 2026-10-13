@@ -23,8 +23,10 @@ internal abstract class GoldenTorizoStunnedInstructionProgramDefinitions : IInst
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
+    /// <summary>Supplies bank $AA to the instruction-program source audit.</summary>
     static int IDeclaredProgramBank.Bank => Bank;
 
+    /// <summary>Compiles the stunned lock, timed tile uploads, loop, and walking handoff at $AA:D193-D1E6.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd193),
         Entry(Start),
@@ -52,12 +54,15 @@ internal abstract class GoldenTorizoStunnedInstructionProgramDefinitions : IInst
         Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, WalkingMovement),
         Op((ushort)TorizoInstruction.Instruction_Torizo_Return));
 
+    /// <summary>Exposes all control words; this stunned program contains no sprite-pose operands.</summary>
     public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    /// <summary>Pairs one compiled stunned-program control word with its bank $AA address.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
 
+    /// <summary>Classifies bytes owned by the stunned mechanic layout for source comparison.</summary>
     public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

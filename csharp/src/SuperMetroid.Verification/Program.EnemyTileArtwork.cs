@@ -54,12 +54,15 @@ using static NinjaSpacePiratePaletteArtworkVerification;
 using static SuiteTimingVerification;
 using static TorizoInstructionVramArtworkVerification;
 
+/// <summary>Coordinates retail tile and palette comparisons with installed enemy artwork and live edit checks.</summary>
 internal static class EnemyTileArtworkVerification
 {
+    /// <summary>Reads the exact tile upload bytes named by an enemy definition for the retail oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native tile bytes")]
     private static byte[] ReadNativeEnemyTiles(ISnesAddressSpace bus, RoomEnemyDefinition definition, int byteCount) =>
         RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
 
+    /// <summary>Loads a definition's native palette into OBJ CGRAM slots starting at index 128.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native palette DMA")]
     private static SnesCgram LoadNativeEnemyPalette(ISnesAddressSpace bus, RoomEnemyDefinition definition)
     {
@@ -84,6 +87,7 @@ internal static class EnemyTileArtworkVerification
         return expected;
     }
 
+    /// <summary>Extracts stock enemy art and runs tile, palette, BG, spritemap and live override checks for the supported retail revision.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyEnemyTileArtwork()
     {
@@ -345,6 +349,7 @@ internal static class EnemyTileArtworkVerification
             Console.WriteLine("  Sciser, shared Mellow/Mella/Memu, Kago, face-block, Morph Ball eye, shutter, ordinary Metroid, Shaktool, Tripper/Kamer, Dragon, Multiviola, Norfair lava-jumper, Chozo statue, Viola, and Rinka OAM frames: cartridge parity, installed draws, and legacy composition overrides pass.");
     }
 
+    /// <summary>Runs artwork comparisons alongside mapped source routing and room-enemy loading checks.</summary>
     [VerificationCommand("--enemy-tile-artwork")]
     internal static int EnemyTileArtworkCommand()
     {

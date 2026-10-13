@@ -31,8 +31,10 @@ internal sealed class BoyonBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Library-two sound request emitted by Boyon's start-bounce instruction.</summary>
     private const ushort BoyonBounceSound = 0x000e;
 
+    /// <summary>Per-slot bounce state cleared whenever a new room loads.</summary>
     internal readonly BoyonEnemyState?[] _boyonStates =
         new BoyonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -205,6 +207,7 @@ internal sealed class BoyonBehavior : IEnemySpecies
         return EnemyMath.IsNegative16(distance - slot.Parameter2);
     }
 
+    /// <summary>Installs an idle or bounce list and restarts its instruction and auxiliary timers.</summary>
     private static void SetBoyonInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -212,6 +215,7 @@ internal sealed class BoyonBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
     }
 
+    /// <summary>Returns the initialized state paired with this physical enemy slot.</summary>
     private BoyonEnemyState RequireBoyonState(RoomEnemySlot slot) =>
         _boyonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Boyon state.");
@@ -223,6 +227,7 @@ internal sealed class BoyonBehavior : IEnemySpecies
         LastBoyonSoundEffect = BoyonBounceSound;
     }
 
+    /// <summary>Registers Boyon's guarded native initialization routine.</summary>
     internal void RegisterBoyonInitializationAi(EnemyAiTable table)
     {
 
@@ -232,6 +237,7 @@ internal sealed class BoyonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Boyon's guarded per-frame bounce routine.</summary>
     internal void RegisterBoyonMainAi(EnemyAiTable table)
     {
 
@@ -241,6 +247,7 @@ internal sealed class BoyonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the Boyon-only return and start-bounce opcodes with the enemy interpreter.</summary>
     internal void RegisterBoyonOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

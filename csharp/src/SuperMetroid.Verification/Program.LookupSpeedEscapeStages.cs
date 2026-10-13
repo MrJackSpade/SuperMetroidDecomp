@@ -3,17 +3,22 @@ using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks speed-booster escape stage lookup fields against native PLM records.</summary>
 internal static class LookupSpeedEscapeStagesVerification
 {
+    /// <summary>Compares each stage's target Samus X coordinate with the cartridge.</summary>
     internal static void VerifySpeedEscapeStageTargets(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpeedEscapeStageField), () => VerifySpeedEscapeStageField(rom, 0));
 
+    /// <summary>Compares each stage's maximum FX Y height with the cartridge.</summary>
     internal static void VerifySpeedEscapeStageHeights(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpeedEscapeStageField), () => VerifySpeedEscapeStageField(rom, 1));
 
+    /// <summary>Compares each stage's packed Y velocity with the cartridge.</summary>
     internal static void VerifySpeedEscapeStageVelocities(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpeedEscapeStageField), () => VerifySpeedEscapeStageField(rom, 2));
 
+    /// <summary>Checks one field for all valid stage offsets and rejects every unsupported sixteen-bit offset.</summary>
     private static void VerifySpeedEscapeStageField(SuperMetroidAddressSpace rom, int field)
     {
         // Original record locations, independent of the production stride and selectors.

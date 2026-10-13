@@ -36,7 +36,9 @@ public static class SnesUnsignedEightEight
 [SnesEncodingOwner]
 public static class SnesSixteenSixteen
 {
+    /// <summary>Sixteen low bits represent one pixel's fractional portion in a native 16.16 word.</summary>
     private const int FractionBits = 16;
+    /// <summary>Extracts the low fractional word without changing the signed whole half.</summary>
     private const int FractionMask = 0xffff;
 
     /// <summary>The raw 16.16 value with whole part <paramref name="whole"/> and no fraction.</summary>
@@ -77,7 +79,9 @@ public static class SnesSixteenSixteen
 [SnesEncodingOwner]
 public static class SnesEightEight
 {
+    /// <summary>Eight low bits represent one unit's fractional portion in a native 8.8 word.</summary>
     private const int FractionBits = 8;
+    /// <summary>Extracts the fractional byte from a raw 8.8 value.</summary>
     private const int FractionMask = 0xff;
 
     /// <summary>The raw 8.8 value with whole part <paramref name="whole"/> and no fraction.</summary>
@@ -109,6 +113,7 @@ public static class SnesEightEight
 [SnesEncodingOwner]
 public readonly record struct SnesSignedSixteenSixteen
 {
+    /// <summary>Wraps an existing signed 32-bit displacement without altering its whole and fraction bits.</summary>
     private SnesSignedSixteenSixteen(int rawValue) => RawValue = rawValue;
 
     /// <summary>Gets the signed native word containing sixteen whole and sixteen fractional bits.</summary>

@@ -14,9 +14,10 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusKinematicsState
 {
-    // `$7E:182C-$1833` remembers the solid enemy hit in each movement direction until the
-    // next EnemyMain tail clears all four words. Dead-monster actors inspect this delayed
-    // producer state; a one-call return value alone cannot reproduce that ordering.
+    /// <summary>
+    /// WRAM $7E:182C-$1833 retains each direction's solid-enemy hit until EnemyMain's
+    /// tail clears all four words; dead-monster AI observes this delayed result.
+    /// </summary>
     internal readonly ushort[] _solidEnemyCollisionIndexes =
         [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
 

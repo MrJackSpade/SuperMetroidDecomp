@@ -10,6 +10,7 @@ internal static class EndingRewardInstructionDefinitions
     internal const ushort Start = 0xed1d;
     /// <summary>$8B:EE5D, exclusive end after the flight head lists.</summary>
     internal const ushort End = 0xee5d;
+    /// <summary>Native bank-$8B actor-list boundaries for hair release, gesture, landing, and jumps.</summary>
     private enum List : ushort
     {
         /// <summary>$8B:ED1D, SuitlessIdle actor instruction list.</summary>
@@ -48,6 +49,7 @@ internal static class EndingRewardInstructionDefinitions
         HeadJump = 0xee4d,
     }
 
+    /// <summary>Calculates a validated reward-list word from display durations, sprite frames, jumps, holds, and deletes.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         int offset = pointer - Start;
@@ -151,6 +153,7 @@ internal static class EndingRewardInstructionDefinitions
         (112, Frame.SamusArmFromEndingFrame2),
     ];
 
+    /// <summary>Steps the suitless body's standing, launch, and flight-hold program.</summary>
     private static ushort SuitlessJumpWord(int word)
     {
         if (word < 2) return DisplayWord(word, 48, Frame.SuitlessSamusStanding);
@@ -161,6 +164,7 @@ internal static class EndingRewardInstructionDefinitions
         return HoldWord(word - 7, (ushort)((ushort)List.SuitlessJump + 14), 48, Frame.SuitlessSamusJumping);
     }
 
+    /// <summary>Steps the suited body's head preparation, launch, and short flight-hold program.</summary>
     private static ushort SuitedJumpWord(int word)
     {
         if (word == 0) return (ushort)EndingRewardJumpInstruction.PrepareHead;
@@ -172,6 +176,7 @@ internal static class EndingRewardInstructionDefinitions
         return HoldWord(word - 7, (ushort)((ushort)List.SuitedJump + 14), 5, Frame.LargeSamusFromEndingJumping);
     }
 
+    /// <summary>Runs landing poses, the post-landing shot, and terminal deletion.</summary>
     private static ushort LandingWord(int word)
     {
         if (word < 2) return DisplayWord(word, 10, Frame.SamusLanding);
@@ -181,12 +186,18 @@ internal static class EndingRewardInstructionDefinitions
         return word < 9 ? DisplayWord(word - 7, 128, Frame.SamusShooting) : Delete;
     }
 
+    /// <summary>Converts a bank-relative pointer to a word index within its actor instruction list.</summary>
     private static int Word(ushort pointer, List list) => (pointer - (ushort)list) / 2;
+    /// <summary>Alternates a display duration with its sprite-frame pointer, using zero for an intentionally blank part.</summary>
     private static ushort DisplayWord(int word, ushort duration, Frame? frame) => (word & 1) == 0
         ? duration : frame.HasValue ? EndingRewardSpriteDefinitions.FramePointer(frame.Value) : (ushort)0;
+    /// <summary>Calculates a repeating display record from its native list start and duration.</summary>
     private static ushort Hold(ushort pointer, List start, ushort duration, Frame frame) => HoldWord(Word(pointer, start), (ushort)start, duration, frame);
+    /// <summary>Emits a duration and frame followed by a goto back to their first word.</summary>
     private static ushort HoldWord(int word, ushort start, ushort duration, Frame frame) => word < 2
         ? DisplayWord(word, duration, frame) : word == 2 ? (ushort)CinematicSpriteInstruction.Goto : start;
+    /// <summary>Cinematic sprite opcode that removes a completed reward actor.</summary>
     private const ushort Delete = (ushort)CinematicSpriteInstruction.Delete;
+    /// <summary>Cinematic sprite opcode that installs a body or head flight pre-instruction.</summary>
     private const ushort SetPreInstruction = (ushort)CinematicSpriteInstruction.SetPreInstruction;
 }

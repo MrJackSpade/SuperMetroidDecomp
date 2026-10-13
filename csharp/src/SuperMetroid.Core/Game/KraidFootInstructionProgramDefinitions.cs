@@ -26,6 +26,7 @@ internal abstract class KraidFootInstructionProgramDefinitions
     /// <summary>Adjacent unreferenced fast-backwards program at $A7:893D.</summary>
     internal const ushort AdjacentUnusedFastBackward = 0x893d;
 
+    /// <summary>Walks the initial, neutral, forward, lunge, and backward foot lists while routing control words and sprite operands to separate selectors.</summary>
     internal static void Generate(ref MechanicsSelection words, ref PresentationSelection presentation)
     {
         ushort cursor = Initial;
@@ -68,11 +69,16 @@ internal abstract class KraidFootInstructionProgramDefinitions
         throw new InvalidDataException($"Kraid foot mechanics pointer $A7:{address:X4} is not compiled.");
     }
 
+    /// <summary>Finds a generated control word by ordinal or by either byte of its native address.</summary>
     internal struct MechanicsSelection(int targetIndex, int targetAddress, bool includeHighByte)
     {
+        /// <summary>Ordinal of the next generated mechanics word.</summary>
         private int count;
+        /// <summary>Indicates that the requested ordinal or address appeared in the generated lists.</summary>
         internal bool Found;
+        /// <summary>The matching address and control value after generation finds its target.</summary>
         internal InstructionMechanicsWord Selected;
+        /// <summary>Advances the ordinal and captures a word if its index or owned byte matches the request.</summary>
         internal void Add(InstructionMechanicsWord word)
         {
             if (count == targetIndex || word.Address == targetAddress ||
@@ -85,10 +91,14 @@ internal abstract class KraidFootInstructionProgramDefinitions
         }
     }
 
+    /// <summary>Selects the address of one frame's interleaved spritemap operand by occurrence.</summary>
     internal struct PresentationSelection(int targetIndex)
     {
+        /// <summary>Ordinal of the next generated frame operand.</summary>
         private int count;
+        /// <summary>Native address of the selected operand, distinct from its compiled sprite identity.</summary>
         internal ushort Selected;
+        /// <summary>Captures the requested frame operand address and advances its occurrence count.</summary>
         internal void Add(ushort address)
         {
             if (count == targetIndex) Selected = address;
@@ -96,6 +106,7 @@ internal abstract class KraidFootInstructionProgramDefinitions
         }
     }
 
+    /// <summary>Emits the ordinary or fast forward foot sequence, including lift, horizontal shove, landing shake and sound, then sleep.</summary>
     private static void AddForwardProgram(
         ref MechanicsSelection words,
         ref PresentationSelection presentation,
@@ -177,6 +188,7 @@ internal abstract class KraidFootInstructionProgramDefinitions
         AddInstruction(ref words, ref cursor, (ushort)CommonEnemyInstruction.Sleep);
     }
 
+    /// <summary>Emits the backward step with lift, landing shake and sound, idle frames, and a jump back to its start.</summary>
     private static void AddBackwardProgram(
         ref MechanicsSelection words,
         ref PresentationSelection presentation,
@@ -223,6 +235,7 @@ internal abstract class KraidFootInstructionProgramDefinitions
         AddInstruction(ref words, ref cursor, WalkingBackward);
     }
 
+    /// <summary>Preserves native callback order by placing the Y adjustment immediately before the X adjustment.</summary>
     private static void AddVerticalAndHorizontal(
         ref MechanicsSelection words,
         ref ushort cursor,
@@ -233,6 +246,7 @@ internal abstract class KraidFootInstructionProgramDefinitions
         AddInstruction(ref words, ref cursor, horizontal);
     }
 
+    /// <summary>Records one two-byte control word and advances the native program cursor.</summary>
     private static void AddInstruction(
         ref MechanicsSelection words,
         ref ushort cursor,
@@ -242,6 +256,7 @@ internal abstract class KraidFootInstructionProgramDefinitions
         cursor = unchecked((ushort)(cursor + 2));
     }
 
+    /// <summary>Records a two-byte frame duration, exposes the following sprite operand address, and advances past both words.</summary>
     private static void AddFrame(
         ref MechanicsSelection words,
         ref PresentationSelection presentation,
@@ -253,6 +268,7 @@ internal abstract class KraidFootInstructionProgramDefinitions
         cursor = unchecked((ushort)(cursor + 4));
     }
 
+    /// <summary>Detects drift in generated program lengths at each native list boundary.</summary>
     private static void RequireCursor(ushort actual, ushort expected)
     {
         if (actual != expected)

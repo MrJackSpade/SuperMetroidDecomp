@@ -16,9 +16,13 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class CeresElevatorArrivalState
 {
+    /// <summary>Address space bound at arrival construction for the projectile lifecycle.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>First spawned projectile, which moves Samus before the platform checks landing.</summary>
     internal readonly CeresElevatorProjectile pad;
+    /// <summary>Second spawned projectile, which waits behind the pad until touchdown.</summary>
     internal readonly CeresElevatorProjectile platform;
+    /// <summary>Installed visual compositions rebound after restoring a debugger snapshot.</summary>
     [NonSerialized] private EnemyProjectileSpritemapCatalog? projectileSpritemaps;
 
     /// <summary>Installs both compiled definitions and performs their initialization AIs.</summary>
@@ -116,6 +120,7 @@ public sealed class CeresElevatorArrivalState
     private static Position16<RoomPixels> MovingPadUnder(SamusState samus) =>
         samus.Position.Whole + new Offset16<RoomPixels>(0, (short)CeresElevatorArrivalDefinitions.MovingPadYOffset);
 
+    /// <summary>Creates one arrival actor from its compiled definition and room position.</summary>
     private static CeresElevatorProjectile LoadProjectile(
         CeresElevatorProjectileDefinition definition,
         Position16<RoomPixels> position)
@@ -127,6 +132,7 @@ public sealed class CeresElevatorArrivalState
             CeresElevatorArrivalDefinitions.NativeGraphicsIndex);
     }
 
+    /// <summary>Advances a projectile's timed frame, delete, or branch commands with a bounded interpreter pass.</summary>
     private static void ProcessInstructionList(CeresElevatorProjectile projectile)
     {
         ushort oldTimer = projectile.InstructionTimer.RawValue;
@@ -165,6 +171,7 @@ public sealed class CeresElevatorArrivalState
             $"Ceres elevator eproj $86:{projectile.DefinitionPointer:X4} exceeded its command guard.");
     }
 
+    /// <summary>Draws an active on-screen projectile through its installed bank-8D composition.</summary>
     private void DrawProjectile(
         CeresElevatorProjectile projectile,
         OamBuffer oam,
@@ -191,8 +198,10 @@ public sealed class CeresElevatorArrivalState
             originYIsOnScreen: (SnesLittleEndian.HighByteInPlace(screen.Y)) == 0);
     }
 
+    /// <summary>Small per-slot state for the two Ceres arrival enemy projectiles.</summary>
     internal sealed class CeresElevatorProjectile
     {
+        /// <summary>Initializes a projectile's definition, instruction entry, position, and graphics index.</summary>
         public CeresElevatorProjectile(
             ushort definitionPointer,
             ushort instructionPointer,
@@ -205,14 +214,21 @@ public sealed class CeresElevatorArrivalState
             GraphicsIndex = graphicsIndex;
         }
 
+        /// <summary>Bank-86 definition identity used to report malformed instruction programs.</summary>
         public ushort DefinitionPointer { get; }
+        /// <summary>Native graphics word supplying palette and tile-base bits for drawing.</summary>
         public ushort GraphicsIndex { get; }
+        /// <summary>Whether the projectile still occupies its arrival slot.</summary>
         public bool Active { get; set; } = true;
         /// <summary>Whole room position; the pre-instruction only rewrites Y.</summary>
         public Position16<RoomPixels> Position { get; set; }
+        /// <summary>Pad-only startup delay before it begins moving Samus toward the platform.</summary>
         public NativeCountdown WaitTimer { get; set; }
+        /// <summary>Next bank-86 program word to interpret when the timer expires.</summary>
         public ushort InstructionPointer { get; set; }
+        /// <summary>Frames until this projectile's next instruction pass.</summary>
         public NativeCountdown InstructionTimer { get; set; } = NativeCountdown.Start(1);
+        /// <summary>Current bank-8D visual identity or the no-spritemap sentinel.</summary>
         public ushort SpritemapPointer { get; set; } = CeresElevatorArrivalDefinitions.NoSpritemap;
     }
 }

@@ -122,6 +122,9 @@ public sealed class MotherBrainCorpseRottingState
             DustRequests: dustRequests);
     }
 
+    /// <summary>Copies both 4bpp plane words to the next visible pixel row in
+    /// each eligible corpse column, optionally clearing the source afterward.
+    /// Rows six and seven continue in the next tile row using native offsets.</summary>
     internal static void CopyOrMovePixelRow(WorkRamByteTable tiles, ushort yOffset, bool move)
     {
         // Divide by eight to choose the tile row, then multiply the remaining pixel index

@@ -43,9 +43,12 @@ internal static class CeresEscapeVramTransferDefinitions
     /// <summary>$0D00: first door background character word.</summary>
     private const ushort DoorDestination = 0x0d00;
 
+    /// <summary>Calculates nineteen fixed transfer records in their native list order.</summary>
     private sealed class TransferRecords : IReadOnlyList<CeresEscapeVramTransferDefinition>
     {
+        /// <summary>Four overlay, two timer, ten warning-text, and three door graphics transfers.</summary>
         public int Count => 19;
+        /// <summary>Derives native byte count, source, and VRAM destination for an indexed transfer.</summary>
         public CeresEscapeVramTransferDefinition this[int index]
         {
             get
@@ -77,18 +80,23 @@ internal static class CeresEscapeVramTransferDefinitions
                     DoorSource + 0x200 * doorBlock, (ushort)(DoorDestination + 0x100 * doorBlock));
             }
         }
+        /// <summary>Visits the overlay, timer, warning, and door transfers in dispatcher order.</summary>
         public IEnumerator<CeresEscapeVramTransferDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Provides the same native order to non-generic consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>All fixed Ceres escape transfer records used by the graphics dispatcher.</summary>
     internal static readonly IReadOnlyList<CeresEscapeVramTransferDefinition> Records = new TransferRecords();
+    /// <summary>Recognizes the three native list endings without treating them as transfer records.</summary>
     internal static bool IsTerminator(ushort pointer) =>
         pointer is 0xc3d4 or 0xc4fc or 0xc536;
 
+    /// <summary>Resolves a bank-$A6 record pointer to its fixed DMA metadata.</summary>
     internal static bool TryGet(ushort pointer,
         out CeresEscapeVramTransferDefinition transfer)
     {

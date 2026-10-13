@@ -130,6 +130,7 @@ public static class PcmSampleReplacementInstaller
         return updated;
     }
 
+    /// <summary>Maps the old loop to the new rate with nearest-frame rounding, or applies the selected override.</summary>
     private static int? ResolveLoop(
         AudioCanonicalSampleMetadata previous,
         int replacementSampleRate,
@@ -144,6 +145,7 @@ public static class PcmSampleReplacementInstaller
             _ => throw new InvalidDataException($"Unknown PCM loop replacement mode {replacement.Kind}."),
         };
 
+    /// <summary>Rejects absolute or escaping manifest paths before replacing a waveform inside the audio catalog.</summary>
     private static string ResolveContainedPath(string root, string relativePath)
     {
         if (Path.IsPathRooted(relativePath))

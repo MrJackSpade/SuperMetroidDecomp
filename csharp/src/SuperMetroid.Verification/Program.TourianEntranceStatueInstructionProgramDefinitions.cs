@@ -14,14 +14,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Tourian entrance statue delete programs and their initializer selections.</summary>
 internal static class TourianEntranceStatueInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for entrance statue instruction checks.</summary>
     internal static void VerifyTourianEntranceStatueInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyTourianEntranceStatueInstructionProgramDefinitions), () => VerifyTourianEntranceStatueInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares three native words and executes each statue variant with mechanics reads blocked.</summary>
     internal static void VerifyTourianEntranceStatueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -85,6 +88,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
             "programs and all three production initializer selections pass.");
     }
 
+    /// <summary>Alternates two compiled delete words to expose allocation in warmed lookup calls.</summary>
     private static int ProbeTourianEntranceStatueInstructionAllocation()
     {
         int checksum = 0;
@@ -98,11 +102,13 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
         return checksum;
     }
 
+    /// <summary>Blocks the compiled statue instruction bytes during production dispatch.</summary>
     private static CartridgeReadGuard NewTourianEntranceStatueInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(TourianEntranceStatueInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
             address => $"Production read compiled Tourian entrance-statue mechanics byte " +
                 $"${address:X6}.");
 
+    /// <summary>Runs the entrance statue instruction-definition command.</summary>
     [VerificationCommand("--tourian-entrance-statue-instruction-program-definitions")]
     internal static int TourianEntranceStatueInstructionProgramDefinitionsCommand()
     {

@@ -6,8 +6,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Checks installed Mother Brain death palettes against retail data and verifies editable colors reach CGRAM without cartridge reads.</summary>
 internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
 {
+    /// <summary>Compares all fade selectors and RGB5 words, edits a palette channel, and checks live body, corpse, and door destinations.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Mother Brain death colors and selectors")]
     internal static void VerifyInstalledMotherBrainDeathColors(

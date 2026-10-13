@@ -13,12 +13,14 @@ public sealed class SnesVram
     /// <summary>Two bytes per word gives the physical 64 KiB storage size.</summary>
     public const int ByteCount = SnesPpuLayout.VramByteCount;
 
+    /// <summary>Physical VRAM image addressed as 64 KiB of bytes behind the PPU's word ports.</summary>
     private readonly byte[] _bytes = new byte[ByteCount];
 
-    // Every mutator below bumps this before writing, so a render capture can tell whether
-    // the image changed since its last immutable copy. Neither field is saved state.
+    /// <summary>Transient write generation incremented before each mutation so render capture can detect changes.</summary>
     [NonSerialized] private long writeGeneration;
+    /// <summary>Transient immutable copy reused while no VRAM write has occurred; excluded from saved state.</summary>
     [NonSerialized] private byte[]? capturedImage;
+    /// <summary>Write generation represented by the cached immutable image; excluded from saved state.</summary>
     [NonSerialized] private long capturedGeneration;
 
     /// <summary>

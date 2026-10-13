@@ -20,8 +20,10 @@ internal abstract class DraygonProjectileInstructionProgramDefinitions
 
     /// <summary><c>InstList_EnemyProjectile_DraygonsWallTurretProjectile_1</c> at $86:8CE6.</summary>
     internal const ushort WallTurretFlight = 0x8ce6;
+    /// <summary>Goop, impact, turret bloom, and flight lists contain 27 separately selected sprite frames.</summary>
     public static int PresentationWordCount => 27;
 
+    /// <summary>Locates a sprite operand in the goop, shot, bloom, or turret-flight list.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -34,10 +36,12 @@ internal abstract class DraygonProjectileInstructionProgramDefinitions
             _ => WallTurretFlight + 2 + (index - 24) * 4,
         });
     }
+    /// <summary>Selects the two Draygon projectile families that execute these lists.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.DraygonGoop or
         RoomEnemyProjectileKind.DraygonWallTurret;
 
+    /// <summary>Reads compiled durations and callbacks while rejecting artwork operands.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -46,6 +50,7 @@ internal abstract class DraygonProjectileInstructionProgramDefinitions
             $"Draygon projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
+    /// <summary>Recognizes goop control and turret bloom cadence, including the two forming ramps.</summary>
     internal static bool TryRead(int address, out ushort value)
     {
         value = address switch
@@ -79,6 +84,7 @@ internal abstract class DraygonProjectileInstructionProgramDefinitions
         return value != 0;
     }
 
+    /// <summary>Checks whether an address is a duration word in a fixed-stride frame list.</summary>
     private static bool IsDraw(int address, ushort first, int frames)
     {
         int offset = address - first;

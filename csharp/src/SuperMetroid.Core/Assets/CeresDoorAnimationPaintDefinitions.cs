@@ -13,16 +13,26 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresDoorAnimationPaintDefinitions
 {
+    /// <summary>Highest value permitted by each SNES five-bit palette channel.</summary>
     private const int MaximumChannel = (1 << 5) - 1;
+    /// <summary>Channel change between adjacent mirrored beacon fade phases.</summary>
     private const int FadeStep = 5;
+    /// <summary>Extra red and green applied to the bright gold facets.</summary>
     private const int GoldBrightening = 3;
+    /// <summary>Green boost for the leading gold facet at peak brightness.</summary>
     private const int GoldHighlightGreenBrightening = 4;
+    /// <summary>Shared target paint that supplies the six beacon seed colors.</summary>
     private readonly CeresDoorNormalPaintDefinitions normal;
+    /// <summary>Blue channel retained independently for the first seed color.</summary>
     internal readonly int firstSeedBlue;
+    /// <summary>Red channel retained independently for the dim middle amber phase.</summary>
     internal readonly int dimMiddleAmberRed;
+    /// <summary>Seed colors that differ from the shared normal target paint.</summary>
     internal readonly Dictionary<int, Bgr555> seedEdits = [];
+    /// <summary>Individual source cells that differ from the calculated mirrored fade.</summary>
     internal readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Captures independent paint channels and per-cell edits from eight six-color source rows.</summary>
     internal CeresDoorAnimationPaintDefinitions(Bgr555[][] rows, CeresDoorNormalPaintDefinitions normal)
     {
         Ensure.NotNull(rows); Ensure.NotNull(normal);
@@ -38,6 +48,7 @@ internal sealed class CeresDoorAnimationPaintDefinitions
                 if (rows[row][color] != Calculate(row, color)) edits.Add(row * 6 + color, rows[row][color]);
     }
 
+    /// <summary>Uses normal target paint for each seed, with the first seed's independent blue channel.</summary>
     private Bgr555 SharedSeed(int color)
     {
         if (color != 0) return normal.ColorAt(8 + color);
@@ -45,12 +56,14 @@ internal sealed class CeresDoorAnimationPaintDefinitions
         return new(normalSeed.Red, normalSeed.Green, firstSeedBlue);
     }
 
+    /// <summary>Resolves an edited beacon cell or reconstructs its mirrored fade color.</summary>
     internal Bgr555 ColorAt(int row, int color)
     {
         if ((uint)row >= 8 || (uint)color >= 6) throw new IndexOutOfRangeException();
         return edits.TryGetValue(row * 6 + color, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
+    /// <summary>Applies the five-step mirrored fade, peak gold brightening, and dim amber exception.</summary>
     private Bgr555 Calculate(int row, int color)
     {
         int phase = Math.Min(row, 7 - row);

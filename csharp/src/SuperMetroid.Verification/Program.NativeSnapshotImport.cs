@@ -11,6 +11,10 @@ using static NativeSnapshotImportPauseVerification;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>
+/// Constructs a replay's initial production state from native WRAM and SRAM while
+/// rejecting unsupported live state instead of repairing later replay divergence.
+/// </summary>
 internal static class NativeSnapshotImportVerification
 {
     /// <summary>

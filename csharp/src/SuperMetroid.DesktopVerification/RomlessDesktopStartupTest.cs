@@ -11,6 +11,9 @@ using SuperMetroid.Desktop;
 /// </summary>
 internal static class RomlessDesktopStartupTest
 {
+    /// <summary>Installs assets into a temporary directory, removes that copy's
+    /// ROM, and verifies host startup, frame advance, debugger state, and replay
+    /// recover the same pixels without cartridge data.</summary>
     public static void Run(string sourceRom)
     {
         string tempRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp"));

@@ -49,19 +49,24 @@ public static class PlanetZebesTextPaletteFxProgramMechanicsDefinitions
     /// <summary>The fade-in and fade-out programs in native order without cached definition records.</summary>
     public static IReadOnlyList<PlanetZebesTextPaletteFxProgramDefinition> All { get; } = new DefinitionSequence();
 
+    /// <summary>Indexable fade-in and fade-out programs without cached definition records.</summary>
     private sealed class DefinitionSequence : IReadOnlyList<PlanetZebesTextPaletteFxProgramDefinition>
     {
+        /// <summary>One program for each direction of the PLANET ZEBES text fade.</summary>
         public int Count => 2;
+        /// <summary>Constructs the fade program at its native definition ordinal.</summary>
         public PlanetZebesTextPaletteFxProgramDefinition this[int index] => index switch
         {
             0 => new(PlanetZebesTextPaletteFxProgramOwner.FadeIn),
             1 => new(PlanetZebesTextPaletteFxProgramOwner.FadeOut),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Yields fade-in before fade-out.</summary>
         public IEnumerator<PlanetZebesTextPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Uses the typed fade sequence for nongeneric callers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Resolves one compiled mechanics word across both programs.</summary>
@@ -81,6 +86,7 @@ public static class PlanetZebesTextPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete cinematic PLANET ZEBES text-fade control program.</summary>
 public sealed class PlanetZebesTextPaletteFxProgramDefinition
 {
+    /// <summary>Selects one of the mutually exclusive title-text fade directions.</summary>
     internal PlanetZebesTextPaletteFxProgramDefinition(PlanetZebesTextPaletteFxProgramOwner owner) => Owner = owner;
 
     /// <summary>The mutually exclusive text-fade owner.</summary>

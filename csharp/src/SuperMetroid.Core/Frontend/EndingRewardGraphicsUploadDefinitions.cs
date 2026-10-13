@@ -1,5 +1,6 @@
 namespace SuperMetroid.Core.Frontend;
 
+/// <summary>WRAM source and VRAM destination progression for the sixteen post-credits icon uploads.</summary>
 internal static class EndingRewardGraphicsUploadDefinitions
 {
     /// <summary>$7F:4000: decompressed post-credits icon staging buffer.</summary>
@@ -29,6 +30,7 @@ internal static class EndingRewardGraphicsUploadDefinitions
         return index * (ChunkBytes / sizeof(ushort));
     }
 
+    /// <summary>Rejects upload indexes outside the sixteen authored Func216 transfers.</summary>
     private static void ValidateIndex(int index)
     {
         if ((uint)index >= EndingRewardJumpDefinitions.UploadCount)

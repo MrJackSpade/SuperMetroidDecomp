@@ -5,8 +5,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Lossless decoded view of one retail area map and station reveal plane.</summary>
 public sealed class AreaMapCartridgeData : IAreaMapView
 {
+    /// <summary>Decoded map words addressed in logical 64-by-32 cell order.</summary>
     private readonly MapTileWord[] tilemap;
 
+    /// <summary>Pairs native source bytes and addresses with the decoded map and reveal plane.</summary>
     internal AreaMapCartridgeData(
         AreaId area,
         int tilemapAddress,

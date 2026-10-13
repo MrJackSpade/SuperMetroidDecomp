@@ -12,6 +12,7 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Verification access to <see cref="CeresDepartureState"/> members production does not use.</summary>
 internal static class CeresDepartureStateAccess
 {
+    /// <summary>Exposes Ceres departure brightness through its production state instance.</summary>
     extension(CeresDepartureState self)
     {
         /// <summary>Applies the current master-brightness nibble to a software-rendered frame.</summary>
@@ -25,12 +26,16 @@ internal static class CeresDepartureStateAccess
 /// <summary>Verification access to <see cref="CeresDestructionCinematicState"/> members production does not use.</summary>
 internal static class CeresDestructionCinematicStateAccess
 {
+    /// <summary>Reads private cinematic geometry and actor state for focused verification.</summary>
     extension(CeresDestructionCinematicState self)
     {
+        /// <summary>Current Mode-7 zoom scalar retained by the cinematic.</summary>
         internal ushort Zoom => self.zoom;
 
+        /// <summary>Current fixed-point origin for the destruction background.</summary>
         internal FixedPosition<Mode7Pixels> Background => self.background;
 
+        /// <summary>Number of cinematic actors still held in the actor list.</summary>
         internal int ActiveActorCount => self.actors.Count;
 
         /// <summary>
@@ -49,6 +54,7 @@ internal static class CeresDestructionCinematicStateAccess
 /// <summary>Verification access to <see cref="CeresExplosionDefinitions"/> members production does not use.</summary>
 internal static class CeresExplosionDefinitionsAccess
 {
+    /// <summary>Exposes the native explosion spawner definition used by verification.</summary>
     extension(CeresExplosionDefinitions)
     {
         /// <summary><c>$8B:CF33</c>, invisible actor whose list owns the three-wave schedule.</summary>
@@ -61,10 +67,13 @@ internal static class CeresExplosionDefinitionsAccess
 /// <summary>Verification access to <see cref="CreditsObjectState"/> members production does not use.</summary>
 internal static class CreditsObjectStateAccess
 {
+    /// <summary>Reads a credits object's private tilemap and destination row.</summary>
     extension(CreditsObjectState self)
     {
+        /// <summary>BG row selected for the next credits tilemap transfer.</summary>
         internal int DestinationRow => self.destinationRow;
 
+        /// <summary>Retained credits tilemap words before their BG transfer.</summary>
         internal ReadOnlySpan<ushort> Tilemap => self.tilemap;
     }
 }
@@ -72,8 +81,10 @@ internal static class CreditsObjectStateAccess
 /// <summary>Verification access to <see cref="EndingRewardJump"/> members production does not use.</summary>
 internal static class EndingRewardJumpAccess
 {
+    /// <summary>Reads the reward jump's private vertical speed for timing verification.</summary>
     extension(EndingRewardJump self)
     {
+        /// <summary>Current signed vertical velocity in the ending reward jump.</summary>
         internal int VerticalVelocity => self.velocity;
     }
 }
@@ -81,6 +92,7 @@ internal static class EndingRewardJumpAccess
 /// <summary>Verification access to <see cref="FileSelectMapEntry"/> members production does not use.</summary>
 internal static class FileSelectMapEntryAccess
 {
+    /// <summary>Adds the verifier's empty subscreen to a file-select map render.</summary>
     extension(FileSelectMapEntry self)
     {
         /// <summary>BG1/OBJ/subscreen are visible inside window one; the cleared BG2 covers its exterior.</summary>
@@ -91,6 +103,7 @@ internal static class FileSelectMapEntryAccess
 /// <summary>Verification access to <see cref="FileSelectMapWindowCompositor"/> members production does not use.</summary>
 internal static class FileSelectMapWindowCompositorAccess
 {
+    /// <summary>Supplies a fresh full-screen buffer for focused window composition checks.</summary>
     extension(FileSelectMapWindowCompositor)
     {
         /// <summary>
@@ -106,6 +119,7 @@ internal static class FileSelectMapWindowCompositorAccess
 /// <summary>Verification access to <see cref="FileSelectMenuState"/> members production does not use.</summary>
 internal static class FileSelectMenuStateAccess
 {
+    /// <summary>Reads file-select BG tiles and the selected helmet frame without mutation.</summary>
     extension(FileSelectMenuState self)
     {
         /// <summary>
@@ -122,6 +136,7 @@ internal static class FileSelectMenuStateAccess
 /// <summary>Verification access to <see cref="GameOverMenuState"/> members production does not use.</summary>
 internal static class GameOverMenuStateAccess
 {
+    /// <summary>Reads the game-over Baby's displayed frame and instruction cursor.</summary>
     extension(GameOverMenuState self)
     {
         /// <summary>Currently displayed Baby Metroid frame, exposed for deterministic replay.</summary>
@@ -135,6 +150,7 @@ internal static class GameOverMenuStateAccess
 /// <summary>Verification access to <see cref="GameOverRomData.BabyAnimation"/> members production does not use.</summary>
 internal static class GameOverRomDataBabyAnimationAccess
 {
+    /// <summary>Maps the game-over Baby's native cry opcodes to sound identities.</summary>
     extension(GameOverRomData.BabyAnimation)
     {
         /// <summary>Maps a bank-$82 animation opcode to its library-qualified cry.</summary>
@@ -161,8 +177,10 @@ internal static class GameOverRomDataBabyAnimationAccess
 /// <summary>Verification access to <see cref="IntroBabyDiscoveryState"/> members production does not use.</summary>
 internal static class IntroBabyDiscoveryStateAccess
 {
+    /// <summary>Counts active egg particles held by the discovery scene.</summary>
     extension(IntroBabyDiscoveryState self)
     {
+        /// <summary>Number of egg particles whose sprite is still active.</summary>
         internal int ActiveEggParticleCount => self.eggParticles.Count(particle => particle.IsActive);
     }
 }
@@ -170,8 +188,10 @@ internal static class IntroBabyDiscoveryStateAccess
 /// <summary>Verification access to <see cref="IntroCinematicRomData.Palette.Regions"/> members production does not use.</summary>
 internal static class IntroCinematicRomDataPaletteRegionsAccess
 {
+    /// <summary>Tests whether the intro palette region collection has any entries.</summary>
     extension(IntroCinematicRomData.Palette.Regions self)
     {
+        /// <summary>Whether the palette region collection has zero entries.</summary>
         internal bool IsEmpty => self.Count == 0;
     }
 }
@@ -179,8 +199,10 @@ internal static class IntroCinematicRomDataPaletteRegionsAccess
 /// <summary>Verification access to <see cref="IntroEggParticle"/> members production does not use.</summary>
 internal static class IntroEggParticleAccess
 {
+    /// <summary>Reads whether an egg particle's sprite remains active.</summary>
     extension(IntroEggParticle self)
     {
+        /// <summary>Whether the particle's internal discovery sprite is active.</summary>
         internal bool IsActive => self.sprite.IsActive;
     }
 }
@@ -188,8 +210,10 @@ internal static class IntroEggParticleAccess
 /// <summary>Verification access to <see cref="IntroEggSlimeDrop"/> members production does not use.</summary>
 internal static class IntroEggSlimeDropAccess
 {
+    /// <summary>Reads whether an egg slime drop's sprite remains active.</summary>
     extension(IntroEggSlimeDrop self)
     {
+        /// <summary>Whether the drop's internal discovery sprite is active.</summary>
         internal bool IsActive => self.sprite.IsActive;
     }
 }
@@ -197,6 +221,7 @@ internal static class IntroEggSlimeDropAccess
 /// <summary>Verification access to <see cref="IntroMotherBrainExplosionSystem"/> members production does not use.</summary>
 internal static class IntroMotherBrainExplosionSystemAccess
 {
+    /// <summary>Counts live actors retained by the intro Mother Brain explosion system.</summary>
     extension(IntroMotherBrainExplosionSystem self)
     {
         /// <summary>All eight actors remain allocated until the later page-two crossfade.</summary>
@@ -207,6 +232,7 @@ internal static class IntroMotherBrainExplosionSystemAccess
 /// <summary>Verification access to <see cref="IntroCeresFlightState"/> members production does not use.</summary>
 internal static class IntroCeresFlightStateAccess
 {
+    /// <summary>Advances the flight and its queued music in the production update order.</summary>
     extension(IntroCeresFlightState self)
     {
         /// <summary>
@@ -225,6 +251,7 @@ internal static class IntroCeresFlightStateAccess
 /// <summary>Verification access to <see cref="IntroRinkaSystem"/> members production does not use.</summary>
 internal static class IntroRinkaSystemAccess
 {
+    /// <summary>Reads the intro Rinka slots and their native spawn identities.</summary>
     extension(IntroRinkaSystem self)
     {
         /// <summary>Rinkas holding a cinematic slot, in the native descending slot order.</summary>
@@ -239,6 +266,7 @@ internal static class IntroRinkaSystemAccess
             }
         }
 
+        /// <summary>Number of currently active Rinkas excluding the spawner actor.</summary>
         internal int ActiveCount => self.LiveRinkas.Count(static rinka => rinka.IsActive);
 
         /// <summary>The live Rinka spawned with init parameter <paramref name="parameter"/>.</summary>
@@ -250,8 +278,10 @@ internal static class IntroRinkaSystemAccess
 /// <summary>Verification access to <see cref="MapScrollControls"/> members production does not use.</summary>
 internal static class MapScrollControlsAccess
 {
+    /// <summary>Lists the configured scroll buttons for every nonzero map direction.</summary>
     extension(MapScrollControls)
     {
+        /// <summary>Controller buttons corresponding to all defined map scroll directions.</summary>
         internal static ushort[] Buttons =>
             [.. Enumerable.Range(1, MapScrollControls.DirectionCount).Select(direction => MapScrollControls.ButtonFor((MapScrollDirection)direction))];
     }
@@ -260,6 +290,7 @@ internal static class MapScrollControlsAccess
 /// <summary>Verification access to <see cref="PauseMenuState"/> members production does not use.</summary>
 internal static class PauseMenuStateAccess
 {
+    /// <summary>Reads pause transitions, selection, animation, and native PPU state.</summary>
     extension(PauseMenuState self)
     {
         /// <summary>True while a map/equipment page change is fading or loading; page input waits for it.</summary>
@@ -314,10 +345,13 @@ internal static class PauseMenuStateAccess
 /// <summary>Verification access to <see cref="SuperMetroidGame"/> members production does not use.</summary>
 internal static class SuperMetroidGameAccess
 {
+    /// <summary>Exposes selected frontend identity and direct-room verification setup.</summary>
     extension(SuperMetroidGame self)
     {
+        /// <summary>Identity of the installed area-map presentation, if present.</summary>
         internal string? MapPresentationIdentity => self.Artwork.MapPresentation?.ContentIdentity;
 
+        /// <summary>Random word retained by the frontend dispatcher.</summary>
         internal ushort DispatcherRandomNumber => self.FrontendRandomOwner.RandomNumber;
 
         /// <summary>
@@ -349,6 +383,7 @@ internal static class SuperMetroidGameAccess
 /// <summary>Verification access to <see cref="TitleSequenceState"/> members production does not use.</summary>
 internal static class TitleSequenceStateAccess
 {
+    /// <summary>Reads title display and demo-timer state for focused frontend verification.</summary>
     extension(TitleSequenceState self)
     {
         /// <summary>Current INIDISP brightness nibble; zero is black and fifteen is full.</summary>

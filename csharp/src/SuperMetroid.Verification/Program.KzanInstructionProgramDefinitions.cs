@@ -17,14 +17,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kzan's compiled idle program, native frame selection, and live visual boundary.</summary>
 internal static class KzanInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for the Kzan instruction checks.</summary>
     internal static void VerifyKzanInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKzanInstructionProgramDefinitions), () => VerifyKzanInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares mechanics words and executes initialization through terminal sleep with source reads blocked.</summary>
     internal static void VerifyKzanInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -85,6 +88,7 @@ internal static class KzanInstructionProgramDefinitionsVerification
             "program and exact frame selection pass with instruction bytes forbidden.");
     }
 
+    /// <summary>Repeatedly looks up the idle mechanics word to expose warmed-call allocation.</summary>
     private static int ProbeKzanInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -96,6 +100,7 @@ internal static class KzanInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids runtime reads of both compiled control bytes and the migrated visual operand.</summary>
     private static CartridgeReadGuard NewKzanInstructionProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(KzanInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -103,6 +108,7 @@ internal static class KzanInstructionProgramDefinitionsVerification
             .ForbidRange(0xa60000 | KzanInstructionProgramDefinitionsTooling.PresentationWord, 2,
                 _ => "Production read the compiled Kzan visual operand.");
 
+    /// <summary>Runs the Kzan, Polyp, and Polyp-rock single-frame program and artwork checks.</summary>
     [VerificationCommand("--single-frame-enemy-visuals")]
     internal static int SingleFrameEnemyVisualsCommand()
     {
@@ -113,6 +119,7 @@ internal static class KzanInstructionProgramDefinitionsVerification
         return 0;
     }
 
+    /// <summary>Runs the focused Kzan instruction mechanics check.</summary>
     [VerificationCommand("--kzan-instruction-mechanics")]
     internal static int KzanInstructionMechanicsCommand()
     {

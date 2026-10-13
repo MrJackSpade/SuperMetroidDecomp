@@ -8,10 +8,14 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Projectile movement against room terrain: the initial beam collision, horizontal and vertical block scans, shot-block reactions (including wave beams through door bands) and killing a beam or missile on contact.</summary>
 internal sealed class ProjectileTerrainCollision
 {
+    /// <summary>Clears projectile slots when the native kill dispatcher rejects an already converted family.</summary>
     private readonly ProjectileAnimation _animation;
+    /// <summary>Publishes the shared quake requested by a Super Missile impact.</summary>
     private readonly ProjectileEarthquakes _earthquakes;
+    /// <summary>Queues distinct beam and missile impact sounds at the collision seam.</summary>
     private readonly ProjectileImpactAudio _impactAudio;
 
+    /// <summary>Binds the projectile animation, quake, and impact-audio owners used when terrain consumes a shot.</summary>
     internal ProjectileTerrainCollision(ProjectileAnimation animation, ProjectileEarthquakes earthquakes, ProjectileImpactAudio impactAudio)
     {
         _animation = animation;
@@ -19,6 +23,7 @@ internal sealed class ProjectileTerrainCollision
         _impactAudio = impactAudio;
     }
 
+    /// <summary>Advances a shot by its signed 8.8 X velocity and scans its leading edge; Wave retains reactions but clears collision carry.</summary>
     internal static bool MoveHorizontally(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -102,6 +107,7 @@ internal sealed class ProjectileTerrainCollision
         return false;
     }
 
+    /// <summary>Advances a shot by its signed 8.8 Y velocity and scans its leading edge; Wave retains reactions but clears collision carry.</summary>
     internal static bool MoveVertically(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -118,6 +124,7 @@ internal sealed class ProjectileTerrainCollision
         return ScanVerticalShotReactions(level, slot, roomPlms);
     }
 
+    /// <summary>Checks every block along the projectile's vertical span and reports collision only when the native scan's solid counter completes.</summary>
     internal static bool ScanHorizontalShotReactions(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -153,6 +160,7 @@ internal sealed class ProjectileTerrainCollision
         return everyBlockSolid;
     }
 
+    /// <summary>Checks every block along the projectile's horizontal span, preserving each block reaction before aggregating solidity.</summary>
     internal static bool ScanVerticalShotReactions(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -240,6 +248,7 @@ internal sealed class ProjectileTerrainCollision
         return Solid(rowCell) || Solid(rowCell ^ 1);
     }
 
+    /// <summary>Resolves an extension and applies its slope, PLM, shootable, or ordinary solid reaction to one scanned block.</summary>
     private static bool RunShotReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -319,6 +328,7 @@ internal sealed class ProjectileTerrainCollision
         return block.CollisionType is >= RoomCollisionType.SolidBlock and <= RoomCollisionType.BombableBlock;
     }
 
+    /// <summary>Follows signed horizontal or vertical BTS links to the actual reaction block, rejecting cycles and out-of-room targets.</summary>
     private static RoomCollisionBlock? ResolveShotReactionExtension(
         RoomLevelData level,
         RoomCollisionBlock initialBlock)
@@ -374,6 +384,7 @@ internal sealed class ProjectileTerrainCollision
             $"Projectile extension chain from block {initialBlock.Index} did not terminate.");
     }
 
+    /// <summary>Routes a shootable BTS to its downward gate, resident PLM, blue door, or ordinary shot-block owner.</summary>
     internal static void TrySpawnShootableReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -438,6 +449,7 @@ internal sealed class ProjectileTerrainCollision
         }
     }
 
+    /// <summary>Publishes the projectile type to the PLM occupying a resident-trigger block and fails if none owns it.</summary>
     private static void NotifyResidentProjectileHit(
         RoomPlmSystem? roomPlms,
         RoomCollisionBlock block,
@@ -472,6 +484,7 @@ internal sealed class ProjectileTerrainCollision
         KillBeam(slot);
     }
 
+    /// <summary>Moves a beam explosion to its directional leading edge and installs the native explosion program.</summary>
     internal static void KillBeam(SamusProjectileSlot slot)
     {
         // `$90:AE3A` moves the explosion anchor to the leading edge before bank $93 swaps
@@ -495,6 +508,7 @@ internal sealed class ProjectileTerrainCollision
         slot.PreInstruction = SamusProjectilePreInstruction.None;
     }
 
+    /// <summary>Converts a missile impact to its family-specific explosion and requests Super Missile quake and impact audio.</summary>
     internal void KillMissile(
         SamusProjectileSlot slot,
         SamusBombProjectileSystem sharedProjectiles)

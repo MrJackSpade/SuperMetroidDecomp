@@ -12,8 +12,10 @@ using static InstalledFileSelectMapVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks file-select save marker eligibility, animation, and editable map positions.</summary>
 internal static class MapSaveMarkersVerification
 {
+    /// <summary>Compares all area slots with native marker presence and used-station label rules.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native save/elevator marker slots per area")]
     internal static void VerifySaveMarkerEligibility(ISnesAddressSpace bus)
     {
@@ -75,6 +77,7 @@ internal static class MapSaveMarkersVerification
         }
     }
 
+    /// <summary>Checks marker OAM, edited Maridia position, snapshot rebind, and load handoff timing.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyMapSaveMarkers(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
@@ -174,6 +177,7 @@ internal static class MapSaveMarkersVerification
         }
     }
 
+    /// <summary>Blocks runtime reads of native area pointer and save-marker coordinate tables.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle walking the native selected-save marker coordinate lists to forbid them")]
     private static MutableCartridgeReadGuard NewSaveMarkerGuard(ISnesAddressSpace source)
     {

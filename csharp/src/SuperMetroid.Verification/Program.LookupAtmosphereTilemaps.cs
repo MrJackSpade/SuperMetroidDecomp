@@ -6,15 +6,20 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks calculated rain and fog tilemap attributes against native pages and editable fields.</summary>
 internal static class LookupAtmosphereTilemapsVerification
 {
+    /// <summary>Compares rain palette bits with the original atmosphere page.</summary>
     private static void VerifyRainTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Rain, 0x1c00));
+    /// <summary>Compares fog palette bits with the original atmosphere page.</summary>
     private static void VerifyFogTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Fog, 0x1c00));
+    /// <summary>Compares fog priority bits with the original atmosphere page.</summary>
     private static void VerifyFogTilePriority(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Fog, 0x2000));
 
+    /// <summary>Checks every page cell's selected attribute mask against both calculation and installed output.</summary>
     private static void VerifyAtmosphereTileField(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock,
         RoomFxType type, int mask)
     {
@@ -31,6 +36,7 @@ internal static class LookupAtmosphereTilemapsVerification
         }
     }
 
+    /// <summary>Checks rain/fog domain, uncached calculated fields, independent edits, and exact page bounds.</summary>
     private static void VerifyAtmosphereTilemapDomainAndEdits(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         for (int value = 0; value <= ushort.MaxValue; value++)
@@ -73,9 +79,11 @@ internal static class LookupAtmosphereTilemapsVerification
         }
     }
 
+    /// <summary>Reads a native atmosphere page byte for editable-field comparisons.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for atmosphere tilemap domain and edits")]
     private static byte AtmosphereTilemapDomainAndEditsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Runs rain and fog palette, priority, and edit ownership checks.</summary>
     internal static void VerifyAtmosphereTilemapFields(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         Suite(nameof(VerifyRainTilePalette), () => VerifyRainTilePalette(rom, stock));

@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms identified enemy color coverage and exact short/long selections using constructed source only.</summary>
 internal static class EnemyColorPresentationContractChecks
 {
+    /// <summary>Confirms audited color domains admit valid calls while preserving findings for short or invalid selections.</summary>
     internal static void Run()
     {
         var trees = RemainingEnemyColorClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -79,6 +80,7 @@ internal static class EnemyColorPresentationContractChecks
                 "the " + selected + " selection must not borrow another resource's larger dimensions");
     }
 
+    /// <summary>Reports an enemy-color closure regression through the audit process boundary.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Enemy color provider confirmation failed: " + reason);

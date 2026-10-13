@@ -9,7 +9,9 @@ internal sealed record GameConfigurationFile(
     SuperMetroidGameOptions Options,
     string Source)
 {
+    /// <summary>Player settings filename used for both installed data and executable-local overrides.</summary>
     public const string FileName = "SuperMetroid.ini";
+    /// <summary>Release template copied to the player settings file on first use.</summary>
     public const string DefaultsFileName = "SuperMetroid.defaults.ini";
 
     /// <summary>Loads normal player settings from the installation, independent of its import ROM.</summary>
@@ -19,6 +21,7 @@ internal sealed record GameConfigurationFile(
         return LoadFromDirectory(dataDirectory, defaultsDirectory, "installation data-directory settings");
     }
 
+    /// <summary>Prefers a local override, seeds absent settings from the release template, and parses the selected INI.</summary>
     private static GameConfigurationFile LoadFromDirectory(string dataDirectory,
         string? defaultsDirectory, string source)
     {

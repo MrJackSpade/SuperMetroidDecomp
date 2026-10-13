@@ -10,10 +10,15 @@ namespace SuperMetroid.Core.Assets;
 /// and supernova one, top-left for supernova two, then proceeds clockwise.</summary>
 internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Edited first-quadrant parts, absent when the supplied basis matches calculated stock.</summary>
     private readonly CompiledSpritePart[]? basis;
+    /// <summary>Glow or supernova pose selecting the corresponding atlas arrangement.</summary>
     private readonly Pose pose;
+    /// <summary>Number of pieces mirrored into each of four quadrants.</summary>
     private readonly int basisCount;
+    /// <summary>Starting quadrant that preserves native clockwise OAM order.</summary>
     private readonly int firstQuadrant;
+    /// <summary>Stores supplied basis parts only when they differ from calculated stock geometry.</summary>
     private EndingExplosionQuadrantParts(CompiledSpritePart[] suppliedBasis, Pose pose, int firstQuadrant)
     {
         this.pose = pose;
@@ -25,8 +30,30 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
         this.firstQuadrant = firstQuadrant;
     }
 
-    private enum GlowPiece { TopCap, OuterBody, InnerBody }
-    private enum SupernovaPiece { LowerOuterEdge, UpperOuterEdge, InnerTopEdge, OuterTopEdge, Interior }
+    /// <summary>Three overlapping pieces in the glow's source quadrant.</summary>
+    private enum GlowPiece
+    {
+        /// <summary>Upper glow cap.</summary>
+        TopCap,
+        /// <summary>Outer lower glow body.</summary>
+        OuterBody,
+        /// <summary>Inner lower glow body.</summary>
+        InnerBody,
+    }
+    /// <summary>Four edge cells and one large interior in a supernova quadrant.</summary>
+    private enum SupernovaPiece
+    {
+        /// <summary>Lower part of the outer edge.</summary>
+        LowerOuterEdge,
+        /// <summary>Upper part of the outer edge.</summary>
+        UpperOuterEdge,
+        /// <summary>Inner cell along the top edge.</summary>
+        InnerTopEdge,
+        /// <summary>Outer cell along the top edge.</summary>
+        OuterTopEdge,
+        /// <summary>Large central supernova tile.</summary>
+        Interior,
+    }
 
     /// <summary>Original base-quadrant packing at atlas origins$80/$83/$86.
     /// A24-pixel quadrant uses three overlapping large glow pieces, or four small
@@ -66,6 +93,7 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
                 right ? SnesTileFlipFlags.Horizontal : 0), true);
     }
 
+    /// <summary>Uses a supplied first quadrant to calculate matching glow or supernova reflections.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         int count, first;
@@ -88,7 +116,9 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
         return supplied.CalculateIfMatching(new EndingExplosionQuadrantParts(basis, pose, first));
     }
 
+    /// <summary>Four times the number of source-quadrant pieces.</summary>
     public int Count => basisCount * 4;
+    /// <summary>Reflects a source piece about the actor origin for its native OAM quadrant.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -108,9 +138,11 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
                 part.InheritPalette);
         }
     }
+    /// <summary>Enumerates all four reflected quadrants in native draw order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same quadrant order through the non-generic collection interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

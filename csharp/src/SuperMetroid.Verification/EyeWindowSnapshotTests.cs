@@ -4,8 +4,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static RenderPacketCodecTestsVerification;
 
+/// <summary>Checks morph-ball eye windows through snapshot encoding and software rendering.</summary>
 internal static class EyeWindowSnapshotTestsVerification
 {
+    /// <summary>Compares intersection arithmetic, native endpoint samples, and backend pixels across angles.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyEyeWindowSnapshots()
     {
@@ -57,6 +59,7 @@ internal static class EyeWindowSnapshotTestsVerification
         }
     }
 
+    /// <summary>Compares selected $88:E987 cartridge endpoints with captured scanline windows.</summary>
     private static void VerifyReportedEyeNativeEndpoints(ISnesAddressSpace bus)
     {
         // These endpoints were emitted by executing ROM $88:E987, not by the

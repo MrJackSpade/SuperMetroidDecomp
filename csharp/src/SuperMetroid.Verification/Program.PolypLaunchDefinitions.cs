@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks that compiled Polyp launch selectors preserve the cartridge tables for every possible RNG word.</summary>
 internal static class PolypLaunchDefinitionsVerification
 {
+    /// <summary>Compares cooldown, initial Y index, and signed X velocity against their native bank-$A2 table selections.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Polyp launch definitions")]
     internal static void VerifyCompiledPolypLaunchDefinitions(SuperMetroidAddressSpace rom)
     {

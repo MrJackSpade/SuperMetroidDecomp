@@ -16,10 +16,13 @@ using static DoorDefinitionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static RoomMainCodeCatalogVerification;
 
+/// <summary>Checks compiled room definitions through the production post-Ceres landing path.</summary>
 internal static class RoomDefinitionIntegrationVerification
 {
+    /// <summary>Bound on the Landing Site trajectory needed to observe gunship landing completion.</summary>
     internal const int PostCeresLandingMaximumFrames = 700;
 
+    /// <summary>Compares guarded and cartridge-backed room entry, camera, Samus, and gunship updates until landing completes.</summary>
     internal static void VerifyCompiledRoomDefinitionIntegration()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -94,6 +97,7 @@ internal static class RoomDefinitionIntegrationVerification
             $"remain unread through production entry and {frames} Landing Site camera frames.");
     }
 
+    /// <summary>Starts the Ceres handoff and enters Landing Site with the timebomb event set.</summary>
     private static InitialViewportResult InitializePostCeresLanding(
         SuperMetroidRuntime runtime)
     {
@@ -104,6 +108,7 @@ internal static class RoomDefinitionIntegrationVerification
         return runtime.RoomLoader.InitializePostCeresZebesRoom();
     }
 
+    /// <summary>Collects native bytes owned by compiled load stations, doors, room headers/states, scroll grids, and callbacks.</summary>
     private static HashSet<int> BuildCompiledRoomDefinitionAddressSet(
         ISnesAddressSpace source)
     {
@@ -184,15 +189,18 @@ internal static class RoomDefinitionIntegrationVerification
         return forbidden;
     }
 
+    /// <summary>Adds every byte in a native definition range to the forbidden-read set.</summary>
     private static void AddAddressRange(HashSet<int> addresses, int start, int count)
     {
         for (int offset = 0; offset < count; offset++)
             addresses.Add(start + offset);
     }
 
+    /// <summary>Observes importer reads to capture exact room-header and state-definition byte ownership.</summary>
     private static CartridgeReadGuard NewDefinitionAddressCollectingBus(ISnesAddressSpace source, HashSet<int> addresses) =>
         new CartridgeReadGuard(source).Observe(_ => true, address => addresses.Add(address));
 
+    /// <summary>Rejects production access to any cartridge byte claimed by compiled room definitions.</summary>
     private static MutableCartridgeReadGuard NewCompiledRoomDefinitionReadGuard(ISnesAddressSpace source, HashSet<int> forbidden)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -201,6 +209,7 @@ internal static class RoomDefinitionIntegrationVerification
         return guard;
     }
 
+    /// <summary>Runs room-definition integration and the post-Ceres landing handoff check.</summary>
     [VerificationCommand("--room-definition-integration")]
     internal static int RoomDefinitionIntegrationCommand()
     {

@@ -21,9 +21,13 @@ public sealed class SamusSpritemapArtworkCatalog
     /// <summary>Native <c>$92:945D</c> lower-half base-index table.</summary>
     public const int BottomBaseAddress = 0x92945D;
 
+    /// <summary>Upper-half pose base indices whose selected values differ from calculated stock values.</summary>
     internal readonly Dictionary<int, ushort> topBases;
+    /// <summary>Lower-half pose base indices whose selected values differ from calculated stock values.</summary>
     internal readonly Dictionary<int, ushort> bottomBases;
+    /// <summary>Indexed pointer entries whose selected identity differs from the calculated allocation.</summary>
     internal readonly Dictionary<int, ushort> pointers;
+    /// <summary>Validated selected compositions keyed by their bank $92 record pointer.</summary>
     internal readonly Dictionary<ushort, SamusSpritemapDefinition> definitions;
 
     /// <summary>Validates pose selectors, indexed pointers, and compositions, copying sprite parts and retaining independently edited selections without replacing animation or collision mechanics.</summary>
@@ -97,6 +101,7 @@ public sealed class SamusSpritemapArtworkCatalog
     public ReadOnlySpan<ushort> BottomBases => Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(pose => BottomBase((SamusPoseId)pose)).ToArray();
     /// <summary>Materializes the complete indexed bank-$92 pointer allocation in native table order, preserving repeated identities and mutable-memory zero pointers.</summary>
     public ReadOnlySpan<ushort> Pointers => Enumerable.Range(0, PointerCount).Select(Pointer).ToArray();
+    /// <summary>Resolves an indexed pointer through an override, shared source entry, or calculated stock identity.</summary>
     private ushort Pointer(int index) => pointers.TryGetValue(index, out ushort value)
         ? value : SamusSpritemapFrameDefinitions.SourceIndex(index) != index
             ? Pointer(SamusSpritemapFrameDefinitions.SourceIndex(index))

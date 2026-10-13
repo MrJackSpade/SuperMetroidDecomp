@@ -13,8 +13,10 @@ internal static class HostToolbarLayout
     // The timing string is deliberately complete at the default 900-pixel host width. It
     // still has a fixed width, so neither changing rates nor a longer worst-frame value can
     // recenter the canvas as the old auto-sized diagnostic label did.
+    /// <summary>Fixed width that prevents a changing phase or timing label from recentering the gameplay canvas.</summary>
     private const int StatusLabelWidth = 390;
 
+    /// <summary>Creates a clipped status region so long diagnostics affect neither toolbar width nor canvas placement.</summary>
     public static ToolStripLabel CreateStatusLabel() => new()
     {
         AutoSize = false,

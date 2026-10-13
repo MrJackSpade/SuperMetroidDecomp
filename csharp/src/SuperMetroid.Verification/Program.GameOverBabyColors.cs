@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using static ColorWordsVerification;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks game-over Baby Metroid palette phases and independently editable RGB5 components.</summary>
 internal static class GameOverBabyColorsVerification
 {
+    /// <summary>Compares four sixteen-color native phases with installed CGRAM slots and verifies channel edits, phase bounds, and content identity.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyGameOverBabyColors(ISnesAddressSpace rom)
     {
@@ -35,8 +37,6 @@ internal static class GameOverBabyColorsVerification
                 AssertEqual(expected, cgram.Colors[192 + ink], "Baby CGRAM application");
             }
         }
-        // Every independently editable RGB5 component must survive import exactly,
-        // including downstream targets whose input colors have changed.
         foreach (ushort[] edited in palettes.Values)
         for (int ink = 0; ink < 16; ink++)
         for (int channel = 0; channel < 3; channel++)

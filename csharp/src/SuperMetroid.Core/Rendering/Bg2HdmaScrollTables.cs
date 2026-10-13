@@ -10,7 +10,9 @@ namespace SuperMetroid.Core.Rendering;
 [SpatialComponents("HDMA adapter: BG2HOFS and BG2VOFS are written by independent, separately optional HDMA channels.")]
 public readonly struct Bg2HdmaScrollTables
 {
+    /// <summary>Optional copy of the BG2 horizontal register value for each gameplay scanline.</summary>
     private readonly ushort[]? horizontal;
+    /// <summary>Independent optional vertical register copy; an absent channel keeps its latched value.</summary>
     private readonly ushort[]? vertical;
 
     /// <summary>Copies the optional per-line register tables.</summary>

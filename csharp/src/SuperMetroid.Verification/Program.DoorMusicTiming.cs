@@ -14,8 +14,10 @@ using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks room music dispatch timing during a retail Parlor-to-Landing-Site door transition.</summary>
 internal static class DoorMusicTimingVerification
 {
+    /// <summary>Checks post-scroll stop, upload, and destination-track delays plus unchanged and zero-track handling.</summary>
     internal static void VerifyDoorMusicTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -96,6 +98,7 @@ internal static class DoorMusicTimingVerification
         Console.WriteLine("  Door music: IRQ-only waits preserve queued delays; post-scroll stop/upload and track dispatch timing agree.");
     }
 
+    /// <summary>Runs the door music timing verification.</summary>
     [VerificationCommand("--door-music-timing")]
     internal static int DoorMusicTimingCommand()
     {

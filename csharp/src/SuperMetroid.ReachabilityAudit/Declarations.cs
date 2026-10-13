@@ -6,9 +6,13 @@ namespace SuperMetroid.ReachabilityAudit;
 /// <summary>How a declaration is reported; enum members and fields have their own categories.</summary>
 internal enum DeclarationShape
 {
+    /// <summary>A named type declaration is reachable as a symbol root or reference target.</summary>
     Type,
+    /// <summary>A callable, property, event, or indexer declaration.</summary>
     Member,
+    /// <summary>A field whose reachability may also be implied by layout or containing type use.</summary>
     Field,
+    /// <summary>An enum constant reported separately from ordinary fields.</summary>
     EnumMember,
 }
 
@@ -19,8 +23,10 @@ internal sealed record Declaration(string Key, string Kind, string Display, stri
 /// <summary>Records every type and member declared in repository source.</summary>
 internal sealed class DeclarationCollector(SymbolIdentity identity, ReachabilityGraph graph)
 {
+    /// <summary>Collected declarations keyed by stable symbol identity across projects.</summary>
     public Dictionary<string, Declaration> Declarations { get; } = [];
 
+    /// <summary>Records repository declarations from a compilation and merges project ownership for shared source.</summary>
     public void Collect(Project project, Compilation compilation)
     {
         foreach (var tree in compilation.SyntaxTrees.Where(identity.IsRepositorySource))
@@ -46,6 +52,7 @@ internal sealed class DeclarationCollector(SymbolIdentity identity, Reachability
         }
     }
 
+    /// <summary>Finds declared type and member symbols, including positional-record properties.</summary>
     internal static ISymbol? DeclaredSymbol(SemanticModel model, SyntaxNode node) => node switch
     {
         BaseTypeDeclarationSyntax or DelegateDeclarationSyntax or BaseMethodDeclarationSyntax
@@ -59,6 +66,7 @@ internal sealed class DeclarationCollector(SymbolIdentity identity, Reachability
         _ => null,
     };
 
+    /// <summary>Classifies a symbol for type, field, enum-member, or other-member reporting.</summary>
     private static DeclarationShape Shape(ISymbol symbol) => symbol switch
     {
         INamedTypeSymbol => DeclarationShape.Type,
@@ -67,6 +75,7 @@ internal sealed class DeclarationCollector(SymbolIdentity identity, Reachability
         _ => DeclarationShape.Member,
     };
 
+    /// <summary>Formats a declaration's language kind for the reachability report.</summary>
     private static string Kind(ISymbol symbol) => symbol switch
     {
         INamedTypeSymbol { IsRecord: true, TypeKind: TypeKind.Struct } => "record struct",

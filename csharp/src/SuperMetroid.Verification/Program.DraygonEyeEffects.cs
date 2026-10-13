@@ -14,8 +14,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Draygon eye dust emission timing and facing-relative spawn position.</summary>
 internal static class DraygonEyeEffectsVerification
 {
+    /// <summary>Tracks a stationary target across the eye's frame-128 particle boundary in both facings.</summary>
     internal static void VerifyDraygonEyeEffects()
     {
         foreach (bool facingRight in new[] { false, true })
@@ -44,6 +46,7 @@ internal static class DraygonEyeEffectsVerification
         }
     }
 
+    /// <summary>Runs the focused Draygon eye effect verification command.</summary>
     [VerificationCommand("--draygon-eye-effects")]
     internal static int DraygonEyeEffectsCommand()
     {

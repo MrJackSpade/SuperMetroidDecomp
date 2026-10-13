@@ -16,8 +16,10 @@ using static CeresSpawnerScheduleVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Ceres destruction actors, placement, timing, and spawn schedules.</summary>
 internal static class CeresExplosionDefinitionsVerification
 {
+    /// <summary>Compares 70 native words and completes the real destruction scene without definition rereads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres explosion definitions")]
     internal static void VerifyCeresExplosionDefinitions()
     {
@@ -78,6 +80,7 @@ internal static class CeresExplosionDefinitionsVerification
         }
     }
 
+    /// <summary>Compares repeating and final-wave placement records and their index bounds.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres burst layout")]
     internal static void VerifyCeresBurstLayout(ISnesAddressSpace retail)
     {
@@ -107,6 +110,7 @@ internal static class CeresExplosionDefinitionsVerification
                 () => CeresExplosionDefinitions.FinalExplosion(invalid), "final layout bounds");
     }
 
+    /// <summary>Rejects runtime reads from migrated explosion actor and placement records.</summary>
     private static CartridgeReadGuard NewCeresExplosionDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x8bc46b and < 0x8bc489 or
@@ -118,6 +122,7 @@ internal static class CeresExplosionDefinitionsVerification
                     >= 0x8bcf2d and < 0x8bcf39,
                 address => $"Ceres explosion reread compiled definition byte ${address:X6}.");
 
+    /// <summary>Runs the Ceres destruction definition comparison with the retail cartridge.</summary>
     [VerificationCommand("--ceres-explosion-definitions")]
     internal static int CeresExplosionDefinitionsCommand()
     {

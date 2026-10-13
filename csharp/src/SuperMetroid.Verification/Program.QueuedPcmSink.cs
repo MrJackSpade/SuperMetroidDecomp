@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Audio;
 
+/// <summary>Checks queued PCM ownership and delivery when an audio device blocks or fails.</summary>
 internal static class QueuedPcmSinkVerification
 {
+    /// <summary>Verifies caller-buffer copies, frame submission without device stalls, ordered drain, and surfaced worker errors.</summary>
     internal static void VerifyQueuedPcmSink()
     {
         using var entered = new ManualResetEventSlim();

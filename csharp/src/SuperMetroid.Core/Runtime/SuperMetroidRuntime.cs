@@ -50,7 +50,9 @@ public sealed class SuperMetroidRuntime
 
     /// <summary>The <see cref="RoomLoader"/> owner of this SuperMetroidRuntime.</summary>
     internal RoomLoader RoomLoader { get; }
+    /// <summary>Applies room-scoped enemy effects before frame owners advance.</summary>
     internal EnemyRoomEffects EnemyRoomEffects { get; }
+    /// <summary>Retains scripted demo input and progression across runtime frames.</summary>
     internal AttractDemoSession AttractSession { get; } = new();
 
     /// <summary>The <see cref="GameplayDisplayState"/> owner of this SuperMetroidRuntime.</summary>
@@ -98,6 +100,7 @@ public sealed class SuperMetroidRuntime
     /// <summary>The <see cref="RuntimeArtwork"/> owner of this SuperMetroidRuntime.</summary>
     internal RuntimeArtwork Artwork { get; }
 
+    /// <summary>Mutable emulated address space shared by translated gameplay owners.</summary>
     internal readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>
@@ -371,6 +374,10 @@ public sealed class SuperMetroidRuntime
         }
     }
 
+    /// <summary>
+    /// Advances one accepted NMI and the corresponding gameplay dispatch while the
+    /// frame-exit ammo guard remains active through translated callbacks.
+    /// </summary>
     private RuntimeFrameResult StepFrameGuarded(
         ushort controller1Input,
         RuntimeFrameRequest frameRequest,
@@ -1061,6 +1068,7 @@ public sealed class SuperMetroidRuntime
         System.UpdateHeldInput(timerReset, Controller1.Current, Controller1.NewlyPressed);
     }
 
+    /// <summary>Applies host-only frame-exit guards before publishing the runtime result.</summary>
     internal RuntimeFrameResult Snapshot(
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
@@ -1075,8 +1083,10 @@ public sealed class SuperMetroidRuntime
         return new RuntimeFrameResult();
     }
 
-    // Final gameplay frame, reused by every software render of this runtime. A rendered
-    // frame is valid until the next render; hosts and tests that keep one must copy it.
+    /// <summary>
+    /// Reused final gameplay frame buffer. Callers keeping an image beyond the next render
+    /// must copy it because subsequent software rendering overwrites the same array.
+    /// </summary>
     [field: NonSerialized]
     internal Rgba32[] GameplayFrameBuffer =>
         field ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
@@ -1092,6 +1102,7 @@ public sealed class SuperMetroidRuntime
         bool StationaryScriptControlLocked,
         bool SuitOwnsSamus);
 
+    /// <summary>State-eight tail parked when a PLM opens a message box during a gameplay frame.</summary>
     internal SuspendedGameplayFrameTail? _suspendedFrameTail;
 
 

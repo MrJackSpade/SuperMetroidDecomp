@@ -12,8 +12,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
+/// <summary>Checks the four-statues room's special water FX in live physics and displayed BG3 composition.</summary>
 internal static class TourianStatueWaterVerification
 {
+    /// <summary>Drives the retail room through water motion, freeze, and independent statue descent.</summary>
     internal static int VerifyTourianStatueWater()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -91,6 +93,7 @@ internal static class TourianStatueWaterVerification
         return 0;
     }
 
+    /// <summary>Runs the four-statues water fixture as a verification command.</summary>
     [VerificationCommand("--tourian-statue-water")]
     internal static int TourianStatueWaterCommand()
     {

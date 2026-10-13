@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Uses the retail cartridge as an oracle for ending logo palettes and post-shot transfers.</summary>
 internal static class EndingLogoTablesVerification
 {
+    /// <summary>Checks both palettes' sixteen source pointers and invalid step or palette selectors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette sources")]
     internal static void VerifyEndingLogoPaletteSources(ISnesAddressSpace rom)
     {
@@ -20,6 +22,7 @@ internal static class EndingLogoTablesVerification
             AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoPalettePointerDefinitions.Source(0, invalid), "palette selector bounds");
     }
 
+    /// <summary>Checks all six post-shot transfer lengths, sources, destinations, and out-of-range indexes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending post shot transfer fields")]
     internal static void VerifyEndingPostShotTransferFields(ISnesAddressSpace rom)
     {

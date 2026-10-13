@@ -9,9 +9,13 @@ namespace SuperMetroid.Core.Assets;
 /// opposite-side geometry is calculated separately from those pose choices.</summary>
 internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Index in the seven-step hair release sequence used to choose atlas regions and part counts.</summary>
     private readonly int stage;
+    /// <summary>Supplied forearm positions retained only when they do not follow the symmetric pose rule.</summary>
     private readonly (int X, int Y)[]? moving;
+    /// <summary>First hand placement in a held-hair pose, used to derive the opposite arm when possible.</summary>
     private readonly (int X, int Y) forearmAnchor;
+    /// <summary>Captures authored hand placement for the held poses while calculating the remaining body pieces.</summary>
     private EndingRewardHairParts(int stage, SpriteComposition supplied)
     {
         this.stage = stage;
@@ -27,9 +31,11 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
             moving = positions[1] == OppositeForearm(forearmAnchor) ? null : positions;
         }
     }
+    /// <summary>Reflects a sixteen-pixel forearm about the body center and raises the opposite cel one pixel.</summary>
     internal static (int X, int Y) OppositeForearm((int X, int Y) anchor)
         // Reflect the sixteen-pixel piece about x=0.5; the right cel sits one pixel higher.
         => (1 - 16 - anchor.X, anchor.Y - 1);
+    /// <summary>Replaces a matching hair-release frame with its packed atlas composition when the supplied part count agrees.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int stage = 0; stage < EndingRewardSpriteFrameSeries.HairOpening.Count; stage++)
@@ -41,6 +47,7 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
         }
         return supplied;
     }
+    /// <summary>Counts head, arm, and hair pieces for each of the seven release drawings.</summary>
     private static int PartCount(int stage) => stage switch
     {
         0 or 4 => 9,
@@ -49,7 +56,9 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
         7 => 13,
         _ => throw new ArgumentOutOfRangeException(nameof(stage)),
     };
+    /// <summary>Number of sprite parts in the selected hair-release drawing.</summary>
     public int Count => PartCount(stage);
+    /// <summary>Calculates the requested part's atlas tile, anchor offset, and OBJ size for this release stage.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -141,10 +150,12 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Yields the calculated sprite pieces in native composition order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Provides the same ordered sprite traversal through the non-generic interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

@@ -41,6 +41,7 @@ public static class EnemyQuadraticSpeedDefinitions
         return (SnesSixteenSixteen.FromWhole(whole)) | fraction;
     }
 
+    /// <summary>Reconstructs a byte of the shared positive/negative 16.16 record, preserving the native discarded fractional carry.</summary>
     private static byte ReadByte(int offset)
     {
         int record = offset / RecordSize;

@@ -10,8 +10,10 @@ using static IntroCinematicArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Checks installed intro Rinka sprites and flashback pixels against native artwork and palette overrides.</summary>
 internal static class IntroRinkaSpriteArtworkVerification
 {
+    /// <summary>Draws a live intro actor from cartridge spritemap data with native origin clipping.</summary>
     internal static void DrawImportedCinematicActor(ISnesAddressSpace bus, OamBuffer oam, IntroDiscoverySprite actor)
     {
         if (!actor.IsActive || actor.SpriteMapPointer == 0) return;
@@ -22,6 +24,7 @@ internal static class IntroRinkaSpriteArtworkVerification
             new(actor.WholePosition.X, y), actor.PaletteBits,
             originIsOnScreen: ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0);
     }
+    /// <summary>Compares installed Rinka OAM and flashback pixels with native art, then verifies a palette override and rebinding.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)

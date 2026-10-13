@@ -18,9 +18,12 @@ internal readonly record struct ConvertedMovieUpdate(
 /// </summary>
 internal sealed class NativeMovieCheckpoints : IDisposable
 {
+    /// <summary>Compact replay trace supplying the native WRAM checkpoint recorded at each update boundary.</summary>
     private readonly ReplayTrace trace;
+    /// <summary>Index of the last checkpoint consumed from the compressed stream.</summary>
     private int lastRecord = -1;
 
+    /// <summary>Verifies the checkpoint stream against the manifest before opening it for sequential reads.</summary>
     private NativeMovieCheckpoints(ReplayTrace trace, ConvertedMovieUpdate[] updates)
     {
         this.trace = trace;
@@ -31,8 +34,11 @@ internal sealed class NativeMovieCheckpoints : IDisposable
         InitialRecord = root.GetProperty("initialRecord").GetInt32();
     }
 
+    /// <summary>Input dispatches and their native checkpoint mapping in replay order.</summary>
     public IReadOnlyList<ConvertedMovieUpdate> Updates { get; }
+    /// <summary>Original SMV frame count used to identify the terminal checkpoint.</summary>
     public int SourceFrameCount { get; }
+    /// <summary>Controller value already sampled before the first converted gameplay update.</summary>
     public ushort InitialInput { get; }
     /// <summary>Record preceding the first port update; nonzero after a folded power-on prelude.</summary>
     public int InitialRecord { get; }
@@ -55,6 +61,7 @@ internal sealed class NativeMovieCheckpoints : IDisposable
     public static NativeMovieCheckpoints OpenFullCapture(string directory, byte[] movie) =>
         Open(ReplayTrace.OpenFullCapture(directory), movie);
 
+    /// <summary>Binds an opened trace to the supplied movie, disposing the trace if the binding fails.</summary>
     private static NativeMovieCheckpoints Open(ReplayTrace trace, byte[] movie)
     {
         try
@@ -132,5 +139,6 @@ internal sealed class NativeMovieCheckpoints : IDisposable
             throw new InvalidDataException("Native checkpoint stream continues after the movie's terminal state.");
     }
 
+    /// <summary>Closes the decompressor and its underlying checkpoint file.</summary>
     public void Dispose() => trace.Dispose();
 }

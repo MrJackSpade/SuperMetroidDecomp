@@ -19,8 +19,10 @@ using static IntroScientistInstructionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail comparison and ROM-read boundary for intro Baby actor definitions, discovery instructions and demo input.</summary>
 internal static class IntroBabyActorDefinitionsVerification
 {
+    /// <summary>Checks compiled actor placement and instruction sources against the cartridge, then advances guarded discovery and scientist scenes.</summary>
     internal static void VerifyIntroBabyActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -220,9 +222,11 @@ internal static class IntroBabyActorDefinitionsVerification
             "  Intro baby actors: definition, 138 discovery, 142 scientist, 72 demo-input and 768 collision bytes match; full guarded scenes pass.");
     }
 
+    /// <summary>Reads a single retail byte only for the comparison oracle, outside the guarded production playback.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Baby actor definitions")]
     private static byte IntroBabyActorDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Rejects production rereads of compiled Baby actor, instruction, demo-input and discovery-collision regions.</summary>
     private static CartridgeReadGuard NewIntroBabyActorDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address =>
@@ -255,14 +259,18 @@ internal static class IntroBabyActorDefinitionsVerification
     /// <summary>A demo owner that accepts every pre-instruction without effect and has no private routines (#633).</summary>
     internal sealed class InertPreInstructionDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
     {
+        /// <summary>Supplies either compiled or retail demo-list words for a matched loop comparison.</summary>
         public ushort ReadInstructionWord(ushort pointer) => readWord(pointer);
 
+        /// <summary>Leaves the initial running-left loop active without Samus's stop-and-look redirect.</summary>
         public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => true;
 
+        /// <summary>Declines private demo opcodes so the common interpreter handles the stream.</summary>
         public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor) =>
             DemoInputInstructionResult.NotHandled(cursor);
     }
 
+    /// <summary>Runs the compiled intro Baby actor and discovery playback comparison.</summary>
     [VerificationCommand("--intro-baby-actor-definitions")]
     internal static int IntroBabyActorDefinitionsCommand()
     {

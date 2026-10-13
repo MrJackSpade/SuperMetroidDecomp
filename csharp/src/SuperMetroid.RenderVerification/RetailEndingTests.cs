@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Checks D3D11 rendering of the retail ending across the three completion-time rewards.</summary>
 internal static class RetailEndingTests
 {
+    /// <summary>Compares sampled ending phases with software pixels and confirms repeated packet rendering leaves cinematic cadence unchanged.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
@@ -32,7 +34,6 @@ internal static class RetailEndingTests
                         new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), captured.Presentation.CaptureRenderSnapshot())));
                     PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                         $"{device.Kind}: ending hours={hours}, tick={tick}, phase={legacy.Phase}");
-                    // Rendering the same immutable packet twice must not advance the scene.
                     PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "ending repeated GPU rendering");
                 }
                 leftAudio.AdvanceFrame(leftBus, default); rightAudio.AdvanceFrame(rightBus, default);

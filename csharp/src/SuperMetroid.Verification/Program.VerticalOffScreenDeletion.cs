@@ -11,11 +11,13 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
 
+/// <summary>Checks the native camera-relative deletion boundary for n00b-tube shards.</summary>
 internal static class VerticalOffScreenDeletionVerification
 {
-    // #1269: $86:B5B9 keeps n00b-tube shards above the camera and until they are $120
-    // pixels below its top row. The port deleted them at $100, removing a 100% movie shard
-    // while native still advanced it.
+    /// <summary>
+    /// Confirms $86:B5B9 retains shards above the camera and through $11F below its top row;
+    /// issue #1269 exposed the former $100 cutoff when it removed a shard still advancing in the movie.
+    /// </summary>
     internal static void VerifyVerticalOffScreenDeletion()
     {
         const ushort cameraY = 0x100;
@@ -37,6 +39,7 @@ internal static class VerticalOffScreenDeletionVerification
         }
     }
 
+    /// <summary>Runs the focused camera-relative shard lifetime check from the verification command line.</summary>
     [VerificationCommand("--vertical-offscreen-deletion")]
     internal static int VerticalOffscreenDeletionCommand()
     {

@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 internal static class CartridgeImageCache
 {
+    /// <summary>Weakly holds shared ROM images by uppercase SHA-256 digest without extending their lifetime.</summary>
     private static readonly ConcurrentDictionary<string, WeakReference<byte[]>> images = new(StringComparer.Ordinal);
 
     /// <summary>The shared image equal to <paramref name="content"/>, creating it on first use.</summary>

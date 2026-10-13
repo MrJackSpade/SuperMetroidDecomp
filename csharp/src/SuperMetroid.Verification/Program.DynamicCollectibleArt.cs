@@ -9,8 +9,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
 using static LookupDynamicCollectibleStockVerification;
 
+/// <summary>Checks extracted collectible art, installed VRAM edits, stock integrity, and override failures.</summary>
 internal static class DynamicCollectibleArtVerification
 {
+    /// <summary>Checks collectible art extraction, edits reaching production VRAM and block palettes, restoration, and malformed override failures.</summary>
     internal static void VerifyInstalledDynamicCollectibleArt(
         SuperMetroidAddressSpace rom)
     {
@@ -111,6 +113,7 @@ internal static class DynamicCollectibleArtVerification
         }
     }
 
+    /// <summary>Loads the retail Bombs PLM with selected art and captures its VRAM tile bytes, block word, and pickup state.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static (byte[] Vram, ushort TileWord, CollectiblePlmSnapshot Item)
         LoadRetailBombsWithArt(ISnesAddressSpace bus,

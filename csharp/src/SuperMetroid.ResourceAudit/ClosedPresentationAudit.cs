@@ -12,9 +12,12 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal sealed class ClosedPresentationAudit
 {
+    /// <summary>Reviewed provider methods and whether their source and loader invariants still hold.</summary>
     private readonly Dictionary<(string Type, string Method), (ClosedPresentationContract Contract, bool Valid)> contracts = [];
+    /// <summary>Consumer calls classified against a valid closed presentation contract.</summary>
     private int references;
 
+    /// <summary>Revalidates each provider's source closure and known factory/array escape conditions before registering exports.</summary>
     internal ClosedPresentationAudit(Compilation compilation, ResourceIndex exports)
     {
         var sources = compilation.SyntaxTrees.ToDictionary(tree => tree.FilePath, tree => tree.GetText().ToString(),
@@ -141,12 +144,14 @@ internal sealed class ClosedPresentationAudit
     }
 
 
+    /// <summary>Classifies a provider call only when its reviewed proof, index domain, and named selection remain valid.</summary>
     internal bool TryInspect(InvocationExpressionSyntax call, SemanticModel semantic, IMethodSymbol method,
         ResourceIndex exports, AuditReport report, string location)
     {
         if (!contracts.TryGetValue((method.ContainingType.ToDisplayString(), method.Name), out var reviewed)) return false;
         ClosedPresentationContract contract = reviewed.Contract;
         string owner = method.ContainingType.Name + "." + method.Name;
+        // Record why a recognized provider call cannot be classified under its closed contract.
         void Gap(string reason)
         {
             report.Gap(method.ContainingType.Name, owner, location, reason);
@@ -192,6 +197,7 @@ internal sealed class ClosedPresentationAudit
         return true;
     }
 
+    /// <summary>Rejects literal arguments outside the reviewed finite identities or numeric index ranges.</summary>
     private static string? InvalidConstantIndex(IInvocationOperation operation)
     {
         foreach (IArgumentOperation argument in operation.Arguments)
@@ -223,6 +229,7 @@ internal sealed class ClosedPresentationAudit
         return null;
     }
 
+    /// <summary>Publishes the number of classified consumer calls against registered closed-provider exports.</summary>
     internal void Complete(ResourceIndex exports, AuditReport report) => report.Coverage.Add(new(
         "closed-presentation-contract", references, exports.Count("closed-presentation-contract")));
 }

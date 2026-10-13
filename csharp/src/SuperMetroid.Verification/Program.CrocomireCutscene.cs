@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static CrocomireTongueCollisionDefinitionsVerification;
 
+/// <summary>Checks Crocomire corpse collision data and the two death cutscene camera boundaries.</summary>
 internal static class CrocomireCutsceneVerification
 {
+    /// <summary>Compares all 33 skeleton frames' hitboxes and callbacks with the cartridge, including the empty E6BC frame.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire corpse collision")]
     internal static void VerifyCrocomireCorpseCollision()
     {
@@ -82,6 +84,7 @@ internal static class CrocomireCutsceneVerification
     private static byte[] ReadNativeCrocomireRoomScrolls(ISnesAddressSpace rom) =>
         Enumerable.Range(0, RoomScrollGrid.StorageByteCount).Select(index => rom.ReadCartridgeByte(0x8fa9d7 + index)).ToArray();
 
+    /// <summary>Checks the bridge melt lock at X=1280 and the later skeleton-wall lock at X=512.</summary>
     internal static void VerifyCrocomireCutsceneCamera()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -161,6 +164,7 @@ internal static class CrocomireCutsceneVerification
         Console.WriteLine("Left skeleton cutscene: existing code locks X=512 for both directions and unlocks at completion; reported overrun not reproduced.");
     }
 
+    /// <summary>Runs the Crocomire death cutscene camera boundary checks.</summary>
     [VerificationCommand("--crocomire-cutscene-camera")]
     internal static int CrocomireCutsceneCameraCommand()
     {
@@ -168,6 +172,7 @@ internal static class CrocomireCutsceneVerification
         return 0;
     }
 
+    /// <summary>Runs the Crocomire skeleton collision comparison against retail data.</summary>
     [VerificationCommand("--crocomire-corpse-collision")]
     internal static int CrocomireCorpseCollisionCommand()
     {

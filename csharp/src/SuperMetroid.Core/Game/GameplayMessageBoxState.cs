@@ -23,20 +23,31 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class GameplayMessageBoxState
 {
+    /// <summary>BG3 words for the active message, including its current confirmation cursor.</summary>
     internal ushort[] _tilemap = [];
+    /// <summary>Editable item-title artwork rebound after asset reload or state restoration.</summary>
     [NonSerialized] private GameplayMessageTitlePresentation? titlePresentation;
+    /// <summary>Editable item-panel artwork, including remappable button glyphs.</summary>
     [NonSerialized] private GameplayMessagePanelPresentation? panelPresentation;
+    /// <summary>Editable completion and confirmation artwork used to draw the save cursor.</summary>
     [NonSerialized] private GameplayMessageNoticePresentation? noticePresentation;
+    /// <summary>Preserves controller edges across the message routine's own input polls.</summary>
     private readonly ControllerInputState _controller = new();
+    /// <summary>Address space retained until the gunship save can open its completion notice.</summary>
     private ISnesAddressSpace? _activeBus;
+    /// <summary>Radius to publish on the next opening frame, after the current frame's window is drawn.</summary>
     private int _nextOpeningRadiusPixels;
+    /// <summary>Radius to publish on the next closing frame.</summary>
     private int _nextClosingRadiusPixels;
+    /// <summary>YES or NO selected before the confirmation window starts closing.</summary>
     private bool? _closingConfirmationResult;
+    /// <summary>Keeps an accepted gunship save result through its saving sound and completion notice.</summary>
     private bool _gunshipCompletion;
+    /// <summary>One-shot request for the sound queued by the accepted gunship save branch.</summary>
     private bool _savingSoundRequested;
+    /// <summary>Remaining frames before the gunship's SAVE COMPLETED notice reopens the box.</summary>
     private int _savingFramesRemaining;
-    // Lag frames left in the current Preparing/Restoring stretch, or until the save
-    // selector's next ReadControllerInput.
+    /// <summary>Lag frames left in preparation, restoration, or before the save selector's next controller read.</summary>
     private int _lagFramesRemaining;
 
     /// <summary>
@@ -48,7 +59,9 @@ public sealed class GameplayMessageBoxState
     /// <summary>The bank-$85 audio and HDMA-object calls made by the frame <see cref="Step"/> just ran.</summary>
     [field: NonSerialized]
     public MessageBoxFrameAudio LastFrameAudio { get; private set; }
+    /// <summary>Current Shoot binding used when panel artwork includes a button glyph.</summary>
     private ushort _shootBinding = (ushort)SnesButton.X;
+    /// <summary>Current Run binding used when panel artwork includes a button glyph.</summary>
     private ushort _runBinding = (ushort)SnesButton.B;
 
     /// <summary>Consumes $85:811B's one-shot saving sound, independently of gameplay publication.</summary>
@@ -59,6 +72,7 @@ public sealed class GameplayMessageBoxState
         return requested;
     }
 
+    /// <summary>Whether the active message uses the two-choice save cursor and edge-based input polling.</summary>
     private bool IsSaveConfirmation => MessageId is GameplayMessageId.SaveConfirmation or
         GameplayMessageId.GunshipSaveConfirmation;
 
@@ -196,6 +210,7 @@ public sealed class GameplayMessageBoxState
         BeginPreparing(GameplayMessageRomData.Timing.PreOpenLagFrames - 1);
     }
 
+    /// <summary>Enters the PPU preparation stretch with the number of waits left at this dispatch boundary.</summary>
     private void BeginPreparing(int lagFrames)
     {
         _lagFramesRemaining = lagFrames;
@@ -210,7 +225,6 @@ public sealed class GameplayMessageBoxState
         return result;
     }
 
-    /// <summary>Advances one accepted NMI while gameplay remains blocked.</summary>
     /// <summary>
     /// Runs one frame of the bank-$85 routine, which waits on lag frames: the NMI handler
     /// reads no controller while it runs, so only the routine's own reads see input.
@@ -374,6 +388,7 @@ public sealed class GameplayMessageBoxState
         StepClosing();
     }
 
+    /// <summary>Publishes one shrinking window radius, then selects restoration or the gunship saving wait.</summary>
     private void StepClosing()
     {
         RadiusPixels = _nextClosingRadiusPixels;
@@ -426,6 +441,7 @@ public sealed class GameplayMessageBoxState
         throw new InvalidOperationException("Save confirmation requires installed notice artwork.");
     }
 
+    /// <summary>Replaces a panel's cartridge-defined glyph cell with the player's configured button.</summary>
     internal void PatchConfiguredButton(GameplayMessageId messageId, ushort binding)
     {
         int byteOffset = GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(messageId);
@@ -438,6 +454,7 @@ public sealed class GameplayMessageBoxState
         _tilemap[byteOffset / 2] = ResolveButtonTilemapWord(binding);
     }
 
+    /// <summary>Selects the Shoot or Run binding required by the installed panel before drawing it.</summary>
     private void PatchInstalledPanelButton(GameplayMessageId messageId)
     {
         switch (GameplayMessagePanelDefinitions.ButtonBinding(messageId))
@@ -457,6 +474,7 @@ public sealed class GameplayMessageBoxState
         }
     }
 
+    /// <summary>Maps a controller binding to the cartridge's message tilemap glyph word.</summary>
     internal static ushort ResolveButtonTilemapWord(ushort binding) =>
         GameplayMessageRomData.Buttons.ResolveGlyphWord(binding);
 

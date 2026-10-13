@@ -17,6 +17,7 @@ using SuperMetroid.Core.Rooms;
 using static LookupRoomFxFieldsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled room FX records and Ceres consumers against the pinned cartridge.</summary>
 internal static class RoomFxRecordDefinitionsVerification
 {
     /// <summary>Checks the complete generated catalog and every source field against the ROM.</summary>
@@ -35,6 +36,7 @@ internal static class RoomFxRecordDefinitionsVerification
         Console.WriteLine($"Compiled room FX: {records.Count} typed records across {RoomStateDefinitions.All.Count()} room states match every native field.");
     }
 
+    /// <summary>Compares Ceres FX outputs with native reads and guards compiled consumers from rereading record bytes.</summary>
     private static void VerifyCompiledCeresRoomFxConsumers(SuperMetroidAddressSpace bus)
     {
         LoadStationEntry station = LoadStationDefinitions.Get(AreaId.Ceres, 0);
@@ -93,12 +95,15 @@ internal static class RoomFxRecordDefinitionsVerification
             "Ceres compiled treadmill animation count");
     }
 
+    /// <summary>The native record bytes compiled room FX consumers must no longer request.</summary>
     private static readonly HashSet<int> ForbiddenRoomFxRecordBytes = BuildForbiddenRoomFxRecordBytes();
 
+    /// <summary>Wraps the source bus so any room FX record reread fails with the offending address.</summary>
     private static CartridgeReadGuard NewRoomFxRecordReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(ForbiddenRoomFxRecordBytes.Contains,
             address => $"Compiled room-FX consumer reread source record byte ${address:X6}.");
 
+    /// <summary>Collects each exported FX record's native byte range, including short terminator records.</summary>
     private static HashSet<int> BuildForbiddenRoomFxRecordBytes()
     {
         var result = new HashSet<int>();
@@ -112,6 +117,7 @@ internal static class RoomFxRecordDefinitionsVerification
         return result;
     }
 
+    /// <summary>Runs the room FX catalog comparison through the verification command dispatcher.</summary>
     [VerificationCommand("--room-fx-record-definitions")]
     internal static int RoomFxRecordDefinitionsCommand()
     {

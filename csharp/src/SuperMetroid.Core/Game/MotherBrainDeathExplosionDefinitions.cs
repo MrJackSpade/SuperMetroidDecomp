@@ -9,12 +9,13 @@ internal static class MotherBrainDeathExplosionDefinitions
     /// <summary>Four interleaved X/Y pairs per group at $A9:B099-$B108.</summary>
     internal const int AnchorsPerGroup = 4;
 
-    // Permitted nonsense exception: these 28 positions are the decorative scatter itself.
-    // $A9:B03E reads each pair before RNG selects only the explosion type. $86:C8F5/$C914
-    // stores and adds the offsets to the moving body without velocity integration. The
-    // $86:CB13 projectile has zero hitbox radii and damage-disabled properties. Inventing
-    // a geometric distribution would replace the chosen visual layout. This exception
-    // covers only these coordinates, not group indexing, cadence, types or other offsets.
+    /// <summary>
+    /// Twenty-eight authored decorative positions read at $A9:B03E before RNG selects
+    /// explosion type. $86:C8F5/$C914 adds these offsets to the moving body without
+    /// velocity integration; the $86:CB13 projectile has zero hitbox radii and cannot
+    /// damage Samus. Only these coordinates are chosen visual scatter, not the group
+    /// indexing, cadence, types, or other offsets.
+    /// </summary>
     private static readonly (short X, short Y)[] DecorativeAnchors =
     [
         (0x0024, -0x0025), (-0x0013, -0x000f), (-0x0004, 0x000d), (0x001d, 0x0019),
@@ -26,6 +27,7 @@ internal static class MotherBrainDeathExplosionDefinitions
         (0x000a, -0x001f), (-0x0014, -0x0008), (0x0000, 0x0017), (0x001e, 0x003d),
     ];
 
+    /// <summary>Reads one of the 28 body-relative decorative offsets in native group order.</summary>
     internal static (short X, short Y) Anchor(int index) => DecorativeAnchors[index];
 
     /// <summary>

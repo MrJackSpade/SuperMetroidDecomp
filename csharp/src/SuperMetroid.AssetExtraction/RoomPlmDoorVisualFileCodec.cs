@@ -15,9 +15,12 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM bank-$84 PLM block-draw lists → installed PLM door visual files")]
 internal static class RoomPlmDoorVisualFileCodec
 {
+    /// <summary>Stock manifest name containing cartridge and extracted visual hashes.</summary>
     internal const string ManifestFileName = "manifest.json";
+    /// <summary>Schema version shared by the stock manifest and editable visual document.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Uses camel-case field names and readable output for installed PLM visual JSON.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -25,8 +28,10 @@ internal static class RoomPlmDoorVisualFileCodec
         WriteIndented = true,
     };
 
+    /// <summary>One draw-list identity and its editable block visuals in native run order.</summary>
     internal sealed record Entry(string Id, ushort[] Blocks);
 
+    /// <summary>Verifies native PLM run geometry and level words before writing a fresh stock visual file and hash manifest.</summary>
     internal static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256, string visualFileName, string family,
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
@@ -49,6 +54,7 @@ internal static class RoomPlmDoorVisualFileCodec
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
+    /// <summary>Validates stock provenance and compiled parity, then selects an optional edited visual catalog.</summary>
     internal static TCatalog Load<TCatalog>(string stockDirectory, string? overrideDirectory,
         RoomPlmVisualFamily<TCatalog> visuals)
     {
@@ -87,6 +93,7 @@ internal static class RoomPlmDoorVisualFileCodec
                 overridePath, family, createCatalog);
     }
 
+    /// <summary>Checks bounded bank-$84 run counts, directions, offsets, and level words while extracting only visual bits.</summary>
     private static Entry[] ReadAndVerifyNative(ISnesAddressSpace bus,
         string family,
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
@@ -138,6 +145,7 @@ internal static class RoomPlmDoorVisualFileCodec
         return entries.ToArray();
     }
 
+    /// <summary>Requires every stock visual block to match the compiled draw-list source word.</summary>
     private static void VerifyStockMatchesCompiled<TCatalog>(TCatalog catalog,
         string path, string family,
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
@@ -162,6 +170,7 @@ internal static class RoomPlmDoorVisualFileCodec
         }
     }
 
+    /// <summary>Rejects incompatible JSON and wraps catalog validation with the selected file path.</summary>
     private static TCatalog CreateCatalog<TCatalog>(VisualDocument document,
         string path, string family, Func<Entry[], TCatalog> createCatalog)
     {
@@ -176,9 +185,11 @@ internal static class RoomPlmDoorVisualFileCodec
         }
     }
 
+    /// <summary>Reads a selected PLM visual file before applying the shared JSON error boundary.</summary>
     private static T ReadJson<T>(string path, string family) =>
         ReadJson<T>(File.ReadAllBytes(path), path, family);
 
+    /// <summary>Parses PLM visual JSON and reports malformed or empty documents with their file path.</summary>
     private static T ReadJson<T>(byte[] bytes, string path, string family)
     {
         try
@@ -192,13 +203,16 @@ internal static class RoomPlmDoorVisualFileCodec
         }
     }
 
+    /// <summary>Reads a bank-$84 PLM word while rejecting a pointer that straddles the bank end.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         pointer == ushort.MaxValue
             ? throw new InvalidDataException("A PLM visual word cannot start at the PLM bank's last byte.")
             : CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer));
 
+    /// <summary>Stock provenance binding a visual JSON hash to the supported cartridge.</summary>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
+    /// <summary>Versioned collection of editable block visuals extracted from compiled draw lists.</summary>
     private sealed record VisualDocument(int Version, Entry[] Entries);
 }
 /// <summary>

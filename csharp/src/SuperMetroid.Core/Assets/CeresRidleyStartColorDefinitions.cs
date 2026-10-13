@@ -13,11 +13,16 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresRidleyStartColorDefinitions
 {
+    /// <summary>Sixteen colors per additional OBJ palette, including each copied clear slot.</summary>
     private const int PaletteSize = 16;
+    /// <summary>Normal door/container material used by the first palette's non-clear colors.</summary>
     private readonly CeresDoorNormalPaintDefinitions door;
+    /// <summary>Previously validated Baby material reused by the second palette.</summary>
     private readonly CeresBabyPaintDefinitions baby;
+    /// <summary>Independent supplied changes to either palette, including transparent entries.</summary>
     internal readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Separates the two palettes, preserving colors that differ from calculated source materials.</summary>
     internal CeresRidleyStartColorDefinitions(ReadOnlySpan<Bgr555> colors, CeresBabyPaintDefinitions initialBaby)
     {
         if (colors.Length != 2 * PaletteSize)
@@ -28,12 +33,14 @@ internal sealed class CeresRidleyStartColorDefinitions
             if (Calculate(color) != colors[color]) edits.Add(color, colors[color]);
     }
 
+    /// <summary>Uses a supplied edit when present, otherwise reconstructing the selected source color.</summary>
     internal Bgr555 Resolve(int color)
     {
         if ((uint)color >= 2 * PaletteSize) throw new ArgumentOutOfRangeException(nameof(color));
         return edits.TryGetValue(color, out Bgr555 edited) ? edited : Calculate(color);
     }
 
+    /// <summary>Calculates copied clear-black entries, door paint, or Baby paint for an unedited index.</summary>
     private Bgr555 Calculate(int color) => color switch
     {
         0 or PaletteSize => Bgr555.Black,

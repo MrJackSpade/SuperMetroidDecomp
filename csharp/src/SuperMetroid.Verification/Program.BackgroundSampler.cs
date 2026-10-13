@@ -2,8 +2,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
+/// <summary>Compares cached SNES background pixel sampling with an independent
+/// scalar tile, palette, and priority calculation.</summary>
 internal static class BackgroundSamplerVerification
 {
+    /// <summary>Checks two- and four-bit tiles through map pages, flips, color
+    /// zero, priority, and VRAM wrapping with seeded source memory.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyBackgroundSampler()
     {

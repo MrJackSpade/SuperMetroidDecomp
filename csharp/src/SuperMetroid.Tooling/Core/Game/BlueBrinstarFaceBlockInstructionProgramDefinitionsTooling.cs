@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(BlueBrinstarFaceBlockInstructionProgramDefinitions))]
 internal abstract class BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Covers the left and right Samus reactions and the block's initial program.</summary>
     public static int MechanicsWordCount => 10;
+    /// <summary>Covers three visual operands per Samus reaction plus one initial-frame operand.</summary>
     public static int PresentationWordCount => 7;
+    /// <summary>Reads four mechanic words from each reaction and two from initialization.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -16,12 +19,14 @@ internal abstract class BlueBrinstarFaceBlockInstructionProgramDefinitionsToolin
             : (ushort)(BlueBrinstarFaceBlockInstructionProgramDefinitions.Initial + 4 * (index - 8));
         return new(address, BlueBrinstarFaceBlockInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Locates visual operands interleaved with the two reaction instruction lists.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return index < 6 ? (ushort)(BlueBrinstarFaceBlockInstructionProgramDefinitions.SamusLeft + 14 * (index / 3) + 4 * (index % 3) + 2)
             : (ushort)(BlueBrinstarFaceBlockInstructionProgramDefinitions.Initial + 2);
     }
+    /// <summary>Classifies mechanic byte positions in bank A8 while excluding interleaved visuals.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa80000) return false;

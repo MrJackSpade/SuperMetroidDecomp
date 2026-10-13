@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Compares Wrecked Ship treadmill artwork source selection with retail direction programs.</summary>
 internal static class LookupTreadmillArtworkVerification
 {
+    /// <summary>Checks four source aliases, invalid frame indices, and every 16-bit instruction pointer for both directions.</summary>
     internal static void VerifyTreadmillArtworkSources(ISnesAddressSpace rom)
     {
         var right = WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Rightwards);

@@ -17,8 +17,10 @@ using static PostCreditsCharacterArtworkVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed ending actors and sheets against cartridge sources and guarded runtime use.</summary>
 internal static class EndingObjectArtworkVerification
 {
+    /// <summary>Matches four explosion-fragment source pointers and filenames to their native loader operands.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending object fragment metadata")]
     internal static void VerifyEndingObjectFragmentMetadata(ISnesAddressSpace bus)
     {
@@ -41,6 +43,7 @@ internal static class EndingObjectArtworkVerification
         }
     }
 
+    /// <summary>Compares six compiled cloud lists and grids with native instruction words, OAM, and actor timing.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending cloud definitions")]
     internal static void VerifyEndingCloudDefinitions(ISnesAddressSpace bus)
     {
@@ -125,6 +128,7 @@ internal static class EndingObjectArtworkVerification
             AssertThrows<InvalidDataException>(() => EndingCloudInstructionDefinitions.ReadWord(invalid), "cloud program bounds");
     }
 
+    /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, edits, and guarded runtime reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending object sheets and BG maps")]
     internal static void VerifyEndingObjectArtwork(GameInstallation installation)
@@ -449,6 +453,7 @@ internal static class EndingObjectArtworkVerification
         }
     }
 
+    /// <summary>Forbids runtime reads of compiled ending lists, installed spritemaps, and extracted art sources.</summary>
     internal static MutableCartridgeReadGuard NewEndingObjectSourceReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);

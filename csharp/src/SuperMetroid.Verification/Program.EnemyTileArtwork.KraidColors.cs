@@ -9,8 +9,10 @@ using static ColorWordsVerification;
 using static KraidPaletteDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed and edited Kraid RGB5 rows through the palette consumers that write CGRAM.</summary>
 internal static class EnemyTileArtworkKraidColorsVerification
 {
+    /// <summary>Compares every stock color with ROM, checks guarded production writes, and confirms edited colors survive reload.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid palette rows")]
     internal static void VerifyInstalledKraidColors(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
@@ -117,8 +119,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             "Kraid RGB5 channels outside native precision are rejected");
     }
 
-    // Independent palette writes from pinned sm_a7.c. This fixture's zero health
-    // thresholds select band eight at 1000 HP; odd hurt frames select the flash band.
+    /// <summary>Builds an independent CGRAM reference from pinned sm_a7.c palette writes; zero thresholds select health band eight at 1000 HP and odd hurt frames select flash.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Kraid palette consumer reference")]
     private static ushort[] ReferenceKraidPaletteConsumer(
@@ -168,6 +169,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         }
     }
 
+    /// <summary>Rejects runtime reads from every Kraid palette source range after artwork installation.</summary>
     private static CartridgeReadGuard NewKraidPaletteSourceGuard(ISnesAddressSpace rom)
     {
         var guard = new CartridgeReadGuard(rom);
@@ -181,6 +183,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         return guard;
     }
 
+    /// <summary>Runs one Kraid palette consumer and captures the resulting complete CGRAM image.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static Bgr555[] CaptureKraidPaletteConsumer(
         ISnesAddressSpace bus, EnemyTileArtworkCatalog artwork,
@@ -230,14 +233,22 @@ internal static class EnemyTileArtworkKraidColorsVerification
         return cgram.Colors.ToArray();
     }
 
+    /// <summary>Production paths that load or animate Kraid's installed palette rows.</summary>
     internal enum KraidPaletteConsumer
     {
+        /// <summary>Initial room backdrop palette copy.</summary>
         BackdropLoad,
+        /// <summary>Initial target sprite palette copy.</summary>
         InitialTargetLoad,
+        /// <summary>Final step of the room backdrop fade.</summary>
         BackdropFade,
+        /// <summary>Health-based normal body and secondary bands.</summary>
         HealthNormal,
+        /// <summary>Odd hurt-frame flash band for both body palettes.</summary>
         HealthFlash,
+        /// <summary>One contraction step of the glowing eye colors.</summary>
         EyeUnglow,
+        /// <summary>Arm palette written during death initialization.</summary>
         DeathArm,
     }
 }

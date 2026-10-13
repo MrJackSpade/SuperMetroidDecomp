@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Captures the shared menu compositor without retaining menu state.</summary>
 internal static class MenuRenderSnapshotCapture
 {
+    /// <summary>Captures menu VRAM, palette, and OAM with the established BG2, BG1, OBJ layer order and current brightness.</summary>
     [PpuLayoutBoundary("codec: shared menu render packet layers")]
     internal static LayeredRenderSnapshot Capture(MenuPpuState ppu, OamBuffer oam,
         ushort bg1VerticalScroll, byte brightness)

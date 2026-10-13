@@ -37,6 +37,7 @@ internal sealed class SamusScrollCap
             samus.WritePreviousXPosition(cappedX);
     }
 
+    /// <summary>Returns a previous-position word twelve pixels from Samus when native signed-distance comparison reaches the camera cap.</summary>
     private static ushort? CappedPreviousPosition(ushort position, ushort previous)
     {
         ushort delta = unchecked((ushort)(position - previous));

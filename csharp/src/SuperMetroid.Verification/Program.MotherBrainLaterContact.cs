@@ -12,8 +12,10 @@ using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 
+/// <summary>Checks later-form Mother Brain contact and projectile blocking.</summary>
 internal static class MotherBrainLaterContactVerification
 {
+    /// <summary>Checks body and neck knockback, side immunity, post-dispatch position, and beam or missile duds.</summary>
     internal static int VerifyMotherBrainLaterContact()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -77,6 +79,7 @@ internal static class MotherBrainLaterContactVerification
         return 0;
     }
 
+    /// <summary>Runs the focused later-form contact and dud check.</summary>
     [VerificationCommand("--mother-brain-later-contact")]
     internal static int MotherBrainLaterContactCommand()
     {

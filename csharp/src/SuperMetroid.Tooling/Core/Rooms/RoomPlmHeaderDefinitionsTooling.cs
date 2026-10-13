@@ -3,7 +3,12 @@
 /// <summary>Development-tool members of <see cref="RoomPlmHeaderDefinitions"/>; never linked by player hosts.</summary>
 internal static class RoomPlmHeaderDefinitionsTooling
 {
+    /// <summary>The supported room PLM headers inspected by development dependency audits.</summary>
     internal static IEnumerable<RoomPlmHeaderDefinition> All => Enumerate();
+    /// <summary>
+    /// Yields the room PLM headers known to the extracted definition catalog, including
+    /// doors, stations, bosses' room objects, and collectible variants.
+    /// </summary>
     internal static IEnumerable<RoomPlmHeaderDefinition> Enumerate()
     {
         yield return RoomPlmHeaderDefinitions.Get(PlmHeaderId.RightwardsScrollExtension);

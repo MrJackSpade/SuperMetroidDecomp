@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kraid ceiling-rock X positions and their production spawn cadence against native data.</summary>
 internal static class KraidCeilingRockPositionsVerification
 {
+    /// <summary>Compares every overlapping byte-addressed coordinate window with the compiled table and rejects incomplete windows.</summary>
     internal static void VerifyKraidCeilingRockCoordinates(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidCeilingRockCoordinatesRomByte(rom, a), KraidCeilingRockCoordinatesRomByte(rom, a + 1)));
@@ -16,9 +18,11 @@ internal static class KraidCeilingRockPositionsVerification
                 "Ceiling rock byte-window bounds");
     }
 
+    /// <summary>Reads one bank-$A7 coordinate byte solely for the native oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid ceiling rock coordinates")]
     private static byte KraidCeilingRockCoordinatesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Confirms each ceiling spawn advances the byte selector and pairs its native X coordinate with the PLM mutation while source-table reads are forbidden.</summary>
     internal static void VerifyKraidCeilingRockPositions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
@@ -57,9 +61,11 @@ internal static class KraidCeilingRockPositionsVerification
         Console.WriteLine("Kraid ceiling rocks: all 18 byte reads and 589824 actual growth updates match with placement reads forbidden.");
     }
 
+    /// <summary>Reads a retail placement byte for the production-spawn comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid ceiling rock positions")]
     private static byte KraidCeilingRockPositionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Rejects reads of the migrated ceiling-placement window and any attempted bus write.</summary>
     private static CartridgeReadGuard NewKraidCeilingGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa7acb3 and <= 0xa7acc5, _ => "Unexpected migrated ceiling placement read.")

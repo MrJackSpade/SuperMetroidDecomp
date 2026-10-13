@@ -27,6 +27,7 @@ internal sealed class HostKeyboardInputState
         SystemKeyUp = 0x0105,
     }
 
+    /// <summary>Event-owned keys currently held by Windows, independent of the polled gamepad word.</summary>
     private readonly HashSet<Keys> heldKeys = [];
 
     /// <summary>
@@ -57,6 +58,7 @@ internal sealed class HostKeyboardInputState
         }
     }
 
+    /// <summary>Releases all event-owned keys after a host focus or session discontinuity.</summary>
     public void Clear() => heldKeys.Clear();
 
     /// <summary>Merges the keyboard producer into an already-polled gamepad word.</summary>
@@ -81,6 +83,7 @@ internal sealed class HostKeyboardInputState
         return (ushort)input;
     }
 
+    /// <summary>Limits message interception to the keys mapped to SNES controls.</summary>
     private static bool IsGameplayKey(Keys key) => key is
         Keys.Left or Keys.Right or Keys.Up or Keys.Down or
         Keys.Z or Keys.X or Keys.Space or Keys.A or Keys.S or Keys.Q or Keys.W or
@@ -99,6 +102,7 @@ internal sealed class HostKeyboardInputState
 /// </remarks>
 internal sealed class HostInputActivationGate
 {
+    /// <summary>Set on deactivation and cleared only by a neutral merged device sample.</summary>
     private bool suppressedUntilNeutral;
 
     /// <summary>Suppresses subsequent input until every host control has been released.</summary>

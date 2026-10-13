@@ -17,8 +17,10 @@ using static AssertionsVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed Samus visor RGB5 colors through room and X-ray palette cycles.</summary>
 internal static class SamusVisorColorsVerification
 {
+    /// <summary>Compares six extracted colors with the cartridge and verifies guarded room and X-ray cycling.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus visor colors")]
     internal static void VerifySamusVisorColors()
     {
@@ -50,6 +52,7 @@ internal static class SamusVisorColorsVerification
         Console.WriteLine("  Samus visor: all six native colors and guarded room/X-ray cycles pass.");
     }
 
+    /// <summary>Builds an independent color catalog from the six native visor table words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for original visor colors")]
     private static SamusVisorColorCatalog ReadOriginalVisorColors(ISnesAddressSpace rom)
     {
@@ -69,6 +72,7 @@ internal static class SamusVisorColorsVerification
             new SamusVisorColorDocument { Version = SamusVisorColorFormat.Version, Colors = colors })));
     }
 
+    /// <summary>Compares 32 room updates for timer, source offset, and CGRAM slot 196 without installed table reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyInstalledRoomVisorCycle(ISnesAddressSpace rom,
         SamusVisorColorCatalog catalog)
@@ -101,6 +105,7 @@ internal static class SamusVisorColorsVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed room cycle does not read visor ROM table");
     }
 
+    /// <summary>Compares widening and full-beam X-ray color cycles, including the offset-six restart.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyInstalledXrayVisorCycle(ISnesAddressSpace rom,
         SamusVisorColorCatalog catalog)
@@ -113,6 +118,7 @@ internal static class SamusVisorColorsVerification
         var installedCgram = new SnesCgram();
         var guarded = NewForbiddenVisorColorBus(rom);
 
+        // Check one X-ray palette update and its resulting source offset and CGRAM color.
         void Compare(int call)
         {
             // This fixture enters the full-beam stage immediately before call 11;
@@ -141,6 +147,7 @@ internal static class SamusVisorColorsVerification
         for (int call = 11; call < 31; call++) Compare(call); // Full-beam colors 6, 8, 10.
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed X-ray cycle does not read visor ROM table");
     }
+    /// <summary>Initializes a standing Samus actor and enters the stock X-ray beam sequence.</summary>
     private static SamusState CreateXraySamus(ISnesAddressSpace rom)
     {
         var samus = new SamusState
@@ -155,6 +162,7 @@ internal static class SamusVisorColorsVerification
         return samus;
     }
 
+    /// <summary>Checks edited visor colors through newly bound Samus room/X-ray states and stock identity restoration.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusVisorColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
@@ -214,12 +222,14 @@ internal static class SamusVisorColorsVerification
         Console.WriteLine("Samus visor override: edited room/X-ray colors reach CGRAM and stock restores.");
     }
 
+    /// <summary>Forbids installed room or X-ray palette updates from reading the native six-color source table.</summary>
     private static CartridgeReadGuard NewForbiddenVisorColorBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= SamusVisorColorFormat.SourceAddress and
                 < (SamusVisorColorFormat.SourceAddress +
                     SamusVisorColorFormat.ColorCount * sizeof(ushort)),
             address => $"Installed visor read native color ${address:X6}.");
 
+    /// <summary>Runs the cartridge-backed Samus visor color verification.</summary>
     [VerificationCommand("--samus-visor-colors")]
     internal static int SamusVisorColorsCommand()
     {

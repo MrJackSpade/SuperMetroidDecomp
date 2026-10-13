@@ -29,8 +29,10 @@ public enum OwtchBehaviorState : ushort
 /// </summary>
 public sealed class OwtchEnemyState
 {
+    /// <summary>Ordinary enemy record supplying Owtch's common velocity, state, and burial words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Attaches the typed Owtch view to its physical enemy slot.</summary>
     internal OwtchEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native <c>$0FA8,x</c>, fractional half of positive 16.16 speed.</summary>

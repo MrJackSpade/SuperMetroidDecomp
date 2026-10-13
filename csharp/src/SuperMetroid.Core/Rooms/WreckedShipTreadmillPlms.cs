@@ -5,8 +5,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Wrecked Ship treadmill and Maridia elevatube PLMs: the conveyor rows they write and step.</summary>
 internal sealed class WreckedShipTreadmillPlms
 {
+    /// <summary>Native PLM slot pool used for treadmill and elevatube allocation.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Attaches treadmill and elevatube spawning to the room's PLM pool.</summary>
     internal WreckedShipTreadmillPlms(PlmSlotTable slotTable)
     {
         _slotTable = slotTable;
@@ -151,6 +153,7 @@ internal sealed class WreckedShipTreadmillPlms
         return true;
     }
 
+    /// <summary>Rejects a treadmill row that would wrap into the next room block row.</summary>
     private static void EnsureHorizontalRangeFits(
         RoomLevelData level,
         int origin,

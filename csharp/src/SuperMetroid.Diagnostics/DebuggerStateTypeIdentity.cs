@@ -7,15 +7,17 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal static class DebuggerStateTypeIdentity
 {
+    /// <summary>Resolves an assembly-qualified name only when its type exists in the current build.</summary>
     public static Type? Resolve(string name) => Type.GetType(name, throwOnError: false);
 
-    // A type's serialized name is fixed for the process; the writer asks for it for every
-    // object and field, and building AssemblyQualifiedName allocates a new string each time.
+    /// <summary>Caches serialized type names because rebuilding an assembly-qualified name allocates for every graph object and field.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, string> serializedNames = new();
 
+    /// <summary>Reuses the assembly-qualified name cached for a debugger-graph type.</summary>
     internal static string GetSerializedName(Type type) =>
         serializedNames.GetOrAdd(type, CalculateSerializedName);
 
+    /// <summary>Requires an assembly-qualified identity before a type enters the debugger envelope.</summary>
     private static string CalculateSerializedName(Type type)
     {
         return type.AssemblyQualifiedName ?? throw new InvalidOperationException(

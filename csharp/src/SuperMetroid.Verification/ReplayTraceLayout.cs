@@ -29,7 +29,9 @@ internal readonly record struct WorkRamRange(int Start, int Length)
 /// </summary>
 internal sealed class ReplayTraceLayout
 {
+    /// <summary>Normalized ranges in ascending address order.</summary>
     private readonly WorkRamRange[] ranges;
+    /// <summary>Payload offset of each range's first byte.</summary>
     private readonly int[] payloadOffsets;
 
     /// <summary>Normalizes <paramref name="ranges"/> (sorted, overlapping or adjacent ranges merged).</summary>

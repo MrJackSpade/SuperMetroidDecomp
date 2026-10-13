@@ -2,8 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled intro Rinka instruction bytes and frame catalog against native records.</summary>
 internal static class IntroRinkaProgramsVerification
 {
+    /// <summary>Compares every Rinka program byte and overlapping word, including terminal boundaries.</summary>
     internal static void VerifyIntroRinkaPrograms(ISnesAddressSpace rom)
     {
         for (int pointer = 0xcdeb; pointer < 0xce1b; pointer++)
@@ -21,9 +23,11 @@ internal static class IntroRinkaProgramsVerification
         AssertThrows<InvalidDataException>(() => IntroRinkaInstructionDefinitions.ReadWord(0xce1a), "Rinka terminal word crossing");
     }
 
+    /// <summary>Reads one native instruction byte solely as a verification oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Rinka programs")]
     private static byte IntroRinkaProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks three native frame operands, published names, stock part counts, and catalog bounds.</summary>
     internal static void VerifyIntroRinkaFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["rinka-0", "rinka-1", "rinka-2"];
@@ -46,6 +50,7 @@ internal static class IntroRinkaProgramsVerification
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "Rinka enumeration order");
     }
 
+    /// <summary>Reads one native frame-record byte solely as a verification oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Rinka frame catalog")]
     private static byte IntroRinkaFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -15,9 +15,11 @@ using SuperMetroid.Core.Rom;
 using static FrontendVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Synthetic-map verification of the complete Ceres destruction cinematic and its native transition order.</summary>
 internal static class CeresDestructionVerification
 {
 
+/// <summary>Advances the Ceres escape aftermath through the state-six handoff while checking map transfers, actor deletion, and phase entry.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
 internal static void VerifyCeresDestructionCinematic()
 {
@@ -147,6 +149,7 @@ internal static void VerifyCeresDestructionCinematic()
         $"  Ceres destruction: ROM phases, C9C7 flight, and state-six handoff agree ({frame} calls).");
 }
 
+/// <summary>Writes distinct repeated blocks into a synthetic cartridge stream so native work-RAM map slices remain observable.</summary>
 static void WriteRepeatedCompressedChunks(
     byte[] rom,
     int snesAddress,
@@ -167,6 +170,7 @@ static void WriteRepeatedCompressedChunks(
     WriteSequentialRomByte(rom, ref address, 0xff);
 }
 
+/// <summary>Encodes a fixed-size repeated-byte compressed stream for synthetic Ceres artwork.</summary>
 internal static void WriteRepeatedCompressedStream(
     byte[] rom,
     int snesAddress,
@@ -187,6 +191,7 @@ internal static void WriteRepeatedCompressedStream(
     WriteSequentialRomByte(rom, ref address, 0xff);
 }
 
+/// <summary>Writes one cartridge byte and advances across LoROM bank boundaries.</summary>
 static void WriteSequentialRomByte(byte[] rom, ref int snesAddress, byte value)
 {
     rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
@@ -196,11 +201,13 @@ static void WriteSequentialRomByte(byte[] rom, ref int snesAddress, byte value)
         : snesAddress + 1;
 }
 
+/// <summary>Expands the fixture's Ceres tilemap stream for comparison with installed scene map slices.</summary>
 [CpuBusBoundary("exact bus test: decompresses the synthetic cartridge's Ceres tilemap stream as the oracle for installed map slices")]
 static byte[] DecompressSyntheticCeresTilemaps(byte[] rom) =>
     RomDataReader.Decompress(new CartridgeImportAddressSpace(rom),
         CeresDestructionRomData.Assets.CeresTilemaps, maximumOutputBytes: 0x1000);
 
+    /// <summary>Runs the Ceres destruction cinematic check from the verification host.</summary>
     [VerificationCommand("--ceres-destruction")]
     internal static int CeresDestructionCommand()
     {

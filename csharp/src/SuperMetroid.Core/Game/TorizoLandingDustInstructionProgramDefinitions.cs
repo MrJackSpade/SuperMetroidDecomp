@@ -16,6 +16,7 @@ internal abstract class TorizoLandingDustInstructionProgramDefinitions
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
 
+    /// <summary>Right- and left-foot four-frame dust lists, each spawning clouds between waits and deleting at completion.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xaf9d),
         Entry(RightFoot),
@@ -36,13 +37,17 @@ internal abstract class TorizoLandingDustInstructionProgramDefinitions
         Op((ushort)EnemyProjectileInstruction.TorizoLandingDustClouds),
         Frame(4),
         Op((ushort)EnemyProjectileInstruction.Delete));
+    /// <summary>Eight OAM operands across the two landing-dust lists.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Finds a selected bank-$86 dust-cloud spritemap operand without exposing its spawn callback.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Admits the two Bomb Torizo foot-dust projectile kinds handled by these native lists.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoRightFootDust or
         RoomEnemyProjectileKind.BombTorizoLeftFootDust;
 
+    /// <summary>Reads a compiled dust timing, cloud-spawn, or delete word and rejects unknown addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

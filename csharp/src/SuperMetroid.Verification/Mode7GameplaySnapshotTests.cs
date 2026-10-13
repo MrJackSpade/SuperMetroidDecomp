@@ -9,8 +9,10 @@ using static GraphDigestVerification;
 using static RenderPacketCodecTestsVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Mode 7 gameplay packet rendering against the live renderer and a captured Ceres Ridley scene.</summary>
 internal static class Mode7GameplaySnapshotTestsVerification
 {
+    /// <summary>Compares full pixels across matrix, scroll, and floor variants, then checks packet retention after live scene data changes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void VerifyMode7GameplaySnapshots()
     {

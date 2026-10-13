@@ -41,8 +41,10 @@ public enum DachoraAiFunction : ushort
 /// </summary>
 public sealed class DachoraEnemyState
 {
+    /// <summary>Physical Dachora body or echo slot carrying its phase-dependent variables.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects Dachora's six native words from its occupied enemy slot.</summary>
     internal DachoraEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Variable A: whole speed, countdown, or echo-position interval.</summary>

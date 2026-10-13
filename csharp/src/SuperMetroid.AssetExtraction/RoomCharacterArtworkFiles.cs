@@ -17,6 +17,7 @@ public static class RoomCharacterArtworkFiles
 {
     /// <summary>Stock character manifest filename recording cartridge provenance, PNG hashes, and required native planar transfer lengths.</summary>
     public const string ManifestFileName = "room-characters.json";
+    /// <summary>Schema revision required by the installed room character manifest.</summary>
     private const int FormatVersion = 2;
 
     /// <summary>Creates stock indexed PNGs for CRE, distinct room graphics-set sources, and Tourian-statue ghost characters, plus their manifest.</summary>
@@ -117,6 +118,7 @@ public static class RoomCharacterArtworkFiles
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Maps CRE, distinct graphics-set sources, and ghost artwork filenames to cartridge addresses.</summary>
     private static Dictionary<string, int> ExpectedSources()
     {
         var sources = new Dictionary<string, int>
@@ -133,6 +135,7 @@ public static class RoomCharacterArtworkFiles
         return sources;
     }
 
+    /// <summary>Reads and writes manifest property names in their stable camel-case JSON form.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -140,9 +143,11 @@ public static class RoomCharacterArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Records cartridge provenance and the required PNG entries for a stock installation.</summary>
     private sealed record RoomCharacterFileManifest(
         int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomCharacterFileEntry> Entries);
 
+    /// <summary>Pairs an installed PNG hash with the planar transfer length its atlas must decode.</summary>
     private sealed record RoomCharacterFileEntry(int NativeByteCount, string Sha256);
 }

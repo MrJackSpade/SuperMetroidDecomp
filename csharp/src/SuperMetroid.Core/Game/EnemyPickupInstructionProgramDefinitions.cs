@@ -20,6 +20,7 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
 
     /// <summary><c>InstList_EnemyProjectile_Pickup_PowerBombs</c> at $86:EDEB.</summary>
     internal const ushort PowerBombs = 0xedeb;
+    /// <summary>Counts sixteen spritemap operands across five pickup loops.</summary>
     public static int PresentationWordCount => 16;
 
     /// <summary>
@@ -37,8 +38,10 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(program)),
     };
 
+    /// <summary>One pickup's timed frames and loop tail, including an optional unreachable sleep word.</summary>
     internal readonly record struct PickupLoop(ushort Start, int Frames, ushort Duration, bool HasSleep)
     {
+        /// <summary>Calculates a frame timer or loop-tail command within one pickup program.</summary>
         internal InstructionMechanicsWord Word(int index)
         {
             if (index < Frames)
@@ -53,6 +56,7 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
         }
     }
 
+    /// <summary>Maps a flat visual index to a timed-frame operand in one of five pickup loops.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -67,11 +71,13 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
         throw new IndexOutOfRangeException();
     }
 
+    /// <summary>Checks whether an enemy-death pickup or explosion points into compiled pickup control.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) =>
         (kind is RoomEnemyProjectileKind.EnemyDeathPickup or
             RoomEnemyProjectileKind.EnemyDeathExplosion) &&
         TryRead(address, out _);
 
+    /// <summary>Reads a compiled pickup control word and rejects visual operands or unrelated addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -80,6 +86,7 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
             $"Enemy-pickup mechanics pointer $86:{address:X4} is not compiled.");
     }
 
+    /// <summary>Finds a frame duration or loop-tail word across the five bounded pickup programs.</summary>
     internal static bool TryRead(ushort address, out ushort value)
     {
         for (int program = 0; program < 5; program++)

@@ -16,7 +16,9 @@ internal abstract class MagdolliteLavaInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_MagdolliteFlame</c> at $86:DFE4.</summary>
     internal const ushort Shot = 0xdfe4;
 
+    /// <summary>Two one-tick sleeping poses and the shot-response list contribute seven compiled control words.</summary>
     public static int MechanicsWordCount => 7;
+    /// <summary>Each facing's thrown lava pose selects one installed spritemap.</summary>
     public static int PresentationWordCount => 2;
 
     /// <summary>Each facing displays a one-tick pose then sleeps; being shot spawns drops and deletes.</summary>
@@ -39,12 +41,14 @@ internal abstract class MagdolliteLavaInstructionProgramDefinitions
         return new((ushort)(Shot + 2 * (index - 4)), command);
     }
 
+    /// <summary>Locates the left or right lava spritemap operand between its duration and sleep word.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(Left + 6 * index + 2);
     }
+    /// <summary>Binary-searches the seven compiled bank-$86 control addresses and rejects visual or unknown words.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

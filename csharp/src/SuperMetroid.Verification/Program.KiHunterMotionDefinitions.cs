@@ -2,8 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Ki Hunter motion constants, detached wing orbit math, and gravity carry.</summary>
 internal static class KiHunterMotionDefinitionsVerification
 {
+    /// <summary>Compares retail constants and every 16-bit orbit position without gameplay bus reads.</summary>
     internal static void VerifyKiHunterMotionDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(KiHunterMotionDefinitionsRomByte(rom, address), KiHunterMotionDefinitionsRomByte(rom, address + 1)));
@@ -45,6 +47,7 @@ internal static class KiHunterMotionDefinitionsVerification
         Console.WriteLine("KiHunter motion: native constants, 65536 bus-free orbit placements and all gravity fractional carries pass.");
     }
 
+    /// <summary>Reads the retail motion record as the oracle for the compiled constants.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ki Hunter motion definitions")]
     private static byte KiHunterMotionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

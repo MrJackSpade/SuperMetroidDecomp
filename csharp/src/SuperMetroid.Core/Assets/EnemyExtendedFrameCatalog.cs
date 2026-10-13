@@ -39,9 +39,12 @@ public sealed class EnemyExtendedFrameCatalog
             }
         });
 
+    /// <summary>Physical bank-and-pointer frame identities mapped to compiled OAM components.</summary>
     private readonly Dictionary<int, EnemyExtendedDrawComponent[]> frames;
+    /// <summary>Editable display choices keyed by the immutable native frame identity.</summary>
     private readonly Dictionary<int, int> displayFrames;
 
+    /// <summary>Retains validated visual components and same-family display bindings.</summary>
     private EnemyExtendedFrameCatalog(
         Dictionary<int, EnemyExtendedDrawComponent[]> frames,
         Dictionary<int, int> displayFrames)
@@ -50,6 +53,7 @@ public sealed class EnemyExtendedFrameCatalog
         this.displayFrames = displayFrames;
     }
 
+    /// <summary>Finds physical frame components, including the shared empty frame at bank-local $804F.</summary>
     internal bool TryGet(byte bank, ushort pointer,
         out ReadOnlyMemory<EnemyExtendedDrawComponent> components)
     {

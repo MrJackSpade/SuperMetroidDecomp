@@ -13,11 +13,14 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Reproduces the Hellway Zebbo respawn's delayed contact and grapple eligibility.</summary>
 internal static class RespawnedEnemyContactVerification
 {
-    // #1269: Respawn_Enemy ($86:F264) leaves the spritemap word cleared, and $A0:A08C
-    // skips Samus contact while it is zero. In the 100% movie a Hellway Zebbo respawning
-    // beside Samus therefore hurts her one frame after it reappears, not on that frame.
+    /// <summary>
+    /// Confirms Respawn_Enemy ($86:F264) leaves the spritemap cleared until the first
+    /// instruction; $A0:A08C skips Samus contact while it is zero. The 100% movie's
+    /// Zebbo becomes eligible on the next frame, after interactive-list rebuilding.
+    /// </summary>
     internal static void VerifyRespawnedEnemyContact()
     {
         const EnemyDefinitionId respawningEnemy = EnemyDefinitionId.Zebbo;
@@ -62,6 +65,7 @@ internal static class RespawnedEnemyContactVerification
         Console.WriteLine("Respawned enemy contact: Respawn_Enemy keeps a zero spritemap until the first instruction.");
     }
 
+    /// <summary>Runs the focused Hellway respawn visibility and contact check.</summary>
     [VerificationCommand("--respawned-enemy-contact")]
     internal static int RespawnedEnemyContactCommand()
     {

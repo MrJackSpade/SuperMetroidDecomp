@@ -26,20 +26,22 @@ public sealed class SpcCommandPorts
     /// <summary>The most driver ticks one frame can contain: one pending at the frame start plus one per whole tick period.</summary>
     public const int MaximumTicksPerFrame = DspCyclesPerFrame / SpcDriverData.DspCyclesPerDriverTick + 1;
 
-    // $F4-$F7 as the SPC reads them: the CPU's most recent write to each input port.
+    /// <summary><c>$F4-$F7</c> as the SPC reads them: the CPU's most recent write to each input port.</summary>
     [SpcMemoryAccess]
     private readonly byte[] inputPorts = new byte[AudioRomData.Apu.PortCount];
-    // $F5-$F7 as the CPU reads them: each sound-effect library's acknowledgement byte.
+    /// <summary><c>$F5-$F7</c> as the CPU reads them: each sound-effect library's acknowledgement byte.</summary>
     [SpcMemoryAccess]
     private readonly byte[] soundEffectOutputPorts = new byte[AudioRomData.Queues.SoundLibraryCount];
-    // SPC $01-$03: each SFX port's value latched by the previous service's $1621 read.
+    /// <summary>SPC <c>$01-$03</c>: each SFX port's value latched by the previous service's <c>$1621</c> read.</summary>
     private readonly byte[] soundCommandReads = new byte[AudioRomData.Queues.SoundLibraryCount];
-    // SPC $09-$0B: the value acted on at the previous service, for change detection.
+    /// <summary>SPC <c>$09-$0B</c>: the value acted on at the previous service, for change detection.</summary>
     private readonly byte[] previousSoundCommandReads = new byte[AudioRomData.Queues.SoundLibraryCount];
-    // DSP cycles elapsed since the last driver tick; a tick that falls exactly on a frame
-    // boundary runs at the start of the next frame.
+    /// <summary>
+    /// DSP cycles elapsed since the last driver tick; a tick that falls exactly on a frame
+    /// boundary runs at the start of the next frame.
+    /// </summary>
     private byte timerCycles;
-    // The driver's eight-bit sound-effect timer: each tick adds $20 and a carry polls.
+    /// <summary>The driver's eight-bit sound-effect timer: each tick adds <c>$20</c> and a carry polls.</summary>
     private byte soundEffectTimerAccumulator;
 
     /// <summary>Writes one CPU-to-SPC communication port exactly as the cartridge does.</summary>
@@ -115,7 +117,7 @@ public sealed class SpcCommandPorts
         return count;
     }
 
-
+    /// <summary>Runs one driver tick at <paramref name="dspCycleOffset"/>, advancing the sound-effect timer and polling the SFX ports on its carry.</summary>
     private SpcDriverTick Tick(int dspCycleOffset, byte ticks)
     {
         int soundAccumulator = soundEffectTimerAccumulator + unchecked((byte)(ticks * SpcDriverData.SoundEffectTimerStep));

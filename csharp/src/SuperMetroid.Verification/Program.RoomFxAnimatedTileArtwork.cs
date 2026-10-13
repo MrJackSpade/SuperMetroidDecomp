@@ -5,9 +5,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 
+/// <summary>Retail and override checks for room-FX, treadmill, and Tourian statue animated-tile PNG frames.</summary>
 internal static class RoomFxAnimatedTileArtworkVerification
 {
-    /// <summary>Exercises every retail frame through both native transfer owners.</summary>
+    /// <summary>Checks retail room-FX frames through both transfer owners, installed edits, and older atlas-width imports.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for room-FX animated tile transfer frames")]
     internal static void VerifyRoomFxAnimatedTileArtwork()
@@ -112,6 +113,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         Console.WriteLine("  Room-FX animation artwork: 30 simple and four treadmill PNG frames match native bytes and ROM-free NMI transfers.");
     }
 
+    /// <summary>Checks that installed animated-tile overrides change the intended VRAM frames without changing mechanics.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,
         string stock, string overrides, AreaMapPresentationCatalog baseline,
@@ -246,6 +248,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         Console.WriteLine("Room-FX animation override: edited simple/treadmill/statue pixels reach VRAM; both legacy sheet sizes retain edits.");
     }
 
+    /// <summary>Wraps the runtime bus so installed animated-tile transfers cannot reread any bank-$87 artwork.</summary>
     internal static MutableCartridgeReadGuard NewRoomFxArtworkForbiddenBus(ISnesAddressSpace inner)
     {
         var guard = new MutableCartridgeReadGuard(inner);
@@ -254,11 +257,14 @@ internal static class RoomFxAnimatedTileArtworkVerification
         return guard;
     }
 
+    /// <summary>Feeds source-address DMA requests from an installed atlas while rejecting unrelated typed asset requests.</summary>
     internal sealed class RoomFxArtworkTestProvider(RoomFxAnimatedTileAtlas atlas) :
         IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Fails if the focused room-FX fixture unexpectedly requests a typed VRAM asset.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException($"Room-FX test did not expect typed asset {asset}.");
+        /// <summary>Resolves a bank-$87 source and native transfer width against installed frame bytes.</summary>
         public bool TryResolve(int sourceAddress, int byteCount,
             out ReadOnlyMemory<byte> data) => atlas.TryResolve(sourceAddress, byteCount, out data);
     }

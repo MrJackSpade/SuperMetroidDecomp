@@ -86,14 +86,17 @@ internal static class EyeBeamWindowBuilder
         return rows;
     }
 
+    /// <summary>Reads an absolute native tangent-table sample for a half-turn angle index.</summary>
     internal static int Tangent(int index)
     {
         return AbsoluteTangentDefinitions.Sample(index);
     }
 
+    /// <summary>Shifts an off-screen ray origin by one fixed-point span toward its entering edge.</summary>
     private static int OffsetOrigin(int origin, bool offScreen, bool positive) =>
         !offScreen ? origin : origin + (positive ? -EyeWindowRenderDefinitions.FixedPointSpan : EyeWindowRenderDefinitions.FixedPointSpan);
 
+    /// <summary>Fills scanlines between off-screen upper and lower rays as the native rectangle branch does.</summary>
     private static void FillOffScreenMiddle(ushort[] rows, int up, int down, int origin,
         int upperStep, int lowerStep, bool positive)
     {
@@ -107,6 +110,7 @@ internal static class EyeBeamWindowBuilder
         do { Set(rows, top++, EyeWindowRenderDefinitions.FullWindow); } while (top <= bottom);
     }
 
+    /// <summary>Preserves the first entering row's native left-accumulator value in its right edge byte.</summary>
     private static void PreserveOffScreenUpLeftEntry(ushort[] rows, int start, int origin, int leftStep, int rightStep)
     {
         if (rightStep == 0) return;
@@ -123,6 +127,7 @@ internal static class EyeBeamWindowBuilder
             (finalLeft & EyeWindowRenderDefinitions.FullRightEdge));
     }
 
+    /// <summary>Writes one encoded scanline window if its row falls inside the HDMA table.</summary>
     private static void Set(ushort[] rows, int y, ushort window)
     {
         if ((uint)y < rows.Length) rows[y] = window;

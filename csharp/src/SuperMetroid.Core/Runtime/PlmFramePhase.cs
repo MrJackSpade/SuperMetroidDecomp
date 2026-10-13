@@ -11,24 +11,42 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class PlmFramePhase
 {
+    /// <summary>Installed beam artwork staged when a collected beam changes projectile graphics.</summary>
     private readonly RuntimeArtwork _artwork;
+    /// <summary>BG1 offset supplied to PLM view calculations.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Power Bomb explosion status read by triggered PLMs.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
+    /// <summary>Live palette memory updated after beam collection.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Current and newly pressed buttons passed to PLM and message handlers.</summary>
     private readonly ControllerInputState _controller1;
+    /// <summary>Enemy death counts and boss projectile owners used by PLM effects.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Applies gate projectiles requested during the PLM pass.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
+    /// <summary>Suppresses ordinary PLM updates while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
+    /// <summary>Owns the active synchronous item or station message.</summary>
     private readonly GameplayMessageBoxState _messageBox;
+    /// <summary>Retains pending save-station and suit-pickup handoffs.</summary>
     private readonly MessageBoxFlow _messageBoxes;
+    /// <summary>Supplies Samus and the X-ray PLM-suspension flag.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Runs bank-$84 objects and publishes pickup, station, and projectile requests.</summary>
     private readonly RoomPlmSystem _plms;
+    /// <summary>Supplies active level data, streamer, camera, and scroll state.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Prevents a second suit transformation from replacing an active one.</summary>
     private readonly SamusSuitPickupState _suitPickup;
+    /// <summary>Receives tilemap updates emitted by PLM draw lists.</summary>
     private readonly SnesVram _vram;
+    /// <summary>Queues PLM tile transfers and collected-beam character uploads.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>Address space used by PLM instructions and bank-$85 message setup.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Binds the shared PLM handler to live runtime state and its presentation effects.</summary>
     internal PlmFramePhase(PlmFramePhaseDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
@@ -109,6 +127,7 @@ internal sealed class PlmFramePhase
         }
     }
 
+    /// <summary>Runs the ordinary PLM phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
     internal void RunPlmPhase(bool deathOwnsSamus, SamusState samus)
     {
         // Native gameplay state eight reaches PLM_Handler after Samus's new-state and

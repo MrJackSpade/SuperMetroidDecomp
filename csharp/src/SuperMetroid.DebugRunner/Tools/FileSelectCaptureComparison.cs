@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction;
 /// </summary>
 internal static class FileSelectCaptureComparison
 {
+    /// <summary>Compares a reset-origin file-selection replay's synthesized swoosh with captured Android PCM.</summary>
     public static int Run(string journalPath, string wavePath)
     {
         VerifyMatcher();
@@ -69,6 +70,7 @@ internal static class FileSelectCaptureComparison
         return 0;
     }
 
+    /// <summary>Checks the correlation search against a known shifted and gain-scaled signal.</summary>
     private static void VerifyMatcher()
     {
         // A known shifted, volume-scaled signal checks the measurement itself before
@@ -85,6 +87,7 @@ internal static class FileSelectCaptureComparison
             throw new InvalidDataException("Silent capture incorrectly matches a nonzero signal.");
     }
 
+    /// <summary>Finds the captured window with strongest normalized correlation using coarse then exact offsets.</summary>
     private static (int Offset, double Score) Find(double[] capture, double[] target)
     {
         if (capture.Length < target.Length) throw new InvalidDataException("Capture is shorter than comparison window.");
@@ -106,6 +109,7 @@ internal static class FileSelectCaptureComparison
         return (best, score);
     }
 
+    /// <summary>Measures gain-independent similarity of one captured window and a target waveform.</summary>
     private static double Correlation(double[] capture, double[] target, int offset, int stride)
     {
         double dot = 0, a = 0, b = 0;
@@ -119,6 +123,7 @@ internal static class FileSelectCaptureComparison
         return a == 0 || b == 0 ? 0 : dot / Math.Sqrt(a * b);
     }
 
+    /// <summary>Reads a 48 kHz stereo PCM16 WAV and averages each pair into a mono comparison sample.</summary>
     private static double[] ReadWave(string path)
     {
         using var reader = new BinaryReader(File.OpenRead(path));

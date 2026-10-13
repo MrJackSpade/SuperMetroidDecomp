@@ -2,8 +2,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the reflected vortex stars against source stars and paired artwork edits.</summary>
 internal static class CeresReflectedStarPartsVerification
 {
+    /// <summary>Verifies stock reflection, bounds, independent edits, and OAM after presentation reload.</summary>
     internal static void VerifyCeresReflectedStarParts(ISnesAddressSpace rom)
     {
         var original = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x9478, 25, "stars");

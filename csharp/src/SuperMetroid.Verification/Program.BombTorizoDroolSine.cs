@@ -16,8 +16,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Bomb Torizo's drool velocity against native sine indexes for both facing modes and all random bytes.</summary>
 internal static class BombTorizoDroolSineVerification
 {
+    /// <summary>Checks both facing modes and native velocity table indexes for every drool random value.</summary>
     internal static void VerifyBombTorizoDroolSine(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -64,6 +66,7 @@ internal static class BombTorizoDroolSineVerification
             "Bomb Torizo drool sine: 544 real random/facing spawns preserve native XY velocity with the entire signed-sine ROM table forbidden.");
     }
 
+    /// <summary>Spawns drool through production behavior with sine ROM reads forbidden and compares its velocity and origin to cartridge words.</summary>
     private static void VerifyBombTorizoDroolSpawn(
         SuperMetroidAddressSpace rom,
         Action<RoomEnemySystem, RoomEnemySlot> spawn,
@@ -102,6 +105,7 @@ internal static class BombTorizoDroolSineVerification
             $"Bomb Torizo {scenario} random {random:X2} X origin");
     }
 
+    /// <summary>Reads the pinned retail sine or negative-cosine word used solely as this verifier's oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo drool words")]
     private static ushort ReadBombTorizoDroolWord(
         SuperMetroidAddressSpace rom,
@@ -112,10 +116,12 @@ internal static class BombTorizoDroolSineVerification
         return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
     }
 
+    /// <summary>Rejects gameplay reads from the migrated signed-sine and negative-cosine cartridge range.</summary>
     private static CartridgeReadGuard NewBombTorizoDroolSineReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa0b3c3 and < 0xa0b643,
             address => $"Bomb Torizo drool attempted migrated sine or negative-cosine read ${address:X6}.");
 
+    /// <summary>Runs the two signed-sine consumer checks against the retail cartridge image.</summary>
     [VerificationCommand("--remaining-signed-sine-consumers")]
     internal static int RemainingSignedSineConsumersCommand()
     {

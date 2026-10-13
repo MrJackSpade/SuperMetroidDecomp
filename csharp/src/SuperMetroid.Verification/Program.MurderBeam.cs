@@ -20,6 +20,7 @@ using static RetailRuntimeFixtureVerification;
 using static SamusHudSelectionVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Bounded cartridge comparison for the left-facing Murder Beam setup and its explicitly unsupported unsafe variants.</summary>
 internal static class MurderBeamVerification
 {
     /// <summary>
@@ -160,6 +161,7 @@ internal static class MurderBeamVerification
             "and Ice substitution match bounded cartridge evidence.");
     }
 
+    /// <summary>Advances held shoot to the fully charged threshold, with an optional preexisting button hold for missile auto-cancel.</summary>
     private static void HoldCharge(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -180,6 +182,7 @@ internal static class MurderBeamVerification
             projectiles.Charge.FlareCounter, "pre-pause beam charge reaches charged threshold");
     }
 
+    /// <summary>Checks that the right-facing corrupted beam direction fails explicitly before it can masquerade as a normal shot.</summary>
     private static void VerifyUnsafeMurderBeamDirection(
         ISnesAddressSpace bus,
         RoomLevelData level)
@@ -202,6 +205,7 @@ internal static class MurderBeamVerification
         }, "unsafe right-facing Murder Beam does not silently become an ordinary projectile");
     }
 
+    /// <summary>Checks the Select plus Item Cancel missile route into a charged Murder Beam after missile cooldown suppresses an uncharged shot.</summary>
     private static void VerifyMissileAutoCancelMurderBeam(
         ISnesAddressSpace bus,
         RoomLevelData level)
@@ -244,6 +248,7 @@ internal static class MurderBeamVerification
             "missile auto-cancel alternative produces Murder Beam");
     }
 
+    /// <summary>Rejects the uncharged corrupted beam combination before the projectile path treats it as an ordinary beam.</summary>
     private static void VerifyUnsafeUnchargedMurderBeam(
         ISnesAddressSpace bus,
         RoomLevelData level)
@@ -258,6 +263,7 @@ internal static class MurderBeamVerification
             "unsafe uncharged Murder Beam does not silently become an ordinary projectile");
     }
 
+    /// <summary>Runs bounded Murder Beam verification and its production magic-number audit from the command line.</summary>
     [VerificationCommand("--murder-beam")]
     internal static int MurderBeamCommand()
     {

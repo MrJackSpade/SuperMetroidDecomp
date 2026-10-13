@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using static KraidContourCaseMappingsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kraid's body-contour collision edge against native signed-Y lookup behavior.</summary>
 internal static class KraidBodyContourVerification
 {
+    /// <summary>Builds a direct probe for the private contour branch at its exact projectile-bottom threshold.</summary>
     internal static Func<RoomEnemySlot, SamusProjectileSlot, bool> CreateKraidBodyContourProbe() => (body, shot) =>
     {
         // Enter the body-contour branch at its exact Y threshold. The surrounding
@@ -27,6 +29,7 @@ internal static class KraidBodyContourVerification
         return scratch.OverlapsBody(body, new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage));
     };
 
+    /// <summary>Compares the real overlap branch across signed Y positions, translated body X values, shot radii, and edge offsets.</summary>
     internal static void VerifyKraidBodyContour(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidBodyContourCases), () => VerifyKraidBodyContourCases(rom));
@@ -55,6 +58,7 @@ internal static class KraidBodyContourVerification
         Console.WriteLine("Kraid body contour: every signed Y and 1769472 actual collision boundary probes pass with ROM reads forbidden.");
     }
 
+    /// <summary>Runs the Kraid contour and head-instruction checks with a retail cartridge oracle.</summary>
     [VerificationCommand("--kraid-contour-head-fixtures")]
     internal static int KraidContourHeadFixturesCommand()
     {

@@ -6,13 +6,20 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable, bounded post-credit labels with cinematic behavior kept in code.</summary>
 public sealed class EndingTextPresentation
 {
+    /// <summary>Result-panel cells that differ from the stock layout after replacing the producer label.</summary>
     internal readonly Dictionary<int, ushort> resultOverrides = new();
+    /// <summary>Producer label used when rebuilding unmodified result-panel cells.</summary>
     private readonly string resultText;
+    /// <summary>Compiled large-font copyright tilemap returned by the panel builder.</summary>
     private readonly ushort[] copyrightPanel;
+    /// <summary>Japanese subtitle cells whose raw words override the stock calculated layout.</summary>
     internal readonly Dictionary<int, ushort> subtitleOverrides = new();
+    /// <summary>Glyph placements for the item-percentage typewriter sequence.</summary>
     private readonly EndingTextCharacter[] percentage;
+    /// <summary>Glyph placements for the final message typewriter sequence.</summary>
     private readonly EndingTextCharacter[] finalMessage;
 
+    /// <summary>Separates editable panel cells from calculated stock words and retains compiled ending glyphs.</summary>
     private EndingTextPresentation(
         ushort[] resultPanel,
         ushort[] copyrightPanel,
@@ -53,7 +60,9 @@ public sealed class EndingTextPresentation
     /// <summary>Calculated subtitle cells, with independent supplied edits taking precedence.</summary>
     public readonly struct SubtitleSequence : IReadOnlyList<ushort>
     {
+        /// <summary>Presentation whose stock subtitle and raw overrides supply this view.</summary>
         private readonly EndingTextPresentation owner;
+        /// <summary>Creates a read-only view of the presentation's resolved Japanese subtitle cells.</summary>
         internal SubtitleSequence(EndingTextPresentation owner) => this.owner = owner;
         /// <summary>Number of row-major subtitle tilemap words: two rows of 32 cells.</summary>
         public int Count => EndingTextLayoutDefinitions.SubtitleCellCount;
@@ -80,6 +89,7 @@ public sealed class EndingTextPresentation
         {
             for (int cell = 0; cell < Count; cell++) yield return this[cell];
         }
+        /// <summary>Enumerates resolved subtitle words through the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Gets the precompiled glyph placements for the item-percentage labels ($8C:DFDB) or final message ($8C:E0AF); dynamic percentage digits and cinematic timing are supplied by the frontend.</summary>
@@ -156,6 +166,7 @@ public sealed class EndingTextPresentation
         output.Write(bytes);
     }
 
+    /// <summary>Compiles a bounded label into its target tilemap, including the lower row of large glyphs.</summary>
     private static void Apply(ushort[] target, string text,
         EndingTextRegionDefinition region, int rows, string identity)
     {
@@ -171,6 +182,7 @@ public sealed class EndingTextPresentation
         }
     }
 
+    /// <summary>Validates label length and glyph support, then places each glyph within the specified region.</summary>
     private static EndingTextCharacter[] Compile(string text,
         EndingTextRegionDefinition region, string identity)
     {

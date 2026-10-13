@@ -26,6 +26,7 @@ public sealed class RoomPlmEscapeGateVisualCatalog
         }
     });
 
+    /// <summary>Only escape-gate frames whose visual words differ from compiled stock data.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates all three escape-gate frames and copies visual differences without replacing physical level words, animation timing, or door handoff.</summary>

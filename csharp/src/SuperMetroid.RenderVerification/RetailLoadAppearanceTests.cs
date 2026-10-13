@@ -5,8 +5,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Compares legacy and captured rendering through saved-file map, Samus appearance, and control release.</summary>
 internal static class RetailLoadAppearanceTests
 {
+    /// <summary>Runs two independent in-memory save sessions and compares game state, audio, timing, and pixels through load.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");

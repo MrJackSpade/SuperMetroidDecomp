@@ -45,15 +45,25 @@ public sealed class FrameTimingCounter
     internal event Action<long>? EmulatedFrameMeasured;
     /// <summary>Owner-thread observer for whole-run catch-up discards, independent of toolbar intervals.</summary>
     internal event Action<double>? LateFramesRecorded;
+    /// <summary>Stopwatch ticks per second for converting observations to wall time.</summary>
     private readonly long timestampFrequency;
+    /// <summary>Minimum Stopwatch ticks between published snapshots.</summary>
     private readonly long reportingIntervalTicks;
+    /// <summary>Timestamp from which the current reporting interval is measured.</summary>
     private long intervalStarted;
+    /// <summary>Total host ticks spent translating frames in this interval.</summary>
     private long emulationTicks;
+    /// <summary>Longest single frame translation in this interval.</summary>
     private long worstEmulationTicks;
+    /// <summary>Total host ticks spent painting the canvas in this interval.</summary>
     private long paintTicks;
+    /// <summary>Longest canvas paint in this interval.</summary>
     private long worstPaintTicks;
+    /// <summary>Completed translated frames in this interval.</summary>
     private int emulatedFrames;
+    /// <summary>Completed canvas paints in this interval.</summary>
     private int paintedFrames;
+    /// <summary>Wall-clock frame equivalents discarded by bounded catch-up in this interval.</summary>
     private double lateFrames;
 
     /// <summary>Creates an empty UI-thread counter using Stopwatch ticks and the host's one-second reporting interval.</summary>
@@ -139,11 +149,14 @@ public sealed class FrameTimingCounter
         return true;
     }
 
+    /// <summary>Converts an accumulated tick cost to an average, returning zero for an empty interval.</summary>
     private double ToAverageMilliseconds(long ticks, int observations) =>
         observations == 0 ? 0 : ToMilliseconds(ticks) / observations;
 
+    /// <summary>Converts Stopwatch ticks using this counter's injected clock frequency.</summary>
     private double ToMilliseconds(long ticks) => ticks * 1000.0 / timestampFrequency;
 
+    /// <summary>Clears interval counters while retaining the clock geometry and interval start.</summary>
     private void ClearObservations()
     {
         emulationTicks = 0;

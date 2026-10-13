@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(FakeKraidInstructionProgramDefinitions))]
 internal abstract class FakeKraidInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Compiled action, walking, and firing words for both Fake Kraid facings.</summary>
     public static int MechanicsWordCount => 48;
+    /// <summary>Visual frame operands across the paired walking and firing programs.</summary>
     public static int PresentationWordCount => 24;
     /// <summary>Enumerates control words in native program order, skipping visual operands.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
@@ -39,6 +41,7 @@ internal abstract class FakeKraidInstructionProgramDefinitionsTooling : IInstruc
         return (ushort)(FakeKraidInstructionProgramDefinitions.ChooseActionFacingLeft +
             facing * (FakeKraidInstructionProgramDefinitions.ChooseActionFacingRight - FakeKraidInstructionProgramDefinitions.ChooseActionFacingLeft) + offset);
     }
+    /// <summary>Recognizes bank-$A6 bytes whose containing word is compiled mechanics.</summary>
     public static bool IsCompiledMechanicsByte(int address) =>
         (SnesAddressMath.BankBase(address)) == 0xa60000 &&
         FakeKraidInstructionProgramDefinitions.TryReadMechanicsWord(unchecked((ushort)(address & ~1)), out _);

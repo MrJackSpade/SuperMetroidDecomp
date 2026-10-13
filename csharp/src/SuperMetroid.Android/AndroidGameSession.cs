@@ -14,19 +14,31 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidGameSession
 {
+    /// <summary>Installation root holding saves, input traces, timing logs, and error reports.</summary>
     private readonly string root;
+    /// <summary>UI presentation surface receiving completed frames and status.</summary>
     private readonly AndroidGameView view;
+    /// <summary>Run gate cleared while the Activity is inactive.</summary>
     private readonly ManualResetEventSlim active = new(false);
+    /// <summary>Wakes the worker for queued commands or an Activity state change.</summary>
     private readonly AutoResetEvent wake = new(false);
+    /// <summary>Serialized save, load, import, and diagnostic requests handled on the game worker.</summary>
     private readonly AndroidSessionCommands commands = new();
+    /// <summary>Cancels the worker and any frame deadline wait during shutdown.</summary>
     private readonly CancellationTokenSource stopping = new();
+    /// <summary>Task owning mutable game and audio state until Stop awaits it.</summary>
     private readonly Task worker;
+    /// <summary>Thread-safe controller latch sampled once for each emulated frame.</summary>
     public FrameInputLatch Input { get; } = new();
+    /// <summary>Last game options published for UI access without entering the worker.</summary>
     private SuperMetroidGameOptions? effectiveOptions;
+    /// <summary>Current merged game and Android audio options, read with volatile ordering.</summary>
     public SuperMetroidGameOptions? EffectiveOptions => Volatile.Read(ref effectiveOptions);
+    /// <summary>Appends a timestamped controller event to the installation's input log.</summary>
     public void RecordInput(string description) =>
         File.AppendAllText(Path.Combine(root, "input-events.log"), $"{DateTimeOffset.UtcNow:O} {description}\n");
 
+    /// <summary>Starts the single game worker bound to the installation and Android view.</summary>
     public AndroidGameSession(string root, AndroidGameView view)
     {
         this.root = root;
@@ -34,6 +46,7 @@ internal sealed class AndroidGameSession
         worker = Task.Run(Run);
     }
 
+    /// <summary>Updates the Activity run gate and clears latched input across pause or resume.</summary>
     public void SetActive(bool value)
     {
         view.SetPresentationActive(value);
@@ -43,11 +56,16 @@ internal sealed class AndroidGameSession
         wake.Set();
     }
 
+    /// <summary>Queues a save-slot write on the game worker.</summary>
     public Task<string> SaveSlot(int slot) => Request(data => data.SaveSlot(slot));
+    /// <summary>Queues a save-slot load on the game worker.</summary>
     public Task<string> LoadSlot(int slot) => Request(data => data.LoadSlot(slot));
+    /// <summary>Queues a state import into the selected slot.</summary>
     public Task<string> ImportState(string path, int slot) => Request(data => data.ImportState(path, slot));
+    /// <summary>Queues a save-file import on the game worker.</summary>
     public Task<string> ImportSave(string path) => Request(data => data.ImportSave(path));
 
+    /// <summary>Persists active diagnostics through the worker, or bundles durable crash files after it stops.</summary>
     public Task<string> ExportDiagnostics(string destination, int slot) => worker.IsCompleted
         // Fatal runtime errors must not make the already durable crash files inaccessible.
         ? Task.Run(() => AndroidDiagnosticBundle.Create(root, destination, slot))
@@ -59,6 +77,7 @@ internal sealed class AndroidGameSession
             return "Private diagnostic bundle prepared.";
         });
 
+    /// <summary>Enqueues a serialized session operation and wakes the worker to handle it.</summary>
     private Task<string> Request(Func<AndroidSessionData, string> action)
     {
         Task<string> result = commands.Enqueue(action);
@@ -66,6 +85,7 @@ internal sealed class AndroidGameSession
         return result;
     }
 
+    /// <summary>Stops frame publication, cancels the worker, and disposes its synchronization gates.</summary>
     public async Task Stop()
     {
         view.SetPresentationActive(false);
@@ -77,6 +97,7 @@ internal sealed class AndroidGameSession
         stopping.Dispose();
     }
 
+    /// <summary>Owns frame stepping, rasterization, audio, persistence, and queued tools until shutdown.</summary>
     private void Run()
     {
         AndroidPcmOutput? output = null;
@@ -245,6 +266,7 @@ internal sealed class AndroidGameSession
         }
     }
 
+    /// <summary>Records a worker failure in Android logs and the durable error file.</summary>
     private void ReportStopped(Exception error, bool append = false)
     {
         view.SetPresentationActive(false);
@@ -260,6 +282,7 @@ internal sealed class AndroidGameSession
         view.ShowStatus("Stopped: " + error.Message + " (see last-error.txt)");
     }
 
+    /// <summary>Executes queued tools on the worker and republishes the retained display after state changes.</summary>
     private void DrainCommands(AndroidSessionData data)
     {
         while (commands.TryDequeue(out var request))
@@ -277,6 +300,7 @@ internal sealed class AndroidGameSession
         }
     }
 
+    /// <summary>Publishes game options combined with Android audio controls for UI readers.</summary>
     private void RefreshEffectiveOptions(AndroidSessionData data) => Volatile.Write(ref effectiveOptions,
         data.Game.ConfiguredOptions with
         {

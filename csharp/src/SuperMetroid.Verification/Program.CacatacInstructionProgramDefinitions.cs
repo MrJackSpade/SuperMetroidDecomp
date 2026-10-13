@@ -14,14 +14,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Cacatac idle and attack programs against ROM and live spike spawning.</summary>
 internal static class CacatacInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the Cacatac instruction suite.</summary>
     internal static void VerifyCacatacInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCacatacInstructionProgramDefinitions), () => VerifyCacatacInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks mechanics and visual words, then exercises upright and inverted idle and attack paths without runtime source reads.</summary>
     internal static void VerifyCacatacInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -166,6 +169,7 @@ internal static class CacatacInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Consumes repeated compiled idle words for the warmed allocation check.</summary>
     private static int ProbeCacatacInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -177,6 +181,7 @@ internal static class CacatacInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects reads from compiled Cacatac mechanics and presentation word addresses.</summary>
     private static CartridgeReadGuard NewCacatacInstructionProgramReadGuard(ISnesAddressSpace source)
     {
         static string Message(int address) => $"Production read compiled Cacatac instruction ${address:X6}.";
@@ -185,6 +190,7 @@ internal static class CacatacInstructionProgramDefinitionsVerification
             .ForbidWords(0xa20000, CacatacInstructionProgramDefinitionsTooling.PresentationWordCount, CacatacInstructionProgramDefinitionsTooling.PresentationWordAddress, Message);
     }
 
+    /// <summary>Runs the Cacatac instruction suite through the verification command dispatcher.</summary>
     [VerificationCommand("--cacatac-instruction-mechanics")]
     internal static int CacatacInstructionMechanicsCommand()
     {

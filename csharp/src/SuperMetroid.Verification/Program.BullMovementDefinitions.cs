@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Compares Bull's compiled movement setup with retail acceleration, deceleration, and speed tables.</summary>
 internal static class BullMovementDefinitionsVerification
 {
+    /// <summary>Checks all 104 parameter pairs through the real initializer, including timers and initial instruction.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Bull movement")]
     internal static void VerifyCompiledBullMovement(SuperMetroidAddressSpace rom)
     {

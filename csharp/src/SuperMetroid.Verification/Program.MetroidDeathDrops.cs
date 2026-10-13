@@ -12,14 +12,11 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Metroid death explosion and special-drop ordering for fresh and already-marked missiles.</summary>
 internal static class MetroidDeathDropsVerification
 {
-    // #1269: EnemyShot_Metroid records the drop origin ($A3:EF31), runs EnemyDeath ($A3:EF4B),
-    // which spawns the death explosion, and only then MetroidDeathItemDropRoutine ($A3:EF74).
-    // Enemy projectiles allocate from the top slot down, so the explosion takes the highest
-    // free slot and the drops follow below it, as in the 100% movie's first Metroid room.
-    // #1269: $A0:A184 also does not reject a projectile an earlier enemy marked for removal
-    // this pass; the movie's Super Missile hits a respawning Rinka and then the Metroid.
+    /// <summary>Checks top-down projectile slot ordering when a Metroid dies from either a fresh or previously marked shot.</summary>
+    /// <remarks>#1269: native $A3:EF31/$EF4B spawns the explosion before $A3:EF74 requests five drops; $A0:A184 accepts a shot marked by an earlier enemy in the same pass.</remarks>
     internal static void VerifyMetroidDeathDrops()
     {
         VerifyMetroidDeathDrops(alreadyMarked: false);
@@ -27,6 +24,7 @@ internal static class MetroidDeathDropsVerification
         Console.WriteLine("Metroid death drops: the explosion precedes the five special drops, even for an already-marked missile.");
     }
 
+    /// <summary>Runs the reported Metroid collision through production projectile and death dispatch.</summary>
     private static void VerifyMetroidDeathDrops(bool alreadyMarked)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -66,6 +64,7 @@ internal static class MetroidDeathDropsVerification
         AssertEqual(5, runtime.Enemies.MetroidDropRequests.Count, "the Metroid requests its five special drops");
     }
 
+    /// <summary>Runs the focused Metroid death-drop verification command.</summary>
     [VerificationCommand("--metroid-death-drops")]
     internal static int MetroidDeathDropsCommand()
     {

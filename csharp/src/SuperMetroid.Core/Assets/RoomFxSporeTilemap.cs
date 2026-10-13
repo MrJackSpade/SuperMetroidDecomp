@@ -25,9 +25,12 @@ public static class RoomFxSporeTilemapDefinitions
 /// </remarks>
 internal sealed class RoomFxSporeTilemap
 {
+    /// <summary>Authored particle character placement retained from the installed page.</summary>
     private readonly ushort[] characters;
+    /// <summary>Attribute words that differ from the calculated stock palette and flip selection.</summary>
     internal readonly Dictionary<int, ushort>? customAttributes;
 
+    /// <summary>Separates arbitrary particle placement from stock attributes and explicit attribute edits.</summary>
     public RoomFxSporeTilemap(ReadOnlySpan<byte> bytes)
     {
         Ensure.LengthEqual(bytes, RoomFxLayer3TilemapFormat.PageByteCount);

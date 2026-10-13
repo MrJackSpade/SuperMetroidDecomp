@@ -7,10 +7,13 @@ using SuperMetroid.EnsureAnalyzer;
 
 namespace SuperMetroid.EnsureVerification;
 
+/// <summary>Compiles small C# fixtures to check Ensure usage and repository source-boundary analyzer diagnostics.</summary>
 internal static class AnalyzerTests
 {
+    /// <summary>Runtime and core references supplied to isolated analyzer fixture compilations.</summary>
     internal static readonly MetadataReference[] References = BuildReferences();
 
+    /// <summary>Checks supported guard rewrites and preserves nonmatching or domain-specific validation.</summary>
     internal static void VerifyAnalyzer()
     {
         VerifySnippet("using System; class C { public void M(object value) { ArgumentNullException.ThrowIfNull(value); } }",
@@ -41,6 +44,7 @@ internal static class AnalyzerTests
         VerifySnippet("using System; class C { public void M(int width, int height) { if (width <= 0 || height <= 0) throw new ArgumentOutOfRangeException(nameof(width)); } }");
     }
 
+    /// <summary>Requires a fixture to compile cleanly, then compares its analyzer output with one expected diagnostic or none.</summary>
     internal static void VerifySnippet(string source, string? expectedId = null, string? expectedMessage = null,
         DiagnosticAnalyzer? analyzer = null)
     {
@@ -112,6 +116,7 @@ internal static class AnalyzerTests
         Expect(api + "[CpuBusBoundary(\"exact bus test double\")] sealed class Fake : IBus { public void WriteByte(int a, byte v) { } public byte ReadWorkRamByte(int a) => 0; }");
     }
 
+    /// <summary>Checks raw PPU access diagnostics while accepting typed layout views and declared boundary members.</summary>
     internal static void VerifyPpuLayoutAccessAnalyzer()
     {
         var analyzer = new PpuLayoutAccessAnalyzer();
@@ -144,6 +149,7 @@ internal static class AnalyzerTests
         Expect(api + "[PpuLayoutBoundary(\"exact hardware test\")] sealed class Sink : IOamSink { public void Write(int offset, byte value) { } }");
     }
 
+    /// <summary>Checks DSP register-write and numeric-register diagnostics against typed control exceptions.</summary>
     internal static void VerifyDspRegisterAccessAnalyzer()
     {
         var analyzer = new DspRegisterAccessAnalyzer();
@@ -166,6 +172,7 @@ internal static class AnalyzerTests
         Expect(api + "class Driver { void M(Dsp dsp) => dsp.Cycle(); }");
     }
 
+    /// <summary>Checks direct APU RAM indexing diagnostics while permitting typed memory views.</summary>
     internal static void VerifySpcMemoryAccessAnalyzer()
     {
         var analyzer = new SpcMemoryAccessAnalyzer();
@@ -184,6 +191,7 @@ internal static class AnalyzerTests
         Expect(api + "byte M(ref ushort pointer) => Next(ref pointer); }");
     }
 
+    /// <summary>Checks paired coordinate, parameter and parallel-array diagnostics without flagging named spatial values.</summary>
     internal static void VerifySpatialClumpAnalyzer()
     {
         var analyzer = new SpatialClumpAnalyzer();
@@ -343,6 +351,7 @@ internal static class AnalyzerTests
         Expect(domain + " class C { int[] table = new int[3]; int M(Mode m) { int index = (int)m; return table[index] + index; } }");
     }
 
+    /// <summary>Loads trusted platform assemblies plus Core so each isolated snippet has the same type boundary.</summary>
     private static MetadataReference[] BuildReferences()
     {
         string assemblies = (string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")

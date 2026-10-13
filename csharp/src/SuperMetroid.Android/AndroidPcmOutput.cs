@@ -9,11 +9,16 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidPcmOutput : IDisposable
 {
+    /// <summary>Android playback device configured for streaming stereo PCM.</summary>
     private readonly AudioTrack track;
+    /// <summary>Bounded worker queue that absorbs bursty blocking writes.</summary>
     private readonly QueuedPcmSink sink;
+    /// <summary>Playback diagnostics used during Android resume investigation.</summary>
     private readonly AndroidResumeTrace trace;
+    /// <summary>Cumulative accepted sample count recorded alongside the playback head.</summary>
     private long writtenSamples;
 
+    /// <summary>Starts a low-latency AudioTrack and an eight-video-frame PCM worker queue.</summary>
     public AndroidPcmOutput(AndroidResumeTrace trace)
     {
         this.trace = trace;
@@ -51,11 +56,15 @@ internal sealed class AndroidPcmOutput : IDisposable
         sink = new QueuedPcmSink(WriteToDevice, capacity: 8);
     }
 
+    /// <summary>Device-reported playback underruns observed since track creation.</summary>
     public int UnderrunCount => track.UnderrunCount;
+    /// <summary>Video-frame PCM buffers still awaiting the worker's device write.</summary>
     public int PendingFrameCount => sink.PendingFrameCount;
 
+    /// <summary>Copies a submitted frame into the bounded queue for ordered playback.</summary>
     public void Submit(short[] samples) => sink.Submit(samples);
 
+    /// <summary>Writes the full buffer despite partial AudioTrack accepts and records playback diagnostics.</summary>
     private void WriteToDevice(short[] samples)
     {
         long start = System.Diagnostics.Stopwatch.GetTimestamp();
@@ -71,6 +80,7 @@ internal sealed class AndroidPcmOutput : IDisposable
             trace.Record("write", $"start={start} samples={writtenSamples} head={track.PlaybackHeadPosition} underruns={track.UnderrunCount}");
     }
 
+    /// <summary>Drains the queued sink before pausing, flushing, and releasing AudioTrack.</summary>
     public void Dispose()
     {
         try { sink.Dispose(); }

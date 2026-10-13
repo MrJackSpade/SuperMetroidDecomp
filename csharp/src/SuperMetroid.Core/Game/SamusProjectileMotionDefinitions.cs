@@ -9,6 +9,7 @@ internal static class SamusProjectileMotionDefinitions
     private const ushort DiagonalSpeed = 0x02ab;
     /// <summary>$90:C301 MissileInitializedBitset: adjacent word reached by invalid beam combinations.</summary>
     private const ushort MissileInitialized = 0x0100;
+    /// <summary>Resolves aligned native speed and acceleration words, including beam-selector overreads into missile data.</summary>
     internal static ushort ReadWord(int address)
     {
         int offset = address - SamusProjectileRomData.Beams.HorizontalVerticalSpeeds;

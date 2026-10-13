@@ -9,11 +9,16 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class FirefleaEnemyState
 {
+    /// <summary>Common 64-byte enemy record holding variables A through F.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot extra-WRAM upper Y extents for vertical oscillation.</summary>
     private readonly ushort[] _minimumYPositions;
+    /// <summary>Per-slot extra-WRAM lower Y extents for vertical oscillation.</summary>
     private readonly ushort[] _maximumYPositions;
+    /// <summary>Per-slot native byte offsets into the angular speed table.</summary>
     private readonly ushort[] _speedTableIndexes;
 
+    /// <summary>Binds a physical enemy record to its three parallel extra-WRAM state arrays.</summary>
     internal FirefleaEnemyState(
         RoomEnemySlot slot,
         ushort[] minimumYPositions,

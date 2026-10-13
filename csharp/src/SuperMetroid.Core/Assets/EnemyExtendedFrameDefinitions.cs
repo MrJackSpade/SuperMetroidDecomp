@@ -5,55 +5,55 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Every supported schema of the editable extended-enemy-frame compositions, in schema order.</summary>
 internal enum EnemyExtendedFrameSchema
 {
-    /// <summary>Historical schema 1.</summary>
+    /// <summary>Original 37 walking Pirate frames, merged with stock for newer families.</summary>
     First = 1,
-    /// <summary>Historical schema 2.</summary>
+    /// <summary>Walking and wall Pirate frames before Ninja compositions joined the asset.</summary>
     Previous = 2,
-    /// <summary>Historical schema 3.</summary>
+    /// <summary>All Pirate frames before authored display-frame rebinding.</summary>
     PreDisplayBindings = 3,
-    /// <summary>Historical schema 4.</summary>
+    /// <summary>Pirate display bindings with no later boss-frame families.</summary>
     PirateDisplayBindings = 4,
-    /// <summary>Historical schema 5.</summary>
+    /// <summary>Pirate and Ridley frames before Draygon OAM compositions.</summary>
     PreDraygon = 5,
-    /// <summary>Historical schema 6.</summary>
+    /// <summary>Pre-Ceres frame count with older Spore Spawn names repaired during load.</summary>
     PreSporeIdentity = 6,
-    /// <summary>Historical schema 7.</summary>
+    /// <summary>Draygon and Spore Spawn frames before Ceres steam was added.</summary>
     PreCeresSteam = 7,
-    /// <summary>Historical schema 8.</summary>
+    /// <summary>Ceres steam frames before Oum's Maridia compositions.</summary>
     PreOum = 8,
-    /// <summary>Historical schema 9.</summary>
+    /// <summary>Oum frames before Crocomire's tongue and claw poses.</summary>
     PreCrocomire = 9,
-    /// <summary>Historical schema 10.</summary>
+    /// <summary>Crocomire's initial OAM poses before its body animation frames.</summary>
     PreCrocomireBody = 10,
-    /// <summary>Historical schema 11.</summary>
+    /// <summary>Crocomire body poses before the dormant Bomb Torizo statue.</summary>
     PreBombTorizo = 11,
-    /// <summary>Historical schema 12.</summary>
+    /// <summary>Dormant Bomb Torizo included; Golden Torizo's initial pose absent.</summary>
     PreGoldenTorizo = 12,
-    /// <summary>Historical schema 13.</summary>
+    /// <summary>Golden Torizo initial pose included; Kraid arm frames absent.</summary>
     PreKraidArm = 13,
-    /// <summary>Historical schema 14.</summary>
+    /// <summary>Kraid arm frames included; Golden Torizo awakening absent.</summary>
     PreGoldenTorizoAwakening = 14,
-    /// <summary>Historical schema 15.</summary>
+    /// <summary>Golden Torizo awakening included; walking poses absent.</summary>
     PreGoldenTorizoWalking = 15,
-    /// <summary>Historical schema 16.</summary>
+    /// <summary>Golden Torizo walking poses included; rightward turn absent.</summary>
     PreGoldenTorizoRightward = 16,
-    /// <summary>Historical schema 17.</summary>
+    /// <summary>Golden Torizo rightward turn included; jump-back poses absent.</summary>
     PreTorizoJumpBack = 17,
-    /// <summary>Historical schema 18.</summary>
+    /// <summary>Torizo jump-back poses included; right orb poses absent.</summary>
     PreGoldenTorizoRightOrb = 18,
-    /// <summary>Historical schema 19.</summary>
+    /// <summary>Golden Torizo right orb poses included; sonic attack absent.</summary>
     PreGoldenTorizoRightSonic = 19,
-    /// <summary>Historical schema 20.</summary>
+    /// <summary>Golden Torizo right sonic attack included; left-fall pose absent.</summary>
     PreTorizoFallingLeft = 20,
-    /// <summary>Historical schema 21.</summary>
+    /// <summary>Torizo's left-fall pose included; left-foot orb poses absent.</summary>
     PreGoldenTorizoLeftFootOrb = 21,
-    /// <summary>Historical schema 22.</summary>
+    /// <summary>Golden Torizo left-foot orb included; new left jump-back poses absent.</summary>
     PreTorizoJumpBackLeft = 22,
-    /// <summary>Historical schema 23.</summary>
+    /// <summary>Additional left jump-back poses included; left orb sequence absent.</summary>
     PreGoldenTorizoLeftOrb = 23,
-    /// <summary>Historical schema 24.</summary>
+    /// <summary>Golden Torizo left orb poses included; final Torizo additions absent.</summary>
     PreCompleteTorizo = 24,
-    /// <summary>Historical schema 25.</summary>
+    /// <summary>Complete Torizo family before Mother Brain body compositions.</summary>
     PreMotherBrainBody = 25,
     /// <summary>Schema 26 predates shared display bindings for BG2-only boss roots.</summary>
     PreBg2BossBindings = 26,
@@ -80,60 +80,114 @@ internal readonly record struct EnemyExtendedFrameDefinition(
 /// </summary>
 internal static class EnemyExtendedFrameDefinitions
 {
+    /// <summary>Legacy prefix before Draygon OAM identities joined the editable catalog.</summary>
     internal const int PreDraygonFrameCount = 142;
+    /// <summary>Legacy prefix before Ceres steam extended frames were added.</summary>
     internal const int PreCeresSteamFrameCount = 202;
+    /// <summary>Legacy prefix before Oum's thirty editable OAM frames.</summary>
     internal const int PreOumFrameCount = 230;
+    /// <summary>Legacy prefix before Crocomire's initial tongue and claw frames.</summary>
     internal const int PreCrocomireFrameCount = 260;
+    /// <summary>Legacy prefix before Crocomire's body animation roots.</summary>
     internal const int PreCrocomireBodyFrameCount = 269;
+    /// <summary>Legacy prefix before the dormant Bomb Torizo statue pose.</summary>
     internal const int PreBombTorizoFrameCount = 319;
+    /// <summary>Legacy prefix before Golden Torizo's initial OAM pose.</summary>
     internal const int PreGoldenTorizoFrameCount = 320;
+    /// <summary>Legacy prefix before Kraid's independently animated arm frames.</summary>
     internal const int PreKraidArmFrameCount = 321;
+    /// <summary>Legacy prefix before Golden Torizo's awakening sequence.</summary>
     internal const int PreGoldenTorizoAwakeningFrameCount = 343;
+    /// <summary>Legacy prefix before Golden Torizo's walking sequence.</summary>
     internal const int PreGoldenTorizoWalkingFrameCount = 349;
+    /// <summary>Legacy prefix before Golden Torizo's rightward turn poses.</summary>
     internal const int PreGoldenTorizoRightwardFrameCount = 359;
+    /// <summary>Legacy prefix before Torizo jump-back component frames.</summary>
     internal const int PreTorizoJumpBackFrameCount = 370;
+    /// <summary>Legacy prefix before Golden Torizo's right orb poses.</summary>
     internal const int PreGoldenTorizoRightOrbFrameCount = 373;
+    /// <summary>Legacy prefix before Golden Torizo's right sonic attack sequence.</summary>
     internal const int PreGoldenTorizoRightSonicFrameCount = 379;
+    /// <summary>Legacy prefix before Torizo's left-fall pose.</summary>
     internal const int PreTorizoFallingLeftFrameCount = 400;
+    /// <summary>Legacy prefix before Golden Torizo's left-foot orb frames.</summary>
     internal const int PreGoldenTorizoLeftFootOrbFrameCount = 401;
+    /// <summary>Legacy prefix before the two new left jump-back frames.</summary>
     internal const int PreTorizoJumpBackLeftFrameCount = 406;
+    /// <summary>Legacy prefix before Golden Torizo's left orb frames.</summary>
     internal const int PreGoldenTorizoLeftOrbFrameCount = 408;
+    /// <summary>Legacy prefix before the final twenty-seven Torizo frames completed the family.</summary>
     internal const int PreCompleteTorizoFrameCount = 420;
+    /// <summary>Additional Torizo identities introduced by the completed-family schema.</summary>
     internal const int CompleteTorizoAdditionalFrameCount = 27;
+    /// <summary>Legacy prefix before Mother Brain's mixed body component poses.</summary>
     internal const int PreMotherBrainBodyFrameCount = 447;
+    /// <summary>Legacy prefix before BG2-only Draygon and Phantoon display bindings.</summary>
     internal const int PreBg2BossBindingsFrameCount = 464;
+    /// <summary>Legacy prefix before Crocomire's corpse and skeleton composite frames.</summary>
     internal const int PreCrocomireSkeletonFrameCount = 520;
+    /// <summary>Legacy prefix before Kraid's thirty-five extended foot frames.</summary>
     internal const int PreKraidFootFrameCount = 553;
+    /// <summary>Installed JSON asset name retained for historical pirate-composition compatibility.</summary>
     internal const string FileName = "enemy-walking-pirate-compositions.json";
+    /// <summary>Native instruction bank for the initial Pirate frame family.</summary>
     internal const byte Bank = 0xb2;
+    /// <summary>OAM component bound for ordinary extended frames outside Crocomire's skeleton.</summary>
     internal const int MaximumComponents = 8;
+    /// <summary>Walking Pirate frames published first in the schema order.</summary>
     internal const int WalkingFrameCount = 37;
+    /// <summary>Wall Pirate frames following the walking family.</summary>
     internal const int WallFrameCount = 18;
+    /// <summary>Ninja Pirate frames following the wall family.</summary>
     internal const int NinjaFrameCount = 76;
+    /// <summary>Side-facing Ridley body frames in this visual catalog.</summary>
     internal const int RidleyFrameCount = 11;
+    /// <summary>Draygon OAM component frames, separate from its BG2-only poses.</summary>
     internal const int DraygonOamFrameCount = 48;
+    /// <summary>Draygon frames whose editable content consists solely of BG2 tiles.</summary>
     internal const int DraygonBg2FrameCount = 34;
+    /// <summary>Phantoon frames whose editable content consists solely of BG2 tiles.</summary>
     internal const int PhantoonBg2FrameCount = 22;
+    /// <summary>Spore Spawn OAM frames selected by its animation instructions.</summary>
     internal const int SporeSpawnOamFrameCount = 12;
+    /// <summary>Ceres steam OAM frames added after Spore Spawn identities.</summary>
     internal const int CeresSteamFrameCount = 28;
+    /// <summary>Oum snail OAM frames supplied by Maridia's instruction catalog.</summary>
     internal const int OumFrameCount = 30;
+    /// <summary>Crocomire tongue and claw OAM frames before the body sequence.</summary>
     internal const int CrocomireOamFrameCount = 9;
+    /// <summary>Body frame count supplied by Crocomire's visual definitions.</summary>
     internal const int CrocomireBodyFrameCount = CrocomireBodyVisualDefinitions.BodyFrameCount;
+    /// <summary>Single dormant Bomb Torizo statue composition.</summary>
     internal const int BombTorizoDormantFrameCount = 1;
+    /// <summary>Single Golden Torizo pose preceding its awakening animation.</summary>
     internal const int GoldenTorizoInitialFrameCount = 1;
+    /// <summary>Kraid arm OAM frames used independently of body art.</summary>
     internal const int KraidArmFrameCount = 22;
+    /// <summary>Golden Torizo awakening component poses.</summary>
     internal const int GoldenTorizoAwakeningFrameCount = 6;
+    /// <summary>Golden Torizo walking component poses.</summary>
     internal const int GoldenTorizoWalkingFrameCount = 10;
+    /// <summary>Golden Torizo rightward turn component poses.</summary>
     internal const int GoldenTorizoRightwardFrameCount = 11;
+    /// <summary>Torizo backward-jump component poses.</summary>
     internal const int TorizoJumpBackFrameCount = 3;
+    /// <summary>Golden Torizo right-facing orb component poses.</summary>
     internal const int GoldenTorizoRightOrbFrameCount = 6;
+    /// <summary>Golden Torizo right-facing sonic attack poses.</summary>
     internal const int GoldenTorizoRightSonicFrameCount = 21;
+    /// <summary>Single left-falling Torizo component pose.</summary>
     internal const int TorizoFallingLeftFrameCount = 1;
+    /// <summary>Golden Torizo left-foot orb component poses.</summary>
     internal const int GoldenTorizoLeftFootOrbFrameCount = 5;
+    /// <summary>Additional left-facing Torizo jump-back poses.</summary>
     internal const int TorizoJumpBackLeftNewFrameCount = 2;
+    /// <summary>Golden Torizo left-facing orb component poses.</summary>
     internal const int GoldenTorizoLeftOrbFrameCount = 12;
+    /// <summary>Total initial Pirate prefix before boss families.</summary>
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
+    /// <summary>Expected complete schema length, checked against family enumeration.</summary>
     internal const int ExpectedFrameCount =
         PirateFrameCount + RidleyFrameCount +
         DraygonOamFrameCount + SporeSpawnOamFrameCount +
@@ -149,6 +203,7 @@ internal static class EnemyExtendedFrameDefinitions
         DraygonBg2FrameCount + PhantoonBg2FrameCount + CrocomireSkeletonVisualDefinitions.FrameCount +
         KraidFootVisualDefinitions.FrameCount;
 
+    /// <summary>Indexed view spanning the complete schema-ordered visual catalog.</summary>
     internal static EnemyExtendedFrameSequence Frames => new(0, ExpectedFrameCount);
 
     /// <summary>These native roots contain BG2 streams only; stock legitimately has no OAM components.</summary>

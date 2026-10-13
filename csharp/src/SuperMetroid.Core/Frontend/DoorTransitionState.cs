@@ -17,11 +17,17 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class DoorTransitionState
 {
+    /// <summary>Drives source fade-out and destination fade-in from shared CGRAM targets.</summary>
     private CartridgePaletteTransition? paletteTransition;
+    /// <summary>Source palette snapshot restored after atomic destination room construction.</summary>
     private Bgr555[]? fadedSourcePalette;
+    /// <summary>Door header captured before the destination room replaces the source.</summary>
     private CartridgeDoorHeader? door;
+    /// <summary>Samus's source-room position used to compute the final door-scroll placement.</summary>
     private FixedPosition<RoomPixels> sourceSamus;
+    /// <summary>Source common-room-element bit used when selecting palette and IRQ behavior.</summary>
     private byte sourceCreBitset;
+    /// <summary>Destination common-room-element bit used by the transition IRQ setup.</summary>
     private byte destinationCreBitset;
 
     /// <summary>Gets the currently selected native door-transition coroutine phase.</summary>
@@ -294,6 +300,7 @@ public sealed class DoorTransitionState
         }
     }
 
+    /// <summary>Fades room colors while preserving HUD and applicable common CRE or escape-timer colors.</summary>
     private static Bgr555[] BuildSourceFadeTarget(SuperMetroidRuntime runtime)
     {
         var target = new Bgr555[CgramPalettes.ColorCount];
@@ -316,6 +323,7 @@ public sealed class DoorTransitionState
         return target;
     }
 
+    /// <summary>Restores the faded source colors after destination loading replaces CGRAM.</summary>
     private static void RestorePalette(SnesCgram cgram, ReadOnlySpan<Bgr555> colors)
     {
         new CgramPalettes(cgram).LoadImage(colors);

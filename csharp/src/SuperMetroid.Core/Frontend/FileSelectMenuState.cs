@@ -21,27 +21,42 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class FileSelectMenuState
 {
-    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    /// <summary>Reusable OBJ layer cleared for each render; it is never part of saved menu state.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
-    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    /// <summary>Reusable final frame; a returned image remains valid until this scene renders again.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
+    /// <summary>Supplies native pose and menu data to the cartridge-backed presentation.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Receives menu sound requests when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>Reads and mutates the cartridge's checksummed three-slot SRAM layout.</summary>
     private readonly SuperMetroidSaveRam saveRam;
+    /// <summary>Owns the menu's VRAM, CGRAM, and installed presentation assets.</summary>
     internal readonly MenuPpuState ppu;
+    /// <summary>Collects border, cursor, helmets, and copy-arrow sprites for the current frame.</summary>
     internal readonly OamBuffer oam = new();
+    /// <summary>Tracks button edges used by native menu navigation and confirmation.</summary>
     private readonly ControllerInputState controller = new();
+    /// <summary>Host-owned file-select artwork rebound after debugger-state restoration.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    /// <summary>Staging buffer for the complete 32-by-32 BG1 menu tilemap.</summary>
     internal readonly ushort[] bg1Tilemap = new ushort[32 * 32];
+    /// <summary>Decoded slots whose null entries failed or lacked native SRAM checksums.</summary>
     private readonly SuperMetroidSaveSlot?[] saveSlots = new SuperMetroidSaveSlot?[3];
+    /// <summary>Updates remaining before the selection missile advances its sprite frame.</summary>
     private int missileAnimationTimer = 1;
+    /// <summary>Current frame of the four-frame selection missile cycle.</summary>
     private int missileAnimationFrame;
+    /// <summary>Updates remaining in the selected helmet's current turn frame.</summary>
     private int helmetAnimationTimer;
+    /// <summary>Selected helmet turn frame retained through the options fade.</summary>
     internal int helmetAnimationFrame;
     /// <summary>$51 INIDISP byte: forced-blank bit plus brightness nibble.</summary>
     private int brightness;
+    /// <summary>Advances the native brightness timing for entry and submenu transitions.</summary>
     private readonly ScreenFade screenFade = new();
+    /// <summary>Installed page identifier rebuilt after save data or debugger bindings change.</summary>
     private string currentPresentationPage = FileSelectPresentationDefinitions.MainEmptyPage;
 
     /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
@@ -215,6 +230,7 @@ public sealed class FileSelectMenuState
         return MenuRenderSnapshotCapture.Capture(ppu, oam, 0, Brightness);
     }
 
+    /// <summary>Builds the current border, missile, helmet, and optional copy-arrow OBJ list from menu phase.</summary>
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
@@ -279,6 +295,7 @@ public sealed class FileSelectMenuState
 
     }
 
+    /// <summary>Builds the main page from decoded slots, hiding Copy and Clear when every slot is empty.</summary>
     private void BuildSaveTilemap()
     {
         currentPresentationPage = HasAnySave
@@ -360,6 +377,7 @@ public sealed class FileSelectMenuState
         WriteMenuDigit(timeOrigin + 8, minutes % 10);
     }
 
+    /// <summary>Writes one decimal glyph to BG1 and rejects an address outside its 32-by-32 buffer.</summary>
     private void WriteMenuDigit(int destinationByteOffset, int digit)
     {
         int wordIndex = destinationByteOffset >> 1;
@@ -368,12 +386,14 @@ public sealed class FileSelectMenuState
         bg1Tilemap[wordIndex] = unchecked((ushort)(FileSelectLayout.DigitTileBase + digit));
     }
 
+    /// <summary>Rejects the obsolete ROM tilemap path; file-select pages require installed presentation assets.</summary>
     private static void LoadMenuTilemap(int destinationByteOffset, ushort sourcePointer)
     {
         throw new InvalidOperationException(
             "File-select tilemaps require installed menu presentation assets.");
     }
 
+    /// <summary>Rejects the obsolete ROM spritemap path; file-select sprites require installed presentation assets.</summary>
     private static void DrawMenuSpritemap(ushort spritemapId, Position16<OamPixels> position)
     {
         // `DrawMenuSpritemap` indexes a word-pointer array, so the displayed spritemap ID
@@ -401,6 +421,7 @@ public sealed class FileSelectMenuState
         helmetAnimationFrame = next;
     }
 
+    /// <summary>Advances the four-frame missile cursor when its presentation-defined delay expires.</summary>
     private void StepMissileAnimation()
     {
         if (--missileAnimationTimer != 0)
@@ -409,6 +430,7 @@ public sealed class FileSelectMenuState
         missileAnimationTimer = mapPresentation?.FileSelect.CursorFrameDuration ?? MenuMissileAnimationDefinitions.FrameDuration;
     }
 
+    /// <summary>Applies the current INIDISP brightness fraction to RGB while preserving alpha.</summary>
     private void ApplyBrightness(Span<Rgba32> pixels)
     {
         int displayed = Brightness;
@@ -428,32 +450,47 @@ public sealed class FileSelectMenuState
         }
     }
 
+    /// <summary>Copy or Clear mode selected on the main page before its fade finishes.</summary>
     private FileSelectDataMode pendingDataMode;
+    /// <summary>Submenu phase entered once the newly built page reaches full brightness.</summary>
     private FileSelectPhase phaseAfterFadeIn;
+    /// <summary>Chooses submenu border and cursor layout during cross-page fade phases.</summary>
     private bool showDataManagementScreen;
+    /// <summary>Selected slot or Exit row in source, destination, and clear menus.</summary>
     private int submenuSelection;
+    /// <summary>Source slot retained while choosing a copy destination or confirming a clear.</summary>
     private int operationSourceSlot;
+    /// <summary>Copy target retained through confirmation and completion pages.</summary>
     private int operationDestinationSlot;
+    /// <summary>Yes or No row selected on the copy or clear confirmation page.</summary>
     private int confirmationSelection;
+    /// <summary>Updates remaining before the copy arrow rotates its CGRAM colors.</summary>
     private int copyArrowPaletteTimer;
 
+    /// <summary>Controls whether the main page exposes Copy and Clear navigation.</summary>
     private bool HasAnySave => saveSlots.Any(slot => slot is not null);
 
+    /// <summary>Chooses main-page border, helmets, and missile coordinates, including fades.</summary>
     private bool IsMainScreenPhase => !showDataManagementScreen;
 
+    /// <summary>Chooses the Copy border while its submenu remains visible.</summary>
     private bool IsCopyPhase =>
         showDataManagementScreen && pendingDataMode == FileSelectDataMode.Copy;
 
+    /// <summary>Chooses the Clear border while its submenu remains visible.</summary>
     private bool IsClearPhase =>
         showDataManagementScreen && pendingDataMode == FileSelectDataMode.Clear;
 
+    /// <summary>Suppresses cursor animation before the initialized main page begins fading in.</summary>
     private bool IsEntryPhase => Phase is FileSelectPhase.EnterBlankScreen or
         FileSelectPhase.EnterBlankScreenAfterNmi or FileSelectPhase.LoadBackground or
         FileSelectPhase.InitializeMain or FileSelectPhase.InitializeMainAfterNmi;
 
+    /// <summary>Hides the selection missile during entry and on completed data-operation pages.</summary>
     private bool ShouldDrawSelectionMissile => !IsEntryPhase && Phase is not
         FileSelectPhase.CopyCompleted and not FileSelectPhase.ClearCompleted;
 
+    /// <summary>Handles slot selection, hidden data-management rows, and options or title handoffs.</summary>
     private void StepMainMenu(SnesButton pressed)
     {
         if ((pressed & SnesButton.Up) != 0)
@@ -504,9 +541,11 @@ public sealed class FileSelectMenuState
         throw new InvalidDataException($"Invalid file-select main item {SelectedItem}.");
     }
 
+    /// <summary>Moves through main-page entries while skipping Copy and Clear for empty SRAM.</summary>
     private void MoveMainSelection(bool down) =>
         SelectedItem = FileSelectMainNavigation.Move(SelectedItem, HasAnySave, down);
 
+    /// <summary>Swaps main and data pages only at forced blank, then enters the saved phase after fade-in.</summary>
     private void StepDataManagementFade()
     {
         if (Phase is FileSelectPhase.FadeOutToDataManagement or FileSelectPhase.FadeOutToMain)
@@ -536,6 +575,7 @@ public sealed class FileSelectMenuState
             Phase = phaseAfterFadeIn;
     }
 
+    /// <summary>Starts Copy or Clear on the first occupied slot and builds the corresponding page.</summary>
     private void InitializeDataManagementScreen()
     {
         submenuSelection = FindFirstNonemptySlot();
@@ -555,6 +595,7 @@ public sealed class FileSelectMenuState
         UploadBg1Tilemap();
     }
 
+    /// <summary>Dispatches Copy and Clear selection, confirmation, and completed-page input.</summary>
     private void StepDataManagement(SnesButton pressed)
     {
         switch (Phase)
@@ -589,6 +630,7 @@ public sealed class FileSelectMenuState
         }
     }
 
+    /// <summary>Chooses an occupied source or clear slot, then opens destination or confirmation.</summary>
     private void StepSlotSelection(SnesButton pressed, bool sourceSelection)
     {
         int occupiedSlots = 0;
@@ -626,6 +668,7 @@ public sealed class FileSelectMenuState
         }
     }
 
+    /// <summary>Chooses any slot other than the copy source, preserving B navigation back to source selection.</summary>
     private void StepCopyDestination(SnesButton pressed)
     {
         MoveSubmenuSelection(FileSelectDataNavigation.MoveCopyDestination(
@@ -655,6 +698,7 @@ public sealed class FileSelectMenuState
         Phase = FileSelectPhase.CopyConfirm;
     }
 
+    /// <summary>Rotates the copy arrow palette colors when its native CGRAM animation timer expires.</summary>
     private void StepCopyArrowPalette()
     {
         if (copyArrowPaletteTimer == 0 || --copyArrowPaletteTimer != 0)
@@ -668,6 +712,7 @@ public sealed class FileSelectMenuState
         arrow.Write(last, color);
     }
 
+    /// <summary>Accepts Yes or No and mutates checksummed SRAM only after explicit Yes confirmation.</summary>
     private void StepConfirmation(SnesButton pressed, bool copy)
     {
         if ((pressed & (SnesButton.Up | SnesButton.Down)) != 0)
@@ -711,6 +756,7 @@ public sealed class FileSelectMenuState
         SaveRamChangedThisFrame = true;
     }
 
+    /// <summary>Restores the prior source or destination selection page after B or No.</summary>
     private void ReturnFromConfirmation(bool copy)
     {
         submenuSelection = copy ? operationDestinationSlot : operationSourceSlot;
@@ -727,6 +773,7 @@ public sealed class FileSelectMenuState
         UploadBg1Tilemap();
     }
 
+    /// <summary>Updates a changed submenu row and queues one cursor sound.</summary>
     private void MoveSubmenuSelection(int next)
     {
         if (next == submenuSelection)
@@ -735,6 +782,7 @@ public sealed class FileSelectMenuState
         QueueCursorSound();
     }
 
+    /// <summary>Builds the Copy page that asks which occupied save to use as source.</summary>
     private void BuildCopySourceTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.CopySourcePage;
@@ -750,6 +798,7 @@ public sealed class FileSelectMenuState
             FileSelectLayout.CopySourcePromptDestination);
     }
 
+    /// <summary>Builds the destination prompt and inserts the chosen source slot letter.</summary>
     private void BuildCopyDestinationTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.CopyDestinationPage;
@@ -767,6 +816,7 @@ public sealed class FileSelectMenuState
             unchecked((ushort)(FileSelectLayout.SamusLetterTileBase + operationSourceSlot));
     }
 
+    /// <summary>Builds the Yes/No prompt with both source and destination slot letters.</summary>
     private void BuildCopyConfirmationTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.CopyConfirmPage;
@@ -787,6 +837,7 @@ public sealed class FileSelectMenuState
         AddConfirmationText();
     }
 
+    /// <summary>Displays the completed copy page after SRAM and decoded slots have been updated.</summary>
     private void BuildCopyCompletedTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.CopyCompletedPage;
@@ -800,6 +851,7 @@ public sealed class FileSelectMenuState
         LoadMenuTilemap(FileSelectLayout.CopyCompletedDestination, FileSelectTilemaps.CopyCompleted);
     }
 
+    /// <summary>Builds the Clear page that asks which occupied slot to erase.</summary>
     private void BuildClearSelectionTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.ClearSelectionPage;
@@ -815,6 +867,7 @@ public sealed class FileSelectMenuState
             FileSelectLayout.ClearPromptDestination);
     }
 
+    /// <summary>Builds the erase Yes/No prompt with the selected source slot letter.</summary>
     private void BuildClearConfirmationTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.ClearConfirmPage;
@@ -833,6 +886,7 @@ public sealed class FileSelectMenuState
         AddConfirmationText();
     }
 
+    /// <summary>Displays the cleared page with refreshed slot data after SRAM is erased.</summary>
     private void BuildClearCompletedTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.ClearCompletedPage;
@@ -847,6 +901,7 @@ public sealed class FileSelectMenuState
         DrawDataManagementSlots();
     }
 
+    /// <summary>Clears BG1 and draws the submenu mode, prompt, Exit row, and current save-slot summaries.</summary>
     private void BuildDataManagementBase(
         ushort modeLabel,
         int modeDestination,
@@ -860,6 +915,7 @@ public sealed class FileSelectMenuState
         DrawDataManagementSlots();
     }
 
+    /// <summary>Draws all three slot labels, energy values, and time captions on a submenu page.</summary>
     private void DrawDataManagementSlots()
     {
         LoadMenuTilemap(FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(0));
@@ -873,6 +929,7 @@ public sealed class FileSelectMenuState
         LoadMenuTilemap(FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
     }
 
+    /// <summary>Adds the native question and Yes/No labels to a confirmation page.</summary>
     private static void AddConfirmationText()
     {
         LoadMenuTilemap(FileSelectLayout.ConfirmationQuestionDestination, FileSelectTilemaps.IsThisOkay);
@@ -880,6 +937,7 @@ public sealed class FileSelectMenuState
         LoadMenuTilemap(FileSelectLayout.ConfirmationNoDestination, FileSelectTilemaps.No);
     }
 
+    /// <summary>Finds the initial data-management selection and rejects entry with no occupied slot.</summary>
     private int FindFirstNonemptySlot()
     {
         int slot = Array.FindIndex(saveSlots, save => save is not null);
@@ -887,6 +945,7 @@ public sealed class FileSelectMenuState
             "Data-management screen requires at least one nonempty save slot.");
     }
 
+    /// <summary>Places the cursor on the active main, slot, or confirmation row for installed or ROM layouts.</summary>
     private Position16<OamPixels> GetSelectionMissilePosition()
     {
         if (mapPresentation is not null)
@@ -907,9 +966,11 @@ public sealed class FileSelectMenuState
         return new(22, FileSelectLayout.DataSelectionY(submenuSelection));
     }
 
+    /// <summary>Copies the staged BG1 menu page into menu VRAM.</summary>
     private void UploadBg1Tilemap() =>
         new MenuVram(ppu.Vram).Bg1Tilemap.Write(bg1Tilemap);
 
+    /// <summary>Queues the menu cursor sound with the native six-request limit.</summary>
     private void QueueCursorSound() =>
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
 
@@ -929,6 +990,7 @@ public sealed class FileSelectMenuState
         UploadBg1Tilemap();
     }
 
+    /// <summary>Copies the installed page and overlays live save data and dynamic source/destination letters.</summary>
     private void RebuildInstalledPresentationPage()
     {
         FileSelectPresentation presentation = mapPresentation?.FileSelect ??
@@ -969,6 +1031,7 @@ public sealed class FileSelectMenuState
         }
     }
 
+    /// <summary>Overlays NO DATA or the slot's health, energy tanks, and clamped time onto an installed page.</summary>
     private void DrawInstalledSlot(
         SuperMetroid.Core.Game.SuperMetroidSaveSlot? slot,
         FileSelectSlotFieldDocument layout)

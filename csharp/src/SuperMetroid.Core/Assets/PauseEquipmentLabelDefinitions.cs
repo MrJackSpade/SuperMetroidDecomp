@@ -55,6 +55,7 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary>The ordinary label view of the selector anchors, derived once rather than per lookup.</summary>
     public static IReadOnlyList<(PauseEquipmentCategory Category, int Item, string Key)> Labels() => labels.Value;
 
+    /// <summary>Non-reserve selector anchors projected once into the fourteen ordinary inventory label identities.</summary>
     private static readonly Lazy<(PauseEquipmentCategory Category, int Item, string Key)[]> labels = new(() =>
         PauseSelectorDefinitions.Anchors()
             .Where(anchor => anchor.Category != PauseEquipmentCategory.Reserves)
@@ -64,12 +65,16 @@ public static class PauseEquipmentLabelDefinitions
     /// <param name="category">Native equipment category: one denotes beams; every other integer returns the equipment width without category validation.</param>
     /// <returns>Five for the beam category, otherwise nine.</returns>
     public static int WordCount(PauseEquipmentCategory category) => category == PauseEquipmentCategory.Beams ? BeamWords : EquipmentWords;
-    /// <summary>$82:BF32-C018: all collected labels use BG palette two and the marker character $FF.</summary>
-    private const int LabelPalette = 2, Marker = 0xff;
+    /// <summary>$82:BF32-C018: all collected label tile words use BG palette two.</summary>
+    private const int LabelPalette = 2;
+    /// <summary>Leading inventory marker character $FF before each label's text.</summary>
+    private const int Marker = 0xff;
     /// <summary>$82:BF42 and other label tails use character $D4 as the padded text background.</summary>
     private const int Padding = 0xd4;
-    /// <summary>$82:BF34-BF38: contiguous CHARG fragment at atlas $D8-DA; E is stored at $E7.</summary>
-    private const int ChargePrefix = 0xd8, ChargeEnding = 0xe7;
+    /// <summary>$82:BF34-BF38: contiguous CHARG fragment begins at atlas $D8.</summary>
+    private const int ChargePrefix = 0xd8;
+    /// <summary>CHARGE label's final E is separately stored at atlas $E7.</summary>
+    private const int ChargeEnding = 0xe7;
     /// <summary>$82:BF3E-BF40: ICE at atlas $DB-DC.</summary>
     private const int IceText = 0xdb;
     /// <summary>$82:BF48-BF4C: WAVE at atlas $DD-DF.</summary>
@@ -88,8 +93,10 @@ public static class PauseEquipmentLabelDefinitions
     private const int MorphingPrefix = 0x120;
     /// <summary>$82:BF92-BF94: G/B continuation at atlas $117-118.</summary>
     private const int MorphingBallMiddle = 0x117;
-    /// <summary>$82:BF96-BF98: AL and final L fragments at atlas $10F/$11F.</summary>
-    private const int BallMiddle = 0x10f, BallEnding = 0x11f;
+    /// <summary>$82:BF96: Morphing Ball's AL fragment begins at atlas $10F.</summary>
+    private const int BallMiddle = 0x10f;
+    /// <summary>$82:BF98: final L of Morphing Ball is separately packed at atlas $11F.</summary>
+    private const int BallEnding = 0x11f;
     /// <summary>$82:BF9C-BFA0: BOMBS at atlas $D5-D7.</summary>
     private const int BombsText = 0xd5;
     /// <summary>$82:BFAE-BFBA: SPRING BALL at atlas $110-116.</summary>
@@ -102,9 +109,12 @@ public static class PauseEquipmentLabelDefinitions
     private const int SpaceJumpText = 0xf0;
     /// <summary>$82:BFF8-C006: SPEED BOOSTER at atlas $124-12B.</summary>
     private const int SpeedBoosterText = 0x124;
-    /// <summary>$82:C00A-C010: HYPER at atlas $137-139 with its distinct empty endcap at $12F.</summary>
-    private const int HyperText = 0x137, HyperEndcap = 0x12f;
+    /// <summary>$82:C00A-C00E: HYPER text begins at atlas $137.</summary>
+    private const int HyperText = 0x137;
+    /// <summary>$82:C010: Hyper label's distinct empty endcap at atlas $12F.</summary>
+    private const int HyperEndcap = 0x12f;
 
+    /// <summary>Uses five source words for ordinary beams and nine for other labels, including stored Hyper.</summary>
     internal static int StockWordCount(string key)
     {
         _ = StockDestinationByte(key);
@@ -119,7 +129,7 @@ public static class PauseEquipmentLabelDefinitions
             : throw new ArgumentOutOfRangeException(nameof(key));
     }
 
-    // Every label's destination by the rule above, derived once: lookups run per tilemap cell.
+    /// <summary>Native label destinations derived once from category columns and rows for per-cell lookup.</summary>
     private static readonly Lazy<Dictionary<string, int>> destinations = new(() =>
         Labels().ToDictionary(label => label.Key, label =>
         {
@@ -163,5 +173,6 @@ public static class PauseEquipmentLabelDefinitions
         return (ushort)(LabelPalette << 10 | glyph);
     }
 
+    /// <summary>Advances through a contiguous glyph run, then pads the remaining strip with the native background tile.</summary>
     private static int Run(int first, int length, int index) => index < length ? first + index : Padding;
 }

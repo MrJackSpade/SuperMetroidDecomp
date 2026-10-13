@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks upward shinespark collision against nearby solid and frozen enemies.</summary>
 internal static class ShinesparkEnemyStopVerification
 {
+    /// <summary>Checks exact crash position at a four-pixel gap and continued vertical flight at a twenty-pixel gap.</summary>
     internal static void VerifyShinesparkEnemyStop()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

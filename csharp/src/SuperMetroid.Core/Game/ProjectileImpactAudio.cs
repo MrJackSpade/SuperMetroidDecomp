@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Beam and missile impact sound requests for the frame.</summary>
 internal sealed class ProjectileImpactAudio
 {
-    // Frame-publication data, not persistent cartridge state. Reinitialize before enemy
-    // collision as well as projectile movement: either owner can cause an impact.
+    /// <summary>Transient requests for the current published frame; enemy collision and projectile movement can both append impacts.</summary>
     [NonSerialized] private List<SamusSoundRequest>? _impactSoundRequests;
+    /// <summary>Frame-local gate that omits missile impact requests during a cinematic.</summary>
     [NonSerialized] private bool _cinematicImpactAudioSuppressed;
 
     /// <summary>Borrowed current-owner-frame missile impact requests for library two with queue limit six; reading the list does not consume or play them.</summary>
@@ -22,10 +22,12 @@ internal sealed class ProjectileImpactAudio
         _cinematicImpactAudioSuppressed = cinematicActive;
     }
 
+    /// <summary>Queues library-two beam impact audio, marking it suppressed when a Power Bomb is active.</summary>
     internal void RequestBeamImpactSound(SamusPowerBombExplosionState powerBomb) =>
         (_impactSoundRequests ??= []).Add(new(SoundEffectLibrary2Sounds.BeamImpact, 6,
             SoundSuppressed: powerBomb.IsActive));
 
+    /// <summary>Queues missile impact audio unless the current cinematic frame suppresses it; an active Power Bomb marks the request suppressed.</summary>
     internal void RequestMissileImpactSound(SamusPowerBombExplosionState powerBomb)
     {
         if (!_cinematicImpactAudioSuppressed)

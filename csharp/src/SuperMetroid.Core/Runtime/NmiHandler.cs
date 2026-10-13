@@ -13,24 +13,42 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class NmiHandler
 {
+    /// <summary>Publishes rebound HUD, beam, and trail art after accepted VRAM transfers.</summary>
     private readonly RuntimeArtwork _artwork;
+    /// <summary>Captures the BG1 and BG2 scroll registers visible with the accepted NMI.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Latches remapped controller input only for a main-loop-requested NMI.</summary>
     private readonly ControllerInputState _controller1;
+    /// <summary>Retains accepted-NMI PPU, Mode 7, layer-three, and eye-beam snapshots.</summary>
     private readonly GameplayDisplayState _display;
+    /// <summary>Last finalized OAM image uploaded by an accepted NMI.</summary>
     private readonly OamBuffer _displayedOam;
+    /// <summary>Provides boss-specific display windows and latches Phantoon presentation.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Window register cache latched with the accepted frame.</summary>
     private readonly GameplayWindowRegisters _gameplayWindows;
+    /// <summary>Owns accepted, lagged, and all-NMI frame counters.</summary>
     private readonly NmiClock _nmi;
+    /// <summary>Finalized main-loop OAM awaiting the next accepted upload.</summary>
     private readonly OamBuffer _oam;
+    /// <summary>Controller bindings used to normalize physical buttons before the shared input latch.</summary>
     private readonly GameplayOptions _options;
+    /// <summary>Supplies Samus graphics DMA for accepted NMI transfers.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Captures the layer-three room effect visible at the NMI boundary.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Latches the Tourian statue scene's displayed state.</summary>
     private readonly TourianStatueSequence _tourianStatues;
+    /// <summary>Receives Samus tile DMA and drained video-queue writes.</summary>
     private readonly SnesVram _vram;
+    /// <summary>General video transfer queue drained after Samus graphics DMA.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>Transfers the X-ray BG1 read at the end of the accepted publication.</summary>
     private readonly XrayReveal _xray;
+    /// <summary>Memory bus supplied to Samus DMA and queued video transfers.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Connects controller, PPU, sprite, video-queue, and frame-clock owners to the NMI boundary.</summary>
     internal NmiHandler(NmiHandlerDependencies dependencies)
     {
         _artwork = dependencies.Artwork;

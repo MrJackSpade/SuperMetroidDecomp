@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Rendering;
 
+/// <summary>Checks BG2 mosaic source-coordinate grouping against physical scanout and scroll behavior.</summary>
 internal static class BackgroundMosaicVerification
 {
+    /// <summary>Exercises block boundaries, the vertical phase behind the HUD, HDMA scroll changes, and register widths.</summary>
     internal static void VerifyBackgroundMosaicSampling()
     {
         // Explicit boundaries catch quantizing world coordinates or starting the

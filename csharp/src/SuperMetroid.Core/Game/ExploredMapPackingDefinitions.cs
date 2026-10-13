@@ -52,6 +52,7 @@ internal static class ExploredMapPackingDefinitions
     /// </summary>
     internal readonly struct OccupiedByteIndexes(IAreaMapView stockRules) : IReadOnlyList<byte>
     {
+        /// <summary>Counts native map bytes with at least one discoverable stock tile.</summary>
         public int Count
         {
             get
@@ -63,6 +64,7 @@ internal static class ExploredMapPackingDefinitions
             }
         }
 
+        /// <summary>Finds the occupied byte at the given position in the native page-first packing order.</summary>
         public byte this[int index]
         {
             get
@@ -74,6 +76,7 @@ internal static class ExploredMapPackingDefinitions
             }
         }
 
+        /// <summary>Checks the eight horizontal map cells represented by a native byte, including the page offset.</summary>
         private bool Contains(int nativeByte)
         {
             int pageBytes = AreaMapLayout.HeightInTiles * AreaMapLayout.PageWidthInTiles / 8;
@@ -85,11 +88,13 @@ internal static class ExploredMapPackingDefinitions
             return false;
         }
 
+        /// <summary>Visits occupied bytes in the same page-first order used by bank $81's sparse save lists.</summary>
         public IEnumerator<byte> GetEnumerator()
         {
             for (int candidate = 0; candidate < Bank80SystemState.ExploredMapBytesPerArea; candidate++)
                 if (Contains(candidate)) yield return checked((byte)candidate);
         }
+        /// <summary>Exposes the native sparse byte order through the non-generic collection interface.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

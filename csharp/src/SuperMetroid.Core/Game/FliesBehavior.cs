@@ -3,16 +3,21 @@
 /// <summary>The Flies species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class FliesBehavior : IEnemySpecies
 {
+    /// <summary>Provides the shared room RNG whose advance is part of each fly AI update.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>Attaches fly AI to the room's enemy and random-state services.</summary>
     internal FliesBehavior(EnemyRoomBinding room)
     {
         _room = room;
     }
 
+    /// <summary>Maximum horizontal Samus distance, in pixels, that triggers an attack from circular flight.</summary>
     private const int FlyAttackHorizontalRange = 0x70;
+    /// <summary>Per-slot motion state for active Mellow, Mella, and Menu enemies.</summary>
     internal readonly FlyEnemyState?[] _flyStates = new FlyEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
+    /// <summary>Starts a newly loaded fly at angle zero with its flight instruction and clockwise motion.</summary>
     internal void InitializeFly(RoomEnemySlot slot)
     {
         var state = new FlyEnemyState(slot)
@@ -26,6 +31,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
+    /// <summary>Advances room RNG and dispatches a fly's circle, attack, or retreat phase.</summary>
     private void RunFlyMain(RoomEnemySlot slot, SamusState? samus)
     {
         if (samus is null)
@@ -61,6 +67,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Rotates a fly around its flight path, reversing direction each revolution or diving when Samus enters range.</summary>
     private static void RunFlyCircle(
         RoomEnemySlot slot,
         FlyEnemyState state,
@@ -88,6 +95,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Aims an asymmetric horizontal and vertical dive toward Samus's current position.</summary>
     private static void SetFlyToAttackSamus(
         RoomEnemySlot slot,
         FlyEnemyState state,
@@ -102,6 +110,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         state.Function = FlyEnemyFunction.AttackSamus;
     }
 
+    /// <summary>Continues the dive until it crosses Samus's captured height, then reverses vertical speed into retreat.</summary>
     private static void RunFlyAttack(RoomEnemySlot slot, FlyEnemyState state)
     {
         MoveFlyAccordingToVelocities(slot, state);
@@ -117,6 +126,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         state.Function = FlyEnemyFunction.Retreat;
     }
 
+    /// <summary>Applies the sine and phase-offset cosine table deltas for circular flight.</summary>
     private static void MoveFlyAccordingToAngle(RoomEnemySlot slot, FlyEnemyState state)
     {
         int tableIndex = state.Angle >> 1;
@@ -124,11 +134,13 @@ internal sealed class FliesBehavior : IEnemySpecies
         slot.Position = slot.Position.AdvanceY(new SnesSignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex))).ToSixteenSixteenDelta());
     }
 
+    /// <summary>Applies the fixed-point dive or retreat velocity to the enemy position.</summary>
     private static void MoveFlyAccordingToVelocities(RoomEnemySlot slot, FlyEnemyState state)
     {
         slot.Position = slot.Position.Advance(state.Velocity.ToSixteenSixteen());
     }
 
+    /// <summary>Reads the cartridge's negative-cosine table, including the phase-offset range used for horizontal motion.</summary>
     internal static short ReadSignedSineCosine(int index)
     {
         // The backing table begins with negative cosine at index zero, sine at index 64,
@@ -136,10 +148,12 @@ internal sealed class FliesBehavior : IEnemySpecies
         return EnemyTrigonometryTables.SignedNegativeCosineWord(index);
     }
 
+    /// <summary>Requires the motion state installed for a live fly slot before its AI runs.</summary>
     private FlyEnemyState RequireFlyState(RoomEnemySlot slot) =>
         _flyStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized fly state.");
 
+    /// <summary>Registers shared initialization for Mellow, Mella, and Menu definitions.</summary>
     internal void RegisterFliesInitializationAi(EnemyAiTable table)
     {
 
@@ -149,6 +163,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers their shared per-frame movement and attack dispatcher.</summary>
     internal void RegisterFliesMainAi(EnemyAiTable table)
     {
 

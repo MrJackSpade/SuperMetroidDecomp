@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
 
+/// <summary>Checks installed map landmarks against native OAM and edited file-select and pause pixels.</summary>
 internal static class MapLandmarksVerification
 {
+    /// <summary>Checks boss and elevator visibility across area state, then validates layout overrides and rebinds.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyMapLandmarks(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
@@ -105,6 +107,7 @@ internal static class MapLandmarksVerification
         }
     }
 
+    /// <summary>Blocks native landmark coordinate reads after their installed presentation is bound.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle walking the native boss, elevator and gunship landmark lists to forbid them")]
     private static MutableCartridgeReadGuard NewLandmarkGuard(ISnesAddressSpace source, bool blockGunship = false)
     {

@@ -3,23 +3,36 @@ using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
-internal enum CeresRidleyFadeKind { Eyes, Body }
+/// <summary>Selects the eye fade or body fade, which use opposite row-phase directions.</summary>
+internal enum CeresRidleyFadeKind
+{
+    /// <summary>The eye fade starts at its bright endpoint and descends toward black.</summary>
+    Eyes,
+    /// <summary>The body fade starts black and rises toward its selected endpoint.</summary>
+    Body,
+}
 
 /// <summary>Native $A6:E2AA..E469 channel fades. Eye and body channels share the same biased integer quantizer.</summary>
 internal sealed class CeresRidleyFadeColorDefinitions
 {
+    /// <summary>Chooses eye or body row counts and their opposing fade phase directions.</summary>
     private readonly CeresRidleyFadeKind kind;
+    /// <summary>Independent warm eye endpoint colors used when the eye fade is selected.</summary>
     private readonly EyePaint eyePaint;
+    /// <summary>Selected body endpoint paints used only for body fade rows.</summary>
     private readonly CeresRidleyBodyPaintDefinitions? bodyPaint;
 
     /// <summary>Source eye paint at $A6:E2AA..E2AE (also Ridley palette slots 12..14 at $A6:E167..E16B). The selected warm highlight/middle/shadow paint uses saturated red, a shared red step, three green levels and no blue. Regenerating these categorical material choices without the source inputs would select different eye paint. Initial/explosion palette aliases are evidence only; their independent containers are not exempted.</summary>
     internal readonly record struct EyePaint(int RedStep, int HighlightGreen, int MiddleGreen, int ShadowGreen)
     {
+        /// <summary>Highest SNES five-bit color channel value used to derive the eye reds.</summary>
         private const int MaximumRgb5 = (1 << 5) - 1;
 
+        /// <summary>Extracts the selected red step and three green levels from the eye endpoint row.</summary>
         internal static EyePaint From(ReadOnlySpan<Bgr555> colors) => new(MaximumRgb5 - colors[1].Red, colors[0].Green,
             colors[1].Green, colors[2].Green);
 
+        /// <summary>Calculates one of the three warm eye shades from the selected material inputs.</summary>
         internal Bgr555 Color(int shade)
         {
             int red = Math.Clamp(MaximumRgb5 - RedStep * shade, 0, MaximumRgb5);
@@ -27,12 +40,16 @@ internal sealed class CeresRidleyFadeColorDefinitions
             return new(red, green, 0);
         }
     }
+    /// <summary>Imported colors that differ from the common quantized fade formula.</summary>
     internal readonly Dictionary<int, Bgr555> overrides = new();
+    /// <summary>Number of colors in a row of the selected fade table.</summary>
     private int Colors => kind == CeresRidleyFadeKind.Eyes
         ? CeresRidleyPaletteRomData.EyeFadeColorCount : CeresRidleyPaletteRomData.BodyFadeColorCount;
+    /// <summary>Number of native fade steps for the selected table.</summary>
     private int Rows => kind == CeresRidleyFadeKind.Eyes
         ? CeresRidleyPaletteRomData.EyeFadeRowCount : CeresRidleyPaletteRomData.BodyFadeRowCount;
 
+    /// <summary>Retains selected endpoint paints and exceptions to the shared fade formula.</summary>
     internal CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind kind, Bgr555[][] rows)
     {
         this.kind = kind;
@@ -44,6 +61,7 @@ internal sealed class CeresRidleyFadeColorDefinitions
                 overrides[row * Colors + color] = rows[row][color];
     }
 
+    /// <summary>Returns a supplied exception color when present, otherwise the calculated fade shade.</summary>
     internal Bgr555 Resolve(int row, int color)
     {
         Validate(row, color);
@@ -67,11 +85,13 @@ internal sealed class CeresRidleyFadeColorDefinitions
         return endpoint.Map((_, channel) => (channel * phase + bias) / intervals);
     }
 
+    /// <summary>Rejects fade rows beyond the selected eye or body table.</summary>
     internal void ValidateRow(int row)
     {
         if ((uint)row >= Rows) throw new ArgumentOutOfRangeException(nameof(row));
     }
 
+    /// <summary>Checks both the table-specific row range and the color count within each row.</summary>
     private void Validate(int row, int color)
     {
         ValidateRow(row);

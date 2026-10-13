@@ -4,10 +4,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks waterfall subscreen priority and subtraction against software and GPU rendering.</summary>
 internal static class WaterfallTests
 {
-    // GR-3: native TM=$11, TS=$06, CGADSUB=$B1. Distinct colors make
-    // an omitted plane, wrong priority, opaque overlay or halving observable.
+    /// <summary>Uses native TM=$11, TS=$06, CGADSUB=$B1 and distinct colors to expose priority and color-math errors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {

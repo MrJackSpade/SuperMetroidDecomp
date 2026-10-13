@@ -13,6 +13,10 @@ internal static class ZeroVisualDefinitions
     /// <summary>Sixteen selected Spritemap_Zero records at $A3:995B..9B6A.</summary>
     internal const int FrameCount = 16;
 
+    /// <summary>
+    /// Exports distinct OAM pointers from the four orientation loops. Repeated intermediate
+    /// poses stay in compiled timing rather than duplicating editable artwork entries.
+    /// </summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var frames = new List<EnemySpritemapDefinition>(FrameCount);
@@ -20,8 +24,6 @@ internal static class ZeroVisualDefinitions
         for (int index = 0; index < ZeroInstructionProgramDefinitions.PresentationWordCount; index++)
         {
             ushort pointer = FrameAt(ZeroInstructionProgramDefinitions.PresentationWordAddress(index));
-            // Each six-step loop repeats two intermediate frames. Keep that
-            // repetition in the compiled timing, not in the editable export list.
             if (seen.Add(pointer))
                 frames.Add(new(Bank, pointer, $"zero_crawler_{frames.Count:D2}"));
         }
@@ -31,6 +33,7 @@ internal static class ZeroVisualDefinitions
         return [.. frames];
     }
 
+    /// <summary>Resolves a compiled bank-$A3 visual operand while rejecting addresses outside the loops.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {
         for (int index = 0; index < ZeroInstructionProgramDefinitions.PresentationWordCount; index++)

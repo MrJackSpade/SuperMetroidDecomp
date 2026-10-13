@@ -2,6 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>
+/// Checks the bank-$84 PLM list catalog for unique, readable native pointers and
+/// optionally confirms the named entries against the private retail cartridge.
+/// </summary>
 internal static class RoomPlmInstructionListCatalogVerification
 {
     /// <summary>

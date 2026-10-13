@@ -16,8 +16,10 @@ using static RoomPlmPopulationVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks admission and input-lock behavior for energy and missile stations approached from either side.</summary>
 internal static class RechargeStationAdmissionVerification
 {
+    /// <summary>Confirms full resources reject access, a later-full access list unlocks Samus, and depleted resources still recharge.</summary>
     internal static void VerifyRechargeStationAdmission()
     {
         foreach (bool missile in new[] { false, true })
@@ -64,6 +66,7 @@ internal static class RechargeStationAdmissionVerification
         Console.WriteLine("Recharge admission: full energy/missiles reject before lock; later-full exits unlock; depleted recharge completes from both sides.");
     }
 
+    /// <summary>Runs the focused station admission and controller unlock checks.</summary>
     [VerificationCommand("--recharge-station-admission")]
     internal static int RechargeStationAdmissionCommand()
     {

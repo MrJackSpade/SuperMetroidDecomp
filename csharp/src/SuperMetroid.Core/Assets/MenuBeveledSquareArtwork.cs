@@ -9,10 +9,14 @@ namespace SuperMetroid.Core.Assets;
 /// selection is explicit; no per-pixel table or generated tile cache remains.</summary>
 internal sealed class MenuBeveledSquareArtwork
 {
+    /// <summary>Two menu cells carry the light and dark colorways of the same beveled square.</summary>
     internal const int TileCount = 2;
+    /// <summary>Only source pixels differing from the calculated square are retained.</summary>
     internal readonly Dictionary<int, byte>? edits;
+    /// <summary>Restricts lookup to the menu's $98 and $99 square cells.</summary>
     internal static bool Contains(int tile) => tile is 0x98 or 0x99;
 
+    /// <summary>Scans both source cells and keeps independent pixel edits outside the stock role-based colors.</summary>
     internal MenuBeveledSquareArtwork(IndexedPngImage image)
     {
         for (int tile = 0x98; tile <= 0x99; tile++)
@@ -24,12 +28,14 @@ internal sealed class MenuBeveledSquareArtwork
         }
     }
 
+    /// <summary>Returns an edited cell pixel when present, otherwise its calculated face, highlight, shadow, or transparency.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
+    /// <summary>Calculates the six-by-six inset with bottom/right shadow precedence at the corners.</summary>
     private static byte Basis(int tile, Position16<CharacterPixels> point)
     {
         if (point.X is 0 or 7 || point.Y is 0 or 7) return 0;

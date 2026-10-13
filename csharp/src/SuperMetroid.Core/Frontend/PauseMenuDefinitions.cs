@@ -99,16 +99,16 @@ internal static class PauseEquipmentCategories
     public const int BeamRightSuitItem = 2;
     /// <summary>$82:B568 target offsets are relative to EquipmentScreenBG1Tilemap at $7E:3800.</summary>
     public const int TilemapWramBase = 0x3800;
+    /// <summary>The three inventory categories in native scan order; reserves use separate controls.</summary>
+    public static IReadOnlyList<PauseEquipmentCategory> InventoryCategories { get; } =
+        [PauseEquipmentCategory.Beams, PauseEquipmentCategory.Suits, PauseEquipmentCategory.Boots];
+
     /// <summary>Selects the native data contract for a named equipment category.</summary>
     /// <remarks>The category dispatcher at $82:AC58 selects distinct controls, not
     /// a numeric sequence. Pointer fields correspond to $82:C02C/C034/C044;
     /// item counts follow $82:ABCC/ABEB/AC05 and copy lengths $82:AFCE/B0C8/B156.
     /// Reserves use separate controls and retain the managed zero-data contract.
     /// </remarks>
-    /// <summary>The three inventory categories in native scan order; reserves use separate controls.</summary>
-    public static IReadOnlyList<PauseEquipmentCategory> InventoryCategories { get; } =
-        [PauseEquipmentCategory.Beams, PauseEquipmentCategory.Suits, PauseEquipmentCategory.Boots];
-
     public static PauseEquipmentCategoryDefinition Get(PauseEquipmentCategory category) => category switch
     {
         PauseEquipmentCategory.Reserves => new(PauseEquipmentCategory.Reserves, 0, 0, 0, 0),

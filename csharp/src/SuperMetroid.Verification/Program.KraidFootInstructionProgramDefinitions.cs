@@ -17,14 +17,17 @@ using static KraidFootCollisionDefinitionsVerification;
 using static KraidFootGeneratedProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail-word and guarded-execution checks for Kraid foot movement programs.</summary>
 internal static class KraidFootInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail data for the Kraid foot instruction check.</summary>
     internal static void VerifyKraidFootInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidFootInstructionProgramDefinitions), () => VerifyKraidFootInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs production foot entries and callbacks, checking displacement, step audio, quake, and every visual selector.</summary>
     internal static void VerifyKraidFootInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -135,6 +138,7 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
             "entries, seven callbacks, and 106 executed cartridge-matching selectors pass.");
     }
 
+    /// <summary>Creates a Kraid body and foot pair bound to the guarded address space.</summary>
     private static RoomEnemySystem CreateKraidFootInstructionSystem(
         ISnesAddressSpace bus)
     {
@@ -149,6 +153,7 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>Forces instruction calls from one entry so every callback and frame is observed.</summary>
     private static void RunKraidFootProgram(
         SuperMetroidAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -166,6 +171,7 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Runs one production instruction and checks either the selected frame or callback-to-sleep retention.</summary>
     private static void InvokeKraidFootInstructionProcessor(
         SuperMetroidAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -182,6 +188,7 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
                 "Kraid foot callback-to-sleep retains its previous sprite");
     }
 
+    /// <summary>Checks the native footstep sound and ten-frame earthquake side effects.</summary>
     private static void AssertKraidFootSoundAndQuake(
         RoomEnemySystem enemies,
         string program)
@@ -195,6 +202,7 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
             $"{program} Kraid foot selects native quake duration");
     }
 
+    /// <summary>Alternates warmed initial and backward-loop control lookups for allocation accounting.</summary>
     private static int ProbeKraidFootInstructionAllocation()
     {
         int checksum = 0;
@@ -208,18 +216,21 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads a retail bank-$A7 foot word for the independent instruction oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid foot instruction words")]
     internal static ushort ReadKraidFootInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa70000 | address);
 
+    /// <summary>Rejects migrated Kraid foot control reads while observing visual-operand accesses.</summary>
     private static CartridgeReadGuard NewKraidFootInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(KraidFootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Kraid foot mechanics byte ${address:X6}.")
             .ObserveWords(0xa70000, KraidFootInstructionProgramDefinitionsTooling.PresentationWordCount, KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Runs the retail-backed Kraid foot instruction migration command.</summary>
     [VerificationCommand("--kraid-foot-instruction-program-definitions")]
     internal static int KraidFootInstructionProgramDefinitionsCommand()
     {

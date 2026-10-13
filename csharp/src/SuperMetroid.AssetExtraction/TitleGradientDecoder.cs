@@ -31,6 +31,7 @@ public static class TitleGradientDecoder
         return result;
     }
 
+    /// <summary>Expands one direct-mode HDMA table, retaining the last write after its zero terminator.</summary>
     private static byte[] Expand(IImportCartridgeSource cartridge, int cursor)
     {
         var result = new byte[SnesPpuLayout.ScreenHeightPixels];

@@ -8,8 +8,10 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static ProjectileCompositionsVerification;
 
+/// <summary>Checks extracted Hyper Beam palette artwork against native CGRAM frames, reconstruction rules and editable JSON inputs.</summary>
 internal static class HyperBeamFxColorArtworkVerification
 {
+    /// <summary>Compares all ten native timed frames with the ROM-free palette loop, then verifies shared-channel reconstruction, isolated edits and malformed document rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyHyperBeamFxColorArtwork(ISnesAddressSpace bus)
     {

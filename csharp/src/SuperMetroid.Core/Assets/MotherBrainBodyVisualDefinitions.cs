@@ -11,9 +11,13 @@ internal static class MotherBrainBodyVisualDefinitions
     internal const byte Bank = 0xa9;
     /// <summary>Largest native root: ten components, including two BG2 streams.</summary>
     internal const int MaximumNativeComponents = 10;
+    /// <summary>Standing, walking, crouch, dummy, and death-beam body roots selected by compiled programs.</summary>
     internal const int FrameCount = 17;
+    /// <summary>Every selected body root except the OAM-only initial dummy.</summary>
     internal const int Bg2FrameCount = FrameCount - 1;
+    /// <summary>Schema revision of the selected BG2 body-frame document.</summary>
     internal const int Bg2Version = 1;
+    /// <summary>Installed JSON filename for Mother Brain's selected BG2 body frames.</summary>
     internal const string Bg2FileName = "mother-brain-body-bg2-frames.json";
 
     /// <summary>$A9:9FA0, standing frame with nine components.</summary>
@@ -26,6 +30,7 @@ internal static class MotherBrainBodyVisualDefinitions
     private const ushort Uncrouching = 0xa28c;
     /// <summary>$A9:A384, first of four nine-component death-beam frames.</summary>
     private const ushort DeathBeamStart = 0xa384;
+    /// <summary>Ordered BG2 frames projected from the selected body-root catalog.</summary>
     internal static EnemyBg2FrameDefinitionSequence Bg2Frames => new(Bg2FrameCount, Bg2Frame);
 
     /// <summary>Calculates the published OAM identity. Native record strides are
@@ -61,10 +66,12 @@ internal static class MotherBrainBodyVisualDefinitions
         return new(frame.Pointer, frame.Name.Replace("_oam_", "_bg2_", StringComparison.Ordinal));
     }
 
+    /// <summary>Recognizes a selected body root with a BG2 stream, excluding the OAM-only dummy.</summary>
     internal static bool HasBg2(ushort pointer) => pointer == Standing ||
         InRun(pointer, WalkingStart, 3, 0x52) || InRun(pointer, LaterWalkingStart, 6, 0x4a) ||
         InRun(pointer, Uncrouching, 2, 0x4a) || InRun(pointer, DeathBeamStart, 4, 0x4a);
 
+    /// <summary>Recognizes a native record origin within a fixed-stride body-frame run.</summary>
     private static bool InRun(ushort pointer, ushort start, int count, int stride)
     {
         int offset = pointer - start;

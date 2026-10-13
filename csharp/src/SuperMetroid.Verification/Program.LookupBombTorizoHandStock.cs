@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks the intact and cleared Bomb Torizo hand draw lists against native PLM words.</summary>
 internal static class LookupBombTorizoHandStockVerification
 {
+    /// <summary>Checks stock words, mixed edits, identity hashes, copy isolation, and invalid shapes.</summary>
     internal static void VerifyBombTorizoHandStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmBombTorizoHandVisualCatalog installed)
     {
@@ -77,6 +79,7 @@ internal static class LookupBombTorizoHandStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmBombTorizoHandVisualCatalog(entries), "Hand visual bits only");
     }
 
+    /// <summary>Reads a native hand draw-list byte for the stock oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for bomb Torizo hand stock mapping")]
     private static byte BombTorizoHandStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

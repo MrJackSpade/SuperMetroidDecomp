@@ -67,13 +67,17 @@ internal abstract class NinjaSpacePirateInstructionProgramDefinitions
     /// <summary>$B2:F208/F3F6 queue library-two spin sound $3F.</summary>
     private const ushort SpinSound = 0x3f;
 
+    /// <summary>The 308 compiled control and timing words across twenty production action programs.</summary>
     public static int MechanicsWordCount => 308;
+    /// <summary>The 140 interleaved spritemap operand positions retained for installed artwork.</summary>
     public static int PresentationWordCount => 140;
+    /// <summary>Calculates one native-addressed control word in program order.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
+    /// <summary>Locates one interleaved spritemap pointer operand without reading its artwork value.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -175,40 +179,53 @@ internal abstract class NinjaSpacePirateInstructionProgramDefinitions
         return layout.Result;
     }
 
+    /// <summary>Counts native word and frame slots while calculating a single requested program entry.</summary>
     private ref struct Layout(int requested, bool visual)
     {
+        /// <summary>Current bank-$B2 address as the selected action stream is composed.</summary>
         internal ushort Cursor { get; private set; }
+        /// <summary>Independent ordinals for compiled mechanics words and live presentation operands.</summary>
         private int mechanics, presentation;
+        /// <summary>The requested control word or spritemap operand address found during composition.</summary>
         internal InstructionMechanicsWord Result { get; private set; }
+        /// <summary>Starts a new native action program at its named pointer.</summary>
         internal void Begin(ushort address) => Cursor = address;
+        /// <summary>Advances one compiled word and records it when its mechanics ordinal is requested.</summary>
         internal void Word(ushort value)
         {
             if (!visual && mechanics == requested) Result = new(Cursor, value);
             mechanics++; Cursor += sizeof(ushort);
         }
+        /// <summary>Emits a duration word followed by one live spritemap operand slot.</summary>
         internal void Pose(ushort duration)
         {
             Word(duration);
             if (visual && presentation == requested) Result = new(Cursor, 0);
             presentation++; Cursor += sizeof(ushort);
         }
+        /// <summary>Emits a run of timed pose records with a shared authored hold.</summary>
         internal void Poses(int count, ushort duration)
         {
             for (int pose = 0; pose < count; pose++) Pose(duration);
         }
+        /// <summary>Emits the callback opcode and selected ninja Pirate AI function.</summary>
         internal void Function(NinjaSpacePirateFunction function)
         {
             Word((ushort)SpacePirateInstruction.PirateWall_FunctionInY); Word((ushort)function);
         }
+        /// <summary>Emits the palette-change opcode and normal or flash sprite palette operand.</summary>
         internal void Palette(ushort palette)
         {
             Word((ushort)SpacePirateInstruction.PirateNinja_PaletteIndexInY); Word(palette);
         }
+        /// <summary>Emits a library-two sound command with its native sound ID.</summary>
         internal void Sound(ushort sound)
         {
             Word((ushort)SpacePirateInstruction.PirateNinja_QueueSoundInY_Lib2_Max6); Word(sound);
         }
+        /// <summary>Emits a native unconditional branch to another action cursor.</summary>
         internal void Goto(ushort address) { Word((ushort)CommonEnemyInstruction.Goto); Word(address); }
+        /// <summary>Composes the windup, direction-specific claw spawn offsets, sound, and release poses.</summary>
         internal void Claw(bool right, bool second)
         {
             Poses(5, AttackWindupHold); Pose(ClawReleaseHold);
@@ -223,6 +240,7 @@ internal abstract class NinjaSpacePirateInstructionProgramDefinitions
             Poses(right && second ? 2 : 3, ClawReleaseHold);
         }
     }
+    /// <summary>Binary-searches calculated mechanics words and rejects visual operands or unrelated code.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

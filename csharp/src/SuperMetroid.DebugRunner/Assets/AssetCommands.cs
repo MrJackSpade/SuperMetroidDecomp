@@ -6,8 +6,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Debug-runner commands for installing, extracting, previewing and replacing cartridge-derived assets.</summary>
 internal static class AssetCommands
 {
+/// <summary>Dispatches asset commands and reports path or malformed-asset failures to standard error with a nonzero exit code.</summary>
 public static int Run(string[] args)
 {
 try
@@ -181,6 +183,7 @@ catch (Exception exception)
 
 }
 
+/// <summary>Resolves a CLI path from the caller's directory, anchoring repository standalone assets when needed.</summary>
 static string ResolveWorkspacePath(string argument, bool mustAlreadyExist)
 {
     ArgumentException.ThrowIfNullOrWhiteSpace(argument);
@@ -219,6 +222,7 @@ static string ResolveWorkspacePath(string argument, bool mustAlreadyExist)
     return Path.GetFullPath(Path.Combine(repositoryRoot, argument));
 }
 
+/// <summary>Accepts preserved timing, no loop, or a nonnegative explicit PCM sample index.</summary>
 static PcmSampleLoopReplacement ParseLoopReplacement(string value)
 {
     if (value.Equals("preserve", StringComparison.OrdinalIgnoreCase))
@@ -234,6 +238,7 @@ static PcmSampleLoopReplacement ParseLoopReplacement(string value)
         $"Replacement loop '{value}' must be 'preserve', 'none', or a non-negative PCM sample index.");
 }
 
+/// <summary>Recognizes the repository-owned standalone-assets path segment in either slash style.</summary>
 static bool ContainsStandaloneAssetsSegment(string path)
 {
     string normalized = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
@@ -243,6 +248,7 @@ static bool ContainsStandaloneAssetsSegment(string path)
             StringComparison.OrdinalIgnoreCase);
 }
 
+/// <summary>Searches ancestors of both the process directory and executable directory for the solution marker.</summary>
 static string? FindRepositoryRoot()
 {
     // AppContext.BaseDirectory handles a directly launched Debug/Release executable;
@@ -260,6 +266,7 @@ static string? FindRepositoryRoot()
     return null;
 }
 
+/// <summary>Checks that a private extraction contains the Landing Site level data needed by room preview rendering.</summary>
 static void RequireRawAssetDirectory(string path)
 {
     if (!Directory.Exists(path))
@@ -282,6 +289,7 @@ static void RequireRawAssetDirectory(string path)
     }
 }
 
+/// <summary>Expands a full-file Super Metroid stream only when its output aligns to the selected palette or tile unit.</summary>
 static byte[] DecodeIfCompressed(byte[] stored, bool palette, TileFormat? format, out bool compressed)
 {
     compressed = false;
@@ -304,6 +312,7 @@ static byte[] DecodeIfCompressed(byte[] stored, bool palette, TileFormat? format
     return candidate;
 }
 
+/// <summary>Uses annotated asset labels to distinguish pixel graphics from tables and select the native tile encoding.</summary>
 static TileFormat? ClassifyTileFormat(string name)
 {
     // These prefixes come from semantic labels in the annotated disassembly. Tile tables,
@@ -324,8 +333,19 @@ static TileFormat? ClassifyTileFormat(string name)
     return TileFormat.Planar4Bpp;
 }
 
-internal enum TileFormat { Planar2Bpp, Planar4Bpp, Mode7 }
+/// <summary>Native decoded pixel layout used when creating standalone graphics previews.</summary>
+internal enum TileFormat
+{
+    /// <summary>Two-bit planar HUD and BG3 text characters, sixteen bytes per tile.</summary>
+    Planar2Bpp,
+    /// <summary>Four-bit planar sprite and ordinary background characters, thirty-two bytes per tile.</summary>
+    Planar4Bpp,
+    /// <summary>Chunky eight-bit Mode 7 characters, sixty-four bytes per tile.</summary>
+    Mode7,
+}
 
+/// <summary>Manifest entry carrying the optional generated PNG path for an extracted raw chunk.</summary>
+/// <param name="Png">Preview path when the chunk's native layout can be rendered as image tiles.</param>
 internal sealed record AssetRecord(
     string? Png);
 

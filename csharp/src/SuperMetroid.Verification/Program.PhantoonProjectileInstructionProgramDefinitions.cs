@@ -15,12 +15,15 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail-word and guarded-execution checks for Phantoon's projectile flame programs.</summary>
 internal static class PhantoonProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail source for the Phantoon flame instruction check.</summary>
     internal static void VerifyPhantoonProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyPhantoonProjectileInstructionProgramDefinitions), () => VerifyPhantoonProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Executes starting, falling, impact, orbit, and shot flames through loops and deletion with compiled reads forbidden.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon projectile instruction program definitions")]
     internal static void VerifyPhantoonProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -190,6 +193,7 @@ internal static class PhantoonProjectileInstructionProgramDefinitionsVerificatio
         }
     }
 
+    /// <summary>Alternates warmed idle and shot control lookups for allocation accounting.</summary>
     private static int ProbePhantoonProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -203,6 +207,7 @@ internal static class PhantoonProjectileInstructionProgramDefinitionsVerificatio
         return checksum;
     }
 
+    /// <summary>Rejects migrated Phantoon control reads and observes visual operands used during execution.</summary>
     private static CartridgeReadGuard NewPhantoonProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(PhantoonProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -210,6 +215,7 @@ internal static class PhantoonProjectileInstructionProgramDefinitionsVerificatio
             .ObserveWords(EnemyProjectileCodePointers.BankBase, PhantoonProjectileInstructionProgramDefinitions.PresentationWordCount,
                 PhantoonProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the retail-backed Phantoon flame instruction migration command.</summary>
     [VerificationCommand("--phantoon-projectile-instruction-mechanics")]
     internal static int PhantoonProjectileInstructionMechanicsCommand()
     {

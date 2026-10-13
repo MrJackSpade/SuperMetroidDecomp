@@ -26,6 +26,7 @@ public sealed class RoomPlmGreyDoorVisualCatalog
         }
     });
 
+    /// <summary>Copied visual overrides keyed by compiled draw pointer; unchanged frames use calculated stock words.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates all twenty clear/grey-door frames and copies visual differences while retaining compiled collision, run direction, animation timing, and handoff behavior.</summary>

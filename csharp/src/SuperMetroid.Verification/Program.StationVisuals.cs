@@ -10,8 +10,10 @@ using static LookupStationStockVerification;
 using static RoomPlmPopulationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks editable station PLM art through immediate redraw, streaming, and installation.</summary>
 internal static class StationVisualsVerification
 {
+    /// <summary>Changes a map-station tile while checking physical collision and other station families.</summary>
     internal static void VerifyStationVisuals(SuperMetroidAddressSpace rom)
     {
         RoomPlmStationVisualCatalog stock = RoomPlmStationVisualCatalog.Stock();
@@ -78,6 +80,7 @@ internal static class StationVisualsVerification
         Suite(nameof(VerifyStationVisualInstallation), () => VerifyStationVisualInstallation(rom));
     }
 
+    /// <summary>Checks stock extraction, override survival, and rejection of corrupt or physical-bit edits.</summary>
     private static void VerifyStationVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("station-visual");

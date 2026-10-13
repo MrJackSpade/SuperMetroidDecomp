@@ -132,11 +132,14 @@ internal static class CartridgeEncodingScanner
         _ => throw new InvalidOperationException($"Undefined {nameof(CartridgeEncodingRule)} {rule}."),
     };
 
+    /// <summary>Reviewed same-line exemption prefixes accepted by the encoding inventory.</summary>
     private static readonly string[] AllowanceMarkers = ["cartridge-encoding: allow(", "magic-number-audit: allow("];
 
+    /// <summary>Definition-owner name fragments used to identify address-valued code constants.</summary>
     private static readonly string[] CodeCatalogNameFragments =
         ["Instruction", "Program", "CodePointer", "Pointer", "Address", "Routine", "Code"];
 
+    /// <summary>Source-context cues for a 16-bit literal that may denote a cartridge pointer.</summary>
     private static readonly string[] PointerContextFragments =
         ["pointer", "instruction", "address", "routine", "function", "code", "bank", "instlist", "list"];
 
@@ -347,7 +350,7 @@ internal static class CartridgeEncodingScanner
             SyntaxFactory.AreEquivalent(StripWrappers(difference.Left, stripCasts: false), StripWrappers(assignment.Left, stripCasts: false));
     }
 
-    // A ushort or byte field, property or element: storage the decrement persists into, not a local or parameter.
+    /// <summary>A ushort or byte field, property or element: storage the decrement persists into, not a local or parameter.</summary>
     private static bool IsNarrowStorage(ExpressionSyntax operand, SemanticModel model, CancellationToken cancellationToken)
     {
         if (model.GetTypeInfo(operand, cancellationToken).Type?.SpecialType is not (SpecialType.System_UInt16 or SpecialType.System_Byte))
@@ -356,13 +359,14 @@ internal static class CartridgeEncodingScanner
             model.GetSymbolInfo(operand, cancellationToken).Symbol is IFieldSymbol or IPropertySymbol;
     }
 
-    // (short)t or (sbyte)t over a single countdown-named operand, compared with zero.
+    /// <summary><c>(short)t</c> or <c>(sbyte)t</c> over a single countdown-named operand, compared with zero.</summary>
     private static bool IsSignedReinterpretation(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken) =>
         StripWrappers(expression, stripCasts: false) is CastExpressionSyntax
         {
             Type: PredefinedTypeSyntax { Keyword.RawKind: (int)SyntaxKind.ShortKeyword or (int)SyntaxKind.SByteKeyword },
         } cast && IsCountdownOperand(cast.Expression, model, cancellationToken);
 
+    /// <summary>A single non-enum integral member, element or local whose name marks it as a countdown.</summary>
     private static bool IsCountdownOperand(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken)
     {
         ExpressionSyntax operand = StripWrappers(expression, stripCasts: true);
@@ -375,15 +379,19 @@ internal static class CartridgeEncodingScanner
         return CountdownNameFragments.Any(fragment => name.IndexOf(fragment, StringComparison.OrdinalIgnoreCase) >= 0);
     }
 
+    /// <summary>A constant equal to a byte or word sign bit.</summary>
     private static bool IsSignBitConstant(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken) =>
         IntegralConstant(expression, model, cancellationToken) is { } value && SignBits.Contains(value);
 
+    /// <summary>A constant equal to zero.</summary>
     private static bool IsZero(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken) =>
         IntegralConstant(expression, model, cancellationToken) == 0;
 
+    /// <summary>A constant equal to one.</summary>
     private static bool IsOne(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken) =>
         IntegralConstant(expression, model, cancellationToken) == 1;
 
+    /// <summary>The expression's integral constant value, or null when it is not an integral constant.</summary>
     private static long? IntegralConstant(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken)
     {
         object? value = model.GetConstantValue(expression, cancellationToken).Value;
@@ -392,6 +400,7 @@ internal static class CartridgeEncodingScanner
             : Convert.ToInt64(value, CultureInfo.InvariantCulture);
     }
 
+    /// <summary>Removes parentheses, <c>checked</c>/<c>unchecked</c> and, when <paramref name="stripCasts"/> is set, casts.</summary>
     private static ExpressionSyntax StripWrappers(ExpressionSyntax expression, bool stripCasts)
     {
         while (true)
@@ -413,7 +422,7 @@ internal static class CartridgeEncodingScanner
         }
     }
 
-    // A numeric literal, or a primitive type's MaxValue, which names a storage width rather than a domain fact.
+    /// <summary>Recognizes a numeric literal or primitive MaxValue used as a raw storage-width operand.</summary>
     private static bool IsRawWidth(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken)
     {
         while (expression is ParenthesizedExpressionSyntax or CastExpressionSyntax or CheckedExpressionSyntax)
@@ -436,7 +445,7 @@ internal static class CartridgeEncodingScanner
         };
     }
 
-    // (x >> 8) & 0xff is one operation: only the outermost of a nested width chain is counted.
+    /// <summary>Counts a nested shift-and-mask chain once, at its outermost width operation.</summary>
     private static bool IsInsideWidthOperation(BinaryExpressionSyntax binary, SemanticModel model, CancellationToken cancellationToken)
     {
         SyntaxNode? parent = binary.Parent;
@@ -445,6 +454,7 @@ internal static class CartridgeEncodingScanner
         return parent is BinaryExpressionSyntax outer && IsWidthOperation(outer, model, cancellationToken);
     }
 
+    /// <summary>Explains which byte, word, or bank lane a raw mask or shift manipulates.</summary>
     private static string WidthBasis(BinaryExpressionSyntax binary) => binary.Kind() switch
     {
         SyntaxKind.BitwiseAndExpression => $"'{binary}' keeps a byte, word or bank lane",
@@ -452,6 +462,7 @@ internal static class CartridgeEncodingScanner
         _ => $"'{binary}' moves a value down by a byte, word or bank width",
     };
 
+    /// <summary>Finds a containing type explicitly marked as the owner of its SNES encoding.</summary>
     private static bool IsInEncodingOwner(SyntaxNode? node, SemanticModel model, CancellationToken cancellationToken)
     {
         for (SyntaxNode? current = node; current is not null; current = current.Parent)
@@ -464,9 +475,11 @@ internal static class CartridgeEncodingScanner
         return false;
     }
 
+    /// <summary>Distinguishes hexadecimal numeric tokens from other C# numeric literals.</summary>
     private static bool IsHex(string text) =>
         text.Length > 2 && text[0] == '0' && (text[1] == 'x' || text[1] == 'X');
 
+    /// <summary>Requires a nonempty category and a reason after the same-line allowance marker.</summary>
     private static bool HasAllowance(string line, string marker)
     {
         int start = line.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
@@ -476,12 +489,14 @@ internal static class CartridgeEncodingScanner
         return close > start + marker.Length && line.IndexOf(" - ", close, StringComparison.Ordinal) == close + 1;
     }
 
+    /// <summary>Parses a C# hexadecimal token after removing digit separators and numeric suffixes.</summary>
     private static ulong HexValue(string text)
     {
         string digits = text.Substring(2).TrimEnd('u', 'U', 'l', 'L').Replace("_", string.Empty);
         return ulong.Parse(digits, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture);
     }
 
+    /// <summary>Proposes a domain class for a hex token from its numeric range and syntax context.</summary>
     private static (CartridgeEncodingClass Class, string Basis) ClassifyHex(SyntaxToken token)
     {
         ulong value = HexValue(token.Text);
@@ -525,6 +540,7 @@ internal static class CartridgeEncodingScanner
         return (CartridgeEncodingClass.Unknown, "no classifying context");
     }
 
+    /// <summary>Moves past wrappers and unary signs to the expression whose parent determines a literal's use.</summary>
     private static SyntaxNode Climb(SyntaxNode node)
     {
         while (node.Parent is ParenthesizedExpressionSyntax or CastExpressionSyntax or CheckedExpressionSyntax or
@@ -535,6 +551,7 @@ internal static class CartridgeEncodingScanner
         return node;
     }
 
+    /// <summary>Detects masks, shifts, and bitwise updates around a hexadecimal operand.</summary>
     private static bool IsBitwise(SyntaxNode? parent) => parent switch
     {
         BinaryExpressionSyntax binary => binary.Kind() is SyntaxKind.BitwiseAndExpression or SyntaxKind.BitwiseOrExpression or
@@ -547,6 +564,7 @@ internal static class CartridgeEncodingScanner
         _ => false,
     };
 
+    /// <summary>Looks for pointer-related names in the nearest containing statement or member.</summary>
     private static bool NamesPointer(SyntaxNode context)
     {
         SyntaxNode scope = context.Ancestors().FirstOrDefault(ancestor =>
@@ -555,11 +573,13 @@ internal static class CartridgeEncodingScanner
         return PointerContextFragments.Any(fragment => lower.Contains(fragment));
     }
 
+    /// <summary>Limits pointer-dispatch checks to comparisons and address offsets.</summary>
     private static bool IsDispatchOperator(SyntaxKind kind) => kind is SyntaxKind.EqualsExpression or
         SyntaxKind.NotEqualsExpression or SyntaxKind.AddExpression or SyntaxKind.SubtractExpression or
         SyntaxKind.LessThanExpression or SyntaxKind.LessThanOrEqualExpression or SyntaxKind.GreaterThanExpression or
         SyntaxKind.GreaterThanOrEqualExpression;
 
+    /// <summary>Finds a primitive value compared with or offset from a named address-valued code constant.</summary>
     private static bool IsPointerDispatch(
         ExpressionSyntax constantSide,
         ExpressionSyntax variableSide,
@@ -577,10 +597,12 @@ internal static class CartridgeEncodingScanner
             ReferencesCodeConstant(constantSide, model, cancellationToken);
     }
 
+    /// <summary>Checks whether a case label dispatches on a primitive integral switch subject.</summary>
     private static bool IsPrimitiveSwitchArm(CaseSwitchLabelSyntax label, SemanticModel model, CancellationToken cancellationToken) =>
         label.Parent?.Parent is SwitchStatementSyntax switchStatement &&
         IsIntegralPrimitive(model.GetTypeInfo(switchStatement.Expression, cancellationToken).Type);
 
+    /// <summary>Finds the enclosing is-pattern or switch subject and checks its primitive integral type.</summary>
     private static bool IsPrimitivePatternSubject(ConstantPatternSyntax pattern, SemanticModel model, CancellationToken cancellationToken)
     {
         ExpressionSyntax? subject = pattern.Ancestors().Select(ancestor => ancestor switch
@@ -593,11 +615,13 @@ internal static class CartridgeEncodingScanner
         return subject is not null && IsIntegralPrimitive(model.GetTypeInfo(subject, cancellationToken).Type);
     }
 
+    /// <summary>Checks whether an expression names a constant owned by a code or address catalog.</summary>
     private static bool ReferencesCodeConstant(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken) =>
         expression.DescendantNodesAndSelf().OfType<SimpleNameSyntax>().Any(identifier =>
             model.GetSymbolInfo(identifier, cancellationToken).Symbol is IFieldSymbol { HasConstantValue: true } field &&
             IsCodeConstant(field));
 
+    /// <summary>Recognizes bank-local or long cartridge address constants in code-named owner types.</summary>
     private static bool IsCodeConstant(IFieldSymbol field)
     {
         ulong value;
@@ -619,10 +643,12 @@ internal static class CartridgeEncodingScanner
         return CodeCatalogNameFragments.Any(fragment => owner.Contains(fragment));
     }
 
+    /// <summary>Restricts raw dispatch and opaque-array findings to built-in integral storage types.</summary>
     private static bool IsIntegralPrimitive(ITypeSymbol? type) => type?.SpecialType is SpecialType.System_Byte or
         SpecialType.System_SByte or SpecialType.System_Int16 or SpecialType.System_UInt16 or SpecialType.System_Int32 or
         SpecialType.System_UInt32 or SpecialType.System_Int64 or SpecialType.System_UInt64;
 
+    /// <summary>Resolves an array initializer's element type from its creation or declared destination.</summary>
     private static ITypeSymbol? InitializerElementType(
         InitializerExpressionSyntax initializer,
         SemanticModel model,
@@ -645,6 +671,7 @@ internal static class CartridgeEncodingScanner
         return CollectionElementType(arrayType);
     }
 
+    /// <summary>Extracts an element type from an array, pointer, or single-argument generic collection.</summary>
     private static ITypeSymbol? CollectionElementType(ITypeSymbol? collection) => collection switch
     {
         IArrayTypeSymbol array => array.ElementType,
@@ -653,6 +680,7 @@ internal static class CartridgeEncodingScanner
         _ => null,
     };
 
+    /// <summary>Flags an integral collection with at least four entries and a hexadecimal word among them.</summary>
     private static bool IsOpaqueWordArray(IReadOnlyList<ExpressionSyntax> elements, ITypeSymbol? elementType) =>
         elements.Count >= 4 && IsIntegralPrimitive(elementType) &&
         elements.Any(element => element.DescendantTokens().Any(token =>

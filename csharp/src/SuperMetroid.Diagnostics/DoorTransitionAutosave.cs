@@ -6,6 +6,7 @@ namespace SuperMetroid.Desktop;
 /// <summary>Host recovery snapshots taken after the destination fade and that frame's audio have completed.</summary>
 internal static class DoorTransitionAutosave
 {
+    /// <summary>Saves only the completed loading-B to gameplay transition; replay and disabled sessions skip it, and I/O failure retains the prior recovery state.</summary>
     internal static DebuggerSaveStateMetadata? TrySave(bool enabled, bool replay,
         SuperMetroidGameState previousState, DebuggerSaveStateStore store,
         SuperMetroidAddressSpace bus, SuperMetroidGame game)

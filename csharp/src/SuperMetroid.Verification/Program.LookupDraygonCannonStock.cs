@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks Draygon cannon visual catalogs against native draw runs and editable asset constraints.</summary>
 internal static class LookupDraygonCannonStockVerification
 {
+    /// <summary>Compares twelve shield and damage frames with bank-$84 art, then checks custom copies and invalid shapes.</summary>
     internal static void VerifyDraygonCannonStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmDraygonCannonVisualCatalog installed)
     {
@@ -77,6 +79,7 @@ internal static class LookupDraygonCannonStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmDraygonCannonVisualCatalog(entries), "Cannon visual bits only");
     }
 
+    /// <summary>Reads one native draw-record byte for the cannon run-termination oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon cannon stock mapping")]
     private static byte DraygonCannonStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(OwtchInstructionProgramDefinitions))]
 internal abstract class OwtchInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Counts six compiled control words in each of Owtch's two movement programs.</summary>
     public static int MechanicsWordCount => 12;
+    /// <summary>Counts three presentation operands in each Owtch movement program.</summary>
     public static int PresentationWordCount => 6;
+    /// <summary>Maps a control-word index across Owtch's two fixed-size movement records.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -17,11 +20,13 @@ internal abstract class OwtchInstructionProgramDefinitionsTooling : IInstruction
         ushort address = (ushort)(OwtchInstructionProgramDefinitions.MovingLeft + index / 6 * OwtchInstructionProgramDefinitions.ProgramBytes + offset);
         return new(address, OwtchInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Locates one of the three presentation words within an Owtch movement record.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(OwtchInstructionProgramDefinitions.MovingLeft + index / 3 * OwtchInstructionProgramDefinitions.ProgramBytes + 4 + index % 3 * 4);
     }
+    /// <summary>Checks the six control-word positions in either bank-$A2 Owtch movement record.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000) return false;

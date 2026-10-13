@@ -20,8 +20,10 @@ using static LookupTourianSpawnVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks migrated Tourian statue eye positions and animated-tile control against the cartridge.</summary>
 internal static class TourianStatueUnlockDefinitionsVerification
 {
+    /// <summary>Matches all four eye coordinates to native tables and checks guarded eye/soul projectile spawns.</summary>
     internal static void VerifyTourianStatueUnlockDefinitions(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
     {
         for (ushort parameter = 0; parameter <= 6; parameter += 2)
@@ -73,6 +75,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
             "Tourian statue eye positions: eight native words and all eight real eye/soul spawns pass with position tables forbidden.");
     }
 
+    /// <summary>Checks compiled statue control words and artwork selections, then runs the retail unlock sequence with source reads denied.</summary>
     private static void VerifyTourianStatueAnimatedTileMechanics(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
     {
@@ -172,6 +175,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
             $"compiled, with ROM-free art transfer; release completes in {steps} calls.");
     }
 
+    /// <summary>Identifies either byte of a compiled bank-$87 statue control word for the runtime read guard.</summary>
     private static bool IsTourianStatueMechanicsByte(int address)
     {
         SnesAddress snesAddress = SnesAddress.FromBusAddress(address);
@@ -181,20 +185,24 @@ internal static class TourianStatueUnlockDefinitionsVerification
                 definition.TryReadMechanicsWord(unchecked((ushort)(snesAddress.Offset - 1)), out _));
     }
 
+    /// <summary>Checks that all four defeated-boss statue release events have been recorded.</summary>
     private static bool TourianStatueGreyEventsAreSet(SuperMetroidRuntime runtime) =>
         runtime.System.HasEventRaw(0x0006) &&
         runtime.System.HasEventRaw(0x0007) &&
         runtime.System.HasEventRaw(0x0008) &&
         runtime.System.HasEventRaw(0x0009);
 
+    /// <summary>Forbids production reads of the migrated bank-$86 eye-coordinate tables.</summary>
     private static CartridgeReadGuard NewTourianStatueEyeReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x86b90e and < 0x86b91e,
             address => $"Tourian statue unlock attempted migrated eye-position read ${address:X6}.");
 
+    /// <summary>Reads one native animated-tile frame for the independent pixel-data comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue animated-tile frame pixels")]
     private static byte[] ReadNativeTourianStatueFrame(IImportCartridgeSource rom, int source, int byteCount) =>
         RomDataReader.ReadFixedBank(rom, source, byteCount);
 
+    /// <summary>Runs retail-cartridge statue unlock and animated-tile verification.</summary>
     [VerificationCommand("--tourian-statue-animated-tiles")]
     internal static int TourianStatueAnimatedTilesCommand()
     {

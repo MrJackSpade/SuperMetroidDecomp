@@ -20,6 +20,7 @@ using static LookupFxLegacySheetsVerification;
 using static LookupTreadmillArtworkVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled room-FX animation controls and complete loops without live ROM reads.</summary>
 internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
 {
     /// <summary>
@@ -96,6 +97,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             "  Room-FX animated tiles: 65 control words and 30 artwork-source identities across 7 objects are compiled.");
     }
 
+    /// <summary>Rejects compiled mechanics reads and counts unexpected artwork operand reads in bank $87.</summary>
     private static CartridgeReadGuard NewRoomFxAnimatedTileMechanicsForbiddenBus(
         ISnesAddressSpace inner, RoomFxAnimatedTileObjectDefinition definition, Action presentationRead)
     {
@@ -120,6 +122,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
                 _ => presentationRead());
     }
 
+    /// <summary>Runs the room-FX animation control and frame lookup checks.</summary>
     [VerificationCommand("--lookup-animated-frames")]
     internal static int LookupAnimatedFramesCommand()
     {
@@ -127,6 +130,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
         return 0;
     }
 
+    /// <summary>Runs both mechanics and artwork checks for room-FX animated tiles.</summary>
     [VerificationCommand("--room-fx-animated-tiles")]
     internal static int RoomFxAnimatedTilesCommand()
     {

@@ -6,8 +6,10 @@ using static KraidArmInstructionProgramDefinitionsVerification;
 using static KraidArmPhysicalFrameMappingsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kraid's compiled arm frame and collision data against bank-$A7 cartridge records.</summary>
 internal static class KraidArmCollisionDefinitionsVerification
 {
+    /// <summary>Runs callback, frame-selection, and hitbox-list comparisons for the selected Kraid arm records.</summary>
     internal static void VerifyKraidArmCollisionDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -25,6 +27,7 @@ internal static class KraidArmCollisionDefinitionsVerification
             "and 24 rectangles/callback pairs match the retail ROM.");
     }
 
+    /// <summary>Compares all sixteen selected arm lists and twenty-four rectangles while rejecting other pointer identities.</summary>
     internal static void VerifyKraidArmHitboxListSelection(SuperMetroidAddressSpace rom)
     {
         // Native arm-list identities, independently transcribed from bank_A7.asm.

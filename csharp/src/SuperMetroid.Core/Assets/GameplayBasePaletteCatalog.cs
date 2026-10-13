@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable starting CGRAM image and common sprite colors restored on room entry.</summary>
 public sealed class GameplayBasePaletteCatalog
 {
+    /// <summary>Owned 256-color CGRAM image loaded at gameplay startup.</summary>
     internal readonly Bgr555[] initial;
+    /// <summary>Owned sixteen-color palette reused by common room sprites.</summary>
     internal readonly Bgr555[] commonSprites;
 
+    /// <summary>Retains validated RGB5 arrays detached from the editable document.</summary>
     private GameplayBasePaletteCatalog(Bgr555[] initial, Bgr555[] commonSprites)
     {
         this.initial = initial;
@@ -70,6 +73,7 @@ public sealed class GameplayBasePaletteCatalog
         return bytes;
     }
 
+    /// <summary>Checks palette length and channel bounds before converting authoring colors to packed CGRAM values.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int expected, string name)
     {
         if (source is null || source.Length != expected)
@@ -111,7 +115,7 @@ public static class GameplayBasePaletteFormat
     public const int CommonSpriteSourceAddress = 0x9afc00;
     /// <summary>Enemy-projectile OBJ colors begin at initial CGRAM index 208 ($9A:81A0).</summary>
     public const int EnemyProjectileInitialColor = 208;
-    /// <summary>Gets the shared camel-case, case-insensitive, strict JSON serialization options.</summary>
+    /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields.</summary>
     public static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

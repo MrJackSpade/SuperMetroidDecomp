@@ -17,8 +17,10 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static ImportedSpritemapsVerification;
 
+/// <summary>Checks migrated Hibashi hitbox tables and both actor instruction streams against cartridge data and ROM-free production execution.</summary>
 internal static class HibashiDefinitionsVerification
 {
+    /// <summary>Exercises all 22 rising hitbox frames, both instruction programs through their terminal sleeps, and compiled mechanics lookup without allocations.</summary>
     internal static void VerifyHibashiDefinitions(SuperMetroidAddressSpace rom)
     {
         const int yOffsetTable = 0xa68dbb;
@@ -176,6 +178,7 @@ internal static class HibashiDefinitionsVerification
             "pass with runtime ROM reads forbidden; 24 executed selectors match the cartridge.");
     }
 
+    /// <summary>Repeatedly reads a compiled graphics instruction word so the warmed allocation check consumes live data.</summary>
     private static int ProbeHibashiInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -187,16 +190,19 @@ internal static class HibashiDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects fallback reads from the cartridge hitbox tables after their values have been compiled.</summary>
     private static CartridgeReadGuard NewHibashiDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(0xa68dbb, 0xa68e13 - 0xa68dbb,
             address => $"Hibashi attempted migrated hitbox read ${address:X6}.");
 
+    /// <summary>Forbids migrated mechanics bytes while observing the presentation selectors still read by the instruction runner.</summary>
     private static CartridgeReadGuard NewHibashiProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(HibashiInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Hibashi mechanics byte ${address:X6}.")
             .ObserveWords(0xa60000, HibashiInstructionProgramDefinitions.PresentationWordCount, HibashiInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Hibashi migration check against the local retail cartridge image.</summary>
     [VerificationCommand("--hibashi-instruction-mechanics")]
     internal static int HibashiInstructionMechanicsCommand()
     {

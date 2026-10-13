@@ -29,10 +29,14 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
     /// <summary>CGRAM byte $C0: first statue palette, with palette row eight skipped.</summary>
     private const ushort FirstColorByte = 0xc0;
 
+    /// <summary>Four boss-specific entries sharing the eight-frame grey-out program.</summary>
     internal static readonly IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition> Definitions = new ProgramEntries();
+    /// <summary>Computes consecutive definition and program addresses without storing duplicate records.</summary>
     private sealed class ProgramEntries : IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition>
     {
+        /// <summary>Draygon, Kraid, Ridley, and Phantoon each have one setup entry.</summary>
         public int Count => 4;
+        /// <summary>Maps a boss index to its definition, instruction start, and CGRAM row.</summary>
         public TourianStatueGreyPaletteFxProgramDefinition this[int index]
         {
             get
@@ -46,11 +50,13 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
                     usesGoto: index < Count - 1);
             }
         }
+        /// <summary>Yields the four boss entries in native table order.</summary>
         public IEnumerator<TourianStatueGreyPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Exposes the same ordered entries to non-generic collection callers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary><c>InstList_PaletteFXObject_Common_GreyOutTourianStatue</c> at $8D:E23E.</summary>
@@ -136,6 +142,7 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
 /// <summary>One boss-specific entry into the shared Tourian statue grey-out program.</summary>
 public sealed class TourianStatueGreyPaletteFxProgramDefinition
 {
+    /// <summary>Binds one statue's palette destination and branch form to its native pointers.</summary>
     internal TourianStatueGreyPaletteFxProgramDefinition(
         TourianStatueBoss boss,
         ushort definitionPointer,

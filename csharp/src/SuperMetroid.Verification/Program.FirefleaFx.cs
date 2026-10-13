@@ -15,8 +15,10 @@ using static AssertionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Fireflea fixed-color flashing, darkness, frozen-time behavior, and X-Ray composition.</summary>
 internal static class FirefleaFxVerification
 {
+    /// <summary>Compares native shade tables and frame updates, optionally including a retail X-Ray display capture.</summary>
     internal static void VerifyFirefleaFx(bool includeXrayCapture = true)
     {
         var memory = new TestAddressSpace();
@@ -82,6 +84,7 @@ internal static class FirefleaFxVerification
         Console.WriteLine("  Fireflea FX: compiled native shades, ROM-read guard, initialization, flash cycles, all seven death offsets, COLDATA order and frozen-time retention agree.");
     }
 
+    /// <summary>Checks all twelve calculated flash shades against native words and rejects invalid indices.</summary>
     private static void VerifyFirefleaFlashingAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort i = 0; i < 12; i++)
@@ -91,6 +94,7 @@ internal static class FirefleaFxVerification
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(ushort.MaxValue), "Flash invalid maximum");
     }
 
+    /// <summary>Checks seven darkness offsets, including the native opcode alias, against cartridge words.</summary>
     private static void VerifyFirefleaDarknessAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0; offset <= 12; offset += 2)
@@ -101,6 +105,7 @@ internal static class FirefleaFxVerification
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(ushort.MaxValue), "Darkness invalid maximum");
     }
 
+    /// <summary>Checks the retail Fireflea room's fixed-color subtraction before, during, and after X-Ray.</summary>
     private static void VerifyFirefleaXrayCapture()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -150,6 +155,7 @@ internal static class FirefleaFxVerification
             "Fireflea teardown restores room subtraction rather than unblended rendering");
     }
 
+    /// <summary>Dispatches the focused Fireflea FX verification command.</summary>
     [VerificationCommand("--fireflea-fx")]
     internal static int FirefleaFxCommand()
     {

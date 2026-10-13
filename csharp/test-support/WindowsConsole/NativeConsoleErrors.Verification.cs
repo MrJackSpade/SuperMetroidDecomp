@@ -3,6 +3,7 @@
 /// <summary>Verifier-side check of the process error policy; tools only install it.</summary>
 internal static partial class NativeConsoleErrorPolicyCheck
 {
+    /// <summary>Reads the process-wide Win32 dialog suppression bits for the verifier assertion.</summary>
     [LibraryImport("kernel32.dll")]
     private static partial uint GetErrorMode();
 

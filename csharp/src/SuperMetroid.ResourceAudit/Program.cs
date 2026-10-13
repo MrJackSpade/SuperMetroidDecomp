@@ -3,8 +3,10 @@ using System.Text.Json;
 
 namespace SuperMetroid.ResourceAudit;
 
+/// <summary>Command-line entry for static resource, door, visual-program, and DMA audits with a no-dialog failure boundary.</summary>
 internal static class Program
 {
+    /// <summary>Dispatches the requested source audit and reports missing or unresolved resources with a failing exit code.</summary>
     private static int Main(string[] args)
     {
         // Install before parsing paths or loading definitions. An audit error must
@@ -178,6 +180,7 @@ internal static class Program
 /// <summary>Win32 process policy for this console host; keeps OS-owned modal error boxes away.</summary>
 internal static partial class NativeConsoleProcess
 {
+    /// <summary>Sets Win32 error mode so audit failures reach stderr rather than an operating-system dialog.</summary>
     [LibraryImport("kernel32.dll")]
     internal static partial uint SetErrorMode(uint mode);
 }

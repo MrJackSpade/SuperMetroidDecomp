@@ -14,7 +14,9 @@ internal abstract class PrePhantoonRoomProjectileInstructionProgramDefinitionsTo
         PrePhantoonRoomProjectileInstructionProgramDefinitions.Initial + 4,
     ];
 
+    /// <summary>Two compiled words: the initial duration and terminal delete.</summary>
     public static int MechanicsWordCount => WordAddresses.Length;
+    /// <summary>Returns a compiled hold or delete word by its native address.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) =>
         new(WordAddresses[index], PrePhantoonRoomProjectileInstructionProgramDefinitions.ReadMechanicsWord(WordAddresses[index]));
 
@@ -22,6 +24,7 @@ internal abstract class PrePhantoonRoomProjectileInstructionProgramDefinitionsTo
     static ushort ISinglePresentationOperand.PresentationWord =>
         PrePhantoonRoomProjectileInstructionProgramDefinitions.Initial + 2;
 
+    /// <summary>Recognizes either byte of the hold or delete word in bank $86.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

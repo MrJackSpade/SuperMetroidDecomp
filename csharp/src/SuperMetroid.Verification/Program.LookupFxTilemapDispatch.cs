@@ -7,8 +7,10 @@ using static DoorDefinitionsVerification;
 using static LookupFxTilemapSourcesVerification;
 using static TilemapJsonContractsVerification;
 
+/// <summary>Checks FX layer-3 page dispatch for native sources, editable pages, and unsupported identities.</summary>
 internal static class LookupFxTilemapDispatchVerification
 {
+    /// <summary>Compares native page bytes, verifies independent edited pages, and rejects missing or unknown page keys.</summary>
     internal static void VerifyFxTilemapPageDispatch(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         var native = new Dictionary<RoomFxType, byte[]>();
@@ -75,6 +77,7 @@ internal static class LookupFxTilemapDispatchVerification
         }
     }
 
+    /// <summary>Reads one cartridge byte for the native FX tilemap page oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for FX tilemap page dispatch")]
     private static byte FxTilemapPageDispatchRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

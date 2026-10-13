@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks same-frame gameplay sound publication, ordering, and Power Bomb echo suppression.</summary>
 internal static class GameplayAudioPublicationVerification
 {
+    /// <summary>Uses native landing publishers to check queued echo order, repeated flushes, and suppressed echo accumulation.</summary>
     internal static void VerifyGameplayAudioPublication(SuperMetroidAddressSpace audioBus)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

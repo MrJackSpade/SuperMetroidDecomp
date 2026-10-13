@@ -17,7 +17,9 @@ internal static class CeresSteamCollisionDefinitions
     /// <summary>Native bank of the extended maps at $A6:F142-$F250.</summary>
     internal const byte Bank = 0xa6;
 
+    /// <summary>Native touch callback invoked when a damaging steam plume hits Samus.</summary>
     private const ushort Touch = EnemyAiCodePointers.BankA6.CeresSteamTouch;
+    /// <summary>Native no-op shot callback for steam collision rectangles.</summary>
     private const ushort Shot = EnemyAiCodePointers.BankA0.NoOp;
 
     /// <summary>First ten-byte extended frame, ExtendedSpritemap_CeresSteam_Up_0 at $A6:F142.</summary>
@@ -57,10 +59,13 @@ internal static class CeresSteamCollisionDefinitions
             [new(25, -11, 40, 3, Touch, Shot)],
         ]));
 
+    /// <summary>Twenty-eight contiguous extended-frame pointers in native direction and pose order.</summary>
     internal static FrameSequence FramePointers { get; } = new();
+    /// <summary>Checks alignment and bounds for a compiled ten-byte steam extended frame.</summary>
     internal static bool HasFrame(ushort frame) =>
         frame >= FirstFrame && frame < FirstFrame + 280 && (frame - FirstFrame) % 10 == 0;
 
+    /// <summary>Maps a steam frame to its single zero-offset collision component and pose hitbox list.</summary>
     internal static ComponentSequence ComponentsAt(ushort frame)
     {
         if (!HasFrame(frame))
@@ -71,31 +76,43 @@ internal static class CeresSteamCollisionDefinitions
         return new(pose >= 5 ? EmptyHitboxes : (ushort)(FirstHitboxes + 14 * (5 * direction + pose)));
     }
 
+    /// <summary>Enumerates the twenty-eight extended-frame addresses without storing a pointer array.</summary>
     internal sealed class FrameSequence : IReadOnlyList<ushort>
     {
+        /// <summary>Number of steam frames across four directions and seven poses.</summary>
         public int Count => 28;
+        /// <summary>Alias for the frame count used by existing indexing callers.</summary>
         public int Length => Count;
+        /// <summary>Returns an indexed frame pointer at a ten-byte native stride.</summary>
         public ushort this[int index] => (uint)index < Count
             ? (ushort)(FirstFrame + 10 * index) : throw new IndexOutOfRangeException();
+        /// <summary>Yields all frame pointers in native order.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Exposes the same frame order through the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>One physical steam component whose sprite offset is zero and whose hitbox list varies by pose.</summary>
     internal readonly struct ComponentSequence(ushort hitboxPointer) : IReadOnlyList<CeresSteamCollisionComponent>
     {
+        /// <summary>Every steam frame has exactly one collision component.</summary>
         public int Count => 1;
+        /// <summary>Returns the zero-offset component and its selected native hitbox list.</summary>
         public CeresSteamCollisionComponent this[int index] => index == 0
             ? new(Offset16<RoomPixels>.Zero, hitboxPointer) : throw new IndexOutOfRangeException();
+        /// <summary>Yields the frame's single collision component.</summary>
         public IEnumerator<CeresSteamCollisionComponent> GetEnumerator()
         {
             yield return this[0];
         }
+        /// <summary>Exposes the component through the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
+    /// <summary>Resolves one compiled steam hitbox list and rejects unknown native pointers.</summary>
     internal static ReadOnlySpan<CeresSteamCollisionHitbox> HitboxesAt(ushort list) =>
         Lists.TryGet(list, out CeresSteamCollisionHitbox[] hitboxes)
             ? hitboxes

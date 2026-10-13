@@ -20,43 +20,43 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusProjectileSystem
 {
-    /// <summary>The <see cref="BeamChargeState"/> owner of this SamusProjectileSystem.</summary>
+    /// <summary>Tracks held charge, flare components, and charge palette state across room transitions.</summary>
     internal BeamChargeState Charge { get; }
 
-    /// <summary>The <see cref="ProjectileSlotTable"/> owner of this SamusProjectileSystem.</summary>
+    /// <summary>Holds the five ordinary projectile slots and eighteen two-sided trail slots.</summary>
     internal ProjectileSlotTable SlotTable { get; }
 
-    /// <summary>The <see cref="ProjectileEarthquakes"/> owner of this SamusProjectileSystem.</summary>
+    /// <summary>Collects impact-driven earthquake requests from projectile and terrain reactions.</summary>
     internal ProjectileEarthquakes Earthquakes { get; }
 
-    /// <summary>The <see cref="ChainsawWindow"/> owner of this SamusProjectileSystem.</summary>
+    /// <summary>Manages the special beam window that alters projectile handling.</summary>
     internal ChainsawWindow Chainsaw { get; }
 
-    /// <summary>The <see cref="ProjectileImpactAudio"/> owner of this SamusProjectileSystem.</summary>
+    /// <summary>Queues the sound selected for projectile contact with terrain or enemies.</summary>
     internal ProjectileImpactAudio ImpactAudio { get; }
 
-    /// <summary>The <see cref="ShinesparkEchoProjectile"/> owner of this SamusProjectileSystem.</summary>
+    /// <summary>Owns the projectile visuals emitted by Shinespark echoes.</summary>
     internal ShinesparkEchoProjectile Shinespark { get; }
 
-    /// <summary>The <see cref="BeamCombos"/> owner of this SamusProjectileSystem.</summary>
+    /// <summary>Advances special beam combinations that share ordinary projectile storage.</summary>
     internal BeamCombos Combos { get; }
 
-    /// <summary>The <see cref="ProjectileAnimation"/> owner of this SamusProjectileSystem.</summary>
+    /// <summary>Interprets bank-$93 projectile records and draws their sprite compositions.</summary>
     internal ProjectileAnimation Animation { get; }
 
-    /// <summary>The <see cref="BeamFiring"/> owner of this SamusProjectileSystem.</summary>
+    /// <summary>Applies HUD, cooldown, equipment, and charge rules when allocating a shot.</summary>
     internal BeamFiring Firing { get; }
 
-    /// <summary>The <see cref="ProjectileMotion"/> owner of this SamusProjectileSystem.</summary>
+    /// <summary>Advances live projectile positions, camera culling, and trails.</summary>
     internal ProjectileMotion Motion { get; }
 
-    /// <summary>The <see cref="ProjectileTerrainCollision"/> owner of this SamusProjectileSystem.</summary>
+    /// <summary>Resolves projectile impact with blocks and breakable terrain.</summary>
     internal ProjectileTerrainCollision TerrainCollision { get; }
 
-    /// <summary>The <see cref="ProjectileEnemyImpacts"/> owner of this SamusProjectileSystem.</summary>
+    /// <summary>Routes ordinary shots into enemy collision and damage callbacks.</summary>
     internal ProjectileEnemyImpacts EnemyImpacts { get; }
 
-    /// <summary>The <see cref="ProjectileTrails"/> owner of this SamusProjectileSystem.</summary>
+    /// <summary>Allocates and advances the two-sided trail records left by moving projectiles.</summary>
     internal ProjectileTrails Trails { get; }
 
     /// <summary>Creates the five projectile slots, eighteen trail slots and the owners that run them.</summary>
@@ -137,6 +137,7 @@ public sealed class SamusProjectileSystem
         new SamusBeamLoadoutWord(equippedBeams).Combination ?? throw new ArgumentOutOfRangeException(
             nameof(equippedBeams), equippedBeams, "Equipped-beam index is outside the beam-combination tables.");
 
+    /// <summary>Loads a selected beam's final CGRAM palette from installed art or the special beam definitions.</summary>
     private static void LoadSelectedBeamPalette(ISnesAddressSpace bus, SnesCgram cgram,
         SamusBeamCombination selection, Assets.BeamPaletteCatalog? palettes)
     {
@@ -350,8 +351,7 @@ public sealed class SamusProjectileSystem
     /// <param name="terrain">SamusTerrain</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
     /// <param name="buttons">The controller words Samus's projectile producer reads: held buttons, this frame's new presses, and the previous frame's new presses (#633).</param>
-    /// <param name="layer1.X">Horizontal camera origin in whole room pixels, used by projectile offscreen handling.</param>
-    /// <param name="layer1.Y">Vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
+    /// <param name="layer1">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">
     /// Bomb-slot owner carrying shared WRAM cooldown <c>$0CCC</c>. The runtime steps that
     /// clock once, immediately before calling this method; this method may replace it after
@@ -699,8 +699,7 @@ public sealed class SamusProjectileSystem
     /// </summary>
     /// <param name="bus">Address space passed to the trail instruction and draw helpers.</param>
     /// <param name="oam">Mutable OBJ destination appended in descending trail-slot order, left side before right.</param>
-    /// <param name="layer1.X">Whole-pixel room camera X origin subtracted from trail coordinates when drawing.</param>
-    /// <param name="layer1.Y">Whole-pixel room camera Y origin subtracted from trail coordinates when drawing.</param>
+    /// <param name="layer1">Whole-pixel room camera origin subtracted from trail coordinates when drawing.</param>
     /// <param name="timeIsFrozen">
     /// WRAM <c>$0A78</c>. Frozen trails retain their current record and are still drawn;
     /// their timers and embedded position commands do not advance.

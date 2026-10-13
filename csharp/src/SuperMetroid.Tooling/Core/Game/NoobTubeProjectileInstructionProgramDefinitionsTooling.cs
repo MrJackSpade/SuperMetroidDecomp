@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(NoobTubeProjectileInstructionProgramDefinitions))]
 internal abstract class NoobTubeProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>The tube crack, flying glass, and released-air lists expose their compiled callbacks and timing words.</summary>
     public static int MechanicsWordCount => NoobTubeProjectileInstructionProgramDefinitions.MechanicsWordCount;
+    /// <summary>Exposes an indexed control word for crack, shard, or bubble playback.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => NoobTubeProjectileInstructionProgramDefinitions.MechanicsWord(index);
+    /// <summary>Counts the interleaved spritemap selections for the tube crack, glass shards, and bubbles.</summary>
     public static int PresentationWordCount => NoobTubeProjectileInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates a tube projectile's presentation operand for resource checks.</summary>
     public static ushort PresentationWordAddress(int index) => NoobTubeProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Matches either byte of compiled bank-$86 tube projectile control while excluding spritemap operands.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

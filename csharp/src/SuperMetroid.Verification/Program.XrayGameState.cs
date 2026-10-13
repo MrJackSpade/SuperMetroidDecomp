@@ -8,6 +8,7 @@ using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Confirms X-ray admission reads the live game state (#1335).</summary>
 internal static class XrayGameStateVerification
 {
     /// <summary>
@@ -81,6 +82,7 @@ internal static class XrayGameStateVerification
         Console.WriteLine("  X-ray game state: setup rejects states $0C and $12 and admits state eight.");
     }
 
+    /// <summary>Runs the X-ray game state suite.</summary>
     [VerificationCommand("--xray-game-state")]
     internal static int XrayGameStateCommand()
     {

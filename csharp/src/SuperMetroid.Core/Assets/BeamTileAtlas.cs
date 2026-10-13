@@ -6,12 +6,17 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>One immutable eight-tile beam sheet with calculated stock orientations and independently editable pixels.</summary>
 public sealed class BeamTileAtlas
 {
-    // Unresolved artwork remains required; only the five documented Plasma pen roles have a narrow exception.
+    /// <summary>Stores edited or independently required pixels; derived stock pixels are calculated on demand.</summary>
+    /// <remarks>Unresolved artwork remains required except for the five documented Plasma pen roles.</remarks>
     internal readonly Dictionary<int, byte> pixels = new();
+    /// <summary>Beam combination whose stock pixel relationships determine this sheet.</summary>
     private readonly SamusBeamCombination selection;
+    /// <summary>Another atlas supplying pixels shared by the selected beam combination.</summary>
     private readonly BeamTileAtlas? sharedSource;
+    /// <summary>Applies the shared source across the full sheet instead of designated tiles.</summary>
     private readonly bool wholeSheetShared;
 
+    /// <summary>Stores only pixels that differ from derivable stock relationships.</summary>
     private BeamTileAtlas(byte[] selectedPixels, SamusBeamCombination selection)
     {
         this.selection = selection;
@@ -28,6 +33,7 @@ public sealed class BeamTileAtlas
         }
     }
 
+    /// <summary>Creates an atlas that resolves shared pixels through another selected sheet.</summary>
     private BeamTileAtlas(Dictionary<int, byte> pixels, SamusBeamCombination selection, BeamTileAtlas sharedSource, bool wholeSheetShared)
     {
         this.pixels = pixels;
@@ -36,6 +42,7 @@ public sealed class BeamTileAtlas
         this.wholeSheetShared = wholeSheetShared;
     }
 
+    /// <summary>Reuses source pixels where they match while retaining independent edits in this sheet.</summary>
     internal BeamTileAtlas SharePixelsFrom(BeamTileAtlas source, bool wholeSheet)
     {
         var selected = new Dictionary<int, byte>(pixels);
@@ -53,6 +60,7 @@ public sealed class BeamTileAtlas
         Enumerable.Range(0, BeamTileAtlasDefinitions.Width * BeamTileAtlasDefinitions.Height)
             .Select(Pixel).ToArray(), new(BeamTileAtlasDefinitions.Width, BeamTileAtlasDefinitions.Height), 4);
 
+    /// <summary>Resolves an edited, shared, stock Plasma, or derived pixel in that priority order.</summary>
     private byte Pixel(int pixel)
     {
         if (pixels.TryGetValue(pixel, out byte selected)) return selected;

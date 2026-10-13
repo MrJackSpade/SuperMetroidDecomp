@@ -16,14 +16,17 @@ internal abstract class PowampSpikeInstructionProgramDefinitions
 
     /// <summary><c>InstList_EnemyProjectile_PowampSpike_Delete</c> at $86:D218.</summary>
     internal const ushort Delete = 0xd218;
+    /// <summary>Three spritemap operands accompany the six-frame poses before the loop command.</summary>
     public static int PresentationWordCount => 3;
 
+    /// <summary>Locates each interleaved visual operand two bytes after its pose duration.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Initial + index * 4 + 2);
     }
 
+    /// <summary>Reads a compiled spike control word and rejects unrelated bank-$86 pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address) => TryRead(address, out ushort value)
         ? value : throw new InvalidDataException($"Powamp-spike instruction mechanics pointer $86:{address:X4} is not compiled.");
 
@@ -38,7 +41,7 @@ internal abstract class PowampSpikeInstructionProgramDefinitions
         DeleteOpcode = Delete,
     }
 
-    // Three six-frame drawings repeat until the producer chooses the separate delete program.
+    /// <summary>Recognizes three six-frame holds, their loop, and the separately selected delete opcode.</summary>
     internal static bool TryRead(ushort address, out ushort value)
     {
         value = 0;

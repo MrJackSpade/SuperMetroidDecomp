@@ -11,13 +11,30 @@ using SuperMetroid.Core.Rooms;
 /// </summary>
 internal sealed class InstalledSamusIsolationTests
 {
+    /// <summary>Stock and edited Samus body art used by paired production actors.</summary>
     private readonly InstalledSamusArtworkFixture artwork;
+    /// <summary>Stock and edited suit colors selected by the actors' presentation owners.</summary>
     private readonly (SamusSuitColorCatalog Stock, SamusSuitColorCatalog Edited) suits;
+    /// <summary>Stock and edited Speed Booster, Screw Attack, and shinespark cycle colors.</summary>
     private readonly (SamusFullBodyCycleColorCatalog Stock, SamusFullBodyCycleColorCatalog Edited) cycles;
+    /// <summary>Stock and edited Crystal Flash palette phases.</summary>
     private readonly (CrystalFlashColorCatalog Stock, CrystalFlashColorCatalog Edited) crystal;
+    /// <summary>Installed beam palette data shared by both actor fixtures.</summary>
     private readonly BeamPaletteCatalog beams;
-    private int comparisons, draws, changedOam, changedTiles, changedColors, scenarios;
+    /// <summary>Number of stock and edited mechanics comparisons.</summary>
+    private int comparisons;
+    /// <summary>Number of production Samus draws performed by paired actors.</summary>
+    private int draws;
+    /// <summary>Draws in which installed spritemap edits changed OAM.</summary>
+    private int changedOam;
+    /// <summary>Draws in which installed character edits changed VRAM.</summary>
+    private int changedTiles;
+    /// <summary>Comparisons in which installed palette edits changed CGRAM.</summary>
+    private int changedColors;
+    /// <summary>Bounded actor setups run under different movement and sequence conditions.</summary>
+    private int scenarios;
 
+    /// <summary>Loads the selected stock and edited art catalogs from the installation for paired Samus runs.</summary>
     private InstalledSamusIsolationTests(InstalledSamusArtworkFixture artwork, string root)
     {
         this.artwork = artwork;
@@ -32,6 +49,7 @@ internal sealed class InstalledSamusIsolationTests
         beams = BeamPaletteCatalog.Load(stream);
     }
 
+    /// <summary>Checks stock and edited Samus state across movement, collision, and special sequences while requiring visible art differences.</summary>
     internal static void Run(InstalledSamusArtworkFixture artwork, string root)
     {
         var tests = new InstalledSamusIsolationTests(artwork, root);
@@ -47,6 +65,7 @@ internal sealed class InstalledSamusIsolationTests
             $"{tests.changedColors} changed CGRAM observations. No ROM, import or player data is used.");
     }
 
+    /// <summary>Creates one source-selected pair in a constructed room with optional liquid or low ceiling.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private Pair Create(SamusPoseId pose = SamusPoseId.FacingRightNormalPose,
         ushort equipment = 0, SamusLiquidMedium medium = SamusLiquidMedium.Air, bool lowCeiling = false)
@@ -55,18 +74,29 @@ internal sealed class InstalledSamusIsolationTests
         return new Pair(this, pose, equipment, medium, lowCeiling);
     }
 
+    /// <summary>One Samus simulation with its own mutable memory, room, color memory, and installed art.</summary>
     private sealed class Actor
     {
+        /// <summary>Cartridge-free mutable bus used by this actor's production owners.</summary>
         internal readonly SuperMetroidAddressSpace Memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        /// <summary>Gameplay state whose mechanics must match the paired actor.</summary>
         internal readonly SamusState Samus;
+        /// <summary>Constructed floor and optional ceiling used for both collision fixtures.</summary>
         internal readonly RoomLevelData Level;
+        /// <summary>Color memory receiving suit and sequence palette updates.</summary>
         internal readonly SnesCgram Colors = new();
+        /// <summary>Tile memory receiving installed Samus transfers.</summary>
         internal readonly SnesVram Tiles = new();
+        /// <summary>Selected body, arm-cannon, death, and spritemap art.</summary>
         internal readonly SamusBodyArtworkCatalog Body;
+        /// <summary>Selected base suit palette catalog.</summary>
         internal readonly SamusSuitColorCatalog Suits;
+        /// <summary>Selected full-body cycle color catalog.</summary>
         internal readonly SamusFullBodyCycleColorCatalog Cycles;
+        /// <summary>Selected Crystal Flash color catalog.</summary>
         internal readonly CrystalFlashColorCatalog Crystal;
 
+        /// <summary>Builds a cartridge-free Samus actor on the fixture floor with the selected visual catalog set.</summary>
         internal Actor(InstalledSamusIsolationTests tests, bool edited, SamusPoseId pose,
             ushort equipment, SamusLiquidMedium medium, bool lowCeiling)
         {
@@ -97,11 +127,16 @@ internal sealed class InstalledSamusIsolationTests
         }
     }
 
+    /// <summary>Runs each operation on stock and edited actors and compares mechanics after every step.</summary>
     private sealed class Pair
     {
+        /// <summary>Accumulates scenario and visible-change counts in the enclosing fixture.</summary>
         private readonly InstalledSamusIsolationTests tests;
+        /// <summary>Actor using unedited installation art.</summary>
         internal Actor Stock { get; }
+        /// <summary>Actor using the paired visual overrides.</summary>
         internal Actor Edited { get; }
+        /// <summary>Creates both actors from the same initial pose, equipment, medium, and room geometry.</summary>
         internal Pair(InstalledSamusIsolationTests tests, SamusPoseId pose,
             ushort equipment, SamusLiquidMedium medium, bool lowCeiling)
         {
@@ -111,6 +146,7 @@ internal sealed class InstalledSamusIsolationTests
             Check("initialization");
         }
 
+        /// <summary>Applies an operation to both actors, compares mutable mechanics, then optionally draws them.</summary>
         internal void Apply(string context, Action<Actor> operation, bool draw = true)
         {
             operation(Stock); operation(Edited);
@@ -118,6 +154,7 @@ internal sealed class InstalledSamusIsolationTests
             if (draw) Draw(context);
         }
 
+        /// <summary>Compares a returned gameplay result as well as state and optional presentation.</summary>
         internal T Apply<T>(string context, Func<Actor, T> operation, bool draw = true)
         {
             T expected = operation(Stock), actual = operation(Edited);
@@ -127,6 +164,7 @@ internal sealed class InstalledSamusIsolationTests
             return expected;
         }
 
+        /// <summary>Checks Samus, WRAM, SRAM, and collision planes while recording color differences.</summary>
         internal void Check(string context)
         {
             new SamusMechanicsSnapshot(Stock.Samus).RequireSame(new(Edited.Samus), context);
@@ -138,6 +176,7 @@ internal sealed class InstalledSamusIsolationTests
             if (!new CgramPalettes(Stock.Colors).ImageEquals(new CgramPalettes(Edited.Colors))) tests.changedColors++;
         }
 
+        /// <summary>Draws both actors, checks drawing leaves mechanics intact, and records OAM or VRAM changes.</summary>
         [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
         internal void Draw(string context, ushort frame = 0)
         {
@@ -161,9 +200,16 @@ internal sealed class InstalledSamusIsolationTests
         }
     }
 
-    // Geometry belongs only to this constructed room, not to any cartridge definition.
-    private const int RoomWidth = 32, RoomHeight = 32, FloorRow = 24, FloorY = FloorRow * 16;
+    /// <summary>Constructed room width in blocks for the paired Samus fixtures.</summary>
+    private const int RoomWidth = 32;
+    /// <summary>Constructed room height in blocks for the paired Samus fixtures.</summary>
+    private const int RoomHeight = 32;
+    /// <summary>Solid floor row used by jump and posture scenarios.</summary>
+    private const int FloorRow = 24;
+    /// <summary>Floor's pixel coordinate used to place Samus by her current collision radius.</summary>
+    private const int FloorY = FloorRow * 16;
 
+    /// <summary>Confirms mechanics snapshots detect changes to position, animation, radius, and private sequence state.</summary>
     private static void CheckSnapshotSensitivity()
     {
         var samus = InstalledFixtures.CreateSamus();
@@ -192,6 +238,7 @@ internal sealed class InstalledSamusIsolationTests
         }
     }
 
+    /// <summary>Stops a source-isolation scenario with its specific gameplay or presentation mismatch.</summary>
     private static void Require(bool condition, string message)
     { if (!condition) throw new InvalidOperationException(message); }
 
@@ -239,6 +286,7 @@ internal sealed class InstalledSamusIsolationTests
         Console.WriteLine($"  {context}: {frames} matching fall calls plus stand/crouch/release animation; edited draw offsets stay cosmetic.");
     }
 
+    /// <summary>Compares running, turning, jumping, posture changes, and knockback across air and liquids.</summary>
     private void CheckMovement()
     {
         foreach (SamusLiquidMedium medium in new[] { SamusLiquidMedium.Air,
@@ -298,6 +346,7 @@ internal sealed class InstalledSamusIsolationTests
         }
     }
 
+    /// <summary>Requires a real rise and floor landing with selected facing, liquid, and Hi-Jump equipment.</summary>
     private void CheckJump(SamusLiquidMedium medium, bool left, bool highJump)
     {
         Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
@@ -326,6 +375,7 @@ internal sealed class InstalledSamusIsolationTests
         Require(landed && minimumY < startY, label + ": must rise and collide with the floor, not merely stay equal");
     }
 
+    /// <summary>Completes crouch, morph, and unmorph animation transitions under the selected liquid physics.</summary>
     private void CheckPosture(SamusLiquidMedium medium, bool left)
     {
         Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
@@ -345,6 +395,7 @@ internal sealed class InstalledSamusIsolationTests
         CompleteAnimation(pair, left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose, label + " unmorphing");
     }
 
+    /// <summary>Checks standing from crouch is admitted only when the constructed ceiling leaves room.</summary>
     private void CheckPoseCollision()
     {
         foreach (bool blocked in new[] { false, true })
@@ -359,12 +410,14 @@ internal sealed class InstalledSamusIsolationTests
         }
     }
 
+    /// <summary>Runs production Samus animation and commits any verified pose transition.</summary>
     private static void Animate(Actor actor, ushort frame)
     {
         actor.Samus.Presentation.AnimateNoFx(actor.Memory, new SamusAnimationStep { NmiFrameCounter = frame });
         if (actor.Samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(actor.Memory)) actor.Samus.CommitPoseHistory(actor.Memory);
     }
 
+    /// <summary>Advances both animations to an authored target pose within the bounded transition lifetime.</summary>
     private static void CompleteAnimation(Pair pair, SamusPoseId target, string context)
     {
         for (ushort frame = 0; frame < 120 && pair.Stock.Samus.Pose != target; frame++)
@@ -376,8 +429,10 @@ internal sealed class InstalledSamusIsolationTests
         Require(pair.Stock.Samus.Pose == target, context + ": authored animation transition did not finish");
     }
 
+    /// <summary>Controller chord used to enter the Crystal Flash sequence in this fixture.</summary>
     private const ushort FlashChord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
 
+    /// <summary>Checks Flash, shine, suit pickup, death, reserve refill, and drained poses with installed art.</summary>
     private void CheckSpecialSequences()
     {
         foreach (bool left in new[] { false, true }) CheckCrystalFlash(left);
@@ -395,6 +450,7 @@ internal sealed class InstalledSamusIsolationTests
         foreach (bool left in new[] { false, true }) CheckDrained(left);
     }
 
+    /// <summary>Seeds the health and ammo prerequisites for a real Crystal Flash admission.</summary>
     private static SamusState PrepareFlash(SamusState samus)
     {
         samus.Health = 1; samus.MaxHealth = 1599;
@@ -402,6 +458,7 @@ internal sealed class InstalledSamusIsolationTests
         return samus;
     }
 
+    /// <summary>Completes Crystal Flash and checks movement, all ammo drains, palette frames, and pose release.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private void CheckCrystalFlash(bool left)
     {
@@ -446,6 +503,7 @@ internal sealed class InstalledSamusIsolationTests
         Console.WriteLine($"  {context}: {frames} identical movement/animation/palette calls; all thirty ammo drains and release verified.");
     }
 
+    /// <summary>Advances the stored-shine palette through its 180-call expiration with edited colors.</summary>
     private void CheckStoredShine()
     {
         Pair pair = Create();
@@ -459,6 +517,7 @@ internal sealed class InstalledSamusIsolationTests
             "Edited stored-shine colors must retain the 180-call expiration");
     }
 
+    /// <summary>Runs windup, directional flight, crash, and energy drain for one shinespark pose.</summary>
     private void CheckShinespark(SamusPoseId target)
     {
         bool left = ((int)target & 1) == 0;
@@ -497,6 +556,7 @@ internal sealed class InstalledSamusIsolationTests
         Console.WriteLine($"  {context}: 29 windup calls and {frames} identical launch/crash/release calls.");
     }
 
+    /// <summary>Runs all suit-pickup stages while comparing window geometry, Samus state, and installed colors.</summary>
     private void CheckSuitPickup(SamusSuitPickupKind kind)
     {
         Pair pair = Create();
@@ -520,6 +580,7 @@ internal sealed class InstalledSamusIsolationTests
         Console.WriteLine($"  {kind} suit: {frames} identical stage/window/pose/control calls; edited suit colors applied.");
     }
 
+    /// <summary>Checks the full death lifetime, DMA cadence, pose art, and explosion OAM for a source pose and suit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private void CheckDeath(SamusPoseId source, ushort suit)
     {
@@ -558,6 +619,7 @@ internal sealed class InstalledSamusIsolationTests
             context + ": death must retain its exact 16+60+135 call lifetime");
     }
 
+    /// <summary>Confirms reserve refill freezes Samus animation while restoring one health per call and releasing input.</summary>
     private void CheckReserve()
     {
         Pair pair = Create();
@@ -578,10 +640,13 @@ internal sealed class InstalledSamusIsolationTests
             !pair.Stock.Samus.InputLocked, "Reserve recovery failed to refill and release");
     }
 
+    /// <summary>Limits death-sequence VRAM transfers to the selected installed death atlas.</summary>
     private sealed class DeathAssets(SamusDeathTileAtlas tiles) : IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Resolves a death tile transfer from the selected atlas.</summary>
         public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
             tiles.TryResolve(sourceAddress, byteCount, out data);
+        /// <summary>Rejects an unrelated typed VRAM asset in the death-only fixture.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException("Death fixture received an unrelated typed asset " + asset);
     }

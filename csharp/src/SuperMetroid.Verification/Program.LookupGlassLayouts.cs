@@ -2,12 +2,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks Mother Brain glass PLM draw geometry, collision words, and visual cells.</summary>
 internal static class LookupGlassLayoutsVerification
 {
+    /// <summary>Checks eleven draw identities, run directions, counts, continuations, and lookup bounds.</summary>
     internal static void VerifyGlassLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyGlassLayoutDrawField(rom, 0);
+    /// <summary>Checks native collision bits in each glass draw cell.</summary>
     internal static void VerifyGlassLayoutCollision(SuperMetroidAddressSpace rom) => VerifyGlassLayoutDrawField(rom, 1);
+    /// <summary>Checks native visual tile bits in each glass draw cell.</summary>
     internal static void VerifyGlassLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyGlassLayoutDrawField(rom, 2);
 
+    /// <summary>Compares one field over all glass layouts and their 92 physical cells.</summary>
     private static void VerifyGlassLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9717,0x971d,0x9731,0x9745,0x974f,0x9769,0x9781,0x978f,0x97b7,0x97e7,0x9817];

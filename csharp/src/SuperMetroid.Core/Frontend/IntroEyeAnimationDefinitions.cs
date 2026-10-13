@@ -28,8 +28,18 @@ internal static class IntroEyeAnimationDefinitions
     /// <summary>Native BG record position bytes17,13: portrait eye tile column/row.</summary>
     private const ushort PackedPosition = 17 | (13 << 8);
 
-    private enum EyeFrame { HalfOpen = 1, Closed = 2, Deadpan = 3 }
+    /// <summary>Portrait eye frame selectors following the open frame in the draw table.</summary>
+    private enum EyeFrame
+    {
+        /// <summary>Intermediate portrait-eye opening frame.</summary>
+        HalfOpen = 1,
+        /// <summary>Fully closed blink frame.</summary>
+        Closed = 2,
+        /// <summary>Page-six portrait frame held by the final self-loop.</summary>
+        Deadpan = 3,
+    }
 
+    /// <summary>Calculates a duration, packed position, frame pointer, or loop word at a script index.</summary>
     private static ushort ProgramWord(int index)
     {
         if (index is 24 or 35) return (ushort)CinematicBackgroundInstruction.Goto;
@@ -60,6 +70,7 @@ internal static class IntroEyeAnimationDefinitions
             : (ushort)(FrameStartPointer + FrameStride * frame);
     }
 
+    /// <summary>Reads a compiled eye-script byte within the bounded bank-$8C program.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is < StartPointer or >= EndPointer)
@@ -68,6 +79,7 @@ internal static class IntroEyeAnimationDefinitions
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
+    /// <summary>Reads aligned or overlapping script words without crossing the program end.</summary>
     internal static bool TryReadWord(ushort pointer, out ushort word)
     {
         if (pointer is < StartPointer or >= EndPointer)
@@ -81,6 +93,7 @@ internal static class IntroEyeAnimationDefinitions
         return true;
     }
 
+    /// <summary>Maps a sixteen-byte portrait-eye draw record pointer to one of four frame indices.</summary>
     internal static bool TryFrameIndex(ushort pointer, out int index)
     {
         int offset = pointer - FrameStartPointer;

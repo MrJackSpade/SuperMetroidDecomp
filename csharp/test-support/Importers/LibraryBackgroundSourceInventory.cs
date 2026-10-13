@@ -9,6 +9,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM bank-$8F library background command lists → LibraryBackgroundSource inventory")]
 internal static class LibraryBackgroundSourceInventory
 {
+    /// <summary>Traverses distinct compiled room background lists and records each source transfer operand.</summary>
     public static IReadOnlyList<LibraryBackgroundSource> Scan(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
@@ -81,6 +82,7 @@ internal static class LibraryBackgroundSourceInventory
                 ReadWord(bus, unchecked((ushort)(operandPointer + 5))));
     }
 
+    /// <summary>Reads a little-endian command word from bank $8F, wrapping the 16-bit list cursor.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer)
     {
         int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
@@ -88,6 +90,7 @@ internal static class LibraryBackgroundSourceInventory
                 unchecked((ushort)(pointer + 1))))));
     }
 
+    /// <summary>Reads a 24-bit source address operand from the fixed library-background command bank.</summary>
     private static int ReadLong(ISnesAddressSpace bus, ushort pointer) =>
         (CartridgeImportSource.Require(bus).ReadCartridgeLongFixedBank(RoomAssetRomData.LibraryBackground.CommandBank | pointer));
 }

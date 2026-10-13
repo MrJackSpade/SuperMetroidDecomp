@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Progressive replacement of intact cells with the matching cracked atlas patch.</summary>
 internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Recalculates one of the six cracking poses only when its native egg-frame pointer matches.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int stage = 0; stage < 6; stage++)
@@ -13,8 +14,10 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
                 return supplied.CalculateIfMatching(new IntroEggCrackingParts(stage));
         return supplied;
     }
+    /// <summary>Every cracking stage keeps the full three-by-three egg grid.</summary>
     public int Count => 9;
 
+    /// <summary>Emits newly exposed shell cells before intact cells in the cartridge's draw order.</summary>
     private IEnumerable<IntroEggCell> OrderedCells()
     {
         // Native lists publish the newly exposed region before the remaining shell.
@@ -38,6 +41,7 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
         if (stage < 2) yield return IntroEggCell.MiddleLeft;
     }
 
+    /// <summary>Chooses cracked patch or intact atlas tile for the ordered cell at this animation stage.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -64,21 +68,39 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
                 unchecked((byte)(-12 + 8 * row)), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Enumerates all nine egg cells in the stage's native draw order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same cell order to non-generic collection consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
 /// <summary>Mutually exclusive cells in the egg three-by-three grid,in row-major order.</summary>
 internal enum IntroEggCell
 {
-    TopLeft, TopMiddle, TopRight,
-    MiddleLeft, Center, MiddleRight,
-    BottomLeft, BottomMiddle, BottomRight,
+    /// <summary>Upper-left shell cell, cracked from the first stage.</summary>
+    TopLeft,
+    /// <summary>Upper-middle shell cell, cracked after the first pose.</summary>
+    TopMiddle,
+    /// <summary>Upper-right shell cell, cracked in the fourth pose.</summary>
+    TopRight,
+    /// <summary>Middle-left shell cell, cracked in the third pose.</summary>
+    MiddleLeft,
+    /// <summary>Center shell cell, replaced by the final cracking pose.</summary>
+    Center,
+    /// <summary>Middle-right shell cell, moved forward in draw order before its tile cracks.</summary>
+    MiddleRight,
+    /// <summary>Lower-left cell retained from the intact shell atlas.</summary>
+    BottomLeft,
+    /// <summary>Lower-middle cell retained from the intact shell atlas.</summary>
+    BottomMiddle,
+    /// <summary>Lower-right cell retained from the intact shell atlas.</summary>
+    BottomRight,
 }
 
+/// <summary>Atlas origin for the cracked shell patch substituted into the egg grid.</summary>
 internal static class IntroEggCrackingAtlas
 {
     /// <summary>Tile$102,upper-left of the three-by-two cracked shell patch.</summary>

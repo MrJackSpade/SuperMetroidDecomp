@@ -14,12 +14,15 @@ using SuperMetroid.Core.Hardware;
 using static EnemyProjectileProgramOracleVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Draygon goop and turret programs against retail control words and executed projectile behavior.</summary>
 internal static class DraygonProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail data for the Draygon projectile instruction check.</summary>
     internal static void VerifyDraygonProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyDraygonProjectileInstructionProgramDefinitions), () => VerifyDraygonProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Exercises goop attachment, sleep, drops, deletion, and turret bloom with compiled source reads forbidden.</summary>
     internal static void VerifyDraygonProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -179,6 +182,7 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates warmed goop and turret control lookups for allocation accounting.</summary>
     private static int ProbeDraygonProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -192,6 +196,7 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects migrated mechanics reads and observes native spritemap operands during production execution.</summary>
     private static CartridgeReadGuard NewDraygonProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -202,6 +207,7 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
                 DraygonProjectileInstructionProgramDefinitions.PresentationWordCount,
                 DraygonProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the retail-backed Draygon projectile instruction migration command.</summary>
     [VerificationCommand("--draygon-projectile-instruction-mechanics")]
     internal static int DraygonProjectileInstructionMechanicsCommand()
     {

@@ -37,8 +37,10 @@ public enum MaridiaLargeSnailBounceFunction : ushort
 /// </summary>
 public sealed class MaridiaLargeSnailEnemyState
 {
+    /// <summary>Common enemy slot backing Oum's native variables A-F.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects Oum's common words and family-extra state from its live enemy slot.</summary>
     internal MaridiaLargeSnailEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Extra word $00: requested index into the eight-entry list table at $CB77.</summary>

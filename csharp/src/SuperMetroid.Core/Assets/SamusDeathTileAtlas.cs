@@ -12,8 +12,10 @@ namespace SuperMetroid.Core.Assets;
 /// OAM placement, sequence timing and every other atlas.</remarks>
 public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
 {
+    /// <summary>Independently supplied source bytes; padding and repeated patches are resolved on demand.</summary>
     internal readonly Dictionary<int, byte> sourceBytes;
 
+    /// <summary>Validates the five transfer pages and retains bytes that differ from their source relation.</summary>
     private SamusDeathTileAtlas(byte[] planar)
     {
         if (planar.Length != SamusDeathTileAtlasFormat.TotalByteCount)
@@ -28,6 +30,7 @@ public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusDeathTileAtlas),
         content => content.Append("death characters", ReadRange(0, SamusDeathTileAtlasFormat.TotalByteCount)));
 
+    /// <summary>Resolves an edited character byte through named repeats or transparent padding.</summary>
     private byte ReadByte(int index)
     {
         if (sourceBytes.TryGetValue(index, out byte value)) return value;
@@ -36,6 +39,7 @@ public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
             : throw new InvalidDataException("Death artwork source byte is unavailable.");
     }
 
+    /// <summary>Materializes a contiguous transfer segment in the native queue order.</summary>
     private byte[] ReadRange(int first, int count)
     {
         var bytes = new byte[count];

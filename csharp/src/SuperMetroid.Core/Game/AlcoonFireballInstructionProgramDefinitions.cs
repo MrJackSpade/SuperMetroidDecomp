@@ -14,14 +14,17 @@ internal abstract class AlcoonFireballInstructionProgramDefinitions
     /// <c>Instruction_EnemyProjectile_GotoY</c> closing the fireball loop at $86:9EAE.
     /// </summary>
     internal const ushort Loop = 0x9eae;
+    /// <summary>Four interleaved spritemap operands accompany the loop's four timed frames.</summary>
     public static int PresentationWordCount => 4;
 
+    /// <summary>Locates the visual operand two bytes after each four-byte timed-frame entry.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Initial + 2 + 4 * index);
     }
 
+    /// <summary>Distinguishes those four spritemap operands from duration and goto mechanics words.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (Initial + 2);

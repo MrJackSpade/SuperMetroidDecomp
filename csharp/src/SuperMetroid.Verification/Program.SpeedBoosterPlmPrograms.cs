@@ -6,11 +6,14 @@ using static BabyMetroidRouteDefinitionsVerification;
 using static SpeedBoosterCollisionBlocksVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Speed Booster block PLM selection, compiled programs, sound, and physical reveal behavior.</summary>
 internal static class SpeedBoosterPlmProgramsVerification
 {
+    /// <summary>Lists native instruction starts, timed draw counts, and end offsets for five break programs.</summary>
     private static (ushort Start, int Frames, ushort End)[] SpeedBlockNativeLayouts() =>
         [(0xc951,7,0xc974),(0xc974,7,0xc997),(0xc997,7,0xc9ba),(0xc9cf,4,0xc9e4),(0xc9e4,4,0xc9f9)];
 
+    /// <summary>Checks every control word, word ownership, and native timing or terminal opcode against bank 84.</summary>
     private static void VerifySpeedBlockControlMapping(SuperMetroidAddressSpace rom)
     {
         var controls = new HashSet<ushort> {0xc928,0xc92c};
@@ -45,6 +48,7 @@ internal static class SpeedBoosterPlmProgramsVerification
         }
     }
 
+    /// <summary>Checks all interleaved draw-list operands against the native breakup and reveal programs.</summary>
     private static void VerifySpeedBlockDrawOperandMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new List<ushort> {0xc92a};
@@ -59,6 +63,7 @@ internal static class SpeedBoosterPlmProgramsVerification
         }
     }
 
+    /// <summary>Checks the five packed sound bytes and rejects all other byte addresses.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for speed block sound mapping")]
     private static void VerifySpeedBlockSoundMapping(SuperMetroidAddressSpace rom)
     {
@@ -72,6 +77,7 @@ internal static class SpeedBoosterPlmProgramsVerification
         }
     }
 
+    /// <summary>Checks the bomb-reveal draw identity, one-run geometry, physical word, and continuation bytes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for speed block reveal draw mapping")]
     private static void VerifySpeedBlockRevealDrawMapping(SuperMetroidAddressSpace rom)
     {
@@ -111,12 +117,15 @@ internal static class SpeedBoosterPlmProgramsVerification
         }
     }
 
+    /// <summary>Checks BTS and area selection of the native Speed Booster PLM headers.</summary>
     private static void VerifySpeedBlockHeaderSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpeedBlockSelectionField), () => VerifySpeedBlockSelectionField(rom, instruction: false));
 
+    /// <summary>Checks BTS and area selection of each header's initial instruction pointer.</summary>
     private static void VerifySpeedBlockInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpeedBlockSelectionField), () => VerifySpeedBlockSelectionField(rom, instruction: true));
 
+    /// <summary>Compares the complete BTS/area selector domain with original bank-94 entry records.</summary>
     private static void VerifySpeedBlockSelectionField(SuperMetroidAddressSpace rom, bool instruction)
     {
         // Original bank-94 speed-entry locations, independent of named C# results.
@@ -146,6 +155,7 @@ internal static class SpeedBoosterPlmProgramsVerification
         }
     }
 
+    /// <summary>Runs static mappings and live boosted-contact and bomb-reveal PLM paths without source reads.</summary>
     internal static void VerifyCompiledSpeedBoosterPlmPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -210,6 +220,7 @@ internal static class SpeedBoosterPlmProgramsVerification
             "Speed-block PLMs: 74 words/five sound bytes and one physical reveal match ROM; all five boosted contacts and bomb reveal execute with source reads forbidden.");
     }
 
+    /// <summary>Rejects runtime reads from compiled Speed Booster programs and their physical draw lists.</summary>
     internal static CartridgeReadGuard NewSpeedBoosterPlmReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {

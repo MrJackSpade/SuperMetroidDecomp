@@ -7,12 +7,18 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Mini-Kraid species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class FakeKraidBehavior : IEnemySpecies
 {
+    /// <summary>Provides the existing random word sampled for Mini-Kraid's action decisions.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Checks the walk opcode's movement against room collision blocks.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Allocates spit, spike, and death effects from the common enemy projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Runs common Samus contact damage before Mini-Kraid's specialized death.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>Spawns death animation three and the four-pickup scatter after lethal hits.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
+    /// <summary>Connects Mini-Kraid's walk, projectiles, and specialized death to room services.</summary>
     internal FakeKraidBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
     {
         _room = room;
@@ -64,9 +70,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Library-two cry requested only when Mini-Kraid's origin is on screen.</summary>
     private const ushort FakeKraidSpitSound = 0x0016;
+    /// <summary>Library-two cue used by Mini-Kraid's spike launch.</summary>
     private const ushort FakeKraidSpikeSound = 0x003f;
 
+    /// <summary>Per-slot movement direction, spit timer, and spawned-projectile counts.</summary>
     internal readonly FakeKraidEnemyState?[] _fakeKraidStates =
         new FakeKraidEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -237,6 +246,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Allocates one spit projectile above and just ahead of Mini-Kraid's body with its authored velocity.</summary>
+    /// <returns>False when the enemy projectile pool is full.</returns>
     internal bool SpawnFakeKraidSpit(
         RoomEnemySlot source,
         short xOffset,
@@ -256,6 +267,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Allocates a facing-specific spike at an authored body row and counts only successful spawns.</summary>
+    /// <returns>False when the enemy projectile pool is full.</returns>
     internal bool SpawnFakeKraidSpike(
         RoomEnemySlot source,
         FakeKraidEnemyState state,
@@ -309,9 +322,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
             projectile.Clear();
     }
 
+    /// <summary>Samples the room random word without advancing it for the native action choice.</summary>
     private ushort ReadFakeKraidRandomNumber() =>
         _room.Random.Read();
 
+    /// <summary>Tests the actor origin against the inclusive native 256-pixel camera rectangle for its cry.</summary>
     private static bool FakeKraidOriginIsOnScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
@@ -320,6 +335,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         unchecked((short)(slot.Position.Y.Whole - camera.Y)) >= 0 &&
         unchecked((short)(camera.Y + 256 - slot.Position.Y.Whole)) >= 0;
 
+    /// <summary>Rejects a callback for a Mini-Kraid slot whose species state has not initialized.</summary>
     private FakeKraidEnemyState RequireFakeKraidState(RoomEnemySlot slot) =>
         _fakeKraidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fake Kraid state.");
@@ -338,6 +354,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         SpawnFakeKraidDeathDrops(origin);
     }
 
+    /// <summary>Scatters four Mini-Kraid pickups around the position saved before death clears its slot.</summary>
     private void SpawnFakeKraidDeathDrops(Position16<RoomPixels> origin)
     {
         LastFakeKraidDropRequest = new FakeKraidDropRequest();
@@ -347,6 +364,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
             origin);
     }
 
+    /// <summary>Replaces generic bomb death with Mini-Kraid's explosion-three and four-drop sequence.</summary>
     internal void RegisterFakeKraidBombReactions(EnemyAiTable table)
     {
         // Fake Kraid saves its coordinates before common no-death AI, then requests death variant three and the
@@ -362,6 +380,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Dispatches spit gravity and spike wall collision through their projectile pre-instructions.</summary>
     internal static void RegisterFakeKraidProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -375,6 +394,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.MiniKraidSpikes);
     }
 
+    /// <summary>Initializes Mini-Kraid's facing and action state from its populated enemy slot.</summary>
     internal void RegisterFakeKraidInitializationAi(EnemyAiTable table)
     {
 
@@ -384,6 +404,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Runs the Mini-Kraid phase dispatcher with the current camera.</summary>
     internal void RegisterFakeKraidMainAi(EnemyAiTable table)
     {
 
@@ -396,6 +417,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Claims Mini-Kraid's walk, action choice, cry, and spit opcodes before common animation dispatch.</summary>
     internal void RegisterFakeKraidOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -405,6 +427,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Spawns Mini-Kraid's own explosion and four drops after a lethal power bomb.</summary>
     internal void RegisterFakeKraidPowerBombReactions(EnemyAiTable table)
     {
         // Mini Kraid's private power-bomb callback still owns its four direct pickup explosions, spawned after its
@@ -416,6 +439,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Replaces ordinary projectile-shot death and preserves the pickup scatter on a lethal hit.</summary>
     internal void RegisterFakeKraidShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid &&
@@ -434,6 +458,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Runs common Samus contact and routes a resulting lethal hit to Mini-Kraid's death sequence.</summary>
     internal void RegisterFakeKraidTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid &&

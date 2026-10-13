@@ -17,6 +17,7 @@ using static HardwareVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks that enemy OAM and projectile sprite owners use installed artwork after cartridge readers are removed.</summary>
 internal static class EnemySpriteArtworkBoundaryVerification
 {
     /// <summary>Verifies the statically identified enemy OAM owners after deleting their address readers.</summary>
@@ -118,6 +119,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         }
     }
 
+    /// <summary>Runs installed enemy, projectile, and room-object OAM comparisons against native spritemap drawing.</summary>
     [VerificationCommand("--enemy-sprite-artwork-boundary")]
     internal static int EnemySpriteArtworkBoundaryCommand()
     {

@@ -9,8 +9,10 @@ using static EndingLogoSpriteArtworkVerification;
 using static EndingObjectArtworkVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Compares installed post-credits Samus and logo artwork through the native fade, DMA and assembled-logo sequence.</summary>
 internal static class PostCreditsCharacterArtworkVerification
 {
+    /// <summary>Checks native versus installed VRAM and rendered pixels across the suitless post-shot handoff and all four logo actors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     internal static void VerifyPostCreditsCharacterArtwork(GameInstallation installation)
     {

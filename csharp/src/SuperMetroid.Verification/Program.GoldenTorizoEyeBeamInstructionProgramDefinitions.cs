@@ -16,12 +16,15 @@ using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Retail and guarded-production checks for Golden Torizo's normal, wall, and floor eye-beam programs.</summary>
 internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the pinned cartridge and runs the eye-beam mechanics suite.</summary>
     internal static void VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions), () => VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks compiled control words, both firing facings, exact impact timing and damage transitions, visual selectors, and ROM-read ownership.</summary>
     internal static void VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -224,6 +227,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
             "both real producers, wall impact, and both floor branches pass with " +
             "mechanics bytes forbidden.");
 
+        // Place a right-facing Golden Torizo at the fixture origin and return its spawned eye beam.
         RoomEnemyProjectileSlot SpawnBeam(RoomEnemySystem enemies, Action<RoomEnemySystem, RoomEnemySlot, ushort> spawnMethod)
         {
             RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
@@ -233,6 +237,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
             return enemies.Projectiles.EnemyProjectiles[^1];
         }
 
+        // Drive a downward beam into the fixture floor and check its impact program and low-nibble alignment.
         void CollideWithFloor(RoomEnemySystem enemies, RoomEnemyProjectileSlot beam)
         {
             beam.Position = beam.Position.WithWhole(new(128, 157));
@@ -249,11 +254,13 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
                 "Golden Torizo eye beam floor impact uses native low-nibble alignment");
         }
 
+        // Advance one production projectile instruction frame and check its sprite against retail art.
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile, SamusState? samus)
         {
             system.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
+        // Create a guarded Golden Torizo fixture with deterministic RNG and the selected floor-explosion attack flag.
         RoomEnemySystem CreateSystem(
             ISnesAddressSpace bus,
             Queue<ushort> random,
@@ -272,9 +279,11 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
         }
     }
 
+    /// <summary>Reads a cartridge byte solely as an oracle for the compiled bank-$86 eye-beam controls.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo eye beam instruction program definitions")]
     private static byte GoldenTorizoEyeBeamInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Alternates normal and wall-impact control lookups to measure warmed per-frame allocation.</summary>
     private static int ProbeGoldenTorizoEyeBeamInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -288,6 +297,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
         return checksum;
     }
 
+    /// <summary>Runs the Golden Torizo eye-beam mechanics comparison from its command-line switch.</summary>
     [VerificationCommand("--golden-torizo-eye-beam-instruction-mechanics")]
     internal static int GoldenTorizoEyeBeamInstructionMechanicsCommand()
     {

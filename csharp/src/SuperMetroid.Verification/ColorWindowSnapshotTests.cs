@@ -15,8 +15,10 @@ using static RenderPacketCodecTestsVerification;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks retained scanline color windows for haze, suit pickup, and Power Bomb effects.</summary>
 internal static class ColorWindowSnapshotTestsVerification
 {
+    /// <summary>Compares raster effects to serialized window packets through phases and retained lifetimes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyColorWindowSnapshots()
     {
@@ -111,6 +113,7 @@ internal static class ColorWindowSnapshotTestsVerification
         }
     }
 
+    /// <summary>Runs the scanline color-window packet comparison.</summary>
     [VerificationCommand("--color-window-fixture")]
     internal static int ColorWindowFixtureCommand()
     {

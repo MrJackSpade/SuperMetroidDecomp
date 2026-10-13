@@ -70,6 +70,7 @@ internal abstract class RoomSpriteObjectInstructionProgramDefinitions
     /// <summary>Native program bank $B4.</summary>
     internal const byte Bank = 0xb4;
 
+    /// <summary>Compiles bank-$B4 control words while reserving interleaved spritemap words for presentation data.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbe24),
         Frame(6),
@@ -604,9 +605,12 @@ internal abstract class RoomSpriteObjectInstructionProgramDefinitions
         Frame(10),
         Frame(10),
         Op((ushort)RoomSpriteObjectInstruction.Goto, SpriteObject3CEvirFacingRight));
+    /// <summary>Number of sprite-object spritemap words still read from presentation data.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Returns the native address of a spritemap word omitted from the mechanics program.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads a compiled instruction or operand, rejecting pointers outside the authored mechanics words.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

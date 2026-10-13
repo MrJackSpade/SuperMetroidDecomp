@@ -15,6 +15,7 @@ using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks stored shine, launch, flight, crash, and echo phases against native state and palette behavior.</summary>
 internal static class SamusShinesparkVerification
 {
 
@@ -36,7 +37,7 @@ static void SeedStoredShinePalettes(TestAddressSpace bus)
     WriteTestWord(bus, SamusRenderingRomData.Body.PowerSuitPalette, 0x0321);
 }
 
-/// <summary>Stored-shine and shinespark verification.</summary>
+/// <summary>Checks shine storage and palette selection through launch, movement, collision, crash, echoes, and return to standing.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifySamusStoredShineAndShinespark()
 {
@@ -469,6 +470,7 @@ internal static void VerifySamusStoredShineAndShinespark()
 // controller equality test, ten raise calls, NMI-mod-eight ammo cadence, ROM delay-list
 // finish command, energy overflow, and one-frame-late movement-handler cleanup.
 
+    /// <summary>Runs the focused stored-shine and shinespark lifecycle check.</summary>
     [VerificationCommand("--shinespark")]
     internal static int ShinesparkCommand()
     {

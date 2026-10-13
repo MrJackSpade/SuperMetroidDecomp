@@ -31,6 +31,7 @@ public sealed class RoomPlmSamusEaterVisualCatalog
         }
     });
 
+    /// <summary>Owned visual-word overrides keyed by plant pose; null uses every stock appearance.</summary>
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
     /// <summary>Validates all eight three-run plant poses and copies authored visual differences without changing collision, run geometry, chewing timing, or Samus interaction.</summary>

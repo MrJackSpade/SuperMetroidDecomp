@@ -13,10 +13,14 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the retail Red Tower upper shootable block under two controlled camera paths.</summary>
 internal static class RedTowerHeroVerification
 {
-    // Isolates the real target/PLM interaction with deliberately controlled camera
-    // coordinates. This is NOT a successful controller-only Red Tower climb.
+    /// <summary>
+    /// Isolates the real target and PLM interaction with controlled camera coordinates.
+    /// The fixed camera expires the shot; following it lets the same launch hit the block.
+    /// This fixture does not demonstrate a controller-only climb.
+    /// </summary>
     internal static void VerifyControlledRedTowerHeroShot()
     {
         SamusProjectileSpawnSnapshot? stationaryLaunch = null;
@@ -90,6 +94,7 @@ internal static class RedTowerHeroVerification
         }
     }
 
+    /// <summary>Runs the two retail Red Tower camera branches.</summary>
     [VerificationCommand("--red-tower-hero")]
     internal static int RedTowerHeroCommand()
     {

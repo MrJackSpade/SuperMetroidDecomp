@@ -14,8 +14,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static VerificationHelpersVerification;
 
+/// <summary>Compares ceiling projectile reactions and PLM allocation with a native CPU trace.</summary>
 internal static class CeilingWrapVerification
 {
+    /// <summary>
+    /// Replays stationary beam collisions at three ceiling tile positions and compares 135
+    /// PLM owner, tile mutation and exhaustion records with the native trace at <paramref name="tracePath"/>.
+    /// </summary>
     internal static void VerifyCeilingWrapPlmTrace(string tracePath)
     {
         var native = File.ReadLines(tracePath).Skip(1).ToArray();
@@ -47,6 +52,7 @@ internal static class CeilingWrapVerification
         Console.WriteLine("PASS 135 original-CPU ceiling PLM allocation records.");
     }
 
+    /// <summary>Runs the ceiling collision trace comparison using the recorded fixture.</summary>
     [VerificationCommand("--ceiling-wrap")]
     internal static int CeilingWrapCommand()
     {

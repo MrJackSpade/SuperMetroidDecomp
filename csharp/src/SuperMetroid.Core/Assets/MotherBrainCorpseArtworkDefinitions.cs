@@ -58,13 +58,17 @@ public static class MotherBrainCorpseArtworkDefinitions
     public static int InitialCopyLength(int row) => (uint)row < RowCount
         ? (row < 4 ? ColumnCount - 1 : ColumnCount) * TileBytes : throw new IndexOutOfRangeException();
 
+    /// <summary>Calculated per-row corpse decay uploads exposed without a copied transfer table.</summary>
     private static readonly RotTransferList rotTransfers = new();
     /// <summary>$A9:E1F4-$E225: six transfers, recalculated from the visible tile columns per row.</summary>
     public static IReadOnlyList<MotherBrainSpriteTileTransferRequest> RotTransfers => rotTransfers;
 
+    /// <summary>Projects six visible corpse rows into their changing staging and OBJ VRAM spans.</summary>
     private sealed class RotTransferList : IReadOnlyList<MotherBrainSpriteTileTransferRequest>
     {
+        /// <summary>One decay transfer is issued for each visible corpse row.</summary>
         public int Count => RowCount;
+        /// <summary>Calculates the tile columns copied from a row after its outer transparent cells are skipped.</summary>
         public MotherBrainSpriteTileTransferRequest this[int row]
         {
             get
@@ -77,10 +81,12 @@ public static class MotherBrainCorpseArtworkDefinitions
                     (ushort)(FirstVramPage + row * VramPageWords + (RightFrameColumn + firstColumn) * TileBytes / 2));
             }
         }
+        /// <summary>Enumerates decay uploads in row order for the native VRAM transfer sequence.</summary>
         public IEnumerator<MotherBrainSpriteTileTransferRequest> GetEnumerator()
         {
             for (int row = 0; row < Count; row++) yield return this[row];
         }
+        /// <summary>Exposes the same row-order transfers to non-generic collection consumers.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

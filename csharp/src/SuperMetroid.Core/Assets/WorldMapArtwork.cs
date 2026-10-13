@@ -6,16 +6,17 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable world-map character atlases with calculated geometry and independently editable pixels.</summary>
 public sealed class WorldMapArtwork
 {
-    // Reviewed drawings, letter contours, ink roles and mechanical shading;
-    // calculated geometry and independent supplied differences stay separate.
+    /// <summary>Foreground pixels differing from reviewed font contours and calculated shared geometry.</summary>
     internal readonly Dictionary<int, byte> foreground;
+    /// <summary>Independently supplied foreground letter-face masks.</summary>
     internal readonly Dictionary<int, ulong> fontFill = new();
-    // Exact remaining BG3 font/icon contours and selected edge decisions, plus
-    // independent supplied differences from the calculated primitive/outline view.
+    /// <summary>BG3 font and icon pixels differing from calculated primitives and outlines.</summary>
     internal readonly Dictionary<int, byte> background;
+    /// <summary>Independently supplied fill footprints for outlined map digits.</summary>
     internal readonly Dictionary<int, ulong> digitFill = new();
-    // One delegate for the per-pixel font derivation, rather than one per pixel.
+    /// <summary>Reusable font-mask lookup passed to per-pixel contour derivation.</summary>
     private readonly Func<int, ulong> fontMask;
+    /// <summary>Separates selected PNG pixels into calculated drawing rules and independent authored differences.</summary>
     private WorldMapArtwork(byte[] foreground, byte[] background)
     {
         fontMask = FontMask;
@@ -90,11 +91,14 @@ public sealed class WorldMapArtwork
             SnesPlanarTileEncoder.Encode(pixels, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.BackgroundHeight), 2));
     }
 
+    /// <summary>Converts a tile-local pixel to a row-major atlas pixel index.</summary>
     private static int TilePixel(int tile, Position16<CharacterPixels> point) =>
         (tile / WorldMapArtworkFormat.TileColumns * 8 + point.Y) * WorldMapArtworkFormat.Width +
         tile % WorldMapArtworkFormat.TileColumns * 8 + point.X;
+    /// <summary>Finds the atlas tile containing a row-major pixel index.</summary>
     private static int PixelTile(int index) => index / WorldMapArtworkFormat.Width / 8 *
         WorldMapArtworkFormat.TileColumns + index % WorldMapArtworkFormat.Width / 8;
+    /// <summary>Resolves a letter-face mask from an authored fill or its calculated source tile.</summary>
     private ulong FontMask(int tile)
     {
         if (fontFill.TryGetValue(tile, out ulong mask)) return mask;
@@ -102,6 +106,7 @@ public sealed class WorldMapArtwork
         int sourceTile = source < 0 ? tile : PixelTile(source);
         return sourceTile == tile ? 0 : FontMask(sourceTile);
     }
+    /// <summary>Restores a foreground pixel from an authored edit, shared source, or calculated font contour.</summary>
     private byte ForegroundPixel(int index)
     {
         if (foreground.TryGetValue(index, out byte value)) return value;
@@ -112,6 +117,7 @@ public sealed class WorldMapArtwork
             : throw new InvalidDataException("World foreground source pixel is unavailable.");
     }
 
+    /// <summary>Calculates a BG3 font, icon, or outlined-digit pixel when no authored difference exists.</summary>
     private bool TryBackgroundDefault(int index, out byte value)
     {
         int x = index % WorldMapArtworkFormat.Width, y = index / WorldMapArtworkFormat.Width;

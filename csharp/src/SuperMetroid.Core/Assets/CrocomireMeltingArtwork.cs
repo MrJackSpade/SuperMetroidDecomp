@@ -21,11 +21,16 @@ public sealed class CrocomireMeltingArtwork
             content.AppendWords("second-map", secondTilemap.Words());
         });
 
+    /// <summary>Installed planar character data for the first overlapping melt pass.</summary>
     internal readonly RoomCharacterAtlas first;
+    /// <summary>Installed planar character data for the second, eroded melt pass.</summary>
     internal readonly RoomCharacterAtlas second;
+    /// <summary>Validated BG2 references for the first illustration.</summary>
     private readonly CrocomireMeltingTilemap firstTilemap;
+    /// <summary>Validated BG2 references for the second illustration.</summary>
     private readonly CrocomireMeltingTilemap secondTilemap;
 
+    /// <summary>Retains compiled sheets and tilemaps, distinguishing the second illustration's layout.</summary>
     private CrocomireMeltingArtwork(RoomCharacterAtlas first, RoomCharacterAtlas second,
         ushort[] firstTilemap, ushort[] secondTilemap)
     {
@@ -86,6 +91,7 @@ public sealed class CrocomireMeltingArtwork
         json.Write(bytes);
     }
 
+    /// <summary>Validates a 16-by-16 tile-layout document and packs each cell into a native BG word.</summary>
     private static ushort[] ReadTilemap(Stream json)
     {
         CrocomireMeltingTilemapDocument document;
@@ -126,6 +132,7 @@ public sealed class CrocomireMeltingArtwork
         return words;
     }
 
+    /// <summary>Uses the published camel-case schema while rejecting unknown and duplicate properties.</summary>
     private static readonly JsonSerializerOptions TilemapJsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -134,6 +141,7 @@ public sealed class CrocomireMeltingArtwork
         WriteIndented = true,
     };
 
+    /// <summary>Finds the last scratch byte written by a pass's overlapping native copies.</summary>
     internal static int UsedByteCount(CrocomireMeltingPass pass)
     {
         int end = 0;
@@ -142,6 +150,7 @@ public sealed class CrocomireMeltingArtwork
         return end;
     }
 
+    /// <summary>Rejects nonzero PNG data outside the scratch region touched by native melt copies.</summary>
     private static void ValidatePadding(RoomCharacterAtlas atlas, CrocomireMeltingPass pass,
         string name)
     {

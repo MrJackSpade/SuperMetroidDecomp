@@ -4,8 +4,10 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Samus splash, running foot-contact, and Crateria weather policies against cartridge tables and live owners.</summary>
 internal static class SamusAtmosphericEffectDefinitionsVerification
 {
+    /// <summary>Compares four native selector tables with compiled policies, then exercises splash, running, and landing handoffs with source reads guarded.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus atmospheric effect definitions")]
     internal static void VerifySamusAtmosphericEffectDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -64,6 +66,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             "Samus atmospheric definitions: 28 splash selectors, 10 running-contact flags, both 16-byte Crateria policy copies, and all production handoffs pass with source tables forbidden.");
     }
 
+    /// <summary>Invokes the production splash spawner for every movement type and checks grounded-pair versus diving slots.</summary>
     private static void VerifyProductionWaterSplashSelection()
     {
         for (int movement = 0; movement <= (byte)SamusMovementType.Special; movement++)
@@ -86,6 +89,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         }
     }
 
+    /// <summary>Advances each running animation frame to its foot-contact tick and checks emitted atmospheric slots.</summary>
     private static void VerifyProductionRunningContacts(
         ISnesAddressSpace guarded,
         SamusPoseId pose)
@@ -112,6 +116,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         }
     }
 
+    /// <summary>Checks all sixteen Crateria room identities through both running and landing effect paths.</summary>
     private static void VerifyProductionCrateriaPolicies(
         ISnesAddressSpace guarded,
         SamusPoseId pose)
@@ -161,19 +166,18 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         }
     }
 
+    /// <summary>Lets the compiled animation delay reach its final tick before checking footstep publication.</summary>
     private static void AdvanceToFootContactTick(
         SamusState samus,
         ISnesAddressSpace bus)
     {
-        // Footstep publication occurs only on the last tick of a frame. Let the
-        // actual compiled animation delay count down to that tick rather than
-        // writing a synthetic one-tick stream into a now-immutable ROM table.
         AssertTrue(samus.AnimationFrameTimer.RawValue is > 0 and <= 32,
             "running fixture starts with a bounded native animation delay");
         while (samus.AnimationFrameTimer.RawValue > 1)
             samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     }
 
+    /// <summary>Forbids production reads of migrated splash, foot-contact, and both Crateria policy tables.</summary>
     private static CartridgeReadGuard NewSamusAtmosphericPolicyReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x9081a4 and < 0x9081c0 or
                 >= 0x90a424 and < 0x90a42e or

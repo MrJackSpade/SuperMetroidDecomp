@@ -12,13 +12,20 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresRidleyBodyPaintDefinitions
 {
+    /// <summary>The five-bit channel ceiling used for the membrane's saturated red.</summary>
     private const int MaximumChannel = (1 << 5) - 1;
+    /// <summary>Green channel of the highlighted wing membrane endpoint.</summary>
     private readonly int highlightGreen;
+    /// <summary>Green channel of the middle wing membrane endpoint.</summary>
     private readonly int middleGreen;
+    /// <summary>Blue excess over green shared by the highlighted and middle membrane paints.</summary>
     private readonly int blueTint;
+    /// <summary>Red channel of the darkest membrane paint.</summary>
     private readonly int darkRed;
+    /// <summary>Blue channel of the darkest membrane paint.</summary>
     private readonly int darkBlue;
 
+    /// <summary>Extracts the three membrane endpoints from an eleven-color body palette.</summary>
     internal CeresRidleyBodyPaintDefinitions(ReadOnlySpan<Bgr555> endpoint)
         : this(EndpointColor(endpoint, 8), EndpointColor(endpoint, 9), EndpointColor(endpoint, 10)) { }
 
@@ -32,11 +39,13 @@ internal sealed class CeresRidleyBodyPaintDefinitions
         darkBlue = dark.Blue;
     }
 
+    /// <summary>Rejects incomplete body palettes before selecting a membrane endpoint.</summary>
     private static Bgr555 EndpointColor(ReadOnlySpan<Bgr555> endpoint, int index)
     {
         if (endpoint.Length != 11) throw new ArgumentException("Ridley body endpoint requires eleven colors.", nameof(endpoint));
         return endpoint[index];
     }
+    /// <summary>Uses Golden Torizo armor for inks zero through seven and the derived wing paints for eight through ten.</summary>
     internal Bgr555 Color(int color)
     {
         if ((uint)color >= 11) throw new ArgumentOutOfRangeException(nameof(color));

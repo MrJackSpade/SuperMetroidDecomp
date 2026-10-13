@@ -18,10 +18,13 @@ internal enum BombBlockRestoreDraw : ushort
 /// </summary>
 internal static class RoomPlmBombBlockRestoreDrawDefinitions
 {
+    /// <summary>One native restoration pointer with the geometry needed to reconstruct its parent and linked children.</summary>
     internal readonly record struct Draw(ushort Pointer, bool Vertical, bool Square)
     {
+        /// <summary>Square restoration needs a second row; linear variants fit one run.</summary>
         internal int RunCount => Square ? 2 : 1;
 
+        /// <summary>Builds the bomb tile's parent or linked-child collision word at a position within the draw shape.</summary>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)run >= RunCount || (uint)block >= 2)
@@ -35,6 +38,7 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitions
         }
     }
 
+    /// <summary>Maps one of the three native restoration pointers to its horizontal, vertical, or square shape.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         if (!Enum.IsDefined((BombBlockRestoreDraw)pointer))
@@ -52,8 +56,7 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitions
         return true;
     }
 
-    // Temporary draw DTOs support existing artwork import/export consumers.
-    // Runtime draws the calculated descriptor directly; no generated cache remains.
+    /// <summary>Exports temporary draw descriptions for artwork import and export; runtime uses calculated descriptors directly.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -64,6 +67,7 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitions
         }
     }
 
+    /// <summary>Converts a calculated restoration shape into the importer-facing linked draw-list format.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList Export(Draw draw)
     {
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];

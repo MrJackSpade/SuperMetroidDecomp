@@ -15,6 +15,7 @@ using SuperMetroid.Core.Hardware;
 using static EnemyAnimationIsolationFixtureVerification;
 using static EnemyEffectsFixtureVerification;
 
+/// <summary>Checks that replacement effect artwork changes pixels without changing Crocomire or Mother Brain timing.</summary>
 internal static class EnemyEffectIsolationVerification
 {
     /// <summary>Checks the two statically identified melt graphs, not a search for runtime reads.</summary>
@@ -84,6 +85,7 @@ internal static class EnemyEffectIsolationVerification
         Console.WriteLine("  Crocomire replacement: both maps/images, exact uploads, 54 calls per dissolve, erase/HDMA/smoke/phase timing unchanged.");
     }
 
+    /// <summary>Compares two corpse images through all 118 rot calls, checking row completion and RAM-to-VRAM transfers.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMotherBrainRotIsolation()
     {
@@ -151,6 +153,7 @@ internal static class EnemyEffectIsolationVerification
         Console.WriteLine("  Mother Brain replacement: 118 exact calls, 48 row completions, 702 RAM DMA uploads, dust/audio timing unchanged.");
     }
 
+    /// <summary>Binds the production rainbow tile transfer to the fixture memory and VRAM for corpse upload checks.</summary>
     private static Action<MotherBrainSpriteTileTransferRequest> CorpseRamTransfer(SuperMetroidAddressSpace memory, SnesVram vram)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -160,6 +163,7 @@ internal static class EnemyEffectIsolationVerification
         return new Action<MotherBrainSpriteTileTransferRequest>(enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer);
     }
 
+    /// <summary>Runs the Crocomire melt and Mother Brain corpse artwork isolation checks.</summary>
     [VerificationCommand("--enemy-effect-isolation")]
     internal static int EnemyEffectIsolationCommand()
     {

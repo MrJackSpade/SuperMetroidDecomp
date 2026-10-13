@@ -12,13 +12,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the old Tourian escape shaft wall PLM's trigger, explosion, and cleared blocks.</summary>
 internal static class OldTourianEscapeShaftWallVerification
 {
-    // #1269: during the escape the Climb's state runs room setup $8F:91A9, which spawns PLM
-    // $84:B964. Its pre-instruction ($84:B927) waits for Samus to be strictly below and right
-    // of ($F0,$820), then spawns explosion $86:B4B1 at the wall's middle ($110,$888) and
-    // clears the two wall columns. The port never ran that setup, so in the 100% movie the
-    // explosion native spawns into slot 15 never appeared.
+    /// <summary>Confirms escape setup $8F:91A9 spawns the wall PLM, which opens two columns after Samus crosses its strict position gate.</summary>
+    /// <remarks>#1269: pre-instruction $84:B927 spawns explosion $86:B4B1 at ($110,$888). The missing setup had omitted that explosion in the 100% movie.</remarks>
     internal static void VerifyOldTourianEscapeShaftWall()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -55,6 +53,7 @@ internal static class OldTourianEscapeShaftWallVerification
         Console.WriteLine("Old Tourian escape shaft wall: setup spawns the PLM; Samus past the target blows the wall.");
     }
 
+    /// <summary>Runs the focused old Tourian escape shaft wall verification command.</summary>
     [VerificationCommand("--old-tourian-escape-shaft-wall")]
     internal static int OldTourianEscapeShaftWallCommand()
     {

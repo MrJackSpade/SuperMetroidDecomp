@@ -20,6 +20,7 @@ internal static class SamusEaterPlmProgramDefinitions
     /// <summary>First byte of the following treadmill program at $84:AD38.</summary>
     internal const ushort EndExclusive = 0xad38;
 
+    /// <summary>Combines adjacent compiled bytes into a native little-endian word at a plant program address.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (TryReadMechanicsByte(address, out byte low) &&
@@ -32,6 +33,7 @@ internal static class SamusEaterPlmProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves a floor or ceiling plant instruction byte while preserving odd timer and sound operands.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address is < FloorStart or >= EndExclusive)
@@ -63,6 +65,7 @@ internal static class SamusEaterPlmProgramDefinitions
     /// <summary>Library-two sound $31 at $84:ACCD/$AD0D accompanies each chewing loop.</summary>
     private const byte ChewSound = 0x31;
 
+    /// <summary>Maps an aligned plant-list offset to its control word or draw selector.</summary>
     private static ushort InstructionWord(int offset, bool ceiling, int start) => offset switch
     {
         0 => (ushort)RoomPlmInstruction.InstallPreInstruction,

@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidMouthHitboxesVerification;
 
+/// <summary>Checks Kraid mouth hitbox mappings and reads around the bank-$A7 low-half boundary.</summary>
 internal static class KraidMouthMappingsVerification
 {
+    /// <summary>Compares all eight authored mouth shapes and rejects non-shape pointers between them.</summary>
     internal static void VerifyKraidMouthShapeCases(SuperMetroidAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(SnesLittleEndian.Word(KraidMouthShapeCasesRomByte(rom, address), KraidMouthShapeCasesRomByte(rom, address + 1))));
@@ -27,9 +29,11 @@ internal static class KraidMouthMappingsVerification
         }
     }
 
+    /// <summary>Reads an original shape-table byte for the authored-case comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid mouth shape cases")]
     private static byte KraidMouthShapeCasesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks compatibility bytes and word reads that cross the $7FFF/$8000 pointer boundary.</summary>
     internal static void VerifyKraidLowHalfBoundaryMapping(SuperMetroidAddressSpace rom)
     {
         AssertEqual(7, KraidMouthHitboxes.LowHalfBoundaryLength, "Native compatibility window length");
@@ -50,6 +54,7 @@ internal static class KraidMouthMappingsVerification
                 KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(bus, pointer), "Head boundary crossing uses original bytes");
     }
 
+    /// <summary>Reads a bank-$A7 compatibility byte from the original cartridge.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid low half boundary mapping")]
     private static byte KraidLowHalfBoundaryMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

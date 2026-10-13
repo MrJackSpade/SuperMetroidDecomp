@@ -13,8 +13,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled mechanics ownership for enemy projectile instruction entry points.</summary>
 internal static class EnemyProjectileInstructionOwnerCoverageVerification
 {
+    /// <summary>Checks every nonzero initial, touch, and shot entry without a cartridge fallback.</summary>
     internal static void VerifyEnemyProjectileInstructionOwnerCoverage()
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -91,11 +93,13 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             "fallback; unknown entries fail explicitly.");
     }
 
+    /// <summary>Creates an unbacked bus that rejects any attempt to recover projectile mechanics from the ROM.</summary>
     private static CartridgeReadGuard NewEnemyProjectileMechanicsFallbackForbiddenBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Projectile mechanics attempted forbidden cartridge read ${address:X6}.")
             .RejectWrites(address => $"Projectile mechanics attempted unexpected write ${address:X6}.");
 
+    /// <summary>Runs the projectile mechanics owner coverage check.</summary>
     [VerificationCommand("--enemy-projectile-instruction-owner-coverage")]
     internal static int EnemyProjectileInstructionOwnerCoverageCommand()
     {

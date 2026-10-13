@@ -7,19 +7,26 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>The Bomb Torizo statue's hand PLM: its setup, per-frame state and the instructions that wake the statue.</summary>
 internal sealed class BombTorizoHandPlms
 {
+    /// <summary>Live room bindings used to inspect Samus's collected equipment during the hand's wake check.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Physical PLM slots searched for active native header pointers.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Connects the statue-hand interpreter to the current room and PLM slot table.</summary>
     internal BombTorizoHandPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
     {
         _bindings = bindings;
         _slotTable = slotTable;
     }
+    /// <summary>Bank-$86 projectile definition $A993 for the statue fragments spawned as Bomb Torizo wakes.</summary>
     private const ushort BombTorizoStatueBreakingDefinition = 0xa993;
 
+    /// <summary>VRAM transfers queued by the hand's copy-from-RAM instruction for this frame.</summary>
     private readonly List<PlmVramWriteRequest> _vramWriteRequests = [];
+    /// <summary>Statue-fragment spawns queued by the hand's breaking instruction for this frame.</summary>
     private readonly List<BombTorizoStatueProjectileRequest>
         _bombTorizoStatueProjectileRequests = [];
+    /// <summary>Delayed track-selection commands queued by the hand program for this frame.</summary>
     private readonly List<PlmMusicRequest> _musicRequests = [];
 
     /// <summary>Raw seven-byte VRAM queue entries emitted during the latest PLM pass.</summary>
@@ -57,6 +64,7 @@ internal sealed class BombTorizoHandPlms
         _bombTorizoHandRoomWidth = level.Size.X;
     }
 
+    /// <summary>Discards the previous PLM pass's VRAM, fragment, and music requests before the next pass.</summary>
     internal void BeginBombTorizoHandFrame()
     {
         _vramWriteRequests.Clear();
@@ -64,6 +72,7 @@ internal sealed class BombTorizoHandPlms
         _musicRequests.Clear();
     }
 
+    /// <summary>Clears pending output and forgets the room width captured when the hand was installed.</summary>
     internal void ResetBombTorizoHandState()
     {
         BeginBombTorizoHandFrame();
@@ -96,6 +105,7 @@ internal sealed class BombTorizoHandPlms
         slot.PreInstruction = 0;
     }
 
+    /// <summary>Handles the hand's VRAM copy, statue-fragment spawn, and fixed track-six opcodes, advancing the program cursor only when handled.</summary>
     internal bool TryExecuteBombTorizoHandInstruction(
         ISnesAddressSpace bus,
         PlmSlot slot,
@@ -157,8 +167,10 @@ internal sealed class BombTorizoHandPlms
         }
     }
 
+    /// <summary>Room width in blocks used to turn the hand's linear PLM block index into fragment spawn coordinates.</summary>
     private int _bombTorizoHandRoomWidth;
 
+    /// <summary>Removes the hand's header and wake pre-instruction once its PLM has been deleted.</summary>
     internal static void MarkBombTorizoHandDeleted(PlmSlot slot)
     {
         if (slot.HeaderPointer != PlmHeaderId.BombTorizoHand)

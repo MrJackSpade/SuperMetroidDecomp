@@ -4,8 +4,12 @@ using SuperMetroid.Core.Hardware;
 using static CeresStationPartsVerification;
 using static MapSpritesVerification;
 
+/// <summary>Checks calculated small-asteroid sprite geometry against native
+/// OAM while retaining editable per-part art and group placement.</summary>
 internal static class CeresSmallAsteroidPartsVerification
 {
+    /// <summary>Compares stock parts and wrapped OAM, then checks individual
+    /// edits stay supplied while whole asteroid groups retain calculated shape.</summary>
     internal static void VerifyCeresSmallAsteroidParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);

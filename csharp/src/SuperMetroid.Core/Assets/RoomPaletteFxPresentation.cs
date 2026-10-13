@@ -10,12 +10,17 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
 {
+    /// <summary>Explicit RGB5 samples indexed by their native bank-$8D color-word pointer.</summary>
     internal readonly Dictionary<ushort, Bgr555> colors;
 
+    /// <summary>Canonical and derived heat-palette samples shared across Samus suits.</summary>
     internal readonly HeatPaletteInputView heatInputs;
+    /// <summary>Editable and derived Samus loading-palette samples.</summary>
     internal readonly LoadingPaletteInputView loadingInputs;
+    /// <summary>Endpoint samples used to reconstruct the ending gunship fade.</summary>
     private readonly EndingGunshipPaletteInputView gunshipInputs;
 
+    /// <summary>Builds calculated-color views over validated, explicitly authored samples.</summary>
     private RoomPaletteFxPresentation(Dictionary<ushort, Bgr555> colors)
     {
         this.colors = colors;
@@ -39,6 +44,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
          (heatInputs.TryGetValue(canonical, out color) ||
           HeatPaletteColorDefinitions.TryCalculatedColor(canonical, heatInputs, out color)));
 
+    /// <summary>Distinguishes revision 17's inherited Samus heat rows from revision 18's required rows.</summary>
     private static bool InheritsHeatRows(RoomPaletteFxPresentationRevision revision) => revision switch
     {
         RoomPaletteFxPresentationRevision.Previous => true,
@@ -593,6 +599,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         json.Write(bytes);
     }
 
+    /// <summary>Validates one color family's frame geometry and stores each RGB5 sample at its native pointer.</summary>
     private static void ValidateAndCompile(
         string owner,
         PaletteRgb5[][]? frames,

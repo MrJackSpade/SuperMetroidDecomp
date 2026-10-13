@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Hardware;
 [PpuLayoutBoundary("backend: gameplay window/screen-selection register cache")]
 public sealed class GameplayWindowRegisterCache
 {
+    /// <summary>Raw WRAM shadow bytes from W12SEL through TSW; intervening gameplay_TM is retained.</summary>
     private readonly byte[] _bytes = new byte[
         GameplayWindowRegisterAddresses.SubscreenWindow - GameplayWindowRegisterAddresses.Window12Selection + 1];
 
@@ -111,6 +112,7 @@ public sealed class GameplayWindowRegisterCache
             Read(GameplayWindowRegisterLayout.MainScreenWindow));
     }
 
+    /// <summary>Validates and converts a native shadow address to the cache's zero-based offset.</summary>
     private int Index(ushort address)
     {
         int index = address - GameplayWindowRegisterAddresses.Window12Selection;

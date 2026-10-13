@@ -3,16 +3,20 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Compares calculated Ceres haze channels with retail fade flags and imported stock colors.</summary>
 internal static class LookupCeresDefaultTintsVerification
 {
+    /// <summary>Checks the red haze channel for live and dead Ceres states.</summary>
     internal static void VerifyCeresDefaultRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyCeresDefaultComponent(rom, stock, 0x20, color => color.Red);
+    /// <summary>Checks the green haze channel for live and dead Ceres states.</summary>
     internal static void VerifyCeresDefaultGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyCeresDefaultComponent(rom, stock, 0x40, color => color.Green);
+    /// <summary>Checks the blue haze channel for live and dead Ceres states.</summary>
     internal static void VerifyCeresDefaultBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyCeresDefaultComponent(rom, stock, 0x80, color => color.Blue);
 
+    /// <summary>Checks that channel flags use the last value before native CMP #$0010 stops the fade.</summary>
     private static void VerifyCeresDefaultComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock,
         int channelMask, Func<PaletteRgb5, int> component)
     {
-        // Native CMP #0010 exits before another table write. Final prior counter is15.
         int stopCounter = ReadVerificationWord(rom, 0x88de43);
         foreach (bool dead in new[] { false, true })
         {
@@ -27,6 +31,7 @@ internal static class LookupCeresDefaultTintsVerification
         }
     }
 
+    /// <summary>Checks the native fade stop counter and that stock tints are calculated rather than cached fields.</summary>
     internal static void VerifyCeresDefaultTintStructure(ISnesAddressSpace rom)
     {
         AssertEqual(ReadVerificationWord(rom, 0x88de43), CeresHazeDefinitions.FadeSteps, "Original native fade stop counter");

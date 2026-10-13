@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Checks both Torizo wake records and their use by the actual enemy initializer.</summary>
 internal static class TorizoInitializationDefinitionsVerification
 {
+    /// <summary>Matches twelve compiled record words to ROM, then verifies live initialization preserves population state and skips defeated actors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo initialization")]
     internal static void VerifyCompiledTorizoInitialization(SuperMetroidAddressSpace rom)
     {

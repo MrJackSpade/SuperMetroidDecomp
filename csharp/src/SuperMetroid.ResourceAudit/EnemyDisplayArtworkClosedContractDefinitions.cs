@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Actual display artwork availability, separate from non-resource ID projection.</summary>
 internal static class EnemyDisplayArtworkClosedContractDefinitions
 {
+    /// <summary>Closed source sets for installed ordinary spritemaps and extended enemy display frames.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.EnemySpritemapCatalog", "installed-simple-enemy-display-frames", ["TryGetDisplay"],

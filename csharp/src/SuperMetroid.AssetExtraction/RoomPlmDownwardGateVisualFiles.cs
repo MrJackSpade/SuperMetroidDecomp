@@ -18,8 +18,10 @@ public static class RoomPlmDownwardGateVisualFiles
     public const string VisualFileName = "downward-gates.json";
     /// <summary>Stock provenance manifest filename; records format version one, cartridge SHA-256, and the visual JSON's byte hash.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Schema revision shared by the exported visual document and stock provenance manifest.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Serializes family documents with the published camel-case JSON field names.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -95,6 +97,7 @@ public static class RoomPlmDownwardGateVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Reads each downward-gate draw list, verifying native shape and level words before retaining only visual bits.</summary>
     private static RoomPlmDownwardGateVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmDownwardGateVisualEntry>();
@@ -136,6 +139,7 @@ public static class RoomPlmDownwardGateVisualFiles
         return entries.ToArray();
     }
 
+    /// <summary>Rejects stock artwork whose selected visual words differ from the compiled cartridge definitions.</summary>
     private static void VerifyStockMatchesCompiled(RoomPlmDownwardGateVisualCatalog catalog,
         string path)
     {
@@ -153,6 +157,7 @@ public static class RoomPlmDownwardGateVisualFiles
         }
     }
 
+    /// <summary>Checks document revision and wraps entry validation errors with the source path.</summary>
     private static RoomPlmDownwardGateVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -166,7 +171,9 @@ public static class RoomPlmDownwardGateVisualFiles
         }
     }
 
+    /// <summary>Reads a family JSON file and reports failures using its path.</summary>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
+    /// <summary>Deserializes a nonempty family document, converting malformed JSON to a path-specific data error.</summary>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -180,7 +187,9 @@ public static class RoomPlmDownwardGateVisualFiles
         }
     }
 
+    /// <summary>Stock provenance and byte-integrity record for the downward-gate visual document.</summary>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
+    /// <summary>Versioned set of named downward-gate visual runs stored in JSON.</summary>
     private sealed record VisualDocument(int Version, RoomPlmDownwardGateVisualEntry[] Entries);
 }

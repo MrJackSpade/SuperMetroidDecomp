@@ -30,6 +30,7 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
         }
     });
 
+    /// <summary>Only layouts whose visual words differ from the compiled common word need stored overrides.</summary>
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
     /// <summary>Validates all six linked restoration layouts and copies visual differences without changing linked parent/child collision or restoration programs.</summary>
@@ -77,8 +78,10 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
             ? words[runIndex * 2 + blockIndex] : stockWord;
     }
 
-    // Every cell in a linked restoration uses the same visual tile; only its
-    // collision link changes. Keep domain identity and geometry in the draw owners.
+    /// <summary>
+    /// Resolves a bomb or contact-crumble draw's geometry and shared visual tile.
+    /// Every cell uses that tile while collision links remain owned by the draw definitions.
+    /// </summary>
     private static bool Describe(ushort pointer, out int runs, out ushort stockWord)
     {
         if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(pointer, out var bomb))

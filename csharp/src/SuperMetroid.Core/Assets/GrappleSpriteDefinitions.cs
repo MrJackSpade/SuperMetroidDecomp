@@ -24,6 +24,7 @@ public static class GrappleSpriteDefinitions
     /// <summary>$94:B18D-$B199 common OBJ priority three for rope segments.</summary>
     private const int SegmentPriority = 3;
 
+    /// <summary>Builds the native rope attribute for a timed frame: tiles $21-$24 with palette five and priority three.</summary>
     internal static ushort StockSegment(int frame) => SnesObjAttributeWord.Create(
         FirstSegmentTile + frame, SegmentPalette, SegmentPriority, default).Raw;
 
@@ -47,6 +48,7 @@ public static class GrappleSpriteDefinitions
             for (int index = 0; index < SegmentFrameCount; index++)
                 yield return this[index];
         }
+        /// <summary>Exposes the same four address selections to non-generic collection consumers.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

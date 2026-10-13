@@ -9,10 +9,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Builds a constructed pause presentation from retail source data and isolated fixture visuals.</summary>
 internal static class PauseMenuFixtureVerification
 {
-    // Translate this test's deliberately constructed cartridge visuals into the
-    // installed contract. Never mutate the shared retail catalog or its arrays.
+    /// <summary>Translates constructed cartridge visuals into the installed pause contract without mutating shared retail catalog data.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the constructed pause presentation source bytes")]
     internal static AreaMapPresentationCatalog CreateConstructedPausePresentation(

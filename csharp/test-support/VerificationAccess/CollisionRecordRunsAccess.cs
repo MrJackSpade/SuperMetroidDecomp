@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 /// <summary>Verification enumeration of compiled collision records, in run order.</summary>
 internal static class CollisionRecordRunsAccess
 {
+    /// <summary>Adds run-order pointer and record inspection to compiled collision tables for verification.</summary>
     extension<TElement>(CollisionRecordRuns<TElement> runs)
     {
         /// <summary>Every record address, in run order.</summary>

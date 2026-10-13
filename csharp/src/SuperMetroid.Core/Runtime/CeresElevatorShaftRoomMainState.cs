@@ -144,9 +144,11 @@ public sealed class CeresElevatorShaftRoomMainState
         return Snapshot(matrixChanged: true);
     }
 
+    /// <summary>
+    /// Applies $89:ACD0's asymmetric elevator bounds: X in (112,144], Y in [75,128),
+    /// with both whole and fractional vertical speed zero.
+    /// </summary>
     private static bool IsInsideDepartureTrigger(SamusState samus) =>
-        // `$89:ACD0` uses strict X > 112, inclusive X <= 144, inclusive Y >= 75,
-        // and strict Y < 128. Both whole and fractional vertical speed must be zero.
         samus.Position.X.Whole > 112 &&
         samus.Position.X.Whole <= 144 &&
         samus.Position.Y.Whole >= 75 &&
@@ -154,11 +156,13 @@ public sealed class CeresElevatorShaftRoomMainState
         samus.Kinematics.YSpeed == 0 &&
         samus.Kinematics.YSubspeed == 0;
 
+    /// <summary>Publishes the current Mode 7 matrix and this call's departure edge to the dispatcher.</summary>
     private CeresElevatorShaftRoomMainResult Snapshot(bool matrixChanged) => new(
         Transform,
         matrixChanged,
         DepartureRequestedThisFrame);
 
+    /// <summary>Starts the shaft at the door ASM's identity matrix and fixed rotation center.</summary>
     private static SamusMode7Transform CreateInitialTransform() => new(
         MatrixA: 0x0100,
         MatrixB: 0,

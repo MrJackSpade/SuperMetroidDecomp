@@ -6,14 +6,21 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Super Missile impact earthquakes: the last requested quake type and duration, published to the room's shared earthquake owner when one is bound.</summary>
 internal sealed class ProjectileEarthquakes
 {
-    // This is a routing reference, not additional emulated state. The runtime restores
-    // it before executing a frame; the actual shared quake words remain in the room owner.
+    /// <summary>
+    /// Nonserialized routing reference rebound before a frame; quake state itself remains
+    /// in the shared room owner rather than in a second emulated state store.
+    /// </summary>
     [NonSerialized]
     private RoomEnemySystem? _roomEarthquakeOwner;
 
+    /// <summary>Reconnects the shared room quake owner before projectile collision can request an impact.</summary>
     internal void BindRoomEarthquakeOwner(RoomEnemySystem owner)
         => _roomEarthquakeOwner = Ensure.NotNull(owner);
 
+    /// <summary>
+    /// Records the Super Missile impact quake and publishes it at the collision call when a
+    /// room owner is bound, allowing later quake producers to supersede this request.
+    /// </summary>
     /// <param name="earthquakeType">
     /// The impact's type at $93:8125, or the enemy-hit type at $A0:9CB7/$A0:A1E9.
     /// </param>

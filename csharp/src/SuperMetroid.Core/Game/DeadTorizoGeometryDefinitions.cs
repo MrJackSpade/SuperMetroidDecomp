@@ -12,10 +12,14 @@ internal readonly record struct DeadTorizoGraphicsCopy(int SourceOffset, int Des
 /// </summary>
 internal static class DeadTorizoGeometryDefinitions
 {
+    /// <summary>Planar bytes and pixels contributed by one corpse-sheet tile.</summary>
     private const int TileBytes = 32, TilePixels = 8;
+    /// <summary>Height in tiles of the stationary corpse composition's occupied bounds.</summary>
     internal static int Rows => Bounds.Bottom - Bounds.Top;
+    /// <summary>Width in tiles of the stationary corpse composition's occupied bounds.</summary>
     internal static int Columns => Bounds.Right - Bounds.Left;
 
+    /// <summary>Unions the tile extents of stationary sprite parts to define the corpse crop.</summary>
     private static (int Left, int Top, int Right, int Bottom) Bounds
     {
         get
@@ -31,6 +35,7 @@ internal static class DeadTorizoGeometryDefinitions
         }
     }
 
+    /// <summary>Converts an indexed stationary sprite part into source-sheet tile coordinates.</summary>
     private static (int X, int Y, int Extent) SourcePart(int index)
     {
         DeadTorizoStockPart part = DeadTorizoStationaryCompositionDefinitions.Part(index);

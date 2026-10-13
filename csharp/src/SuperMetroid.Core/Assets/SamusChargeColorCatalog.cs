@@ -28,10 +28,14 @@ namespace SuperMetroid.Core.Assets;
 /// other selectors/timing require their own dispositions.</remarks>
 public sealed class SamusChargeColorCatalog
 {
+    /// <summary>Charge pulse rows share suit bases and calculated whitening unless the asset supplies independent edits.</summary>
     internal readonly ChargeInputs chargedBeam;
+    /// <summary>Pseudo-Screw rows share their repeated holds and selected bright tint with normal suit inks.</summary>
     internal readonly ChargeInputs pseudoScrew;
+    /// <summary>Shot-glow playback uses its own Hyper color inputs, independent of the full-body cycle asset.</summary>
     private readonly SamusHyperBeamColorCatalog hyperShot;
 
+    /// <summary>Combines the two six-phase suit views with the separately editable reverse Hyper-shot view.</summary>
     private SamusChargeColorCatalog(ChargeInputs chargedBeam,
         ChargeInputs pseudoScrew, SamusHyperBeamColorCatalog hyperShot)
     {
@@ -40,6 +44,7 @@ public sealed class SamusChargeColorCatalog
         this.hyperShot = hyperShot;
     }
 
+    /// <summary>Uses the installed camel-case schema and rejects unknown color properties.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -118,10 +123,14 @@ public sealed class SamusChargeColorCatalog
     /// inputs. All bright transparent words share Power normal color0.</remarks>
     internal sealed class ChargeInputs
     {
+        /// <summary>Selects three-phase pseudo-Screw holds instead of the mirrored charge pulse.</summary>
         private readonly bool pseudo;
+        /// <summary>Palette cells whose supplied inks cannot be shared with a canonical suit or phase.</summary>
         internal readonly Dictionary<int, Bgr555> colors = new();
+        /// <summary>Per-channel deviations from the calculated whitening or pseudo-Screw bright tint.</summary>
         internal readonly Dictionary<int, LoadingPaletteInputView.Channels> fadeInputs = new();
 
+        /// <summary>Reduces each supplied row to its independent colors and channel differences while preserving divergent repeated phases.</summary>
         internal ChargeInputs(Bgr555[][][] source, bool pseudo)
         {
             this.pseudo = pseudo;
@@ -150,6 +159,7 @@ public sealed class SamusChargeColorCatalog
             }
         }
 
+        /// <summary>Restores one edited or shared ink through canonical phase, suit alias, and calculated tint relationships.</summary>
         internal Bgr555 Resolve(int suit, int phase, int color)
         {
             if ((uint)suit >= SamusChargeColorFormat.SuitCount) throw new ArgumentOutOfRangeException(nameof(suit));
@@ -170,6 +180,7 @@ public sealed class SamusChargeColorCatalog
         }
     }
 
+    /// <summary>Copies the selected sixteen-ink row into Samus's OBJ palette without altering phase timing.</summary>
     private static void Apply(SnesCgram cgram, ChargeInputs source, int suit, int phase)
     {
         Ensure.NotNull(cgram);
@@ -177,6 +188,7 @@ public sealed class SamusChargeColorCatalog
             new SamusPalettes(cgram).Suit.Write(color,
                 source.Resolve(suit, phase, color));
     }
+    /// <summary>Requires three suits and six complete RGB5 rows per suit before building the charge or pseudo-Screw view.</summary>
     private static ChargeInputs CompileCharge(PaletteRgb5[][][]? source, string name, bool pseudo)
     {
         if (source is null || source.Length != SamusChargeColorFormat.SuitCount)
@@ -209,6 +221,7 @@ public sealed class SamusChargeColorCatalog
             cycleOrder[source.Length - 1 - frame] = source[frame];
         return SamusHyperBeamColorCatalog.FromFrames(cycleOrder);
     }
+    /// <summary>Requires all sixteen palette slots and five-bit RGB channels before packing a row as BGR555.</summary>
     private static Bgr555[] CompileColors(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusChargeColorFormat.ColorsPerPalette)
@@ -225,6 +238,7 @@ public sealed class SamusChargeColorCatalog
         return result;
     }
 
+    /// <summary>Detects repeated ordinal JSON property names before deserialization could replace an earlier color family.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus charge color property {name}."));

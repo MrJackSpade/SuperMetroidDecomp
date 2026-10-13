@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 
+/// <summary>Shared assertion and sparse-cartridge-fixture helpers for byte-accurate movement, rendering and instruction checks.</summary>
 internal static class VerificationHelpersVerification
 {
     /// <summary>Compares two memory images, reporting the first differing byte offset and values.</summary>

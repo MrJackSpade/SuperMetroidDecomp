@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using static KraidArmInstructionProgramDefinitionsVerification;
 using static KraidArmPhysicalFrameMappingsVerification;
 
+/// <summary>Checks Kraid arm component hitbox selectors in all native physical frames.</summary>
 internal static class KraidArmComponentHitboxesVerification
 {
+    /// <summary>Compares 102 selectors, native component counts, enumeration order, and pose/index bounds.</summary>
     internal static void VerifyKraidArmComponentHitboxes(SuperMetroidAddressSpace rom)
     {
         ushort[] frames = NativeKraidArmPhysicalFrames(rom);

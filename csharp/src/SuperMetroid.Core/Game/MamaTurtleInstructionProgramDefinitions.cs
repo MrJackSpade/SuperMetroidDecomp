@@ -47,8 +47,10 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
     private static readonly ushort[] MamaLeaveDurations = [16, 5, 5, 96];
     /// <summary>A2:8C62/8D40 baby exit holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] BabyLeaveDurations = [5, 47];
+    /// <summary>Seventy-five spritemap operands interleaved with the compiled Turtle control words.</summary>
     public static int PresentationWordCount => 75;
 
+    /// <summary>Locates a spritemap operand immediately after its authored frame duration.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -59,9 +61,11 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         throw new InvalidDataException("Turtle presentation layout is incomplete.");
     }
 
+    /// <summary>Reads a bounded Turtle timing or opcode word, rejecting artwork operands and adjacent movement data.</summary>
     internal static ushort ReadMechanicsWord(ushort address) => TryControl(address, out ushort value)
         ? value : throw new InvalidDataException($"Tatori instruction mechanics pointer $A2:{address:X4} is not compiled.");
 
+    /// <summary>Checks crawl, spin, shell, and sleep programs for a compiled control word at a native address.</summary>
     internal static bool TryControl(ushort address, out ushort value) =>
         TryCrawl(address, BabyCrawlingLeft, out value) || TryCrawl(address, BabyCrawlingRight, out value) ||
         TrySpin(address, BabySpinning, baby: true, out value) || TrySpin(address, MamaSpinning, baby: false, out value) ||
@@ -75,6 +79,7 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         TryShell(address, BabyLeaveShellRight, ShellProgram.BabyLeave, out value) ||
         TrySleep(address, out value);
 
+    /// <summary>Decodes repeated crawl commands and holds, ending at the distance-based turn opcode.</summary>
     private static bool TryCrawl(ushort address, ushort start, out ushort value)
     {
         value = 0;
@@ -88,6 +93,7 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         return true;
     }
 
+    /// <summary>Decodes uneven spin holds, sound and stoppable commands, and the loop back to the list start.</summary>
     private static bool TrySpin(ushort address, ushort start, bool baby, out ushort value)
     {
         value = 0;
@@ -103,8 +109,22 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         return true;
     }
 
-    private enum ShellProgram { MamaEnterLeft, MamaEnterRight, BabyHide, MamaLeave, BabyLeave }
+    /// <summary>Distinct shell-entry, hiding, and exit timing and callback patterns.</summary>
+    private enum ShellProgram
+    {
+        /// <summary>Left-facing shell entry with a longer first hold.</summary>
+        MamaEnterLeft,
+        /// <summary>Right-facing shell entry with a one-frame first hold.</summary>
+        MamaEnterRight,
+        /// <summary>Baby Turtle's hide pose before leaving its shell.</summary>
+        BabyHide,
+        /// <summary>Mama Turtle's four-frame exit ending in shell reentry.</summary>
+        MamaLeave,
+        /// <summary>Baby Turtle's two-frame exit ending in the left-shell callback.</summary>
+        BabyLeave,
+    }
 
+    /// <summary>Decodes a shell animation's frame durations and its final movement callback or sleep.</summary>
     private static bool TryShell(ushort address, ushort start, ShellProgram program, out ushort value)
     {
         value = 0;
@@ -139,6 +159,7 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         return true;
     }
 
+    /// <summary>Decodes Mama Turtle's long asleep hold and following sleep command.</summary>
     private static bool TrySleep(ushort address, out ushort value)
     {
         value = 0;

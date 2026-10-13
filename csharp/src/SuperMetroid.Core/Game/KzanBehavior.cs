@@ -6,26 +6,37 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Kzan species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class KzanBehavior : IEnemySpecies
 {
+    /// <summary>Lets the lower actor mirror the immediately preceding top actor's position.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Uses native slot adjacency to couple each Kzan bottom to its top.</summary>
     internal KzanBehavior(EnemySlotTable slotTable)
     {
         _slotTable = slotTable;
     }
 
+    /// <summary>Library-two landing cue published when the falling top reaches its target.</summary>
     private const ushort KzanLandingSoundEffect = 0x001b;
+    /// <summary>NTSC pause at the bottom before the top begins to rise.</summary>
     private const ushort KzanNtscRiseWaitFrames = 0x0040;
+    /// <summary>Fractional pixels subtracted each rising actor update.</summary>
     private const ushort KzanNtscRisingSubspeed = 0x8000;
+    /// <summary>Last speed-table offset permitted during falling acceleration.</summary>
     private const ushort KzanMaximumFallingSpeedTableOffset = 0x0200;
 
+    /// <summary>Top-actor state indexed by native enemy slot.</summary>
     internal readonly KzanEnemyState?[] _kzanStates =
         new KzanEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Per-slot countdown reset copied from init1's low byte.</summary>
     internal readonly ushort[] _kzanFallWaitTimerResetValues = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Whole Y before each rise/fall step, used to carry Samus by the accepted delta.</summary>
     internal readonly ushort[] _kzanPreviousYPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Per-slot index into the linear enemy speed table, capped at its final NTSC entry.</summary>
     internal readonly ushort[] _kzanFallingYSpeedTableIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Per-slot hold between landing and rising.</summary>
     internal readonly ushort[] _kzanRiseWaitTimers = new ushort[RoomEnemySystem.MaximumEnemyCount];
 
-    /// <summary>Ports <c>InitAI_KzanTop</c> at <c>$A6:8B2F</c>.</summary>
+    /// <summary>Initializes the top's idle list, wrapped speed-table index, fall distance, and low-byte wait timer from its two parameters.</summary>
     internal void InitializeKzanTop(RoomEnemySlot slot)
     {
         var state = new KzanEnemyState(
@@ -60,10 +71,10 @@ internal sealed class KzanBehavior : IEnemySpecies
         state.FallWaitTimer = NativeCountdown.FromRaw(state.FallWaitTimerResetValue);
     }
 
-    /// <summary>Ports <c>InitAI_KzanBottom</c> at <c>$A6:8B85</c>.</summary>
+    /// <summary>Places the lower actor twelve pixels below the preceding top during setup.</summary>
     private void InitializeKzanBottom(RoomEnemySlot slot) => FollowKzanTop(slot);
 
-    /// <summary>Ports <c>MainAI_KzanBottom</c> at <c>$A6:8B99</c>.</summary>
+    /// <summary>Keeps the lower actor twelve pixels below the top on every enemy update.</summary>
     private void RunKzanBottomMain(RoomEnemySlot slot) => FollowKzanTop(slot);
 
     /// <summary>
@@ -80,7 +91,7 @@ internal sealed class KzanBehavior : IEnemySpecies
         bottom.Position = bottom.Position.WithWhole(new(precedingSlot.Position.X.Whole, unchecked((ushort)(precedingSlot.Position.Y.Whole + 12))));
     }
 
-    /// <summary>Ports the indirect <c>MainAI_KzanTop</c> dispatcher at <c>$A6:8BAD</c>.</summary>
+    /// <summary>Dispatches the top actor through fall wait, accelerated descent, rise wait, and half-pixel ascent.</summary>
     private void RunKzanTopMain(
         RoomEnemySlot slot,
         KzanEnemyState state,
@@ -110,7 +121,7 @@ internal sealed class KzanBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Ports <c>Function_Kzan_WaitingToFall</c> at <c>$A6:8BB4</c>.</summary>
+    /// <summary>Decrements the wrapping top wait and resets the fall-speed index when descent begins.</summary>
     private static void RunKzanWaitingToFall(RoomEnemySlot slot, KzanEnemyState state)
     {
         state.FallWaitTimer = state.FallWaitTimer.Decrement().Remaining;
@@ -123,7 +134,7 @@ internal sealed class KzanBehavior : IEnemySpecies
         state.Function = KzanEnemyFunction.Falling;
     }
 
-    /// <summary>Ports <c>Function_Kzan_Falling</c> at <c>$A6:8BDC</c>.</summary>
+    /// <summary>Applies table-driven downward speed, clamps to the target using signed wrapped comparison, carries Samus, and advances the speed index.</summary>
     private void RunKzanFalling(
         RoomEnemySlot slot,
         KzanEnemyState state,
@@ -156,7 +167,7 @@ internal sealed class KzanBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Ports <c>Function_Kzan_WaitingToRise</c> at <c>$A6:8C4A</c>.</summary>
+    /// <summary>Counts down the 64-frame NTSC landing hold before switching to ascent.</summary>
     private static void RunKzanWaitingToRise(KzanEnemyState state)
     {
         state.RiseWaitTimer = state.RiseWaitTimer.Decrement().Remaining;
@@ -164,7 +175,7 @@ internal sealed class KzanBehavior : IEnemySpecies
             state.Function = KzanEnemyFunction.Rising;
     }
 
-    /// <summary>Ports <c>Function_Kzan_Rising</c> at <c>$A6:8C5D</c>.</summary>
+    /// <summary>Subtracts one-half pixel per update, stops at the original height, and carries Samus by the whole-pixel step.</summary>
     private static void RunKzanRising(
         RoomEnemySlot slot,
         KzanEnemyState state,
@@ -249,10 +260,12 @@ internal sealed class KzanBehavior : IEnemySpecies
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
     }
 
+    /// <summary>Rejects a top AI call before its matching per-slot state has been initialized.</summary>
     private KzanEnemyState RequireKzanState(RoomEnemySlot slot) =>
         _kzanStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Kzan-top state.");
 
+    /// <summary>Binds top and bottom initialization routines to their own enemy-definition IDs.</summary>
     internal void RegisterKzanInitializationAi(EnemyAiTable table)
     {
 
@@ -267,6 +280,7 @@ internal sealed class KzanBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Binds the top phase dispatcher and the bottom follower to their native main-AI routines.</summary>
     internal void RegisterKzanMainAi(EnemyAiTable table)
     {
 

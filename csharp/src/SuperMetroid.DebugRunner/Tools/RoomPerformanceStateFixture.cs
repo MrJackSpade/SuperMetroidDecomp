@@ -11,6 +11,7 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Representative retail-room fixtures for Android performance issues #361-363.</summary>
 internal static class RoomPerformanceStateFixture
 {
+    /// <summary>Captures a save, map, or surface room state and measures 600 post-warmup gameplay frames.</summary>
     public static int Export(string scene, string destination)
     {
         if (scene is not ("save" or "map" or "surface"))

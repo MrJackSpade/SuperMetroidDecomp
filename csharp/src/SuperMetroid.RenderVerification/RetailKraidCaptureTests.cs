@@ -8,8 +8,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Compares GPU captures through Kraid's rise, growth, death, and defeated-room exits.</summary>
 internal static class RetailKraidCaptureTests
 {
+    /// <summary>Checks exact sampled frames across boss phases and both post-defeat door transitions.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -123,6 +125,7 @@ internal static class RetailKraidCaptureTests
         RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, new RetailDoorCase { Door = KraidAuditDefinitions.RightExitDoor, Destination = KraidAuditDefinitions.RightExitDestination }, "defeated Kraid right");
     }
 
+    /// <summary>Stages an audit missile at Kraid's active mouth hitbox and uses production collision.</summary>
     private static void StrikeMouth(ISnesAddressSpace bus, SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState boss)
     {
         // Match the established audit: stage a missile at the open-mouth hitbox, then use
@@ -145,6 +148,7 @@ internal static class RetailKraidCaptureTests
     }
 }
 
+/// <summary>Retail door and staged missile identities used by the Kraid capture sequence.</summary>
 internal static class KraidCaptureDefinitions
 {
     /// <summary>Retail incoming door $83:91B6 used by the existing Kraid rise audit.</summary>

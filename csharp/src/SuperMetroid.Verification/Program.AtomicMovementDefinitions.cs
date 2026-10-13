@@ -16,8 +16,10 @@ using SuperMetroid.Core.Assets;
 using static AssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail-word and guarded-execution checks for Atomic movement and animation selectors.</summary>
 internal static class AtomicMovementDefinitionsVerification
 {
+    /// <summary>Matches four initial direction selectors against the retail table and rejects out-of-range values.</summary>
     private static void VerifyAtomicInitialProgramSelection(SuperMetroidAddressSpace rom)
     {
         for (ushort selector = 0; selector < 4; selector++)
@@ -28,6 +30,7 @@ internal static class AtomicMovementDefinitionsVerification
                 "Atomic invalid direction selector");
     }
 
+    /// <summary>Checks every compiled control word and exact bank-$A8 byte ownership, including holes and adjacent data.</summary>
     private static void VerifyAtomicMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
@@ -76,6 +79,7 @@ internal static class AtomicMovementDefinitionsVerification
                 "Atomic mechanics ordinal bounds");
     }
 
+    /// <summary>Lists independent bank-$A8 visual-operand offsets interleaved with Atomic control words.</summary>
     private static ushort[] AtomicPresentationAddressOracle() =>
         [
             0xe312, 0xe316, 0xe31a, 0xe31e, 0xe322, 0xe326,
@@ -84,6 +88,7 @@ internal static class AtomicMovementDefinitionsVerification
             0xe366, 0xe36a, 0xe36e, 0xe372, 0xe376, 0xe37a,
         ];
 
+    /// <summary>Checks calculated visual-operand positions and full-address membership against the independent offset list.</summary>
     private static void VerifyAtomicPresentationAddresses()
     {
         ushort[] expected = AtomicPresentationAddressOracle();
@@ -101,6 +106,7 @@ internal static class AtomicMovementDefinitionsVerification
                 "Atomic presentation ordinal bounds");
     }
 
+    /// <summary>Matches every compiled Atomic frame selector to retail and rejects control words as visuals.</summary>
     private static void VerifyAtomicVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = AtomicPresentationAddressOracle();
@@ -128,6 +134,7 @@ internal static class AtomicMovementDefinitionsVerification
                 "Atomic distant invalid visual operand");
     }
 
+    /// <summary>Runs initializers and all four animation loops under migrated-read guards, checking native speed components.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for atomic movement definitions")]
     internal static void VerifyAtomicMovementDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -219,10 +226,12 @@ internal static class AtomicMovementDefinitionsVerification
             "and 24 visual-selector source reads forbidden.");
     }
 
+    /// <summary>Rejects initializer reads from the migrated four-entry direction table.</summary>
     private static CartridgeReadGuard NewAtomicInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa8e380 and < 0xa8e388,
             address => $"Atomic initializer attempted migrated instruction read ${address:X6}.");
 
+    /// <summary>Rejects compiled Atomic control and frame-selector reads during program execution.</summary>
     private static CartridgeReadGuard NewAtomicProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(AtomicInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -231,6 +240,7 @@ internal static class AtomicMovementDefinitionsVerification
                 AtomicInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read compiled Atomic instruction byte ${address:X6}.");
 
+    /// <summary>Runs the retail-backed Atomic instruction migration command.</summary>
     [VerificationCommand("--atomic-instruction-mechanics")]
     internal static int AtomicInstructionMechanicsCommand()
     {

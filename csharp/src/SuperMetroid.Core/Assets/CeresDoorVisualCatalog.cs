@@ -34,12 +34,18 @@ public sealed class CeresDoorVisualCatalog
             }
         });
 
+    /// <summary>Validated 4bpp door characters used for the VRAM transfer.</summary>
     private readonly RoomCharacterAtlas tiles;
+    /// <summary>Normal setup colors, including any supplied edits to stock values.</summary>
     private readonly CeresDoorNormalPaintDefinitions normal;
+    /// <summary>Escape setup colors resolved against the normal palette.</summary>
     internal readonly CeresDoorEscapePaintDefinitions escape;
+    /// <summary>Eight animation rows resolved against the normal palette.</summary>
     internal readonly CeresDoorAnimationPaintDefinitions animation;
+    /// <summary>Mode 7 strip bytes that differ from the canonical platform frames.</summary>
     internal readonly Dictionary<int, byte> platformEdits = [];
 
+    /// <summary>Retains validated visual data and extracts independently edited Mode 7 cells.</summary>
     private CeresDoorVisualCatalog(RoomCharacterAtlas tiles, Bgr555[] normal,
         Bgr555[] escape, Bgr555[][] animation, byte[][] mode7DoorFrames)
     {
@@ -135,6 +141,7 @@ public sealed class CeresDoorVisualCatalog
             new CgramPalettes(cgram).All.Write(destination + color, EscapeColor(color));
     }
 
+    /// <summary>Resolves one escape-state ink from the selected palette.</summary>
     private Bgr555 EscapeColor(int color) => escape.ColorAt(color);
 
     /// <summary>Installs six selected inks at CGRAM 41–46 from animation row 0–7 corresponding to $A6:F871; the actor derives the row from its frame bits 3–5.</summary>
@@ -146,6 +153,7 @@ public sealed class CeresDoorVisualCatalog
             new BossPalettes(cgram).CeresDoorAnimation.Write(color, AnimationColor(row, color));
     }
 
+    /// <summary>Resolves one ink from the actor-selected door animation row.</summary>
     private Bgr555 AnimationColor(int row, int color) => animation.ColorAt(row, color);
 
     /// <summary>$A6:F918/F91C: resolve shared canonical platform imagery or an independent supplied cell edit.</summary>
@@ -164,6 +172,7 @@ public sealed class CeresDoorVisualCatalog
         new Mode7Vram(vram).LoadMap(transfer, CeresDoorVisualRomData.Mode7DestinationWord);
     }
 
+    /// <summary>Validates exactly two four-cell Mode 7 strips and converts their character selectors to bytes.</summary>
     private static byte[][] CompileMode7Frames(int[][]? source)
     {
         if (source is null || source.Length != CeresDoorVisualRomData.Mode7FrameCount)
@@ -186,6 +195,7 @@ public sealed class CeresDoorVisualCatalog
         return result;
     }
 
+    /// <summary>Validates a palette's size and RGB5 channel bounds before packing its colors.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int expectedCount, string name)
     {
         if (source is null || source.Length != expectedCount)
@@ -202,6 +212,7 @@ public sealed class CeresDoorVisualCatalog
         return result;
     }
 
+    /// <summary>Strict camel-case JSON settings shared by the door visual loader and writer.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

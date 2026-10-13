@@ -27,6 +27,7 @@ internal static class RepositoryInstallation
     /// </summary>
     private static readonly TimeSpan SetupLockWait = TimeSpan.FromMinutes(30);
 
+    /// <summary>Installs the pinned repository ROM into ignored verifier content on first access.</summary>
     private static readonly Lazy<GameInstallation> installation = new(() =>
     {
         string root = Path.GetFullPath(Path.Combine(CacheRoot, "verification-installed-content"));
@@ -46,9 +47,11 @@ internal static class RepositoryInstallation
         }
     });
 
+    /// <summary>Builds host catalog bindings once, then applies them to each fresh or restored runtime.</summary>
     private static readonly Lazy<Action<SuperMetroidRuntime>> runtimeBindings =
         new(() => InstalledRuntimeBindings.Create(Installation));
 
+    /// <summary>Shares immutable extracted catalogs while each fixture owns its bus and mutable state.</summary>
     internal static GameInstallation Installation => installation.Value;
 
     /// <summary>A gameplay runtime bound to the installation's presentation catalogs.</summary>

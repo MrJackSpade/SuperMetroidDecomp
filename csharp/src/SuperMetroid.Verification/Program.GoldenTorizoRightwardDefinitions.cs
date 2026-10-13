@@ -2,8 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Golden Torizo's turning and rightward walk records in bank $AA.</summary>
 internal static class GoldenTorizoRightwardDefinitionsVerification
 {
+    /// <summary>Compares 82 control words, twelve visual selectors, and physical hitbox lists with native data.</summary>
     internal static void VerifyGoldenTorizoRightwardDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
@@ -121,6 +123,7 @@ internal static class GoldenTorizoRightwardDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>Reads native rightward-program bytes for the definition comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo rightward definitions")]
     private static byte GoldenTorizoRightwardDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

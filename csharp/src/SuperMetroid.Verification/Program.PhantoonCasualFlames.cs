@@ -16,8 +16,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Phantoon's casual flame schedules and RNG selection against native timings.</summary>
 internal static class PhantoonCasualFlamesVerification
 {
+    /// <summary>Compares four schedule word lists, every RNG selector, and complete mouth-animation transitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon casual flames")]
     internal static void VerifyCompiledPhantoonCasualFlames(SuperMetroidAddressSpace rom)
     {
@@ -95,6 +97,7 @@ internal static class PhantoonCasualFlamesVerification
         Console.WriteLine("Phantoon casual schedules: 30 native words, 65536 RNG selections and 8192 frame-exact mouth transitions match without a bus.");
     }
 
+    /// <summary>Runs the casual flame schedule and Phantoon sound-definition checks.</summary>
     [VerificationCommand("--lookup-stream5-phantoon-schedules")]
     internal static int LookupStream5PhantoonSchedulesCommand()
     {

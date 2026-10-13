@@ -3,6 +3,7 @@
 
 namespace SuperMetroid.Core.Audio
 {
+    /// <summary>Retail music command used by the title sequence oracle.</summary>
     internal static class AudioRomDataMusicTracks
     {
         /// <summary>Title-screen track command for the music bank uploaded from <see cref="AudioUploadAddresses.TitleSequence"/>.</summary>
@@ -15,8 +16,22 @@ namespace SuperMetroid.Core.Frontend
     /// <summary>Word offsets in a DemoSetDef record at bank $91.</summary>
     internal static class AttractDemoRomDataEquipmentFields
     {
-        public const int Items = 0, Missiles = 2, SuperMissiles = 4, PowerBombs = 6,
-            Health = 8, CollectedBeams = 10, EquippedBeams = 12, InputObject = 14;
+        /// <summary>Collected item-bit word at the start of an equipment record.</summary>
+        public const int Items = 0;
+        /// <summary>Missile count word after the item bits.</summary>
+        public const int Missiles = 2;
+        /// <summary>Super Missile count word.</summary>
+        public const int SuperMissiles = 4;
+        /// <summary>Power Bomb count word.</summary>
+        public const int PowerBombs = 6;
+        /// <summary>Current health word.</summary>
+        public const int Health = 8;
+        /// <summary>Collected beam-bit word, separate from equipped beams.</summary>
+        public const int CollectedBeams = 10;
+        /// <summary>Equipped beam-bit word.</summary>
+        public const int EquippedBeams = 12;
+        /// <summary>Bank-91 demo input-object pointer word.</summary>
+        public const int InputObject = 14;
     }
 
     /// <summary>Bank-$91 input-object identities for the two grapple demonstrations.</summary>
@@ -31,21 +46,42 @@ namespace SuperMetroid.Core.Frontend
     /// <summary>Word offsets in a DemoRoomData record at bank $82.</summary>
     internal static class AttractDemoRomDataRoomFields
     {
-        public const int Room = 0, Door = 2, DoorSlot = 4, CameraX = 6, CameraY = 8,
-            SamusYFromTop = 10, SamusXFromCenter = 12, Duration = 14, Setup = 16;
+        /// <summary>Room identity word in a demo room record.</summary>
+        public const int Room = 0;
+        /// <summary>Entry door pointer word.</summary>
+        public const int Door = 2;
+        /// <summary>Door slot index word.</summary>
+        public const int DoorSlot = 4;
+        /// <summary>Initial camera X word.</summary>
+        public const int CameraX = 6;
+        /// <summary>Initial camera Y word.</summary>
+        public const int CameraY = 8;
+        /// <summary>Samus's vertical offset from the screen top.</summary>
+        public const int SamusYFromTop = 10;
+        /// <summary>Samus's horizontal offset from the screen center.</summary>
+        public const int SamusXFromCenter = 12;
+        /// <summary>Demo duration word.</summary>
+        public const int Duration = 14;
+        /// <summary>Demo setup routine pointer word.</summary>
+        public const int Setup = 16;
     }
 
     /// <summary>Named bank-$8C indirect-data records compared by cinematic draw code.</summary>
     internal static class CinematicCodePointersIndirectData
     {
+        /// <summary>Bank-8C blank-space list at $8C:D67D used by intro text rendering.</summary>
         public const ushort IntroTextSpace = 0xd67d;
-        // The six intro story-page background lists. The port draws pages from the installed
-        // narration presentation, so only this pinned-ROM catalog still names them.
+        /// <summary>Bank-8C first intro story-page background list at $8C:C383.</summary>
         public const ushort IntroTextPage1 = 0xc383;
+        /// <summary>Bank-8C second intro story-page background list at $8C:C797.</summary>
         public const ushort IntroTextPage2 = 0xc797;
+        /// <summary>Bank-8C third intro story-page background list at $8C:CB45.</summary>
         public const ushort IntroTextPage3 = 0xcb45;
+        /// <summary>Bank-8C fourth intro story-page background list at $8C:CE33.</summary>
         public const ushort IntroTextPage4 = 0xce33;
+        /// <summary>Bank-8C fifth intro story-page background list at $8C:D15D.</summary>
         public const ushort IntroTextPage5 = 0xd15d;
+        /// <summary>Bank-8C sixth intro story-page background list at $8C:D511.</summary>
         public const ushort IntroTextPage6 = 0xd511;
     }
 }
@@ -208,10 +244,14 @@ namespace SuperMetroid.Core.Game
 
 namespace SuperMetroid.Core.Input
 {
+    /// <summary>Bank-91 demo input identities for the intro Mother Brain sequence.</summary>
     internal static class DemoInputRomDataIntroMotherBrain
     {
+        /// <summary>Bank-91 intro Mother Brain input object at $91:8784.</summary>
         public const ushort Object = 0x8784;
+        /// <summary>Bank-91 input list at $91:8694 consumed by the object.</summary>
         public const ushort InputList = 0x8694;
+        /// <summary>Bank-91 record following that input list at $91:86B8.</summary>
         public const ushort NextRecord = 0x86b8;
     }
 }

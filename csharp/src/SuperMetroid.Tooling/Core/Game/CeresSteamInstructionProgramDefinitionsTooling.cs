@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(CeresSteamInstructionProgramDefinitions))]
 internal abstract class CeresSteamInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>The four directional Ceres steam programs contribute their activation and branch control words.</summary>
     public static int MechanicsWordCount => CeresSteamInstructionProgramDefinitions.MechanicsWordCount;
+    /// <summary>Exposes a Ceres steam timing or conditional branch word from the directional programs.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => CeresSteamInstructionProgramDefinitions.MechanicsWord(index);
+    /// <summary>Each of four Ceres steam directions retains nine extended-spritemap operands.</summary>
     public static int PresentationWordCount => 36;
+    /// <summary>Locates a direction's steam spritemap operand within its 52-byte instruction program.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -18,6 +22,7 @@ internal abstract class CeresSteamInstructionProgramDefinitionsTooling : IInstru
         int frame = index % 9;
         return (ushort)(start + (frame < 2 ? 4 + 12 * frame : 22 + 4 * (frame - 2)));
     }
+    /// <summary>Matches compiled bank-$A6 steam control bytes while excluding their extended-spritemap operands.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa60000)

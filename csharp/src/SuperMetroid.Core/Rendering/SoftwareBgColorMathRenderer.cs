@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("backend: software PPU background colour-math rasterizer")]
 internal static class SoftwareBgColorMathRenderer
 {
+    /// <summary>Samples each physical scanline's 2-bpp tiles, skips transparent color zero, and applies clipped byte-channel color math.</summary>
     internal static void Composite(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Bg2BppColorMathRenderLayer layer)
     {
         int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;

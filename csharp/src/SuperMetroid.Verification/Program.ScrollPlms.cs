@@ -6,6 +6,7 @@ using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks resident room-scroll PLMs through center contact, extensions, Morph Ball, and bomb jump.</summary>
 internal static class ScrollPlmsVerification
 {
     /// <summary>

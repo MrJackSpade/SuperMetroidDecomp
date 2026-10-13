@@ -58,18 +58,23 @@ public static class TitleScreenAmbientPaletteFxProgramMechanicsDefinitions
     /// <summary>The two semantic palette owners in native definition order.</summary>
     public static IReadOnlyList<TitleScreenAmbientPaletteFxProgramDefinition> All { get; } = new ProgramList();
 
+    /// <summary>Indexable two-program title palette set in native definition order.</summary>
     private sealed class ProgramList : IReadOnlyList<TitleScreenAmbientPaletteFxProgramDefinition>
     {
+        /// <summary>Tube light and display flicker are the two native ambient owners.</summary>
         public int Count => 2;
+        /// <summary>Selects the tube or display program by its native definition ordinal.</summary>
         public TitleScreenAmbientPaletteFxProgramDefinition this[int index] => index switch
         {
             0 => TubeLight, 1 => Displays, _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Enumerates tube light before display flicker.</summary>
         public IEnumerator<TitleScreenAmbientPaletteFxProgramDefinition> GetEnumerator()
         {
             yield return TubeLight;
             yield return Displays;
         }
+        /// <summary>Uses the typed program enumeration for nongeneric callers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -83,15 +88,18 @@ public static class TitleScreenAmbientPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete looping title-screen ambient palette program.</summary>
 public sealed class TitleScreenAmbientPaletteFxProgramDefinition
 {
+    /// <summary>Binds one semantic title palette owner to its calculated instruction layout.</summary>
     internal TitleScreenAmbientPaletteFxProgramDefinition(TitleScreenAmbientPaletteFxProgramOwner owner) => Owner = owner;
     /// <summary>Semantic title-palette owner selecting native definition $8D:E1A0 (tube) or $8D:E1A4 (displays); not a runtime palette-object slot index.</summary>
     public TitleScreenAmbientPaletteFxProgramOwner Owner { get; }
+    /// <summary>Distinguishes the eight-shade tube loop from the two-state displays.</summary>
     internal bool IsTubeLight => Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight;
     /// <summary>Native instruction entries $8D:C7FA (tube) / $C862 (displays).</summary>
     public ushort ProgramStart => IsTubeLight ? TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeProgram
         : (ushort)(TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeLight.LoopInstructionPointer + 2 * sizeof(ushort));
     /// <summary>Native color destinations: byte $54 (tube) / $5C (displays).</summary>
     public ushort ColorByteIndex => (ushort)(FirstColor * sizeof(ushort));
+    /// <summary>First CGRAM color slot controlled by the selected ambient program.</summary>
     private int FirstColor => IsTubeLight ? TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeFirstColor
         : TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeLastColor + 1;
     /// <summary>Timed palette-image records per loop: eight tube shades or two display states, distinct from the number of palette updates spent in the loop.</summary>

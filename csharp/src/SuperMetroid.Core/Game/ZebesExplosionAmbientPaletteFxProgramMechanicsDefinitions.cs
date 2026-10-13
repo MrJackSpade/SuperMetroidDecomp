@@ -33,6 +33,7 @@ public enum ZebesExplosionAmbientPaletteFxProgramOwner
 /// </remarks>
 public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
 {
+    /// <summary>Fixed afterglow and lava program descriptors in native definition order.</summary>
     private static readonly ZebesExplosionAmbientPaletteFxProgramDefinition[] Definitions =
     [
         new(
@@ -69,6 +70,7 @@ public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
         return false;
     }
 
+    /// <summary>Returns the constant afterglow hold or lava's descending then ascending frame duration.</summary>
     internal static ushort Duration(
         ZebesExplosionAmbientPaletteFxProgramOwner owner,
         int frame) => owner == ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow
@@ -81,6 +83,7 @@ public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete persistent Zebes-explosion ambient palette loop.</summary>
 public sealed class ZebesExplosionAmbientPaletteFxProgramDefinition
 {
+    /// <summary>Captures one palette loop's owner, native addresses, color width, and cycle length.</summary>
     internal ZebesExplosionAmbientPaletteFxProgramDefinition(
         ZebesExplosionAmbientPaletteFxProgramOwner owner,
         ushort definitionPointer,

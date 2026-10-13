@@ -14,15 +14,24 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidSessionData : IDisposable
 {
+    /// <summary>Installation root used for saves, states, and recordings.</summary>
     private readonly string root;
+    /// <summary>Atomic JSON save path for the session's live SRAM.</summary>
     private readonly string savePath;
+    /// <summary>Installed audio catalog retained across debugger state loads.</summary>
     private readonly ExtractedAudioAssetCatalog assets;
+    /// <summary>Installed map presentation used for save migration and persistence.</summary>
     private readonly SuperMetroid.Core.Assets.AreaMapPresentationCatalog maps;
+    /// <summary>Installed projectile art contributing to the session content identity.</summary>
     private readonly SuperMetroid.AssetExtraction.InstalledProjectilePresentation projectiles;
+    /// <summary>Installed visual catalog rebound to a game loaded from debugger state.</summary>
     private readonly GameArtwork artwork;
+    /// <summary>State store tied to the session's options and installed content identity.</summary>
     private readonly DebuggerSaveStateStore states;
+    /// <summary>Input recorder replaced after each successful debugger state load.</summary>
     private ControllerInputRecorder recorder;
 
+    /// <summary>Opens installed assets and RAM state, binds art and audio, and begins a reset-seeded recording.</summary>
     public AndroidSessionData(string root, string? cartridgePath = null, string? audioDirectory = null)
     {
         this.root = root;
@@ -68,25 +77,37 @@ internal sealed class AndroidSessionData : IDisposable
         WriteRecordingMetadata(seedFile: null);
     }
 
+    /// <summary>Parsed game options shared by runtime and debugger state store.</summary>
     public SuperMetroidGameOptions Options { get; }
+    /// <summary>Live RAM-only address space, replaced when a debugger state is loaded.</summary>
     public SuperMetroidAddressSpace Bus { get; private set; }
+    /// <summary>Live game graph owned by the session worker.</summary>
     public SuperMetroidGame Game { get; private set; }
+    /// <summary>Fingerprint of installed audio, maps, projectiles, and artwork.</summary>
     public SuperMetroid.AssetExtraction.GameContentIdentity ContentIdentity { get; }
+    /// <summary>Capture generation incremented whenever the live game graph is replaced.</summary>
     public long Generation { get; private set; } = 1;
 
+    /// <summary>Appends one consumed controller word to the active session recording.</summary>
     public void Record(ushort input) => recorder.RecordFrame(input);
+    /// <summary>Atomically writes the live SRAM through the installed map save format.</summary>
     public void PersistSave() => GameSaveFileStore.WriteAtomic(Bus, savePath, maps);
+    /// <summary>Flushes accepted input frames after a worker failure.</summary>
     public void FlushRecording() => recorder.FlushAfterFrameFailure();
 
+    /// <summary>Stages an external debugger state into the selected Android slot.</summary>
     public string ImportState(string path, int slot) =>
         AndroidFileImport.ImportState(root, path, slot);
+    /// <summary>Stages a regular save file for import on the next session open.</summary>
     public string ImportSave(string path) =>
         AndroidFileImport.StageRegularSave(root, path);
 
+    /// <summary>Writes an automatic state only after an eligible completed door transition.</summary>
     public void SaveCompletedDoor(SuperMetroidGameState previousState) =>
         DoorTransitionAutosave.TrySave(Options.DoorTransitionAutosave, replay: false,
             previousState, states, Bus, Game);
 
+    /// <summary>Saves a manual debugger slot and flushes its accompanying input recording.</summary>
     public string SaveSlot(int slot)
     {
         if (slot == DebuggerStateFormat.AutomaticSlot)
@@ -96,6 +117,7 @@ internal sealed class AndroidSessionData : IDisposable
         return $"Saved slot {slot}, frame {metadata.FrameNumber}, room {metadata.RoomPointer:X4}.";
     }
 
+    /// <summary>Replaces the game, RAM, and audio graph with a validated slot and starts a seeded recording.</summary>
     public string LoadSlot(int slot)
     {
         if (!states.TryLoad(slot, out DebuggerSaveStateLoadResult loaded))
@@ -118,6 +140,7 @@ internal sealed class AndroidSessionData : IDisposable
             (loaded.Warnings.Count == 0 ? "" : "\nWARNING: " + string.Join("\n", loaded.Warnings));
     }
 
+    /// <summary>Writes content and assembly identity alongside a reset or debugger-seeded recording.</summary>
     private void WriteRecordingMetadata(string? seedFile)
     {
         // The recording embeds installed-content identity. This sidecar additionally
@@ -136,6 +159,7 @@ internal sealed class AndroidSessionData : IDisposable
         FlushRecording();
     }
 
+    /// <summary>Begins an installed-content recording with a snapshot of the current SRAM.</summary>
     private ControllerInputRecorder StartRecorder() =>
         ControllerInputRecorder.StartInstalled(
             root,
@@ -143,5 +167,6 @@ internal sealed class AndroidSessionData : IDisposable
             Options,
             ContentIdentity);
 
+    /// <summary>Closes the active input recording when the worker session ends.</summary>
     public void Dispose() => recorder.Dispose();
 }

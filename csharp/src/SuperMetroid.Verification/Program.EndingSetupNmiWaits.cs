@@ -13,13 +13,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
 
+/// <summary>Reproduces main-loop RNG timing through the ending's initial NMI waits.</summary>
 internal static class EndingSetupNmiWaitsVerification
 {
-    // #1269: MainGameLoop calls GenerateRandomNumber ($82:894F) before every state dispatch.
-    // State $27's first call enters CinematicFunction_Ending_Setup, which makes nine NMI
-    // waits ($8B:D484-$D48C) before its scene setup, so calls two to ten resume inside it and
-    // make no main-loop RNG call; every later call makes one. The port never advanced the RNG
-    // in the ending and ran the setup at once, so in the 100% movie the RNG fell behind.
+    /// <summary>
+    /// Confirms state $27's first dispatch calls GenerateRandomNumber ($82:894F), then
+    /// nine resumed NMI waits ($8B:D484-$D48C) skip main-loop RNG before scene setup.
+    /// Later dispatches resume one RNG call each, matching the 100% movie.
+    /// </summary>
     internal static void VerifyEndingSetupNmiWaits()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -53,6 +54,7 @@ internal static class EndingSetupNmiWaitsVerification
         Console.WriteLine("Ending setup NMI waits: nine resumed calls skip the main-loop RNG and precede the scene setup.");
     }
 
+    /// <summary>Runs the focused ending setup and RNG cadence regression.</summary>
     [VerificationCommand("--ending-setup-nmi-waits")]
     internal static int EndingSetupNmiWaitsCommand()
     {

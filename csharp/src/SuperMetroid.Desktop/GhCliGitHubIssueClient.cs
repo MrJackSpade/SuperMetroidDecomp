@@ -6,11 +6,13 @@ namespace SuperMetroid.Desktop;
 /// <summary>Minimal authenticated GitHub issue client backed by the installed <c>gh</c> CLI.</summary>
 internal sealed class GhCliGitHubIssueClient : IGitHubIssueClient
 {
+    /// <summary>Posts a report to an existing issue using standard input as the body file.</summary>
     public async Task CommentAsync(string repository, string issueUrl, string body)
     {
         await RunAsync(body, "issue", "comment", issueUrl, "--repo", repository,
             "--body-file", "-").ConfigureAwait(false);
     }
+    /// <summary>Searches issue titles, returning the first matching URL or null.</summary>
     public async Task<string?> FindByFingerprintAsync(string repository, string fingerprint)
     {
         ProcessResult result = await RunAsync(
@@ -30,6 +32,7 @@ internal sealed class GhCliGitHubIssueClient : IGitHubIssueClient
             ?? throw new InvalidDataException("GitHub returned an issue without a URL.");
     }
 
+    /// <summary>Creates an issue and rejects CLI output that is not an absolute URL.</summary>
     public async Task<string> CreateAsync(string repository, string title, string body)
     {
         ProcessResult result = await RunAsync(
@@ -44,6 +47,7 @@ internal sealed class GhCliGitHubIssueClient : IGitHubIssueClient
         return url;
     }
 
+    /// <summary>Runs gh without a window, drains both output streams, and reports a failing exit code.</summary>
     private static async Task<ProcessResult> RunAsync(
         string? standardInput,
         params string[] arguments)
@@ -80,5 +84,6 @@ internal sealed class GhCliGitHubIssueClient : IGitHubIssueClient
         return new ProcessResult(output);
     }
 
+    /// <summary>Retains CLI stdout after stderr and exit status have been checked.</summary>
     private sealed record ProcessResult(string StandardOutput);
 }

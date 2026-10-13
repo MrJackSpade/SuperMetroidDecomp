@@ -8,7 +8,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable, ROM-independent projectile visual compositions; no damage, collision or timing fields.</summary>
 public sealed class ProjectileSpriteCatalog
 {
+    /// <summary>Compiled OAM compositions keyed by bank-$93 spritemap offsets.</summary>
     internal readonly Dictionary<ushort, SpriteComposition> frames;
+    /// <summary>Accepts the complete validated set of native projectile sprite identities.</summary>
     private ProjectileSpriteCatalog(Dictionary<ushort, SpriteComposition> frames) => this.frames = frames;
 
     /// <summary>Emits one installed projectile composition in authored OAM order using native projectile coordinate wrapping, without advancing animation or collision state.</summary>
@@ -34,8 +36,10 @@ public sealed class ProjectileSpriteCatalog
     public static ProjectileSpriteCatalog Load(Stream json)
         => LoadFrames(json, default, useProjectilePointers: true);
 
-    // Charge flares use the same native part format but have a separate required
-    // identity set, so existing projectile overrides remain compatible.
+    /// <summary>
+    /// Loads the native part format for either timed projectiles or charge flares. Charge
+    /// flares have a separate required identity set, preserving existing projectile overrides.
+    /// </summary>
     internal static ProjectileSpriteCatalog LoadFrames(Stream json, ReadOnlySpan<ushort> requiredPointers, bool useProjectilePointers = false)
     {
         int requiredCount = useProjectilePointers ? ProjectileSpriteDefinitions.NativePointers.Length : requiredPointers.Length;
@@ -116,6 +120,7 @@ public sealed class ProjectileSpriteCatalog
         return new(frames);
     }
 
+    /// <summary>Rejects ambiguous JSON fields before compiling the required sprite set.</summary>
     private static void RejectDuplicateProperties(JsonElement element) =>
         JsonAssetDocument.RejectDuplicateProperties(element, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate projectile composition property {name}."));

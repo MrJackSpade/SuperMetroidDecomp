@@ -8,6 +8,8 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified missing required-overlay admission boundary with authored tiles.</summary>
 internal static class XrayRoomOverlayPresentationContractChecks
 {
+    /// <summary>Checks required room overlays are copied and present, then
+    /// verifies unsupported keys and a production fixture bypass revoke closure.</summary>
     internal static void Run()
     {
         bool rejected = false;
@@ -69,6 +71,7 @@ internal static class XrayRoomOverlayPresentationContractChecks
             "Core use of the partial fixture factory must revoke required-overlay completeness");
     }
 
+    /// <summary>Reports a violated X-ray overlay ownership contract.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("X-ray room-overlay confirmation failed: " + reason);

@@ -22,6 +22,7 @@ public enum MapScrollDirection
 /// <summary>Initial room-select positioning and $81:AECA/$82:925D scroll ownership.</summary>
 public sealed class FileSelectMapScroll
 {
+    /// <summary>Elapsed menu ticks in the accepted eight-tick directional step.</summary>
     private int tick;
 
     /// <summary>Gets the current wrapped map scroll offset in map pixels.</summary>
@@ -129,6 +130,8 @@ public sealed class FileSelectMapScroll
         return true;
     }
 
+    /// <summary>Preserves native sixteen-bit wrap in map-scroll arithmetic.</summary>
     private static ushort Wrap(int value) => unchecked((ushort)value);
+    /// <summary>Interprets wrapped boundary differences as signed native words.</summary>
     private static short Signed(int value) => unchecked((short)value);
 }

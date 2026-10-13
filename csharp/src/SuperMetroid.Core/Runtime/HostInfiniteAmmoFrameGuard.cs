@@ -15,8 +15,10 @@ namespace SuperMetroid.Core.Runtime;
 /// </remarks>
 internal sealed class HostInfiniteAmmoFrameGuard
 {
+    /// <summary>Prevents a borrowed ammo unit from being removed twice on normal and error exits.</summary>
     private bool _completed;
 
+    /// <summary>Remembers which actor and counters received a temporary one-unit loan.</summary>
     private HostInfiniteAmmoFrameGuard(
         SamusState? actor,
         bool missilesBuffered,
@@ -29,9 +31,13 @@ internal sealed class HostInfiniteAmmoFrameGuard
         PowerBombsBuffered = powerBombsBuffered;
     }
 
+    /// <summary>Exact Samus instance whose ammo was prepared, if the option was active.</summary>
     private SamusState? Actor { get; }
+    /// <summary>Whether missiles began at one and were raised to two for this frame.</summary>
     private bool MissilesBuffered { get; }
+    /// <summary>Whether super missiles began at one and were raised to two for this frame.</summary>
     private bool SuperMissilesBuffered { get; }
+    /// <summary>Whether power bombs began at one and were raised to two for this frame.</summary>
     private bool PowerBombsBuffered { get; }
 
     /// <summary>Prepares the three counters before any frame logic can observe them.</summary>
@@ -93,6 +99,7 @@ internal sealed class HostInfiniteAmmoFrameGuard
             PowerBombsBuffered);
     }
 
+    /// <summary>Raises unlocked zero to one or lends a unit to an unlocked count of one.</summary>
     private static bool PrepareCounter(
         ushort current,
         ushort maximum,
@@ -113,6 +120,7 @@ internal sealed class HostInfiniteAmmoFrameGuard
         return true;
     }
 
+    /// <summary>Returns a borrowed unit while preserving an unlocked floor of one.</summary>
     private static ushort CompleteCounter(ushort current, ushort maximum, bool buffered)
     {
         if (maximum == 0)

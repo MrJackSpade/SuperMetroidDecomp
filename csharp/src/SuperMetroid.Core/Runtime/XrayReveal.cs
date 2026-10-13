@@ -10,14 +10,22 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class XrayReveal
 {
+    /// <summary>Supplies layer-one scroll and BG1 offsets for reveal placement.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Supplies the active Samus X-ray setup stage during NMI reads.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Supplies collectible PLMs overlaid on the captured room map.</summary>
     private readonly RoomPlmSystem _plms;
+    /// <summary>Supplies the active room, level, area, and X-ray pointer.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Supplies system flags that affect revealed overlays.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Supplies the BG1 tilemap pages captured after NMI video writes.</summary>
     private readonly SnesVram _vram;
+    /// <summary>Owns WRAM tables for saved BG1 pages and the constructed reveal map.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Binds the gameplay owners used to capture BG1 and construct the X-ray reveal.</summary>
     internal XrayReveal(BackgroundScrollState backgroundScroll, SamusFrameState player, RoomPlmSystem plms, ActiveRoomState room, Bank80SystemState system, SnesVram vram, ISnesAddressSpace addressSpace)
     {
         _backgroundScroll = backgroundScroll;

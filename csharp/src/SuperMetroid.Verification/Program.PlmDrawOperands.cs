@@ -3,10 +3,13 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 
+/// <summary>Confirms the previously identified bank-$84 PLM draw operands without expanding the control-word search.</summary>
 internal static class PlmDrawOperandsVerification
 {
+    /// <summary>Reads an owned compiled PLM word, reporting whether the given bank offset exists.</summary>
     internal delegate bool TryCompiledPlmWord(ushort address, out ushort value);
 
+    /// <summary>Reads a native bank-$84 word with fixed-bank high-byte wrapping for the comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for bank-$84 PLM program words")]
     private static ushort ReadImportedPlmWord(SuperMetroidAddressSpace source, ushort offset)
     {

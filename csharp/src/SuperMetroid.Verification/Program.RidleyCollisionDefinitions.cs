@@ -13,8 +13,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Retail oracle checks for Ceres and Norfair Ridley body hitboxes and both production collision walkers.</summary>
 internal static class RidleyCollisionDefinitionsVerification
 {
+    /// <summary>Compares eleven frame component lists and seventeen hitbox lists with bank $A6, then checks touch, shot, and Ceres projectile edge overlaps without runtime ROM reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley collision definitions")]
     internal static void VerifyRidleyCollisionDefinitions()
     {
@@ -172,6 +174,7 @@ internal static class RidleyCollisionDefinitionsVerification
 
         // A0:9ADF..9B78 touch and 9C43..9D20 shot comparisons consume the original
         // component/list records in order; only this reference reads cartridge data.
+        // Walk native components and hitboxes in order with distinct touch and shot edge comparisons.
         bool NativeCallback(ushort frame, Position16<RoomPixels> origin, Position16<RoomPixels> target,
             Extent16<RoomPixels> radius, bool shot, out ushort callback)
         {
@@ -207,6 +210,7 @@ internal static class RidleyCollisionDefinitionsVerification
             }
             return false;
         }
+        // Recreate the Ceres private projectile overlap with retail hitbox bounds and edge rules.
         bool NativeCeresOverlap(ushort frame, Position16<RoomPixels> origin, Position16<RoomPixels> target,
             Extent16<RoomPixels> radius)
         {
@@ -240,11 +244,13 @@ internal static class RidleyCollisionDefinitionsVerification
         }
     }
 
+    /// <summary>Supplies an unbacked bus that rejects all cartridge reads and writes during compiled Ridley collision dispatch.</summary>
     private static CartridgeReadGuard NewRidleyCollisionNoReadBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed Ridley collision read cartridge byte ${address:X6}.")
             .RejectWrites(address => $"Installed Ridley collision wrote cartridge byte ${address:X6}.");
 
+    /// <summary>Runs the focused Ridley collision comparison from its command-line switch.</summary>
     [VerificationCommand("--verify-ridley-collision")]
     internal static int VerifyRidleyCollisionCommand()
     {

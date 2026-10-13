@@ -5,11 +5,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Exact bilateral composition of the three native Baby poses; independent half-artwork and drawing order remain required.</summary>
 internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
 {
+    /// <summary>Unreflected halves owned by this pose; shared dome halves are excluded from later poses.</summary>
     internal readonly EnemySpritemapPart[] halfParts;
+    /// <summary>Original OAM part order, with a negative selection requesting horizontal reflection.</summary>
     private readonly sbyte[] drawingOrder;
+    /// <summary>First pose's reusable dome artwork, consulted only by later poses.</summary>
     internal readonly BabyMetroidSpriteParts? sharedBody;
+    /// <summary>Maps later-pose halves to local parts or reflected/unreflected shared dome parts.</summary>
     private readonly sbyte[]? halfSelections;
 
+    /// <summary>Captures one pose's half artwork and its original bilateral drawing order.</summary>
     private BabyMetroidSpriteParts(EnemySpritemapPart[] halfParts, sbyte[] drawingOrder,
         BabyMetroidSpriteParts? sharedBody = null, sbyte[]? halfSelections = null)
     {
@@ -18,7 +23,9 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         this.sharedBody = sharedBody;
         this.halfSelections = halfSelections;
     }
+    /// <summary>Includes both sides of every paired part in native OAM order.</summary>
     public override int Count => drawingOrder.Length;
+    /// <summary>Expands a selected half into its original or horizontally reflected OAM part.</summary>
     public override EnemySpritemapPart this[int index]
     {
         get
@@ -29,6 +36,7 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         }
     }
 
+    /// <summary>Pairs reflected parts for the three native poses and shares identical negative-Y dome parts with the first pose; otherwise retains the supplied composition.</summary>
     internal static EnemySpritemapParts Compile(int identity, EnemySpritemapPart[] supplied, ref BabyMetroidSpriteParts? bodyTemplate)
     {
         int offset = identity - BabyMetroidCompositionDefinitions.FirstPose;
@@ -78,6 +86,7 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         return new BabyMetroidSpriteParts(local.ToArray(), order, bodyTemplate, selections);
     }
 
+    /// <summary>Resolves a pose half from local storage or the first pose's shared dome, including reflected shared selections.</summary>
     private EnemySpritemapPart HalfPart(int index)
     {
         if (halfSelections is null) return halfParts[index];
@@ -88,6 +97,7 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         return (shared & 1) == 0 ? part : Reflect(part);
     }
 
+    /// <summary>Mirrors an 8- or 16-pixel OBJ across the actor's vertical axis and toggles its horizontal flip bit.</summary>
     private static EnemySpritemapPart Reflect(EnemySpritemapPart part)
     {
         int size = part.X.IsLarge ? 16 : 8;

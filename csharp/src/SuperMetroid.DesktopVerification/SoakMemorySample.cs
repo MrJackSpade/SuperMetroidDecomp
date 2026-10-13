@@ -3,6 +3,7 @@ using System.Diagnostics;
 /// <summary>Whole-process sampled memory, including runtime/driver caches; no forced collection.</summary>
 internal readonly record struct SoakMemorySample(double Seconds, long PrivateBytes, long WorkingSetBytes, long ManagedBytes)
 {
+    /// <summary>Refreshes process counters and samples private, working-set, and managed bytes without forcing collection.</summary>
     internal static SoakMemorySample Capture(Process process, double seconds)
     {
         process.Refresh();

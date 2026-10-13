@@ -104,6 +104,7 @@ internal static class BombTorizoGreyDoorPlmProgramDefinitions
         Delete = ResidentEnd - 1,
     }
 
+    /// <summary>Combines two owned list bytes into a native little-endian word, including overlapping views after byte operands.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
@@ -192,6 +193,7 @@ internal static class BombTorizoGreyDoorPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Limits compiled bytes to the closing and resident lists, excluding the intervening Bombs callback machine code.</summary>
     private static bool Owns(ushort address) =>
         address is >= ClosingStart and <= ClosingEnd or >= ResidentStart and <= ResidentEnd;
 }

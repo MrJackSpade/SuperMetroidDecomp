@@ -7,11 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable egg-fragment and slime OAM art, without physical motion rules.</summary>
 public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Compiled shell and slime OAM compositions keyed by their original bank-$8C pointers.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroEggEffectSpritePresentation), frames);
 
+    /// <summary>Retains the validated eleven-frame set after authoring arrays have been copied.</summary>
     private IntroEggEffectSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 

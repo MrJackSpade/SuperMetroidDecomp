@@ -3,6 +3,8 @@ using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using static SuiteTimingVerification;
 
+/// <summary>Reflection dispatcher for a named verifier whose inputs can be
+/// supplied directly from the retail cartridge or installation.</summary>
 internal static class SuiteRunnerVerification
 {
     /// <summary>
@@ -50,6 +52,7 @@ internal static class SuiteRunnerVerification
         return result is int code ? code : 0;
     }
 
+    /// <summary>Runs the uniquely named verifier passed to the suite CLI flag.</summary>
     [VerificationCommand("--suite", "verifierMethod", Description = "Runs one verifier method by name.")]
     internal static int SuiteCommand(string verifierMethod)
     {

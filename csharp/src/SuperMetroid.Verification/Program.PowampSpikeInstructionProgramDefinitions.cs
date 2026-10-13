@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Powamp spike animation loops and private deletion across all eight burst directions.</summary>
 internal static class PowampSpikeInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the Powamp spike instruction comparison.</summary>
     internal static void VerifyPowampSpikeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPowampSpikeInstructionProgramDefinitions), () => VerifyPowampSpikeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks live burst frames, installed visual operands, collision deletion, and forbidden mechanics reads.</summary>
     internal static void VerifyPowampSpikeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -136,6 +139,7 @@ internal static class PowampSpikeInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates animation and delete control words to detect warmed lookup allocations.</summary>
     private static int ProbePowampSpikeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -149,6 +153,7 @@ internal static class PowampSpikeInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Blocks migrated spike mechanics and records access to visual operands.</summary>
     private static CartridgeReadGuard NewPowampSpikeInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(PowampSpikeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -156,6 +161,7 @@ internal static class PowampSpikeInstructionProgramDefinitionsVerification
             .ObserveWords(EnemyProjectileCodePointers.BankBase, PowampSpikeInstructionProgramDefinitions.PresentationWordCount,
                 PowampSpikeInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the focused Powamp spike instruction check against the retail ROM.</summary>
     [VerificationCommand("--powamp-spike-instruction-mechanics")]
     internal static int PowampSpikeInstructionMechanicsCommand()
     {

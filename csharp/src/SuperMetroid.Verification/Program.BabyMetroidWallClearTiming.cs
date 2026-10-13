@@ -14,6 +14,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the frame ordering between Baby Metroid's wall-clear spawn and Samus's movement in the escape room.</summary>
 internal static class BabyMetroidWallClearTimingVerification
 {
     /// <summary>
@@ -63,6 +64,7 @@ internal static class BabyMetroidWallClearTimingVerification
         Console.WriteLine("  Baby Metroid wall clear: the wall is gone before Samus moves that frame.");
     }
 
+    /// <summary>Runs the same-frame wall-clear regression through the verification command host.</summary>
     [VerificationCommand("--baby-metroid-wall-clear-timing")]
     internal static int BabyMetroidWallClearTimingCommand()
     {

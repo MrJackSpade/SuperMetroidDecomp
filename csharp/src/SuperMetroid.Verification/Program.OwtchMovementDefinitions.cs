@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Owtch timer and travel-distance definitions through real initialization.</summary>
 internal static class OwtchMovementDefinitionsVerification
 {
+    /// <summary>Checks 144 wrapped initial positions while compiled movement-table reads are forbidden.</summary>
     internal static void VerifyOwtchMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -48,6 +50,7 @@ internal static class OwtchMovementDefinitionsVerification
             "Owtch movement definitions: fourteen native words and 144 wrapped production initializers pass with table reads forbidden.");
     }
 
+    /// <summary>Compares eight indexed travel distances with their original cartridge words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Owtch travel distance algorithm")]
     private static void VerifyOwtchTravelDistanceAlgorithm(SuperMetroidAddressSpace rom)
     {
@@ -62,6 +65,7 @@ internal static class OwtchMovementDefinitionsVerification
         }
     }
 
+    /// <summary>Compares six underground timers with their original cartridge words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Owtch underground timer algorithm")]
     private static void VerifyOwtchUndergroundTimerAlgorithm(SuperMetroidAddressSpace rom)
     {
@@ -76,6 +80,7 @@ internal static class OwtchMovementDefinitionsVerification
         }
     }
 
+    /// <summary>Rejects runtime access to the compiled bank A2 timer and distance interval.</summary>
     private static CartridgeReadGuard NewOwtchMovementReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa2a3dd and < 0xa2a3f9,

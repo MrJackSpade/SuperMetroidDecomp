@@ -12,8 +12,10 @@ using static LookupCeresHazeRampVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks native Ceres haze ramp control and room-owned blue/red handoff.</summary>
 internal static class CeresHazeVerification
 {
+    /// <summary>Compares waiting, fade, and hold writes against the pinned bank-$88 instruction trace.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres haze phase control")]
     internal static void VerifyCeresHazePhaseControl(ISnesAddressSpace rom)
     {
@@ -73,6 +75,7 @@ internal static class CeresHazeVerification
         }
     }
 
+    /// <summary>Exercises a retail door transition from Ridley's blue haze to the escape hallway's red haze.</summary>
     internal static void VerifyCeresHazeLifecycle()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

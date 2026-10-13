@@ -12,8 +12,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class RoomMetatileAtlas
 {
+    /// <summary>Four packed BG words per block in native quadrant order.</summary>
     private readonly byte[] blockDefinitions;
 
+    /// <summary>Accepts a fully validated native block table.</summary>
     private RoomMetatileAtlas(byte[] blockDefinitions) => this.blockDefinitions = blockDefinitions;
 
     /// <summary>Compiled native block-table bytes: four little-endian BG tilemap words per block, ordered top-left, top-right, bottom-left, bottom-right.</summary>
@@ -82,6 +84,7 @@ public sealed class RoomMetatileAtlas
         json.Write(bytes);
     }
 
+    /// <summary>Strict camel-case JSON settings for editable metatile documents.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Saved-station marker from $82:B6DD and animation timer from $82:B9FC.</summary>
 public sealed class FileSelectStationMarker
 {
+    /// <summary>Current phase of the four-frame station indicator pulse.</summary>
     private int frame;
+    /// <summary>Remaining menu ticks in the current animation phase.</summary>
     private int timer;
+    /// <summary>Completed pulses; parity controls whether the indicator backing is shown.</summary>
     private ushort loops;
 
     /// <summary>Binds a saved station's drawing anchor and starts a fresh $82:B9FC indicator animation; this object neither chooses the gameplay load target nor initializes map scrolling.</summary>

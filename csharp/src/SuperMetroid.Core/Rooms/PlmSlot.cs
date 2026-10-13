@@ -10,15 +10,20 @@ internal sealed class PlmSlot
 {
     /// <summary>Samus position saved by the Brinstar plant setup (native <c>PLM_Vars</c> X, <c>PLMExtra_Vars</c> Y).</summary>
     public Position16<RoomPixels> PlantHeldPosition { get; set; }
+    /// <summary>Marks whether this physical PLM slot participates in the room update.</summary>
     public bool Active { get; set; }
+    /// <summary>Bank-$84 header selecting the resident PLM's setup and behavior.</summary>
     public PlmHeaderId HeaderPointer { get; set; }
+    /// <summary>Index of the room block owned by this PLM.</summary>
     public int BlockIndex { get; set; }
     /// <summary>
     /// Native <c>PLM_Vars</c>. Grapple setup saves the original word; collision-bomb
     /// setup synthesizes the dimension-parent restoration word <c>$x058</c> instead.
     /// </summary>
     public ushort RestoreLevelWord { get; set; }
+    /// <summary>Current bank-$84 instruction-list position for the slot's generic interpreter.</summary>
     public ushort InstructionPointer { get; set; }
+    /// <summary>Countdown until the slot's next instruction-list step.</summary>
     public NativeCountdown InstructionTimer { get; set; }
     /// <summary>Native bank-$84 pre-instruction pointer run before the timer/list pass.</summary>
     public ushort PreInstruction { get; set; }

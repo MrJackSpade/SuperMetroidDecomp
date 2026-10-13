@@ -5,6 +5,7 @@ internal static class MotherBrainHandBeamBodyInstructionDefinitionsTooling
 {
     /// <summary>All fifteen visual operands; dust coordinates, durations and opcodes are excluded.</summary>
     internal static IReadOnlyList<ushort> PresentationOperands => VisualOperands;
+    /// <summary>Address view spanning entry frames, dust records, pre-emission pose, and post-emission frames.</summary>
     internal static readonly MotherBrainHandBeamBodyInstructionDefinitionsTooling.VisualOperandList VisualOperands = new();
     /// <summary>Number of dust records preceding the beam attack.</summary>
     public const int DustRecordCount = 8;
@@ -14,9 +15,12 @@ internal static class MotherBrainHandBeamBodyInstructionDefinitionsTooling
     internal const ushort BeforeEmissionFrame = MotherBrainHandBeamBodyInstructionDefinitions.FirstDustRecord + DustRecordCount * MotherBrainHandBeamBodyInstructionDefinitions.DustRecordStride;
     /// <summary>$A9:9AB6-9AC1: three duration/spritemap pairs after the beam-spawn callback.</summary>
     internal const ushort AfterEmissionFrames = BeforeEmissionFrame + 3 * sizeof(ushort);
+    /// <summary>Calculates the fifteen hand-beam body spritemap addresses without copying nonvisual instruction bytes.</summary>
     internal sealed class VisualOperandList : IReadOnlyList<ushort>
     {
+        /// <summary>Three entry poses, eight dust poses, one pre-emission pose, and three post-emission poses.</summary>
         public int Count => EntryFrames + DustRecordCount + 1 + EntryFrames;
+        /// <summary>Locates a visual word within the hand-beam body sequence, skipping dust coordinates and callbacks.</summary>
         public ushort this[int index]
         {
             get
@@ -30,10 +34,12 @@ internal static class MotherBrainHandBeamBodyInstructionDefinitionsTooling
                     (ushort)(AfterEmissionFrames + (index - 1) * 2 * sizeof(ushort) + sizeof(ushort));
             }
         }
+        /// <summary>Enumerates hand-beam visual operands in their native program order.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Provides the same native-order visual sequence to non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

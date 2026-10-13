@@ -13,6 +13,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks how a bomb jump carries Samus's existing dash speed into the forward-jump pose.</summary>
 internal static class BombJumpRunMomentumVerification
 {
     /// <summary>
@@ -43,6 +44,7 @@ internal static class BombJumpRunMomentumVerification
         Console.WriteLine("  Bomb-jump run momentum: the forward-jump pose decelerates retained dash speed.");
     }
 
+    /// <summary>Runs the focused 13% movie dash-to-bomb-jump momentum check from the verification command line.</summary>
     [VerificationCommand("--bomb-jump-run-momentum")]
     internal static int BombJumpRunMomentumCommand()
     {

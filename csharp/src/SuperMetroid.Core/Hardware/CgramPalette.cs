@@ -11,7 +11,9 @@ namespace SuperMetroid.Core.Hardware;
 [PpuLayoutBoundary("rendering view: a bounded CGRAM colour range")]
 public readonly struct CgramPalette
 {
+    /// <summary>Underlying hardware color table to which writes must propagate.</summary>
     private readonly SnesCgram cgram;
+    /// <summary>First CGRAM color slot represented by this bounded view.</summary>
     private readonly int first;
 
     /// <summary>Binds the CGRAM colours described by <paramref name="cell"/>.</summary>
@@ -23,6 +25,7 @@ public readonly struct CgramPalette
     {
     }
 
+    /// <summary>Creates a validated subview using a parent range's CGRAM offset and color count.</summary>
     private CgramPalette(SnesCgram cgram, int first, int count)
     {
         this.cgram = cgram;
@@ -79,10 +82,12 @@ public readonly struct CgramPalette
         return new(cgram, first + start, count);
     }
 
+    /// <summary>Rejects a color index outside this view before adding its CGRAM base offset.</summary>
     private int Index(int index) => (uint)index < (uint)Count
         ? index
         : throw new ArgumentOutOfRangeException(nameof(index), index, $"The palette range holds {Count} colours.");
 
+    /// <summary>Guards a requested color span against the bounds of this palette view.</summary>
     private void CheckSpan(int start, int count)
     {
         if (start < 0 || count < 0 || start + count > Count)
@@ -143,6 +148,7 @@ public readonly struct CgramPalettes(SnesCgram cgram)
         }
     }
 
+    /// <summary>Tests whether a CGRAM color belongs to a preserved range and rejects cells from another PPU region.</summary>
     private static bool Covers(ReadOnlySpan<PpuLayoutCell> cells, int color)
     {
         foreach (PpuLayoutCell cell in cells)
@@ -169,6 +175,7 @@ public readonly struct CgramPalettes(SnesCgram cgram)
     /// <summary>The number of 16-colour rows in the whole CGRAM.</summary>
     public const int RowCount = 2 * PpuMemoryLayout.PaletteRowCount;
 
+    /// <summary>Converts a bank-local row from zero through seven into its first color index.</summary>
     private static int RowStart(int row) => (uint)row < PpuMemoryLayout.PaletteRowCount
         ? row * PpuMemoryLayout.ColorsPerRow
         : throw new ArgumentOutOfRangeException(nameof(row), row, "A palette bank has eight rows.");

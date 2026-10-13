@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static KraidRockGeneratedProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks the installed Kraid rock and shared Kago projectile programs against their native instruction sequences.</summary>
 internal static class KraidRockProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge and runs the Kraid rock instruction checks.</summary>
     internal static void VerifyKraidRockProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidRockProjectileInstructionProgramDefinitions), () => VerifyKraidRockProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises live projectile producers while guarding compiled mechanics bytes against cartridge reads.</summary>
     internal static void VerifyKraidRockProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -201,6 +204,7 @@ internal static class KraidRockProjectileInstructionProgramDefinitionsVerificati
         }
     }
 
+    /// <summary>Repeatedly reads the two compiled program entries to detect allocations after warmup.</summary>
     private static int ProbeKraidRockProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -214,6 +218,7 @@ internal static class KraidRockProjectileInstructionProgramDefinitionsVerificati
         return checksum;
     }
 
+    /// <summary>Rejects runtime mechanics reads while recording the selected presentation operands.</summary>
     private static CartridgeReadGuard NewKraidRockProjectileInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -222,6 +227,7 @@ internal static class KraidRockProjectileInstructionProgramDefinitionsVerificati
                 address => $"Production read compiled Kraid-rock mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, KraidRockProjectileInstructionProgramDefinitions.PresentationWordCount, KraidRockProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the standalone Kraid rock projectile instruction verification command.</summary>
     [VerificationCommand("--kraid-rock-projectile-instruction-mechanics")]
     internal static int KraidRockProjectileInstructionMechanicsCommand()
     {

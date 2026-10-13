@@ -11,8 +11,10 @@ namespace SuperMetroid.Core.Assets;
 /// shades and temporal fades are computed. Endpoint values remain supplied, not defaults.</summary>
 internal sealed class EndingLogoBackgroundPalette
 {
+    /// <summary>Caller-supplied RGB5 endpoint levels retained when the complete sixteen-color logo gradient matches.</summary>
     private readonly int light, dark;
 
+    /// <summary>Stores the two admitted grey endpoints used to reproduce all eight logo shades.</summary>
     private EndingLogoBackgroundPalette(int light, int dark)
     {
         this.light = light;

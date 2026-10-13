@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Source-reviewed title, opening and Ceres visual providers; no scene, timing or pixel-parity claim.</summary>
 internal static class CinematicClosedContractDefinitions
 {
+    /// <summary>Lists reviewed title, opening, and Ceres providers with the source paths that bound each visual claim.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.TitlePalettePresentation", "title-complete-initial-palette", ["Apply"],

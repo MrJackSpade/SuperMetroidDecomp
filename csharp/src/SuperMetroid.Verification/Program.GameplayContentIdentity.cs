@@ -13,6 +13,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Checks canonical hashes for shared gameplay palettes, sprite pixels, and X-ray visuals.</summary>
 internal static class GameplayContentIdentityVerification
 {
     /// <summary>Known shared-presentation domains only; no ROM or gameplay path discovery.</summary>
@@ -63,6 +64,7 @@ internal static class GameplayContentIdentityVerification
             "room overlay positions/order, canonical records and host warnings pass without a ROM.");
     }
 
+    /// <summary>Builds decoded presentation identities with one optional edit or reversed record order.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static IReadOnlyDictionary<string, string> CreateGameplayIdentityFixture(
         string? edit = null, bool reverse = false)
@@ -121,6 +123,7 @@ internal static class GameplayContentIdentityVerification
         return GameplayPresentationIdentity.Create(palettes, sprites, xray);
     }
 
+    /// <summary>Runs the shared gameplay content identity checks.</summary>
     [VerificationCommand("--gameplay-content-identity")]
     internal static int GameplayContentIdentityCommand()
     {

@@ -42,6 +42,7 @@ internal abstract class DachoraInstructionProgramDefinitions
     /// <summary>Native program bank $A7.</summary>
     internal const byte Bank = 0xa7;
 
+    /// <summary>Native run-speed, idle, blink, charge, echo, and fall holds and branches for both facings.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xf345),
         Entry(RunningLeft),
@@ -156,10 +157,13 @@ internal abstract class DachoraInstructionProgramDefinitions
         Entry(FallingRight),
         Frame(5),
         Op((ushort)CommonEnemyInstruction.Goto, FallingRight));
+    /// <summary>Number of compiled frame selectors whose visual art is installed separately.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
 
+    /// <summary>Locates one Dachora spritemap selector by native bank-$A7 address.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads a compiled control word while rejecting unsupported or visual-only pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

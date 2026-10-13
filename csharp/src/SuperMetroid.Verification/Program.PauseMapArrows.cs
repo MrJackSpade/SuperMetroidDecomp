@@ -18,8 +18,10 @@ using SuperMetroid.Core.Spatial;
 using static MapSpritesVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks pause map-arrow OAM, palette timing, and visibility at scroll boundaries.</summary>
 internal static class PauseMapArrowsVerification
 {
+    /// <summary>Compares native arrow pixels and checks page fade and restored snapshot behavior.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause map arrow tiles, palette and spritemaps")]
     internal static void VerifyPauseMapArrows()
@@ -111,6 +113,7 @@ internal static class PauseMapArrowsVerification
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);
     }
 
+    /// <summary>Runs the retail pause map-arrow visual comparison.</summary>
     [VerificationCommand("--pause-map-arrows")]
     internal static int PauseMapArrowsCommand()
     {

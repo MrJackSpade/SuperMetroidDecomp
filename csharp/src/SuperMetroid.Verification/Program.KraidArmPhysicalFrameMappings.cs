@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using static KraidArmInstructionProgramDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kraid arm physical-frame addresses and ordered collision parts against native records.</summary>
 internal static class KraidArmPhysicalFrameMappingsVerification
 {
+    /// <summary>Walks the native component stream to collect all arm frame starts up to the lint hitbox boundary.</summary>
     internal static ushort[] NativeKraidArmPhysicalFrames(SuperMetroidAddressSpace rom)
     {
         var pointers = new List<ushort>();
@@ -20,6 +22,7 @@ internal static class KraidArmPhysicalFrameMappingsVerification
         return pointers.ToArray();
     }
 
+    /// <summary>Checks all 22 calculated arm frame ordinals against the independently walked native stream.</summary>
     internal static void VerifyKraidArmPhysicalFramePointers(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = NativeKraidArmPhysicalFrames(rom);
@@ -31,6 +34,7 @@ internal static class KraidArmPhysicalFrameMappingsVerification
         AssertThrows<IndexOutOfRangeException>(() => KraidArmCollisionDefinitions.FramePointer(22), "Past arm frame ordinal");
     }
 
+    /// <summary>Compares the fixed anchor component in every native arm frame with compiled collision offsets.</summary>
     private static void VerifyKraidArmStationaryPositions(SuperMetroidAddressSpace rom)
     {
         int checkedPositions = 0;
@@ -48,6 +52,7 @@ internal static class KraidArmPhysicalFrameMappingsVerification
         }
         AssertEqual(22, checkedPositions, "All stationary arm component positions checked");
     }
+    /// <summary>Checks exact pointer membership and ordered component records, returning hitbox pointers for subsequent checks.</summary>
     internal static HashSet<ushort> VerifyKraidArmPhysicalLayoutSelection(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidArmStationaryPositions), () => VerifyKraidArmStationaryPositions(rom));

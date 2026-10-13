@@ -7,17 +7,28 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Native reward jump/landing actor owner, ending at F604's screen-shot request.</summary>
 internal sealed class EndingRewardJump
 {
+    /// <summary>Address space used when advancing the jump actors' instruction lists.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Selects the armored head offsets used during the launch animation.</summary>
     private readonly bool helmeted;
+    /// <summary>Queues one ending graphics sheet per landing update until all sheets are installed.</summary>
     private readonly Action<int> queueGraphicsUpload;
+    /// <summary>Body actor whose vertical position controls the sheet switch and landing.</summary>
     private readonly IntroDiscoverySprite body;
+    /// <summary>Separate head actor present for the two suited ending rewards.</summary>
     private readonly IntroDiscoverySprite? head;
+    /// <summary>Shared packed vertical velocity; each active actor movement applies gravity to it.</summary>
     internal int velocity;
+    /// <summary>Number of landing graphics sheets already queued for upload.</summary>
     private int uploads;
+    /// <summary>Whether the shooting instruction has requested the ending screen capture.</summary>
     public bool ShotRequested { get; private set; }
+    /// <summary>OBJ selection set when the body crosses the graphics sheet switch height.</summary>
     public byte ObjectSelection { get; private set; }
+    /// <summary>Whole-pixel body height used to select the falling and landed instruction lists.</summary>
     public short BodyY => unchecked((short)body.WholePosition.Y);
 
+    /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
     public EndingRewardJump(ISnesAddressSpace bus, EndingReward reward, Action<int> queueGraphicsUpload)
     {
         this.bus = bus;
@@ -28,6 +39,7 @@ internal sealed class EndingRewardJump
         body = Spawn(reward == EndingReward.Suitless ? EndingRewardActor.JumpSuitlessBody : EndingRewardActor.JumpSuitedBody);
     }
 
+    /// <summary>Advances head before body, including shared gravity, landing uploads, and instruction effects.</summary>
     public void Step(Func<ushort, ushort>? instructionWord = null)
     {
         // Native fixed slots put the head above the body in the descending handler.
@@ -67,6 +79,7 @@ internal sealed class EndingRewardJump
         body.Step<EndingRewardJumpInstruction>(Instruction, instructionWord);
     }
 
+    /// <summary>Draws the active head and body into a supplied frame or a newly finalized OAM buffer.</summary>
     public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
         var oam = destination ?? new OamBuffer();
@@ -77,6 +90,7 @@ internal sealed class EndingRewardJump
         return oam;
     }
 
+    /// <summary>Applies gravity to shared velocity and moves an actor using packed fixed-point height.</summary>
     private void Move(IntroDiscoverySprite actor)
     {
         velocity = unchecked(velocity + EndingRewardJumpDefinitions.Gravity);
@@ -84,6 +98,7 @@ internal sealed class EndingRewardJump
         actor.Position = actor.Position.WithY(IntroCinematicMotion.Unpacked(position));
     }
 
+    /// <summary>Handles launch, head placement, and the shoot event emitted by jump instruction lists.</summary>
     private ushort Instruction(EndingRewardJumpInstruction instruction, ushort cursor)
     {
         switch (instruction)
@@ -111,7 +126,9 @@ internal sealed class EndingRewardJump
         CinematicInstructionWords.TryDecode(actor.PreInstructionPointer, out EndingRewardJumpPreInstruction installed)
             ? installed : null;
 
+    /// <summary>Requires a suited jump's head actor when a head-specific instruction runs.</summary>
     private IntroDiscoverySprite RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
+    /// <summary>Creates a jump actor from its catalogued initial position, palette, and instruction pointers.</summary>
     private static IntroDiscoverySprite Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition record = EndingRewardActorDefinitions.Get(definition);

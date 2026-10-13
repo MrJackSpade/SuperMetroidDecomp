@@ -23,15 +23,21 @@ public enum WreckedShipTreadmillDirection
 public sealed class WreckedShipTreadmillAnimatedTilesState
 {
 
+    /// <summary>Bank-87 object identity selected by the room's entrance-door setup.</summary>
     private AnimatedTileObject _objectPointer;
+    /// <summary>Next compiled instruction word to interpret for this animated-tile object.</summary>
     private ushort _instructionPointer;
+    /// <summary>Actor-pass countdown before interpreting another frame or command.</summary>
     private NativeCountdown _instructionTimer;
+    /// <summary>Number of source bytes queued for each treadmill tile DMA transfer.</summary>
     private ushort _transferByteCount;
+    /// <summary>Native VRAM destination word retained for queued DMA conversion.</summary>
     private ushort _encodedVramDestination;
 
     /// <summary>The queued-DMA destination the treadmill object's native word decodes to.</summary>
     [PpuLayoutBoundary("codec: Wrecked Ship treadmill animated-tile object's native VRAM destination")]
     private VramDmaDestination Destination => VramDmaDestination.FromNative(_encodedVramDestination);
+    /// <summary>Resolved object/list mechanics used after the stock direction and pointer are checked.</summary>
     private WreckedShipTreadmillObjectDefinition? _compiledMechanics;
 
     /// <summary>Whether one of the two door-spawned objects occupies its native slot.</summary>
@@ -182,6 +188,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
             $"instructions at $87:{cursor:X4}.");
     }
 
+    /// <summary>Reads a word from the selected compiled list and rejects pointers outside its authored mechanics.</summary>
     private ushort ReadMechanicsWord(ushort pointer)
     {
         if (_compiledMechanics is null)

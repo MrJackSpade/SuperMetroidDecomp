@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Correlated compiled DMA operands, not arbitrary Cartesian products of available artwork.</summary>
 internal static class VramDmaDomains
 {
+    /// <summary>Enumerates source/length pairs or typed assets admitted by one compiled DMA producer family.</summary>
     internal static IEnumerable<VramDmaTransfer> ForFamily(string family, string owner)
     {
         IEnumerable<VramDmaTransfer> Native(IEnumerable<(int Source, int Count)> pairs) =>
@@ -89,6 +90,7 @@ internal static class VramDmaDomains
         }
     }
 
+    /// <summary>Derives scrolling-sky row transfers from reachable room states and camera bounds.</summary>
     private static IEnumerable<(int, int)> SkyRows()
     {
         // Finite source arithmetic for the rooms selecting this callback, not

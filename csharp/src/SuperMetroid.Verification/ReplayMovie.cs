@@ -11,6 +11,7 @@ using SuperMetroid.Core.Hardware;
 /// </summary>
 internal sealed class ReplayMovie
 {
+    /// <summary>Retains the verified source bytes and decoded initial state and input timeline together.</summary>
     private ReplayMovie(string name, byte[] bytes, byte[] initialSaveRam, ushort[] frameInputs, ReplaySnapshot? snapshot)
     {
         Name = name;
@@ -22,6 +23,7 @@ internal sealed class ReplayMovie
 
     /// <summary>Short label used in replay messages.</summary>
     public string Name { get; }
+    /// <summary>Exact recording bytes used for identity verification and provenance.</summary>
     public byte[] Bytes { get; }
 
     /// <summary>The 8 KiB cartridge SRAM the recording starts with.</summary>
@@ -48,6 +50,7 @@ internal sealed class ReplayMovie
             : throw new InvalidDataException($"{name} is neither an SMV nor an lsnes movie.");
     }
 
+    /// <summary>Decodes one-controller Snes9x v4/v5 input words and reset or snapshot start state.</summary>
     private static ReplayMovie FromSmv(string name, byte[] movie)
     {
         const int FrameCountField = 0x10, ControllerCountField = 0x14, ControllerOffsetField = 0x1c;
@@ -87,6 +90,7 @@ internal sealed class ReplayMovie
         return state.ToArray();
     }
 
+    /// <summary>Copies the cartridge's first 8 KiB of SRAM from an embedded start-state image.</summary>
     private static byte[] CartridgeSaveRam(byte[] image, string source)
     {
         if (image.Length < SuperMetroidAddressSpace.SaveRamByteCount)

@@ -6,8 +6,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Checks installed Botwoon palette art, live health transitions, and override validation.</summary>
 internal static class EnemyTileArtworkBotwoonColorsVerification
 {
+    /// <summary>Compares 128 stock colors with the ROM and checks edited colors flow through live health-band updates.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon health palettes and thresholds")]
     internal static void VerifyInstalledBotwoonColors(
@@ -114,6 +116,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         };
     }
 
+    /// <summary>Guards the migrated Botwoon palette range against live cartridge reads.</summary>
     internal static CartridgeReadGuard NewBotwoonColorReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(BotwoonHealthPaletteDefinitions.NativePaletteAddress,
             BotwoonHealthPaletteDefinitions.PaletteCount *

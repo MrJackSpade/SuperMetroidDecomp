@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(DragonInstructionProgramDefinitions))]
 internal abstract class DragonInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Timing and control words for Dragon's idle, wing, and attack lists in both directions.</summary>
     public static int MechanicsWordCount => DragonInstructionProgramDefinitions.MechanicsWordCount;
+    /// <summary>Reads a compiled Dragon word from the directional pose programs.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => DragonInstructionProgramDefinitions.MechanicsWord(index);
+    /// <summary>Drawing operands paired with Dragon's directional poses.</summary>
     public static int PresentationWordCount => DragonInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates one Dragon drawing operand for the dependency audit.</summary>
     public static ushort PresentationWordAddress(int index) => DragonInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Matches either byte of a compiled Dragon word in bank $A2.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000)

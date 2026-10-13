@@ -16,6 +16,7 @@ public sealed record RoomPlmDynamicCollectibleArtEntry(
 /// </summary>
 public sealed class RoomPlmDynamicCollectibleArtCatalog
 {
+    /// <summary>Copied overrides for item kinds whose characters or palette selectors differ from compiled stock artwork.</summary>
     private readonly Dictionary<InWorldCollectibleKind, RoomPlmDynamicCollectibleGraphic>? customGraphics;
 
     /// <summary>Validates one artwork entry for each of the seventeen dynamic permanent-item kinds and copies edited characters/selectors into owned storage, sharing compiled stock definitions when the supplied content matches.</summary>
@@ -71,6 +72,7 @@ public sealed class RoomPlmDynamicCollectibleArtCatalog
             }
         });
 
+    /// <summary>Uses the selected art for a permanent item, falling back to compiled stock data for unchanged kinds.</summary>
     internal RoomPlmDynamicCollectibleGraphic Resolve(InWorldCollectibleKind kind)
     {
         int index = (int)kind -

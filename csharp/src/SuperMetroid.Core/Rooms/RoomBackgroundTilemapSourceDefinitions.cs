@@ -21,8 +21,10 @@ public static class RoomBackgroundTilemapSources
         return false;
     }
 
+    /// <summary>Derives sorted unique decompression sources directly from compiled library-background commands.</summary>
     private sealed class SourceSequence : IReadOnlyList<int>
     {
+        /// <summary>Counts distinct tilemap sources without retaining a parallel source table.</summary>
         public int Count
         {
             get
@@ -33,6 +35,7 @@ public static class RoomBackgroundTilemapSources
             }
         }
 
+        /// <summary>Returns the indexed source from the sorted unique enumeration, rejecting missing ordinals.</summary>
         public int this[int index]
         {
             get
@@ -45,6 +48,7 @@ public static class RoomBackgroundTilemapSources
             }
         }
 
+        /// <summary>Repeatedly finds the next greater decompression address across all compiled programs.</summary>
         public IEnumerator<int> GetEnumerator()
         {
             int previous = int.MinValue;
@@ -66,6 +70,7 @@ public static class RoomBackgroundTilemapSources
             }
         }
 
+        /// <summary>Exposes the same sorted source identities to non-generic consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

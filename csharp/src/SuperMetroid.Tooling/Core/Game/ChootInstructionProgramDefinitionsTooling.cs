@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(ChootInstructionProgramDefinitions))]
 internal abstract class ChootInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Accounts for idle setup and four mechanic words in each jumping and falling list.</summary>
     public static int MechanicsWordCount => 11;
+    /// <summary>Accounts for one idle pose and two poses each while jumping and falling.</summary>
     public static int PresentationWordCount => 5;
+    /// <summary>Maps an index through the idle, jumping, and falling instruction words.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -24,6 +27,7 @@ internal abstract class ChootInstructionProgramDefinitionsTooling : IInstruction
         }
         return new(address, ChootInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Locates a pose operand interleaved with Choot movement instructions.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -31,6 +35,7 @@ internal abstract class ChootInstructionProgramDefinitionsTooling : IInstruction
         return index == 0 ? (ushort)(ChootInstructionProgramDefinitions.Idle + 4) :
             (ushort)(ChootInstructionProgramDefinitions.Jumping + (ChootInstructionProgramDefinitions.Falling - ChootInstructionProgramDefinitions.Jumping) * ((index - 1) / 2) + 4 + 4 * ((index - 1) % 2));
     }
+    /// <summary>Checks either byte of a compiled Choot mechanic word in bank A2.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000)

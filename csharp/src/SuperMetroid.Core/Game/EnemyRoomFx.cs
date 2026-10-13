@@ -3,6 +3,7 @@
 /// <summary>The room's layer-3 FX words that enemy AI drives directly: liquid motion commands from Ridley and the Chozo statue.</summary>
 internal sealed class EnemyRoomFx
 {
+    /// <summary>Current room's layer-3 FX owner; excluded from serialized enemy state and rebound after restoration.</summary>
     [NonSerialized] internal RoomLayer3FxState? Layer3Fx;
 
     /// <summary>
@@ -11,6 +12,7 @@ internal sealed class EnemyRoomFx
     /// </summary>
     internal void BindRoomFx(RoomLayer3FxState roomFx) => Layer3Fx = roomFx;
 
+    /// <summary>Applies Ridley's liquid target, packed velocity, and delay at the AI command boundary so the FX timer is not reset each frame.</summary>
     internal void PublishRidleyLiquidMotion(RidleyEnemyState state, ushort target, ushort velocity, ushort delay)
     {
         state.FxTargetYPosition = target;

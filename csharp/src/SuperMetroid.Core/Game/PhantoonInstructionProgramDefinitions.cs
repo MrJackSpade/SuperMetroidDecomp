@@ -55,7 +55,9 @@ internal abstract class PhantoonInstructionProgramDefinitions
     /// <summary>Mouth preparation dwell at A7:CCEB/CCEF. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort MouthPreparationFrames = 5;
 
+    /// <summary>Number of compiled timing, callback, and branch words across Phantoon's four records.</summary>
     public static int MechanicsWordCount => 58;
+    /// <summary>Number of pose operands resolved through installed Phantoon presentation data.</summary>
     public static int PresentationWordCount => 27;
 
     /// <summary>Calculates control positions from named sleep, transition, callback and loop layouts.</summary>
@@ -108,12 +110,15 @@ internal abstract class PhantoonInstructionProgramDefinitions
         return SleepWord(InitialMouth, index - 56);
     }
 
+    /// <summary>Locates a four-byte pose record's duration word within an instruction list.</summary>
     private static InstructionMechanicsWord Frame(ushort start, int frame, ushort duration) =>
         new((ushort)(start + frame * 4), duration);
 
+    /// <summary>Describes the one-frame pose and following sleep opcode shared by static part lists.</summary>
     private static InstructionMechanicsWord SleepWord(ushort start, int word) =>
         new((ushort)(start + word * 4), word == 0 ? (ushort)1 : (ushort)CommonEnemyInstruction.Sleep);
 
+    /// <summary>Maps eyelid-closing durations and callback/loop words, optionally inserting the next-pattern callback.</summary>
     private static InstructionMechanicsWord CloseWord(ushort start, int word, bool pickPattern)
     {
         if (word < 2) return Frame(start, word, word == 0 ? (ushort)1 : EyeTransitionFrames);
@@ -167,13 +172,16 @@ internal abstract class PhantoonInstructionProgramDefinitions
         return PhantoonBg2FrameDefinitions.MouthPose(0);
     }
 
+    /// <summary>Checks whether an A7 word belongs to Phantoon's compiled pose operands.</summary>
     internal static bool IsPresentationWord(ushort address) => PresentationIndex(address) >= 0;
+    /// <summary>Resolves an A7 pose-operand address to its compiled frame or rejects an unlisted word.</summary>
     internal static ushort FrameAt(ushort address)
     {
         int index = PresentationIndex(address);
         return index >= 0 ? PresentationFrame(index)
             : throw new InvalidDataException($"Phantoon visual operand $A7:{address:X4} is not compiled.");
     }
+    /// <summary>Binary-searches the ordered pose-operand positions without allocating a lookup table.</summary>
     private static int PresentationIndex(ushort address)
     {
         int low = 0, high = PresentationWordCount - 1;

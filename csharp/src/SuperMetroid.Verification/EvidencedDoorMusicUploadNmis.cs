@@ -8,8 +8,11 @@ using SuperMetroid.Core.Frontend;
 /// </summary>
 internal sealed class EvidencedDoorMusicUploadNmis : IDoorMusicUploadNmiSource
 {
+    /// <summary>Gameplay update whose following upload wait has native timing evidence.</summary>
     private int update;
+    /// <summary>Accepted NMIs supplied by the converted movie for that upload wait.</summary>
     private int expected;
+    /// <summary>Prevents one update's evidence from satisfying two upload calls.</summary>
     private bool consumed;
 
     /// <summary>Declares the native upload-wait NMIs that follow <paramref name="nextUpdate"/>.</summary>
@@ -21,6 +24,7 @@ internal sealed class EvidencedDoorMusicUploadNmis : IDoorMusicUploadNmiSource
         consumed = false;
     }
 
+    /// <summary>Consumes the evidenced accepted-NMI count once, rejecting an unexpected or duplicate upload.</summary>
     public int AcceptedNmisDuringUpload(byte musicDataIndex)
     {
         if (expected == 0)

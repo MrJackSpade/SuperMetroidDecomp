@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks enemy spike-block reactions against native PLM headers and bus-free production collision behavior.</summary>
 internal static class EnemyBreakableTerrainDefinitionsVerification
 {
+    /// <summary>Confirms BTS low nibble fifteen spawns a breakable PLM and clears terrain, while other authored selectors retain collision.</summary>
     internal static void VerifyEnemyBreakableTerrainDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 16; index++)
@@ -27,7 +29,6 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock).Raw], [behavior], [0]), []);
             var plms = new RoomPlmSystem();
-            // EnemyTerrain owns no bus, so the reaction cannot read cartridge memory.
             var terrain = new EnemyTerrain();
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(0);
             bool collision;

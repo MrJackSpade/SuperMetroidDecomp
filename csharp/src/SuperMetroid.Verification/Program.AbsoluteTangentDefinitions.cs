@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks the compiled absolute tangent table through X-Ray and beam-window callers.</summary>
 internal static class AbsoluteTangentDefinitionsVerification
 {
+    /// <summary>Compares 129 native samples and wrapped caller directions while forbidding live tangent reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled absolute tangent")]
     internal static void VerifyCompiledAbsoluteTangent(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
@@ -70,6 +72,7 @@ internal static class AbsoluteTangentDefinitionsVerification
         Console.WriteLine("Absolute tangent: 129 native words, all direct caller endpoints, 768 X-ray directions and 520 window builds reject runtime tangent reads.");
     }
 
+    /// <summary>Runs the tangent table and production caller comparison.</summary>
     [VerificationCommand("--absolute-tangent-runtime")]
     internal static int AbsoluteTangentRuntimeCommand()
     {

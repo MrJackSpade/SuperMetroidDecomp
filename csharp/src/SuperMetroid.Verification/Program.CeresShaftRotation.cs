@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static AssertionsVerification;
 
+/// <summary>Checks the Ceres elevator shaft's timed Mode 7 matrix publications against native rotation records.</summary>
 internal static class CeresShaftRotationVerification
 {
+    /// <summary>Compares held frames and 548 matrix changes across four forward-and-reverse sweeps.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres shaft compiled rotation")]
     internal static void VerifyCeresShaftCompiledRotation()
     {

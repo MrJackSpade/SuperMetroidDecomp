@@ -5,8 +5,10 @@ using static EnemyAnimationIsolationFixtureVerification;
 using static EnemyContentIdentityFixtureVerification;
 using static GoldenTorizoRightOrbFramesVerification;
 
+/// <summary>Builds distinct edited enemy visuals and checks their rendered OAM independently of animation state.</summary>
 internal static class EnemyAnimationIsolationArtworkVerification
 {
+    /// <summary>Changes Boyon, Torizo, projectile, death, and pickup artwork while remapping selected display frames.</summary>
     internal static EnemyTileArtworkCatalog CreateEditedEnemyAnimationArtwork()
     {
         var fixture = new EnemyIdentityFixture();
@@ -48,6 +50,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
             EnemyProjectileSpritemapCatalog.Load(fixture.Json(projectile)));
     }
 
+    /// <summary>Creates two asymmetric OAM parts so ignored offsets, tile selection, and attributes are visible.</summary>
     private static SpriteVisualPart[] EditedAnimationParts(int tile) =>
     [
         new SpriteVisualPart
@@ -62,6 +65,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
         },
     ];
 
+    /// <summary>Compares the edited Boyon or Torizo body prefix with independently assembled packed OAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void AssertEditedAnimationDraw(EnemyAnimationFixture edited, OamBuffer drawn, int frame)
     {

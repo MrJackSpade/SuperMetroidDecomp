@@ -5,14 +5,22 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Ceres door species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class CeresDoorBehavior : IEnemySpecies
 {
+    /// <summary>Provides Ceres room artwork, boss status, and the gameplay RNG.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Receives the quake type and duration selected during the escape.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Queues the door's opening and destruction sounds.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Provides slot zero's frame counter for the shared palette cycle.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Owns VRAM and CGRAM destinations for Ceres door artwork.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Spawns smoke or explosion effects around the shaking door.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Supplies Ridley's escape status and receives the completed-escape marker.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
 
+    /// <summary>Captures the room systems used by the Ceres door's variants and escape sequence.</summary>
     internal CeresDoorBehavior(EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter)
     {
         _room = room;
@@ -110,11 +118,17 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Initial countdown whose underflow ends the 49-update destruction sequence.</summary>
     private const ushort CeresDoorRumbleDuration = 0x0030;
+    /// <summary>Reload value for the interval between destruction effects.</summary>
     private const ushort CeresDoorRumbleInterval = 4;
+    /// <summary>Library-two effect queued for each destruction burst.</summary>
     private const ushort CeresDoorRumbleSoundEffect = 0x0025;
+    /// <summary>Room graphics animation selected for the smoke outcome.</summary>
     private const ushort CeresDoorSmokeAnimation = 3;
+    /// <summary>Room graphics animation selected for the explosion outcome.</summary>
     private const ushort CeresDoorExplosionAnimation = 0x000c;
+    /// <summary>Status published when the door has finished Ridley's escape transition.</summary>
     private const ushort CeresDoorEscapedStatus = 0x8000;
 
 
@@ -125,6 +139,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
     /// </summary>
     public ushort? LastCeresDoorSoundEffectLibrary2 { get; private set; }
 
+    /// <summary>Gets the installed Ceres door artwork required by initialization and animation.</summary>
     private CeresDoorVisualCatalog SelectedCeresDoorVisual =>
         _room.Artwork?.CeresDoorVisual ?? throw new InvalidOperationException(
             "Ceres door requires installed visual artwork.");
@@ -295,6 +310,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, CeresDoorRumbleSoundEffect), maximumQueued: 6);
     }
 
+    /// <summary>Cycles door colors and the room's Mode-7 elevator frame from slot zero's frame counter.</summary>
     internal void RunCeresDoorPaletteAnimation()
     {
         // $A6:F850 selects six colors by NMI counter bits 3..5. Enemy FrameCounter advances
@@ -313,6 +329,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         SelectedCeresDoorVisual.LoadAnimationColors(_presentation._cgram!, colorRow);
     }
 
+    /// <summary>Registers initialization of each Ceres door population variant.</summary>
     internal void RegisterCeresDoorInitializationAi(EnemyAiTable table)
     {
         table.RegisterInitialization(EnemyAiRoutine.InitAI_CeresDoor, null, (slot, level, samus, controllerInput, cameraX) =>
@@ -321,6 +338,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the main dispatcher for the door's escape and elevator states.</summary>
     internal void RegisterCeresDoorMainAi(EnemyAiTable table)
     {
 
@@ -330,6 +348,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the door's proximity, visibility, tangibility, and sound opcodes.</summary>
     internal void RegisterCeresDoorOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

@@ -47,8 +47,10 @@ public static class WreckedShipTreadmillMechanicsDefinitions
 /// <summary>One direction-specific treadmill header and boss-gated four-frame loop.</summary>
 public sealed class WreckedShipTreadmillObjectDefinition
 {
+    /// <summary>Four native timed-frame cursors calculated from the first instruction pointer.</summary>
     internal readonly CalculatedFramePointers frameInstructionPointers;
 
+    /// <summary>Builds one direction's boss-gated header and first frame cursor.</summary>
     internal WreckedShipTreadmillObjectDefinition(
         WreckedShipTreadmillDirection direction,
         AnimatedTileObject objectPointer,
@@ -60,21 +62,25 @@ public sealed class WreckedShipTreadmillObjectDefinition
         frameInstructionPointers = new(LoopInstructionPointer);
     }
 
-    // The native two-byte boss wait is followed by four four-byte timed entries.
-    // Store the first cursor only; indexing and enumeration calculate the layout.
+    /// <summary>The two-byte boss wait is followed by four four-byte timed entries; only the first cursor is stored.</summary>
     internal sealed class CalculatedFramePointers(ushort first) : IReadOnlyList<ushort>
     {
+        /// <summary>The four frame entries following the boss wait.</summary>
         public int Count => 4;
+        /// <summary>Advances four bytes per timed frame from the first cursor.</summary>
         public ushort this[int index] => (uint)index < 4
             ? unchecked((ushort)(first + 4 * index))
             : throw new ArgumentOutOfRangeException(nameof(index));
+        /// <summary>Visits the four frame instruction pointers in native loop order.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same frame order through the non-generic interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>Maps a four-byte-aligned timed instruction cursor to its frame ordinal, returning -1 outside the loop.</summary>
     private int FrameIndex(ushort pointer)
     {
         int delta = unchecked((ushort)(pointer - LoopInstructionPointer));

@@ -12,19 +12,32 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class TourianStatueSequence
 {
+    /// <summary>Address space passed to palette FX spawning while statue tile mechanics remain compiled.</summary>
     private readonly ISnesAddressSpace _addressSpace;
+    /// <summary>Receives the black clear and installed grey-color palette writes from tile instructions.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Holds statue busy/released bits, effect spawning, vertical offset, and descent earthquake state.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Supplies equipped items to palette FX created during the release animation.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Spawns the access obstruction's clearing or opening PLM at the descent endpoint.</summary>
     private readonly RoomPlmSystem _plms;
+    /// <summary>Identifies the statue room setup and controls its two logical scroll cells.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Feeds water height and authored earthquake sound into the descending statue effects.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Creates the palette effect selected by a statue animated-tile instruction.</summary>
     private readonly RoomPaletteFxSystem _roomPaletteFx;
+    /// <summary>Tracks boss and statue events, area boss bits, RNG, and the final Tourian unlock event.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>The unlock option skips tile playback and starts the statue at its completed offset.</summary>
     private readonly TesterTools _tester;
+    /// <summary>Pauses quarter-pixel descent while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
+    /// <summary>Queues the selected bank-$87 animated tile art for VRAM transfer.</summary>
     private readonly VramWriteQueue _vramWrites;
 
+    /// <summary>Captures the room services needed to run the native tile and BG2 descent programs.</summary>
     internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies)
     {
         _addressSpace = dependencies.AddressSpace;
@@ -41,14 +54,21 @@ public sealed class TourianStatueSequence
         _vramWrites = dependencies.VramWrites;
     }
 
+    /// <summary>One spawned statue animation's compiled program, next instruction pointer, and frame timer.</summary>
     internal sealed class TileObject
     {
+        /// <summary>Program identity and installed transfer dimensions for this statue.</summary>
         public required TourianStatueAnimatedTileProgramDefinition Definition;
+        /// <summary>Next bank-$87 mechanics word.</summary>
         public ushort Pointer;
+        /// <summary>Remaining duration of the current tile frame.</summary>
         public NativeCountdown Timer = NativeCountdown.Start(1);
     }
+    /// <summary>Kraid, Phantoon, Draygon, then Ridley order matches native slot traversal and busy-bit ownership.</summary>
     internal readonly List<TileObject> objects = [];
+    /// <summary>Minus two waits for all grey events; nonnegative values count down the authored pre-descent hold.</summary>
     private int delay = -2;
+    /// <summary>Accumulated positive 16.16 travel, exposed as a negative BG2 vertical offset.</summary>
     internal int descent;
     /// <summary>Whether the last loaded room uses <c>RunStatueUnlockingAnimations</c>; remains true after the descent finishes and is reset by the next <see cref="Load"/>.</summary>
     public bool Enabled { get; private set; }
@@ -60,6 +80,7 @@ public sealed class TourianStatueSequence
     public short VerticalOffset => unchecked((short)SnesSixteenSixteen.WholeOf(-descent));
     /// <summary>BG2 offset accepted with the same NMI as the displayed OBJ buffer.</summary>
     public short DisplayedVerticalOffset { get; private set; }
+    /// <summary>Captures the current BG2 position for presentation with the corresponding NMI OBJ buffer.</summary>
     internal void LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
 
     /// <summary>Resets room-local animation, delay, and displayed descent state, enabling the four statue tile programs only for the statue-unlocking room setup.</summary>
@@ -102,6 +123,7 @@ public sealed class TourianStatueSequence
         Spawn(AnimatedTileObject.TourianStatueDraygon);
         Spawn(AnimatedTileObject.TourianStatueRidley);
 
+        // Resolve each native object header and start it at its compiled program entry.
         void Spawn(AnimatedTileObject objectPointer)
         {
             if (!TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(
@@ -242,12 +264,14 @@ public sealed class TourianStatueSequence
         }
     }
 
+    /// <summary>Marks the entrance statue finished and makes both access-room scroll cells freely traversable.</summary>
     private void EnableScrolling()
     {
         _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueFinished = true;
         _room.Camera!.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Green);
         _room.Camera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Green);
     }
+    /// <summary>Reads an owned bank-$87 control word from the object's compiled program and rejects uncataloged addresses.</summary>
     private static ushort MechanicsWord(TileObject tile, int pointer)
     {
         ushort bankPointer = unchecked((ushort)pointer);

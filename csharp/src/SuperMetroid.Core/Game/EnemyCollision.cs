@@ -11,16 +11,26 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyCollision
 {
+    /// <summary>Dispatches bank-local enemy callbacks selected by touch or projectile contact.</summary>
     private readonly IEnemyDispatch _dispatch;
+    /// <summary>Queues the enemy sounds produced by hits, freezes, and deaths.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Owns ordinary death animations and drops after a lethal collision.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
+    /// <summary>Publishes hit-driven room shake requests.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Supplies the current enemy frame's timing and state to collision callbacks.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Updates enemy presentation when a collision changes its visible state.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Connects collision outcomes to enemy-owned projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Supplies the active room's area and environment to collision logic.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Defines native enemy iteration order for the collision passes.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Binds the enemy and room owners whose state or callbacks collisions can change.</summary>
     internal EnemyCollision(EnemyCollisionDependencies dependencies)
     {
         _dispatch = dependencies.Dispatch;
@@ -419,6 +429,7 @@ internal sealed class EnemyCollision
         return hitCount;
     }
 
+    /// <summary>Runs an optional enemy-specific shot stage and reports whether it consumed the hit.</summary>
     private static bool RunShotStage(EnemyShotStage? stage, in EnemyShotContext context) =>
         stage is not null && stage(in context);
 
@@ -578,6 +589,7 @@ internal sealed class EnemyCollision
         return hitCount;
     }
 
+    /// <summary>Checks whether a bank-local enemy callback is a compiled literal no-op.</summary>
     internal static bool IsLiteralNoOpEnemyAi(byte bank, ushort pointer) =>
         EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, pointer);
 
@@ -899,6 +911,7 @@ internal sealed class EnemyCollision
         enemy.InvincibilityTimer = NativeCountdown.Start(10);
     }
 
+    /// <summary>Selects the enemy's beam-combination or weapon-family vulnerability byte, using the default table when no private pointer exists.</summary>
     internal static byte ReadProjectileVulnerability(
         RoomEnemySlot enemy,
         SamusProjectileTypeWord projectileType)
@@ -920,6 +933,7 @@ internal sealed class EnemyCollision
         return EnemyVulnerabilityDefinitions.Read(pointer, byteOffset);
     }
 
+    /// <summary>Damage multiplier and freezing behavior selected from an ordinary shot's vulnerability byte.</summary>
     internal readonly record struct NormalShotVulnerability(
         int Multiplier,
         bool FreezeImmediately,
@@ -1470,10 +1484,14 @@ internal sealed class EnemyCollision
             : PirateHitboxShotAction.Normal;
     }
 
+    /// <summary>Outcome chosen from a Pirate component's shot callback before ordinary damage processing.</summary>
     internal enum PirateHitboxShotAction : byte
     {
+        /// <summary>Continue through the Pirate's normal shot reaction.</summary>
         Normal,
+        /// <summary>Consume the hit without damage or projectile reflection.</summary>
         Ignore,
+        /// <summary>Reflect the projectile from the authored hitbox region.</summary>
         Reflect,
     }
 
@@ -1556,6 +1574,7 @@ internal sealed class EnemyCollision
         _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 1);
     }
 
+    /// <summary>Uses the native strict radius test, excluding contact where either axis is only tangent.</summary>
     internal static bool RadiusBoxesOverlap(
         Position16<RoomPixels> firstPosition,
         Extent16<RoomPixels> firstRadius,
@@ -1564,6 +1583,7 @@ internal sealed class EnemyCollision
         Math.Abs(unchecked((short)(firstPosition.X - secondPosition.X))) < firstRadius.X + secondRadius.X &&
         Math.Abs(unchecked((short)(firstPosition.Y - secondPosition.Y))) < firstRadius.Y + secondRadius.Y;
 
+    /// <summary>Applies suit reduction and health loss, then publishes the native hurt direction and invincibility window.</summary>
     internal static void ApplyNormalEnemyTouchDamage(
         SamusState samus,
         ushort damageBeforeSuit,

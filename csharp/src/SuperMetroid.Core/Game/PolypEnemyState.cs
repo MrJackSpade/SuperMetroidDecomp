@@ -18,8 +18,10 @@ public enum PolypEnemyFunction : ushort
 /// <summary>Typed view of Polyp's function and cooldown words.</summary>
 public sealed class PolypEnemyState
 {
+    /// <summary>Live enemy slot whose variable words hold the function pointer and cooldown.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Wraps a live slot so AI transitions and countdown edits update its native variable words.</summary>
     internal PolypEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native <c>$0FA8,x</c> indirect main-AI pointer.</summary>

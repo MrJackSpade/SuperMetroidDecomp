@@ -16,6 +16,7 @@ using static AssertionsVerification;
 using static SamusRenderingFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Verifies Samus body, arm cannon, visor, and hurt palette rendering with cartridge-shaped fixtures.</summary>
 internal static class SamusRenderingVerification
 {
 
@@ -1069,18 +1070,21 @@ static void SeedHurtFlashPalettes(TestAddressSpace bus)
 // Checks required-new/required-held masks, extra-button acceptance, ROM priority order,
 // terminators, and same-pose suppression in the bank-$91 prospective-pose lookup.
 
+    /// <summary>Runs the arm cannon sprite routing and animation fixture.</summary>
     [VerificationCommand("--arm-cannon-fixture")]
     internal static int ArmCannonFixtureCommand()
     {
      VerifySamusArmCannon(); return 0; 
     }
 
+    /// <summary>Runs the visor, hurt flash, and visor-color palette fixtures.</summary>
     [VerificationCommand("--samus-palette-fixtures")]
     internal static int SamusPaletteFixturesCommand()
     {
      VerifySamusVisorPalette(); VerifySamusHurtFlashPalette(); VerifySamusVisorColors(); return 0; 
     }
 
+    /// <summary>Runs the standing Samus body and tile-transfer rendering slice.</summary>
     [VerificationCommand("--samus-rendering-slice")]
     internal static int SamusRenderingSliceCommand()
     {

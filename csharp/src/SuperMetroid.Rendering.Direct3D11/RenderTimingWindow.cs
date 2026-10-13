@@ -4,12 +4,20 @@ namespace SuperMetroid.Rendering.Direct3D11;
 /// <summary>Bounded rolling timings. Recording never allocates; readers sort their own copy outside the lock.</summary>
 internal sealed class RenderTimingWindow
 {
+    /// <summary>Guards writes and copies of the rolling sample window.</summary>
     private readonly Lock sync = new();
+    /// <summary>Ring buffer of post-warmup timings in milliseconds.</summary>
     private readonly double[] samples;
+    /// <summary>Number of initial observations excluded from percentile calculations.</summary>
     private readonly int warmup;
-    private int count, next;
+    /// <summary>Number of valid samples currently retained in the ring.</summary>
+    private int count;
+    /// <summary>Ring slot overwritten by the next post-warmup observation.</summary>
+    private int next;
+    /// <summary>Total valid observations, including those excluded as warmup.</summary>
     private long observed;
 
+    /// <summary>Allocates a bounded timing ring and sets the number of initial observations to discard.</summary>
     internal RenderTimingWindow(int capacity = RenderTelemetryLimits.DefaultHistoryCapacity, int warmup = 60)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
@@ -18,6 +26,7 @@ internal sealed class RenderTimingWindow
         this.warmup = warmup;
     }
 
+    /// <summary>Rejects invalid timings and records finite, nonnegative samples after the warmup interval.</summary>
     internal void Record(double milliseconds)
     {
         if (!double.IsFinite(milliseconds) || milliseconds < 0)
@@ -31,6 +40,7 @@ internal sealed class RenderTimingWindow
         }
     }
 
+    /// <summary>Copies retained samples under lock, then calculates nearest-rank percentiles outside the lock.</summary>
     internal RenderTimingDistribution Snapshot()
     {
         double[] copy;

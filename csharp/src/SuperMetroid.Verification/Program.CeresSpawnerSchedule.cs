@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the Ceres repeating explosion schedule against native countdown and actor playback.</summary>
 internal static class CeresSpawnerScheduleVerification
 {
+    /// <summary>Compares spawn events and timer reloads across reseeds and departure frames, including inactive boundaries.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres spawner schedule")]
     internal static void VerifyCeresSpawnerSchedule(ISnesAddressSpace rom)
     {

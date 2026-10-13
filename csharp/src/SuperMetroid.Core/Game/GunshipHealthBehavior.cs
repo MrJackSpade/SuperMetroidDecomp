@@ -5,8 +5,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The gunship health species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class GunshipHealthBehavior
 {
+    /// <summary>Live enemy slots used to derive whether the gunship entrance or liftoff AI owns the low-health handler.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Binds the room enemy table so handler ownership follows the current gunship actor and its AI phase.</summary>
     internal GunshipHealthBehavior(EnemySlotTable slotTable)
     {
         _slotTable = slotTable;

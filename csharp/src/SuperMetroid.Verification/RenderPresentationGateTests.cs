@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Rendering;
 
+/// <summary>Checks generation changes and callback ownership at the render presentation boundary.</summary>
 internal static class RenderPresentationGateTestsVerification
 {
+    /// <summary>Confirms stale rejection, reset ordering, callback failure release, and independent mailbox use.</summary>
     internal static void VerifyRenderPresentationGate()
     {
         var gate = new RenderPresentationGate(1);

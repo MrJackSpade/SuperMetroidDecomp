@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal static class IntroSamusDemoMovement
 {
+    /// <summary>Runs the left-facing intro demo's alpha/beta movement, then animation and native prospective-pose commit in gameplay order.</summary>
     public static void StepGroundedLeft(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -119,6 +120,7 @@ internal static class IntroSamusDemoMovement
             samus.CommitPoseHistory(bus);
     }
 
+    /// <summary>Dispatches only the retail left-facing jump, run/stand, and grounded aiming transitions admitted by the SR388 demo.</summary>
     private static void ApplyPoseTransition(
         ISnesAddressSpace bus,
         SamusState samus,

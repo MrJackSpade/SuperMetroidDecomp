@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Mother Brain's fake-death gray fades against native full-CGRAM frames.</summary>
 internal static class MotherBrainFakeDeathPaletteVerification
 {
+    /// <summary>Compares both descent and ascent color tables, timers, and zero-terminator transitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Mother Brain fake-death palette")]
     internal static void VerifyMotherBrainFakeDeathPalette(
         ISnesAddressSpace rom, MotherBrainRainbowPalettePresentation installed)
@@ -61,6 +63,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
         }
     }
 
+    /// <summary>Creates a Mother Brain actor with installed colors and a bus that forbids palette ROM reads.</summary>
     private static RoomEnemySystem CreateFakeDeathPaletteEnemy(
         MotherBrainRainbowPalettePresentation colors, SnesCgram cgram)
     {
@@ -71,6 +74,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
         return enemies;
     }
 
+    /// <summary>Captures one production fake-death fade update for palette and state comparisons.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static (Bgr555[] Colors, ushort FunctionTimer, MotherBrainBodyFunction Function)
         CaptureFakeDeathPaletteFrame(MotherBrainRainbowPalettePresentation colors, bool toGrey)

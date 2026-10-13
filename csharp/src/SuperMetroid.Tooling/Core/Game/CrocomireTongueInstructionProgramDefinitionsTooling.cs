@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(CrocomireTongueInstructionProgramDefinitions))]
 internal abstract class CrocomireTongueInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Four fight holds, two fight control words, one sleep, and five melt holds plus two controls.</summary>
     public static int MechanicsWordCount => 14;
+    /// <summary>Four fight and five melting spritemap operand positions.</summary>
     public static int PresentationWordCount => 9;
     /// <summary>Enumerates four fight durations and their loop, terminal sleep,
     /// then five melting durations and their loop, in native address order.</summary>
@@ -29,6 +31,7 @@ internal abstract class CrocomireTongueInstructionProgramDefinitionsTooling : II
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 4 ? CrocomireTongueInstructionProgramDefinitions.Fight + 2 + 4 * index : CrocomireTongueInstructionProgramDefinitions.Melting + 2 + 4 * (index - 4));
     }
+    /// <summary>Recognizes the bytes of compiled timing and control words in bank $A4, excluding spritemaps.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa40000) return false;

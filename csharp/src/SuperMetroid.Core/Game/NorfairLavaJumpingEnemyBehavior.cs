@@ -4,25 +4,33 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Norfair lava-jumping enemy species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
 {
+    /// <summary>Supplies one random word per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Provides the preceding physical enemy record for follower WRAM aliases.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Binds lava-jumper behavior to room RNG and physical enemy slots.</summary>
     internal NorfairLavaJumpingEnemyBehavior(EnemyRoomBinding room, EnemySlotTable slotTable)
     {
         _room = room;
         _slotTable = slotTable;
     }
 
+    /// <summary>8.8 velocity increment applied after each moving frame.</summary>
     private const ushort NorfairLavaJumpingEnemyGravity = 56;
+    /// <summary>Unsigned rising-velocity threshold that switches to the visible jump list.</summary>
     private const ushort NorfairLavaJumpingEnemyAnimationSwitchVelocity = 0xfc00;
+    /// <summary>Library-two sound emitted when a parent begins its jump.</summary>
     private const ushort NorfairLavaJumpingEnemyJumpSound = 0x000d;
 
+    /// <summary>Per-slot parent or follower state cleared on each room load.</summary>
     internal readonly NorfairLavaJumpingEnemyState?[] _norfairLavaJumpingEnemyStates =
         new NorfairLavaJumpingEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Most recent library-two jump sound request emitted during this frame.</summary>
     public ushort? LastNorfairLavaJumpingEnemySoundEffect { get; private set; }
 
+    /// <summary>Discards prior room state and its pending jump sound.</summary>
     internal void ResetNorfairLavaJumpingEnemyRoomState()
     {
         Array.Clear(_norfairLavaJumpingEnemyStates);
@@ -152,6 +160,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Mirrors the preceding parent's frozen timer and upward Y position into the cosmetic follower.</summary>
     private void FollowNorfairLavaJumpingEnemyParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingNorfairLavaJumpingEnemySlot(follower);
@@ -184,6 +193,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         follower.Position = follower.Position.WithWholeY(parent.Position.Y.Whole);
     }
 
+    /// <summary>Returns the immediately preceding physical enemy record used by native follower aliasing.</summary>
     private RoomEnemySlot GetPrecedingNorfairLavaJumpingEnemySlot(RoomEnemySlot follower)
     {
         if (follower.SlotIndex == 0)
@@ -195,6 +205,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         return _slotTable._slots[follower.SlotIndex - 1];
     }
 
+    /// <summary>Rejects a follower population record without a same-species parent directly before it.</summary>
     private void ValidateNorfairLavaJumpingEnemyParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingNorfairLavaJumpingEnemySlot(follower);
@@ -209,6 +220,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Advances position by the parent's signed 8.8 vertical velocity.</summary>
     private static void MoveNorfairLavaJumpingEnemyVertically(
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state)
@@ -231,10 +243,12 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
     }
 
+    /// <summary>Returns the state initialized for this physical enemy slot.</summary>
     private NorfairLavaJumpingEnemyState RequireNorfairLavaJumpingEnemyState(RoomEnemySlot slot) =>
         _norfairLavaJumpingEnemyStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Norfair lava-jumping state.");
 
+    /// <summary>Registers Squeept's guarded parent and follower initialization routine.</summary>
     internal void RegisterNorfairLavaJumpingEnemyInitializationAi(EnemyAiTable table)
     {
 
@@ -244,6 +258,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Squeept's guarded jump and follower frame routine.</summary>
     internal void RegisterNorfairLavaJumpingEnemyMainAi(EnemyAiTable table)
     {
 
@@ -255,6 +270,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the private animation-finished opcode with the enemy interpreter.</summary>
     internal void RegisterNorfairLavaJumpingEnemyOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

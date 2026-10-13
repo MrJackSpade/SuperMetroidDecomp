@@ -18,6 +18,7 @@ public static class SnesCpuOperandRead
         return (ushort)(SnesLittleEndian.Word(low, high));
     }
 
+    /// <summary>Returns MDR only in proven undriven B-bus or expansion windows; otherwise dispatches to the typed memory or peripheral owner.</summary>
     private static byte ReadData(ISnesAddressSpace bus, int address, byte memoryDataRegister)
     {
         int bank = SnesAddressMath.BankNumber(address), offset = SnesAddressMath.OffsetInBank(address);

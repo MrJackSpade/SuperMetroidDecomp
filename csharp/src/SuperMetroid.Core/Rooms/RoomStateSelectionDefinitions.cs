@@ -30,6 +30,7 @@ public static class RoomStateSelectionDefinitions
         return variants.AsReadOnly();
     }
 
+    /// <summary>Evaluates each room's native conditional branches in order, or records their alternatives before the default state.</summary>
     private static ushort Resolve(ushort roomPointer, RoomStateSelectionContext selection, List<ushort>? variants)
     {
         ushort target = 0;

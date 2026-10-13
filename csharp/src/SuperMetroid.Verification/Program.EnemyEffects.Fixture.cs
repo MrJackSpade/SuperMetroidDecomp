@@ -7,17 +7,24 @@ using SuperMetroid.Core.Spatial;
 using static EnemyAnimationIsolationFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Constructs cartridge-free enemy-effect artwork and Crocomire state fixtures.</summary>
 internal static class EnemyEffectsFixtureVerification
 {
     /// <summary>Known melt phases, pure RAM and authored PNG/JSON; no cartridge capability.</summary>
     internal sealed class CrocomireEffectFixture
     {
+        /// <summary>Cartridge-free WRAM and SRAM used to detect unintended mutation.</summary>
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        /// <summary>Destination graphics memory checked after melt operations.</summary>
         internal SnesVram Vram { get; } = new();
+        /// <summary>Enemy owner hosting the Crocomire body, tongue, and behavior.</summary>
         internal RoomEnemySystem Enemies { get; } = new();
+        /// <summary>Crocomire body state bound to the first two enemy slots.</summary>
         internal CrocomireEnemyState Actor { get; }
+        /// <summary>Seeded melt phase with recognizable graphics and BG2 state.</summary>
         internal CrocomireDeathState Effect { get; } = new();
 
+        /// <summary>Seeds a reproducible Crocomire melt state with optional validated artwork.</summary>
         internal CrocomireEffectFixture(CrocomireMeltingArtwork? art = null)
         {
             if (art is not null)
@@ -54,9 +61,11 @@ internal static class EnemyEffectsFixtureVerification
         /// <summary>Runs one Crocomire melting step, selected from the fixture's Crocomire behavior, on its actor.</summary>
         internal void Call(Func<CrocomireBehavior, Action<CrocomireEnemyState>> select) => select(Enemies.CrocomireBehavior)(Actor);
 
+        /// <summary>Advances the production melting behavior for the bound Crocomire actor.</summary>
         internal void Dissolve() => new Action<CrocomireEnemyState, SamusState?>(Enemies.CrocomireBehavior.RunCrocomireMelting)(Actor, null);
     }
 
+    /// <summary>Compares actor, effect, slots, RAM, audio, and PLM requests after a melt operation.</summary>
     internal static void AssertCrocomireEffectMechanics(CrocomireEffectFixture expected,
         CrocomireEffectFixture actual, string context)
     {
@@ -76,8 +85,7 @@ internal static class EnemyEffectsFixtureVerification
         AssertTrue(expected.Enemies.CrocomireBehavior.CrocomirePlmRequests.SequenceEqual(actual.Enemies.CrocomireBehavior.CrocomirePlmRequests), context + " room changes");
     }
 
-    // Decode authored bitplanes and write a genuine indexed PNG so fixtures exercise the
-    // production asset compiler, rather than injecting unvalidated private buffers.
+    /// <summary>Encodes patterned planar tiles as a real indexed PNG for the production asset compiler.</summary>
     internal static MemoryStream EffectPng(int byteCount, int usedBytes, byte pattern)
     {
         var bytes = new byte[byteCount];
@@ -91,10 +99,12 @@ internal static class EnemyEffectsFixtureVerification
         return output;
     }
 
+    /// <summary>Compiles a patterned full-size Mother Brain corpse sheet through the PNG loader.</summary>
     internal static RoomCharacterAtlas CorpseEffectArtwork(byte pattern) => RoomCharacterAtlas.Load(
         EffectPng(MotherBrainCorpseArtworkDefinitions.ByteCount, MotherBrainCorpseArtworkDefinitions.ByteCount, pattern),
         MotherBrainCorpseArtworkDefinitions.ByteCount);
 
+    /// <summary>Creates a valid Crocomire tilemap document with seed-dependent cell attributes.</summary>
     internal static string MeltEffectJson(int seed = 0) => JsonSerializer.Serialize(new CrocomireMeltingTilemapDocument
     {
         Version = CrocomireMeltingArtworkFormat.TilemapVersion,
@@ -108,6 +118,7 @@ internal static class EnemyEffectsFixtureVerification
             }).ToArray(),
     }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
+    /// <summary>Compiles both Crocomire PNG passes and tilemap documents through the production loader.</summary>
     internal static CrocomireMeltingArtwork MeltEffectArtwork(byte pattern = 0x55,
         int seed = 0, string? firstJson = null)
     {

@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks that enemy-clipped horizontal knockback clears momentum for the following frame.</summary>
 internal static class KnockbackHorizontalStopVerification
 {
+    /// <summary>Exercises both directions against a nearby solid enemy, then checks the next clear step moves 1.5 pixels.</summary>
     internal static void VerifyKnockbackHorizontalStop()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

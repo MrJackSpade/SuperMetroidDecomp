@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Uses retail words to verify crawler slope scaling and Yard's capped horizontal kick.</summary>
 internal static class SurfaceMotionDefinitionsVerification
 {
+    /// <summary>Checks 32 slope multipliers, every signed 16-bit speed, and all Yard kick selectors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for surface motion")]
     internal static void VerifyCompiledSurfaceMotion(SuperMetroidAddressSpace rom)
     {

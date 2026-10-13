@@ -66,6 +66,7 @@ internal static class CeresExplosionDefinitions
         FinalWave,
     }
 
+    /// <summary>Maps the initial and final instruction milestones to their exact host-frame numbers.</summary>
     private static int FrameOf(SpawnerMilestone milestone) => milestone switch
     {
         SpawnerMilestone.InitialWave => InitialSpawnFrame,

@@ -9,8 +9,10 @@ using SuperMetroid.Core.Runtime;
 using static GraphDigestVerification;
 using static MapPresentationVerification;
 
+/// <summary>Checks compiled charge flare compositions in production draw and saved-state rebinding.</summary>
 internal static class ChargeFlareProductionVerification
 {
+    /// <summary>Compares normal and Hyper flare frames with native OAM, then checks visual edits leave projectile state intact.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
@@ -137,6 +139,7 @@ internal static class ChargeFlareProductionVerification
         }
     }
 
+    /// <summary>Blocks live reads of the native flare selector table and every referenced spritemap body.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native charge-flare spritemap extents the guard forbids")]
     internal static CartridgeReadGuard NewChargeFlareCompositionGuard(ISnesAddressSpace source)
     {

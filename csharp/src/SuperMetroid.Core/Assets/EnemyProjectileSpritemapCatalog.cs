@@ -23,9 +23,12 @@ public sealed class EnemyProjectileSpritemapCatalog
             }
         });
 
+    /// <summary>Installed ordered OAM parts keyed by bank-$8D spritemap pointer.</summary>
     private readonly Dictionary<ushort, EnemySpritemapPart[]> frames;
+    /// <summary>Installed timed-frame OAM parts keyed by bank-$86 visual operand address.</summary>
     private readonly Dictionary<ushort, EnemySpritemapPart[]> programFrames;
 
+    /// <summary>Retains independently validated compositions and timed-program visual bindings.</summary>
     private EnemyProjectileSpritemapCatalog(Dictionary<ushort, EnemySpritemapPart[]> frames,
         Dictionary<ushort, EnemySpritemapPart[]> programFrames)
     {
@@ -145,6 +148,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         return new EnemyProjectileSpritemapCatalog(compiled, compiledPrograms);
     }
 
+    /// <summary>Identifies Alcoon fireball presentation operands omitted by the pre-Alcoon legacy schema.</summary>
     private static bool IsAlcoonFireballOperand(ushort operandAddress)
     {
         for (int index = 0;
@@ -158,6 +162,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         return false;
     }
 
+    /// <summary>Validates ordered editable sprite parts against OBJ bounds and packs X, Y, tile, palette, priority and flip words.</summary>
     private static EnemySpritemapPart[] CompileParts(string name, SpriteVisualPart[] visual)
     {
         if (visual.Length > EnemyProjectileSpritemapDefinitions.MaximumParts)
@@ -188,6 +193,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         return parts;
     }
 
+    /// <summary>Writes camel-case JSON only after round-trip loading validates the current schema and OAM bounds.</summary>
     internal static byte[] Write(EnemyProjectileSpritemapDocument document)
     {
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, Options);
@@ -195,6 +201,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         return json;
     }
 
+    /// <summary>Strict editable composition JSON policy, rejecting unknown fields while retaining readable output.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

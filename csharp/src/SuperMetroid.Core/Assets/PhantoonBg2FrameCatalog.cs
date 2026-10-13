@@ -9,10 +9,13 @@ public sealed class PhantoonBg2FrameCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => frames.ContentIdentity;
 
+    /// <summary>Compiled visual writes indexed by native extended-frame roots.</summary>
     private readonly EnemyBg2FrameCatalog frames;
 
+    /// <summary>Wraps validated BG2 frame writes without changing engine-owned timing or hitboxes.</summary>
     private PhantoonBg2FrameCatalog(EnemyBg2FrameCatalog frames) => this.frames = frames;
 
+    /// <summary>Finds the installed tilemap writes for a native frame root, if that root is defined.</summary>
     internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
         frames.TryGet(pointer, out writes);
 

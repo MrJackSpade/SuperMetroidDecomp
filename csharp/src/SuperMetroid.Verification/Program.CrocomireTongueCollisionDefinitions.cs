@@ -15,8 +15,10 @@ using SuperMetroid.Core.Hardware;
 using static ExtendedCollisionReferenceVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Crocomire tongue's nine visual frames and empty collision lists against bank A4.</summary>
 internal static class CrocomireTongueCollisionDefinitionsVerification
 {
+    /// <summary>Checks installed sprite selectors and extracted frames with all cartridge reads denied.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire tongue visual selectors")]
     internal static void VerifyInstalledCrocomireTongueVisualSelectors(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
@@ -53,6 +55,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
             "editable frames, no ROM reads.");
     }
 
+    /// <summary>Compares all nine instruction operands with the compiled frame-pointer order.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire tongue frame positions")]
     internal static void VerifyCrocomireTongueFramePositions(SuperMetroidAddressSpace rom)
     {
@@ -67,6 +70,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueCollisionDefinitions.FramePointer(9), "tongue frame index past end");
     }
 
+    /// <summary>Checks each frame's single component and its empty native hitbox list.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire tongue component cases")]
     internal static void VerifyCrocomireTongueComponentCases(SuperMetroidAddressSpace rom)
     {
@@ -88,6 +92,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
             AssertThrows<InvalidDataException>(() => CrocomireTongueCollisionDefinitions.ComponentAt(frame), "tongue rejects non-frame identity");
         AssertThrows<InvalidDataException>(() => CrocomireTongueCollisionDefinitions.HitboxCountAt(ClosedNativeWords.Decode<CrocomireTongueHitboxList>(0x8000, "compiled Crocomire tongue hitbox list")), "tongue rejects unknown hitbox list");
     }
+    /// <summary>Compares touch and shot collision outcomes for all tongue frames at wrapped and ordinary positions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire tongue collision definitions")]
     internal static void VerifyCrocomireTongueCollisionDefinitions()
     {
@@ -166,11 +171,13 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
             $"{probes} native-equivalent touch/shot probes; installed path reads no ROM.");
     }
 
+    /// <summary>Provides an unbacked bus that rejects every cartridge read and write during installed tongue execution.</summary>
     internal static CartridgeReadGuard NewCrocomireTongueNoReadBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed Crocomire tongue read ROM byte ${address:X6}.")
             .RejectWrites(address => $"Installed Crocomire tongue wrote ROM byte ${address:X6}.");
 
+    /// <summary>Runs the Crocomire tongue frame and collision checks from the command dispatcher.</summary>
     [VerificationCommand("--verify-crocomire-tongue-collision")]
     internal static int VerifyCrocomireTongueCollisionCommand()
     {

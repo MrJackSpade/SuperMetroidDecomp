@@ -26,8 +26,10 @@ public enum MochtroidMovementMode : ushort
 /// </summary>
 public sealed class MochtroidEnemyState
 {
+    /// <summary>Live common enemy slot backing the velocity, shake timer, and one-frame movement selector.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects the Mochtroid's named variables over its physical enemy slot.</summary>
     internal MochtroidEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

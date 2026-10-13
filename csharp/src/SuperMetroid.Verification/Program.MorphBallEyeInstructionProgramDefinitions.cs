@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Retail-word and guarded-execution checks for Morph Ball eye body and mount programs.</summary>
 internal static class MorphBallEyeInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail data for the Morph Ball eye instruction check.</summary>
     internal static void VerifyMorphBallEyeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMorphBallEyeInstructionProgramDefinitions), () => VerifyMorphBallEyeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs active and sleeping eye programs, then checks six initializer roles and compiled frame selection.</summary>
     internal static void VerifyMorphBallEyeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -168,6 +171,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
             "without presentation ROM reads.");
     }
 
+    /// <summary>Checks body facing and four mount-direction instruction choices made by real initialization.</summary>
     private static void VerifyMorphBallEyeInitializerSelections(ISnesAddressSpace bus)
     {
         foreach ((ushort parameter1, ushort expected) in new[]
@@ -205,6 +209,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Creates an enemy system bound to the supplied guarded address space.</summary>
     private static RoomEnemySystem NewMorphBallEyeInstructionSystem(
         ISnesAddressSpace bus)
     {
@@ -213,6 +218,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>Installs a selected bank-$A8 eye program in a ready-to-step enemy slot.</summary>
     private static RoomEnemySlot PrepareMorphBallEyeInstructionSlot(
         RoomEnemySystem enemies,
         ushort entry)
@@ -225,6 +231,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
         return slot;
     }
 
+    /// <summary>Alternates warmed active and mount control lookups for allocation accounting.</summary>
     private static int ProbeMorphBallEyeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -238,18 +245,21 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads a retail bank-$A8 eye word for the independent control oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Morph Ball Eye instruction words")]
     internal static ushort ReadMorphBallEyeInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa80000 | address);
 
+    /// <summary>Rejects compiled eye mechanics reads and observes visual-operand access.</summary>
     private static CartridgeReadGuard NewMorphBallEyeInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => MorphBallEyeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled Morph Ball eye mechanics byte ${address:X6}.")
             .ObserveWords(0xa80000, MorphBallEyeInstructionProgramDefinitions.PresentationWordCount, MorphBallEyeInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the retail-backed Morph Ball eye instruction migration command.</summary>
     [VerificationCommand("--morph-ball-eye-instruction-program-definitions")]
     internal static int MorphBallEyeInstructionProgramDefinitionsCommand()
     {

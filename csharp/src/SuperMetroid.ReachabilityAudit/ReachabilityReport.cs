@@ -5,6 +5,7 @@ namespace SuperMetroid.ReachabilityAudit;
 /// <summary>Writes findings.tsv (one row per finding), the reflection review lists and summary.txt.</summary>
 internal static class ReachabilityReport
 {
+    /// <summary>Writes sorted declaration findings, reflection-review lists, and category counts without a UTF-8 byte-order mark.</summary>
     public static void Write(ReachabilityResult result, string outputDirectory)
     {
         Directory.CreateDirectory(outputDirectory);
@@ -68,8 +69,10 @@ internal static class ReachabilityReport
         return 1;
     }
 
+    /// <summary>Removes signature, containing-type, and generic suffixes for approximate reflection-name matching.</summary>
     private static string SimpleName(string display) => display.Split('(')[0].Split('.')[^1].Split('<')[0];
 
+    /// <summary>Writes distinct sorted review rows in UTF-8 without a byte-order mark.</summary>
     private static void WriteLines(string directory, string name, IEnumerable<string> lines) =>
         File.WriteAllLines(Path.Combine(directory, name), lines.Distinct().Order(StringComparer.Ordinal), new UTF8Encoding(false));
 }

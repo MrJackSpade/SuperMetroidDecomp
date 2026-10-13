@@ -6,11 +6,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable beam sheets resolved at NMI; pending state stores identities, never PNG bytes.</summary>
 public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTransferSource
 {
+    /// <summary>Selected 256-byte beam atlases, with native aliases sharing matching tile pixels.</summary>
     internal readonly BeamTileAtlas[] sheets;
     /// <summary>Gets the optional installed beam and grapple palette catalog paired with these tile sheets.</summary>
     public BeamPaletteCatalog? Palettes { get; }
     /// <summary>Gets the optional installed fixed-color cycle used by the Hyper Beam visual effect.</summary>
     public HyperBeamFxColorCatalog? HyperBeamFxColors { get; }
+    /// <summary>Establishes primary-sheet pixel sharing before whole-sheet combination aliases.</summary>
     internal BeamTileCatalog(BeamTileAtlas[] sheets, BeamPaletteCatalog? palettes,
         HyperBeamFxColorCatalog? hyperBeamFxColors)
     {

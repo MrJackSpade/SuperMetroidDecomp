@@ -10,6 +10,7 @@ internal static class EndingTextLayoutDefinitions
     /// <summary>$8C:DF77 continues the phrase at tile$80, after the two atlas rows containing copyright digits ($60..$79).</summary>
     private const int SubtitleContinuationTopTile = EndingTextDefinitions.CopyrightDigitTopBase +
         EndingTextDefinitions.JapaneseSubtitleRows * EndingFontAtlasFormat.TilesPerRow;
+    /// <summary>Two complete tilemap rows cover the Japanese subtitle's upper and lower glyph halves.</summary>
     internal const int SubtitleCellCount = EndingTextDefinitions.JapaneseSubtitleRows * EndingTextDefinitions.TilemapWidth;
 
     /// <summary>
@@ -46,6 +47,7 @@ internal static class EndingTextLayoutDefinitions
     private const ushort DevelopmentGroupAttributes = 6 << 10;
     /// <summary>$8C:DE6D applies BG palette7 to TEAM SHIKAMARU; this chosen style remains required.</summary>
     private const ushort DevelopmentTeamAttributes = 7 << 10;
+    /// <summary>The complete result panel spans every authored row at the native tilemap width.</summary>
     internal const int ResultCellCount = EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth;
 
     /// <summary>
@@ -72,9 +74,11 @@ internal static class EndingTextLayoutDefinitions
         return EndingTextDefinitions.ResultBlankWord;
     }
 
+    /// <summary>Centers a selected credit phrase before resolving its top or bottom glyph tile.</summary>
     private static ushort Centered(string text, int column, bool large, bool bottom, ushort attributes) =>
         Glyph(text, column - (EndingTextDefinitions.TilemapWidth - text.Length) / 2, large, bottom, attributes);
 
+    /// <summary>Leaves spaces blank and combines a compiled ending-font glyph with its selected palette bits.</summary>
     private static ushort Glyph(string text, int character, bool large, bool bottom, ushort attributes)
     {
         if ((uint)character >= text.Length || text[character] == ' ')

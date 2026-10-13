@@ -33,26 +33,31 @@ internal enum SamusEaterDraw : ushort
 /// </summary>
 internal static class SamusEaterPlmDrawDefinitions
 {
+    /// <summary>Floor or ceiling orientation and one of four mouth animation phases for a native draw list.</summary>
     internal readonly record struct Draw(bool Ceiling, int Phase)
     {
+        /// <summary>The mouth runs each contain two blocks; the foliage run contains four.</summary>
         internal static int Count(int run) => run switch
         {
             0 or 1 => 2,
             2 => 4,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Moves left between mouth blocks while keeping the foliage run in its original column.</summary>
         internal static sbyte NextX(int run) => run switch
         {
             0 or 1 => -2,
             2 => 0,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Offsets the second mouth run toward the plant body, reversing the step for ceiling plants.</summary>
         internal sbyte NextY(int run) => run switch
         {
             0 or 2 => 0,
             1 => Ceiling ? (sbyte)1 : (sbyte)-1,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Encodes the phase tile, collision type, and orientation flips for a single mouth or foliage block.</summary>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)block >= Count(run)) throw new IndexOutOfRangeException();
@@ -81,6 +86,7 @@ internal static class SamusEaterPlmDrawDefinitions
         }
     }
 
+    /// <summary>Decodes one of eight bank-$84 plant draw pointers into its orientation and chew phase.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         if (!Enum.IsDefined((SamusEaterDraw)pointer))
@@ -104,7 +110,7 @@ internal static class SamusEaterPlmDrawDefinitions
         return true;
     }
 
-    // Materialize temporary DTOs only for the existing artwork import/export interface.
+    /// <summary>Materializes the eight native plant layouts as temporary DTOs for artwork import and export.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -120,9 +126,11 @@ internal static class SamusEaterPlmDrawDefinitions
         }
     }
 
+    /// <summary>Maps a validated native draw pointer to the artwork catalog's orientation and phase ID.</summary>
     internal static string VisualId(ushort pointer) =>
         VisualId(ClosedNativeWords.Decode<SamusEaterDraw>(pointer, "Samus Eater draw with a visual ID"));
 
+    /// <summary>Names a typed draw list by its floor or ceiling orientation and idle or chew phase.</summary>
     internal static string VisualId(SamusEaterDraw pointer) => pointer switch
     {
         SamusEaterDraw.FloorIdle => "floor-idle",
@@ -136,6 +144,7 @@ internal static class SamusEaterPlmDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined SamusEaterDraw {pointer}."),
     };
 
+    /// <summary>Finds the native layout matching an artwork catalog ID by searching the eight supported lists.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
@@ -151,6 +160,7 @@ internal static class SamusEaterPlmDrawDefinitions
         return false;
     }
 
+    /// <summary>Builds the three native signed runs for a supported plant draw pointer from its phase and orientation.</summary>
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

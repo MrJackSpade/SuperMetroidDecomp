@@ -16,8 +16,10 @@ using static EnemyDropsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Crystal Flash activation, contact, visibility, resource drain, and movement cleanup in production runtime.</summary>
 internal static class CrystalFlashCleanupVerification
 {
+    /// <summary>Runs successful, refill-assisted, and insufficient-ammo Crystal Flash routes.</summary>
     internal static void VerifyCrystalFlashRuntime()
     {
         Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 11, refill: false));
@@ -25,6 +27,7 @@ internal static class CrystalFlashCleanupVerification
         Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: false));
     }
 
+    /// <summary>Steps a controlled Landing Site route from Power Bomb placement through activation or rejection and post-flash movement.</summary>
     private static void VerifyCrystalFlashRuntimeRoute(ushort capacity, bool refill)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -157,6 +160,7 @@ internal static class CrystalFlashCleanupVerification
         Console.WriteLine($"Runtime Crystal Flash: capacity={capacity}, refill={refill}, activation={started}, completion={finished}; placement, bubble, resources and movement ownership pass.");
     }
 
+    /// <summary>Runs the three focused production Crystal Flash routes.</summary>
     [VerificationCommand("--crystal-flash-runtime")]
     internal static int CrystalFlashRuntimeCommand()
     {
@@ -170,9 +174,11 @@ internal static class CrystalFlashCleanupVerification
 internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Position16<RoomPixels> position) :
     ISnesAddressSpace, IRoomEnemyFixtureSource
 {
+    /// <summary>Uses the retail enemy header for the constructed Ripper population.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
         RoomEnemyDefinitionCatalog.Get(pointer);
 
+    /// <summary>Places one stationary Ripper at Samus's contact position for the damage frame.</summary>
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer)
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
@@ -183,6 +189,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
         ], 0);
     }
 
+    /// <summary>Associates the constructed population with its retail Ripper graphics header.</summary>
     public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
@@ -193,6 +200,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
         ]);
     }
 
+    /// <summary>Overlays synthetic population and tileset records while delegating other addresses to the retail bus.</summary>
     public byte ReadByte(int address)
     {
         ReadOnlySpan<ushort> population = [(ushort)CrystalFlashContactDefinitions.RipperHeader, position.X, position.Y, 0,
@@ -206,6 +214,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
             return (byte)(tileset[offset / 2] >> ((offset & 1) * 8));
         return CpuBusRegionRead.Read(inner, address);
     }
+    /// <summary>Forwards mutable bus writes outside the fixture's read-only population overlay.</summary>
     public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
 }
 

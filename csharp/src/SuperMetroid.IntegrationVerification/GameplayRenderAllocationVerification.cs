@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks pixel parity and output-buffer reuse across gameplay and cinematic snapshot rendering.</summary>
 internal static class GameplayRenderAllocationVerification
 {
+    /// <summary>Measures allocations for fused gameplay, X-ray, and cinematic packets after warmup while checking exact pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     public static int Run()
     {

@@ -14,8 +14,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks when the three Etecoons request their fanfare after an elevator door transition.</summary>
 internal static class EtecoonFanfareVerification
 {
+    /// <summary>Verifies the dormant transition gate, single post-fade sound request, and audible advancing melody.</summary>
     internal static void VerifyEtecoonFanfareAfterDoor()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -75,6 +77,7 @@ internal static class EtecoonFanfareVerification
         Console.WriteLine($"Etecoon door fanfare: dormant gate, one Max15 request and audible melody verified (peak {peak}, notes {notes.Count}).");
     }
 
+    /// <summary>Runs the Etecoon door fanfare regression from the command line.</summary>
     [VerificationCommand("--etecoon-door-fanfare")]
     internal static int EtecoonDoorFanfareCommand()
     {

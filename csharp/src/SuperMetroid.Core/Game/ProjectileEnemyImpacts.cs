@@ -8,11 +8,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Projectile hits on enemies: the collision prelude, reflection, the intro Mother Brain missile, and the start of the impact explosion.</summary>
 internal sealed class ProjectileEnemyImpacts
 {
+    /// <summary>Owns projectile clearing when reflection retires a Super Missile link.</summary>
     private readonly ProjectileAnimation _animation;
+    /// <summary>Receives the native Super Missile enemy-hit quake request.</summary>
     private readonly ProjectileEarthquakes _earthquakes;
+    /// <summary>Projectile records whose direction, damage, and animation change on enemy contact.</summary>
     private readonly ProjectileSlotTable _slotTable;
+    /// <summary>Converts missile hits to the same impact state as terrain collision.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
 
+    /// <summary>Binds enemy-impact handling to the projectile slots and their animation, quake, and terrain services.</summary>
     internal ProjectileEnemyImpacts(ProjectileAnimation animation, ProjectileEarthquakes earthquakes, ProjectileSlotTable slotTable, ProjectileTerrainCollision terrainCollision)
     {
         _animation = animation;

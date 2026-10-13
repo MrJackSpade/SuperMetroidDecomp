@@ -78,8 +78,10 @@ public enum HorizontalShutterFunction : ushort
 /// </summary>
 public sealed class GrowingShutterEnemyState
 {
+    /// <summary>Backs native variable A-F access for one growing-shutter slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the typed view over a room-owned shutter slot.</summary>
     internal GrowingShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Enemy variable A's bank-$A2 dispatcher pointer; initialization selects a wait function and activation replaces it with a growth function.</summary>
@@ -110,6 +112,7 @@ public sealed class GrowingShutterEnemyState
     /// <summary>Extended word $7E:8800,x used to derive Samus's whole-pixel carry.</summary>
     public ushort PreviousYPosition { get; internal set; }
 
+    /// <summary>Selects the current growth section's stored Y origin; level four has no next section.</summary>
     internal ushort OriginForLevel() => GrowthLevel switch
     {
         0 => GrowthLevel0OriginY,
@@ -128,8 +131,10 @@ public sealed class GrowingShutterEnemyState
 /// </summary>
 public sealed class VerticalShutterEnemyState
 {
+    /// <summary>Backs native variable A-F access for one vertical shutter slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the typed view over a room-owned vertical shutter slot.</summary>
     internal VerticalShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Enemy variable A's bank-$A2 dispatcher pointer, shared by shootable/destroyable shutters and the Kamer vertical platform.</summary>
@@ -187,8 +192,10 @@ public sealed class VerticalShutterEnemyState
 /// <summary>Typed state for the cartridge's complete, though retail-unused, horizontal shutter.</summary>
 public sealed class HorizontalShutterEnemyState
 {
+    /// <summary>Backs native variable A-F access for one horizontal shutter slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Creates the typed view over a room-owned horizontal shutter slot.</summary>
     internal HorizontalShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Enemy variable A's bank-$A2 dispatcher pointer for the retail-unused horizontal shutter, retained across wait, movement, and endpoint-rest updates.</summary>

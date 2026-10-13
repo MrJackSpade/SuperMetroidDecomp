@@ -14,7 +14,9 @@ public sealed class CartridgeAudioRenderer
     public const int ChannelCount = 2;
     /// <summary>Eight hundred stereo frames generated for each 60-Hz emulation update, yielding 1,600 signed 16-bit channel samples.</summary>
     public const int StereoFramesPerVideoFrame = SampleRate / 60;
+    /// <summary>Decoded cartridge uploads, instruments, music, sound programs, and sample banks.</summary>
     private readonly ExtractedAudioAssetCatalog assets;
+    /// <summary>Reusable frame buffer borrowed by callers until the next audio update.</summary>
     private readonly short[] samples = new short[StereoFramesPerVideoFrame * ChannelCount];
 
     /// <summary>Creates the cartridge-command adapter and its reusable PCM buffer, retaining an existing player state or creating a new managed APU.</summary>
@@ -27,7 +29,7 @@ public sealed class CartridgeAudioRenderer
         this.player = player ?? new ManagedSpcPlayer();
     }
 
-    // The exact managed APU graph; its owner keeps it in debugger state captures.
+    /// <summary>The exact managed APU graph; its owner keeps it in debugger state captures.</summary>
     internal readonly ManagedSpcPlayer player;
 
     /// <summary>Applies ordered cartridge uploads and CPU-to-APU port writes, then advances the player by one 60-Hz update and renders host PCM.</summary>

@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Frog Speedway ceiling-shot PLM saturation and native room traces.</summary>
 internal static class CeilingWrapRoomVerification
 {
+    /// <summary>Compares production pose, movement, PLM count, and camera state against a supplied native trace.</summary>
     internal static void VerifyFrogSpeedwayRuntimeTrace(string path, ushort beams = 5, bool dash = true)
     {
         string[] native = File.ReadLines(path).Skip(1).ToArray();
@@ -47,6 +49,7 @@ internal static class CeilingWrapRoomVerification
         Console.WriteLine($"PASS {native.Length} native Speedway frames: beams={beams} dash={dash} endpoint={samus.Position.X.Whole}.");
     }
 
+    /// <summary>Checks that a full forty-slot PLM pool permits native speed-block entry without breaking the block.</summary>
     internal static void VerifyFrogSpeedwayPoolCollision()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -84,6 +87,7 @@ internal static class CeilingWrapRoomVerification
         Console.WriteLine("PASS Frog Speedway: live ceiling-shot overload permits unchanged speed-block entry at frame 343.");
     }
 
+    /// <summary>Runs the focused full-pool collision check.</summary>
     [VerificationCommand("--ceiling-wrap-room")]
     internal static int CeilingWrapRoomCommand()
     {
@@ -91,6 +95,7 @@ internal static class CeilingWrapRoomVerification
         return 0;
     }
 
+    /// <summary>Compares the original Frog Speedway runtime trace.</summary>
     [VerificationCommand("--ceiling-wrap-runtime")]
     internal static int CeilingWrapRuntimeCommand()
     {
@@ -98,6 +103,7 @@ internal static class CeilingWrapRoomVerification
         return 0;
     }
 
+    /// <summary>Checks successful Speedway traces with and without dash held.</summary>
     [VerificationCommand("--ceiling-wrap-success")]
     internal static int CeilingWrapSuccessCommand()
     {

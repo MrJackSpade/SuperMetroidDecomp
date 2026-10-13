@@ -9,8 +9,10 @@ using static MapSpriteNamesVerification;
 using static MapSpritesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks calculated map sprites and independent edits to every authored OAM part.</summary>
 internal static class MapSpriteCasesVerification
 {
+    /// <summary>Compares stock and edited compositions while requiring every named map role.</summary>
     internal static void VerifyMapSpriteCompositionCases(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);
@@ -80,6 +82,7 @@ internal static class MapSpriteCasesVerification
         }
     }
 
+    /// <summary>Compares native and installed OAM across anchors, palettes, and nearly full sprite buffers.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native map spritemap pointers")]
     internal static void VerifyMapSpriteNativeCompositions(ISnesAddressSpace bus, MapSpriteCatalog catalog)

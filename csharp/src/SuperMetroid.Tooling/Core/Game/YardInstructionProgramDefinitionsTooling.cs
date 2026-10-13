@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(YardInstructionProgramDefinitions))]
 internal abstract class YardInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
+    /// <summary>Counts Yard artwork operands in the compiled instruction catalog.</summary>
     public static int PresentationWordCount => YardInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Maps an artwork slot to its native Yard instruction address.</summary>
     public static ushort PresentationWordAddress(int index) => YardInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Identifies the native bank of Yard's instruction words for tooling audits.</summary>
     static int IDeclaredProgramBank.Bank => YardInstructionProgramDefinitions.Bank;
+    /// <summary>Counts compiled Yard control words separately from presentation operands.</summary>
     public static int MechanicsWordCount => YardInstructionProgramDefinitions.Layout.MechanicsWordCount;
+    /// <summary>Bounds-checks an index before returning a control word with its address.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -18,5 +23,6 @@ internal abstract class YardInstructionProgramDefinitionsTooling : IInstructionP
         (ushort address, ushort value) = YardInstructionProgramDefinitions.Layout.MechanicsWord(index);
         return new(address, value);
     }
+    /// <summary>Checks whether a byte address belongs to Yard's compiled mechanics words.</summary>
     public static bool IsCompiledMechanicsByte(int address) => YardInstructionProgramDefinitions.Layout.IsCompiledMechanicsByte(address);
 }

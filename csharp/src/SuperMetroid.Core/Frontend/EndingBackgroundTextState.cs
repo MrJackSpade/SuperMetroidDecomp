@@ -14,20 +14,34 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class EndingBackgroundTextState
 {
+    /// <summary>Address space retained by the ending text host's scene contract.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Mutable 32-by-32 staging tilemap uploaded after each revealed glyph.</summary>
     private readonly ushort[] tilemap;
+    /// <summary>Collected ammo and item counts used for the final item-percentage message.</summary>
     private readonly EndingInventorySnapshot inventory;
+    /// <summary>Selects the Japanese subtitle row during the percentage hold.</summary>
     private readonly bool japaneseText;
+    /// <summary>Native bank-$8C instruction cursor retained for debugger state.</summary>
     private ushort instructionPointer;
+    /// <summary>Remaining calls until the next installed character or hold transition.</summary>
     internal NativeCountdown instructionTimer = NativeCountdown.Start(1);
+    /// <summary>Scene-selected VRAM word destination for the staging tilemap transfer.</summary>
     private readonly ushort tilemapDestination;
+    /// <summary>Installed glyph and subtitle artwork, rebound after state restoration.</summary>
     [NonSerialized] private EndingTextPresentation? presentation;
+    /// <summary>Compiled installed typewriter characters, omitted from serialized debugger state.</summary>
     [NonSerialized] private EndingTextCharacter[]? installedProgram;
+    /// <summary>Selected completion or item-percentage program that controls terminal behavior.</summary>
     private readonly EndingTextSequence? installedSequence;
+    /// <summary>Next installed character to reveal in the staging tilemap.</summary>
     internal int installedCharacterIndex;
+    /// <summary>Preserves the native initial pause before the first glyph.</summary>
     internal bool installedInitialMarkerPending = true;
+    /// <summary>Tracks whether the item-percentage display hold has begun.</summary>
     private bool installedHoldStarted;
 
+    /// <summary>Binds installed typewriter art and an existing scene tilemap without advancing its pacing.</summary>
     public EndingBackgroundTextState(ISnesAddressSpace bus, EndingBackgroundTextSetup setup)
     {
         this.bus = Ensure.NotNull(bus);
@@ -46,9 +60,12 @@ internal sealed class EndingBackgroundTextState
             : null;
     }
 
+    /// <summary>Set after the installed text and any percentage hold have finished.</summary>
     public bool Completed { get; private set; }
+    /// <summary>Set when the item-percentage text clears and the scene may scroll onward.</summary>
     public bool RequestedItemPercentageScroll { get; private set; }
 
+    /// <summary>Consumes one ending text tick and uploads the tilemap when a glyph or terminal change appears.</summary>
     public void Step(SnesVram vram)
     {
         Ensure.NotNull(vram);
@@ -70,6 +87,7 @@ internal sealed class EndingBackgroundTextState
                 $"Saved ending-text cursor {installedCharacterIndex} exceeds the rebound program.");
     }
 
+    /// <summary>Runs the initial delay, four-frame character cadence, optional percentage hold, and completion handoff.</summary>
     private void StepInstalled(SnesVram vram)
     {
         if (Completed || !(instructionTimer = instructionTimer.Decrement().Remaining).IsZero) return;
@@ -113,6 +131,7 @@ internal sealed class EndingBackgroundTextState
         Upload(vram);
     }
 
+    /// <summary>Counts collected expansions and item bits, clamps to 100, and writes native two-row digits and percent mark.</summary>
     private void DrawItemPercentage()
     {
         int count = inventory.MaxHealth / 100
@@ -142,6 +161,7 @@ internal sealed class EndingBackgroundTextState
             EndingCreditsRomData.Text.PercentBottomTile;
     }
 
+    /// <summary>Writes one decimal digit's top and bottom native BG words.</summary>
     private void WriteDigit(int topIndex, int digit)
     {
         tilemap[topIndex] = unchecked((ushort)(EndingCreditsRomData.Text.DigitTopTile + digit));
@@ -149,6 +169,7 @@ internal sealed class EndingBackgroundTextState
             unchecked((ushort)(EndingCreditsRomData.Text.DigitBottomTile + digit));
     }
 
+    /// <summary>Transfers the current staging tilemap to the selected VRAM word address.</summary>
     [PpuLayoutBoundary("codec: ending text staging tilemap DMA to its scene-selected VMADD")]
     private void Upload(SnesVram vram) =>
         vram.ExecuteWordTransfer(
@@ -158,6 +179,7 @@ internal sealed class EndingBackgroundTextState
 
 }
 
+/// <summary>Collected capacity and item bits captured for the ending's item-percentage calculation.</summary>
 internal readonly record struct EndingInventorySnapshot(
     ushort MaxHealth,
     ushort MaxReserveEnergy,

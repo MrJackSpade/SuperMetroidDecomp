@@ -16,8 +16,10 @@ using static LookupCrocomireProgramsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks compiled Crocomire arena PLM programs, draws, and physical block mutations.</summary>
 internal static class CrocomireArenaPlmsVerification
 {
+    /// <summary>Compares five native programs and checks their room mutations without rereading source ROM.</summary>
     internal static void VerifyCompiledCrocomireArenaPlms()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -43,6 +45,7 @@ internal static class CrocomireArenaPlmsVerification
 
     }
 
+    /// <summary>Calculates the expected native invisible-wall metatile, with its solid bit when built.</summary>
     private static ushort WallWord(Position16<RoomBlocks> cell, bool solid)
     {
         ushort value = cell.Y switch
@@ -56,6 +59,7 @@ internal static class CrocomireArenaPlmsVerification
         return solid ? (ushort)(value | 0x8000) : value;
     }
 
+    /// <summary>Spawns one arena PLM and compares its first-frame block changes and next-frame deletion.</summary>
     private static void VerifyCrocomireMutation(PlmHeaderId header,
         Func<Position16<RoomBlocks>, ushort> expectedWord)
     {
@@ -85,6 +89,7 @@ internal static class CrocomireArenaPlmsVerification
             $"Crocomire header ${(int)header:X4} reads no migrated ROM records");
     }
 
+    /// <summary>Rejects live reads of the bank-$84 program and draw records now supplied by compiled definitions.</summary>
     internal static CartridgeReadGuard NewCrocomireSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -97,6 +102,7 @@ internal static class CrocomireArenaPlmsVerification
                       pointer < CrocomireArenaPlmDrawDefinitions.EndExclusive));
             }, address => $"Crocomire PLM reread compiled source ${address:X6}.");
 
+    /// <summary>Runs the Crocomire arena PLM comparison with the retail ROM oracle.</summary>
     [VerificationCommand("--crocomire-arena-plms")]
     internal static int CrocomireArenaPlmsCommand()
     {

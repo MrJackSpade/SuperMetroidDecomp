@@ -7,14 +7,21 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Non-debug map landmarks and elevator destinations from the cartridge icon lists.</summary>
 public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
 {
+    /// <summary>Installed sprite artwork rebound when a frontend save state is restored.</summary>
     [NonSerialized] private SuperMetroid.Core.Assets.MapSpriteCatalog? sprites;
+    /// <summary>Binds the installed map-icon compositions used by all draw paths.</summary>
     internal void BindSprites(SuperMetroid.Core.Assets.MapSpriteCatalog? catalog) => sprites = catalog;
+    /// <summary>Installed station positions rebound after frontend restoration.</summary>
     [NonSerialized] private SuperMetroid.Core.Assets.MapStationLayout? stations;
+    /// <summary>Binds installed station positions for explored map tiles.</summary>
     internal void BindStations(SuperMetroid.Core.Assets.MapStationLayout? layout) => stations = layout;
+    /// <summary>Installed boss, gunship, and elevator landmark positions.</summary>
     [NonSerialized] private SuperMetroid.Core.Assets.MapLandmarkLayout? landmarks;
+    /// <summary>Binds landmark positions used for boss, gunship, and elevator icons.</summary>
     internal void BindLandmarks(SuperMetroid.Core.Assets.MapLandmarkLayout? layout) => landmarks = layout;
-    // The exploration owner these icons already retain; the menu reads it rather than holding a second copy.
+    /// <summary>Exposes the retained exploration owner to the menu without duplicating its state.</summary>
     internal Bank80SystemState MapSystem => system;
+    /// <summary>Area whose map exploration and icons this view draws.</summary>
     internal AreaId MapArea => area;
 
     /// <summary>Shared $82:B892 boss-marker drawing used by pause and file-select maps.</summary>
@@ -93,6 +100,7 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
                 elevatorLayout.Get(label.Id), scroll, 0);
         }
     }
+    /// <summary>Converts a map-space landmark to OAM and draws it with installed sprite art.</summary>
     private void Add(OamBuffer oam, MapSpriteId id, Position16<MapPixels> position, Position16<MapPixels> scroll, ushort palette)
     {
         (sprites ?? throw new InvalidOperationException(

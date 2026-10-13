@@ -14,6 +14,7 @@ using SuperMetroid.Core.Input;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks the quake issued by a Super Missile enemy hit through the projectile collision prelude.</summary>
 internal static class SuperMissileEnemyHitQuakeVerification
 {
     /// <summary>
@@ -44,6 +45,7 @@ internal static class SuperMissileEnemyHitQuakeVerification
         Console.WriteLine("  Super Missile enemy-hit quake: type $12, which leaves crawlers crawling.");
     }
 
+    /// <summary>Runs the focused enemy-hit quake verification command.</summary>
     [VerificationCommand("--super-missile-enemy-hit-quake")]
     internal static int SuperMissileEnemyHitQuakeCommand()
     {

@@ -49,6 +49,7 @@ internal static class RidleySupplementalVisualDefinitions
     /// <summary>$A6:DCBA..DCD8 selects one frame for each sixteenth-turn sector.</summary>
     internal const int TailTipPointerCount = 16;
 
+    /// <summary>Maps a ten-phase wing cycle for either facing to its native spritemap pointer.</summary>
     internal static ushort WingFrameAt(int index)
     {
         if ((uint)index >= WingPointerCount)
@@ -65,11 +66,13 @@ internal static class RidleySupplementalVisualDefinitions
         };
         return (ushort)((int)pose + index / WingCycleLength * RightWingFrameOffset);
     }
+    /// <summary>Maps a sixteen-sector tail direction to one of the consecutive tip spritemaps.</summary>
     internal static ushort TailTipFrameAt(int index) =>
         (uint)index < TailTipPointerCount
             ? (ushort)(FirstTailTipFrame + ((LeftTailTipDirection - index) & (TailTipPointerCount - 1)) * TailTipFrameBytes)
             : throw new InvalidDataException($"Ridley tail-tip direction {index} is outside the native table.");
 
+    /// <summary>Selects large, medium, or small tail-link art for six articulated segments.</summary>
     internal static ushort SegmentFrameAt(int index) => index switch
     {
         0 or 1 => LargeSegment,
@@ -78,6 +81,7 @@ internal static class RidleySupplementalVisualDefinitions
         _ => throw new InvalidDataException($"Ridley tail segment {index} is outside six drawn links."),
     };
 
+    /// <summary>Enumerates the distinct wing, tail-tip, and segment frames used by Ridley.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var pointers = new SortedSet<ushort>

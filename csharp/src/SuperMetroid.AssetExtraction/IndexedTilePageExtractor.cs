@@ -13,6 +13,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusAccess]
 internal static class IndexedTilePageExtractor
 {
+    /// <summary>Reads a bounded four-bit tile page, emits indexed PNG, and rejects any round trip that changes source bytes.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus, int sourceAddress,
         int byteCount, string identity)
     {

@@ -8,10 +8,13 @@ namespace SuperMetroid.Core.Assets;
 /// atlas seam, including its documented one-cell-left tile mismatch.</summary>
 internal sealed class ZebesPlanetBandParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Replaces the planet backdrop only when supplied art matches the calculated native fifty-part layout.</summary>
     internal static SpriteComposition CalculateIfMatching(CeresDestructionBackdrop? backdrop, SpriteComposition supplied) =>
         backdrop == CeresDestructionBackdrop.Planet
             ? supplied.CalculateIfMatching(new ZebesPlanetBandParts()) : supplied;
+    /// <summary>Includes small rim cells and large horizontal-band pieces in native draw order.</summary>
     public int Count => 50;
+    /// <summary>Calculates atlas tile and screen offset for a planet rim, cap, or horizontal-band piece.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -87,12 +90,15 @@ internal sealed class ZebesPlanetBandParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
+    /// <summary>Visits the calculated fifty-part planet silhouette in cartridge OAM order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same planet drawing order through the non-generic interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
+/// <summary>Native atlas anchors for the planet's rims, two-row bands, and edge patches.</summary>
 internal static class ZebesPlanetBandAtlas
 {
     /// <summary>Tile00, northwest two-by-two small-cell patch, with empty top-left.</summary>

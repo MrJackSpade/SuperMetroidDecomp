@@ -14,13 +14,13 @@ using SuperMetroid.Core.Game;
 using static AssertionsVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks how boot SRAM comparison carry affects earthquake sound timer reloads.</summary>
 internal static class MainGameLoopCarryVerification
 {
-    // #1269: Handle_Earthquake_SoundEffect reloads its timer with ADC .baseTimer ($88:B245)
-    // after QueueSound_Lib2_Max6 restores the entry flags, so it adds the carry MainGameLoop
-    // has preserved since boot's DetermineNumberOfDemoSets ($80:8261). Without it, every
-    // rumble in the 100% movie's rising-lava room came a frame early and the door's
-    // sound-queue wait ended six updates before native.
+    /// <summary>
+    /// Confirms the boot comparison's carry survives into the earthquake timer ADC,
+    /// preserving the native rumble cadence and following sound-queue wait.
+    /// </summary>
     internal static void VerifyMainGameLoopCarry()
     {
         var bus = new TestAddressSpace();
@@ -46,6 +46,7 @@ internal static class MainGameLoopCarryVerification
         Console.WriteLine("Main-loop carry: boot SRAM decides it, and the earthquake timer reload adds it.");
     }
 
+    /// <summary>Runs the focused boot-carry and quake-timer check.</summary>
     [VerificationCommand("--main-game-loop-carry")]
     internal static int MainGameLoopCarryCommand()
     {

@@ -13,12 +13,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks that X-ray suspends Tourian statue animation timers until the scope closes.</summary>
 internal static class TourianStatueXrayFreezeVerification
 {
-    // #1269: the Tourian entrance statues are bank-$87 animated-tile objects. XraySetup calls
-    // Disable_AnimatedTilesObjects ($91:E239) and Set_NonXray_SamusPose re-enables them
-    // ($91:E34B), so the statues' timers stand still while the scope is up. In the 100% movie
-    // an X-ray in the statue room delays the first unlock by the scope's 175 frames.
+    /// <summary>
+    /// Confirms the bank-$87 animated-tile objects stop advancing during X-ray and resume
+    /// afterward; their paused timers account for the recorded delayed statue unlock.
+    /// </summary>
     internal static void VerifyTourianStatueXrayFreeze()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -49,6 +50,7 @@ internal static class TourianStatueXrayFreezeVerification
         Console.WriteLine("Tourian statue X-ray freeze: the scope suspends the statues' animated-tile programs.");
     }
 
+    /// <summary>Runs the focused statue timer suspension check.</summary>
     [VerificationCommand("--tourian-statue-xray-freeze")]
     internal static int TourianStatueXrayFreezeCommand()
     {

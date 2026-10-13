@@ -8,14 +8,17 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class DeathExplosionScatterDefinitions
 {
+    /// <summary>The ten authored offsets in the shared Ridley and Baby Metroid scatter list.</summary>
     internal const int Count = 10;
 
+    /// <summary>Native-order signed pixel offsets from each explosion center.</summary>
     private static readonly Offset16<RoomPixels>[] Offsets =
     [
         new(-24, -24), new(-20, 20), new(16, -30), new(30, -3), new(14, -13),
         new(-2, 18), new(-2, -32), new(-31, 8), new(-4, -10), new(19, 19),
     ];
 
+    /// <summary>Selects an authored scatter point and rejects indices outside the ten-point list.</summary>
     internal static Offset16<RoomPixels> Offset(int index) => (uint)index < Count
         ? Offsets[index]
         : throw new ArgumentOutOfRangeException(nameof(index));

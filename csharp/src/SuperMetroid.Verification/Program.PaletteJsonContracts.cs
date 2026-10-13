@@ -18,6 +18,7 @@ using static PaletteJsonContractsLegacyVerification;
 using static PaletteJsonContractsVisibleVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks strict JSON schemas, RGB5 bounds, and override isolation for installed palette formats.</summary>
 internal static class PaletteJsonContractsVerification
 {
     /// <summary>Finite source-inventoried palette formats; no gameplay or ROM-read discovery.</summary>
@@ -101,18 +102,22 @@ internal static class PaletteJsonContractsVerification
             "legacy overrides and exact visible palette/animation isolation.");
     }
 
+    /// <summary>Names one palette schema, its valid document, loader, and historical casing rule.</summary>
     internal sealed record PaletteJsonContract(string Name, JsonObject Document, Action<Stream> Load,
         bool CaseInsensitive = false);
 
+    /// <summary>Serializes a typed palette fixture into a mutable camel-case JSON document.</summary>
     internal static JsonObject PaletteContractDocument(object document) => (JsonObject)JsonSerializer.SerializeToNode(
         document, document.GetType(), new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })!;
 
+    /// <summary>Runs a schema's production loader on supplied UTF-8 JSON text.</summary>
     private static void LoadPaletteContract(PaletteJsonContract contract, string json)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json), writable: false);
         contract.Load(stream);
     }
 
+    /// <summary>Applies one invalid-case mutation to a cloned valid palette document.</summary>
     private static string Mutate(JsonObject source, Action<JsonObject> mutation)
     {
         var copy = (JsonObject)source.DeepClone();
@@ -120,6 +125,7 @@ internal static class PaletteJsonContractsVerification
         return copy.ToJsonString();
     }
 
+    /// <summary>Traverses object keys and array indices to a nested fixture node.</summary>
     private static JsonNode? PaletteContractNode(JsonNode root, string[] path)
     {
         JsonNode? node = root;
@@ -127,6 +133,7 @@ internal static class PaletteJsonContractsVerification
         return node;
     }
 
+    /// <summary>Replaces the final object property or array element at a fixture path.</summary>
     private static void SetPaletteContractNode(JsonNode root, string[] path, JsonNode? value)
     {
         JsonNode parent = PaletteContractNode(root, path[..^1])!;
@@ -134,6 +141,7 @@ internal static class PaletteJsonContractsVerification
         else parent[path[^1]] = value;
     }
 
+    /// <summary>Finds representative nested array paths for shape and nullability checks.</summary>
     private static IEnumerable<string[]> PaletteContractArrayPaths(JsonNode? node, string[]? path = null)
     {
         path ??= [];
@@ -147,6 +155,7 @@ internal static class PaletteJsonContractsVerification
                 foreach (string[] child in PaletteContractArrayPaths(pair.Value, [.. path, pair.Key])) yield return child;
     }
 
+    /// <summary>Finds representative RGB5 color nodes for channel-bound and property checks.</summary>
     private static IEnumerable<string[]> PaletteContractColorPaths(JsonNode? node, string[]? path = null)
     {
         path ??= [];
@@ -160,6 +169,7 @@ internal static class PaletteJsonContractsVerification
             foreach (string[] child in PaletteContractColorPaths(array[0], [.. path, "0"])) yield return child;
     }
 
+    /// <summary>Dispatches the installed palette JSON contract verification command.</summary>
     [VerificationCommand("--palette-json-contracts")]
     internal static int PaletteJsonContractsCommand()
     {

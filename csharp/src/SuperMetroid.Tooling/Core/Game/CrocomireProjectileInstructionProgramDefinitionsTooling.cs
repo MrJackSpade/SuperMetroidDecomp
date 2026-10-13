@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(CrocomireProjectileInstructionProgramDefinitions))]
 internal abstract class CrocomireProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Bounds visual operands across Crocomire's mouth, bridge, spike, and shot projectile lists.</summary>
     public static int PresentationWordCount => CrocomireProjectileInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates a projectile frame operand in the native instruction data.</summary>
     public static ushort PresentationWordAddress(int index) => CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Covers timed frames and control trailers across four projectile lists.</summary>
     public static int MechanicsWordCount => 22;
     /// <summary>Enumerates each program's timed frames followed by its control
     /// trailer: a self-loop, or the shot program's drop/goto/delete sequence.</summary>
@@ -25,6 +28,7 @@ internal abstract class CrocomireProjectileInstructionProgramDefinitionsTooling 
         ushort address = (ushort)(start + offset);
         return new(address, CrocomireProjectileInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Includes timing and trailer bytes while excluding interleaved frame visuals.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;

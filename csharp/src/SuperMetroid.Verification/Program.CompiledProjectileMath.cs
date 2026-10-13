@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static WordSamplesVerification;
 
+/// <summary>Checks compiled projectile trigonometry across production consumers against cartridge samples.</summary>
 internal static class CompiledProjectileMathVerification
 {
+    /// <summary>Checks Crocomire gradient overread, signed sine products, and native vector and arc arithmetic.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile math")]
     internal static void VerifyCompiledProjectileMath(SuperMetroidAddressSpace rom)
     {

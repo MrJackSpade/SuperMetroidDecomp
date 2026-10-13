@@ -25,6 +25,7 @@ internal static class SamusVisorColorDefinitions
     /// <summary>$9B:A3C0-$A3C5: widening start, midpoint and full-white endpoint.</summary>
     internal const int WideningPhaseCount = 3;
 
+    /// <summary>Interpolates the widening visor into white, then darkens the selected full-beam ink by five RGB5 levels per phase.</summary>
     internal static Bgr555 Color(int index)
     {
         if ((uint)index >= SamusVisorColorFormat.ColorCount)

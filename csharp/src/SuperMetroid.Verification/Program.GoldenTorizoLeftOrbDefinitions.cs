@@ -2,8 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Golden Torizo left-orb control, visual, and collision records in bank $AA.</summary>
 internal static class GoldenTorizoLeftOrbDefinitionsVerification
 {
+    /// <summary>Compares 46 control words, 20 selectors, selected frames, and eight hitbox lists with cartridge data.</summary>
     internal static void VerifyGoldenTorizoLeftOrbDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
@@ -117,6 +119,7 @@ internal static class GoldenTorizoLeftOrbDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>Reads native left-orb bytes for the definition comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo left orb definitions")]
     private static byte GoldenTorizoLeftOrbDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

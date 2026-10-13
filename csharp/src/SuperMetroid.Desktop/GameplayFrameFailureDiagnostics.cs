@@ -6,6 +6,7 @@ namespace SuperMetroid.Desktop;
 /// <summary>One shared diagnostic payload for fatal console logs and opt-in GitHub reports.</summary>
 internal static class GameplayFrameFailureDiagnostics
 {
+    /// <summary>Combines build identities, attempted input, recording location, and before/partial-failure frame states for a report.</summary>
     internal static string Format(string before, string failed, ushort attemptedInput,
         string? recordingPath, int? recordingIndex) =>
         $"Build: {typeof(GameplayFrameFailureDiagnostics).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown"}\n" +

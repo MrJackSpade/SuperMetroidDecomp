@@ -9,8 +9,10 @@ using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks post-credits shooting-star motion, OAM, phase masks, and CPU/GPU rendering.</summary>
 internal static class EndingShootingStarsTests
 {
+    /// <summary>Compares native star records and trajectory before exercising their actual ending scene owner.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {

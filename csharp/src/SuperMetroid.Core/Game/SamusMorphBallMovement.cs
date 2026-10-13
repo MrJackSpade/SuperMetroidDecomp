@@ -363,6 +363,7 @@ public static class SamusMorphBallMovement
         return new MorphBallMovementResult(vertical, landed, HitCeiling: false);
     }
 
+    /// <summary>Moves the ball by its previous vertical speed, then advances gravity and reports collisions for the later bank-$91 transition.</summary>
     private static BlockMoveResult MoveVerticallyWithGravity(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -418,6 +419,7 @@ public static class SamusMorphBallMovement
         return vertical;
     }
 
+    /// <summary>Scans for ground or ceiling contact using external displacement while leaving vertical speed unchanged.</summary>
     private static BlockMoveResult RunNoSpeedCalculationGroundingProbe(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -438,6 +440,7 @@ public static class SamusMorphBallMovement
     }
 
 
+    /// <summary>Rejects missing cartridge, level, or Samus state before entering a morph movement path.</summary>
     private static void Validate(
         ISnesAddressSpace bus,
         RoomLevelData level,

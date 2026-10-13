@@ -16,8 +16,10 @@ using static LinkedRestoreVisualsVerification;
 using static ShotBlockPlmProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail and guarded playback checks for bomb-block control lists, shared breakup frames and restoration art.</summary>
 internal static class BombBlockProgramsVerification
 {
+    /// <summary>Checks the three native restoration draws and their exact bank-$84 pointer ownership.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb block restoration mapping")]
     private static void VerifyBombBlockRestorationMapping(SuperMetroidAddressSpace rom)
     {
@@ -74,12 +76,14 @@ internal static class BombBlockProgramsVerification
         }
     }
 
+    /// <summary>Native collision and reaction entry points, timed tails and end bounds for all eight bomb-block shapes.</summary>
     private static (ushort Collision, ushort Reaction, ushort Tail, int Frames, ushort End)[] BombBlockNativeLayouts() =>
         [(0xcc35,0xcc3c,0xcc3f,7,0xcc5f), (0xcc5f,0xcc66,0xcc69,8,0xcc8b),
          (0xcc8b,0xcc92,0xcc95,8,0xccb7), (0xccb7,0xccbe,0xccc1,8,0xcce3),
          (0xcce3,0xccea,0xcced,4,0xccff), (0xccff,0xcd06,0xcd09,4,0xcd1b),
          (0xcd1b,0xcd22,0xcd25,4,0xcd37), (0xcd37,0xcd3e,0xcd41,4,0xcd53)];
 
+    /// <summary>Checks every queue, branch, timer, restoration and deletion word over the complete native address domain.</summary>
     private static void VerifyBombBlockControlMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new List<ushort>();
@@ -107,6 +111,7 @@ internal static class BombBlockProgramsVerification
         }
     }
 
+    /// <summary>Checks the 47 forward, reverse and restoration draw operands in the eight compiled lists.</summary>
     private static void VerifyBombBlockDrawMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new HashSet<ushort>();
@@ -123,6 +128,7 @@ internal static class BombBlockProgramsVerification
         }
     }
 
+    /// <summary>Checks packed collision and projectile sound bytes at both entry points of each native shape list.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb block sound mapping")]
     private static void VerifyBombBlockSoundMapping(SuperMetroidAddressSpace rom)
     {
@@ -138,6 +144,7 @@ internal static class BombBlockProgramsVerification
         }
     }
 
+    /// <summary>Runs every bomb-block producer and BTS timeline with compiled source bytes blocked, then checks editable art isolation.</summary>
     internal static void VerifyBombBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -212,6 +219,7 @@ internal static class BombBlockProgramsVerification
         Console.WriteLine($"Bomb-block PLMs: 88 control words, 16 sounds, 3 restoration lists, and all 24 collision/bomb/power-bomb timelines match ROM with source reads forbidden.");
     }
 
+    /// <summary>Confirms a breakup visual edit reaches immediate and streamed artwork without changing physical restoration.</summary>
     private static void VerifyBombBlockVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
@@ -302,11 +310,25 @@ internal static class BombBlockProgramsVerification
             "edited block $058 composition reaches later streaming");
     }
 
-    internal enum BombBlockProducer { Collision, Bomb, PowerBomb }
+    /// <summary>Native interaction path used to trigger a constructed bomb block.</summary>
+    internal enum BombBlockProducer
+    {
+        /// <summary>Samus body collision enters the block's contact reaction.</summary>
+        Collision,
+        /// <summary>An ordinary Bomb projectile enters its shot reaction.</summary>
+        Bomb,
+        /// <summary>A Power Bomb projectile enters its shared shot reaction.</summary>
+        PowerBomb,
+    }
 
+    /// <summary>Constructed room and PLM owners for one bomb-block trigger and animation.</summary>
+    /// <param name="Level">Room collision and BTS planes containing the triggered tile.</param>
+    /// <param name="Streamer">BG update owner used when the tile is restored.</param>
+    /// <param name="Plms">PLM system executing the chosen native program.</param>
     internal sealed record BombBlockFixture(
         RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
 
+    /// <summary>Spawns a bomb-block PLM through body collision, Bomb or Power Bomb against one synthetic room tile.</summary>
     private static BombBlockFixture NewBombBlockFixture(byte behavior, BombBlockProducer producer)
     {
         const int width = 8;
@@ -333,6 +355,7 @@ internal static class BombBlockProgramsVerification
         return new BombBlockFixture(level, level.CreateBackgroundStreamer(), plms);
     }
 
+    /// <summary>Runs the bomb-block mapping, timeline and visual-separation verification command.</summary>
     [VerificationCommand("--bomb-block-programs")]
     internal static int BombBlockProgramsCommand()
     {

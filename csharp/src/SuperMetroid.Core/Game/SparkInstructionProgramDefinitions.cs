@@ -34,8 +34,11 @@ internal abstract class SparkInstructionProgramDefinitions
     /// into the instruction timer; the separate intangibility callback and function timers own gameplay.</summary>
     private const ushort FlickerOutCadence = 1;
 
+    /// <summary>Fixed callbacks, frame durations, sleeps, and loop words across four Spark programs.</summary>
     public static int MechanicsWordCount => 33;
+    /// <summary>Frame-selector operands kept separate for installed Spark artwork.</summary>
     public static int PresentationWordCount => 26;
+    /// <summary>Calculates one native control word, including activation flicker and active or emitter loops.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -47,16 +50,19 @@ internal abstract class SparkInstructionProgramDefinitions
             index == 25 ? (ushort)SparkInstruction.SetAsIntangible : (ushort)CommonEnemyInstruction.Sleep);
         return LoopWord(Emitter, index - 27);
     }
+    /// <summary>Selects one-tick flashes, two-tick blanks, the final gap, or sustained active poses.</summary>
     private static ushort ActivationDuration(int frame)
     {
         if (frame >= 8) return ActivationSustainedTicks;
         if ((frame & 1) == 0) return ActivationFlashOnTicks;
         return frame == 7 ? ActivationFinalGapTicks : ActivationFlashOffTicks;
     }
+    /// <summary>Builds a four-frame continuous loop followed by its goto and return target.</summary>
     private static InstructionMechanicsWord LoopWord(ushort start, int index) => index < 4
         ? new((ushort)(start + index * 4), ContinuousVisualCadence)
         : new((ushort)(start + 16 + (index - 4) * 2), index == 4 ? (ushort)CommonEnemyInstruction.Goto : start);
 
+    /// <summary>Locates a frame selector in the flicker-in, active, flicker-out, or emitter program.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();

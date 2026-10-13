@@ -10,8 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM bank-$8F room header and state-selection records → CartridgeRoomHeader")]
 public static class CartridgeRoomHeaderImporter
 {
-    // This is the import/reference decoder. Gameplay uses the compiled room branches;
-    // importing native headers must remain independent of those generated definitions.
+    /// <summary>Evaluates the native room selector commands for import and reference checks, independently of compiled gameplay branches.</summary>
     private static ushort SelectImportedState(ISnesAddressSpace bus, ushort cursor,
         RoomStateSelectionContext selection)
     {

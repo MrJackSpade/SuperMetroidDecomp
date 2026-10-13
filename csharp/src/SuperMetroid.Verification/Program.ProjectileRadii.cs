@@ -17,8 +17,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled projectile collision radii independently of editable frame artwork.</summary>
 internal static class ProjectileRadiiVerification
 {
+    /// <summary>Compares 805 bank 93 radius pairs and checks projectile and bomb frames under changed sprite bindings.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile radii")]
     internal static void VerifyProjectileRadii(SuperMetroidAddressSpace rom)
     {
@@ -171,6 +173,7 @@ internal static class ProjectileRadiiVerification
     private static byte ReadMurderBeamRadiusMirrorByte(SuperMetroidAddressSpace memory, int address) =>
         memory.ReadWorkRamByte(address);
 
+    /// <summary>Rejects runtime cartridge reads of either byte in the inventoried X/Y radius pairs.</summary>
     private static CartridgeReadGuard NewProjectileRadiusReadGuard(ISnesAddressSpace source, int[] addresses)
     {
         HashSet<int> radii = addresses.SelectMany(a => new[] { a, a + 1 }).ToHashSet();
@@ -178,6 +181,7 @@ internal static class ProjectileRadiiVerification
             address => new InvalidDataException($"Projectile collision still reads ROM ${address:X6}."));
     }
 
+    /// <summary>Runs radius and instruction checks against the same retail cartridge.</summary>
     [VerificationCommand("--projectile-radius-instruction-fixtures")]
     internal static int ProjectileRadiusInstructionFixturesCommand()
     {

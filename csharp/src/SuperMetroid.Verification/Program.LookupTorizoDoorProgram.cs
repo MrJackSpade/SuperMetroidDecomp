@@ -2,16 +2,24 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks Bomb Torizo grey-door PLM fields against independent bank $84 addresses.</summary>
 internal static class LookupTorizoDoorProgramVerification
 {
+    /// <summary>Checks command and delay bytes across both grey-door program ranges.</summary>
     internal static void VerifyTorizoDoorControls(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 0);
+    /// <summary>Checks seventeen door drawing words at their native addresses.</summary>
     internal static void VerifyTorizoDoorDraws(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 1);
+    /// <summary>Checks eight target operands and overlapping word reads.</summary>
     internal static void VerifyTorizoDoorTargets(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 2);
+    /// <summary>Checks the two sound operands in the grey-door instructions.</summary>
     internal static void VerifyTorizoDoorSounds(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 3);
+    /// <summary>Checks the door's one-byte hit counter against the native value.</summary>
     internal static void VerifyTorizoDoorHitCount(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 4);
 
+    /// <summary>Checks the two-byte callback operand in the door program.</summary>
     internal static void VerifyTorizoDoorCallback(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 5);
 
+    /// <summary>Checks byte and overlapping word ownership throughout both native door-program ranges.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo door field")]
     private static void VerifyTorizoDoorField(SuperMetroidAddressSpace rom, int field)
     {

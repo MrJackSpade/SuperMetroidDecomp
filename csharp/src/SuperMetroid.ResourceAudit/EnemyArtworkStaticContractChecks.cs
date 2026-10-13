@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified static selector/length contract and its revocation guards.</summary>
 internal static class EnemyArtworkStaticContractChecks
 {
+    /// <summary>Checks static selector and length admission, then revokes closure after source contract changes.</summary>
     internal static void Run()
     {
         var trees = EnemyArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -78,9 +79,11 @@ internal static class EnemyArtworkStaticContractChecks
         Revoked(Inspect(Compile(trees.Append(extraMetadata)), true), "additional metadata declaration");
     }
 
+    /// <summary>Requires all fifteen calls to become unresolved when a reviewed artwork proof is invalidated.</summary>
     private static void Revoked(AuditReport report, string reason) => Require(
         report.Classifications.Count == 0 && report.UnresolvedCount == 15 && report.Consumers.Count == 15, reason);
 
+    /// <summary>Reports an enemy-artwork contract failure through the audit process boundary.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Enemy artwork static confirmation failed: " + reason);

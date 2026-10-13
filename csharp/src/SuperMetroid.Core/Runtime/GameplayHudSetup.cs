@@ -11,15 +11,24 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class GameplayHudSetup
 {
+    /// <summary>Selects installed HUD and trail artwork when available.</summary>
     private readonly RuntimeArtwork _artwork;
+    /// <summary>Receives the gameplay BG3 character-base selection.</summary>
     private readonly GameplayDisplayState _display;
+    /// <summary>Requeues loaded room enemy graphics after the overlapping standard OBJ upload.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Owns the live HUD tilemap and its palette or map presentation binding.</summary>
     private readonly HudState _hud;
+    /// <summary>Supplies Samus state for HUD item and resource display.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Holds room-FX BG3 padding immediately before queued HUD uploads.</summary>
     private readonly SnesVram _vram;
+    /// <summary>Preserves native DMA ordering for HUD, OBJ, trail, and enemy graphics.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>Provides native HUD setup data when installed presentation is absent.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Binds the runtime owners needed for initial BG3, OBJ, and HUD transfers.</summary>
     internal GameplayHudSetup(GameplayHudSetupDependencies dependencies)
     {
         _artwork = dependencies.Artwork;

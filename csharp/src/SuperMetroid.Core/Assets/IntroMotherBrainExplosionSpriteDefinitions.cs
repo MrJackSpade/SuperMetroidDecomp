@@ -20,10 +20,14 @@ internal static class IntroMotherBrainExplosionSpriteDefinitions
         return (ushort)((big ? BigStart : SmallStart) + single * 7 + (frame - single) * 22);
     }
 
+    /// <summary>Enumerates six small and six large explosion OAM records in native effect order.</summary>
     internal static IReadOnlyList<IntroMotherBrainExplosionSpriteFrameDefinition> Frames { get; } = new FrameList();
+    /// <summary>Computes native OAM pointers, stable artwork keys, and part counts for each explosion pose.</summary>
     private sealed class FrameList : IReadOnlyList<IntroMotherBrainExplosionSpriteFrameDefinition>
     {
+        /// <summary>Six frames for each of the two explosion sizes.</summary>
         public int Count => 12;
+        /// <summary>Selects a small or large frame and its one- or four-part native OAM record.</summary>
         public IntroMotherBrainExplosionSpriteFrameDefinition this[int index]
         {
             get
@@ -35,13 +39,16 @@ internal static class IntroMotherBrainExplosionSpriteDefinitions
                     frame < (big ? 1 : 2) ? 1 : 4);
             }
         }
+        /// <summary>Yields all small frames followed by all large frames.</summary>
         public IEnumerator<IntroMotherBrainExplosionSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Preserves native effect order for non-generic collection consumers.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
 
+/// <summary>Pairs an intro explosion's bank-$8C OAM pointer and artwork key with its original part count.</summary>
 internal readonly record struct IntroMotherBrainExplosionSpriteFrameDefinition(
     ushort Pointer, string Name, int StockPartCount);

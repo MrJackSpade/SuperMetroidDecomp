@@ -39,11 +39,16 @@ namespace SuperMetroid.Core.Assets;
 public sealed class SamusHyperBeamColorCatalog
 {
 
+    /// <summary>Independent RGB5 inputs that cannot be reconstructed from shared hue and shade rules.</summary>
     internal readonly Dictionary<int, Bgr555> colors = new();
+    /// <summary>Per-channel deviations from derived temporal midpoint colors.</summary>
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> intermediateInputs = new();
+    /// <summary>Independent red, green, or blue channels at authored hue endpoints.</summary>
     internal readonly Dictionary<int, EndpointChannels> endpointInputs = new();
+    /// <summary>Edited highlight channels that differ from shared ink brightening.</summary>
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
+    /// <summary>Separates supplied palette rows into independent artwork inputs and calculated relationships.</summary>
     private SamusHyperBeamColorCatalog(Bgr555[][] frames)
     {
         for (int frame = 0; frame < frames.Length; frame++)
@@ -117,6 +122,7 @@ public sealed class SamusHyperBeamColorCatalog
         }
     }
 
+    /// <summary>Requires camel-case RGB5 documents with no unknown properties.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -253,10 +259,14 @@ public sealed class SamusHyperBeamColorCatalog
     /// class-level artwork disposition; intermediate relationships are calculated.</remarks>
     internal readonly struct EndpointChannels
     {
+        /// <summary>Supplied red component only when it differs from the endpoint's shared basis.</summary>
         internal readonly int? red;
+        /// <summary>Supplied green component only when it differs from the endpoint's shared basis.</summary>
         internal readonly int? green;
+        /// <summary>Supplied blue component only when it differs from the endpoint's channel-copy rule.</summary>
         internal readonly int? blue;
 
+        /// <summary>Retains only independently chosen endpoint channels from a supplied RGB5 word.</summary>
         internal EndpointChannels(Bgr555 supplied, bool redHue, int? expectedRed, int? expectedGreen = null)
         {
             int suppliedRed = supplied.Red;
@@ -267,6 +277,7 @@ public sealed class SamusHyperBeamColorCatalog
             blue = (supplied.Blue) == expectedBlue ? null : supplied.Blue;
         }
 
+        /// <summary>Rebuilds an endpoint by combining supplied channels with shared hue relationships.</summary>
         internal Bgr555 Resolve(bool redHue, int expectedRed, int expectedGreen = 0)
         {
             int resolvedRed = red ?? expectedRed;
@@ -274,6 +285,7 @@ public sealed class SamusHyperBeamColorCatalog
             return new(resolvedRed, resolvedGreen, blue ?? (redHue ? resolvedGreen : resolvedRed));
         }
     }
+    /// <summary>Rejects repeated palette JSON keys before deserialization can silently replace a color.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus Hyper Beam color property {name}."));

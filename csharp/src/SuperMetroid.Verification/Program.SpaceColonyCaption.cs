@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Compares the compiled Space Colony caption columns and tiles with the retail drawing instructions.</summary>
 internal static class SpaceColonyCaptionVerification
 {
+    /// <summary>Checks eleven letter positions and tiles while confirming native timing, row, and one-cell draw shape remain fixed.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Space Colony caption")]
     internal static void VerifySpaceColonyCaption(ISnesAddressSpace rom)
     {

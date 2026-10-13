@@ -8,8 +8,10 @@ using static GraphDigestVerification;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Grapple VRAM transfer rebinding across legacy and typed debugger snapshots.</summary>
 internal static class GrappleTileBindingVerification
 {
+    /// <summary>Confirms queued endpoint and rope transfers resolve current artwork after restore without embedding image bytes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyGrappleTileBinding(SuperMetroidAddressSpace bus, GrappleTileAtlas stock, GrappleTileAtlas edited)
     {

@@ -15,8 +15,10 @@ using static GraphDigestVerification;
 using static RetailRuntimeFixtureVerification;
 using static XrayWindowGeometryVerification;
 
+/// <summary>Checks X-Ray activation, beam display, release, and excluded-room input routes.</summary>
 internal static class XrayInputVerification
 {
+    /// <summary>Exercises ordinary Select/Run X-ray activation, beam display, release, and excluded-room behavior.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyXrayInput()
     {
@@ -153,6 +155,7 @@ internal static class XrayInputVerification
         Console.WriteLine("  X-ray input: normal Select/Run activation, full beam and release restore gameplay.");
     }
 
+    /// <summary>Runs the X-ray input and display verification suite.</summary>
     [VerificationCommand("--xray-input")]
     internal static int XrayInputCommand()
     {

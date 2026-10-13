@@ -14,8 +14,10 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroDiscoverySprite
 {
+    /// <summary>Countdown before the next sprite instruction is decoded; setup may stagger the first frame.</summary>
     private NativeCountdown instructionTimer = NativeCountdown.Start(1);
 
+    /// <summary>Creates an egg-scene actor at a whole-pixel origin with its starting OBJ attributes and list cursor.</summary>
     public IntroDiscoverySprite(
         Position16<ScreenPixels> position,
         ushort paletteBits,
@@ -26,6 +28,7 @@ internal sealed class IntroDiscoverySprite
         InstructionPointer = instructionPointer;
     }
 
+    /// <summary>Cleared when the list's delete opcode retires the actor.</summary>
     public bool IsActive { get; private set; } = true;
 
     /// <summary>The native whole and subpixel words of the sprite's position on both axes.</summary>
@@ -38,11 +41,13 @@ internal sealed class IntroDiscoverySprite
         set => Position = new(Position.X.WithWhole(value.X), Position.Y.WithWhole(value.Y));
     }
 
+    /// <summary>Native OBJ attribute bits applied to the current spritemap's tiles.</summary>
     public ushort PaletteBits { get; private set; }
 
     /// <summary>Applies a cinematic callback's native OBJ palette/attribute write.</summary>
     public void SetAttributes(SnesObjAttributeWord attributes) => PaletteBits = attributes.Raw;
 
+    /// <summary>Frame pointer most recently published by a timed instruction.</summary>
     public ushort SpriteMapPointer { get; private set; }
 
     /// <summary>The next list word, matching <c>CinematicSpriteObject_InstListPointers</c>.</summary>
@@ -54,6 +59,7 @@ internal sealed class IntroDiscoverySprite
     /// <summary>The selected native pre-instruction address, when the list changes it.</summary>
     public ushort PreInstructionPointer { get; private set; }
 
+    /// <summary>Starts decoding a new list on the next handler call, discarding the old frame countdown.</summary>
     public void Redirect(ushort pointer)
     {
         InstructionPointer = pointer;
@@ -86,6 +92,7 @@ internal sealed class IntroDiscoverySprite
     public void PreInstructionPointerForDiscovery(ushort pointer) =>
         PreInstructionPointer = pointer;
 
+    /// <summary>Retires the actor and clears both its visible frame and instruction cursor.</summary>
     public void Delete()
     {
         IsActive = false;
@@ -203,6 +210,7 @@ internal sealed class IntroDiscoverySprite
             .Draw(SpriteMapPointer, oam, origin.ToOam(), PaletteBits, originIsOnScreen);
     }
 
+    /// <summary>Advances a bank-$8B list cursor with native 16-bit address wraparound.</summary>
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));
 }

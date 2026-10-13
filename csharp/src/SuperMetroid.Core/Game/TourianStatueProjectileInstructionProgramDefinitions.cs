@@ -32,14 +32,18 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions
         DecorationInitialHold = 128, StatueHold = 0x0777;
     /// <summary>$86:B7E0-B7E6: the authored four-particle burst count; it sets how many particle frames repeat, not a physical quantity.</summary>
     private const int ParticleBurstCount = 4;
+    /// <summary>Number of compiled timing, opcode, and control operands across the statue programs.</summary>
     public static int MechanicsWordCount => 57;
+    /// <summary>Number of spritemap operands resolved from installed presentation data.</summary>
     public static int PresentationWordCount => 28;
 
+    /// <summary>Gets a compiled control word by its order in the native statue instruction range.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
+    /// <summary>Gets the bank $86 address of an indexed visual selector without reading its native value.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -95,30 +99,41 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions
         return layout.Result;
     }
 
+    /// <summary>Walks native program addresses while selecting one mechanics or presentation operand.</summary>
     private ref struct Layout(int requested, bool visual, ushort start)
     {
+        /// <summary>Current bank $86 address as the program layout advances.</summary>
         internal ushort Cursor { get; private set; } = start;
+        /// <summary>Counts encountered control words and visual selectors independently.</summary>
         private int mechanics, presentation;
+        /// <summary>The requested address and value found during layout traversal.</summary>
         internal InstructionMechanicsWord Result { get; private set; }
+        /// <summary>Moves the layout cursor to the start of another native instruction list.</summary>
         internal void Start(ushort address) => Cursor = address;
+        /// <summary>Skips the one-byte sound ID outside the word-oriented mechanics catalog.</summary>
         internal void SkipByte() => Cursor++;
+        /// <summary>Records an indexed mechanics word and advances by one native word.</summary>
         internal void Word(ushort value)
         {
             if (!visual && mechanics == requested) Result = new(Cursor, value);
             mechanics++; Cursor += sizeof(ushort);
         }
+        /// <summary>Records a pose duration and reserves its following visual selector word.</summary>
         internal void Pose(ushort duration)
         {
             Word(duration);
             if (visual && presentation == requested) Result = new(Cursor, 0);
             presentation++; Cursor += sizeof(ushort);
         }
+        /// <summary>Appends the projectile deletion opcode.</summary>
         internal void Delete() => Word((ushort)EnemyProjectileInstruction.Delete);
+        /// <summary>Appends a native goto opcode and its target address.</summary>
         internal void Goto(ushort target)
         {
             Word((ushort)EnemyProjectileInstruction.GotoY); Word(target);
         }
     }
+    /// <summary>Checks whether a projectile kind uses one of these Tourian statue instruction lists.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.TourianStatueSplash or
         RoomEnemyProjectileKind.TourianStatueEyeGlow or
@@ -129,6 +144,7 @@ internal abstract class TourianStatueProjectileInstructionProgramDefinitions
         RoomEnemyProjectileKind.TourianStatuePhantoon or
         RoomEnemyProjectileKind.TourianStatueBaseDecoration;
 
+    /// <summary>Finds a compiled control word by bank $86 address and rejects visual or unrelated data.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

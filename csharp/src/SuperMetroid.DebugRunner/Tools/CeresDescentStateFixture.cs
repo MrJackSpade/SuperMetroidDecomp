@@ -6,6 +6,11 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Creates a private, portable cinematic seed without changing any player's saves.</summary>
 internal static class CeresDescentStateFixture
 {
+    /// <summary>
+    /// Creates a new private fixture directory, seeds the post-escape game state, then
+    /// advances the real frontend, cinematic dispatcher, and audio until the planet
+    /// approach before saving slot nine. Existing destinations are rejected.
+    /// </summary>
     public static int Export(string destination)
     {
         string root = Path.GetFullPath(destination);
@@ -15,8 +20,6 @@ internal static class CeresDescentStateFixture
         using var data = new AndroidSessionData(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
         data.Game.SetupSelectedGame();
-        // Seed the documented post-escape state, then let the actual frontend,
-        // cinematic dispatcher and managed audio advance to the planet approach.
         data.Game.GameState = SuperMetroidGameState.CeresGoesBoom;
         for (long frame = 1; frame <= 2500; frame++)
         {

@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static AssertionsVerification;
 
+/// <summary>Checks all compiled enemy projectile definitions and their production collision consumers.</summary>
 internal static class EnemyProjectileDefinitionsVerification
 {
+    /// <summary>Walks 123 native records, then checks initialization, Samus touch, and projectile shot handoffs.</summary>
     internal static void VerifyEnemyProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
@@ -166,11 +168,13 @@ internal static class EnemyProjectileDefinitionsVerification
         return bus;
     }
 
+    /// <summary>Rejects live reads of every compiled bank-$86 definition byte during collision handling.</summary>
     private static CartridgeReadGuard NewEnemyProjectileDefinitionReadGuard(
         ISnesAddressSpace source, HashSet<int> forbidden) =>
         new CartridgeReadGuard(source).Forbid(forbidden.Contains,
             address => $"Enemy-projectile runtime reread compiled definition byte ${address:X6}.");
 
+    /// <summary>Loads the retail cartridge and runs the definition audit from the command dispatcher.</summary>
     [VerificationCommand("--enemy-projectile-definitions")]
     internal static int EnemyProjectileDefinitionsCommand()
     {

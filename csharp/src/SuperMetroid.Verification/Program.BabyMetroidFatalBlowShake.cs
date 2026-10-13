@@ -11,12 +11,14 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 
+/// <summary>Checks the Baby Metroid's fatal-blow shake velocity and position against native $A9:CEDB behavior.</summary>
 internal static class BabyMetroidFatalBlowShakeVerification
 {
-    // #1269: each fatal-blow call runs ShakeBabyMetroidCutscene ($A9:CEDB), which adds $FFFF
-    // to the Baby's Y velocity and places it at the saved origin plus the undoubled shaking
-    // offsets. The port doubled the offsets and left the velocity at zero, so in the 100%
-    // movie the Baby's Y fraction stayed $C700 where native drifted to $C600.
+    /// <summary>
+    /// Confirms each $A9:CEDB call subtracts one from Baby Y velocity and applies undoubled
+    /// shake offsets around its saved origin. Issue #1269 exposed doubled offsets and a
+    /// stationary Y fraction in the 100% movie.
+    /// </summary>
     internal static void VerifyBabyMetroidFatalBlowShake()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -41,6 +43,7 @@ internal static class BabyMetroidFatalBlowShakeVerification
         Console.WriteLine("Baby Metroid fatal-blow shake: $A9:CEDB decrements Y velocity and adds undoubled offsets.");
     }
 
+    /// <summary>Runs the focused fatal-blow shake check from the verification command line.</summary>
     [VerificationCommand("--baby-metroid-fatal-blow-shake")]
     internal static int BabyMetroidFatalBlowShakeCommand()
     {

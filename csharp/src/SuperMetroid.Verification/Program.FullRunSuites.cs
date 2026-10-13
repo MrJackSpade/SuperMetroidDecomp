@@ -379,6 +379,7 @@ using static XrayWindowGeometryVerification;
 using static YappingMawGrappleReleaseVerification;
 using static ZebesEscapeFadeVerification;
 using static ZeroDistanceJumpContactVerification;
+/// <summary>Registers the portable render-contract checks and the independent suites of the full verifier run.</summary>
 internal static class FullRunSuitesVerification
 {
     /// <summary>One outermost suite of the full no-argument run.</summary>

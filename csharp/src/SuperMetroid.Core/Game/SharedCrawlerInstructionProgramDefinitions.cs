@@ -16,16 +16,22 @@ internal abstract class SharedCrawlerInstructionProgramDefinitions
     /// <summary><c>InstList_Zeela_Zoomer_UpsideUp_0</c> at $A3:E2B0.</summary>
     internal const ushort UpsideUp = 0xe2b0;
 
-    // Authored animation cadence (reviewed under #1165): five poses are held for three ticks each.
-    // The repeated program layout derives from those still-independent choices.
+    /// <summary>Five authored poses form each surface's repeated animation cycle.</summary>
     internal const int PoseCount = 5;
+    /// <summary>Each crawler pose is held for three interpreter ticks; this is authored animation cadence.</summary>
     private const ushort PoseHold = 3;
+    /// <summary>Four orientation-specific lists select the ceiling and wall crawl directions.</summary>
     internal const int SurfaceCount = 4;
+    /// <summary>Each list begins with a function opcode and its movement-handler pointer.</summary>
     internal const int SetupBytes = 4;
+    /// <summary>Each timed pose occupies a duration word and a spritemap operand.</summary>
     internal const int PoseBytes = 4;
+    /// <summary>Each list ends with a jump opcode and a pointer back to its first pose.</summary>
     private const int LoopBytes = 4;
+    /// <summary>One setup, five timed poses, and one loop comprise an orientation's list.</summary>
     internal const int ListBytes = SetupBytes + PoseCount * PoseBytes + LoopBytes;
 
+    /// <summary>Recognizes the interleaved spritemap operands across all four orientation lists.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int relative = address - UpsideRight;
@@ -34,6 +40,7 @@ internal abstract class SharedCrawlerInstructionProgramDefinitions
         return (uint)offset < PoseCount * PoseBytes && offset % PoseBytes == 2;
     }
 
+    /// <summary>Compiles function setup, pose holds, and loop control while rejecting visual operands.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int relative = address - UpsideRight;

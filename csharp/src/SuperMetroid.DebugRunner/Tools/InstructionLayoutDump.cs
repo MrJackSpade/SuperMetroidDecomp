@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.Core.Game;
 
+/// <summary>Exports a stable mechanics-and-presentation snapshot of compiled instruction catalogs.</summary>
 internal static class InstructionLayoutDump
 {
     /// <summary>

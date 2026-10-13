@@ -29,6 +29,7 @@ public static class IndexedPng
         catch (EndOfStreamException error) { throw new InvalidDataException("Indexed PNG is truncated.", error); }
     }
 
+    /// <summary>Checks PNG chunk framing, CRCs, palette order, transparency, and format before inflating indexed rows.</summary>
     private static IndexedPngImage ReadCore(Stream input, Extent16<ImagePixels> size)
     {
         Span<byte> signature = stackalloc byte[8];
@@ -110,6 +111,7 @@ public static class IndexedPng
         }
     }
 
+    /// <summary>Reverses PNG row filters and unpacks 1-, 2-, 4-, or 8-bit indices within the exact expected image extent.</summary>
     private static IndexedPngImage DecodeRows(MemoryStream compressed, Extent16<ImagePixels> size, int depth, Rgba32[] palette)
     {
         compressed.Position = 0;
@@ -187,12 +189,14 @@ public static class IndexedPng
         PngWriter.WriteChunk(output, "IEND", []);
     }
 
+    /// <summary>Chooses the nearest left, upper, or upper-left byte to the PNG Paeth predictor, with native tie order.</summary>
     private static int Paeth(int a, int b, int c)
     {
         int p = a + b - c, pa = Math.Abs(p - a), pb = Math.Abs(p - b), pc = Math.Abs(p - c);
         return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
     }
 
+    /// <summary>Bounds each image dimension to 1..2048 before decoding or writing pixel buffers.</summary>
     private static void ValidateDimensions(Extent16<ImagePixels> size)
     {
         if (size.X < 1 || size.Y < 1 ||

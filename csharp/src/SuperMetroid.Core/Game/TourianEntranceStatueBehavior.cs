@@ -3,10 +3,14 @@
 /// <summary>The Tourian entrance statue species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
 {
+    /// <summary>Provides installed statue colors and room-owned state.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Allocates the three fixed statue decoration actors in native reverse-slot order.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Supplies visible CGRAM for the entrance statue's initial palette rows.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Binds room state, projectile allocation, and installed presentation to the statue species.</summary>
     internal TourianEntranceStatueBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation)
     {
         _room = room;
@@ -28,6 +32,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
     /// </summary>
     public ushort TourianEntranceStatueAnimationState { get; internal set; }
 
+    /// <summary>Clears the completion, palette-animation, and BG2 displacement latches on room load.</summary>
     internal void ResetTourianEntranceStatueRoomState()
     {
         TourianEntranceStatueFinished = false;
@@ -35,6 +40,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         TourianEntranceStatueVerticalOffset = 0;
     }
 
+    /// <summary>Installs one of three native instruction lists and lets only the first statue record spawn the fixed decorative actors.</summary>
     internal void InitializeTourianEntranceStatue(RoomEnemySlot statue)
     {
         if (statue.Parameter1 is not (0 or 2 or 4))
@@ -74,6 +80,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
             "Tourian entrance statues require installed palette artwork.")).ApplyEntrance(_presentation._cgram!);
     }
 
+    /// <summary>Allocates a decorative projectile when a slot is free and retains its authored position in variable words.</summary>
     internal void SpawnTourianEntranceStatueProjectile(
         RoomEnemyProjectileKind kind,
         Position16<RoomPixels> position)
@@ -89,6 +96,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         projectile.Variable1 = position.Y;
     }
 
+    /// <summary>Tracks the BG2 statue's vertical displacement and publishes the base decoration's completion latch.</summary>
     internal void PositionTourianEntranceStatueProjectile(RoomEnemyProjectileSlot projectile)
     {
         if (ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(
@@ -107,6 +115,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Variable1 - TourianEntranceStatueVerticalOffset)));
     }
 
+    /// <summary>Registers the shared pre-instruction for base, Ridley, and Phantoon decoration actors.</summary>
     internal void RegisterTourianEntranceStatueProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -115,6 +124,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess, EnemyProjectilePreInstruction.TourianStatue_Ridley_Phantoon_BaseDecor);
     }
 
+    /// <summary>Registers statue initialization only for the Tourian entrance enemy definition.</summary>
     internal void RegisterTourianEntranceStatueInitializationAi(EnemyAiTable table)
     {
 
@@ -136,6 +146,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Registers the native do-nothing main AI while statue animation remains instruction driven.</summary>
     internal static void RegisterTourianStatueMainAi(EnemyAiTable table)
     {
         table.RegisterMain(EnemyAiRoutine.MainAI_TourianStatue, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue, (slot, frame, nmiFrameCounter8) =>

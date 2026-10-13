@@ -10,19 +10,23 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
     /// <summary>Direct library-two sound operand at the eight $84:C9F9-$CACA entries.</summary>
     internal const byte BreakSoundId = 0x0a;
 
+    /// <summary>One contact-crumble list's start, shape, and permanent or respawning behavior.</summary>
     internal readonly record struct Program(ushort Start, bool Respawns, int Dimension)
     {
+        /// <summary>Respawning lists draw seven stages; permanent lists stop after four.</summary>
         internal int FrameCount => Respawns ? 7 : 4;
+        /// <summary>Address immediately after the list's timed draw stages.</summary>
         internal ushort Terminal => checked((ushort)(Start + 3 + 4 * FrameCount));
     }
 
+    /// <summary>Four shapes each have a respawning and a permanent contact list.</summary>
     internal const int ProgramCount = 8;
 
-    // Native BTS order selects size in its low two bits and permanent versus
-    // respawning behavior in bit two. Descriptors are values, not a stored table.
+    /// <summary>Decodes shape from low BTS bits and respawn behavior from bit two without a stored descriptor table.</summary>
     internal static Program ProgramAt(int index) => new(
         RoomPlmInstructionLists.ContactCrumbleByReactionIndex(index), index < 4, index & 3);
 
+    /// <summary>Resolves a timed animation draw or linked restore pointer in one of the eight lists.</summary>
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -50,6 +54,7 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves sound, duration, final draw, and deletion control words by native address.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -101,6 +106,7 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves the direct break-sound byte following each list's initial command.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         for (int index = 0; index < ProgramCount; index++)

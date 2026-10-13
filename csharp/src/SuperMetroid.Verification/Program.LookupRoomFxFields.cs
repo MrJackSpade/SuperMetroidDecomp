@@ -3,9 +3,10 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Audits compiled room FX records, their native field layout, and door-list selection.</summary>
 internal static class LookupRoomFxFieldsVerification
 {
-    // Independently captured accepted identities before replacing the original record array.
+    /// <summary>Independent set of accepted bank-$83 record pointers captured before catalog conversion.</summary>
     private static readonly ushort[] OriginalFxRecordPointers =
     [
         0x8000, 0x8010, 0x8020, 0x8030, 0x8040, 0x8050, 0x8060, 0x8070, 0x8080, 0x8090, 0x80A0, 0x80B0,
@@ -35,6 +36,7 @@ internal static class LookupRoomFxFieldsVerification
         0xA15E, 0xA17E, 0xA180, 0xA182, 0xA184, 0xA186, 0xA188,
     ];
 
+    /// <summary>Checks all record identities and each field's native offset and width.</summary>
     internal static void VerifyRoomFxFields(SuperMetroidAddressSpace rom,
         SortedDictionary<ushort, RoomFxRecordDefinition> originals)
     {
@@ -53,6 +55,7 @@ internal static class LookupRoomFxFieldsVerification
         Suite(nameof(VerifyRoomFxPaletteBlend), () => VerifyRoomFxPaletteBlend(rom));
     }
 
+    /// <summary>Checks membership, ordering, unknown pointers, and record byte and word bounds.</summary>
     private static void VerifyRoomFxIdentities(SortedDictionary<ushort, RoomFxRecordDefinition> originals)
     {
         AssertTrue(new ushort[] { 0xa0b4, 0xa0c4 }.SequenceEqual(MotherBrainFxRecordPointers.DirectRecords),
@@ -80,18 +83,31 @@ internal static class LookupRoomFxFieldsVerification
         }
     }
 
+    /// <summary>Checks the door selector word at record offset zero.</summary>
     private static void VerifyRoomFxDoorPointer(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 0, 2, record => record.DoorPointer);
+    /// <summary>Checks the liquid base-height word at offset two.</summary>
     private static void VerifyRoomFxBaseYPosition(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 2, 2, record => record.BaseYPosition);
+    /// <summary>Checks the liquid target-height word at offset four.</summary>
     private static void VerifyRoomFxTargetYPosition(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 4, 2, record => record.TargetYPosition);
+    /// <summary>Checks the packed vertical velocity word at offset six.</summary>
     private static void VerifyRoomFxPackedYVelocity(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 6, 2, record => record.PackedYVelocity);
+    /// <summary>Checks the FX countdown byte at offset eight.</summary>
     private static void VerifyRoomFxTimer(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 8, 1, record => record.Timer);
+    /// <summary>Checks the effect discriminator byte at offset nine.</summary>
     private static void VerifyRoomFxType(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 9, 1, record => record.Type);
+    /// <summary>Checks ordinary layer blend settings at offset ten.</summary>
     private static void VerifyRoomFxDefaultLayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 10, 1, record => record.DefaultLayerBlend);
+    /// <summary>Checks the layer-three blend override at offset eleven.</summary>
     private static void VerifyRoomFxLayer3LayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 11, 1, record => record.Layer3LayerBlend);
+    /// <summary>Checks liquid rendering flags at offset twelve.</summary>
     private static void VerifyRoomFxLiquidOptions(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 12, 1, record => record.LiquidOptions);
+    /// <summary>Checks selected palette effect bits at offset thirteen.</summary>
     private static void VerifyRoomFxPaletteFxBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 13, 1, record => record.PaletteFxBitset);
+    /// <summary>Checks selected animated-tile bits at offset fourteen.</summary>
     private static void VerifyRoomFxAnimatedTileBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 14, 1, record => record.AnimatedTileBitset);
+    /// <summary>Checks the palette blend selector at offset fifteen.</summary>
     private static void VerifyRoomFxPaletteBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 15, 1, record => record.PaletteBlend);
+    /// <summary>Compares a compiled field and overlapping byte and word views with the original record.</summary>
     private static void VerifyRoomFxField(SuperMetroidAddressSpace rom, int offset, int width,
         Func<RoomFxRecordDefinition, int> field)
     {
@@ -118,9 +134,11 @@ internal static class LookupRoomFxFieldsVerification
         }
     }
 
+    /// <summary>Reads an unmodified bank-$83 field byte for the independent record oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room FX field")]
     private static byte RoomFxFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Compares every accepted list root and door value with a first-match native byte walk.</summary>
     internal static void VerifyRoomFxListSelection(SuperMetroidAddressSpace rom)
     {
         // Native $89:AB99..ABB7: zero loads, FFFF returns, then compare door.

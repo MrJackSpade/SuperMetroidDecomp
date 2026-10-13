@@ -12,12 +12,18 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class RidleyTail
 {
+    /// <summary>Exposes the five ordinary Samus projectile slots checked by Ceres whip aiming.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Replaces shots blocked by tail joints with cartridge dust or dud effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Supplies the current Ridley body and tail state for post-solve Samus contact.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
+    /// <summary>Provides the live random word sampled by Ceres curl and pogo whip decisions.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Resolves Ridley's body in physical enemy slot zero for tail contact gates.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Connects tail kinematics, collision, and encounter control to shared room and projectile state.</summary>
     internal RidleyTail(EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter, EnemyRoomBinding room, EnemySlotTable slotTable)
     {
         _frameContext = frameContext;
@@ -132,6 +138,7 @@ internal sealed class RidleyTail
             : (ushort)2;
     }
 
+    /// <summary>Aims the Ceres tail at Samus or a nearby missile, clamping targets that would pass through Ridley's body.</summary>
     internal void AimCeresRidleyTailWhip(
         RidleyEnemyState state,
         SamusState? samus,
@@ -191,6 +198,7 @@ internal sealed class RidleyTail
         }
     }
 
+    /// <summary>Advances one joint's stagger angle and active whip direction toward the shared target.</summary>
     internal static void TickRidleyTailSegment(RidleyEnemyState state, int index)
     {
         RidleyTailSegment segment = state.TailSegments[index];
@@ -310,6 +318,7 @@ internal sealed class RidleyTail
             unchecked((short)(SnesEightEight.Multiply(distanceInPixels, EnemyTrigonometryTables.SignedSine(unchecked((byte)(angle + 64)))))));
     }
 
+    /// <summary>Ends a joint's active whip and flips its movement direction for the next activation.</summary>
     private static void DeactivateRidleyTailSegment(RidleyTailSegment segment)
     {
         segment.Active = false;
@@ -339,6 +348,7 @@ internal sealed class RidleyTail
         }
     }
 
+    /// <summary>Creates the seven-link tail at its cataloged rest lengths and sequential initial angles.</summary>
     internal static RidleyTailSegment[] CreateInitialRidleyTailSegments()
     {
         // Each successive link begins one ideal angular separation beyond its predecessor.
@@ -370,6 +380,7 @@ internal sealed class RidleyTail
         state.IdealInterSegmentTailAngle = (ushort)((random & 0x000f) + 7 + 1);
     }
 
+    /// <summary>Applies tail-tip contact damage after joint positions are solved, unless Ridley carries Samus or collision is disabled.</summary>
     internal bool ResolveRidleyTailSamusContact(SamusState samus)
     {
         RoomEnemySlot body = _slotTable._slots[0];
@@ -389,6 +400,7 @@ internal sealed class RidleyTail
         return true;
     }
 
+    /// <summary>Probes the tip and four inner joints at their native downward offsets for solid room blocks.</summary>
     internal static bool RidleyTailTouchesTerrain(
         RidleyEnemyState state,
         RoomLevelData? level)
@@ -458,6 +470,7 @@ internal sealed class RidleyTail
             projectiles);
     }
 
+    /// <summary>Consumes the first colliding ordinary beam or missile slot at one armored joint and spawns its impact effect.</summary>
     private bool TryBlockProjectileAtRidleyTailJoint(
         RidleyTailSegment joint,
         ushort radius,
@@ -527,6 +540,7 @@ internal sealed class RidleyTail
             state.TailFunctionIndex = RidleyTailFunction.Stab;
     }
 
+    /// <summary>Triggers pogo whips from random/proximity gates and extends the tail downward as Ridley descends.</summary>
     private void HandleRidleyPogoTailControl(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, bool stabbing)
     {
         if (state.TailSegments.All(segment => segment.Active) &&

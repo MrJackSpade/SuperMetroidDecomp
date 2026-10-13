@@ -16,8 +16,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Checks editable projectile sprite bindings independently of timed mechanics.</summary>
 internal static class ProjectileFrameBindingsVerification
 {
+    /// <summary>Checks 805 native sprite references, both projectile handlers, and a visible override without ROM fallback.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for timed projectile records' native sprite references")]
     internal static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
@@ -158,10 +160,12 @@ internal static class ProjectileFrameBindingsVerification
         Console.WriteLine("Projectile frame bindings: 805 timed records, both handlers, observable OAM edit, identity, and malformed resources pass.");
     }
 
+    /// <summary>Rejects reads of migrated sprite-reference operands in timed projectile records.</summary>
     private static CartridgeReadGuard NewProjectileFrameBindingReadGuard(ISnesAddressSpace source, HashSet<int> blocked) =>
         new CartridgeReadGuard(source).Forbid(blocked.Contains,
             address => new InvalidDataException($"Installed projectile frame read ROM sprite reference ${address:X6}."));
 
+    /// <summary>Runs the projectile frame binding and override checks.</summary>
     [VerificationCommand("--projectile-frame-bindings")]
     internal static int ProjectileFrameBindingsCommand()
     {

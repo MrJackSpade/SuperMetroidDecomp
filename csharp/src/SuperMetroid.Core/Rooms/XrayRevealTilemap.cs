@@ -99,6 +99,7 @@ public static class XrayRevealTilemap
         }
     }
 
+    /// <summary>Maps the final reveal column into the second copied BG screen rather than past screen one's edge.</summary>
     private static int Destination(int column, int row) => row * XrayTilemapLayout.MetatileRowStride +
         (column == XrayTilemapLayout.MetatileColumns - 1 ? XrayTilemapLayout.ScreenWords : column * 2);
 }

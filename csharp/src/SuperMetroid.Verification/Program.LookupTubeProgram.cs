@@ -2,15 +2,23 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks Noob Tube PLM program fields and full lookup domains against bank-$84 data.</summary>
 internal static class LookupTubeProgramVerification
 {
+    /// <summary>Checks tube control words outside separately classified operands.</summary>
     internal static void VerifyTubeControls(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 0);
+    /// <summary>Checks tube drawing operands against native instruction words.</summary>
     internal static void VerifyTubeDraws(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 1);
+    /// <summary>Checks tube branch targets against native instruction words.</summary>
     internal static void VerifyTubeTargets(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 2);
+    /// <summary>Checks the two tube callback operands against native words.</summary>
     internal static void VerifyTubeCallbacks(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 3);
+    /// <summary>Checks the two tube event operands against native words.</summary>
     internal static void VerifyTubeEvents(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 4);
+    /// <summary>Checks the tube's one-byte sound operand against bank $84.</summary>
     internal static void VerifyTubeSound(SuperMetroidAddressSpace rom) => VerifyTubeField(rom, 5);
 
+    /// <summary>Compares one tube operand family over the complete sixteen-bit lookup domain.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tube field")]
     private static void VerifyTubeField(SuperMetroidAddressSpace rom, int field)
     {

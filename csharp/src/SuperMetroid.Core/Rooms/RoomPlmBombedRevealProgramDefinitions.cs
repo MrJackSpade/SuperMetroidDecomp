@@ -10,17 +10,24 @@ internal static class RoomPlmBombedRevealProgramDefinitions
     /// <summary>The six supported one-frame lists.</summary>
     private enum Reveal
     {
+        /// <summary>One-block crumble reveal at $84:C8EC using the single-cell draw command.</summary>
         Crumble1x1,
+        /// <summary>Two-column crumble reveal using the horizontal restore draw.</summary>
         Crumble2x1,
+        /// <summary>Two-row crumble reveal using the vertical restore draw.</summary>
         Crumble1x2,
+        /// <summary>Two-by-two crumble reveal using the square restore draw.</summary>
         Crumble2x2,
+        /// <summary>One-frame reveal of a power-bomb-gated parent without breaking it.</summary>
         PowerBomb,
+        /// <summary>One-frame reveal of a super-missile-gated parent without breaking it.</summary>
         SuperMissile,
     }
 
     /// <summary>Bytes in each list: a duration/draw pair followed by deletion.</summary>
     private const int ListLength = 6;
 
+    /// <summary>Maps a supported reveal variant to its native bank-$84 list pointer.</summary>
     private static ushort StartOf(Reveal reveal) => reveal switch
     {
         Reveal.Crumble1x1 => RoomPlmInstructionLists.CrumbleReveal1x1,
@@ -32,6 +39,7 @@ internal static class RoomPlmBombedRevealProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),
     };
 
+    /// <summary>Selects the draw command for the reveal list's single display frame.</summary>
     private static ushort DrawOf(Reveal reveal) => reveal switch
     {
         Reveal.Crumble1x1 => (ushort)RoomPlmBombedRevealDraw.CrumbleSingle,
@@ -43,6 +51,7 @@ internal static class RoomPlmBombedRevealProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),
     };
 
+    /// <summary>Reads a bounded one-frame reveal list while excluding intervening unowned lists.</summary>
     internal static bool TryReadWord(ushort address, out ushort value)
     {
         // The intervening four unused bomb-reveal lists are outside this owner.

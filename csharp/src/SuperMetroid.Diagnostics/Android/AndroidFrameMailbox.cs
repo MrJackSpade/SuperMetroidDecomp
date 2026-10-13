@@ -9,11 +9,16 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidFrameMailbox(int pixelCount, AndroidFrameHandoffTrace? trace = null)
 {
+    /// <summary>Serializes publication and UI upload of the borrowed pixel buffer.</summary>
     private readonly Lock gate = new();
+    /// <summary>Owned copy of the latest frame awaiting presentation.</summary>
     private readonly Rgba32[] pending = new Rgba32[pixelCount];
+    /// <summary>Whether the pending buffer currently contains a frame to consume.</summary>
     private bool available;
+    /// <summary>Publication ordinal included in handoff trace events.</summary>
     private long sequence;
 
+    /// <summary>Copies a frame into the single pending slot and reports whether it replaced an older unconsumed frame.</summary>
     public bool Publish(ReadOnlySpan<Rgba32> frame)
     {
         if (frame.Length != pending.Length) throw new InvalidDataException("Unexpected Android framebuffer dimensions.");
@@ -45,6 +50,7 @@ internal sealed class AndroidFrameMailbox(int pixelCount, AndroidFrameHandoffTra
         }
     }
 
+    /// <summary>Flushes buffered handoff trace events while holding the mailbox gate.</summary>
     public void FlushTrace(Action<string> write)
     {
         lock (gate) trace?.Flush(write);

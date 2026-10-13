@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Choot idle, jump, and fall instructions against cartridge words and behavior.</summary>
 internal static class ChootInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for the Choot instruction comparison.</summary>
     internal static void VerifyChootInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyChootInstructionProgramDefinitions), () => VerifyChootInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs real phase handoffs and off-screen processing flags with mechanics and visual reads guarded.</summary>
     internal static void VerifyChootInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
@@ -115,6 +118,7 @@ internal static class ChootInstructionProgramDefinitionsVerification
               "cartridge visual-selector reads.");
     }
 
+    /// <summary>Advances timed frames and confirms the program reaches its terminal sleep opcode.</summary>
     private static void RunChootInstructionProgram(
         RoomEnemySystem enemies,
         object?[] processArguments,
@@ -135,6 +139,7 @@ internal static class ChootInstructionProgramDefinitionsVerification
             "Choot program reaches terminal sleep");
     }
 
+    /// <summary>Cycles the three compiled phase entries to detect allocation during warmed lookups.</summary>
     private static int ProbeChootInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -151,11 +156,13 @@ internal static class ChootInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads a native bank-$A2 instruction word for comparison with the compiled program.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Choot instruction words")]
     internal static ushort ReadChootInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
+    /// <summary>Blocks compiled mechanics bytes and either forbids or records native visual operand reads.</summary>
     private static CartridgeReadGuard NewChootInstructionProgramReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
@@ -170,6 +177,7 @@ internal static class ChootInstructionProgramDefinitionsVerification
                 ChootInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 
+    /// <summary>Runs the Choot instruction comparison from the command dispatcher.</summary>
     [VerificationCommand("--choot-instruction-mechanics")]
     internal static int ChootInstructionMechanicsCommand()
     {

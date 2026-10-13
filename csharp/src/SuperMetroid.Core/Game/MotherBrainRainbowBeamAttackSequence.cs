@@ -79,13 +79,18 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// <summary>$A9:9C39, dying-drool head instruction list.</summary>
     public const ushort HeadDyingDroolInstructionList = 0x9c39;
 
-    // `$A9:BCA6/$BCB6` are indexed after incrementing the explosion index. Keeping all eight
-    // signed records here preserves the initial index-zero -> record-one behavior.
+    /// <summary>
+    /// Signed beam-explosion positions from $A9:BCA6/$BCB6. The index increments before
+    /// lookup, so its initial zero value selects the second record.
+    /// </summary>
     private static readonly Offset16<RoomPixels>[] ExplosionOffsets =
         [new(-8, -7), new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7)];
 
+    /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
+    /// <summary>Advances the post-fight corpse animation and its room effects.</summary>
     internal readonly MotherBrainCorpseRottingState _corpseRotting = new();
+    /// <summary>Optional room artwork used to emit corpse tile transfers in installed rooms.</summary>
     private readonly RoomCharacterAtlas? _corpseArtwork;
 
     /// <summary>Standalone cartridge fixtures omit artwork; installed rooms bind the PNG.</summary>
@@ -204,6 +209,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public uint SmallPurpleBreathGenerationWriteCount { get; private set; }
 
+    /// <summary>Records a body-AI write to the breath flag so a later brain-list opcode can remain a separate writer.</summary>
     private void WriteSmallPurpleBreathGeneration(bool enabled)
     {
         SmallPurpleBreathGenerationEnabled = enabled;
@@ -544,6 +550,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return MakeBodyWalkBackwards(targetX, BodyWalkingBackwardReallyFastInstructionList).Requested;
     }
 
+    /// <summary>Resets the phase-two head list and starts the 256-count neck extension before beam charging.</summary>
     private void BeginExtendingNeckForAttack()
     {
         // `$A9:B8EB-$B916` resets the neutral phase-two head program and selects the
@@ -557,6 +564,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         FunctionTimer = NativeCountdown.Start(0x0100);
     }
 
+    /// <summary>Restarts the separate brain instruction stream and publishes a new head-list request serial.</summary>
     private void SetHeadInstructionList(ushort pointer)
     {
         // `$A9:C447` writes the separate brain-list pointer and timer. Unlike ordinary
@@ -567,6 +575,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         _headInstructionListRequestSerial++;
     }
 
+    /// <summary>Sets the NTSC neck angle and opposed raise/lower indices for retreat after the attack.</summary>
     private void RetractHead()
     {
         // NTSC takes `$0050` from the regional `$0050/$0063` constant at `$A9:BB51`.
@@ -576,6 +585,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
     }
 
+    /// <summary>Alternates painful forward and backward walk requests, advancing the stage only after its pause expires.</summary>
     internal bool StepPainfulWalking()
     {
         // The native stores four separate function pointers (request forward, wait forward,
@@ -603,6 +613,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return walk.Requested;
     }
 
+    /// <summary>Schedules phase-three inching and two retreat speeds only while the body is standing.</summary>
     private bool StepPhase3WalkingHandler(ushort randomNumberSeed)
     {
         // `$C25A` refuses to call the walking function while body bytecode advertises any
@@ -678,6 +689,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         }
     }
 
+    /// <summary>Resets walk credit and targets the next pixel ahead after a completed retreat.</summary>
     private void SetPhase3WalkingToTryToInchForward(ushort counter)
     {
         Phase3WalkCounter = counter;
@@ -685,6 +697,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         Phase3TargetXPosition = unchecked((ushort)(Body.Position.X + 1));
     }
 
+    /// <summary>Advances normal neck motion and the timed recovery after regular or hyper-beam recoil.</summary>
     private void StepPhase3NeckHandler()
     {
         switch (Phase3NeckPhase)
@@ -759,6 +772,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         }
     }
 
+    /// <summary>Selects the forward body list for the native animation delay and applies the forward target rules.</summary>
     private MotherBrainWalkResult RequestWalkForward(ushort targetX, ushort animationDelay)
     {
         ushort pointer = animationDelay switch
@@ -774,6 +788,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return MakeBodyWalkForwards(targetX, pointer);
     }
 
+    /// <summary>Selects the backward body list for the native animation delay and applies the backward target rules.</summary>
     private MotherBrainWalkResult RequestWalkBackward(ushort targetX, ushort animationDelay)
     {
         ushort pointer = animationDelay switch
@@ -789,9 +804,11 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return MakeBodyWalkBackwards(targetX, pointer);
     }
 
+    /// <summary>Requests the slow forward body animation until its target is reached.</summary>
     internal MotherBrainWalkResult RequestWalkForwardReallySlow(ushort targetX) =>
         MakeBodyWalkForwards(targetX, BodyWalkingForwardReallySlowInstructionList);
 
+    /// <summary>Requests the slow backward body animation until its target is reached.</summary>
     private MotherBrainWalkResult RequestWalkBackwardReallySlow(ushort targetX) =>
         MakeBodyWalkBackwards(targetX, BodyWalkingBackwardReallySlowInstructionList);
 
@@ -831,6 +848,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return MotherBrainWalkResult.WalkInstalled;
     }
 
+    /// <summary>Applies Gravity/Varia damage reduction and the native extra scaling used only by the $50 beam strike.</summary>
     private static ushort CalculateFinishOffHealthThreshold(SamusState samus, ushort nominalDamage)
     {
         // `$A0:A45E` gives Gravity Suit priority and divides damage by four. Otherwise
@@ -848,6 +866,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             : unchecked((ushort)(divided + 0x0014));
     }
 
+    /// <summary>Uses the random low byte at or above $C0 to toggle a standing or leaning body list.</summary>
     private bool MaybeRequestStandUpOrLeanDown(ushort randomNumberSeed)
     {
         // `$A9:C1A7` ignores every pose except standing (zero) and leaning (six), and its
@@ -871,6 +890,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return false;
     }
 
+    /// <summary>Requests the pose-specific standing animation and reports whether the body is already standing.</summary>
     private bool MakeBodyStandUp(out bool animationRequested)
     {
         animationRequested = false;
@@ -894,6 +914,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return false;
     }
 
+    /// <summary>Consumes the next Baby Metroid sprite-tile page, rejecting calls after the native list ends.</summary>
     private MotherBrainSpriteTileTransferRequest CreateNextBabyMetroidTileTransfer()
     {
         int index = BabyMetroidTileTransferIndex;
@@ -906,6 +927,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
+    /// <summary>Publishes the next corpse VRAM page from the authored source and destination rows.</summary>
     private MotherBrainSpriteTileTransferRequest CreateNextCorpseTileTransfer()
     {
         int index = CorpseTileTransferIndex;
@@ -921,6 +943,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
+    /// <summary>Consumes the next escape-timer text tile transfer in its fixed artwork order.</summary>
     internal MotherBrainSpriteTileTransferRequest CreateNextEscapeTimerTileTransfer()
     {
         int index = EscapeTimerTileTransferIndex;
@@ -932,6 +955,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
+    /// <summary>Consumes the next exploded-door sprite page until that artwork list is exhausted.</summary>
     internal MotherBrainSpriteTileTransferRequest CreateNextExplodedDoorTileTransfer()
     {
         int index = ExplodedDoorTileTransferIndex;
@@ -943,6 +967,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
+    /// <summary>
+    /// Emits the death-phase explosions at the native timer cadence, consuming one global
+    /// random value per projectile so later enemy AI sees the same RNG sequence.
+    /// </summary>
     internal void GenerateDeathExplosions(
         bool mixed,
         Func<ushort>? nextRandomNumber,
@@ -985,6 +1013,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         }
     }
 
+    /// <summary>
+    /// Emits the next four-frame escape-door blast from its repeating native position table.
+    /// Returns no request on frames before the shared interval timer expires.
+    /// </summary>
     private MotherBrainEscapeDoorExplosionRequest? GenerateEscapeDoorExplosion(
         Func<ushort>? nextRandomNumber)
     {
@@ -1029,6 +1061,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             SoundEffect: 0x0024);
     }
 
+    /// <summary>Widens the beam by $180 up to $C00 and refreshes its angle toward Samus.</summary>
     private void IncreaseWidthAndAim(SamusState samus)
     {
         ushort widened = unchecked((ushort)(AngularWidth + 0x0180));
@@ -1036,6 +1069,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         AimBeamAtSamus(samus);
     }
 
+    /// <summary>
+    /// Advances the held beam's sound countdown, alternating palette request, aim, width,
+    /// and explosion timer in the same call after the charge phase completes.
+    /// </summary>
     private void RunContinuingBeamEffects(
         SamusState samus,
         ushort enemyFrameCounter,
@@ -1064,6 +1101,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         explosion = StepExplosionTimer();
     }
 
+    /// <summary>Converts the angle from the offset brain origin to Samus into the rainbow beam's orientation.</summary>
     private void AimBeamAtSamus(SamusState samus)
     {
         // `$A9:BB82` aims from brain position (+16,+4) to Samus. Bank `$A0:C0B1` consumes
@@ -1075,6 +1113,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         _movement.RainbowBeamAngle = SnesAngle.HalfTurn.AddRaw(-sourceAngle.RawValue);
     }
 
+    /// <summary>Emits the next cyclic beam explosion offset when the eight-frame countdown underflows.</summary>
     private MotherBrainRainbowExplosionRequest? StepExplosionTimer()
     {
         ExplosionTimer = ExplosionTimer.Decrement().Remaining;
@@ -1088,6 +1127,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             ExplosionOffsets[offsetIndex]);
     }
 
+    /// <summary>Drains one health with Varia or two without, clamping native underflow to zero.</summary>
     private static void DamageSamusDueToRainbowBeam(SamusState samus)
     {
         // `$A9:C57D` loads `$FFFE` in both branches. The meaningful Varia distinction is
@@ -1098,6 +1138,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         samus.Health = NativeAtLeast(candidate, 1) ? candidate : (ushort)0;
     }
 
+    /// <summary>
+    /// Drains missiles and supers every fourth enemy pass and power bombs every pass while
+    /// the rainbow beam holds Samus.
+    /// </summary>
     private static void DecrementAmmoDueToRainbowBeam(
         SamusState samus,
         ushort mainEnemyExecutionCounter)
@@ -1113,6 +1157,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         samus.PowerBombs = DecrementOneAmmoType(samus, samus.PowerBombs, selectedItem: 3);
     }
 
+    /// <summary>Decrements one ammo count and clears the selected HUD item on depletion.</summary>
     private static ushort DecrementOneAmmoType(
         SamusState samus,
         ushort current,
@@ -1137,6 +1182,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return 0;
     }
 
+    /// <summary>Performs the cartridge's signed 16-bit subtraction test for a lower bound.</summary>
     private static bool NativeAtLeast(ushort value, ushort threshold) =>
         unchecked((short)(value - threshold)) >= 0;
 

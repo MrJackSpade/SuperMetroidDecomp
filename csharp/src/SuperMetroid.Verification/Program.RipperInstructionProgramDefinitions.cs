@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks GRipper, Ripper II, and Ripper animation lists and visual selectors against native bank-$A2 data.</summary>
 internal static class RipperInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge oracle for all three Ripper variants.</summary>
     internal static void VerifyRipperInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyRipperInstructionProgramDefinitions), () => VerifyRipperInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares mechanics and frame selectors, then runs six production-installed loops with their source bytes forbidden.</summary>
     internal static void VerifyRipperInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -215,6 +218,7 @@ internal static class RipperInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Consumes warmed Ripper mechanics words to measure lookup allocation.</summary>
     private static int ProbeRipperInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -226,6 +230,7 @@ internal static class RipperInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects runtime reads of migrated Ripper-family mechanics and visual words.</summary>
     private static CartridgeReadGuard NewRipperInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(RipperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -234,6 +239,7 @@ internal static class RipperInstructionProgramDefinitionsVerification
                 RipperInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read compiled Ripper-family instruction byte ${address:X6}.");
 
+    /// <summary>Runs the Ripper-family instruction comparison against the local retail cartridge.</summary>
     [VerificationCommand("--ripper-instruction-mechanics")]
     internal static int RipperInstructionMechanicsCommand()
     {

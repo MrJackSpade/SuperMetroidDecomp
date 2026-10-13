@@ -48,6 +48,7 @@ public static class SpcUploadStreamReader
             $"did not terminate within ${AudioRomData.SpcUpload.MaximumStreamBytes:X} bytes.");
     }
 
+    /// <summary>Copies the next two stream bytes and interprets their little-endian wire value.</summary>
     private static ushort ReadWord(IImportCartridgeSource cartridge, ref int cursor,
         List<byte> bytes)
     {
@@ -56,6 +57,7 @@ public static class SpcUploadStreamReader
         return unchecked((ushort)(SnesLittleEndian.Word(low, high)));
     }
 
+    /// <summary>Copies one source byte and advances over LoROM bank boundaries in file order.</summary>
     private static byte ReadByte(IImportCartridgeSource cartridge, ref int cursor,
         List<byte> bytes)
     {

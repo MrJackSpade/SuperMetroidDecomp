@@ -9,10 +9,14 @@ namespace SuperMetroid.Core.Assets;
 /// the remaining frame. No original pixel data or generated contour cache is kept.</summary>
 internal sealed class MenuShoulderHighlightArtwork
 {
+    /// <summary>Four native tiles compose both halves of the L/R shoulder-button highlight.</summary>
     internal const int TileCount = 4;
+    /// <summary>Only pixels differing from the calculated symmetric contour, keyed by tile and local pixel index.</summary>
     internal readonly Dictionary<int, byte>? edits;
+    /// <summary>Admits only the four native shoulder-highlight tile identities.</summary>
     internal static bool Contains(int tile) => tile is 0x3c or 0x3d or 0x43 or 0x51;
 
+    /// <summary>Compares supplied tile pixels with the calculated contour and retains independently edited exceptions.</summary>
     internal MenuShoulderHighlightArtwork(IndexedPngImage image)
     {
         for (int tile = 0x3c; tile <= 0x51; tile++)
@@ -27,12 +31,14 @@ internal sealed class MenuShoulderHighlightArtwork
         }
     }
 
+    /// <summary>Returns an edited pixel when supplied, otherwise the native 32-by-16 shoulder-highlight contour.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
+    /// <summary>Maps each tile-local pixel into the combined shoulder frame and computes its quadratic cutout edge.</summary>
     private static byte Basis(int tile, Position16<CharacterPixels> point)
     {
         int row = point.Y + (tile is 0x43 or 0x51 ? 8 : 0);

@@ -1,8 +1,11 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
+
+/// <summary>Checks all SPC engine and music upload identities against the native pointer table.</summary>
 internal static class AudioUploadCatalogVerification
 {
+    /// <summary>Compares 25 indexed pointers and names while rejecting non-entry byte offsets and invalid music indexes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the audio upload catalog pointers")]
     internal static void VerifyAudioUploadCatalog(ISnesAddressSpace rom)
     {

@@ -14,17 +14,26 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroMotherBrainSpriteState
 {
+    /// <summary>Next word in the cinematic sprite's bank-$8B instruction list.</summary>
     private ushort instructionPointer = IntroMotherBrainDefinitions.MotherBrain.InstructionList;
+    /// <summary>Frames until the actor interprets another instruction-list entry.</summary>
     private NativeCountdown instructionTimer = NativeCountdown.Start(1);
+    /// <summary>Remaining palette alternations after a missile hit.</summary>
     private NativeCountdown hurtFlashTimer;
+    /// <summary>Frames since the fourth hit began the explosion phase.</summary>
     private ushort explodingTimer;
+    /// <summary>Whether explosion timing has entered the page-two instruction list.</summary>
     private bool pageTwoInstructionStarted;
+    /// <summary>Whether the page-two pre-instruction has replaced hit flashing.</summary>
     private bool crossfadingToPageTwo;
 
+    /// <summary>Fixed cinematic screen origin from definition $8B:CE55.</summary>
     public static Position16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
 
+    /// <summary>OAM palette and attribute bits selected by the discovery cinematic object.</summary>
     public static ushort PaletteBits => IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
 
+    /// <summary>Bank-$8C spritemap selected by the latest timed instruction entry.</summary>
     public ushort SpriteMapPointer { get; private set; }
 
     /// <summary>Number of missiles consumed by <c>$8B:B786</c>, from zero through four.</summary>
@@ -158,9 +167,11 @@ internal sealed class IntroMotherBrainSpriteState
         }
     }
 
+    /// <summary>Advances an instruction address with the bank-local 16-bit wrap behavior.</summary>
     private static ushort Add(ushort pointer, int byteCount) =>
         unchecked((ushort)(pointer + byteCount));
 
+    /// <summary>Alternates BG1 scroll by four pixels from the inherited flashback offset.</summary>
     private void ApplyScreenShake(ushort cinematicFrameCounter)
     {
         // $8B:B877 adds four on even cinematic frames and subtracts four on odd frames.

@@ -32,24 +32,25 @@ public enum SnesColorMathControl : byte
 /// </summary>
 public sealed record GameplayColorMathRenderLayer : RenderLayer
 {
+    /// <summary>Owned scanline windows, copied from the caller for stable rendering.</summary>
     private readonly XrayWindowLine[] lines;
-    /// <summary>Gets the ordinary gameplay planes and OAM composed before color math.</summary>
+    /// <summary>Ordinary gameplay planes and OAM composed before color math.</summary>
     public OrdinaryGameplayRenderLayer Gameplay { get; }
-    /// <summary>Gets one color-window interval for each of the 224 physical scanlines.</summary>
+    /// <summary>One color-window interval for each of the 224 physical scanlines.</summary>
     public ReadOnlySpan<XrayWindowLine> Lines => lines;
-    /// <summary>Gets whether X-ray-reveal block characters replace eligible level tiles.</summary>
+    /// <summary>Whether X-ray-reveal block characters replace eligible level tiles.</summary>
     public bool RevealBlocks { get; }
-    /// <summary>Gets the emulated CGADSUB source-enable and arithmetic bits.</summary>
+    /// <summary>Emulated CGADSUB source-enable and arithmetic bits.</summary>
     public SnesColorMathControl ColorMath { get; }
-    /// <summary>Gets whether the subscreen supplies the arithmetic operand instead of fixed color.</summary>
+    /// <summary>Whether the subscreen supplies the arithmetic operand instead of fixed color.</summary>
     public bool AddSubscreen { get; }
-    /// <summary>Gets the five-bit fixed-color red component.</summary>
+    /// <summary>Five-bit fixed-color red component.</summary>
     public byte FixedRed { get; }
-    /// <summary>Gets the five-bit fixed-color green component.</summary>
+    /// <summary>Five-bit fixed-color green component.</summary>
     public byte FixedGreen { get; }
-    /// <summary>Gets the five-bit fixed-color blue component.</summary>
+    /// <summary>Five-bit fixed-color blue component.</summary>
     public byte FixedBlue { get; }
-    /// <summary>Gets the optional captured 2-bpp BG3-style subscreen plane.</summary>
+    /// <summary>Optional captured 2-bpp BG3-style subscreen plane.</summary>
     public Bg2BppColorMathRenderLayer? Subscreen { get; }
     /// <summary>Admit gameplay BG2 to the subscreen, competing with any captured BG3 by Mode-1 priority.</summary>
     public bool SubscreenUsesBg2 { get; }

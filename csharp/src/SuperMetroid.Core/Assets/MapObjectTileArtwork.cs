@@ -12,19 +12,32 @@ internal sealed class MapObjectTileArtwork
     internal const int FirstHighlightTile = 0x5b, HighlightTileCount = 4;
     /// <summary>Shared reserve cursor46 atB6:C8C0, reused in the left selector corner with swapped colors1/2.</summary>
     private const int CursorTile = 0x46;
+    /// <summary>Unmodeled OBJ characters retained as encoded 4bpp source data.</summary>
     internal readonly byte[] otherCharacters;
+    /// <summary>Calculates menu's small-letter glyph characters.</summary>
     private readonly MenuSmallFontArtwork smallFont;
+    /// <summary>Calculates large title glyph characters.</summary>
     private readonly MenuLargeFontArtwork largeFont;
+    /// <summary>Calculates the compact elevator label characters.</summary>
     private readonly MenuCompactLetteringArtwork elevatorLettering;
+    /// <summary>Calculates menu panel art from editable pixels.</summary>
     private readonly MenuPanelTileArtwork panel;
+    /// <summary>Calculates L/R button artwork.</summary>
     private readonly MenuShoulderButtonArtwork shoulderButtons;
+    /// <summary>Calculates the selected shoulder-button frame.</summary>
     private readonly MenuShoulderHighlightArtwork shoulderHighlight;
+    /// <summary>Calculates map marker OBJ characters.</summary>
     private readonly MapMarkerTileArtwork markers;
+    /// <summary>Calculates beveled selector square pieces.</summary>
     private readonly MenuBeveledSquareArtwork squares;
+    /// <summary>Calculates thin menu border segments.</summary>
     private readonly MenuThinBorderArtwork thinBorder;
+    /// <summary>Reserve-bar pixels differing from their procedural fill and border.</summary>
     internal readonly Dictionary<int, byte>? reserveEdits;
+    /// <summary>Selector-border pixels differing from its cursor-derived or straight-edge form.</summary>
     internal readonly Dictionary<int, byte>? highlightEdits;
 
+    /// <summary>Partitions an imported OBJ sheet into retained characters and calculated artwork with pixel edits.</summary>
     internal MapObjectTileArtwork(IndexedPngImage image)
     {
         byte[] encoded = SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4);
@@ -63,7 +76,9 @@ internal sealed class MapObjectTileArtwork
         }
     }
 
+    /// <summary>Identifies reserve-bar characters within the map OBJ sheet.</summary>
     private static bool IsReserve(int tile) => tile is >= FirstReserveTile and < (FirstReserveTile + ReserveTileCount);
+    /// <summary>Identifies selector-border characters within the map OBJ sheet.</summary>
     private static bool IsHighlight(int tile) => tile is >= FirstHighlightTile and < (FirstHighlightTile + HighlightTileCount);
 
     /// <summary>Border index12; left corner reuses cursor46 shifted right with colors1/2 exchanged.
@@ -97,6 +112,7 @@ internal sealed class MapObjectTileArtwork
         return point.X <= fill ? (byte)9 : (byte)14;
     }
 
+    /// <summary>Encodes retained and calculated menu characters into the immediate VRAM transfer payload.</summary>
     internal void LoadTo(VramRegion destination)
     {
         // This is the immediate transfer payload, never a retained calculated lookup.

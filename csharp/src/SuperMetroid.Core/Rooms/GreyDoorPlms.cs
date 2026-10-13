@@ -7,10 +7,14 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Grey door PLMs: condition identification (boss, mini-boss, Torizo, statue, event), flash and opening.</summary>
 internal sealed class GreyDoorPlms
 {
+    /// <summary>Room progression and statue state used to evaluate resident-door unlock conditions.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Draws closed-grey and converted-blue tiles into the room level and background streamer.</summary>
     private readonly PlmBlockDrawing _drawing;
+    /// <summary>Queues the cartridge's dud sound for shots rejected while the door is locked.</summary>
     private readonly PlmSoundQueue _sounds;
 
+    /// <summary>Binds progression checks, block drawing, and PLM sound requests.</summary>
     internal GreyDoorPlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSoundQueue sounds)
     {
         _bindings = bindings;
@@ -18,6 +22,7 @@ internal sealed class GreyDoorPlms
         _sounds = sounds;
     }
 
+    /// <summary>Handles condition gating, closed-blue conversion, and hit-triggered opening before shared instruction interpretation.</summary>
     internal bool TryStepGreyDoor(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, ushort enemyDeaths, byte enemyDeathQuota)
     {
         GreyDoorPlmState? door = slot.GreyDoor;
@@ -127,6 +132,7 @@ internal sealed class GreyDoorPlms
         return false;
     }
 
+    /// <summary>Evaluates boss, quota, statue, and event gates using live room progression state.</summary>
     private bool IsGreyDoorConditionSatisfied(
         GreyDoorCondition condition,
         ushort enemyDeaths,
@@ -153,6 +159,7 @@ internal sealed class GreyDoorPlms
         };
     }
 
+    /// <summary>Installs the resident projectile-trigger collision type while preserving the block's visual bits.</summary>
     private static void ApplyGreyDoorSetup(RoomLevelData level, int blockIndex)
     {
         // Setup_GreyDoor and Setup_ColoredDoor share the exact `$C044` collision write.
@@ -200,6 +207,7 @@ internal sealed class GreyDoorPlms
             wasOpened ? GreyDoorPhase.ConvertToBlue : GreyDoorPhase.Locked);
     }
 
+    /// <summary>Maps the four native grey-door headers and Bomb Torizo's special header to their orientation.</summary>
     internal static bool TryIdentifyGreyDoor(
         PlmHeaderId header,
         out ColoredDoorOrientation orientation)

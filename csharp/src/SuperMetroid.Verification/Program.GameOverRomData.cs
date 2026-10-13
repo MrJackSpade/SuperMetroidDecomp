@@ -14,6 +14,8 @@ using static AssertionsVerification;
 using static RetailPresentationFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Compares the game-over Baby instruction stream and cries with
+/// cartridge data, then checks the live menu layout and selection.</summary>
 internal static class GameOverRomDataVerification
 {
     /// <summary>
@@ -123,6 +125,7 @@ internal static class GameOverRomDataVerification
             "music wait, cursor, and frame geometry agree.");
     }
 
+    /// <summary>Runs the game-over animation and menu fixture from the CLI.</summary>
     [VerificationCommand("--game-over-fixture")]
     internal static int GameOverFixtureCommand()
     {

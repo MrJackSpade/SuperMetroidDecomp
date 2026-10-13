@@ -15,10 +15,8 @@ internal sealed class MenuNmiFrameCounters
     /// <summary>Accepted-NMI counter $05B5.</summary>
     internal byte FrameCounter8 { get; private set; }
 
-    // Layer-one fractions $090F/$0913 also outlive a released runtime: only camera movement
-    // and scroll clamps write them, never a load. Only the reset vector's wipe clears them.
-    // The released camera's whole position is kept with them; the next runtime reads only
-    // the fractions.
+    /// <summary>Preserves layer-one fractions $090F/$0913 across runtime replacement; only camera movement,
+    /// scroll clamps, or the reset vector's wipe change them. The next runtime consumes the fractions.</summary>
     private FixedPosition<RoomPixels> retainedLayer1Position;
 
     /// <summary>Clears the counters as the reset vector's bank-$7E wipe does.</summary>
@@ -36,14 +34,14 @@ internal sealed class MenuNmiFrameCounters
         FrameCounter8 = unchecked((byte)(FrameCounter8 + 1));
     }
 
-    /// <summary>Hands the counters to a newly allocated runtime.</summary>
+    /// <summary>Hands accepted-NMI counters and the retained layer-one fractions to a new runtime.</summary>
     internal void PublishTo(SuperMetroidRuntime runtime)
     {
         runtime.NmiHandler.AdoptNmiFrameCounters(FrameCounter8, FrameCounter);
         runtime.BackgroundPhase.AdoptLayer1Position(retainedLayer1Position);
     }
 
-    /// <summary>Takes the counters back from a runtime that is being released.</summary>
+    /// <summary>Takes the counters and the camera's whole layer-one position back before runtime release.</summary>
     internal void RetainFrom(SuperMetroidRuntime runtime)
     {
         FrameCounter = runtime.Nmi.NmiFrameCounter;

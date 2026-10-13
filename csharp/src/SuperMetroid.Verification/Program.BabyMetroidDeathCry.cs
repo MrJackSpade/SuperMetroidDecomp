@@ -13,8 +13,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static BabyMetroidFixtureHeadVerification;
 
+/// <summary>Checks Baby Metroid's fatal blackout, palette recovery, and one-shot SPC death cry.</summary>
 internal static class BabyMetroidDeathCryVerification
 {
+    /// <summary>Compares all affected CGRAM entries and verifies exactly one native library-three sound publication.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Baby Metroid death-cry palette frames")]
     internal static int VerifyBabyMetroidDeathCry()
@@ -91,6 +93,7 @@ internal static class BabyMetroidDeathCryVerification
         static bool IsBlackoutColor(int index) => index is >= 49 and <= 62 or >= 81 and <= 94;
     }
 
+    /// <summary>Runs the fatal-blow palette and audio verification.</summary>
     [VerificationCommand("--baby-metroid-death-cry")]
     internal static int BabyMetroidDeathCryCommand()
     {

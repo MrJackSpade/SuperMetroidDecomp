@@ -15,6 +15,7 @@ using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks that unpausing disarms elevator pseudo-door contact before gameplay resumes.</summary>
 internal static class UnpauseElevatorFlagsVerification
 {
     /// <summary>
@@ -45,6 +46,7 @@ internal static class UnpauseElevatorFlagsVerification
         Console.WriteLine("  Unpause elevator flags: resuming gameplay disarms the elevator's pseudo-door.");
     }
 
+    /// <summary>Runs the focused unpause elevator flag verification command.</summary>
     [VerificationCommand("--unpause-elevator-flags")]
     internal static int UnpauseElevatorFlagsCommand()
     {

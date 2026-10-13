@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled elevator direction masks against native data and guarded departure behavior.</summary>
 internal static class ElevatorInputDefinitionsVerification
 {
+    /// <summary>Confirms both direction offsets and departure paths while forbidding migrated mask reads at runtime.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for elevator input definitions")]
     internal static void VerifyElevatorInputDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -58,6 +60,7 @@ internal static class ElevatorInputDefinitionsVerification
             "Elevator input definitions: both native masks and real departure paths pass with table reads forbidden.");
     }
 
+    /// <summary>Checks the two supported word offsets against $A3:94E2 and rejects malformed offsets.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for elevator direction input mapping")]
     private static void VerifyElevatorDirectionInputMapping(SuperMetroidAddressSpace rom)
     {
@@ -70,6 +73,7 @@ internal static class ElevatorInputDefinitionsVerification
         foreach (ushort offset in new ushort[] { 1, 3, 4, 5, 0x100, 0x102, 0xfffe, 0xffff })
             AssertThrows<InvalidDataException>(() => ElevatorActorDefinitions.RequiredDirectionInput(offset), "elevator invalid full-word direction offset");
     }
+    /// <summary>Allows fixture cartridge access except for the elevator input table now owned by compiled definitions.</summary>
     private static CartridgeReadGuard NewElevatorInputReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa394e2 and < 0xa394e6,

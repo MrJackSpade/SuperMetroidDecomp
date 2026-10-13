@@ -3,6 +3,8 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Nonconstant producers and the finite transfer domain each one enqueues from.</summary>
 internal static class VramDmaProducerContracts
 {
+    /// <summary>Maps a known runtime DMA producer to the finite artwork family
+    /// whose source and transfer bounds the resource audit checks.</summary>
     internal static bool TryGet(string owner, out string? family)
     {
         family = owner switch

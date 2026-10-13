@@ -17,6 +17,7 @@ using static SoundQueueReturnVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Verifies cartridge music dispatch, delayed SFX handshakes and SPC upload traversal without an audio device.</summary>
 internal static class AudioVerification
 {
     /// <summary>
@@ -296,9 +297,11 @@ internal static class AudioVerification
         Console.WriteLine("  Audio: typed/lossless music commands and delays, 25 compiled upload routes, invalid-route rejection, inherited Ceres track, post-Ceres bank/track restart, item fanfare, paired SFX identities/catalogs, handshake, and LoROM stream agree.");
     }
 
+    /// <summary>Seeds a synthetic upload byte at its mapped LoROM offset for cross-bank reader checks.</summary>
     private static void WriteAudioRomByte(byte[] rom, int snesAddress, byte value) =>
         rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
 
+    /// <summary>Runs the cartridge audio queue and upload-stream verification command.</summary>
     [VerificationCommand("--audio-queues")]
     internal static int AudioQueuesCommand()
     {

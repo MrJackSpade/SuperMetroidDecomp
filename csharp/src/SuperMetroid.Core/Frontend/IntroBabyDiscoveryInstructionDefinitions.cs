@@ -20,6 +20,7 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
     /// <summary>$8B:CE53, shared actor-delete instruction after the reverse crossfade.</summary>
     internal const ushort DeletePointer = CinematicCodePointers.Lists.Delete;
 
+    /// <summary>Builds the egg's loop, hatching poses, particle spawn, page handoff, and crossfade deletion.</summary>
     private static ushort EggWord(int word)
     {
         if (word is >= 8 and < 16)
@@ -63,6 +64,7 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
         };
     }
 
+    /// <summary>Builds the confused baby's four-frame loop and held large-frame loop.</summary>
     private static ushort BabyWord(int word)
     {
         if (word < 8)
@@ -82,6 +84,7 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
         };
     }
 
+    /// <summary>Selects one byte from the compiled egg, confused-baby, or shared delete instruction.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         ushort word;
@@ -105,6 +108,7 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Reads a word wholly inside a compiled bank-$8B discovery list.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer is DeletePointer or >= EggStart and < (EggEnd - 1)

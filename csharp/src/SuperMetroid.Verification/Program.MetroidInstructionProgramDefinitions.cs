@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Metroid chasing and draining animation loops against bank A3 instructions.</summary>
 internal static class MetroidInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge as the oracle for Metroid instruction words.</summary>
     internal static void VerifyMetroidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMetroidInstructionProgramDefinitions), () => VerifyMetroidInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks both loops, their sound callbacks, initializer, and compiled visual selection.</summary>
     internal static void VerifyMetroidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -114,6 +117,7 @@ internal static class MetroidInstructionProgramDefinitionsVerification
             "loops and sound callbacks, and 25 compiled visual selectors pass.");
     }
 
+    /// <summary>Checks that a newly initialized Metroid enters the chasing list with both outer bodies active.</summary>
     private static void VerifyMetroidInstructionInitializer(ISnesAddressSpace bus)
     {
         var enemies = new RoomEnemySystem();
@@ -135,6 +139,7 @@ internal static class MetroidInstructionProgramDefinitionsVerification
             "Metroid initializer allocates outer body B");
     }
 
+    /// <summary>Creates a bank A3 Metroid slot at a selected list entry with controlled random input.</summary>
     internal static (RoomEnemySystem Enemies, RoomEnemySlot Slot)
         NewMetroidInstructionSystem(
             ISnesAddressSpace bus,
@@ -152,6 +157,7 @@ internal static class MetroidInstructionProgramDefinitionsVerification
         return (enemies, slot);
     }
 
+    /// <summary>Expires the Metroid instruction timer before each production runner call.</summary>
     private static void RunMetroidInstructionFrames(
         RoomEnemySystem enemies,
         object?[] arguments,
@@ -165,6 +171,7 @@ internal static class MetroidInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates chasing and draining words repeatedly to expose lookup allocations.</summary>
     private static int ProbeMetroidInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -178,12 +185,14 @@ internal static class MetroidInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads a bank A3 instruction word from the retail cartridge oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Metroid instruction words")]
     internal static ushort ReadMetroidInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa30000 | address);
 
+    /// <summary>Rejects runtime reads of compiled mechanics and presentation selector bytes.</summary>
     internal static CartridgeReadGuard NewMetroidInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(MetroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -194,6 +203,7 @@ internal static class MetroidInstructionProgramDefinitionsVerification
                 MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read compiled Metroid presentation byte ${address:X6}.");
 
+    /// <summary>Runs Metroid instruction checks from the verification command dispatcher.</summary>
     [VerificationCommand("--metroid-instruction-program-definitions")]
     internal static int MetroidInstructionProgramDefinitionsCommand()
     {

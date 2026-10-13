@@ -346,6 +346,7 @@ internal abstract class CrocomireInstructionProgramDefinitions
     /// <summary>Native program bank $A4.</summary>
     internal const byte Bank = 0xa4;
 
+    /// <summary>Compiled duration and control-word layout for body, melting, and skeleton lists.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbade),
         Entry(Initial),
@@ -813,6 +814,7 @@ internal abstract class CrocomireInstructionProgramDefinitions
         Frame(20),
         Op((ushort)CommonEnemyInstruction.Goto, SkeletonFlowingDownRiver));
 
+    /// <summary>Reads a compiled mechanics word while rejecting visual operands and unknown bank-$A4 addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

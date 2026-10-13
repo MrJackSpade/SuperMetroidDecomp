@@ -8,8 +8,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Samus's pose transitions: grounded, aerial, posture and morph-ball changes, turn and wall-jump handling, and the collision checks a larger new pose must pass, applied to the Samus state it owns.</summary>
 internal sealed class SamusPoseTransitions
 {
+    /// <summary>The live Samus state whose pose, speed, and collision radius transitions are applied.</summary>
     private readonly SamusState _samus;
 
+    /// <summary>Binds pose transitions to one Samus instance so failed transitions preserve its current state.</summary>
     internal SamusPoseTransitions(SamusState owner)
     {
         _samus = owner;
@@ -2284,6 +2286,10 @@ internal sealed class SamusPoseTransitions
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
+    /// <summary>
+    /// Keeps the gun raised on frame one when both standing poses aim straight up;
+    /// other standing transitions begin at frame zero.
+    /// </summary>
     private static ushort StandingPoseInitialFrame(ISnesAddressSpace bus, SamusPoseId sourcePose, SamusPoseId targetPose)
     {
         // $91:F4DC keeps the gun raised when both the old and new standing

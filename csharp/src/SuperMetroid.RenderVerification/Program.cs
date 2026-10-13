@@ -7,6 +7,7 @@ using SuperMetroid.Rendering.Direct3D11;
 /// </summary>
 internal static class Program
 {
+    /// <summary>Dispatches focused D3D11/software parity checks and reports failures through the console process boundary.</summary>
     private static void Main(string[] args)
     {
         try

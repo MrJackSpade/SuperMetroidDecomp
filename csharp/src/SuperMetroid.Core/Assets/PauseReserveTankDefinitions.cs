@@ -68,6 +68,7 @@ public static class PauseReserveTankDefinitions
         _ => throw new InvalidOperationException($"Undefined PauseReserveTankVisual {identity}."),
     };
 
+    /// <summary>Builds the native eight-pixel reserve-tank part with its tile identity and caller-owned palette.</summary>
     internal static SpriteVisualPart StockPart(PauseReserveTankVisual identity)
     {
         int tile = StockTile(identity);

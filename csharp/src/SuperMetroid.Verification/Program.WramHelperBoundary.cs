@@ -12,6 +12,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks migrated WRAM helpers with an address space that has no cartridge.</summary>
 internal static class WramHelperBoundaryVerification
 {
     /// <summary>Checks the statically identified WRAM-only helpers without importing a cartridge or running gameplay.</summary>
@@ -41,6 +42,7 @@ internal static class WramHelperBoundaryVerification
         Console.WriteLine("WRAM helper boundary: bank wrapping, source rejection, corpse scheduling, 50 projectile-inheritance records and Fireflea cadence pass without a cartridge.");
     }
 
+    /// <summary>Checks word wrapping, system-bank mirrors, and rejection of non-WRAM addresses.</summary>
     [CpuBusBoundary("exact bus test: WRAM word bank wrap, system-bank mirror and non-WRAM source rejection")]
     private static void VerifyWramWordMapping(SuperMetroidAddressSpace memory)
     {
@@ -56,6 +58,7 @@ internal static class WramHelperBoundaryVerification
                 "WRAM helper rejects cartridge, SRAM and peripheral sources");
     }
 
+    /// <summary>Checks staggered corpse-row callbacks and sentinel writes in live WRAM.</summary>
     private static void VerifyWramCorpseScheduler(SuperMetroidAddressSpace memory)
     {
         CorpseRotTable table = new EnemyScratchMemory(memory).RotTable(0x9000, 3);
@@ -77,6 +80,7 @@ internal static class WramHelperBoundaryVerification
             CorpseRottingTableProcessor.ReadEntry(table, 1), "second row retains its decremented WRAM delay");
     }
 
+    /// <summary>Checks directional projectile velocity reads across overlapping native WRAM words.</summary>
     private static void VerifyWramProjectileInheritance(SuperMetroidAddressSpace memory)
     {
         ushort[][] snapshots =
@@ -118,6 +122,7 @@ internal static class WramHelperBoundaryVerification
         }
     }
 
+    /// <summary>Runs the cartridge-free WRAM helper checks.</summary>
     [VerificationCommand("--wram-helper-boundary")]
     internal static int WramHelperBoundaryCommand()
     {

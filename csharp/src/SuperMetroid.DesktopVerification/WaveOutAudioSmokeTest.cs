@@ -12,9 +12,13 @@ public readonly record struct WaveOutAudioSmokeTestResult(
 /// </summary>
 public static class WaveOutAudioSmokeTest
 {
+    /// <summary>Uses the host's 48 kHz PCM output rate for one emulated video frame.</summary>
     private const int SampleRate = 48_000;
+    /// <summary>Submits interleaved left and right PCM samples.</summary>
     private const int ChannelCount = 2;
+    /// <summary>Each 60 Hz frame supplies one sixtieth of a second of stereo audio.</summary>
     private const int StereoFramesPerVideoFrame = SampleRate / 60;
+    /// <summary>Exceeds the six-buffer hardware queue capacity three times.</summary>
     private const int DefaultBuffersToSubmit = 18;
 
     /// <summary>

@@ -14,11 +14,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Boyon idle and bounce instruction programs, selectors, and live callback effects.</summary>
 internal static class BoyonInstructionProgramDefinitionsVerification
 {
+    /// <summary>Lists the ten bank-A2 visual operand addresses independently of the compiled catalog.</summary>
     private static ushort[] BoyonPresentationOracle() =>
         [0x86ad,0x86b1,0x86b5,0x86b9,0x86c5,0x86c9,0x86cd,0x86d1,0x86d5,0x86d9];
 
+    /// <summary>Compares control words with ROM and checks byte ownership, aliases, and invalid addresses.</summary>
     private static void VerifyBoyonMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x86a7,0x86a9,0x86ab,0x86af,0x86b3,0x86b7,0x86bb,0x86bd,
@@ -54,6 +57,7 @@ internal static class BoyonInstructionProgramDefinitionsVerification
             AssertThrows<IndexOutOfRangeException>(() => BoyonInstructionProgramDefinitionsTooling.MechanicsWord(index), "Boyon mechanics ordinal bounds");
     }
 
+    /// <summary>Checks the complete visual-operand membership domain and ordinal bounds.</summary>
     private static void VerifyBoyonPresentationAddresses()
     {
         ushort[] addresses = BoyonPresentationOracle();
@@ -67,6 +71,7 @@ internal static class BoyonInstructionProgramDefinitionsVerification
             AssertThrows<IndexOutOfRangeException>(() => BoyonInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Boyon presentation ordinal bounds");
     }
 
+    /// <summary>Matches compiled Boyon frame pointers with ROM while rejecting nearby nonvisual words.</summary>
     private static void VerifyBoyonVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = BoyonPresentationOracle();
@@ -88,12 +93,14 @@ internal static class BoyonInstructionProgramDefinitionsVerification
         foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
             AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BoyonFrameAt(address), "Boyon distant visual rejected");
     }
+    /// <summary>Loads the retail ROM and runs the Boyon instruction suite.</summary>
     internal static void VerifyBoyonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBoyonInstructionProgramDefinitions), () => VerifyBoyonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks ROM mappings and executes idle and bouncing paths with source reads forbidden.</summary>
     internal static void VerifyBoyonInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags =
@@ -176,6 +183,7 @@ internal static class BoyonInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Consumes repeated idle-word lookups for the warmed allocation check.</summary>
     private static int ProbeBoyonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -187,6 +195,7 @@ internal static class BoyonInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects reads from the compiled Boyon mechanics and visual selector ranges.</summary>
     private static CartridgeReadGuard NewBoyonInstructionProgramReadGuard(ISnesAddressSpace source)
     {
         static string Message(int address) => $"Production read compiled Boyon instruction byte ${address:X6}.";
@@ -195,6 +204,7 @@ internal static class BoyonInstructionProgramDefinitionsVerification
             .ForbidWords(0xa20000, BoyonInstructionProgramDefinitionsTooling.PresentationWordCount, BoyonInstructionProgramDefinitionsTooling.PresentationWordAddress, Message);
     }
 
+    /// <summary>Runs the Boyon instruction suite through the verification command dispatcher.</summary>
     [VerificationCommand("--boyon-instruction-mechanics")]
     internal static int BoyonInstructionMechanicsCommand()
     {

@@ -22,6 +22,7 @@ public enum EndingMode7SceneId
 /// </summary>
 public sealed class EndingMode7SceneArtwork
 {
+    /// <summary>Retains the validated low-byte map and high-byte character lanes for one scene.</summary>
     private EndingMode7SceneArtwork(byte[] map, byte[] characters)
     {
         Map = map;
@@ -70,6 +71,7 @@ public sealed class EndingMode7SceneArtwork
         json.Write(bytes);
     }
 
+    /// <summary>Loads and validates the 128-by-64 backdrop half-map and its byte-valued tile indices.</summary>
     private static EndingMode7MapDocument ReadMap(Stream json)
     {
         EndingMode7MapDocument document;
@@ -97,7 +99,12 @@ public sealed class EndingMode7SceneArtwork
 /// <summary>Host-owned visual streams for the escape and planet-explosion scenes.</summary>
 public sealed class EndingMode7ArtworkCatalog
 {
-    private readonly EndingMode7SceneArtwork escapeA, escapeB, planetExplosion;
+    /// <summary>Zebes zoom-out backdrop used by the first escape scene.</summary>
+    private readonly EndingMode7SceneArtwork escapeA;
+    /// <summary>Grey-cloud backdrop used by the second escape scene.</summary>
+    private readonly EndingMode7SceneArtwork escapeB;
+    /// <summary>Large Zebes backdrop used during the planet explosion.</summary>
+    private readonly EndingMode7SceneArtwork planetExplosion;
 
     /// <summary>Installs the three decoded backdrop pairs and the complete post-credits beam/icon transfer.</summary>
     /// <param name="escapeA">Zebes zoom-out map and character lanes for the first escape scene.</param>
@@ -150,6 +157,7 @@ public sealed class EndingMode7ArtworkCatalog
 /// </summary>
 public sealed class EndingRewardIconArtwork
 {
+    /// <summary>Retains the interleaved full-map and character transfer for reward landing.</summary>
     private EndingRewardIconArtwork(byte[] transfer) => Transfer = transfer;
 
     /// <summary>The $8000-byte low-map/high-character word stream consumed by the sixteen $0800-byte uploads at native $8B:F682.</summary>
@@ -204,6 +212,7 @@ public sealed class EndingRewardIconArtwork
         JsonSerializer.Serialize(json, map, MapPresentationFormat.JsonOptions);
     }
 
+    /// <summary>Requires a full 128-by-128 reward map of byte-valued tile indices.</summary>
     private static void ValidateMap(EndingMode7MapDocument map)
     {
         if (map.Version != EndingMode7ArtworkFormat.Version ||
@@ -279,6 +288,7 @@ public static class EndingMode7ArtworkFormat
     public static string MapFileName(EndingMode7SceneId id) =>
         $"ending-{SceneName(id)}-mode7-map.json";
 
+    /// <summary>Maps a supported ending scene to its stable filename stem.</summary>
     private static string SceneName(EndingMode7SceneId id) => id switch
     {
         EndingMode7SceneId.EscapeA => "escape-a",

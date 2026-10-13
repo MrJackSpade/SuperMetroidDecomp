@@ -19,6 +19,7 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Constructed cartridge checks for permanent item PLMs, messages, saves, and suit acquisition.</summary>
 internal static class CollectiblesVerification
 {
     /// <summary>
@@ -213,6 +214,7 @@ internal static class CollectiblesVerification
             "  Permanent collectibles: 63 ROM headers, all 21 effects, three presentations, SRAM bits, bank-$85 messages, and suit transformations agree.");
     }
 
+    /// <summary>Checks Morph Ball contact, synchronous message return, the empty draw, and passable terrain after deletion.</summary>
     internal static void VerifyMorphBallPickupCollision()
     {
         var bus = new TestAddressSpace();
@@ -250,6 +252,7 @@ internal static class CollectiblesVerification
         Console.WriteLine("  Morph Ball message return and subsequent horizontal collision agree.");
     }
 
+    /// <summary>Loads one authored-shape item PLM into a synthetic room with selectable prior collection and Chozo state.</summary>
     internal static CollectibleFixture LoadCollectible(TestAddressSpace bus, ushort header, ushort roomArgument, bool precollected, bool preopenedChozo = false, RoomLayer3FxState? roomFx = null, CollectibleRoomLayout layout = default)
     {
         const ushort population = 0x9000;
@@ -287,6 +290,7 @@ internal static class CollectiblesVerification
         return new CollectibleFixture(plms, level, streamer, system, samus, blockIndex);
     }
 
+    /// <summary>Seeds the three item-header families and their dynamic graphics operands in the fixture cartridge.</summary>
     internal static void SeedCollectibleRom(TestAddressSpace bus)
     {
         const ushort sharedDynamicList = 0xf100;
@@ -330,6 +334,7 @@ internal static class CollectiblesVerification
         }
     }
 
+    /// <summary>Writes a one-block PLM draw instruction with a chosen level word.</summary>
     internal static void WriteOneBlockDraw(TestAddressSpace bus, int pointer, ushort levelWord) =>
         SeedPlmProgramBytes(bus, unchecked((ushort)pointer), [
             0x01, 0x00,
@@ -337,6 +342,7 @@ internal static class CollectiblesVerification
             0x00, 0x00,
         ]);
 
+    /// <summary>Checks the resource increase or equipment bit specific to a picked-up item identity.</summary>
     private static void AssertPermanentCollectibleEffect(
         InWorldCollectibleKind kind,
         SamusState samus)
@@ -404,6 +410,7 @@ internal static class CollectiblesVerification
             $"{kind} enters equipped beam word");
     }
 
+    /// <summary>Checks SRAM round-trip of edge item bits, Chozo and door bits, events, bosses, and independent beam words.</summary>
     private static void VerifyCollectedItemSaveRoundTrip()
     {
         var bus = new TestAddressSpace();
@@ -455,6 +462,7 @@ internal static class CollectiblesVerification
             "equipped beam word round-trips independently from collected beams");
     }
 
+    /// <summary>Checks item-message tilemap, fanfare wait, input dismissal, and PPU restoration timing.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyPermanentItemMessageBox()
     {
@@ -639,6 +647,7 @@ internal static class CollectiblesVerification
             "unsupported message identifies numeric ID and source context");
     }
 
+    /// <summary>Checks suit-pickup window staging, beam curve, palette reveal, input release, and Gravity priority.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifySuitPickupTransformation()
     {
@@ -828,6 +837,7 @@ internal static class CollectiblesVerification
     }
 
 
+    /// <summary>Checks pose-history shifts at transformation entry and reveal for both suits and preowned-suit states.</summary>
     private static void VerifySuitPickupHistory(TestAddressSpace bus, SamusSuitColorCatalog suitColors)
     {
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
@@ -863,6 +873,7 @@ internal static class CollectiblesVerification
         }
     }
 
+    /// <summary>Room, PLM, system, and Samus owners returned by a constructed item population load.</summary>
     internal readonly record struct CollectibleFixture(
         RoomPlmSystem Plms,
         RoomLevelData Level,
@@ -887,6 +898,7 @@ internal static class CollectiblesVerification
         return bus;
     }
 
+    /// <summary>Runs the focused Morph Ball message-return collision fixture.</summary>
     [VerificationCommand("--morph-ball-pickup-collision")]
     internal static int MorphBallPickupCollisionCommand()
     {
@@ -894,6 +906,7 @@ internal static class CollectiblesVerification
         return 0;
     }
 
+    /// <summary>Runs the full authored-shape permanent collectible fixture.</summary>
     [VerificationCommand("--permanent-collectibles-fixture")]
     internal static int PermanentCollectiblesFixtureCommand()
     {

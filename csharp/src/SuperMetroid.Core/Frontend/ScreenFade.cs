@@ -20,6 +20,7 @@ public sealed class ScreenFade
     /// <summary>INIDISP's fully lit four-bit brightness value.</summary>
     public const int FullyLit = 0x0f;
 
+    /// <summary>Extracts the INIDISP brightness nibble without the forced-blank flag.</summary>
     private const int BrightnessMask = 0x0f;
 
     /// <summary>$0723: dispatches skipped between brightness steps.</summary>

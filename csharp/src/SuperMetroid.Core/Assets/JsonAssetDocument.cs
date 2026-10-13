@@ -19,6 +19,7 @@ internal static class JsonAssetDocument
         return Read<T>(json, options, typeof(T).Name);
     }
 
+    /// <summary>Reads a stream once, using its exposed buffer or a pooled byte array before duplicate-name validation.</summary>
     internal static T Read<T>(Stream json, JsonSerializerOptions options, string description)
     {
         Ensure.NotNull(json);
@@ -41,6 +42,7 @@ internal static class JsonAssetDocument
         }
     }
 
+    /// <summary>Rejects ambiguous property aliases using the serializer's case rule, then deserializes the document.</summary>
     private static T Read<T>(ReadOnlySpan<byte> json, JsonSerializerOptions options, string description)
     {
         try
@@ -59,6 +61,7 @@ internal static class JsonAssetDocument
         }
     }
 
+    /// <summary>Rents a buffer for the remaining stream bytes, growing it only when length is unavailable.</summary>
     private static byte[] Rent(Stream json, out int byteCount)
     {
         if (json.CanSeek)
@@ -153,10 +156,14 @@ internal static class JsonAssetDocument
     /// </summary>
     private sealed class ObjectNames
     {
+        /// <summary>Names already encountered in the current object, including escaped spellings.</summary>
         private readonly List<PropertyName> names = [];
+        /// <summary>First plain-ASCII name for each folded hash, used for the common constant-time lookup.</summary>
         private readonly Dictionary<ulong, int> firstByHash = [];
+        /// <summary>Escaped or non-ASCII names that require direct text comparison.</summary>
         private readonly List<int> irregular = [];
 
+        /// <summary>Reuses this tracker for the next object at the same nesting depth.</summary>
         internal void Clear()
         {
             names.Clear();
@@ -164,6 +171,7 @@ internal static class JsonAssetDocument
             irregular.Clear();
         }
 
+        /// <summary>Checks a candidate against hashed ASCII names and any irregular spellings.</summary>
         internal bool Contains(ReadOnlySpan<byte> json, PropertyName name, bool ignoreCase, StringComparer comparer)
         {
             if (!TryHash(json, name, ignoreCase, out ulong hash))
@@ -182,6 +190,7 @@ internal static class JsonAssetDocument
             return false;
         }
 
+        /// <summary>Records a new name in the hash index or irregular-name list.</summary>
         internal void Add(ReadOnlySpan<byte> json, PropertyName name, bool ignoreCase)
         {
             names.Add(name);
@@ -189,6 +198,7 @@ internal static class JsonAssetDocument
             else irregular.Add(names.Count - 1);
         }
 
+        /// <summary>Hashes an unescaped ASCII name with optional case folding; declines names requiring Unicode decoding.</summary>
         private static bool TryHash(ReadOnlySpan<byte> json, PropertyName name, bool ignoreCase, out ulong hash)
         {
             hash = 14695981039346656037;
@@ -203,6 +213,7 @@ internal static class JsonAssetDocument
         }
     }
 
+    /// <summary>Compares raw ASCII ranges when possible and decoded text for escaped or non-ASCII names.</summary>
     private static bool Same(ReadOnlySpan<byte> json, PropertyName left, PropertyName right, bool ignoreCase, StringComparer comparer)
     {
         if (left.Decoded is null && right.Decoded is null)
@@ -214,6 +225,7 @@ internal static class JsonAssetDocument
         return comparer.Equals(Text(json, left), Text(json, right));
     }
 
+    /// <summary>Returns the decoded spelling of a property name for comparison or error reporting.</summary>
     private static string Text(ReadOnlySpan<byte> json, PropertyName name) =>
         name.Decoded ?? Encoding.UTF8.GetString(json.Slice(name.Start, name.Length));
 }

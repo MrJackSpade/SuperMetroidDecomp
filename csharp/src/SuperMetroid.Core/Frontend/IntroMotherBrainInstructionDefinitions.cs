@@ -17,6 +17,7 @@ internal static class IntroMotherBrainInstructionDefinitions
     /// <summary>$8B:CB1F, first frame record after the page-two handoff callbacks.</summary>
     internal const ushort PageTwoLoopPointer = 0xcb1f;
 
+    /// <summary>Compiles four sixteen-tick poses, the page-two handoff, and the second pose loop.</summary>
     private static ushort ProgramWord(int word)
     {
         if (word is >= 10 and <= 12)
@@ -38,6 +39,7 @@ internal static class IntroMotherBrainInstructionDefinitions
             : pageTwo ? PageTwoLoopPointer : StartPointer;
     }
 
+    /// <summary>Reads either byte of a compiled bank-$8B Mother Brain instruction word.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is < StartPointer or >= EndPointer)
@@ -46,6 +48,7 @@ internal static class IntroMotherBrainInstructionDefinitions
         return (byte)(ProgramWord(offset / 2) >> (8 * (offset & 1)));
     }
 
+    /// <summary>Reads overlapping little-endian words without crossing into the egg actor's list.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer is < StartPointer or >= (EndPointer - 1))

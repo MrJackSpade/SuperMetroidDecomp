@@ -2,8 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Compares compiled intro egg-effect scripts and frame identities with the retail cartridge.</summary>
 internal static class IntroEggEffectProgramsVerification
 {
+    /// <summary>Checks byte and overlapping-word views of both lists, including terminal and outside-pointer failures.</summary>
     internal static void VerifyIntroEggEffectPrograms(ISnesAddressSpace rom)
     {
         foreach ((int start, int end) in new[] { (0xcd39, 0xcd83), (0xce53, 0xce55) })
@@ -24,8 +26,10 @@ internal static class IntroEggEffectProgramsVerification
         }
     }
 
+    /// <summary>Reads one original bank-$8B script byte for comparison with the compiled program.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro egg effect programs")]
     private static byte IntroEggEffectProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    /// <summary>Checks eleven published frame names, native operands, OAM part counts, and catalog bounds.</summary>
     internal static void VerifyIntroEggEffectFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["fragment-0", "fragment-1", "fragment-2", "fragment-3", "fragment-4", "fragment-5",
@@ -49,6 +53,7 @@ internal static class IntroEggEffectProgramsVerification
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "egg-effect enumeration order");
     }
 
+    /// <summary>Reads one original frame-operand or spritemap byte for the catalog comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro egg effect frame catalog")]
     private static byte IntroEggEffectFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

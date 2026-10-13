@@ -20,8 +20,10 @@ using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Retail OAM, compiled program, live override, and mutable-memory checks for projectile trails.</summary>
 internal static class ProjectileTrailArtworkVerification
 {
+    /// <summary>Compares stock and edited trail appearance through production drawing while keeping timing, movement, and program control cartridge-owned.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail program and frame attribute words")]
     internal static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
@@ -129,9 +131,11 @@ internal static class ProjectileTrailArtworkVerification
         document["frames"]![ProjectileTrailVisualDefinitions.Name(first)]!["palette"] = 8;
         AssertThrows<InvalidDataException>(() => Load(document), "Invalid trail palette rejected");
         Console.WriteLine($"Trail artwork: {draws} native OAM comparisons, frozen-start preservation, live edit isolation and strict metadata rejection pass.");
+        // Round-trip an edited frame node through the same JSON catalog validation as installed assets.
         static ProjectileTrailCatalog Load(JsonNode document) => ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
     }
 
+    /// <summary>Interprets the native trail words and sibling-targeted movement as an independent OAM and timer reference.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for trail frame")]
     private static void DrawNativeTrailFrame(ISnesAddressSpace rom,
         SamusProjectileTrailSlot pair, OamBuffer oam, bool frozen)
@@ -172,6 +176,7 @@ internal static class ProjectileTrailArtworkVerification
                     side.TileNumberAttributes);
         }
     }
+    /// <summary>Checks runtime art rebinding changes OAM but leaves saved trail timing and serialized game state intact.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeTrailBinding(ISnesAddressSpace bus, ProjectileTrailCatalog stock, ProjectileTrailCatalog edited)
     {
@@ -186,6 +191,7 @@ internal static class ProjectileTrailArtworkVerification
         var game = CreateRetailGameFixture(bus);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         game.runtime = runtime;
+        // Run the gameplay actor draw pass into a fresh OAM frame and capture its low table.
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();
@@ -231,6 +237,7 @@ internal static class ProjectileTrailArtworkVerification
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Old state draws current selected trail appearance after rebind");
         AssertEqual(3, restoredRuntime.Projectiles.TrailSlots[0].Left.InstructionTimer.RawValue, "Trail rebind preserves saved timing");
     }
+    /// <summary>Confirms a bank-$90 low-half trail word reads the two corresponding mutable WRAM bytes.</summary>
     internal static void VerifyTrailMutableAlias()
     {
         var mirror = new TrailMutableMirrorBus();
@@ -240,16 +247,21 @@ internal static class ProjectileTrailArtworkVerification
         Console.WriteLine("Projectile trail low-bank alias: two typed WRAM reads, no generic bus read.");
     }
 
+    /// <summary>Exposes only two typed WRAM mirror bytes and rejects all unrelated cartridge, SRAM, and write accesses.</summary>
     [CpuBusBoundary("exact bus test: witnesses that a bank-$90 low-half trail word is read as two typed WRAM mirror bytes")]
     internal sealed class TrailMutableMirrorBus : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        /// <summary>Number of typed WRAM byte accesses made by the low-half trail lookup.</summary>
         public int WorkRamReads { get; private set; }
 
+        /// <summary>Routes an attempted cartridge read to the deliberately failing untyped path.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Fails if the low-bank lookup bypasses the mutable-memory interface.</summary>
         public static byte ReadByte(int address) =>
             throw new InvalidOperationException($"Untyped trail read at ${address:X6}.");
 
+        /// <summary>Returns $12/$34 only for the requested mirror word, recording both typed byte reads.</summary>
         public byte ReadWorkRamByte(int address)
         {
             WorkRamReads++;
@@ -261,13 +273,16 @@ internal static class ProjectileTrailArtworkVerification
             };
         }
 
+        /// <summary>Rejects SRAM access during the WRAM alias check.</summary>
         public byte ReadSaveRamByte(int address) =>
             throw new InvalidOperationException($"Unexpected trail SRAM read ${address:X6}.");
 
+        /// <summary>Rejects mutations during the read-only trail alias check.</summary>
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException($"Unexpected trail write ${address:X6}.");
     }
 
+    /// <summary>Runs the cartridge-backed trail art and mechanics comparison from its command-line switch.</summary>
     [VerificationCommand("--projectile-trail-artwork-fixture")]
     internal static int ProjectileTrailArtworkFixtureCommand()
     {
@@ -276,6 +291,7 @@ internal static class ProjectileTrailArtworkVerification
         return 0;
     }
 
+    /// <summary>Runs the typed bank-$90 WRAM alias check from its command-line switch.</summary>
     [VerificationCommand("--trail-mutable-alias")]
     internal static int TrailMutableAliasCommand()
     {

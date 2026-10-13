@@ -4,8 +4,11 @@ namespace SuperMetroid.Desktop;
 /// <summary>Observes queue drains without changing PCM, buffering, or device pacing.</summary>
 internal sealed class WaveOutQueueHealth
 {
+    /// <summary>Protects queue statistics shared by audio refill and diagnostic readers.</summary>
     private readonly Lock sync = new();
+    /// <summary>Tracks refill samples and the subset where no native buffers remained queued.</summary>
     private long observations, emptyObservations;
+    /// <summary>Bounds the observed native queue depth after startup preroll.</summary>
     private int minimum = int.MaxValue, maximum;
 
     /// <summary>
@@ -26,6 +29,7 @@ internal sealed class WaveOutQueueHealth
         }
     }
 
+    /// <summary>Captures queue-depth statistics with the caller's current managed backlog.</summary>
     internal WaveOutQueueHealthSnapshot Snapshot(int managedQueued)
     {
         lock (sync) return new(observations, emptyObservations, observations == 0 ? null : minimum,
@@ -33,5 +37,6 @@ internal sealed class WaveOutQueueHealth
     }
 }
 
+/// <summary>One audio queue health reading, separating native refill observations from managed backlog.</summary>
 internal readonly record struct WaveOutQueueHealthSnapshot(long RefillObservations, long EmptyBeforeRefill,
     int? MinimumNativeQueued, int? MaximumNativeQueued, int ManagedQueued);

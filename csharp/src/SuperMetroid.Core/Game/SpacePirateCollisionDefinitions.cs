@@ -1,8 +1,16 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Engine-owned offset and hitbox identity in one extended frame component.</summary>
+/// <param name="Offset">Component origin relative to the Pirate's room position.</param>
+/// <param name="HitboxPointer">Bank-$B2 address of the authored collision list for this component.</param>
 internal readonly record struct SpacePirateCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
 /// <summary>Engine-owned signed collision bounds and touch/shot callbacks.</summary>
+/// <param name="Left">Left contact extent relative to its component origin.</param>
+/// <param name="Top">Upper contact extent relative to its component origin.</param>
+/// <param name="Right">Right contact extent relative to its component origin.</param>
+/// <param name="Bottom">Lower contact extent relative to its component origin.</param>
+/// <param name="TouchAi">Native Pirate contact callback identity.</param>
+/// <param name="ShotAi">Native Pirate projectile-hit callback identity.</param>
 internal readonly record struct SpacePirateCollisionHitbox(short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
 
 /// <summary>Fixed bank-$B2 walking/wall/ninja-Pirate collision data, separate from editable OAM art.</summary>
@@ -15,6 +23,7 @@ internal readonly record struct SpacePirateCollisionHitbox(short Left, short Top
 /// </remarks>
 internal static class SpacePirateCollisionDefinitions
 {
+    /// <summary>Eight contiguous frame runs retaining authored walking, wall and ninja component placements.</summary>
     internal static readonly CollisionRecordRuns<SpacePirateCollisionComponent> Frames =
         CollisionRecordRuns<SpacePirateCollisionComponent>.Frames(
         new(0x804f,
@@ -174,6 +183,7 @@ internal static class SpacePirateCollisionDefinitions
             [new(new(0, 1), 0xa074)],
         ]));
 
+    /// <summary>Twenty-two contiguous hitbox-list runs retaining per-facing rectangles and callbacks.</summary>
     internal static readonly CollisionRecordRuns<SpacePirateCollisionHitbox> Lists =
         CollisionRecordRuns<SpacePirateCollisionHitbox>.HitboxLists(
         new(0x8059,
@@ -390,11 +400,13 @@ internal static class SpacePirateCollisionDefinitions
             [new(-7, -19, 6, 16, 0x876c, 0x8779), new(6, 3, 31, 16, 0x876c, 0x8779)],
         ]));
 
+    /// <summary>Finds a compiled extended-frame pointer and exposes its native ordered physical components.</summary>
     internal static ReadOnlySpan<SpacePirateCollisionComponent> ComponentsAt(ushort pointer) =>
         Frames.TryGet(pointer, out SpacePirateCollisionComponent[] components)
             ? components
             : throw new InvalidDataException($"Space Pirate collision frame $B2:{pointer:X4} is not compiled.");
 
+    /// <summary>Finds a compiled list pointer and exposes its authored collision rectangles without deriving facing mirrors.</summary>
     internal static ReadOnlySpan<SpacePirateCollisionHitbox> HitboxesAt(ushort pointer) =>
         Lists.TryGet(pointer, out SpacePirateCollisionHitbox[] hitboxes)
             ? hitboxes

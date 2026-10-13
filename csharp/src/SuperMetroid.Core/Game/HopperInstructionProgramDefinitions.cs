@@ -32,14 +32,18 @@ internal abstract class HopperInstructionProgramDefinitions
     /// <summary>$A3:AA94 and each landed program: last pose hold before ReadyToHop. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort LandingFinalHold = 3;
 
+    /// <summary>One floor/ceiling hopper list's start, sound prefix, and airborne or landed pose shape.</summary>
     private readonly record struct ProgramDefinition(ushort Start, bool Sound, bool Jumping)
     {
+        /// <summary>Sidehopper lists include a sound callback and operand before poses; Dessgeega lists do not.</summary>
         internal int PrefixWords => Sound ? 3 : 1;
+        /// <summary>Airborne lists show one pose; landed lists show four.</summary>
         internal int PoseCount => Jumping ? 1 : 4;
+        /// <summary>Counts control words around timed poses, including sleep or ready-to-hop tail.</summary>
         internal int WordCount => PrefixWords + PoseCount + (Jumping ? 1 : 2);
     }
 
-    // Four species/size groups each contain airborne and landed programs for both orientations.
+    /// <summary>Locates one of sixteen lists: four species/size groups, each with floor/ceiling airborne and landed phases.</summary>
     private static ProgramDefinition ProgramAt(int index)
     {
         if ((uint)index >= 16) throw new IndexOutOfRangeException();
@@ -73,9 +77,12 @@ internal abstract class HopperInstructionProgramDefinitions
         return ProgramAt(group * 4 + (upsideDown ? 2 : 0) + (jumping ? 0 : 1)).Start;
     }
 
+    /// <summary>Control words across the sixteen floor and ceiling hopper lists.</summary>
     public static int MechanicsWordCount => 96;
+    /// <summary>Separately installed spritemap operands across their airborne and landed poses.</summary>
     public static int PresentationWordCount => 40;
 
+    /// <summary>Locates a native sound, hold, readiness, sleep, or offscreen-processing control word by ordinal.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -88,6 +95,7 @@ internal abstract class HopperInstructionProgramDefinitions
         throw new IndexOutOfRangeException();
     }
 
+    /// <summary>Reconstructs a single list's control word, excluding its interleaved visual operands.</summary>
     private static InstructionMechanicsWord Word(ProgramDefinition program, int index)
     {
         if (index == 0)
@@ -115,6 +123,7 @@ internal abstract class HopperInstructionProgramDefinitions
                 : (ushort)CommonEnemyInstruction.Sleep);
     }
 
+    /// <summary>Maps an airborne or landed pose ordinal to its native visual operand address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -124,6 +133,7 @@ internal abstract class HopperInstructionProgramDefinitions
         return (ushort)(program.Start + program.PrefixWords * 2 + (pose == 0 ? 0 : pose - 1) * 4 + 2);
     }
 
+    /// <summary>Distinguishes the forty frame operands from compiled instruction words.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         for (int index = 0; index < PresentationWordCount; index++)
@@ -131,6 +141,7 @@ internal abstract class HopperInstructionProgramDefinitions
         return false;
     }
 
+    /// <summary>Reads a compiled bank-$A3 hopper control word or rejects unknown and visual addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

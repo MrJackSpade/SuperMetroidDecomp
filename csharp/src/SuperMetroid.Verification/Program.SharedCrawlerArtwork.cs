@@ -4,8 +4,12 @@ using SuperMetroid.Core.Hardware;
 using static SharedCrawlerInstructionProgramDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Confirms four crawler species share the same compiled animation
+/// selectors and installed HZoomer spritemap artwork.</summary>
 internal static class SharedCrawlerArtworkVerification
 {
+    /// <summary>Compares every presentation operand with the cartridge and
+    /// installed catalog, then rejects adjacent non-program selector data.</summary>
     internal static void VerifyInstalledSharedCrawlerFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

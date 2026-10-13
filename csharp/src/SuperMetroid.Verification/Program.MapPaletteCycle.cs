@@ -8,8 +8,10 @@ using SuperMetroid.Desktop;
 using static MapPresentationVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks installed map highlight palettes in file-select arrows and pause and map screens.</summary>
 internal static class MapPaletteCycleVerification
 {
+    /// <summary>Compares native animation cadence and CGRAM, then checks override rebinding and visible palette isolation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed map palette cycle")]
     internal static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus, string stock, string overrides,

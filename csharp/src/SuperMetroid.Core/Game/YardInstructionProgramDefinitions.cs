@@ -117,6 +117,7 @@ internal abstract class YardInstructionProgramDefinitions
     /// <summary>Native program bank $A3.</summary>
     internal const byte Bank = 0xa3;
 
+    /// <summary>Ordered Yard instruction lists with mechanics words compiled and spritemap operands left as presentation slots.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xc8c6),
         Entry(OutsideTurnUpsideRightMovingUp),
@@ -377,11 +378,14 @@ internal abstract class YardInstructionProgramDefinitions
         Frame(3),
         Frame(3),
         Op((ushort)CommonEnemyInstruction.Goto, AirborneFacingRightLoop));
+    /// <summary>Number of Yard spritemap operands retained outside the compiled mechanics graph.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
 
+    /// <summary>Reads a compiled Yard control word and rejects frame artwork or an address outside the authored programs.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value : throw NotCompiled(address);
 
+    /// <summary>Finds the bank-A3 address of a visual operand by its order in the compiled instruction layout.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -392,6 +396,7 @@ internal abstract class YardInstructionProgramDefinitions
     /// <summary>Tests one native operand for an installed presentation slot.</summary>
     internal static bool IsPresentationWordAddress(ushort address) => Layout.IsPresentationWord(address);
 
+    /// <summary>Identifies a rejected bank-A3 operand without silently reading adjacent cartridge data.</summary>
     private static InvalidDataException NotCompiled(ushort address) =>
         new($"Yard instruction mechanics pointer $A3:{address:X4} is not compiled.");
 }

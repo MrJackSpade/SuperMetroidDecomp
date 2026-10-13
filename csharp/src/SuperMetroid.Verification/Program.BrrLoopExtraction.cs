@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 
+/// <summary>Checks BRR loop extraction when predictor history changes samples across repetitions.</summary>
 internal static class BrrLoopExtractionVerification
 {
+    /// <summary>Confirms history-dependent loops unfold to their stable recurrence, while filter-zero and one-shot blocks retain native boundaries.</summary>
     internal static void VerifyBrrLoopExtractionRetainsPredictorHistory()
     {
         var ram = new byte[65536];

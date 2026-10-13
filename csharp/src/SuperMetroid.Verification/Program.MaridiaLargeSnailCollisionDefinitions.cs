@@ -15,8 +15,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ExtendedCollisionReferenceVerification;
 
+/// <summary>Checks Oum's extracted display selectors and compiled collision records against ROM and the installed runtime.</summary>
 internal static class MaridiaLargeSnailCollisionDefinitionsVerification
 {
+    /// <summary>Matches each native Oum spritemap operand to an installed editable frame without cartridge reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Oum visual selectors")]
     internal static void VerifyInstalledOumVisualSelectors(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
@@ -53,6 +55,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
             "frames with no ROM reads.");
     }
 
+    /// <summary>Compares Oum frame pointers and hitboxes with ROM, then checks touch and shot overlap at rectangle boundaries.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia large snail collision definitions")]
     internal static void VerifyMaridiaLargeSnailCollisionDefinitions()
     {
@@ -166,11 +169,13 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
         ];
     }
 
+    /// <summary>Provides an unbacked bus that rejects any Oum visual or collision ROM access.</summary>
     private static CartridgeReadGuard NewOumNoReadBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed Oum frame or collision read ROM byte ${address:X6}.")
             .RejectWrites(address => $"Installed Oum frame or collision wrote ROM byte ${address:X6}.");
 
+    /// <summary>Runs the installed Oum collision verification through the command dispatcher.</summary>
     [VerificationCommand("--verify-oum-collision")]
     internal static int VerifyOumCollisionCommand()
     {

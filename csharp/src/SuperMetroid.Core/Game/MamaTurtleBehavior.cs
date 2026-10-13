@@ -7,12 +7,18 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The mama turtle species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class MamaTurtleBehavior : IEnemySpecies
 {
+    /// <summary>Provides the live Samus address space for baby-turtle facing decisions.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Moves parent and children against room blocks during hover, fall, and crawling.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Records the wall-impact shake from Mama Turtle's hover collision.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Links the four physically adjacent babies to their parent slot.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Applies touch damage for Mama's expanded body or exposed shell.</summary>
     private readonly EnemyCollision _collision;
 
+    /// <summary>Connects the tatori family to room terrain, collision, slots, and earthquake output.</summary>
     internal MamaTurtleBehavior(EnemyRoomBinding room, EnemyTerrain terrain, RoomEarthquake earthquake, EnemySlotTable slotTable, EnemyCollision collision)
     {
         _room = room;
@@ -103,18 +109,29 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Native solid property applied while Samus rides the sleeping shell contour.</summary>
     private const ushort MamaTurtleSolidProperty = 0x8000;
+    /// <summary>Maximum crawl distance from a baby's spawn before its list reverses direction.</summary>
     private const ushort BabyTurtleTravelDistance = 0x0030;
+    /// <summary>Upper room Y where Mama pauses after a rider-powered ascent.</summary>
     private const ushort MamaTurtlePeakYPosition = 0x01e8;
+    /// <summary>Whole pixels climbed per tick while Samus rides Mama toward the peak.</summary>
     private const ushort MamaTurtleRisingSpeed = 7;
+    /// <summary>Ticks held at the ascent peak before Mama begins falling.</summary>
     private const ushort MamaTurtlePeakPauseFrames = 30;
+    /// <summary>Whole-speed cap consulted by the native fall routine's slot-zero read.</summary>
     private const ushort MamaTurtleMaximumFallingSpeed = 4;
+    /// <summary>Whole-speed cap for horizontal hover acceleration.</summary>
     private const ushort MamaTurtleMaximumHoveringSpeed = 3;
+    /// <summary>Library-two sound requested by the spinning animation instruction.</summary>
     private const ushort MamaTurtleSpinSound = 0x003a;
+    /// <summary>Library-two sound requested on Mama's hover collision with a wall.</summary>
     private const ushort MamaTurtleWallSound = 0x001b;
 
+    /// <summary>Maps enemy slots to Mama Turtle's shell, hover, and ascent state.</summary>
     internal readonly MamaTurtleEnemyState?[] _mamaTurtleStates =
         new MamaTurtleEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Maps following enemy slots to their baby crawl, carry, and spinning state.</summary>
     internal readonly BabyTurtleEnemyState?[] _babyTurtleStates =
         new BabyTurtleEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -394,6 +411,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(result.WholePixels < -16 ? result.WithWholePixels(-16) : result);
     }
 
+    /// <summary>Adds signed 16.16 hover acceleration with carry and caps whole speed using the old velocity's sign.</summary>
     private static void AddAndClampMamaTurtleHorizontalAcceleration(
         MamaTurtleEnemyState state)
     {
@@ -594,6 +612,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Moves a spinning child against terrain, reversing its X velocity on wall collision.</summary>
     private void MoveSpinningBabyTurtle(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
@@ -766,6 +785,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
     private void ResolveBabyTurtleShotAfterCommon(BabyTurtleEnemyState state) =>
         WakeMamaTurtle(state);
 
+    /// <summary>Decrements the parent's asleep flag after a baby touch or shot reaction.</summary>
     private void WakeMamaTurtle(BabyTurtleEnemyState child)
     {
         MamaTurtleEnemyState parent = RequireMamaTurtleParent(child);
@@ -809,6 +829,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         _collision.ResolveNormalEnemyTouch(mama, samus);
     }
 
+    /// <summary>Resolves the child's native parent slot and rejects a non-Mama occupant.</summary>
     private MamaTurtleEnemyState RequireMamaTurtleParent(BabyTurtleEnemyState child)
     {
         RoomEnemySlot parent = _slotTable.SlotFromNativeIndex(child.ParentNativeIndex);
@@ -821,14 +842,17 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         return RequireMamaTurtleState(parent);
     }
 
+    /// <summary>Requires initialized parent state for a Mama Turtle slot.</summary>
     private MamaTurtleEnemyState RequireMamaTurtleState(RoomEnemySlot slot) =>
         _mamaTurtleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Mama Turtle state.");
 
+    /// <summary>Requires initialized child state for a Baby Turtle slot.</summary>
     private BabyTurtleEnemyState RequireBabyTurtleState(RoomEnemySlot slot) =>
         _babyTurtleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Baby Turtle state.");
 
+    /// <summary>Selects the left or right crawl list from the child's signed X velocity.</summary>
     private static void InstallBabyTurtleCrawlingInstruction(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state) =>
@@ -838,18 +862,21 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
                 ? MamaTurtleInstructionProgramDefinitions.BabyCrawlingLeft
                 : MamaTurtleInstructionProgramDefinitions.BabyCrawlingRight);
 
+    /// <summary>Starts a tatori animation list with its instruction timer set to one.</summary>
     private static void InstallTurtleInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
+    /// <summary>Rejects turtle movement without active room collision data.</summary>
     private static void RequireTurtleLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Turtle movement requires active room collision data.");
     }
 
+    /// <summary>Runs the baby wake callback after common bomb damage.</summary>
     internal void RegisterMamaTurtleBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle &&
@@ -859,6 +886,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers parent and baby setup routines for their respective native definitions.</summary>
     internal void RegisterMamaTurtleInitializationAi(EnemyAiTable table)
     {
 
@@ -873,6 +901,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Dispatches parent and baby lifecycle functions with the active Samus and terrain context.</summary>
     internal void RegisterMamaTurtleMainAi(EnemyAiTable table)
     {
 
@@ -892,6 +921,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Claims private crawl, shell, rise, and spinning-sound animation words for both actors.</summary>
     internal void RegisterMamaTurtleOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -907,6 +937,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Runs the baby wake callback after common projectile damage.</summary>
     internal void RegisterMamaTurtleShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle &&
@@ -916,6 +947,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes Mama contact to shell/fall handling and baby contact to separation and wake behavior.</summary>
     internal void RegisterMamaTurtleTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle &&

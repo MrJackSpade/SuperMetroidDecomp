@@ -6,8 +6,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 using static MapPresentationVerification;
 
+/// <summary>Checks native pause and file-select map colors, visual overrides,
+/// and palette rebinding through live map and pause presentation.</summary>
 internal static class MapStaticPalettesVerification
 {
+    /// <summary>Compares stock palettes with the cartridge, then checks edited
+    /// colors survive state restoration, stock replacement, and an ongoing fade.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed static map palettes")]
     internal static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus, string stock, string overrides,

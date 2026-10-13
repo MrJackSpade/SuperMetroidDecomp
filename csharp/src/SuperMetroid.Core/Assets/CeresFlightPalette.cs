@@ -7,11 +7,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>The Ceres approach's full, editable 256-color CGRAM image.</summary>
 public sealed class CeresFlightPalette
 {
-    // Independent painted colors remain unresolved inputs. Only repeated sections
-    // and the endpoint-defined ramp are calculated; edited slots stay independent.
+    /// <summary>Independent painted colors; only repeated sections and endpoint-defined ramps are calculated.</summary>
     internal readonly Dictionary<int, Bgr555> colors = [];
+    /// <summary>Supplied slots that differ from those calculated relationships remain independent.</summary>
     internal readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Separates the supplied CGRAM image into independent colors and edited exceptions.</summary>
     private CeresFlightPalette(Bgr555[] supplied)
     {
         for (int index = 0; index < supplied.Length; index++)
@@ -57,6 +58,7 @@ public sealed class CeresFlightPalette
     /// <summary>$8C:E6AB-E6BA and E7AB-E7BA: eight colors interpolate RGB5 endpoints with nearest-integer rounding.</summary>
     private static bool IsRampInterior(int index) => index is > 0x61 and < 0x68; // magic-number-audit: allow(SramOffset) - CGRAM interpolation slots, not SRAM offsets.
 
+    /// <summary>Calculates repeated palette slots or interpolated ramp colors from independent inputs.</summary>
     private Bgr555 Calculate(int index)
     {
         int source = SharedIndex(index);

@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(SciserInstructionProgramDefinitions))]
 internal abstract class SciserInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Counts eight compiled control words for each Sciser surface orientation.</summary>
     public static int MechanicsWordCount => SciserInstructionProgramDefinitions.SurfaceCount * 8;
+    /// <summary>Counts four presentation words for each Sciser surface orientation.</summary>
     public static int PresentationWordCount => SciserInstructionProgramDefinitions.SurfaceCount * 4;
+    /// <summary>Maps an indexed Sciser control word into its fixed-size orientation record.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -17,11 +20,13 @@ internal abstract class SciserInstructionProgramDefinitionsTooling : IInstructio
         ushort address = (ushort)(SciserInstructionProgramDefinitions.UpsideRight + index / 8 * SciserInstructionProgramDefinitions.ProgramBytes + offset);
         return new(address, SciserInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Locates an indexed visual word in a Sciser orientation record.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(SciserInstructionProgramDefinitions.UpsideRight + index / 4 * SciserInstructionProgramDefinitions.ProgramBytes + 6 + index % 4 * 4);
     }
+    /// <summary>Checks the eight control-word positions in each bank-$A3 Sciser record.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa30000) return false;

@@ -14,12 +14,15 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using static SuiteTimingVerification;
 
+/// <summary>Checks the compiled Boulder instruction loops and their presentation operands against native data.</summary>
 internal static class BoulderInstructionProgramDefinitionsVerification
 {
+    /// <summary>The sixteen cartridge word addresses that supply Boulder frames between control instructions.</summary>
     private static ushort[] BoulderPresentationOracle() =>
         [0x86a9,0x86ad,0x86b1,0x86b5,0x86b9,0x86bd,0x86c1,0x86c5,
          0x86cd,0x86d1,0x86d5,0x86d9,0x86dd,0x86e1,0x86e5,0x86e9];
 
+    /// <summary>Matches all twenty control words to cartridge bytes and checks exact byte ownership and address rejection.</summary>
     private static void VerifyBoulderMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
@@ -61,6 +64,7 @@ internal static class BoulderInstructionProgramDefinitionsVerification
                 "Boulder mechanics ordinal bounds");
     }
 
+    /// <summary>Checks the complete visual-operand address set and index bounds independently of its values.</summary>
     private static void VerifyBoulderPresentationAddresses()
     {
         ushort[] addresses = BoulderPresentationOracle();
@@ -77,6 +81,7 @@ internal static class BoulderInstructionProgramDefinitionsVerification
                 "Boulder presentation ordinal bounds");
     }
 
+    /// <summary>Checks each compiled frame selector's cartridge value and rejection of control or adjacent words.</summary>
     private static void VerifyBoulderVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = BoulderPresentationOracle();
@@ -100,12 +105,14 @@ internal static class BoulderInstructionProgramDefinitionsVerification
             AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BoulderFrameAt(address), "Boulder far invalid visual");
     }
 
+    /// <summary>Loads the retail cartridge and runs the Boulder mechanics and presentation checks.</summary>
     internal static void VerifyBoulderInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBoulderInstructionProgramDefinitions), () => VerifyBoulderInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks native word mapping, guarded left/right program execution, and allocation-free mechanics lookups.</summary>
     internal static void VerifyBoulderInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -142,6 +149,7 @@ internal static class BoulderInstructionProgramDefinitionsVerification
             "production loops, and sixteen compiled visual selectors pass with source " +
             "bytes forbidden.");
 
+        // Runs a selected mirrored Boulder loop past its terminal jump to confirm it restarts without cartridge reads.
         static void VerifyBoulderInstructionProgram(
             CartridgeReadGuard guard,
             ushort parameter1,
@@ -176,6 +184,7 @@ internal static class BoulderInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeatedly consumes compiled control words so the caller can measure steady-state allocation.</summary>
     private static int ProbeBoulderInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -187,14 +196,17 @@ internal static class BoulderInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids reads from both compiled control bytes and the frame-selector words during production execution.</summary>
     private static CartridgeReadGuard NewBoulderInstructionProgramReadGuard(ISnesAddressSpace source)
     {
+        // Reports the forbidden native address reached by a Boulder program read.
         static string Message(int address) => $"Production read compiled Boulder instruction byte ${address:X6}.";
         return new CartridgeReadGuard(source)
             .Forbid(BoulderInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, Message)
             .ForbidWords(0xa60000, BoulderInstructionProgramDefinitionsTooling.PresentationWordCount, BoulderInstructionProgramDefinitionsTooling.PresentationWordAddress, Message);
     }
 
+    /// <summary>Runs the retail-cartridge Boulder instruction verification command.</summary>
     [VerificationCommand("--boulder-instruction-mechanics")]
     internal static int BoulderInstructionMechanicsCommand()
     {

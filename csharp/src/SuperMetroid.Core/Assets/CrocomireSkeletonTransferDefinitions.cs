@@ -11,9 +11,13 @@ internal readonly record struct CrocomireSkeletonTransferDefinition(
 /// </summary>
 internal static class CrocomireSkeletonTransferDefinitions
 {
+    /// <summary>Byte width of one native skeleton character upload row.</summary>
     internal const int ChunkByteCount = 0x0200;
+    /// <summary>Total source bytes across the six selected skeleton uploads.</summary>
     internal const int TotalByteCount = ChunkByteCount * FrameCount;
+    /// <summary>VRAM word selected by OBSEL for the skeleton's OBJ tile atlas.</summary>
     internal const int ObselBaseWord = 0x6000;
+    /// <summary>Editable source image containing the extracted skeleton character tiles.</summary>
     internal const string FileName = "crocomire-skeleton-tiles.png";
     /// <summary>First source page at $AD:A600; subsequent pages are contiguous $0200-byte chunks.</summary>
     internal const int FirstGraphicsSourceAddress = 0xada600;
@@ -26,12 +30,17 @@ internal static class CrocomireSkeletonTransferDefinitions
     private const int SecondAtlasTile = 0x1e0;
     /// <summary>$A4:99D3..99D5 installs two rows at tiles $1E0..$1FF.</summary>
     private const int SecondRegionRows = 2;
+    /// <summary>Planar bytes consumed by one four-bit OBJ character tile.</summary>
     private const int TileByteCount = 32;
+    /// <summary>Atlas stride used to advance from one selected skeleton upload row to the next.</summary>
     private const int TilesPerRow = 16;
+    /// <summary>Four first-region rows and two second-region rows before the native sentinel.</summary>
     internal const int FrameCount = FirstRegionRows + SecondRegionRows;
 
+    /// <summary>Calculated six-entry source and VRAM placement sequence in native upload order.</summary>
     internal static CrocomireSkeletonTransferSequence Frames => new(FrameCount);
 
+    /// <summary>Computes a contiguous bank-$AD source page and its discontinuous OBJ atlas destination for one upload.</summary>
     internal static CrocomireSkeletonTransferDefinition Frame(int index)
     {
         if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
@@ -61,6 +70,7 @@ internal static class CrocomireSkeletonTransferDefinitions
 /// <summary>Calculated source-page and OBJ-placement identities, without stored transfer rows.</summary>
 internal readonly record struct CrocomireSkeletonTransferSequence(int Length)
 {
+    /// <summary>Computes the selected native source page and VRAM destination without storing transfer rows.</summary>
     internal CrocomireSkeletonTransferDefinition this[int index] =>
         CrocomireSkeletonTransferDefinitions.Frame(index);
 }

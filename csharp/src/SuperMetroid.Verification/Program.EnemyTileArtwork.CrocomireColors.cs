@@ -7,8 +7,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed Crocomire palette bands against native RGB5 data
+/// and live boss CGRAM writes under a cartridge-read guard.</summary>
 internal static class EnemyTileArtworkCrocomireColorsVerification
 {
+    /// <summary>Checks five color transfers, isolated overrides, hurt whiteout,
+    /// death-phase palette use, reload persistence, and invalid asset rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire palette bands")]
     internal static void VerifyInstalledCrocomireColors(

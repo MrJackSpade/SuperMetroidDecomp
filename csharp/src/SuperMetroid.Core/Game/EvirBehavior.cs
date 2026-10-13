@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Evir species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class EvirBehavior : IEnemySpecies
 {
+    /// <summary>Physical body, arms, and projectile slots used by Evir's relative aliases.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Runs normal touch handling before Evir's shared combat tail.</summary>
     private readonly EnemyCollision _collision;
 
+    /// <summary>Binds slot and collision owners for the three-record Evir actor.</summary>
     internal EvirBehavior(EnemySlotTable slotTable, EnemyCollision collision)
     {
         _slotTable = slotTable;
@@ -47,11 +50,16 @@ internal sealed class EvirBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Library-two sound emitted by the spit instruction.</summary>
     private const ushort EvirSpitSound = 0x005e;
+    /// <summary>Strict horizontal distance required before aiming the projectile.</summary>
     private const ushort EvirActivationDistance = 0x0080;
+    /// <summary>Whole-pixel magnitude passed through the native trig multipliers.</summary>
     private const ushort EvirProjectileSpeed = 4;
+    /// <summary>Margin beyond each camera edge that starts projectile regeneration.</summary>
     private const ushort EvirFarOffscreenDistance = 0x0100;
 
+    /// <summary>Body, arms, and spit extensions indexed by physical enemy slot.</summary>
     internal readonly EvirEnemyState?[] _evirStates =
         new EvirEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -136,6 +144,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         state.InstalledInstructionList = 0;
     }
 
+    /// <summary>Tracks Samus while the spit is present and alternates the body's timed vertical travel.</summary>
     private void RunEvirMain(RoomEnemySlot slot, EvirEnemyState state, SamusState? samus)
     {
         if (state.Function != EvirAiFunction.HandleBodyOrArms)
@@ -177,6 +186,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Dispatches idle attachment, aimed flight, or regeneration after selecting its animation list.</summary>
     private void RunEvirProjectileMain(
         RoomEnemySlot slot,
         EvirEnemyState state,
@@ -222,6 +232,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Selects left or right body artwork from Samus's signed horizontal side.</summary>
     private static void SetEvirBodyFacing(
         RoomEnemySlot body,
         EvirEnemyState state,
@@ -240,6 +251,7 @@ internal sealed class EvirBehavior : IEnemySpecies
                 : EvirInstructionProgramDefinitions.BodyFacingRight);
     }
 
+    /// <summary>Places the arms at a facing-dependent offset from the preceding body record.</summary>
     private void PositionEvirArms(RoomEnemySlot arms, EvirEnemyState state, bool initializing = false)
     {
         RoomEnemySlot body = RequireEvirRelativeSlot(arms, -1, EnemyDefinitionId.Evir, "arms body", initializing);
@@ -255,6 +267,7 @@ internal sealed class EvirBehavior : IEnemySpecies
                 : EvirInstructionProgramDefinitions.ArmsFacingRight);
     }
 
+    /// <summary>Reattaches idle spit beneath the body at the current facing offset.</summary>
     private void ResetEvirProjectilePosition(RoomEnemySlot projectile, EvirEnemyState state)
     {
         RoomEnemySlot body = RequireEvirRelativeSlot(
@@ -268,6 +281,7 @@ internal sealed class EvirBehavior : IEnemySpecies
             body.Position.X.Whole + (state.FacingDirection == 0 ? -4 : 4))), unchecked((ushort)(body.Position.Y.Whole + 18))));
     }
 
+    /// <summary>Aims at nearby Samus using the native angle transform and signed 16.16 speed tables.</summary>
     private void TryLaunchEvirProjectile(
         RoomEnemySlot projectile,
         EvirEnemyState state,
@@ -310,6 +324,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         state.Function = EvirAiFunction.ProjectileMoving;
     }
 
+    /// <summary>Checks the far-offscreen regeneration boundary before advancing the spit.</summary>
     private void RunMovingEvirProjectile(
         RoomEnemySlot projectile,
         EvirEnemyState state,
@@ -319,6 +334,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         projectile.Position = projectile.Position.Advance(state.ProjectileVelocity);
     }
 
+    /// <summary>Starts return animation beyond the camera margin unless the body is frozen.</summary>
     private void StartEvirRegenerationIfFarOffscreen(
         RoomEnemySlot projectile,
         EvirEnemyState state,
@@ -349,6 +365,7 @@ internal sealed class EvirBehavior : IEnemySpecies
             EvirInstructionProgramDefinitions.ProjectileRegenerating);
     }
 
+    /// <summary>Returns the spit toward its body and waits for the animation's completion flag.</summary>
     private void RunRegeneratingEvirProjectile(RoomEnemySlot projectile, EvirEnemyState state)
     {
         RoomEnemySlot body = RequireEvirRelativeSlot(
@@ -408,10 +425,12 @@ internal sealed class EvirBehavior : IEnemySpecies
         state.Function = EvirAiFunction.ProjectileIdle;
     }
 
+    /// <summary>Combines signed whole and unsigned fractional velocity words into native 16.16 form.</summary>
     private static int ComposeEvirFixed(short whole, ushort fraction) =>
         unchecked((SnesSixteenSixteen.FromWhole(whole)) | fraction);
 
 
+    /// <summary>Records the desired list and installs it only when it differs from the active one.</summary>
     private static void RequestEvirInstruction(
         RoomEnemySlot slot,
         EvirEnemyState state,
@@ -421,6 +440,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         InstallEvirInstruction(slot, state);
     }
 
+    /// <summary>Resets the instruction timer once per list change, preserving held animations.</summary>
     private static void InstallEvirInstruction(RoomEnemySlot slot, EvirEnemyState state)
     {
         if (state.RequestedInstructionList == state.InstalledInstructionList)
@@ -431,6 +451,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
     }
 
+    /// <summary>Validates physical body/arms/spit offsets while tolerating a cleared header after initialization.</summary>
     private RoomEnemySlot RequireEvirRelativeSlot(
         RoomEnemySlot owner,
         int relativeSlot,
@@ -454,6 +475,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         return _slotTable._slots[targetIndex];
     }
 
+    /// <summary>Requires an initialized extension at the given physical slot.</summary>
     private EvirEnemyState RequireEvirState(RoomEnemySlot slot) =>
         _evirStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Evir state.");
@@ -496,6 +518,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Runs the shared post-common Evir combat tail after bomb hits.</summary>
     internal void RegisterEvirBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&
@@ -505,6 +528,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers distinct body/arms and projectile initialization by definition.</summary>
     internal void RegisterEvirInitializationAi(EnemyAiTable table)
     {
 
@@ -519,6 +543,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Dispatches body/arms movement and spit flight through separate native routines.</summary>
     internal void RegisterEvirMainAi(EnemyAiTable table)
     {
 
@@ -537,6 +562,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Claims Evir spit sound and regeneration opcodes in the enemy interpreter.</summary>
     internal void RegisterEvirOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -546,6 +572,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Preserves power-bomb callbacks on both body and arms, including native relative aliases.</summary>
     internal void RegisterEvirPowerBombReactions(EnemyAiTable table)
     {
         // Touch and shot collision lists exclude the arms through property $0400, but $A0:A306's power-bomb walker
@@ -558,6 +585,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Copies accepted body-shot freeze state to arms and attached spit after common damage.</summary>
     internal void RegisterEvirShotReactions(EnemyAiTable table)
     {
         // Evir's bank-$A8 shot tail runs after every accepted common shot, including the $FF ice result. That is
@@ -570,6 +598,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Runs common body contact and then Evir's physical-slot combat follow-up.</summary>
     internal void RegisterEvirTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&

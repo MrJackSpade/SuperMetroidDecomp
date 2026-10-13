@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Dragon's six facing and phase selectors against retail pointers and live handoffs.</summary>
 internal static class DragonAnimationDefinitionsVerification
 {
+    /// <summary>Compares the selector table with the cartridge, then exercises installs and both facings.</summary>
     internal static void VerifyDragonAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 6; index++)
@@ -45,6 +47,7 @@ internal static class DragonAnimationDefinitionsVerification
             "Dragon animation definitions: six native selectors, phase/facing mappings, all six installs, and both live body/wing facing and attack handoffs pass with the pointer table forbidden.");
     }
 
+    /// <summary>Forces each selector into a fresh slot to confirm pointer and timer installation.</summary>
     private static void VerifyAllDragonAnimationInstalls()
     {
         for (int index = 0; index < 6; index++)
@@ -59,6 +62,7 @@ internal static class DragonAnimationDefinitionsVerification
         }
     }
 
+    /// <summary>Runs body and wing through idle, rise, and attack transitions for one Samus-facing direction.</summary>
     private static void VerifyLiveDragonAnimationHandoffs(
         SuperMetroidAddressSpace rom,
         bool facingLeft)
@@ -118,6 +122,7 @@ internal static class DragonAnimationDefinitionsVerification
             facingLeft ? "live left-facing Dragon attack" : "live right-facing Dragon attack");
     }
 
+    /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>
     private static RoomEnemySlot NewDragonAnimationSlot(int index) => new(index)
     {
         CurrentInstruction = 0x7777,
@@ -125,11 +130,13 @@ internal static class DragonAnimationDefinitionsVerification
         Timer = NativeCountdown.Start(0x3333),
     };
 
+    /// <summary>Provides Dragon's per-enemy work arrays for a standalone animation slot.</summary>
     private static DragonEnemyState NewDragonAnimationState(RoomEnemySlot slot) =>
         new(slot, new ushort[RoomEnemySystem.MaximumEnemyCount],
             new ushort[RoomEnemySystem.MaximumEnemyCount],
             new ushort[RoomEnemySystem.MaximumEnemyCount]);
 
+    /// <summary>Confirms the requested selector reached state and slot, clearing the previous loop timer.</summary>
     private static void AssertDragonAnimationHandoff(
         RoomEnemySlot slot,
         DragonEnemyState state,
@@ -149,6 +156,7 @@ internal static class DragonAnimationDefinitionsVerification
         AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
     }
 
+    /// <summary>Rejects live access to the migrated Dragon selector pointer table.</summary>
     private static CartridgeReadGuard NewDragonAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa2e5ef and < 0xa2e5fb,

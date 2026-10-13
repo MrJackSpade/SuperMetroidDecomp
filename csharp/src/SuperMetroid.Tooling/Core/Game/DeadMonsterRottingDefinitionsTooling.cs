@@ -3,6 +3,8 @@
 /// <summary>Development-tool members of <see cref="DeadMonsterRottingDefinitions"/>; never linked by player hosts.</summary>
 internal static class DeadMonsterRottingDefinitionsTooling
 {
+    /// <summary>Enumerates the ten authored corpse-rotting transfer tables
+    /// for Sidehopper, Zoomer, Ripper, and Skree in native table order.</summary>
     internal static IEnumerable<DeadMonsterVramTransferDefinition> AllTransfers
     {
         get

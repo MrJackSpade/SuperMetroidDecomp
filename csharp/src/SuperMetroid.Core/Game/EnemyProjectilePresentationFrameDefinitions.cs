@@ -12,61 +12,91 @@ internal static class EnemyProjectilePresentationFrameDefinitions
     // Each generation is a complete historical set of named visual operands. Their
     // order matches the published artwork schema, so an older override can be merged
     // by operand identity without assuming that the sorted current catalog is a prefix.
+    /// <summary>Published artwork schema boundaries used to merge older projectile overrides by operand identity.</summary>
     private enum CatalogGeneration
     {
+        /// <summary>Base projectile families before Golden Torizo's super missile and eye beam.</summary>
         PreGoldenTorizo,
+        /// <summary>Adds Golden Torizo's super missile and eye beam frames.</summary>
         PreGoldenTorizoEgg,
+        /// <summary>Adds Golden Torizo egg frames.</summary>
         PreTorizoEffects,
+        /// <summary>Adds Torizo drool, swipe, boom, dust, explosion, and orb effects.</summary>
         PreGenericEnemyDeath,
+        /// <summary>Adds enemy pickup and generic death frames.</summary>
         PreEnvironmentAndAttack,
+        /// <summary>Adds environmental and common attack effects.</summary>
         PreMotherBrainAndStatue,
+        /// <summary>Adds Mother Brain and Bomb Torizo statue projectile frames.</summary>
         PreWorkRobot,
+        /// <summary>Adds Work Robot laser frames.</summary>
         PrePolypRock,
+        /// <summary>Adds the Polyp Rock visual operand.</summary>
         Current,
     }
 
+    /// <summary>Base schema frame set retained for pre-Golden-Torizo overrides.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoFrames =
         Build(CatalogGeneration.PreGoldenTorizo);
+    /// <summary>Historical frame set including Golden Torizo's super missile and eye beam.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoEggFrames =
         Build(CatalogGeneration.PreGoldenTorizoEgg);
+    /// <summary>Historical frame set including Golden Torizo egg artwork.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreTorizoEffectsFrames =
         Build(CatalogGeneration.PreTorizoEffects);
+    /// <summary>Historical frame set including the Torizo effect family.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGenericEnemyDeathFrames =
         Build(CatalogGeneration.PreGenericEnemyDeath);
+    /// <summary>Historical frame set including pickups and generic enemy deaths.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreEnvironmentAndAttackFrames =
         Build(CatalogGeneration.PreEnvironmentAndAttack);
+    /// <summary>Historical frame set including environmental and attack effects.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreMotherBrainAndStatueFrames =
         Build(CatalogGeneration.PreMotherBrainAndStatue);
+    /// <summary>Historical frame set including Mother Brain and statue projectiles.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreWorkRobotFrames =
         Build(CatalogGeneration.PreWorkRobot);
+    /// <summary>Current sorted visual-operand set used by production catalog lookup.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] Frames =
         Build(CatalogGeneration.Current);
+    /// <summary>Historical frame set including Work Robot laser and excluding Polyp Rock.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PrePolypRockFrames =
         Build(CatalogGeneration.PrePolypRock);
 
+    /// <summary>Current projectile visual operands sorted by bank-$86 address.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> All => Frames;
+    /// <summary>Schema set before the Polyp Rock projectile frame was added.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PrePolypRock =>
         PrePolypRockFrames;
+    /// <summary>Base schema set before Golden Torizo projectile art was added.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizo =>
         PreGoldenTorizoFrames;
+    /// <summary>Schema set before Golden Torizo egg art was added.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizoEgg =>
         PreGoldenTorizoEggFrames;
+    /// <summary>Schema set before the broader Torizo effect family was added.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreTorizoEffects =>
         PreTorizoEffectsFrames;
+    /// <summary>Schema set before generic enemy pickup and death art was added.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGenericEnemyDeath =>
         PreGenericEnemyDeathFrames;
+    /// <summary>Schema set before environmental and attack effect art was added.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreEnvironmentAndAttack =>
         PreEnvironmentAndAttackFrames;
+    /// <summary>Schema set before Mother Brain and statue projectile art was added.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreMotherBrainAndStatue =>
         PreMotherBrainAndStatueFrames;
+    /// <summary>Schema set before Work Robot laser art was added.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreWorkRobot =>
         PreWorkRobotFrames;
 
+    /// <summary>Checks whether a bank-$86 visual operand belongs to the current published artwork catalog.</summary>
     internal static bool Contains(ushort operandAddress) =>
         Array.BinarySearch(Frames,
             new EnemyProjectilePresentationFrameDefinition(operandAddress, string.Empty),
             AddressComparer.Instance) >= 0;
 
+    /// <summary>Collects visual operands through a selected schema generation, retaining the first name for shared physical frames.</summary>
     private static EnemyProjectilePresentationFrameDefinition[] Build(
         CatalogGeneration generation)
     {
@@ -242,9 +272,12 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             .ToArray();
     }
 
+    /// <summary>Orders frame definitions by physical bank-$86 operand address for binary search.</summary>
     private sealed class AddressComparer : IComparer<EnemyProjectilePresentationFrameDefinition>
     {
+        /// <summary>Shared stateless address comparer for current-catalog lookups.</summary>
         internal static readonly AddressComparer Instance = new();
+        /// <summary>Compares only operand addresses; family names do not affect lookup identity.</summary>
         public int Compare(EnemyProjectilePresentationFrameDefinition left,
             EnemyProjectilePresentationFrameDefinition right) =>
             left.OperandAddress.CompareTo(right.OperandAddress);

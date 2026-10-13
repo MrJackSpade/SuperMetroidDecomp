@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Prepares an awakened retail Golden Torizo room before selecting a combat-only turn for comparison.</summary>
 internal static class GoldenTorizoRoomSetupVerification
 {
     /// <summary>

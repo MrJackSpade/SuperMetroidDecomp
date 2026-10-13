@@ -80,6 +80,7 @@ public static class PauseBackdropDefinitions
         return StockFrameWord(cell + (Rows - ButtonRows) * Columns);
     }
 
+    /// <summary>Calculates a pause BG2 frame, inset, title, or bottom control cell from its row and column.</summary>
     private static ushort StockFrameWord(int cell)
     {
         int row = cell / Columns, column = cell % Columns;
@@ -110,6 +111,7 @@ public static class PauseBackdropDefinitions
         return BlankWord;
     }
 
+    /// <summary>Applies stock palette and priority bits with optional tile flips to a frame glyph.</summary>
     private static ushort Styled(int glyph, bool flipX = false, bool flipY = false) =>
         (ushort)(0x2800 | glyph | (flipX ? 0x4000 : 0) | (flipY ? 0x8000 : 0));
 }

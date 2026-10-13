@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal static class GameOptionsCursorPolicy
 {
+    /// <summary>Selects the primary, controller, or special page for visible phases; transitional phases use the hidden anchor.</summary>
     internal static GameOptionsPage? Select(GameOptionsPhase phase) => phase switch
     {
         GameOptionsPhase.FadeIn or GameOptionsPhase.Main or GameOptionsPhase.FadeOutToFileSelect => GameOptionsPage.Primary,

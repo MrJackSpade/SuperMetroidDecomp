@@ -2,8 +2,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks pause-button tilemap spans against the native recolor instructions.</summary>
 internal static class PauseButtonSpansVerification
 {
+    /// <summary>Matches the six compiled span offsets to independent native WRAM load sites and rejects invalid selectors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause button span words")]
     internal static void VerifyPauseButtonSpanWords(ISnesAddressSpace rom)
     {
@@ -29,6 +31,7 @@ internal static class PauseButtonSpansVerification
                 "unsupported button row");
     }
 
+    /// <summary>Matches each compiled span width to the native byte count divided into tilemap words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause button span counts")]
     internal static void VerifyPauseButtonSpanCounts(ISnesAddressSpace rom)
     {

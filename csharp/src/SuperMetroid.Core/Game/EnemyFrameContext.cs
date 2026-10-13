@@ -12,6 +12,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyFrameContext
 {
+    /// <summary>Enemy-pass random counter read by native AI and projectile routines.</summary>
     internal ushort _randomEnemyCounter;
 
     /// <summary>
@@ -19,14 +20,14 @@ internal sealed class EnemyFrameContext
     /// the 8-bit $05B5 counter; standalone audits seed both from the same enemy clock.
     /// </summary>
     internal ushort _enemyFrameNmiFrameCounter;
-    // Live dependency supplied by EnemyMain, shared by ordinary and custom touch callbacks.
+    /// <summary>Live projectile system supplied by EnemyMain to both ordinary and custom enemy-touch callbacks.</summary>
     internal SamusProjectileSystem? _samusProjectilesForEnemyFrame;
+    /// <summary>Forces every enemy slot through the current pass when native processing requires a full sweep.</summary>
     internal bool _processAllEnemies;
 
-    // A door load initializes enemies while the door IRQ scrolls; init AIs that read
-    // layer 1 then wait for the loader's camera (CompleteLoaderTimeCameraReads).
-    // TimeIsFrozenFlag as the enemy frame saw it; the draw hooks that follow read it.
+    /// <summary>Freeze flag captured during the enemy pass and retained for the draw hooks that follow it.</summary>
     internal bool _enemyFrameTimeIsFrozen;
 
+    /// <summary>Defers init-AI layer-1 camera reads until the door loader installs its final camera after IRQ scrolling.</summary>
     internal bool _deferLoaderTimeCameraReads;
 }

@@ -14,8 +14,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks that firing grapple into any blue-door cap opens the door.</summary>
 internal static class GrappleDoorsVerification
 {
+    /// <summary>Exercises four orientations and all cap cells through extension collision and PLM animation.</summary>
     internal static void VerifyGrappleBlueDoors()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -75,6 +77,7 @@ internal static class GrappleDoorsVerification
         samus.Grapple.FireDirection = samus.PoseMetadata.ReadShotDirection(bus);
     }
 
+    /// <summary>Runs door opening and grapple pose-refire checks together.</summary>
     [VerificationCommand("--grapple-doors")]
     internal static int GrappleDoorsCommand()
     {

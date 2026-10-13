@@ -21,6 +21,7 @@ using static EnemyVulnerabilityDefinitionsVerification;
 using static EnemyVulnerabilityDispatchVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Confirms the compiled enemy catalog closes its references and keeps editable enemy art outside gameplay state.</summary>
 internal static class EnemyGameplayAcceptanceVerification
 {
     /// <summary>
@@ -43,6 +44,7 @@ internal static class EnemyGameplayAcceptanceVerification
             "vulnerability selection, linked population initialization and editable-art isolation pass.");
     }
 
+    /// <summary>Resolves vulnerability and drop records referenced by every primary and auxiliary enemy header.</summary>
     private static void VerifyEnemyDefinitionReferenceClosure()
     {
         Span<byte> drop = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];
@@ -60,6 +62,7 @@ internal static class EnemyGameplayAcceptanceVerification
         Console.WriteLine("Enemy reference closure: all 153 headers resolve compiled vulnerabilities and drops.");
     }
 
+    /// <summary>Loads a retail KiHunter body-wing population without cartridge memory and checks a PNG edit affects VRAM but no enemy slot or quota.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyEnemyPopulationPresentationIsolation(CartridgeImportAddressSpace source)
     {
@@ -165,6 +168,7 @@ internal static class EnemyGameplayAcceptanceVerification
         }
     }
 
+    /// <summary>Runs the enemy definition, population, vulnerability, drop, and presentation isolation checks.</summary>
     [VerificationCommand("--enemy-gameplay-acceptance")]
     internal static int EnemyGameplayAcceptanceCommand()
     {

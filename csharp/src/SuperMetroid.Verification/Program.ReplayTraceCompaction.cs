@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using static VerificationHelpersVerification;
 
+/// <summary>Confirms compact replay traces read back exactly as their full native captures.</summary>
 internal static class ReplayTraceCompactionVerification
 {
     /// <summary>Records in the synthetic capture: folded prelude, initial, two updates, a skipped wait record and the terminal.</summary>
@@ -100,6 +101,7 @@ internal static class ReplayTraceCompactionVerification
             $"({layout.PayloadByteCount} bytes per record); corrupted and mismatched traces are rejected.");
     }
 
+    /// <summary>Copies the compact trace, applies <paramref name="corrupt"/>, and requires opening it to fail.</summary>
     private static void RejectCorruption(string root, string compact, byte[] movie, string name, Action<string> corrupt, string context)
     {
         string directory = CopyTrace(root, compact, name);
@@ -107,6 +109,7 @@ internal static class ReplayTraceCompactionVerification
         AssertThrows<InvalidDataException>(() => NativeMovieCheckpoints.Open(directory, movie).Dispose(), context + " is rejected");
     }
 
+    /// <summary>Copies a compact trace into a named scratch directory.</summary>
     private static string CopyTrace(string root, string compact, string name)
     {
         string directory = Path.Combine(root, name);
@@ -116,6 +119,7 @@ internal static class ReplayTraceCompactionVerification
         return directory;
     }
 
+    /// <summary>Inverts the low bit of the file's middle byte.</summary>
     private static void FlipByte(string path)
     {
         byte[] bytes = File.ReadAllBytes(path);
@@ -123,6 +127,7 @@ internal static class ReplayTraceCompactionVerification
         File.WriteAllBytes(path, bytes);
     }
 
+    /// <summary>Rewrites the compact manifest through <paramref name="change"/>.</summary>
     private static void RewriteManifest(string directory, Func<CompactReplayTraceManifest, CompactReplayTraceManifest> change) =>
         File.WriteAllText(Path.Combine(directory, ReplayTrace.CompactManifestFile),
             JsonSerializer.Serialize(change(ReplayTrace.ReadCompactManifest(directory)), ReplayTrace.ManifestJson));

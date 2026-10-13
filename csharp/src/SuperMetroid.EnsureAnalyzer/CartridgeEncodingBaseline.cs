@@ -13,8 +13,10 @@ namespace SuperMetroid.EnsureAnalyzer;
 /// </summary>
 internal sealed class CartridgeEncodingBaseline
 {
+    /// <summary>Reviewed maximum occurrences keyed by repository path and cartridge encoding rule.</summary>
     private readonly Dictionary<(string Path, string Rule), int> counts;
 
+    /// <summary>Retains the parsed limits and root used to normalize source file paths.</summary>
     private CartridgeEncodingBaseline(string repositoryRoot, Dictionary<(string Path, string Rule), int> counts)
     {
         RepositoryRoot = repositoryRoot;

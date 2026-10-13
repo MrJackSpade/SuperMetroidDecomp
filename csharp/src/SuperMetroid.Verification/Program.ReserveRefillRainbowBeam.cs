@@ -13,6 +13,7 @@ using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
+/// <summary>Checks that automatic reserve recovery does not release Samus from Mother Brain's rainbow beam.</summary>
 internal static class ReserveRefillRainbowBeamVerification
 {
     /// <summary>
@@ -44,6 +45,7 @@ internal static class ReserveRefillRainbowBeamVerification
         Console.WriteLine("  Reserve refill under the rainbow beam: the beam's lock survives the refill.");
     }
 
+    /// <summary>Runs the focused 13% movie reserve-refill and rainbow-beam handler check.</summary>
     [VerificationCommand("--reserve-refill-rainbow-beam")]
     internal static int ReserveRefillRainbowBeamCommand()
     {

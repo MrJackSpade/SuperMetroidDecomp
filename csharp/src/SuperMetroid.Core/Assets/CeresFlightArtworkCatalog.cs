@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresFlightArtworkCatalog
 {
+    /// <summary>Retains compiled DMA bytes and selected palette, OAM, and actor resources.</summary>
     private CeresFlightArtworkCatalog(byte[] mode7Characters, byte[] mode7Maps,
         byte[] objectCharacters, CeresFlightPalette palette,
         CeresFlightSpritePresentation sprites, CeresFlightActorLayout actors)
@@ -109,6 +110,7 @@ public sealed class CeresFlightArtworkCatalog
         json.Write(bytes);
     }
 
+    /// <summary>Requires two complete 32-by-24 tile-index views before compiling their upload bytes.</summary>
     private static CeresFlightMapDocument ReadMap(Stream json)
     {
         CeresFlightMapDocument document;

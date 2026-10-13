@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Frontend;
 /// Tile words select the high-priority BG plane; no per-letter layout table.</summary>
 internal static class SpaceColonyCaptionDefinitions
 {
+    /// <summary>Native English caption; its one space occupies a cell but has no drawing operation.</summary>
     private const string Text = "SPACE COLONY";
+    /// <summary>Counts the visible glyph operations after omitting the caption's space.</summary>
     internal static int LetterCount => Text.Length - 1;
 
+    /// <summary>Places a visible glyph from column ten, skipping the undrawn space cell.</summary>
     internal static (int Column, ushort Tile) Letter(int index)
     {
         if ((uint)index >= LetterCount) throw new ArgumentOutOfRangeException(nameof(index));

@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(RinkaInstructionProgramDefinitions))]
 internal abstract class RinkaInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Bounds presentation operands in the ordinary and alternate Rinka lists.</summary>
     public static int PresentationWordCount => RinkaInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates a Rinka pose operand without treating it as an instruction.</summary>
     public static ushort PresentationWordAddress(int index) => RinkaInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Accounts for setup, pose, and trailing commands in one Rinka list.</summary>
     internal const int WordsPerList = 3 + RinkaInstructionProgramDefinitions.PoseCount + 2;
+    /// <summary>Covers both Rinka lists with the same mechanic-word layout.</summary>
     public static int MechanicsWordCount => 2 * WordsPerList;
+    /// <summary>Locates a mechanic word within one of the two Rinka animation lists.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -26,6 +31,7 @@ internal abstract class RinkaInstructionProgramDefinitionsTooling : IInstruction
         ushort address = (ushort)(RinkaInstructionProgramDefinitions.OrdinaryInitial + index / WordsPerList * RinkaInstructionProgramDefinitions.ListBytes + offset);
         return new(address, RinkaInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Rejects presentation offsets while checking aligned command bytes in bank A2.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000) return false;

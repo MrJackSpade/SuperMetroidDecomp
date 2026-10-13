@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable ordinary beam colors; selection and charge/Hyper animation remain engine-owned.</summary>
 public sealed class BeamPaletteCatalog
 {
-    // Reviewed exact material paint and copied target metadata have bounded dispositions;
-    // every stock output calculates, while independently supplied words stay exact.
+    /// <summary>Only selected RGB5 words that differ from calculated stock beam paint.</summary>
     internal readonly Dictionary<int, Bgr555> palettes = new();
+    /// <summary>Stores independently edited colors while deriving unchanged words from stock paint.</summary>
     internal BeamPaletteCatalog(Bgr555[][] rows)
     {
         for (int index = 0; index < rows.Length; index++)
@@ -19,9 +19,11 @@ public sealed class BeamPaletteCatalog
                 palettes.Add(index * BeamPaletteDefinitions.ColorCount + color, rows[index][color]);
     }
 
+    /// <summary>Gets an edited beam color when supplied, otherwise its calculated stock value.</summary>
     private Bgr555 Color(SamusBeamCombination selection, int color) =>
         palettes.TryGetValue(selection.TableIndex * BeamPaletteDefinitions.ColorCount + color, out Bgr555 supplied)
             ? supplied : BeamPaintDefinitions.Color(selection, color);
+    /// <summary>Strict camel-case JSON settings shared by beam palette loading and writing.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -84,6 +86,7 @@ public sealed class BeamPaletteCatalog
         return bytes;
     }
 
+    /// <summary>Rejects repeated property names before JSON deserialization can overwrite a color selection.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate beam palette property."));

@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the ten intro scientist OAM records against their contiguous retail source chain.</summary>
 internal static class IntroScientistFrameCatalogVerification
 {
+    /// <summary>Verifies native record strides, part counts, names, the final caret alias, and catalog bounds.</summary>
     internal static void VerifyIntroScientistFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["examined-loop-1", "examined-loop-2", "examined-loop-3",
@@ -29,6 +31,7 @@ internal static class IntroScientistFrameCatalogVerification
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "scientist catalog enumeration agrees with indexing");
     }
 
+    /// <summary>Reads a source byte for the native scientist record-chain comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro scientist frame catalog")]
     private static byte IntroScientistFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

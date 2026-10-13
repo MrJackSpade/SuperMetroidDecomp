@@ -2,6 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SamusMovementRomDataVerification;
 
+/// <summary>
+/// Audits named Samus palette table spans and their shared destinations against the
+/// retail ROM when it is available.
+/// </summary>
 internal static class SamusPaletteRomDataVerification
 {
     /// <summary>

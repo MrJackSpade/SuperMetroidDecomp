@@ -6,8 +6,10 @@ using SuperMetroid.Rendering.Direct3D11;
 
 using static DesktopVerificationSupport;
 
+/// <summary>Checks desktop shutdown while debugger restore or restart waits on GPU presentation.</summary>
 internal static class CloseDuringLoadTests
 {
+    /// <summary>Holds a renderer presentation gate, closes the form during the pending load, and confirms no late game replacement or GPU worker fault.</summary>
     internal static async Task VerifyCloseDuringLoad(bool restart)
     {
         using var directoryScratch = new TestScratchDirectory("desktop-renderer");

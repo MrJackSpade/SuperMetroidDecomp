@@ -3,8 +3,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MenuFontEvidenceVerification;
 
+/// <summary>Checks small menu glyph silhouettes, reviewed B/K shadow edits,
+/// and faithful native VRAM reconstruction from editable pixels.</summary>
 internal static class MenuSmallFontPixelsVerification
 {
+    /// <summary>Compares every small-font pixel with bank-$B6 tiles and checks
+    /// isolated and full-sheet edits preserve adjacent glyph boundaries.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu small font pixels")]
     internal static void VerifyMenuSmallFontPixels(ISnesAddressSpace rom)

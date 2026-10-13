@@ -44,7 +44,9 @@ internal abstract class PowampInstructionProgramDefinitions
     /// <summary>$A8:C183..C19E: each balloon transition has three frame controls and Sleep.</summary>
     private const int BalloonMechanicsCount = FramesPerProgram + 1;
 
+    /// <summary>Counts the control words in both body loops and both balloon transitions.</summary>
     public static int MechanicsWordCount => 2 * (BodyMechanicsCount + BalloonMechanicsCount);
+    /// <summary>Counts the three artwork selections in each of four programs.</summary>
     public static int PresentationWordCount => 4 * FramesPerProgram;
 
     /// <summary>Native ordered controls calculated from the two loop programs followed by the two sleeping transitions.</summary>
@@ -75,6 +77,7 @@ internal abstract class PowampInstructionProgramDefinitions
         ? (ushort)(BodyFast + group * (FramesPerProgram * 4 + 4))
         : (ushort)(BalloonInflate0 + (group - 2) * (FramesPerProgram * 4 + 2));
 
+    /// <summary>Resolves a compiled Powamp control address and rejects addresses outside its mechanics words.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

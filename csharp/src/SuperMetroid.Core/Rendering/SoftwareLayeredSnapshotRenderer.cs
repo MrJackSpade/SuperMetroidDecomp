@@ -199,6 +199,7 @@ public static class SoftwareLayeredSnapshotRenderer
         return output;
     }
 
+    /// <summary>Samples a 2bpp or 4bpp subscreen, applying captured per-scanline scrolls when present.</summary>
     private static Rgba32[] SampleSubscreen(SoftwarePpuSnapshotMemory memory, RenderScratch scratch,
         BgSubscreenAddRenderLayer layer, bool? priority)
     {
@@ -216,6 +217,7 @@ public static class SoftwareLayeredSnapshotRenderer
                 unchecked((byte)(x + layer.Scrolls[y].X))];
         return result;
     }
+    /// <summary>Adds a five-bit fixed-color component to an RGBA channel with SNES-style saturation.</summary>
     private static byte AddFixed(byte component, byte addend)
     {
         int reduced = (component * 31 + 127) / 255;
@@ -223,6 +225,7 @@ public static class SoftwareLayeredSnapshotRenderer
         return (byte)((sum << 3) | (sum >> 2));
     }
 
+    /// <summary>Subtracts five-bit subscreen color from main color and clamps at black.</summary>
     private static byte Subtract(byte main, byte sub)
     {
         int difference = Math.Max(0, (main >> 3) - (sub >> 3));

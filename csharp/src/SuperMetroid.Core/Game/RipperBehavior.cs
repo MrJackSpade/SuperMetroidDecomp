@@ -6,21 +6,27 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Ripper species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class RipperBehavior : IEnemySpecies
 {
+    /// <summary>Resolves horizontal wall collisions for all three Ripper variants.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Shares room collision behavior across ordinary Ripper, GRipper, and Ripper II AI.</summary>
     internal RipperBehavior(EnemyTerrain terrain)
     {
         _terrain = terrain;
     }
 
 
+    /// <summary>GRipper's population-defined left patrol endpoint, indexed by enemy slot.</summary>
     private readonly ushort[] _ripperVariantMinimumXPositions =
         new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>GRipper's population-defined right patrol endpoint, indexed by enemy slot.</summary>
     private readonly ushort[] _ripperVariantMaximumXPositions =
         new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Per-slot speed and patrol state for GRipper and Ripper II.</summary>
     private readonly RipperVariantEnemyState?[] _ripperVariantStates =
         new RipperVariantEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
+    /// <summary>Clears variant patrol endpoints and AI state before loading another room.</summary>
     internal void ResetRipperVariantRoomState()
     {
         Array.Clear(_ripperVariantMinimumXPositions);
@@ -156,6 +162,7 @@ internal sealed class RipperBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
     }
 
+    /// <summary>Loads the signed whole and fractional velocity pair from the shared eight-byte speed record.</summary>
     internal static void LoadRipperVelocity(RoomEnemySlot slot, bool movingRight)
     {
         var velocity = EnemyLinearSpeedDefinitions.Read(slot.VariableE + (movingRight ? 0 : 4));
@@ -177,6 +184,7 @@ internal sealed class RipperBehavior : IEnemySpecies
             : RipperInstructionProgramDefinitions.FrozenFacingRightSpritemap;
     }
 
+    /// <summary>Binds a variant slot to its per-room patrol arrays and retains its AI state.</summary>
     private RipperVariantEnemyState CreateRipperVariantState(RoomEnemySlot slot)
     {
         var state = new RipperVariantEnemyState(
@@ -187,6 +195,7 @@ internal sealed class RipperBehavior : IEnemySpecies
         return state;
     }
 
+    /// <summary>Rejects movement outside a loaded collision allocation.</summary>
     private static void RequireRipperTerrain(RoomLevelData? level, string species)
     {
         if (level is null)
@@ -196,6 +205,7 @@ internal sealed class RipperBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Flips a GRipper or Ripper II speed pair and restarts the corresponding animation list.</summary>
     internal static void ReverseRipperVariant(
         RoomEnemySlot slot,
         ushort positiveInstruction,
@@ -208,6 +218,7 @@ internal sealed class RipperBehavior : IEnemySpecies
             wasMovingNegative ? positiveInstruction : negativeInstruction);
     }
 
+    /// <summary>Installs a movement list from its first instruction on the next enemy frame.</summary>
     private static void SetRipperInstructionList(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -215,10 +226,12 @@ internal sealed class RipperBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
     }
 
+    /// <summary>Requires variant initialization before dispatching GRipper or Ripper II main AI.</summary>
     private RipperVariantEnemyState RequireRipperVariantState(RoomEnemySlot slot) =>
         _ripperVariantStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized GRipper/Ripper II state.");
 
+    /// <summary>Preserves the direction-specific frozen map after common bomb reactions.</summary>
     internal static void RegisterRipperBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
@@ -228,6 +241,7 @@ internal sealed class RipperBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Connects each Ripper definition to its own native initialization routine.</summary>
     internal void RegisterRipperInitializationAi(EnemyAiTable table)
     {
 
@@ -247,6 +261,7 @@ internal sealed class RipperBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Dispatches each Ripper variant's frame to its movement and reversal logic.</summary>
     internal void RegisterRipperMainAi(EnemyAiTable table)
     {
 
@@ -266,6 +281,7 @@ internal sealed class RipperBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Pins GRipper and Ripper II frozen visuals after accepted shot reactions.</summary>
     internal static void RegisterRipperShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&

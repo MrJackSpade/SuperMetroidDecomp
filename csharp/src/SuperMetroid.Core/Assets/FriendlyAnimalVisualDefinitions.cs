@@ -21,19 +21,24 @@ internal static class FriendlyAnimalVisualDefinitions
     /// <summary>Twelve selected rescue Dachora compositions at $B3:EB1B..ED3E.</summary>
     internal const int EscapeDachoraFrameCount = 12;
 
+    /// <summary>Collects the Etecoon pose operands selected by its ordinary animation program.</summary>
     internal static ushort[] EtecoonOperands() => Enumerable.Range(0,
         EtecoonInstructionProgramDefinitions.PresentationWordCount)
         .Select(EtecoonInstructionProgramDefinitions.PresentationWordAddress).ToArray();
+    /// <summary>Collects Dachora's body and echo pose operands from its ordinary program.</summary>
     internal static ushort[] DachoraOperands() => Enumerable.Range(0,
         DachoraInstructionProgramDefinitions.PresentationWordCount)
         .Select(DachoraInstructionProgramDefinitions.PresentationWordAddress).ToArray();
+    /// <summary>Collects rescue-sequence Etecoon pose operands from the escape program.</summary>
     internal static ushort[] EscapeEtecoonOperands() => Enumerable.Range(0,
         EscapeEtecoonInstructionProgramDefinitions.PresentationWordCount)
         .Select(EscapeEtecoonInstructionProgramDefinitions.PresentationWordAddress).ToArray();
+    /// <summary>Collects rescue-sequence Dachora pose operands from the escape program.</summary>
     internal static ushort[] EscapeDachoraOperands() => Enumerable.Range(0,
         EscapeDachoraInstructionProgramDefinitions.PresentationWordCount)
         .Select(EscapeDachoraInstructionProgramDefinitions.PresentationWordAddress).ToArray();
 
+    /// <summary>Compiles the four animal frame groups with their respective native sprite banks.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         .. CompiledEnemyCompositionDefinitions.Frames(NormalBank, EtecoonOperands(),

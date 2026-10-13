@@ -8,8 +8,10 @@ using SuperMetroid.Core.Rom;
 using static EndingMode7ArtworkVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Checks installed and edited reward-icon artwork through native partial VRAM uploads and the ending shot.</summary>
 internal static class EndingRewardIconArtworkVerification
 {
+    /// <summary>Compares retail pixels and VRAM, then checks map and PNG override rebinds during the landing upload.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for reward icon Mode-7 characters")]
     internal static void VerifyEndingRewardIconArtwork(GameInstallation installation)

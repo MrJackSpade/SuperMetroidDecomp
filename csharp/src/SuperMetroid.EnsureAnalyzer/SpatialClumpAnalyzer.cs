@@ -24,6 +24,7 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
     /// <summary>A spatial value is rebuilt component by component where a whole-value operation exists.</summary>
     public const string ComponentArithmeticId = "SME6283";
 
+    /// <summary>Warns when matched axes are stored in parallel index-aligned collections.</summary>
     private static readonly DiagnosticDescriptor CollectionClumpRule = new(
         CollectionClumpId,
         "Spatial values stored as parallel collections",
@@ -34,6 +35,7 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
         description: "Parallel X/Y (or width/height, horizontal/vertical) arrays or lists indexed by the same element must be one " +
             "collection of spatial values unless a measured data-oriented layout is encapsulated behind [SpatialComponents].");
 
+    /// <summary>Warns when a same-type spatial operator is rebuilt from separate axis arithmetic.</summary>
     private static readonly DiagnosticDescriptor ComponentArithmeticRule = new(
         ComponentArithmeticId,
         "Spatial value rebuilt component by component",
@@ -47,6 +49,7 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
     /// <summary>Marks an approved spatial value type or a narrow storage/hardware adapter.</summary>
     public const string SpatialComponentsAttributeName = "SpatialComponentsAttribute";
 
+    /// <summary>Warns when one type declares separate scalar members for a single spatial value.</summary>
     private static readonly DiagnosticDescriptor MemberClumpRule = new(
         MemberClumpId,
         "Spatial value stored as parallel components",
@@ -57,6 +60,7 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
         description: "Paired X/Y, width/height or horizontal/vertical members form one location, vector or size and must be one typed value. " +
             "Spatial value types and exact storage/hardware adapters declare [SpatialComponents].");
 
+    /// <summary>Warns when adjacent parameters carry matching scalar axes.</summary>
     private static readonly DiagnosticDescriptor ParameterClumpRule = new(
         ParameterClumpId,
         "Spatial value passed as parallel parameters",
@@ -67,6 +71,7 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
         description: "A signature that conceptually accepts one location, vector or size must take one typed value. " +
             "Spatial value types and exact storage/hardware adapters declare [SpatialComponents].");
 
+    /// <summary>The axis-name pairs recognized at identifier word boundaries.</summary>
     private static readonly (string First, string Second, string Axis)[] AxisPairs =
     [
         ("X", "Y", "X/Y"),
@@ -88,6 +93,7 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
         context.RegisterOperationAction(AnalyzeConstruction, OperationKind.ObjectCreation);
     }
 
+    /// <summary>Detects a two-axis constructor that duplicates addition or subtraction of whole spatial values.</summary>
     private static void AnalyzeConstruction(OperationAnalysisContext context)
     {
         var creation = (IObjectCreationOperation)context.Operation;
@@ -120,9 +126,11 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
             ? instance.Syntax.ToString()
             : null;
 
+    /// <summary>Identifies the owner type of an axis property read after removing implicit conversions.</summary>
     private static ITypeSymbol? ReceiverType(IOperation operand) =>
         Unwrap(operand) is IPropertyReferenceOperation { Instance: { } instance } ? instance.Type : null;
 
+    /// <summary>Peels conversion operations so axis matching sees the underlying property read.</summary>
     private static IOperation Unwrap(IOperation operation)
     {
         while (operation is IConversionOperation conversion)
@@ -130,11 +138,13 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
         return operation;
     }
 
+    /// <summary>Recognizes approved spatial value structs with both X and Y members.</summary>
     private static bool IsSpatialValueType(INamedTypeSymbol type) =>
         type.IsValueType && type.GetAttributes().Any(attribute =>
             attribute.AttributeClass?.Name == SpatialComponentsAttributeName) &&
         type.GetMembers("X").Any() && type.GetMembers("Y").Any();
 
+    /// <summary>Checks source-defined members for matching scalar axes and parallel collections.</summary>
     private static void AnalyzeType(SymbolAnalysisContext context)
     {
         var type = (INamedTypeSymbol)context.Symbol;
@@ -154,6 +164,7 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
         ReportPairs(context, type, collections, CollectionClumpRule);
     }
 
+    /// <summary>Reports each matching pair once when axis names, types, and static ownership agree.</summary>
     private static void ReportPairs(SymbolAnalysisContext context, INamedTypeSymbol type,
         (ISymbol Member, ITypeSymbol? Type)[] members, DiagnosticDescriptor rule)
     {
@@ -181,6 +192,7 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>Checks eligible signatures for adjacent parameters that carry one spatial value.</summary>
     private static void AnalyzeMethod(SymbolAnalysisContext context)
     {
         var method = (IMethodSymbol)context.Symbol;
@@ -253,6 +265,7 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
         return element is not null && IsScalar(element) ? type : null;
     }
 
+    /// <summary>Extracts primitive numeric field or property types eligible for axis pairing.</summary>
     private static ITypeSymbol? ScalarType(ISymbol member) => member switch
     {
         IFieldSymbol { IsConst: false } field when IsScalar(field.Type) => field.Type,
@@ -260,11 +273,13 @@ public sealed class SpatialClumpAnalyzer : DiagnosticAnalyzer
         _ => null,
     };
 
+    /// <summary>Limits spatial clump detection to primitive numeric components.</summary>
     private static bool IsScalar(ITypeSymbol type) => type.SpecialType is
         SpecialType.System_Byte or SpecialType.System_SByte or SpecialType.System_Int16 or SpecialType.System_UInt16 or
         SpecialType.System_Int32 or SpecialType.System_UInt32 or SpecialType.System_Int64 or SpecialType.System_UInt64 or
         SpecialType.System_Single or SpecialType.System_Double or SpecialType.System_Decimal;
 
+    /// <summary>Honors a spatial-components annotation on the symbol or an enclosing type.</summary>
     private static bool IsExempt(ISymbol symbol)
     {
         for (ISymbol? current = symbol; current is not null; current = current.ContainingType)

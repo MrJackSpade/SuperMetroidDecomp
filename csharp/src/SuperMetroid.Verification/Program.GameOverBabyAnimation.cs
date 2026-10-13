@@ -3,8 +3,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks game-over Baby animation records, cry commands, and pointer domain against native data.</summary>
 internal static class GameOverBabyAnimationVerification
 {
+    /// <summary>Traverses the serialized stream independently and compares 60 frame records and library-three sound handoffs.</summary>
     internal static void VerifyGameOverBabyAnimation(ISnesAddressSpace rom)
     {
         // Walk the original serialized stream; neither record count nor group lengths
@@ -70,6 +72,7 @@ internal static class GameOverBabyAnimationVerification
         }
     }
 
+    /// <summary>Reads one native animation byte solely as the game-over Baby oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for game over Baby animation")]
     private static byte GameOverBabyAnimationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

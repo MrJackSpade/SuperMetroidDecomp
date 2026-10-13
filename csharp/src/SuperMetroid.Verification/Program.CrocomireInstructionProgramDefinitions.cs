@@ -16,16 +16,20 @@ using static ImportedSpritemapsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Crocomire body and skeleton programs against bank $A4 and a retail room fixture.</summary>
 internal static class CrocomireInstructionProgramDefinitionsVerification
 {
+    /// <summary>Native Crocomire room used to exercise the installed enemy instruction runner.</summary>
     private const ushort CrocomireInstructionAuditRoom = 0xa98d;
 
+    /// <summary>Loads the pinned cartridge and runs the Crocomire instruction comparison.</summary>
     internal static void VerifyCrocomireInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCrocomireInstructionProgramDefinitions), () => VerifyCrocomireInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks native mechanics words and all executed body/skeleton visual selectors with runtime reads guarded.</summary>
     internal static void VerifyCrocomireInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -121,6 +125,7 @@ internal static class CrocomireInstructionProgramDefinitionsVerification
             "with runtime reads forbidden.");
     }
 
+    /// <summary>Repeats warmed body-program lookups for the caller's allocation measurement.</summary>
     private static int ProbeCrocomireInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -134,12 +139,14 @@ internal static class CrocomireInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids compiled mechanics rereads and observes native spritemap operand access.</summary>
     private static CartridgeReadGuard NewCrocomireInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(CrocomireInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Crocomire mechanics byte ${address:X6}.")
             .ObserveWords(0xa40000, CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount, CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Dispatches the Crocomire instruction mechanics verification command.</summary>
     [VerificationCommand("--crocomire-instruction-mechanics")]
     internal static int CrocomireInstructionMechanicsCommand()
     {

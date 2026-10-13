@@ -84,6 +84,7 @@ public static class SamusProjectileDirections
 /// <summary>A lossless view over Samus's native equipped-beam word.</summary>
 public readonly record struct SamusBeamLoadoutWord(ushort Raw)
 {
+    /// <summary>Native defensive checks index by all twelve low equipped-beam bits.</summary>
     private const ushort NativeConfigurationMask = 0x0fff;
 
     /// <summary>
@@ -122,19 +123,24 @@ public readonly record struct SamusBeamLoadoutWord(ushort Raw)
 /// <summary>A lossless view over one native projectile type/family word.</summary>
 public readonly record struct SamusProjectileTypeWord(ushort Raw)
 {
+    /// <summary>Beam equipment combination carried by the projectile's four low bits.</summary>
     private const ushort BeamCombinationMask = 0x000f;
+    /// <summary>Native marker distinguishing a charged beam from an ordinary beam payload.</summary>
     private const ushort ChargedBeamMarker = 0x0010;
+    /// <summary>Four-bit projectile family in native bits 8 through 11.</summary>
     private const ushort FamilyMask = 0x0f00;
+    /// <summary>High-bit marker installed for active projectiles and resident PLM triggers.</summary>
     internal const ushort LiveMarker = 0x8000;
+    /// <summary>Payload bits retained when a projectile becomes a resident PLM trigger.</summary>
     private const ushort ResidentPlmPayloadMask = 0x1fff;
 
-    /// <summary>Gets the low-nibble beam combination; all sixteen values are defined.</summary>
+    /// <summary>Low-nibble beam combination; all sixteen values are defined.</summary>
     public SamusBeamCombination BeamCombination => (SamusBeamCombination)(Raw & BeamCombinationMask);
-    /// <summary>Gets the raw projectile-family nibble in its native bit position.</summary>
+    /// <summary>Raw projectile-family nibble in its native bit position.</summary>
     public ushort FamilyValue => (ushort)(Raw & FamilyMask);
-    /// <summary>Gets the named projectile family represented by the family nibble.</summary>
+    /// <summary>Named projectile family represented by the family nibble.</summary>
     public SamusProjectileFamily Family => (SamusProjectileFamily)FamilyValue;
-    /// <summary>Gets whether the native charged-beam marker is set.</summary>
+    /// <summary>Whether the native charged-beam marker is set.</summary>
     public bool IsChargedBeam => (Raw & ChargedBeamMarker) != 0;
 
     /// <summary>Tests whether the family nibble exactly matches the requested family.</summary>
@@ -178,7 +184,9 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
 /// <summary>A lossless view over one native projectile direction/lifecycle word.</summary>
 public readonly record struct SamusProjectileDirectionWord(ushort Raw)
 {
+    /// <summary>Four-bit direction-table index retained alongside lifecycle state.</summary>
     private const ushort DirectionMask = 0x000f;
+    /// <summary>Low-byte state that blocks the ordinary projectile movement path.</summary>
     private const ushort LowByteLifecycleMask = 0x00f0;
 
     /// <summary>
@@ -187,9 +195,9 @@ public readonly record struct SamusProjectileDirectionWord(ushort Raw)
     /// </summary>
     private const ushort CollisionLifecycleState = 0x0010;
 
-    /// <summary>Gets the low-nibble native direction-table index.</summary>
+    /// <summary>Low-nibble native direction-table index.</summary>
     public byte DirectionIndex => (byte)(Raw & DirectionMask);
-    /// <summary>Gets the named direction represented by the low nibble.</summary>
+    /// <summary>Named direction represented by the low nibble.</summary>
     public SamusProjectileDirection Direction => (SamusProjectileDirection)DirectionIndex;
 
     /// <summary>

@@ -15,8 +15,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Draygon intro latency and movement definitions against ROM and the full Evir trajectory.</summary>
 internal static class DraygonIntroDanceDefinitionsVerification
 {
+    /// <summary>Runs latency, movement, and complete production trajectory comparisons.</summary>
     internal static void VerifyDraygonIntroDanceDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDraygonIntroLatencyDefinitions), () => VerifyDraygonIntroLatencyDefinitions(rom));
@@ -29,6 +31,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             "production trajectory passes with migrated ROM reads forbidden.");
     }
 
+    /// <summary>Compares all four Evir slot delays with native words and checks slot bounds.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro latency definitions")]
     internal static void VerifyDraygonIntroLatencyDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -50,6 +53,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         Console.WriteLine("Evir latency algorithm: all four signed native delays and slot bounds match.");
     }
 
+    /// <summary>Compares reachable motion deltas and rejection of unaligned or out-of-range stream indices.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro movement definitions")]
     internal static void VerifyDraygonIntroMovementDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -80,6 +84,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             "Draygon intro rejects a restored stream index beyond the compiled route");
     }
 
+    /// <summary>Checks that the two native sentinel records delete sprites at the authored aligned offsets.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro delete selection")]
     private static void VerifyDraygonIntroDeleteSelection(SuperMetroidAddressSpace rom)
     {
@@ -98,6 +103,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
                 "Draygon command selection preserves alignment and outer bounds");
     }
 
+    /// <summary>Compares every Evir slot's position and lifetime across the full intro, including the fight handoff.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for complete Draygon intro trajectory")]
     private static void VerifyCompleteDraygonIntroTrajectory(SuperMetroidAddressSpace rom)
     {
@@ -199,6 +205,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             "Production Draygon intro rejects malformed restored movement without a ROM fallback");
     }
 
+    /// <summary>Rejects runtime reads from the compiled Evir latency and movement ranges.</summary>
     private static CartridgeReadGuard NewDraygonIntroDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -208,6 +215,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
                         DraygonIntroDanceDefinitions.LastMovementStreamOffset + 1,
                 address => $"Draygon intro attempted migrated definition read ${address:X6}.");
 
+    /// <summary>Runs the Draygon intro dance suite through the verification command dispatcher.</summary>
     [VerificationCommand("--draygon-intro-dance-definitions")]
     internal static int DraygonIntroDanceDefinitionsCommand()
     {

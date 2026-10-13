@@ -16,6 +16,7 @@ internal static class SmallExplosionAnimationDefinitions
     /// <summary>$86:E14C/ED7F, Common_SmallExplosion_5/EnemyDeathExplosion_5: tile group $96 holds the final fading pose before termination.</summary>
     private const ushort FinalFadeDuration = 6;
 
+    /// <summary>Applies the shared 4/6/5/5/5/6 tick cadence and rejects frames outside the six authored poses.</summary>
     internal static ushort Duration(int frame) => frame switch
     {
         0 => IgnitionDuration,

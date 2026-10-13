@@ -15,6 +15,7 @@ internal abstract class NativeCheckpointRecords : IDisposable
     /// <summary>Bytes before each record's WRAM: little-endian source-frame and boundary-PC words.</summary>
     public const int HeaderBytes = 2 * sizeof(int);
 
+    /// <summary>Index of the last record read, or -1 before the first.</summary>
     private int lastRecord = -1;
 
     /// <summary>
@@ -58,8 +59,11 @@ internal abstract class NativeCheckpointRecords : IDisposable
 /// </summary>
 internal sealed class FullCheckpointRecords : NativeCheckpointRecords
 {
+    /// <summary>The capture file this reader owns.</summary>
     private readonly FileStream file;
+    /// <summary>Decompressing view over the capture file.</summary>
     private readonly GZipStream trace;
+    /// <summary>Reused storage for one header and complete WRAM image.</summary>
     private readonly byte[] record = new byte[HeaderBytes + ReplayTraceMemoryCatalog.WorkRamByteCount];
 
     /// <summary>Reads records from an open capture file, which this reader owns.</summary>
@@ -99,14 +103,23 @@ internal sealed class FullCheckpointRecords : NativeCheckpointRecords
 /// </summary>
 internal sealed class CompactCheckpointRecords : NativeCheckpointRecords
 {
+    /// <summary>The compact stream this reader owns.</summary>
     private readonly FileStream file;
+    /// <summary>Decompressing view over the compact stream.</summary>
     private readonly GZipStream trace;
+    /// <summary>Ranges each payload holds.</summary>
     private readonly ReplayTraceLayout layout;
+    /// <summary>Records the manifest declares.</summary>
     private readonly int recordCount;
+    /// <summary>Index of the record also stored whole in the initial file.</summary>
     private readonly int initialRecord;
+    /// <summary>The complete initial record returned in place of its payload.</summary>
     private readonly NativeCheckpoint initial;
+    /// <summary>Reused storage for one record header.</summary>
     private readonly byte[] header = new byte[HeaderBytes];
+    /// <summary>Reused storage for one XORed payload.</summary>
     private readonly byte[] delta;
+    /// <summary>The running payload reconstructed from the deltas.</summary>
     private readonly byte[] payload;
 
     /// <summary>Reads records from an open compact stream, which this reader owns.</summary>
@@ -204,6 +217,7 @@ internal sealed class ReplayTrace : IDisposable
     /// <summary>Property naming shared by the manifest writer and reader.</summary>
     internal static readonly JsonSerializerOptions ManifestJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
 
+    /// <summary>Holds a trace's update map, source digest and checkpoint reader.</summary>
     private ReplayTrace(JsonElement updates, string sourceCheckpointsSha256, NativeCheckpointRecords records)
     {
         Updates = updates;
@@ -305,12 +319,14 @@ internal sealed class ReplayTrace : IDisposable
     /// <inheritdoc />
     public void Dispose() => Records.Dispose();
 
+    /// <summary>Requires a trace file to match its manifest digest.</summary>
     private static void RequireHash(string directory, string name, string expected)
     {
         if (HashFile(Path.Combine(directory, name)) != expected)
             throw new InvalidDataException($"{name} in {directory} does not match its compact manifest.");
     }
 
+    /// <summary>Reads the single complete initial record of a compact trace.</summary>
     private static NativeCheckpoint ReadInitialRecord(string path)
     {
         using FileStream file = File.OpenRead(path);
@@ -325,6 +341,7 @@ internal sealed class ReplayTrace : IDisposable
             BinaryPrimitives.ReadInt32LittleEndian(header.AsSpan(sizeof(int))), NativeCheckpointMemory.FromWorkRam(workRam));
     }
 
+    /// <summary>Parses a JSON document and returns a detached copy of its root.</summary>
     private static JsonElement ParseJson(Stream stream)
     {
         using JsonDocument document = JsonDocument.Parse(stream);

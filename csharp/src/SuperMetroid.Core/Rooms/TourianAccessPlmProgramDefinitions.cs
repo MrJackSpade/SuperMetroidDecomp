@@ -39,6 +39,7 @@ internal static class TourianAccessPlmProgramDefinitions
         ClearDelete = Clear + 4,
     }
 
+    /// <summary>Supplies crumble frame durations and draws or the clear-list control words within the two bounded programs.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (Enum.IsDefined((ControlWord)address))
@@ -74,6 +75,7 @@ internal static class TourianAccessPlmProgramDefinitions
         return false;
     }
 
+    /// <summary>Supplies the crumble loop's six-row timer operand at its native byte address.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == Crumble + 2)

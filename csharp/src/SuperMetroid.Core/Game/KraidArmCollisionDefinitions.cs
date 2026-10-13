@@ -7,35 +7,46 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class KraidArmCollisionDefinitions
 {
+    /// <summary>Collision geometry belongs to Kraid arm's bank-$A7 extended frames.</summary>
     internal const byte Bank = 0xa7;
 
+    /// <summary>Articulated offsets for the initial five-component pose; the body remains at the enemy origin.</summary>
     private static readonly Offset16<RoomPixels>[] Phase0 =
         [new(-36, -33), new(-28, -24),
          new(-36, -40), new(-28, -31)];
+    /// <summary>Articulated offsets for the second pose before the arm rises.</summary>
     private static readonly Offset16<RoomPixels>[] Phase1 =
         [new(-38, -33), new(-30, -26),
          new(-36, -40), new(-28, -31)];
+    /// <summary>Articulated offsets for the first outward, raised arm pose.</summary>
     private static readonly Offset16<RoomPixels>[] Phase2 =
         [new(-48, -13), new(-38, -13),
          new(-45, -27), new(-37, -19)];
+    /// <summary>Articulated offsets for the following raised pose with shifted hand and connector.</summary>
     private static readonly Offset16<RoomPixels>[] Phase3 =
         [new(-46, -13), new(-37, -13),
          new(-45, -19), new(-36, -18)];
+    /// <summary>Articulated offsets as the arm lowers beside Kraid's body.</summary>
     private static readonly Offset16<RoomPixels>[] Phase4 =
         [new(-45, 8), new(-38, 2),
          new(-46, 3), new(-39, -3)];
+    /// <summary>Articulated offsets for the next lowered pose, retaining the shared body origin.</summary>
     private static readonly Offset16<RoomPixels>[] Phase5 =
         [new(-44, 8), new(-37, 2),
          new(-46, 4), new(-39, -2)];
+    /// <summary>Articulated offsets near the low pose's stable connector position.</summary>
     private static readonly Offset16<RoomPixels>[] Phase6 =
         [new(-39, 10), new(-38, 0),
          new(-43, 10), new(-41, -2)];
+    /// <summary>Low-pose offsets with the outer connector one pixel above phase six.</summary>
     private static readonly Offset16<RoomPixels>[] Phase7 =
         [new(-39, 10), new(-38, 0),
          new(-43, 9), new(-41, -2)];
+    /// <summary>Repeats phase seven's physical component positions despite distinct frame artwork.</summary>
     private static readonly Offset16<RoomPixels>[] Phase8 =
         [new(-39, 10), new(-38, 0),
          new(-43, 9), new(-41, -2)];
+    /// <summary>Final low-pose offsets shift the two outer components toward one another.</summary>
     private static readonly Offset16<RoomPixels>[] Phase9 =
         [new(-39, 10), new(-38, 0),
          new(-42, 9), new(-42, -2)];
@@ -46,7 +57,9 @@ internal static class KraidArmCollisionDefinitions
     internal const ushort FirstSingleComponentFrame = 0x92a1;
     /// <summary>$A7:92AB, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_1.</summary>
     private const ushort SecondSingleComponentFrame = 0x92ab;
+    /// <summary>Native byte stride of a five-component extended frame, including its count word.</summary>
     internal const int GeneralFrameBytes = 2 + 5 * 8;
+    /// <summary>Ordered physical rectangles; callbacks are calculated separately from the index.</summary>
     private static readonly KraidArmCollisionGeometry[] Geometry =
     [
         new(-13, -11, -3, -5),
@@ -98,6 +111,7 @@ internal static class KraidArmCollisionDefinitions
         return EnemyAiCodePointers.BankA7.KraidArmShot;
     }
 
+    /// <summary>Combines one indexed rectangle's bounds with its arm/background touch and arm-shot callbacks.</summary>
     internal static KraidArmCollisionHitbox Rectangle(int index)
     {
         if ((uint)index >= RectangleCount) throw new IndexOutOfRangeException();
@@ -183,6 +197,7 @@ internal static class KraidArmCollisionDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(SingleComponentFrame)} {(int)frame}."),
     };
 
+    /// <summary>Normalizes either ten-frame artwork group to its shared physical pose and recognizes the two one-component dying frames.</summary>
     internal static bool TryGetComponents(ushort pointer,
         out KraidArmComponentSequence components)
     {
@@ -242,12 +257,14 @@ internal static class KraidArmCollisionDefinitions
 /// <param name="Offset">The component origin relative to Kraid's arm enemy, in room pixels.</param>
 /// <param name="HitboxPointer">The component's bank-$A7 hitbox list.</param>
 internal readonly record struct KraidArmCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
+/// <summary>Signed arm rectangle bounds and native callbacks for touch and shot intersections.</summary>
 internal readonly record struct KraidArmCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
 
 /// <summary>Ordered rectangle view that attaches calculated callbacks without storing them per record.</summary>
 internal readonly record struct KraidArmHitboxSequence(int Start, int Length)
 {
+    /// <summary>Maps an index in a selected hitbox list to its ordered physical rectangle.</summary>
     internal KraidArmCollisionHitbox this[int index]
     {
         get
@@ -256,20 +273,27 @@ internal readonly record struct KraidArmHitboxSequence(int Start, int Length)
             return KraidArmCollisionDefinitions.Rectangle(Start + index);
         }
     }
+    /// <summary>Enumerates a selected list without allocating a rectangle array.</summary>
     public Enumerator GetEnumerator() => new(this);
+    /// <summary>Advances through the selected rectangle slice in native collision order.</summary>
     internal struct Enumerator(KraidArmHitboxSequence sequence)
     {
+        /// <summary>Index of the next rectangle in the selected slice.</summary>
         private int next;
+        /// <summary>Advances while another rectangle remains in the slice.</summary>
         public bool MoveNext() => next++ < sequence.Length;
+        /// <summary>Rectangle selected by the most recent successful advance.</summary>
         public KraidArmCollisionHitbox Current => sequence[next - 1];
     }
 }
 
+/// <summary>Stored physical bounds before touch and shot callbacks are attached.</summary>
 internal readonly record struct KraidArmCollisionGeometry(short Left, short Top, short Right, short Bottom);
 
 /// <summary>Ordered physical component view with calculated hitbox selectors.</summary>
 internal readonly record struct KraidArmComponentSequence(int Pose, int Length)
 {
+    /// <summary>Resolves one component offset and hitbox-list identity for the normalized pose.</summary>
     internal KraidArmCollisionComponent this[int index]
     {
         get
@@ -278,11 +302,16 @@ internal readonly record struct KraidArmComponentSequence(int Pose, int Length)
             return KraidArmCollisionDefinitions.Component(Pose, index);
         }
     }
+    /// <summary>Enumerates the selected physical components without allocating an array.</summary>
     public Enumerator GetEnumerator() => new(this);
+    /// <summary>Advances through the normalized pose's component order.</summary>
     internal struct Enumerator(KraidArmComponentSequence sequence)
     {
+        /// <summary>Index of the next component to resolve.</summary>
         private int next;
+        /// <summary>Advances while another component remains in the pose.</summary>
         public bool MoveNext() => next++ < sequence.Length;
+        /// <summary>Component returned by the most recent successful advance.</summary>
         public KraidArmCollisionComponent Current => sequence[next - 1];
     }
 }

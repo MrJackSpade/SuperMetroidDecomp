@@ -15,14 +15,17 @@ using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks the Eye Door sweat falling loop, floor impact, and projectile deletion against bank 86.</summary>
 internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge to compare Eye Door sweat mechanics and visual operands.</summary>
     internal static void VerifyEyeDoorSweatInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEyeDoorSweatInstructionProgramDefinitions), () => VerifyEyeDoorSweatInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises production spawning, floor-impact handoff, three impact frames, and shared shot deletion.</summary>
     internal static void VerifyEyeDoorSweatInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -165,6 +168,7 @@ internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates falling and impact words repeatedly to expose mechanics lookup allocations.</summary>
     private static int ProbeEyeDoorSweatInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -178,6 +182,7 @@ internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Runs Eye Door sweat instruction checks from the verification command dispatcher.</summary>
     [VerificationCommand("--eye-door-sweat-instruction-mechanics")]
     internal static int EyeDoorSweatInstructionMechanicsCommand()
     {

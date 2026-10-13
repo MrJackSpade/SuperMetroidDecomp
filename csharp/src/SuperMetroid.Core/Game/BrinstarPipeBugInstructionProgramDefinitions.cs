@@ -20,12 +20,15 @@ internal abstract class BrinstarPipeBugInstructionProgramDefinitions
     /// <summary><c>InstList_Zebbo_FacingRight_Shooting</c> at $B3:8A59.</summary>
     internal const ushort StrongShootingRight = 0x8a59;
 
+    /// <summary>Maps the eight normal Zeb and strong Zebbo rise/shoot variants to bank-$B3 list starts.</summary>
     internal static ushort Start(int program) => program < 4
         ? (ushort)(NormalRisingLeft + program / 2 * 64 + program % 2 * 36)
         : (ushort)(StrongRisingLeft + (program - 4) * 20);
 
+    /// <summary>Normal rising lists hold eight frames, normal shooting lists six, and strong variants four.</summary>
     internal static int Frames(int program) => program < 4 ? 8 - 2 * (program & 1) : 4;
 
+    /// <summary>Reads a compiled duration or loop word, rejecting spritemap operands and addresses outside the eight programs.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value)) return value;
@@ -33,6 +36,7 @@ internal abstract class BrinstarPipeBugInstructionProgramDefinitions
             $"Brinstar Pipe Bug instruction mechanics pointer $B3:{address:X4} is not compiled.");
     }
 
+    /// <summary>Recognizes aligned control words in a Zeb or Zebbo program; visual operands and adjacent bytes have no compiled value.</summary>
     internal static bool TryRead(int address, out ushort value)
     {
         for (int program = 0; program < 8; program++)

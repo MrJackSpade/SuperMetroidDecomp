@@ -19,13 +19,38 @@ namespace SuperMetroid.Core.Assets;
 /// inventory's endingGunshipIndependentInkReview.</remarks>
 internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
 {
+    /// <summary>Ordinary stored fade colors after the thirteen final-frame painted inks are separated.</summary>
     private readonly Dictionary<ushort, Bgr555> colors;
-    private readonly Channels highlight, hullLight, hullShadeLight, hullShadeMiddle, hullShadeDark;
-    private readonly Channels deepShadow, blackDetail;
-    private readonly Channels cockpitLight, cockpitMiddle, cockpitDark;
-    private readonly Channels undersideLight, undersideMiddle, undersideDark;
+    /// <summary>Gold highlight inputs with green derived from red minus one.</summary>
+    private readonly Channels highlight;
+    /// <summary>Light hull gold inputs using the same one-step green offset.</summary>
+    private readonly Channels hullLight;
+    /// <summary>First dark hull shade with green derived three steps below red.</summary>
+    private readonly Channels hullShadeLight;
+    /// <summary>Middle hull shade whose default red is rounded from the outer shade reds.</summary>
+    private readonly Channels hullShadeMiddle;
+    /// <summary>Deepest of the three related hull shade inks.</summary>
+    private readonly Channels hullShadeDark;
+    /// <summary>Deep hull shadow with the three-step green offset.</summary>
+    private readonly Channels deepShadow;
+    /// <summary>Black detail ink with independently retained component edits.</summary>
+    private readonly Channels blackDetail;
+    /// <summary>Light cockpit ink supplying the blue-to-green ratio for darker cockpit shades.</summary>
+    private readonly Channels cockpitLight;
+    /// <summary>Middle cockpit ink sharing zero red and a proportional blue target.</summary>
+    private readonly Channels cockpitMiddle;
+    /// <summary>Dark cockpit ink sharing zero red and a proportional blue target.</summary>
+    private readonly Channels cockpitDark;
+    /// <summary>Light underside ink supplying the common blue-minus-red offset.</summary>
+    private readonly Channels undersideLight;
+    /// <summary>Middle underside ink using equal red/green and the shared blue offset.</summary>
+    private readonly Channels undersideMiddle;
+    /// <summary>Dark underside ink using equal red/green and the shared blue offset.</summary>
+    private readonly Channels undersideDark;
+    /// <summary>Blue-minus-red difference selected by the light underside paint.</summary>
     private readonly int undersideBlueOffset;
 
+    /// <summary>Extracts independent channel edits and shared hue relationships from the final gunship palette frame.</summary>
     internal EndingGunshipPaletteInputView(Dictionary<ushort, Bgr555> colors)
     {
         this.colors = colors;
@@ -59,34 +84,49 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
         foreach (EndingGunshipPaletteInk ink in Enum.GetValues<EndingGunshipPaletteInk>()) colors.Remove(Pointer(ink));
     }
 
+    /// <summary>Nullable independent RGB5 components over a calculated gunship ink.</summary>
     private readonly struct Channels
     {
-        internal readonly int? red, green, blue;
+        /// <summary>Independent red component, or null when supplied by a shared rule.</summary>
+        internal readonly int? red;
+        /// <summary>Independent green component, or null when supplied by a shared rule.</summary>
+        internal readonly int? green;
+        /// <summary>Independent blue component, or null when supplied by a shared rule.</summary>
+        internal readonly int? blue;
+        /// <summary>Retains supplied RGB5 components only where a calculated target does not explain them.</summary>
         internal Channels(Bgr555 supplied, int? expectedRed, int? expectedGreen, int? expectedBlue)
         {
             red = (supplied.Red) == expectedRed ? null : supplied.Red;
             green = (supplied.Green) == expectedGreen ? null : supplied.Green;
             blue = (supplied.Blue) == expectedBlue ? null : supplied.Blue;
         }
+        /// <summary>Selects an authored red component or its calculated shade relationship.</summary>
         internal int Red(int calculated) => red ?? calculated;
+        /// <summary>Selected cockpit green channel, defaulting to black when absent.</summary>
         internal int Green => green ?? 0;
+        /// <summary>Selected cockpit blue channel, defaulting to black when absent.</summary>
         internal int Blue => blue ?? 0;
+        /// <summary>Overlays independent components onto a calculated gold, cockpit, or underside target.</summary>
         internal Bgr555 Apply(int r, int g, int b) => new(red ?? r, green ?? g, blue ?? b);
     }
 
+    /// <summary>Calculates a gold or hull shade's green offset from red before applying independent edits.</summary>
     private static Bgr555 Gold(Channels channels, int red, int greenOffset) =>
         channels.Apply(red, Math.Max(0, red - greenOffset), 0);
+    /// <summary>Derives blue from the light cockpit ink's blue/green proportion.</summary>
     private Bgr555 Cockpit(Channels channels)
     {
         int blue = cockpitLight.Green == 0 ? 0 : Math.Min(31, channels.Green * cockpitLight.Blue / cockpitLight.Green);
         return channels.Apply(0, channels.Green, blue);
     }
+    /// <summary>Uses equal red and green with the common blue offset, clamped to RGB5.</summary>
     private Bgr555 Underside(Channels channels)
     {
         int red = channels.Red(0);
         return channels.Apply(red, red, Math.Clamp(red + undersideBlueOffset, 0, 31));
     }
 
+    /// <summary>Reconstructs thirteen final-frame gunship inks while leaving other fade and non-ink words stored.</summary>
     public bool TryGetValue(ushort pointer, out Bgr555 value)
     {
         // Colors 0, 2 and 15 of the final frame are not inks; they stay stored values.
@@ -117,10 +157,15 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
         return colors.TryGetValue(pointer, out value);
     }
 
+    /// <summary>Finds the native final-frame color address for one selected gunship ink.</summary>
     private static ushort Pointer(EndingGunshipPaletteInk ink) => ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(15, (int)ink);
+    /// <summary>Requires a stored fade color or reconstructed final-frame ink at its native address.</summary>
     public Bgr555 this[ushort key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
+    /// <summary>Includes ordinary stored colors and thirteen reconstructed painted inks.</summary>
     public int Count => colors.Count + 13;
+    /// <summary>Checks membership among ordinary colors and reconstructed final-frame inks.</summary>
     public bool ContainsKey(ushort key) => TryGetValue(key, out _);
+    /// <summary>Enumerates ordinary color addresses followed by the thirteen final-frame inks.</summary>
     public IEnumerable<ushort> Keys
     {
         get
@@ -129,10 +174,13 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
             foreach (EndingGunshipPaletteInk ink in Enum.GetValues<EndingGunshipPaletteInk>()) yield return Pointer(ink);
         }
     }
+    /// <summary>Resolves values in the same stored-then-derived order as <see cref="Keys"/>.</summary>
     public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
+    /// <summary>Enumerates every ordinary or reconstructed gunship color by native pointer.</summary>
     public IEnumerator<KeyValuePair<ushort, Bgr555>> GetEnumerator()
     {
         foreach (ushort key in Keys) yield return new(key, this[key]);
     }
+    /// <summary>Exposes the same gunship color pairs to non-generic consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

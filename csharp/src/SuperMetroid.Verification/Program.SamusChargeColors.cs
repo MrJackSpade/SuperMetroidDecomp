@@ -7,8 +7,10 @@ using static ColorWordsVerification;
 using static DoorDefinitionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks extracted Samus charge palettes, editable overrides, native phase selection, and guarded runtime color updates.</summary>
 internal static class SamusChargeColorsVerification
 {
+    /// <summary>Edits representative charge and Hyper colors, then checks installed identity and CGRAM output without rereading native palette words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus charge palette color words")]
     internal static void VerifySamusChargeColorOverride(string stockDirectory,
@@ -141,6 +143,7 @@ internal static class SamusChargeColorsVerification
         }
     }
 
+    /// <summary>Checks all suit and charge phases against ROM, including canonical shared pointers and the runtime six-step palette cadence.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus charge color phases")]
     internal static HashSet<int> VerifySamusChargeColorPhases(ISnesAddressSpace rom)
@@ -577,6 +580,7 @@ internal static class SamusChargeColorsVerification
             return ReadVerificationWord(rom, address);
         }
     }
+    /// <summary>Rejects runtime reads from the native palette bytes already checked against extracted charge colors.</summary>
     private static CartridgeReadGuard NewChargeColorReadGuard(ISnesAddressSpace inner, HashSet<int> forbidden) =>
         new CartridgeReadGuard(inner).Forbid(forbidden.Contains,
             address => $"Charge palette reread ${address:X6}.");

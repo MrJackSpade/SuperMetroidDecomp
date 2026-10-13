@@ -18,8 +18,10 @@ using static FrontendVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks attract-scene setup records and compiled input scripts against native data and playback.</summary>
 internal static class AttractDemoSceneVerification
 {
+    /// <summary>Exercises joined room/equipment/setup records, script redirects, and completed-save access to demo set four.</summary>
     internal static void VerifyAttractDemoScene()
     {
         Suite(nameof(VerifyStockAttractScenes), () => VerifyStockAttractScenes());
@@ -86,6 +88,7 @@ internal static class AttractDemoSceneVerification
             throw new InvalidDataException("Incomplete-game save incorrectly unlocked set four.");
     }
 
+    /// <summary>Matches all four compiled demo sets and their sentinels to retail scene records.</summary>
     internal static void VerifyStockAttractScenes()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -111,6 +114,7 @@ internal static class AttractDemoSceneVerification
         Console.WriteLine($"Compiled attract scenes: {total} records and four sentinels match cartridge data.");
     }
 
+    /// <summary>Checks all compiled input commands and runs each scene's production input owner for its displayed duration.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for attract demo command definitions and playback")]
     private static void VerifyAttractCommandDefinitionsAndPlayback(
         ISnesAddressSpace retail,
@@ -201,6 +205,7 @@ internal static class AttractDemoSceneVerification
         }
     }
 
+    /// <summary>Compares each scene's compiled script with the native interpreter through long tails and leave-frame schedules.</summary>
     private static void VerifyCompiledAttractInput(ISnesAddressSpace bus, AttractDemoScene scene)
     {
         // Run well beyond each displayed scene: this also checks script tails that ordinary
@@ -229,12 +234,14 @@ internal static class AttractDemoSceneVerification
             $"{state.PublishedPreviousHeld}/{state.PublishedPreviousNewlyPressed}";
     }
 
+    /// <summary>Runs attract input fixtures and the paired grapple demo trajectory check.</summary>
     [VerificationCommand("--attract-input-fixtures")]
     internal static int AttractInputFixturesCommand()
     {
      VerifyAttractDemoScene(); VerifyGrappleDemoTrajectory(); return 0; 
     }
 
+    /// <summary>Runs the retail-backed stock attract-scene check.</summary>
     [VerificationCommand("--stock-attract-scenes")]
     internal static int StockAttractScenesCommand()
     {

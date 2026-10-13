@@ -37,8 +37,10 @@ internal sealed class DraygonMaterialPaintDefinitions
     /// </summary>
     private const int MagentaBlue = 22,
         RedTargetRed = 18, RedTargetGreen = 4, RedTargetBlue = 6;
+    /// <summary>Selected palette entries whose installed channels differ from calculated stock material paint.</summary>
     internal readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Retains only independently edited entries from the sixteen-color Draygon material palette.</summary>
     internal DraygonMaterialPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         Ensure.LengthEqual(colors, 16);
@@ -46,14 +48,17 @@ internal sealed class DraygonMaterialPaintDefinitions
             if (colors[color] != StockColor(color)) edits.Add(color, colors[color]);
     }
 
+    /// <summary>Uses an installed paint edit when present and otherwise calculates the selected stock material shade.</summary>
     internal Bgr555 Color(int index)
     {
         if ((uint)index >= 16) throw new ArgumentOutOfRangeException(nameof(index));
         return edits.TryGetValue(index, out Bgr555 edited) ? edited : StockColor(index);
     }
 
+    /// <summary>Copied clear-slot target with its independent blue channel.</summary>
     internal static Bgr555 ClearTarget => Pack(0, 0, ClearBlue);
 
+    /// <summary>Combines carapace ramps, eye paint, and the separately owned healthy belly shades.</summary>
     private static Bgr555 StockColor(int color)
     {
         if (color is >= 5 and <= 8)
@@ -77,5 +82,6 @@ internal sealed class DraygonMaterialPaintDefinitions
         };
     }
 
+    /// <summary>Forms the five-bit RGB channels calculated for one Draygon material entry.</summary>
     private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

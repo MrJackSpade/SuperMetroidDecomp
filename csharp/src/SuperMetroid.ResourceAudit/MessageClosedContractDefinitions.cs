@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Closed message-family resource ownership, not a promise that every family owns every message.</summary>
 internal static class MessageClosedContractDefinitions
 {
+    /// <summary>Source files shared by title, panel, and notice glyph ownership checks.</summary>
     private static readonly ReviewedSource[] SharedGlyphSources =
     [
         new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs"),
@@ -11,6 +12,7 @@ internal static class MessageClosedContractDefinitions
         new("csharp/src/SuperMetroid.Core/Game/GameplayMessageIds.cs"),
     ];
 
+    /// <summary>Closed title, panel, and notice source sets, each checked only for the message IDs it owns.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.GameplayMessageTitlePresentation", "message-titles-v1-complete-owned-id-set",

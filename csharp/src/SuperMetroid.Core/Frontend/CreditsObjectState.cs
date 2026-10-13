@@ -13,24 +13,35 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class CreditsObjectState
 {
+    /// <summary>Installed credits rows; this reference is rebound after debugger state restoration.</summary>
     [NonSerialized] private CreditsPresentation? presentation;
+    /// <summary>Thirty-two-row circular BG1 staging map updated one source row at a time.</summary>
     internal readonly ushort[] tilemap =
         new ushort[EndingCreditsRomData.Rendering.TilemapWords];
+    /// <summary>Fractional half-pixel scroll accumulated between whole-pixel advances.</summary>
     private ushort scrollSubposition;
+    /// <summary>Last whole scroll position that caused a source row to be copied.</summary>
     private ushort previousCopiedScroll;
+    /// <summary>Next circular tilemap row to overwrite.</summary>
     internal int destinationRow;
+    /// <summary>Next installed credits row to consume.</summary>
     private int sourceRow;
 
+    /// <summary>Initializes the scrolling object with installed text and a blank BG1 staging map.</summary>
     public CreditsObjectState(CreditsPresentation presentation)
     {
         this.presentation = Ensure.NotNull(presentation);
         Array.Fill(tilemap, EndingCreditsRomData.Rendering.BlankTile);
     }
 
+    /// <summary>Whether the credits object still advances and may copy source rows.</summary>
     public bool Enabled { get; private set; } = true;
+    /// <summary>Set when scrolling reaches the end of installed credits content.</summary>
     public bool Finished { get; private set; }
+    /// <summary>Whole-pixel component of the native 16.16 credits scroll position.</summary>
     public ushort VerticalScroll { get; private set; }
 
+    /// <summary>Reattaches installed row content after restoring serialized scrolling state.</summary>
     public void BindPresentation(CreditsPresentation? value) => presentation = value;
 
     /// <summary>Runs one <c>CreditsObject_Process</c> call.</summary>
@@ -82,6 +93,7 @@ internal sealed class CreditsObjectState
 
 }
 
+/// <summary>Reports whether a credits update copied a row and whether the source has ended.</summary>
 internal readonly record struct CreditsObjectStepResult(
     bool CopiedRow,
     bool Finished);

@@ -5,8 +5,10 @@ using SuperMetroid.Rendering.Direct3D11;
 
 using static DesktopVerificationSupport;
 
+/// <summary>Exercises a load or restart while presentation holds the host's frame publication gate.</summary>
 internal static class AsyncLoadBoundaryTests
 {
+    /// <summary>Ensures old game state survives until presentation exits and stale packets cannot publish after the load.</summary>
     internal static async Task VerifyAsyncLoadBoundary(PlayableGameControl control, bool restart = false)
     {
         var worker = control.gpuWorker ?? throw new InvalidOperationException("Host has no GPU worker.");

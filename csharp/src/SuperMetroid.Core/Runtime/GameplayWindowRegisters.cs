@@ -9,11 +9,16 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class GameplayWindowRegisters
 {
+    /// <summary>Supplies Mother Brain's BG2 visibility when preparing main-screen selection.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Owns the Chainsaw callback that writes shared gameplay window registers.</summary>
     private readonly SamusProjectileSystem _projectiles;
+    /// <summary>Supplies door-transition screen-layer overrides.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Supplies waterfall blend configuration for window preparation.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
 
+    /// <summary>Binds room, enemy, projectile, and layer-three owners to the window-register coordinator.</summary>
     internal GameplayWindowRegisters(RoomEnemySystem enemies, SamusProjectileSystem projectiles, ActiveRoomState room, RoomLayer3FxState roomLayer3Fx)
     {
         _enemies = enemies;
@@ -29,6 +34,7 @@ internal sealed class GameplayWindowRegisters
     public GameplayWindowRegisterSnapshot DisplayedGameplayWindowRegisters =>
         Cache.Displayed;
 
+    /// <summary>Gets the nonserialized hardware cache, restoring its initial screen selection on first access.</summary>
     [field: NonSerialized]
     internal GameplayWindowRegisterCache Cache
     {

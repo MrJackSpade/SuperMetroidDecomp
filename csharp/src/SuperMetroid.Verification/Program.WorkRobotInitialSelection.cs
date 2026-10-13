@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Work Robot's initial list selector against native words and production initialization.</summary>
 internal static class WorkRobotInitialSelectionVerification
 {
+    /// <summary>Compares three retail pointers plus the adjacent fourth word, then verifies selector bounds.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot initial selection")]
     internal static void VerifyWorkRobotInitialSelection(SuperMetroidAddressSpace rom)
     {

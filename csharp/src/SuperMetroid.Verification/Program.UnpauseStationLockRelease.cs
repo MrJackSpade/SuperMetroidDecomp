@@ -16,6 +16,7 @@ using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Samus's refill-station lock release when the pause menu closes.</summary>
 internal static class UnpauseStationLockReleaseVerification
 {
     /// <summary>
@@ -55,6 +56,7 @@ internal static class UnpauseStationLockReleaseVerification
         Console.WriteLine("  Unpause station lock: command $0C frees a station-locked Samus.");
     }
 
+    /// <summary>Runs the focused unpause station-lock check from the verification command line.</summary>
     [VerificationCommand("--unpause-station-lock-release")]
     internal static int UnpauseStationLockReleaseCommand()
     {

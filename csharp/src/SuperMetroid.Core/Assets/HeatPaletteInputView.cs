@@ -18,14 +18,22 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
 {
+    /// <summary>Installed base and edited heat colors excluding the two calculated endpoints.</summary>
     private readonly Dictionary<ushort, Bgr555> colors;
+    /// <summary>Selected red channel of the $E55C heat endpoint.</summary>
     private readonly int redTarget;
+    /// <summary>Selected red channel of the mixed $E55E endpoint.</summary>
     private readonly int mixedRedTarget;
+    /// <summary>Selected green channel of the mixed $E55E endpoint.</summary>
     private readonly int mixedGreenTarget;
+    /// <summary>Player edit to $E55C green when it differs from the current base color.</summary>
     internal readonly int? greenOverride;
+    /// <summary>Player edit to $E55C blue when it differs from the current base color.</summary>
     internal readonly int? blueOverride;
+    /// <summary>Player edit to $E55E blue when it differs from the preserved base green-blue difference.</summary>
     internal readonly int? mixedBlueOverride;
 
+    /// <summary>Separates selected heat-tint channels from base-dependent channels and retains nonmatching edits.</summary>
     internal HeatPaletteInputView(Dictionary<ushort, Bgr555> colors)
     {
         this.colors = colors;
@@ -44,6 +52,7 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
         colors.Remove(0xe55e);
     }
 
+    /// <summary>Resolves a base suit color from installed entries or its compiled loading-palette alias.</summary>
     private Bgr555 ReadBase(ushort pointer)
     {
         if (colors.TryGetValue(pointer, out Bgr555 value)) return value;
@@ -52,6 +61,7 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
         throw new InvalidDataException($"Missing installed heat base ${pointer:X4}.");
     }
 
+    /// <summary>Reconstructs $E55C/$E55E from selected channels and live base colors, or reads another installed entry.</summary>
     public bool TryGetValue(ushort pointer, out Bgr555 value)
     {
         if (pointer == 0xe55c)
@@ -70,9 +80,13 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
         return colors.TryGetValue(pointer, out value);
     }
 
+    /// <summary>Resolves a heat color or rejects an absent native pointer.</summary>
     public Bgr555 this[ushort key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
+    /// <summary>Installed entries plus the two calculated heat endpoints.</summary>
     public int Count => colors.Count + 2;
+    /// <summary>Recognizes either calculated endpoint or a remaining installed pointer.</summary>
     public bool ContainsKey(ushort key) => key is 0xe55c or 0xe55e || colors.ContainsKey(key);
+    /// <summary>Enumerates installed pointers followed by the two calculated endpoint pointers.</summary>
     public IEnumerable<ushort> Keys
     {
         get
@@ -82,10 +96,13 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
             yield return 0xe55e;
         }
     }
+    /// <summary>Resolves every current heat color in key-enumeration order.</summary>
     public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
+    /// <summary>Yields native pointers paired with their current derived or installed color.</summary>
     public IEnumerator<KeyValuePair<ushort, Bgr555>> GetEnumerator()
     {
         foreach (ushort key in Keys) yield return new(key, this[key]);
     }
+    /// <summary>Exposes the same pointer-color pairs to non-generic consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

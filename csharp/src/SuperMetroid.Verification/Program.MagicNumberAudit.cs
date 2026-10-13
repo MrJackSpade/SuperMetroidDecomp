@@ -13,6 +13,7 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.SourceAudit;
 
+/// <summary>Exercises domain literal classifiers and the reviewed production finding baseline.</summary>
 internal static class MagicNumberAuditVerification
 {
     /// <summary>
@@ -83,6 +84,7 @@ internal static class MagicNumberAuditVerification
             $"retired {repositoryAudit.RetiredBaselineEntries}.");
     }
 
+    /// <summary>Runs the production literal audit as a standalone verification command.</summary>
     [VerificationCommand("--magic-number-audit")]
     internal static int MagicNumberAuditCommand()
     {

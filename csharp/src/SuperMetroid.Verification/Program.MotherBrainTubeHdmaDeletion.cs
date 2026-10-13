@@ -13,12 +13,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks that Mother Brain's main-tube landing removes acid HDMA objects and their RNG side effect.</summary>
 internal static class MotherBrainTubeHdmaDeletionVerification
 {
-    // #1269: when Mother Brain's main tube lands, $A9:8C0C/$8C0F zero the channel words of
-    // HDMA objects 0-3, deleting the room's acid scroll objects. Their pre-instruction
-    // ($88:B44A) byte-swaps the RNG every pass; the port kept running it, so in the 100%
-    // movie its seed was the swapped $ADB9 stepped once instead of $B9AD.
+    /// <summary>Confirms $A9:8C0C/$8C0F clear acid-scroll channels zero through three so $88:B44A stops byte-swapping the RNG after landing.</summary>
     internal static void VerifyMotherBrainTubeHdmaDeletion()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -53,6 +51,7 @@ internal static class MotherBrainTubeHdmaDeletionVerification
         Console.WriteLine("Mother Brain tube HDMA deletion: the landing deletes the acid objects and their RNG swap stops.");
     }
 
+    /// <summary>Runs the focused tube-landing HDMA and RNG check.</summary>
     [VerificationCommand("--mother-brain-tube-hdma-deletion")]
     internal static int MotherBrainTubeHdmaDeletionCommand()
     {

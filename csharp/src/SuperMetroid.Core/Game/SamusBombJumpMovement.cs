@@ -123,6 +123,7 @@ public static class SamusBombJumpMovement
         return new BombJumpMovementResult(vertical, FellWithoutFloor: movedDown);
     }
 
+    /// <summary>Applies bomb-jump gravity and vertical block collision, reporting the apex's downward branch.</summary>
     private static (BlockMoveResult Result, bool MovedDown) MoveUpWithGravity(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -150,6 +151,7 @@ public static class SamusBombJumpMovement
         return (result, displacement >= 0);
     }
 
+    /// <summary>Clears bomb-jump direction, handler, and pose-input latches before normal movement resumes.</summary>
     private static BombJumpMovementResult End(
         SamusState samus,
         BlockMoveResult? vertical)

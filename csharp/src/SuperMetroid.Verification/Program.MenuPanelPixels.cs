@@ -2,8 +2,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks calculated menu panel pixels against native tiles and preservation of independent pixel edits.</summary>
 internal static class MenuPanelPixelsVerification
 {
+    /// <summary>Compares stock atlas uploads and every panel pixel, then checks edited artwork and invalid coordinates.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu panel pixels")]
     internal static void VerifyMenuPanelPixels(ISnesAddressSpace rom)

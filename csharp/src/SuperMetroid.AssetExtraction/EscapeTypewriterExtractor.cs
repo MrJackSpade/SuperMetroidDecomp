@@ -34,6 +34,7 @@ public static class EscapeTypewriterExtractor
         return output.ToArray();
     }
 
+    /// <summary>Parses one native warning stream, requiring its delay header and at most sixteen destination-prefixed text lines.</summary>
     private static EscapeTypewriterLineDocument[] ReadProgram(
         ISnesAddressSpace bus,
         EscapeTypewriterProgramId id)

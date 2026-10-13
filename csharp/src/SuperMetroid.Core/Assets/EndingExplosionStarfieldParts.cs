@@ -13,10 +13,14 @@ namespace SuperMetroid.Core.Assets;
 /// This does not exempt the calculated attributes, tile pixels or actor motion.</remarks>
 internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Caller-selected star positions and tiles retained when calculated attributes exactly match.</summary>
     private readonly Star[] stars;
+    /// <summary>One retained star's drawn position and chosen glint tile, independent of calculated OAM flags.</summary>
     private readonly record struct Star(int X, byte Y, int Tile);
+    /// <summary>Owns the selected star drawing after its calculated size and attributes have been validated.</summary>
     private EndingExplosionStarfieldParts(Star[] stars) => this.stars = stars;
 
+    /// <summary>Recognizes the star pose and tile family, then substitutes calculated OAM only when every supplied part matches.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer != EndingExplosionSpriteDefinitions.Pointer(EndingExplosionSpriteDefinitions.Pose.Stars)) return supplied;
@@ -31,7 +35,9 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
         return supplied.CalculateIfMatching(new EndingExplosionStarfieldParts(stars));
     }
 
+    /// <summary>Number of selected glints retained from the supplied scattered star composition.</summary>
     public int Count => stars.Length;
+    /// <summary>Calculates size and attributes from a retained large-glint or small-star tile while preserving its position.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -42,9 +48,11 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
                 SnesObjAttributeWord.Create(star.Tile, 0, 0), true);
         }
     }
+    /// <summary>Yields selected stars in the supplied OAM order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Uses the supplied star order for non-generic composition consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

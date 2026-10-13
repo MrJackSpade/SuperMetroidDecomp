@@ -5,10 +5,14 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Fireflea species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class FirefleaBehavior : IEnemySpecies
 {
+    /// <summary>Runs common touch handling before Fireflea's unconditional native death call.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>Starts explosion and drop processing, including the retail second-death path.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
+    /// <summary>Holds the shared darkness level that advances when Firefleas die.</summary>
     private readonly EnemyRoomStatus _roomStatus;
 
+    /// <summary>Connects Fireflea motion and collision callbacks to room death and darkness state.</summary>
     internal FirefleaBehavior(EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, EnemyRoomStatus roomStatus)
     {
         _collision = collision;
@@ -16,16 +20,20 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         _roomStatus = roomStatus;
     }
 
+    /// <summary>Lower vertical travel bounds indexed by native enemy slot.</summary>
     private readonly ushort[] _firefleaMinimumYPositions =
         new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Upper vertical travel bounds indexed by native enemy slot.</summary>
     private readonly ushort[] _firefleaMaximumYPositions =
         new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Current signed speed-table entries, toggled when a vertical bound is crossed.</summary>
     private readonly ushort[] _firefleaSpeedTableIndexes =
         new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Per-slot circle or vertical-motion state reset on room load.</summary>
     internal readonly FirefleaEnemyState?[] _firefleaStates =
         new FirefleaEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
-    /// <summary>Ports <c>InitAI_Fireflea</c> at <c>$A3:8D2D</c>.</summary>
+    /// <summary>Ports <c>InitAI_Fireflea</c> at <c>$A3:8D2D</c>, decoding motion parameters and the retail initial-circle angle bug.</summary>
     internal void InitializeFireflea(RoomEnemySlot slot)
     {
         var state = new FirefleaEnemyState(
@@ -64,7 +72,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         state.MaximumYPosition = unchecked((ushort)(slot.Position.Y.Whole + state.Radius));
     }
 
-    /// <summary>Ports <c>MainAI_Fireflea</c> at <c>$A3:8DEE</c>.</summary>
+    /// <summary>Ports <c>MainAI_Fireflea</c> at <c>$A3:8DEE</c>, advancing circular angle or wrapped vertical travel.</summary>
     private static void RunFirefleaMain(RoomEnemySlot slot, FirefleaEnemyState state)
     {
         if (state.UsesCircularMovement)
@@ -140,10 +148,12 @@ internal sealed class FirefleaBehavior : IEnemySpecies
             _roomStatus.FirefleaDarknessLevel = next;
     }
 
+    /// <summary>Rejects main-AI dispatch for a slot that has not run Fireflea initialization.</summary>
     private FirefleaEnemyState RequireFirefleaState(RoomEnemySlot slot) =>
         _firefleaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fireflea state.");
 
+    /// <summary>Advances darkness after common bomb damage kills a Fireflea.</summary>
     internal void RegisterFirefleaBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
@@ -157,6 +167,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes Fireflea definition slots to their parameter-decoding initializer.</summary>
     internal void RegisterFirefleaInitializationAi(EnemyAiTable table)
     {
 
@@ -166,6 +177,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes Fireflea definition slots to the circular or vertical motion update.</summary>
     internal void RegisterFirefleaMainAi(EnemyAiTable table)
     {
 
@@ -175,6 +187,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>
     internal void RegisterFirefleaPowerBombReactions(EnemyAiTable table)
     {
         // Reactions around common power-bomb damage.
@@ -185,6 +198,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Advances darkness before a lethal common projectile death is finalized.</summary>
     internal void RegisterFirefleaShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
@@ -194,6 +208,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Fireflea's touch callback, which runs the retail unconditional-death sequence.</summary>
     internal void RegisterFirefleaTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
@@ -201,13 +216,13 @@ internal sealed class FirefleaBehavior : IEnemySpecies
             context => ResolveFirefleaTouch(context.Slot, context.Samus));
     }
 
-    /// <inheritdoc/>
+    /// <summary>Discards slot-indexed motion state before a new room population initializes.</summary>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         Array.Clear(_firefleaStates);
     }
 
-    /// <inheritdoc/>
+    /// <summary>Fireflea has no species-wide frame action beyond each slot's registered main AI.</summary>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
     }

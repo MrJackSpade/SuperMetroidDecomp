@@ -7,11 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable baby-Metroid OAM art for the two scientist scenes only.</summary>
 public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Validated baby-Metroid compositions keyed by bank-$8C spritemap identity.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroScientistSpritePresentation), frames);
 
+    /// <summary>Retains the ten validated frames after JSON compilation.</summary>
     private IntroScientistSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -88,7 +90,7 @@ public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePres
 /// <summary>Editable JSON schema for the scientist scenes' baby-Metroid compositions.</summary>
 public sealed record IntroScientistSpriteDocument
 {
-    /// <summary>Gets the scientist-scene sprite schema version.</summary>
+    /// <summary>Must match <see cref="IntroScientistSpriteFormat.Version"/> before any visual frame is accepted.</summary>
     public required int Version { get; init; }
 
     /// <summary>Gets all ten required named baby-Metroid visual compositions.</summary>

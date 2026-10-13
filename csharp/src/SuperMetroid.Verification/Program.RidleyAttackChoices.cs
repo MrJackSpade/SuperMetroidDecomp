@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Checks Norfair Ridley's situation-dependent attack table and same-frame selection behavior.</summary>
 internal static class RidleyAttackChoicesVerification
 {
+    /// <summary>Compares all 48 native choices and verifies RNG consumption, branch priority, and chosen-action setup.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley attack choices")]
     internal static void VerifyRidleyAttackChoices(SuperMetroidAddressSpace rom)
     {
@@ -80,6 +82,7 @@ internal static class RidleyAttackChoicesVerification
         Console.WriteLine("Ridley choices: all 48 native pointers and 655360 actual selections pass with table reads forbidden, exact RNG and same-frame setup checks.");
     }
 
+    /// <summary>Forbids production rereads of the compiled Ridley attack-choice table.</summary>
     private static CartridgeReadGuard NewRidleyAttackReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa6b38c and < 0xa6b3ec,
             _ => "Unexpected migrated Ridley attack-choice read.");

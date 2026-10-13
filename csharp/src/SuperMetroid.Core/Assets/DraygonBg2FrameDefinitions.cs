@@ -8,8 +8,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal static class DraygonBg2FrameDefinitions
 {
+    /// <summary>Schema revision accepted by the installed Draygon BG2 frame document.</summary>
     internal const int Version = 1;
+    /// <summary>Asset document containing the 34 body frames with BG2 tilemap streams.</summary>
     internal const string FileName = "draygon-bg2-frames.json";
+    /// <summary>Native bank $A5 containing both facing runs of Draygon extended frames.</summary>
     internal const byte Bank = 0xa5;
     /// <summary>Each selected Draygon BG2 frame has one zero-offset stream.</summary>
     internal const int MaximumComponents = 1;
@@ -18,8 +21,10 @@ internal static class DraygonBg2FrameDefinitions
     private const ushort FacingLeftStart = 0xa31b;
     /// <summary>$A5:A643, first right-facing one-component BG2 body frame.</summary>
     private const ushort FacingRightStart = 0xa643;
+    /// <summary>Seventeen ten-byte roots per facing, excluding the 48 OAM-only frames.</summary>
     internal const int FrameCount = 34;
 
+    /// <summary>Enumerates the 34 BG2 roots in left-facing then right-facing native order.</summary>
     internal static EnemyBg2FrameDefinitionSequence Frames => new(FrameCount, Frame);
 
     /// <summary>Each facing has seventeen ten-byte extended frames: a two-byte
@@ -32,8 +37,10 @@ internal static class DraygonBg2FrameDefinitions
         return new(pointer, $"draygon_bg2_{pointer:X4}");
     }
 
+    /// <summary>Recognizes only ten-byte-spaced roots in either seventeen-frame facing run.</summary>
     internal static bool IsFrame(ushort pointer) => InFacing(pointer, FacingLeftStart) || InFacing(pointer, FacingRightStart);
 
+    /// <summary>Checks a pointer's alignment and extent within one native facing run.</summary>
     private static bool InFacing(ushort pointer, ushort start)
     {
         int offset = pointer - start;

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static DoorDefinitionsVerification;
 
+/// <summary>Compares file-select cursor movement with the original filtered choice lists and cartridge branch data.</summary>
 internal static class FileSelectNavigationLookupVerification
 {
+    /// <summary>Checks all source and clear occupancy masks, directional input priority, and invalid-mask rejection.</summary>
     internal static void VerifyFileSelectSourceNavigation(ISnesAddressSpace rom)
     {
         // Complete filtered lists produced by the old source/clear code in
@@ -30,9 +32,11 @@ internal static class FileSelectNavigationLookupVerification
         Console.WriteLine("Source/clear navigation: all eight original choice lists, 20 selectable states, input priority and rejection pass.");
     }
 
+    /// <summary>Reads a native source/clear occupancy bit for the independent navigation oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select source navigation")]
     private static byte FileSelectSourceNavigationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks that copy destinations omit only the source slot for both cursor directions.</summary>
     internal static void VerifyFileSelectDestinationNavigation(ISnesAddressSpace rom)
     {
         // Original destination lists exclude just the source, even if another
@@ -57,9 +61,11 @@ internal static class FileSelectNavigationLookupVerification
         Console.WriteLine("Copy destination navigation: all three original choice lists, nine selectable states, input priority and rejection pass.");
     }
 
+    /// <summary>Reads a native destination-navigation opcode for comparison with the compiled selection rule.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select destination navigation")]
     private static byte FileSelectDestinationNavigationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Uses the former ordinal-list behavior to check each selectable row and rejected row under directional inputs.</summary>
     private static void VerifyOriginalSubmenuChoices(int[] original,
         Func<int, SnesButton, int> actual, string description)
     {
@@ -97,6 +103,7 @@ internal static class FileSelectNavigationLookupVerification
         }
     }
 
+    /// <summary>Checks main-menu wraparound and hidden-row rejection with and without existing save files.</summary>
     internal static void VerifyFileSelectMainNavigation()
     {
         // Independent original managed lists from b9e1e0ff, cross-checked against

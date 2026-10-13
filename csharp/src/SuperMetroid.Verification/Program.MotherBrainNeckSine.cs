@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Mother Brain neck sine products and five-joint geometry against independent cartridge data.</summary>
 internal static class MotherBrainNeckSineVerification
 {
+    /// <summary>Compares every byte angle and distance product, then a complete geometry for each lower-neck angle.</summary>
     internal static void VerifyMotherBrainNeckSine(SuperMetroidAddressSpace rom)
     {
         for (int angle = byte.MinValue; angle <= byte.MaxValue; angle++)
@@ -38,6 +40,7 @@ internal static class MotherBrainNeckSineVerification
             "Mother Brain neck sine: all 65,536 signed products and 256 complete five-joint geometries match an independent ROM-backed reference without a runtime bus.");
     }
 
+    /// <summary>Builds five neck joints using native body offsets and ROM-backed signed sine products.</summary>
     private static MotherBrainNeckGeometry ReferenceMotherBrainNeckGeometry(
         SuperMetroidAddressSpace rom,
         Position16<RoomPixels> body,
@@ -78,6 +81,7 @@ internal static class MotherBrainNeckSineVerification
             Upper(20));
     }
 
+    /// <summary>Reads the native signed sine word and applies SNES 8.8 multiplication for the reference component.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain neck component")]
     private static short ReferenceMotherBrainNeckComponent(
         SuperMetroidAddressSpace rom,

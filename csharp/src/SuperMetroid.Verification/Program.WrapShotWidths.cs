@@ -14,8 +14,10 @@ using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Compares wrapped beam collision widths and trajectories against 1,080 native boundary records.</summary>
 internal static class WrapShotWidthsVerification
 {
+    /// <summary>Checks shot positions, radii, lifetime, and remote door writes at adjacent one-pixel offsets.</summary>
     internal static void VerifyWrapShotWidths(string tracePath)
     {
         var native = File.ReadLines(tracePath).Skip(1).ToArray();
@@ -63,6 +65,7 @@ internal static class WrapShotWidthsVerification
         Console.WriteLine("PASS 1080 original-cartridge width-boundary records.");
     }
 
+    /// <summary>Runs the checked-in width-boundary trace comparison.</summary>
     [VerificationCommand("--wrap-shot-widths")]
     internal static int WrapShotWidthsCommand()
     {

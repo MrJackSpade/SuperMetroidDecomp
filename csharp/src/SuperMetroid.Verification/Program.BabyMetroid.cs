@@ -19,10 +19,11 @@ using static SignedSineFixtureVerification;
 using static SyntheticSamusAnimationDelaysVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Baby Metroid's entrance, first Mother Brain latch, and ensuing balance recovery.</summary>
 internal static class BabyMetroidVerification
 {
 
-/// <summary>Baby Metroid cutscene verification and its private fixtures.</summary>
+/// <summary>Compares the cutscene's timed phases, fixed-point positions, Samus pose, and Mother Brain handoff.</summary>
 internal static void VerifyBabyMetroidCutsceneEntrance()
 {
     VerifyBabyMetroidRouteDefinitions();
@@ -211,6 +212,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         "  Baby Metroid: entrance, first latch and Mother Brain regain balance agree.");
 }
 
+    /// <summary>Runs the Baby Metroid entrance and route-definition check.</summary>
     [VerificationCommand("--baby-metroid-route-definitions")]
     internal static int BabyMetroidRouteDefinitionsCommand()
     {

@@ -8,8 +8,10 @@ using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Compares compiled ending-logo actors, sprite relationships, and palette timing with cartridge execution.</summary>
 internal static class EndingLogoVerification
 {
+    /// <summary>Steps the compiled and native logo programs together, comparing CGRAM, OAM, and completion timing.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending logo crossfade palette tables")]
     internal static void VerifyEndingLogo(ISnesAddressSpace bus)
@@ -65,6 +67,7 @@ internal static class EndingLogoVerification
         Console.WriteLine($"  Logo: {fadeStart} actor frames, sixteen exact palette pairs, {poses.Count} OAM poses.");
     }
 
+    /// <summary>Checks logo frame operands, sprite relationships, and instruction cursors against cartridge words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending logo instruction words")]
     internal static void VerifyEndingLogoPrograms(ISnesAddressSpace bus)
     {
@@ -130,6 +133,7 @@ internal static class EndingLogoVerification
             AssertThrows<InvalidDataException>(() => EndingLogoInstructionDefinitions.ReadWord(invalid), "logo program bounds");
     }
 
+    /// <summary>Checks calculated logo sprite relationships while preserving supplied edits and native OAM placement.</summary>
     private static void VerifyEndingLogoRelatedParts(ISnesAddressSpace bus, int frame,
         EndingLogoSpriteFrameDefinition definition, SpriteComposition upper, SpriteComposition completeRight)
     {
@@ -198,6 +202,7 @@ internal static class EndingLogoVerification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated.Part(invalid), "logo part bounds");
     }
 
+    /// <summary>Checks the four logo actor definitions, origins, and palette pointer bounds.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo definitions")]
     internal static void VerifyEndingLogoDefinitions(ISnesAddressSpace bus)
     {
@@ -239,6 +244,7 @@ internal static class EndingLogoVerification
             "  Logo definitions: twelve actor words and 32 palette pointers match the cartridge.");
     }
 
+    /// <summary>Rejects runtime reads of compiled logo instructions, palette pointers, and actor definitions.</summary>
     private static CartridgeReadGuard NewEndingLogoDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= (0x8b0000 + EndingLogoInstructionDefinitions.Start) and

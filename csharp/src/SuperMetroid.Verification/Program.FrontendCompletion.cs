@@ -17,8 +17,10 @@ using static CeresDestructionVerification;
 using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks options, door opening, reserve recovery, and ending handoffs in the playable frontend.</summary>
 internal static class FrontendCompletionVerification
 {
+/// <summary>Checks typed option-tile palette replacement leaves character, flip, and priority bits intact.</summary>
 internal static void VerifyGameOptionsRomDataCatalog()
 {
     const ushort packedTile = 0xe155;
@@ -42,6 +44,7 @@ internal static void VerifyGameOptionsRomDataCatalog()
         "palette replacement agree.");
 }
 
+/// <summary>Exercises controller reassignment, options submenus, normalized inputs, and their native SRAM persistence.</summary>
 internal static void VerifyControllerBindingsAndOptionsSubmenus()
 {
     ControllerBindings swapped = ControllerBindings.Default.AssignAndSwap(
@@ -142,6 +145,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     Console.WriteLine("  Options: controller swap, both submenus, normalization, and SRAM persistence agree.");
 }
 
+/// <summary>Checks reserve-energy input lock, one-point transfers, sound cadence, exhaustion, and maximum-health clamp.</summary>
 internal static void VerifyReserveAutoRecovery()
 {
     var samus = new SamusState
@@ -181,6 +185,7 @@ internal static void VerifyReserveAutoRecovery()
     Console.WriteLine("  Reserve tanks: lock, one-point transfer, sound cadence, exhaustion, and clamp agree.");
 }
 
+/// <summary>Checks all four door IRQ paths for frame counts, destination alignment, layer positions, and delayed Samus nudge.</summary>
 internal static void VerifyDoorOpeningTrajectories()
 {
     // Door destination screens are multiplied by $100. Up is the only direction whose
@@ -323,6 +328,7 @@ internal static void VerifyDoorOpeningTrajectories()
         "  Doors: all four IRQ trajectories, frame counts, endpoints, and delayed nudge agree.");
 }
 
+/// <summary>Checks installed credits rows advance on half-pixel scroll boundaries and wrap the circular tilemap.</summary>
 internal static void VerifyCreditsObjectInterpreter()
 {
     ushort[][] rows = Enumerable.Range(0, 33)
@@ -353,6 +359,7 @@ internal static void VerifyCreditsObjectInterpreter()
         "  Credits: half-pixel scroll, installed rows, circular staging, and completion agree.");
 }
 
+/// <summary>Runs the retail ending state through escape, rewards, percentage, and final hold when its ROM oracle is available.</summary>
 internal static void VerifyEndingCreditsState()
 {
     string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -437,12 +444,14 @@ internal static void VerifyEndingCreditsState()
         "  Ending: escape, explosion, clear time, credits, rewards, 100% count, and final hold agree.");
 }
 
+/// <summary>Presses and releases an options button so successive menu inputs have distinct edges.</summary>
 private static void PressOptions(GameOptionsMenuState options, SnesButton button)
 {
     options.Step((ushort)button);
     options.Step(0);
 }
 
+/// <summary>Advances neutral options frames until the expected phase or fails at the bounded frame limit.</summary>
 private static void StepOptionsUntil(
     GameOptionsMenuState options,
     GameOptionsPhase expected,
@@ -453,6 +462,7 @@ private static void StepOptionsUntil(
     AssertEqual(expected, options.Phase, $"options reaches {expected}");
 }
 
+    /// <summary>Runs door opening trajectory and alignment parity suites from the verification command line.</summary>
     [VerificationCommand("--door-alignment")]
     internal static int DoorAlignmentCommand()
     {

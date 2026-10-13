@@ -14,11 +14,16 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class NorfairRidleyInitialPaintDefinitions
 {
+    /// <summary>First 15 non-clear targets, resolved through the escape-door armor paint rules.</summary>
     internal readonly CeresDoorEscapePaintDefinitions armor;
+    /// <summary>Second 15 non-clear targets, resolved through the Baby/container paint rules.</summary>
     internal readonly CeresBabyPaintDefinitions organ;
+    /// <summary>Copied blue channel shared by the two clear-slot source records.</summary>
     private readonly int clearBlue;
+    /// <summary>Supplied clear-slot colors that differ from the copied native metadata.</summary>
     internal readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Splits 32 supplied targets into two materials and preserves independent clear-slot edits.</summary>
     internal NorfairRidleyInitialPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         Ensure.LengthEqual(colors, 32);
@@ -29,8 +34,10 @@ internal sealed class NorfairRidleyInitialPaintDefinitions
         organ = new(colors.Slice(17, 15));
     }
 
+    /// <summary>Reconstructs the native clear-slot value from the source's copied blue channel.</summary>
     private Bgr555 ClearSlot => new(0, 0, clearBlue);
 
+    /// <summary>Uses an edited clear slot when supplied; otherwise resolves the matching armor or organ material.</summary>
     internal Bgr555 ColorAt(int index)
     {
         if ((uint)index >= 32) throw new IndexOutOfRangeException();

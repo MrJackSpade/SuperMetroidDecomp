@@ -16,14 +16,17 @@ using SuperMetroid.Core.Spatial;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks KiHunter acid-spit programs through directional spawning, floor impact, and installed OAM.</summary>
 internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the KiHunter acid-spit instruction suite.</summary>
     internal static void VerifyKiHunterAcidSpitInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKiHunterAcidSpitInstructionProgramDefinitions), () => VerifyKiHunterAcidSpitInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled words, both introductions, impact splash, shared deletion, and visual frames against ROM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyKiHunterAcidSpitInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -177,6 +180,7 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Consumes repeated launch and impact control lookups for the warmed allocation check.</summary>
     private static int ProbeKiHunterAcidSpitInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -190,6 +194,7 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids KiHunter and shared-delete mechanics reads while observing visual operands.</summary>
     private static CartridgeReadGuard NewKiHunterAcidSpitInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -198,6 +203,7 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
                 address => $"Production read compiled KiHunter acid mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount, KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the KiHunter acid-spit suite through the verification command dispatcher.</summary>
     [VerificationCommand("--kihunter-acid-spit-instruction-mechanics")]
     internal static int KihunterAcidSpitInstructionMechanicsCommand()
     {

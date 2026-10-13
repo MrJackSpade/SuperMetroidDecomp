@@ -26,6 +26,7 @@ public sealed class AttractDemoInput
     public void StepStock(SuperMetroidGameState gameState, SamusMovementType movementType) =>
         Script.StepStockAttract((_, pointer) => ApplyPreInstruction(pointer, gameState, movementType));
 
+    /// <summary>Redirects stock demo input at leave and movement branches using the cartridge's actual type-$1A comparison.</summary>
     private void ApplyPreInstruction(ushort pointer, SuperMetroidGameState gameState, SamusMovementType movementType)
     {
         switch (ClosedNativeWords.Decode<AttractDemoPreInstruction>(pointer, "title-demo pre-instruction"))

@@ -9,8 +9,10 @@ using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 using static TitleGradientVerification;
 
+/// <summary>Compares extracted room palette-FX colors and installed playback against cartridge output.</summary>
 internal static class RoomPaletteFxPresentationVerification
 {
+    /// <summary>Audits extracted room palette colors and all installed program families against retail color words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room palette-FX color words")]
     internal static void VerifyExtractedRoomPaletteFxPresentation(
         SuperMetroidAddressSpace bus)
@@ -172,6 +174,7 @@ internal static class RoomPaletteFxPresentationVerification
             "fifty-five installed programs match native execution without color-source reads.");
     }
 
+    /// <summary>Checks the ending gunship's calculated palette samples and independent color edits against its native cycle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending gunship palette-FX color words")]
     internal static void VerifyExtractedEndingGunshipPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
@@ -251,6 +254,7 @@ internal static class RoomPaletteFxPresentationVerification
             "gunship does not invent missing interpolation inputs");
     }
 
+    /// <summary>Checks post-credits logo glare ownership, calculated colors, edits, and installed playback.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for logo glare palette-FX color words")]
     internal static void VerifyExtractedLogoGlarePaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
@@ -307,6 +311,7 @@ internal static class RoomPaletteFxPresentationVerification
             "glare does not invent a missing base color");
     }
 
+    /// <summary>Checks Samus loading colors, independent endpoint channels, aliases, and installed cycle output.</summary>
     internal static void VerifyExtractedSamusLoadingPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
@@ -466,6 +471,7 @@ internal static class RoomPaletteFxPresentationVerification
         }
     }
 
+    /// <summary>Checks Samus heat palette derivation and suit cycles without runtime color-ROM reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus heat palette-FX color words")]
     internal static void VerifyExtractedSamusHeatPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
@@ -701,6 +707,7 @@ internal static class RoomPaletteFxPresentationVerification
         }
     }
 
+    /// <summary>Compares one installed palette family to retail source words and frame-by-frame CGRAM output.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for an installed palette-FX family's native color words")]
     private static void VerifyInstalledPaletteFxFamily(ISnesAddressSpace bus, RoomPaletteFxPresentation presentation, string description, PaletteFxFamilyShape shape, int framesToRun, ushort samusY = 0)
     {
@@ -748,6 +755,7 @@ internal static class RoomPaletteFxPresentationVerification
         }
     }
 
+    /// <summary>Checks Wrecked Ship light colors and installed green-light playback against retail output.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Wrecked Ship palette-FX color words")]
     private static void VerifyExtractedWreckedShipPaletteFxPresentation(
         ISnesAddressSpace bus,
@@ -805,6 +813,7 @@ internal static class RoomPaletteFxPresentationVerification
         }
     }
 
+    /// <summary>Checks Maridia palette cycles frame by frame against native color-source execution.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia palette-FX color words")]
     private static void VerifyExtractedMaridiaPaletteFxPresentation(
         ISnesAddressSpace bus,
@@ -857,6 +866,7 @@ internal static class RoomPaletteFxPresentationVerification
             "installed Maridia palette loops avoid cartridge color reads");
     }
 
+    /// <summary>Checks schema version, shape, and color validation for edited room palette-FX documents.</summary>
     private static void VerifyRoomPaletteFxPresentationValidation(
         byte[] extracted, ISnesAddressSpace bus)
     {

@@ -15,10 +15,11 @@ using SuperMetroid.Core.Input;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks beam lifetime under controlled camera movement against native deletion bounds.</summary>
 internal static class HeroShotsVerification
 {
-    // #411: a controlled camera is an independent input to the real projectile
-    // owner. This isolates lifetime/collision, not Samus camera-tracking parity.
+    /// <summary>Checks horizontal and vertical shots at, inside, and beyond camera edges, optionally against a native trace.</summary>
+    /// <remarks>The controlled camera is an independent input to the real projectile owner; the check isolates shot lifetime and collision from Samus camera tracking.</remarks>
     internal static void VerifyHeroShotCameraLifetime(string? nativeTrace = null)
     {
         var native = nativeTrace is null ? null : File.ReadLines(nativeTrace).Skip(1)
@@ -104,6 +105,7 @@ internal static class HeroShotsVerification
             "Every native lifetime frame, including deletion and impact, was compared");
     }
 
+    /// <summary>Runs projectile camera-lifetime checks without a native trace file.</summary>
     [VerificationCommand("--hero-shots")]
     internal static int HeroShotsCommand()
     {
@@ -111,6 +113,7 @@ internal static class HeroShotsVerification
         return 0;
     }
 
+    /// <summary>Checks each projectile frame against the supplied native trace as well as lifetime bounds.</summary>
     [VerificationCommand("--hero-shots", "nativeHeroTrace")]
     internal static int HeroShotsCommand2(string nativeHeroTrace)
     {

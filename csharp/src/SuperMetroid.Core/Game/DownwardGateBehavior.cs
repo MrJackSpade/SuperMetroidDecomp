@@ -5,9 +5,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The downward gate species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class DownwardGateBehavior
 {
+    /// <summary>Enforces that a room is loaded before gate requests are applied.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Shared finite projectile pool holding moving and closed gate actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Binds gate PLM requests to the current room's projectile owner.</summary>
     internal DownwardGateBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;
@@ -37,6 +40,7 @@ internal sealed class DownwardGateBehavior
         }
     }
 
+    /// <summary>Allocates a gate actor at its PLM block and records the native byte-index association used for waking.</summary>
     private void SpawnDownwardGateProjectile(
         DownwardGateProjectileRequest request,
         int roomWidthInBlocks)
@@ -69,6 +73,7 @@ internal sealed class DownwardGateBehavior
             request.PlmBlockIndex * DownwardGateEnemyProjectileRomData.NativeBytesPerRoomBlock));
     }
 
+    /// <summary>Finds the matching gate actor from the pool's end and advances its sleeping instruction.</summary>
     private void WakeDownwardGateProjectile(int plmBlockIndex)
     {
         ushort nativeBlockIndex = checked((ushort)(
@@ -113,6 +118,7 @@ internal sealed class DownwardGateBehavior
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
     }
 
+    /// <summary>Connects the bank-$86 moving-gate pre-instruction to the projectile handler table.</summary>
     internal static void RegisterDownwardGateProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>

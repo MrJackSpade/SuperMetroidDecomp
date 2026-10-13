@@ -7,13 +7,17 @@ using SuperMetroid.Core.Spatial;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks area-specific file-select map window origins, edge velocities, and timers.</summary>
 internal static class MapWindowMotionDefinitionsVerification
 {
+    /// <summary>Compares native X origins and checks edited labels feed the actual window's left edge.</summary>
     internal static void VerifyMapWindowOriginX(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: false));
+    /// <summary>Compares native Y origins and checks edited labels feed the actual window's top edge.</summary>
     internal static void VerifyMapWindowOriginY(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: true));
 
+    /// <summary>Checks one coordinate for all six areas, round-trips edits, and rejects unsupported identities.</summary>
     private static void VerifyMapWindowOrigin(ISnesAddressSpace rom, WorldMapLabelLayout labels, bool vertical)
     {
         int field = vertical ? 2 : 0;
@@ -53,15 +57,20 @@ internal static class MapWindowMotionDefinitionsVerification
         }
     }
 
+    /// <summary>Compares native signed 16.16 velocities for the left window edge.</summary>
     internal static void VerifyMapWindowLeftVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 0, motion => motion.Left));
+    /// <summary>Compares native signed 16.16 velocities for the right window edge.</summary>
     internal static void VerifyMapWindowRightVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 1, motion => motion.Right));
+    /// <summary>Compares native signed 16.16 velocities for the top window edge.</summary>
     internal static void VerifyMapWindowTopVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 2, motion => motion.Top));
+    /// <summary>Compares native signed 16.16 velocities for the bottom window edge.</summary>
     internal static void VerifyMapWindowBottomVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 3, motion => motion.Bottom));
 
+    /// <summary>Checks one edge's velocity record for each area and exercises area bounds.</summary>
     private static void VerifyMapWindowVelocity(ISnesAddressSpace rom, int edge,
         Func<FileSelectMapWindowMotion, uint> select)
     {
@@ -75,6 +84,7 @@ internal static class MapWindowMotionDefinitionsVerification
         Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
     }
 
+    /// <summary>Compares the opening timer for all six area windows.</summary>
     internal static void VerifyMapWindowTimers(ISnesAddressSpace rom)
     {
         for (int area = 0; area < 6; area++)
@@ -83,6 +93,7 @@ internal static class MapWindowMotionDefinitionsVerification
         Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
     }
 
+    /// <summary>Requires the motion catalog to reject area indices outside the six retail areas.</summary>
     private static void VerifyMapWindowMotionBounds()
     {
         foreach (int area in new[] { int.MinValue, -1, 6, int.MaxValue })

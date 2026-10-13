@@ -1,10 +1,18 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical component of one Golden Torizo extended frame; not editable art.</summary>
+/// <param name="Offset">Component position relative to Torizo's room origin, reflected for mirrored right-facing frames.</param>
+/// <param name="HitboxList">Bank-$AA pointer to ordered touch and shot rectangles, or the shared empty list.</param>
 internal readonly record struct GoldenTorizoCollisionComponent(
     Offset16<RoomPixels> Offset, ushort HitboxList);
 
 /// <summary>Native ordered touch/shot rectangle from a bank-$AA hitbox list.</summary>
+/// <param name="Left">Left extent relative to the component origin.</param>
+/// <param name="Top">Upper extent relative to the component origin.</param>
+/// <param name="Right">Right extent relative to the component origin.</param>
+/// <param name="Bottom">Lower extent relative to the component origin.</param>
+/// <param name="TouchAi">Native callback pointer for Samus contact.</param>
+/// <param name="ShotAi">Native callback pointer for projectile contact.</param>
 internal readonly record struct GoldenTorizoCollisionHitbox(
     short Left, short Top, short Right, short Bottom,
     ushort TouchAi, ushort ShotAi);
@@ -28,6 +36,7 @@ internal readonly record struct GoldenTorizoCollisionHitbox(
 /// </remarks>
 internal static class TorizoCollisionDefinitions
 {
+    /// <summary>Bank $AA owns both the ordered frame components and their hitbox-list pointers.</summary>
     internal const byte Bank = TorizoInstructionProgramDefinitions.Bank;
 
     /// <summary>The two frames whose collision is a single empty component.</summary>
@@ -49,6 +58,7 @@ internal static class TorizoCollisionDefinitions
     /// <summary>Right-facing hitbox lists follow the left-facing block by this many bytes.</summary>
     internal const ushort RightFacingListOffset = 0x015e;
 
+    /// <summary>Single origin component used by the native blank and shared turning frames.</summary>
     private static readonly GoldenTorizoCollisionComponent[] SingleEmpty = [new(new(0, 0), EmptyList)];
 
     /// <summary>The 42 left-facing frames from $AA:A4FA, in native order.</summary>
@@ -121,6 +131,7 @@ internal static class TorizoCollisionDefinitions
         [new(new(15, -29), 0x87c7), new(new(3, -24), 0x89b6), new(new(0, 0), 0x8a7a)],
     ];
 
+    /// <summary>Number of left and awakening frames whose right-facing counterparts derive by reflection.</summary>
     internal static int MirroredCount => LeftFrames.Length + AwakeningFrames.Length;
 
     /// <summary>Components of <paramref name="frame"/>; right-facing frames mirror on read.</summary>
@@ -149,6 +160,7 @@ internal static class TorizoCollisionDefinitions
     internal static GoldenTorizoCollisionComponent[] LeftFacing(int index) =>
         index < LeftFrames.Length ? LeftFrames[index] : AwakeningFrames[index - LeftFrames.Length];
 
+    /// <summary>Walks variable-size native frame records from a run start and selects the exact pointer if present.</summary>
     private static bool TryFind(GoldenTorizoCollisionComponent[][] run, ushort start, ushort frame,
         out GoldenTorizoCollisionComponent[]? components)
     {
@@ -166,27 +178,48 @@ internal static class TorizoCollisionDefinitions
         return false;
     }
 
+    /// <summary>Advances past the native count word and all eight-byte component records.</summary>
     internal static ushort Next(ushort frame, int components) => (ushort)(frame + 2 + 8 * components);
 
+    /// <summary>$AA:87E8: first awakening body, 32 by 54 pixels with the shared touch/shot pair.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List87E8 = [new(-16, -27, 16, 27, 0xc977, 0xc9c2)];
+    /// <summary>$AA:87F6: awakening body narrows on the left while retaining full height.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List87F6 = [new(-14, -27, 13, 27, 0xc977, 0xc9c2)];
+    /// <summary>$AA:8804: taller awakening rectangle before the upper reach expands.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8804 = [new(-13, -34, 9, 33, 0xc977, 0xc9c2)];
+    /// <summary>$AA:8812: centered awakening rectangle extending farther vertically.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8812 = [new(-11, -38, 11, 39, 0xc977, 0xc9c2)];
+    /// <summary>$AA:8820: left-shifted upper awakening reach, from Y -44 through 47.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8820 = [new(-15, -44, 8, 47, 0xc977, 0xc9c2)];
+    /// <summary>$AA:882E: awakening reach shortens below the center while its left side expands.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List882E = [new(-18, -43, 3, 24, 0xc977, 0xc9c2)];
+    /// <summary>$AA:883C: final awakening rectangle retains the tall upper reach and narrows below.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List883C = [new(-17, -42, 5, 15, 0xc977, 0xc9c2)];
+    /// <summary>$AA:884A: left-facing active body switches to the $C97C shot callback.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List884A = [new(-15, -39, 7, 21, 0xc977, 0xc97c)];
+    /// <summary>$AA:891C: compact left-facing jump-back body with lower edge at Y 9.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List891C = [new(-18, -38, 7, 9, 0xc977, 0xc97c)];
+    /// <summary>$AA:892A: left-facing active body extends to Y 18 during standing frames.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List892A = [new(-18, -37, 7, 18, 0xc977, 0xc97c)];
+    /// <summary>$AA:8946: right-facing awakening body keeps the shared $C9C2 shot callback.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8946 = [new(-15, -27, 13, 27, 0xc977, 0xc9c2)];
+    /// <summary>$AA:8954: right-facing awakening body spans X -13 through 13.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8954 = [new(-13, -27, 13, 27, 0xc977, 0xc9c2)];
+    /// <summary>$AA:8962: right-facing awakening rectangle grows upward to Y -32.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8962 = [new(-14, -32, 13, 33, 0xc977, 0xc9c2)];
+    /// <summary>$AA:8970: right-facing awakening rectangle reaches Y -35 through 39.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8970 = [new(-14, -35, 11, 39, 0xc977, 0xc9c2)];
+    /// <summary>$AA:897E: right-facing upper reach shifts toward positive X.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List897E = [new(-6, -42, 13, 47, 0xc977, 0xc9c2)];
+    /// <summary>$AA:898C: right-facing upper reach keeps a 47-pixel lower extent.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List898C = [new(-7, -41, 11, 47, 0xc977, 0xc9c2)];
+    /// <summary>$AA:899A: right-facing awakening rectangle expands to X 22.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List899A = [new(-8, -41, 22, 47, 0xc977, 0xc9c2)];
+    /// <summary>$AA:89A8: right-facing active body uses the $C97C shot callback.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List89A8 = [new(-10, -38, 13, 23, 0xc977, 0xc97c)];
+    /// <summary>$AA:8A7A: compact right-facing jump-back body, fitted separately from its left counterpart.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8A7A = [new(-8, -37, 15, 14, 0xc977, 0xc97c)];
+    /// <summary>$AA:8A88: right-facing active body extends farther down and right than the jump-back list.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8A88 = [new(-9, -40, 16, 25, 0xc977, 0xc97c)];
 
     /// <summary>Hitbox list rectangles, fitted per facing to the drawings.</summary>
@@ -249,8 +282,10 @@ internal static class TorizoCollisionDefinitions
 /// <summary>Allocation-free view of one frame's components, mirrored for right-facing frames.</summary>
 internal readonly struct TorizoCollisionComponents(GoldenTorizoCollisionComponent[] source, bool mirrored)
 {
+    /// <summary>Number of ordered native components in this frame's collision drawing.</summary>
     internal int Length => source.Length;
 
+    /// <summary>Projects one component into the requested facing, reflecting X and selecting the paired right-facing hitbox list when needed.</summary>
     internal GoldenTorizoCollisionComponent this[int index]
     {
         get
@@ -264,12 +299,17 @@ internal readonly struct TorizoCollisionComponents(GoldenTorizoCollisionComponen
         }
     }
 
+    /// <summary>Enumerates components without materializing reflected frame records.</summary>
     public Enumerator GetEnumerator() => new(this);
 
+    /// <summary>Index-based enumerator over one frame's reflected or original components.</summary>
     internal struct Enumerator(TorizoCollisionComponents view)
     {
+        /// <summary>Current position before the next component, initially before index zero.</summary>
         private int index = -1;
+        /// <summary>Advances to the next component while retaining native component order.</summary>
         public bool MoveNext() => ++index < view.Length;
+        /// <summary>Resolves the current component through the view's facing projection.</summary>
         public readonly GoldenTorizoCollisionComponent Current => view[index];
     }
 }

@@ -14,6 +14,7 @@ using System.Text;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
+/// <summary>Checks debugger graph restoration rejects stale field and type layouts.</summary>
 internal static class DebuggerStateLayoutVerification
 {
     /// <summary>
@@ -67,6 +68,7 @@ internal static class DebuggerStateLayoutVerification
         }
     }
 
+    /// <summary>Serializes a fixture object through the production debugger graph format.</summary>
     private static byte[] SerializeDebuggerGraph(object root)
     {
         using var stream = new MemoryStream();
@@ -74,12 +76,14 @@ internal static class DebuggerStateLayoutVerification
         return stream.ToArray();
     }
 
+    /// <summary>Restores a graph through the production serializer to check layout admission.</summary>
     private static T DeserializeDebuggerGraph<T>(byte[] graph) where T : class
     {
         using var stream = new MemoryStream(graph, writable: false);
         return DebuggerObjectGraphSerializer.Deserialize<T>(stream);
     }
 
+    /// <summary>Runs current and stale debugger layout checks.</summary>
     [VerificationCommand("--debugger-state-layout")]
     internal static int DebuggerStateLayoutCommand()
     {

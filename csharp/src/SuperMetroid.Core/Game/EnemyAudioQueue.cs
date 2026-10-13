@@ -7,10 +7,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyAudioQueue
 {
-    // Enemy AI can execute several independent actors in one frame. A single nullable
-    // "last sound" loses calls when two actors publish during that pass, so new translations
-    // use the same append-only-per-frame shape already proven by Samus and PLM audio.
+    /// <summary>Append-only per-frame sound calls so multiple enemy actors retain publication order.</summary>
     private readonly List<EnemySoundRequest> _soundRequests = [];
+    /// <summary>Append-only per-frame music calls from enemy AI.</summary>
     private readonly List<EnemyMusicRequest> _musicRequests = [];
 
     /// <summary>
@@ -40,9 +39,8 @@ internal sealed class EnemyAudioQueue
     /// <summary>Exact music-queue calls published by the current enemy frame.</summary>
     public IReadOnlyList<EnemyMusicRequest> MusicRequests => _musicRequests;
 
-    // Enemy initialization runs while a room loads, outside EnemyMain's publication window,
-    // and its frontend consumes the requests within that same update. Nothing here
-    // survives an update boundary, so debugger snapshots never contain it.
+    /// <summary>Transient room-load music calls consumed in the same update outside EnemyMain's frame window.</summary>
+    /// <remarks>The requests do not survive an update boundary or enter debugger snapshots.</remarks>
     [NonSerialized] private List<MusicCommand>? _initializationMusicDelayed8;
 
     /// <summary>
@@ -75,6 +73,7 @@ internal sealed class EnemyAudioQueue
             SoundSuppressed: PowerBomb?.IsActive == true));
     }
 
+    /// <summary>Converts an optional legacy sound ID into a typed enemy queue call when one is present.</summary>
     internal void QueueLegacySound(
         ushort? soundId,
         SoundEffectLibrary library,
@@ -84,6 +83,7 @@ internal sealed class EnemyAudioQueue
             QueueEnemySound(SoundEffectId.FromCartridge(library, value), maximumQueued);
     }
 
+    /// <summary>Retains a legacy music request only when both command and native delay are present.</summary>
     internal void QueueLegacyMusic(MusicCommand? command, MusicCommandDelay? delay)
     {
         if (command is MusicCommand value && delay is MusicCommandDelay wait)

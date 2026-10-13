@@ -135,6 +135,7 @@ public static class GameOptionsPresentationExtractor
         }
     }
 
+    /// <summary>Decodes native BG tile words into editable character, palette, priority, and flip cells.</summary>
     private static MapPresentationCell[] Cells(ReadOnlySpan<byte> bytes)
     {
         if (bytes.Length % sizeof(ushort) != 0)
@@ -157,6 +158,7 @@ public static class GameOptionsPresentationExtractor
         return cells;
     }
 
+    /// <summary>Builds row-specific cursor anchors at one native horizontal coordinate.</summary>
     private static Position16<OamPixels>[] Points(ushort x, int count, Func<int, ushort> rowY)
     {
         var result = new Position16<OamPixels>[count];
@@ -165,6 +167,7 @@ public static class GameOptionsPresentationExtractor
         return result;
     }
 
+    /// <summary>Converts a BG tilemap byte offset to its column and row in the options page.</summary>
     private static Position16<TilemapCells> ByteOffsetPoint(ushort byteOffset)
     {
         int cell = byteOffset / sizeof(ushort);
@@ -172,9 +175,11 @@ public static class GameOptionsPresentationExtractor
             checked((ushort)(cell / GameOptionsRomData.MenuTilemapWidth)));
     }
 
+    /// <summary>Expands a native byte span into consecutive tile-cell indices.</summary>
     private static int[] CellRange(int byteOffset, int byteCount) =>
         Enumerable.Range(byteOffset / sizeof(ushort), byteCount / sizeof(ushort)).ToArray();
 
+    /// <summary>Combines the top and bottom palette regions for each special-option toggle state.</summary>
     private static GameOptionsToggleVisualDocument Toggle(GameOptionsToggleLayout layout) => new()
     {
         EnabledCells = CellRange(layout.EnabledTop,

@@ -55,6 +55,7 @@ public static class InstalledArtworkIdentity
             .Append(KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, Require(artwork.EnemyTileArtwork).ContentIdentity));
     }
 
+    /// <summary>Fails identity collection when a bound installation omits any required artwork catalog.</summary>
     private static T Require<T>(T? catalog) where T : class =>
         catalog ?? throw new InvalidOperationException($"The installed artwork set has no {typeof(T).Name}.");
 }

@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 public sealed class ManagedPcmSample
 {
+    /// <summary>Private copy of signed mono frames so caller edits cannot change an installed sample.</summary>
     private readonly short[] samples;
 
     /// <summary>Creates an immutable validated mono PCM replacement sample.</summary>
@@ -41,13 +42,13 @@ public sealed class ManagedPcmSample
         LoopSampleIndex = loopSampleIndex;
     }
 
-    /// <summary>Gets the stable sample identity.</summary>
+    /// <summary>Stable source identity carried into missing-sample diagnostics.</summary>
     public string Id { get; }
 
-    /// <summary>Gets the source sample rate in hertz.</summary>
+    /// <summary>Source hertz used to normalize S-DSP voice pitch during playback.</summary>
     public int SampleRate { get; }
 
-    /// <summary>Gets the immutable signed 16-bit mono PCM frames.</summary>
+    /// <summary>Copied signed mono frames exposed without a mutable array reference.</summary>
     public ReadOnlyMemory<short> Samples => samples;
 
     /// <summary>Gets the optional zero-based PCM loop frame, or <see langword="null"/> for no intrinsic loop.</summary>
@@ -57,7 +58,9 @@ public sealed class ManagedPcmSample
 /// <summary>Source-number mappings installed by one common or music-bank upload.</summary>
 public sealed class ManagedPcmSampleBank
 {
+    /// <summary>Installed PCM keyed by the source numbers written into S-DSP voices.</summary>
     private readonly Dictionary<byte, ManagedPcmSample> samples;
+    /// <summary>DIR loop entries that point to another sample's start instead of their own loop cursor.</summary>
     private readonly Dictionary<byte, byte> loopEntrySources;
 
     /// <summary>Creates an immutable source-number mapping for one native sample upload.</summary>

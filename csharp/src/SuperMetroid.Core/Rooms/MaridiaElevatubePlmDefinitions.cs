@@ -16,7 +16,7 @@ internal static class MaridiaElevatubePlmDefinitions
     /// <summary>84:9369: solid block 180, shared with Kraid's physical draw. Block 180 is the one named visual scalar.</summary>
     internal const ushort PhysicalWord = 0x8180;
 
-    // Temporary artwork DTO only. Gameplay draws the single physical word directly.
+    /// <summary>Temporary artwork description for export; gameplay draws the single physical word directly.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList Draw =>
         new(DrawPointer,
             new RoomPlmShotBlockDrawDefinitions.Run[]
@@ -24,18 +24,22 @@ internal static class MaridiaElevatubePlmDefinitions
                 new(1, new ushort[] { PhysicalWord }, new(0, 0)),
             });
 
+    /// <summary>Stable asset identity assigned to the elevatube's one-block artwork.</summary>
     internal const string VisualId = "elevatube-block";
 
+    /// <summary>Exposes the sole elevatube draw list to artwork export.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> AllDraws
     {
         get { yield return Draw; }
     }
 
+    /// <summary>Maps the native elevatube draw pointer to its asset identity and rejects unrelated pointers.</summary>
     internal static string DrawVisualId(ushort pointer) => pointer == DrawPointer
         ? VisualId
         : throw new InvalidDataException(
             $"Maridia elevatube draw ${pointer:X4} has no visual ID.");
 
+    /// <summary>Resolves the extracted elevatube artwork by its stable asset identity.</summary>
     internal static bool TryGetDrawByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
@@ -48,6 +52,7 @@ internal static class MaridiaElevatubePlmDefinitions
         return false;
     }
 
+    /// <summary>Supplies the delay, draw pointer, sound command, and deletion word at their native instruction addresses.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = address switch
@@ -62,6 +67,7 @@ internal static class MaridiaElevatubePlmDefinitions
             InstructionList + 4 or InstructionList + 7;
     }
 
+    /// <summary>Supplies the elevatube sound operand at the byte following its library-two command.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == InstructionList + 6)

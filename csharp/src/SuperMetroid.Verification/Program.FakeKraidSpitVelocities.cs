@@ -2,14 +2,18 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks both axes of Fake Kraid's two spit launches for each facing direction.</summary>
 internal static class FakeKraidSpitVelocitiesVerification
 {
+    /// <summary>Compares the native X velocity words across both facings and projectile ordinals.</summary>
     internal static void VerifyFakeKraidSpitHorizontalVelocity(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyFakeKraidSpitVelocityField), () => VerifyFakeKraidSpitVelocityField(rom, 0, launch => launch.X.RawValue));
 
+    /// <summary>Compares the native Y velocity words across both facings and projectile ordinals.</summary>
     internal static void VerifyFakeKraidSpitVerticalVelocity(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyFakeKraidSpitVelocityField), () => VerifyFakeKraidSpitVelocityField(rom, 2, launch => launch.Y.RawValue));
 
+    /// <summary>Checks one velocity field against bank-$A6 words and rejects unsupported projectile ordinals.</summary>
     private static void VerifyFakeKraidSpitVelocityField(
         SuperMetroidAddressSpace rom, int fieldOffset, Func<EightEightVector<RoomPixels>, ushort> select)
     {
@@ -29,6 +33,7 @@ internal static class FakeKraidSpitVelocitiesVerification
         }
     }
 
+    /// <summary>Reads a byte from the native launch-vector table for the axis comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid spit velocity field")]
     private static byte FakeKraidSpitVelocityFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

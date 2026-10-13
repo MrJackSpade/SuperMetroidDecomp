@@ -7,8 +7,10 @@ public sealed class CrocomireSkeletonArtwork
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-crocomire-skeleton-v1",
         content => content.Append("tiles", atlas.Transfer.Span));
 
+    /// <summary>Owned 4-bpp characters from which the six death-sequence uploads are sliced.</summary>
     private readonly RoomCharacterAtlas atlas;
 
+    /// <summary>Retains validated character bytes while the death sequence owns their upload timing.</summary>
     private CrocomireSkeletonArtwork(RoomCharacterAtlas atlas) => this.atlas = atlas;
 
     /// <summary>Compiles the 256-by-24 indexed skeleton sheet into $0C00 bytes of four-bit characters, retaining the six ordered $0200-byte upload chunks represented by $A4:99CB/$99D9.</summary>
@@ -19,6 +21,7 @@ public sealed class CrocomireSkeletonArtwork
         new(RoomCharacterAtlas.Load(png,
             CrocomireSkeletonTransferDefinitions.TotalByteCount));
 
+    /// <summary>Gets one $0200-byte upload chunk; rejects the terminal entry because it has no character transfer.</summary>
     internal ReadOnlyMemory<byte> Chunk(int index)
     {
         if (!CrocomireSkeletonTransferDefinitions.TryGet(index, out _))

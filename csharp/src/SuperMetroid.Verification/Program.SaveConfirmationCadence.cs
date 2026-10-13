@@ -12,12 +12,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks the extra wait between save-confirmation cursor moves and the next controller read.</summary>
 internal static class SaveConfirmationCadenceVerification
 {
-    // #1269: the save confirmation reads the controller after two lag frames ($85:84BA), and
-    // Toggle_Save_Confirmation_Selection adds its own Wait_for_Lag_Frame ($85:8532) before the
-    // redraw upload and the $37 sound. A cursor move therefore puts three frames before the
-    // next read. In the 100% movie the gunship's A read fell one frame late without it.
+    /// <summary>Confirms selection redraw waits one frame, queues sound, and makes the next controller read three frames after a move.</summary>
+    /// <remarks>#1269: native $85:84BA waits twice and $85:8532 adds the redraw wait. Missing it shifted the gunship's A read in the 100% movie.</remarks>
     internal static void VerifySaveConfirmationCadence()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -59,6 +58,7 @@ internal static class SaveConfirmationCadenceVerification
         Console.WriteLine("Save confirmation cadence: a cursor move adds the redraw's lag frame before the next read.");
     }
 
+    /// <summary>Runs the focused save-confirmation timing verification command.</summary>
     [VerificationCommand("--save-confirmation-cadence")]
     internal static int SaveConfirmationCadenceCommand()
     {

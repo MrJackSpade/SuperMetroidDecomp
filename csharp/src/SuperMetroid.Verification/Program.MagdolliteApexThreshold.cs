@@ -14,12 +14,15 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static MagdollitePhaseDefinitionsVerification;
 
+/// <summary>Reproduces Magdollite's slot-indexed apex threshold read from the native overrun table.</summary>
 internal static class MagdolliteApexThresholdVerification
 {
-    // #1269: Magdollite's .doneGrowing ($A8:B259) is reached from the maximum-rise test
-    // before Y is loaded from the growth index, so it compares the arm height against
-    // MagdolliteArmHeightThreshold + EnemyIndex ($A0:9073). In the 100% movie the Crateria
-    // arm in slot two reads $AE9D there and grows one final pillar segment at the apex.
+    /// <summary>
+    /// Confirms issue #1269: the $A8:B259 maximum-rise branch compares arm height with
+    /// <c>MagdolliteArmHeightThreshold + EnemyIndex</c> ($A0:9073) before loading the growth
+    /// index into Y. The recorded Crateria arm in slot two reads $AE9D and grows one final
+    /// pillar segment at the apex.
+    /// </summary>
     internal static void VerifyMagdolliteApexThreshold()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -73,10 +76,12 @@ internal static class MagdolliteApexThresholdVerification
         }
     }
 
+    /// <summary>Blocks live reads of the migrated Magdollite threshold range during the apex reproduction.</summary>
     private static CartridgeReadGuard NewMagdolliteApexGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(0xa8af55, 0xa8b717 - 0xa8af55,
             address => $"Magdollite attempted a migrated threshold read ${address:X6}.");
 
+    /// <summary>Runs the focused slot-indexed Magdollite apex comparison.</summary>
     [VerificationCommand("--magdollite-apex-threshold")]
     internal static int MagdolliteApexThresholdCommand()
     {

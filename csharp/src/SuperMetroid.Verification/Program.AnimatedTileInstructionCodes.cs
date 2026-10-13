@@ -20,6 +20,7 @@ using static LookupTreadmillMechanicsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks bank-87 animated-tile pointer catalogs and the compiled Wrecked Ship treadmill streams.</summary>
 internal static class AnimatedTileInstructionCodesVerification
 {
     /// <summary>
@@ -75,6 +76,7 @@ internal static class AnimatedTileInstructionCodesVerification
     /// <summary>Words outside <see cref="AnimatedTileObject"/>, including a constructed bank-$87 header.</summary>
     internal static readonly ushort[] UndefinedAnimatedTileObjects = [0x0001, 0x8f00, 0xffff];
 
+    /// <summary>Checks that foreign and direction-mismatched objects are rejected before any program interpretation.</summary>
     private static void VerifyConstructedAnimatedTileStreams()
     {
         // Generic ROM dispatch was removed when treadmill mechanics became compiled.
@@ -104,6 +106,7 @@ internal static class AnimatedTileInstructionCodesVerification
             "compiled treadmill definition rejects the opposite direction");
     }
 
+    /// <summary>Creates a non-treadmill bank-87 object with supplied program words to check admission behavior.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for a constructed bank-$87 lava animated-tile header and program")]
     private static TestAddressSpace CreateConstructedLavaAnimatedTileCartridge(ushort[] program)
     {
@@ -114,6 +117,7 @@ internal static class AnimatedTileInstructionCodesVerification
         WriteTestWords(bus, 0x879000, program);
         return bus;
     }
+    /// <summary>Checks boss wait, four directional DMA sources, loop restart, and forbidden source reads.</summary>
     internal static void VerifyRetailTreadmillStream(
         ISnesAddressSpace bus,
         WreckedShipTreadmillDirection direction,
@@ -150,6 +154,7 @@ internal static class AnimatedTileInstructionCodesVerification
             $"{direction} no longer reads frame-source presentation operands");
     }
 
+    /// <summary>Runs bounded checks for header, control, timing, transfer, and artwork-source definitions.</summary>
     internal static void VerifyRetailTreadmillMechanics(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyTreadmillHeaderSelection), () => VerifyTreadmillHeaderSelection());
@@ -163,10 +168,12 @@ internal static class AnimatedTileInstructionCodesVerification
         Suite(nameof(VerifyTreadmillMechanicsDomain), () => VerifyTreadmillMechanicsDomain(bus));
         Suite(nameof(VerifyTreadmillArtworkSources), () => VerifyTreadmillArtworkSources(bus));
     }
+    /// <summary>Collects a catalog's ushort constants and checks its count and mapped pointer uniqueness.</summary>
     private static void AssertAnimatedTileCatalog(Type catalog, int expectedCount) =>
         AssertAnimatedTileCatalog(catalog.Name, GetUshortConstants(catalog)
             .Select(field => (ushort)field.GetRawConstantValue()!).ToArray(), expectedCount);
 
+    /// <summary>Checks that an animated-tile pointer set is complete, unique, and in the mapped bank half.</summary>
     private static void AssertAnimatedTileCatalog(string name, ushort[] pointers, int expectedCount)
     {
         AssertEqual(expectedCount, pointers.Length, $"{name} exhaustive entry count");
@@ -176,6 +183,7 @@ internal static class AnimatedTileInstructionCodesVerification
             AssertTrue(pointer >= 0x8000, $"{name} pointer ${pointer:X4} is mapped");
     }
 
+    /// <summary>Rejects compiled treadmill control reads and counts obsolete frame-source operand reads.</summary>
     private static CartridgeReadGuard NewWreckedShipTreadmillMechanicsForbiddenBus(
         ISnesAddressSpace inner,
         WreckedShipTreadmillObjectDefinition definition,
@@ -207,6 +215,7 @@ internal static class AnimatedTileInstructionCodesVerification
                 _ => reads.Value++);
     }
 
+    /// <summary>Runs the animated-tile and treadmill suite through the verification command dispatcher.</summary>
     [VerificationCommand("--treadmill-animated-tiles")]
     internal static int TreadmillAnimatedTilesCommand()
     {

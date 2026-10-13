@@ -158,6 +158,8 @@ public static class SamusSlopePhysics
         return new SlopeAlignmentResult(yPosition, adjusted);
     }
 
+    /// <summary>Converts a pixel probe to its containing room block; probes
+    /// beyond the room bounds return false without reading collision data.</summary>
     private static bool TryGetBlockAtPixel(
         RoomLevelData level,
         Position16<RoomPixels> pixel,

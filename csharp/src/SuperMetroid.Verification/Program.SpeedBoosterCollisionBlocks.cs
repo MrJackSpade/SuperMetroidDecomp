@@ -16,6 +16,7 @@ using static SpeedBoosterPlmProgramsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Focused collision-path checks for issue #297's Speed Booster terrain and spawned PLM programs.</summary>
 internal static class SpeedBoosterCollisionBlocksVerification
 {
     /// <summary>
@@ -35,6 +36,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             "  Speed Booster blocks: contact gating, all five PLMs, sound, crumble, and respawn agree.");
     }
 
+    /// <summary>Confirms an unboosted downward contact remains solid and releases the temporary setup slot without changing terrain.</summary>
     private static void VerifyInactiveSpeedBlockRemainsSolid()
     {
         (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
@@ -52,6 +54,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             "rejected setup synchronously releases its temporary PLM slot");
     }
 
+    /// <summary>Confirms stage-four floor contact clears collision immediately, queues the crumble sound, and later restores solid terrain.</summary>
     private static void VerifyBoostedFloorContactRunsRespawningPlm()
     {
         (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
@@ -95,6 +98,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             "respawning list restores synthesized visual parent $0B6");
     }
 
+    /// <summary>Confirms stage-four wall contact selects the permanent PLM and leaves its block as air after the crumble frames.</summary>
     private static void VerifyBoostedWallContactRunsPermanentPlm()
     {
         (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
@@ -120,6 +124,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             "permanent speed-block list does not restore collision");
     }
 
+    /// <summary>Confirms Brinstar BTS $82-$85 choose their distinct respawn, permanent, and Dachora PLM headers through real collision contact.</summary>
     private static void VerifyBrinstarAreaTableVariants()
     {
         var cases = new (byte Bts, SpeedBoosterBlockPlmDefinition Definition)[]
@@ -150,6 +155,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         }
     }
 
+    /// <summary>Places one type-$B speed block at room cell (2,4) with an empty PLM population and bank-$84 instruction fixtures.</summary>
     internal static (TestAddressSpace Bus, RoomLevelData Level, RoomPlmSystem Plms, int BlockIndex)
         CreateSpeedBoosterBlockFixture(RoomBlockBehavior bts, AreaId area)
     {
@@ -176,6 +182,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         return (bus, level, plms, blockIndex);
     }
 
+    /// <summary>Positions Samus for the fixture contact and selects either stage-four boost or the inactive counter.</summary>
     internal static SamusState CreateSpeedBoosterCollisionSamus(bool active)
     {
         var samus = new SamusState
@@ -190,6 +197,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         return samus;
     }
 
+    /// <summary>Seeds the empty population, single-block draw, and five bank-$84 speed-block lists used by collision-spawned PLMs.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Speed Booster block PLM instruction lists and an empty room population")]
     private static void SeedSpeedBoosterBlockCartridge(TestAddressSpace bus, ushort emptyPopulation)
     {
@@ -207,6 +215,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         bus.WriteBytes(0x84c9e4, CreatePermanentSpeedList(1, drawPointer));
     }
 
+    /// <summary>Encodes sound, three crumble delays, a 48-frame wait, three return draws, and the restore/delete opcodes.</summary>
     private static byte[] CreateRespawningSpeedList(ushort crumbleDelay, ushort drawPointer)
     {
         var bytes = new List<byte> { 0x79, 0x8c, 0x06 };
@@ -225,6 +234,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         return bytes.ToArray();
     }
 
+    /// <summary>Encodes sound, three crumble delays, one final draw frame, and deletion without restoring the block.</summary>
     private static byte[] CreatePermanentSpeedList(ushort crumbleDelay, ushort drawPointer)
     {
         var bytes = new List<byte> { 0x79, 0x8c, 0x06 };
@@ -241,6 +251,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         return bytes.ToArray();
     }
 
+    /// <summary>Advances a fixture PLM one frame with stationary view and no controller or enemy-death events.</summary>
     private static void StepSpeedBoosterPlm(
         RoomPlmSystem plms,
         TestAddressSpace bus,
@@ -248,6 +259,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         BackgroundTilemapStreamer streamer) =>
         plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
+    /// <summary>Runs the focused Speed Booster collision and PLM verification from its command-line switch.</summary>
     [VerificationCommand("--speed-booster-block-plms")]
     internal static int SpeedBoosterBlockPlmsCommand()
     {

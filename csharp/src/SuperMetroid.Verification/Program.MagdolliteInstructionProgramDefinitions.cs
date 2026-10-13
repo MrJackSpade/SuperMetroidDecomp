@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Magdollite animation programs through real head, hand, and pillar behavior.</summary>
 internal static class MagdolliteInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge and runs the Magdollite instruction checks.</summary>
     internal static void VerifyMagdolliteInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMagdolliteInstructionProgramDefinitions), () => VerifyMagdolliteInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled words to the cartridge and exercises all Magdollite program families without runtime instruction reads.</summary>
     internal static void VerifyMagdolliteInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -208,6 +211,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeatedly resolves a compiled idle instruction to measure warmed lookup allocations.</summary>
     private static int ProbeMagdolliteInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -219,6 +223,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects production reads of the installed Magdollite mechanics and presentation bytes.</summary>
     private static CartridgeReadGuard NewMagdolliteInstructionProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => MagdolliteInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -227,6 +232,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                  MagdolliteInstructionProgramDefinitions.IsPresentationWord(unchecked((ushort)(address - 1)))),
             address => $"Production read compiled Magdollite instruction byte ${address:X6}.");
 
+    /// <summary>Runs the standalone Magdollite instruction mechanics verification command.</summary>
     [VerificationCommand("--magdollite-instruction-mechanics")]
     internal static int MagdolliteInstructionMechanicsCommand()
     {

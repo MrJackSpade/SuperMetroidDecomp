@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Development-tool instance members of <see cref="MotherBrainRoomColorPresentation"/>.</summary>
 internal static class MotherBrainRoomColorPresentationToolingExtensions
 {
+    /// <summary>Exposes the installed flash row identities for development audits without exposing palette colors.</summary>
     extension(MotherBrainRoomColorPresentation self)
     {
         /// <summary>Timed-entry identities installed by the validated flash rows; exposes no color payload.</summary>

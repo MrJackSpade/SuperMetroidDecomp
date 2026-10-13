@@ -15,8 +15,7 @@ internal static class DoorScrollPrograms
         return Dispatch(pointer, scrolls);
     }
 
-    // A null target probes callback ownership without performing writes.
-    // The same named cases own both recognition and execution.
+    /// <summary>Uses the same named bank-$8F cases for ownership probing and ordered grid writes; null probes without mutation.</summary>
     private static bool Dispatch(DoorSetupCode pointer, RoomScrollGrid? scrolls)
     {
         switch (pointer)
@@ -328,7 +327,10 @@ internal static class DoorScrollPrograms
         }
     }
 
+    /// <summary>Marks one room-grid storage byte as a red scroll boundary when applying a callback.</summary>
     private static void Red(RoomScrollGrid? scrolls, byte index) => scrolls?.SetStorage(index, RoomScrollState.RedBoundary);
+    /// <summary>Marks one room-grid storage byte as blue without mutating an ownership probe.</summary>
     private static void Blue(RoomScrollGrid? scrolls, byte index) => scrolls?.SetStorage(index, RoomScrollState.Blue);
+    /// <summary>Marks one room-grid storage byte as green without mutating an ownership probe.</summary>
     private static void Green(RoomScrollGrid? scrolls, byte index) => scrolls?.SetStorage(index, RoomScrollState.Green);
 }

@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class PlmShotBlockVisuals
 {
+    /// <summary>Owns PLM drawing bindings for all editable room block appearances.</summary>
     private readonly RoomPlmSystem _plms;
 
+    /// <summary>Forwards host artwork binding to the active room PLM drawing system.</summary>
     internal PlmShotBlockVisuals(RoomPlmSystem plms)
     {
         _plms = plms;

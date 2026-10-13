@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Samus and camera movement through the Maridia elevatube from both entrances.</summary>
 internal static class ElevatubeScrollingVerification
 {
+    /// <summary>Verifies native room-main displacement, prior-frame scroll checkpoints, and viewport carriage in both directions.</summary>
     internal static void VerifyElevatubeScrolling()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -68,6 +70,7 @@ internal static class ElevatubeScrollingVerification
         }
     }
 
+    /// <summary>Runs the two-direction elevatube scrolling regression.</summary>
     [VerificationCommand("--elevatube-scrolling")]
     internal static int ElevatubeScrollingCommand()
     {

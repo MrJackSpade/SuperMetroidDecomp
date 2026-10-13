@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Norfair Rio parent and flame instruction programs.</summary>
 internal static class NorfairRioInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for Norfair Rio instruction comparison.</summary>
     internal static void VerifyNorfairRioInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNorfairRioInstructionProgramDefinitions), () => VerifyNorfairRioInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks native words, seven guarded programs, callbacks, visual selectors, and allocation-free reads.</summary>
     internal static void VerifyNorfairRioInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -135,6 +138,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
             "flame programs, eleven callbacks, and 34 compiled spritemap selectors pass.");
     }
 
+    /// <summary>Checks that parent and follower initialization choose idle and ascending-flames programs respectively.</summary>
     private static void VerifyNorfairRioInitializerSelections(
         ISnesAddressSpace bus)
     {
@@ -159,6 +163,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
             "Norfair Rio follower initializer selects ascending flames");
     }
 
+    /// <summary>Seeds a Geruta-backed Norfair Rio actor with an instruction entry and optional installed artwork.</summary>
     internal static (
         RoomEnemySystem Enemies,
         RoomEnemySlot Slot,
@@ -180,6 +185,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         return (enemies, slot, state);
     }
 
+    /// <summary>Processes the selected instruction entry on each requested actor update.</summary>
     internal static void RunNorfairRioInstructionFrames(
         RoomEnemySystem enemies,
         object?[] arguments,
@@ -193,6 +199,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeatedly consumes idle and ascending control words for steady-state allocation measurement.</summary>
     private static int ProbeNorfairRioInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -206,15 +213,18 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads a native bank-$A2 instruction word for the independent cartridge comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair Rio instruction words")]
     internal static ushort ReadNorfairRioInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa20000 | address);
 
+    /// <summary>Forbids compiled control reads and observes or forbids native spritemap selectors.</summary>
     internal static CartridgeReadGuard NewNorfairRioInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
+        // Find the visual-selector word containing either byte of a forbidden read.
         static ushort SelectorWord(int address) => Enumerable.Range(0, NorfairRioInstructionProgramDefinitions.PresentationWordCount)
             .Select(NorfairRioInstructionProgramDefinitions.PresentationWordAddress)
             .First(word => unchecked((ushort)address) == word || unchecked((ushort)address) == unchecked((ushort)(word + 1)));
@@ -227,6 +237,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
             : guard.ObserveWords(0xa20000, NorfairRioInstructionProgramDefinitions.PresentationWordCount, NorfairRioInstructionProgramDefinitions.PresentationWordAddress);
     }
 
+    /// <summary>Runs the retail-cartridge Norfair Rio instruction verification.</summary>
     [VerificationCommand("--norfair-rio-instruction-program-definitions")]
     internal static int NorfairRioInstructionProgramDefinitionsCommand()
     {

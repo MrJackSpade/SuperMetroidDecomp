@@ -2,8 +2,10 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 
+/// <summary>Checks that bundled station-reveal masks reject missing, corrupt, and structurally invalid authored map data.</summary>
 internal static class MapMaskValidationVerification
 {
+    /// <summary>Temporarily mutates the bundled mask and manifest, confirms each invalid case fails loading, then restores both files and reloads them.</summary>
     internal static void VerifyBundledMapMaskValidation(string directory)
     {
         string maskPath = Path.Combine(directory, AreaMapCatalogFormat.StationRevealFile);

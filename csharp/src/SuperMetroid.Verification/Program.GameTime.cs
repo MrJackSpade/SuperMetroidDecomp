@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 
+/// <summary>Checks 60-frame time rollover, the 99:59:59 saturation limit, and save-snapshot time fields.</summary>
 internal static class GameTimeVerification
 {
     /// <summary>Checks `$82:DB69` rollover, saturation, and save-snapshot ownership.</summary>

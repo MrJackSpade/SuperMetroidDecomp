@@ -13,8 +13,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Input;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks that Morph Ball rides and rolls off both bomb-raised shutters in the retail room.</summary>
 internal static class ShutterRidingVerification
 {
+    /// <summary>Uses real bomb activation to check the upper stop, rider alignment, and roll-off in both slots.</summary>
     internal static void VerifyShutterRiding()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -54,6 +56,7 @@ internal static class ShutterRidingVerification
         Console.WriteLine("  Shootable shutters: real bomb activation, upper stop, rider alignment and roll-off agree in both room $01/$22 slots.");
     }
 
+    /// <summary>Runs the focused shutter rider comparison.</summary>
     [VerificationCommand("--shutter-riding")]
     internal static int ShutterRidingCommand()
     {

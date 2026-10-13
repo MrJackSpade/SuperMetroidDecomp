@@ -18,9 +18,10 @@ using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Samus projectile launch velocity against native overlapping movement records and live runtime shots.</summary>
 internal static class ProjectileInheritanceProbeVerification
 {
-    // The original initialized-WRAM reproduction is retained alongside live producers.
+    /// <summary>Replays initialized WRAM snapshots through power-beam velocity setup and confirms live movement and weapon launches.</summary>
     internal static void ProbeProjectileVelocityInheritance()
     {
         var initialize = new Action<ISnesAddressSpace, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
@@ -79,6 +80,7 @@ internal static class ProjectileInheritanceProbeVerification
         Console.WriteLine("Projectile inheritance: original 50 cases, live movement writes and preceding-frame runtime shot pass.");
     }
 
+    /// <summary>Checks directional displacement writes, wall clipping, camera subspeed, and alpha reset behavior.</summary>
     private static void VerifyProjectileInheritanceMovement()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -116,6 +118,7 @@ internal static class ProjectileInheritanceProbeVerification
             "Alpha reset clears exactly all eight directional words");
     }
 
+    /// <summary>Fires a beam, missile, or Super Missile after controller-driven movement and verifies the prior-frame record survives save restoration.</summary>
     private static void VerifyProjectileInheritanceRuntime(ushort weapon)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -183,6 +186,7 @@ internal static class ProjectileInheritanceProbeVerification
         return CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c2d1) + CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c357);
     }
 
+    /// <summary>Runs the projectile velocity inheritance verification command.</summary>
     [VerificationCommand("--projectile-inheritance-probe")]
     internal static int ProjectileInheritanceProbeCommand()
     {

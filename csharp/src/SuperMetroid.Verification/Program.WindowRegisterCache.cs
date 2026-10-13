@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks native window-register byte ownership and NMI publication timing.</summary>
 internal static class WindowRegisterCacheVerification
 {
+    /// <summary>Confirms STY writes preserve adjacent cache bytes, initialization touches only owned fields, and lagged NMI retains the previous display snapshot.</summary>
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     internal static void VerifyWindowRegisterCache()
     {

@@ -13,12 +13,11 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks contact-damage activation of the Three Musketeers' shootable shutter.</summary>
 internal static class ShutterScrewContactVerification
 {
-    // #1269: MainAI_ShutterShootable_ShutterDestroyable_Kamer ($A2:EED1) runs its function,
-    // then, while idle, reacts when Samus's four solid-enemy collision words AND to this
-    // enemy and her contact damage is nonzero ($A2:EEE9-EF04). In the 100% movie a screw
-    // attack pressed against a Three Musketeers' shootable shutter starts it moving.
+    /// <summary>Confirms an idle shutter reacts to screw-attack contact and ignores contact with no damage.</summary>
+    /// <remarks>#1269: native $A2:EED1 checks Samus's solid-enemy contact words and nonzero contact damage after its function; this starts the shutter in the 100% movie.</remarks>
     internal static void VerifyShutterScrewContact()
     {
         Confirm(contactDamage: SamusContactDamageIndex.ScrewAttack, reacts: true);
@@ -52,6 +51,7 @@ internal static class ShutterScrewContactVerification
         }
     }
 
+    /// <summary>Runs the focused shutter screw-contact verification command.</summary>
     [VerificationCommand("--shutter-screw-contact")]
     internal static int ShutterScrewContactCommand()
     {

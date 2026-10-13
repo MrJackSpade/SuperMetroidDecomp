@@ -11,13 +11,20 @@ public sealed class SamusArmCannonArtworkCatalog
     /// <summary>Tile-source slots: one row per native aim direction, each holding every cover-art frame slot.</summary>
     private static readonly FixedGridShape TileSourceShape =
         new(SamusRenderingRomData.ArmCannon.DirectionCount, SamusArmCannonArtworkFormat.FramesPerDirection);
+    /// <summary>Pose descriptor pointers that differ from the native pose table.</summary>
     internal readonly Dictionary<int, ushort> posePointers = new();
+    /// <summary>Descriptor bytes retained when an edit or independent value cannot be derived.</summary>
     internal readonly Dictionary<int, byte> drawingData = new();
+    /// <summary>Per-direction OBJ attribute words that differ from the stock orientation rules.</summary>
     internal readonly Dictionary<int, ushort> attributes = new();
+    /// <summary>Per-direction cover tile source selections that differ from stock lists.</summary>
     internal readonly Dictionary<int, ushort> tileSources = new();
+    /// <summary>Installed indexed PNG characters for the twelve nonclosed cover tiles.</summary>
     private readonly RoomCharacterAtlas tiles;
+    /// <summary>Optional body geometry used to derive cover attachment coordinates.</summary>
     private readonly SamusBodyArtworkCatalog? bodyGeometry;
 
+    /// <summary>Separates authored edits from native pointer, placement, and tile-selection rules.</summary>
     private SamusArmCannonArtworkCatalog(ushort[] posePointers, byte[] drawingData,
         ushort[] attributes, ushort[][] tileSources, RoomCharacterAtlas tiles,
         SamusBodyArtworkCatalog? bodyGeometry = null)
@@ -55,6 +62,7 @@ public sealed class SamusArmCannonArtworkCatalog
         this.tiles = tiles;
     }
 
+    /// <summary>Rebinds cover coordinates to installed Samus body geometry while preserving selected edits.</summary>
     internal SamusArmCannonArtworkCatalog WithBodyGeometry(SamusBodyArtworkCatalog body) => new(
         Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(PoseDrawingData).ToArray(),
         Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
@@ -86,14 +94,16 @@ public sealed class SamusArmCannonArtworkCatalog
         content.Append("characters", this.tiles.Transfer.Span);
     });
 
-    // Placement and PNG admission are distinct file boundaries. The installer can
-    // identify the failing file without attributing JSON errors to the tile sheet.
+    /// <summary>Validated JSON placement tables before their separately loaded tile PNG is attached.</summary>
+    /// <remarks>Placement and PNG admission remain distinct so installation identifies the failing file.</remarks>
     internal sealed record Placement(ushort[] PosePointers, byte[] DrawingData,
         ushort[] Attributes, ushort[][] TileSources);
 
+    /// <summary>Combines validated descriptor tables with the installed indexed tile sheet.</summary>
     internal static SamusArmCannonArtworkCatalog FromPlacement(Placement placement, RoomCharacterAtlas tiles) =>
         new(placement.PosePointers, placement.DrawingData, placement.Attributes, placement.TileSources, tiles);
 
+    /// <summary>Parses arm-cannon JSON and validates descriptor, attribute, and tile-source geometry.</summary>
     internal static Placement LoadPlacement(Stream json)
     {
         SamusArmCannonArtworkDocument document;
@@ -217,14 +227,17 @@ public sealed class SamusArmCannonArtworkCatalog
         return false;
     }
 
+    /// <summary>Rejects an authored drawing value outside one unsigned byte.</summary>
     private static byte RequireByte(int value, string name) => (uint)value <= byte.MaxValue
         ? (byte)value
         : throw new InvalidDataException($"Arm-cannon {name} is not a byte.");
 
+    /// <summary>Rejects an authored pointer or attribute outside one unsigned word.</summary>
     private static ushort RequireWord(int value, string name) => (uint)value <= ushort.MaxValue
         ? (ushort)value
         : throw new InvalidDataException($"Arm-cannon {name} is not a word.");
 
+    /// <summary>Strict camel-case options for loading and writing placement JSON.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -965,6 +978,7 @@ public static class SamusArmCannonArtworkFormat
     /// <summary>$90:C663 DrawArmCannon emits one small OBJ and transfers one32-byte4bpp tile: its horizontal footprint is eight pixels.</summary>
     private const int CoverWidthPixels = 8;
 
+    /// <summary>Mirrors a signed cover X offset around Samus while accounting for its eight-pixel width.</summary>
     internal static byte ReflectCoverX(byte coordinate) => unchecked((byte)(-unchecked((sbyte)coordinate) - CoverWidthPixels));
 
     /// <summary>Opposite-facing cover origins reflect the eight-pixel footprint around Samus's origin.</summary>
@@ -1010,6 +1024,7 @@ public static class SamusArmCannonArtworkFormat
         return selected >= 0;
     }
 
+    /// <summary>Selects the arm-cannon tile source for vertical, horizontal, or diagonal aim.</summary>
     private enum TileOrientation
     {
         /// <summary>$90:C7B9 selects vertical frames from $9A:9A00.</summary>
@@ -1083,6 +1098,7 @@ public static class SamusArmCannonArtworkFormat
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same native source order through the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Intact egg and two opposite row-sheared rocking poses.</summary>
 internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Recalculates an egg frame only when its native sprite pointer selects one of the three rocking poses.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 3; frame++)
@@ -13,7 +14,9 @@ internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSp
                 return supplied.CalculateIfMatching(new IntroEggRockingParts(frame));
         return supplied;
     }
+    /// <summary>The intact egg uses a large lower-left part; either sheared pose splits it into four small parts.</summary>
     public int Count => frame == 0 ? 6 : 9;
+    /// <summary>Places an egg atlas part on its grid, shearing each rocking row according to the selected pose.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -55,13 +58,16 @@ internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSp
                 unchecked((byte)(-12 + 8 * row)), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Enumerates egg parts in the cartridge's top-strip then lower-body drawing order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same drawing order to callers using the non-generic collection interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Character indices for the three atlas regions assembled into the intact and rocking egg poses.</summary>
 internal static class IntroEggRockingAtlas
 {
     /// <summary>Tile$122,start of the intact egg three-tile top strip.</summary>

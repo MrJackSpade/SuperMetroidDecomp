@@ -187,6 +187,7 @@ internal static class SamusBodyPlacementDefinitions
         catch (InvalidDataException) { return false; }
     }
 
+    /// <summary>Reconstructs selected top/bottom tile uploads and finds the lowest opaque sprite pixel; declines incomplete or unsupported artwork.</summary>
     private static bool TryOpaqueBottom(SamusBodyArtworkCatalog art, SamusPoseId pose, ushort frame,
         bool drawBottom, out int bottom)
     {
@@ -234,6 +235,8 @@ internal static class SamusBodyPlacementDefinitions
         }
         return bottom != int.MinValue;
 
+        // Copy both planar tile-transfer segments into split VRAM positions and mark
+        // their bytes available for opacity sampling in this local calculation.
         static void Upload(SamusBodyTileDefinition definition,
             Game.SamusRenderingRomData.TileTransfers.SplitVramDestinations destination,
             Span<byte> data, Span<bool> coverage)

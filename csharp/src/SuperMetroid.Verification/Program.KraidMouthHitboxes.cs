@@ -15,8 +15,10 @@ using SuperMetroid.Core.Hardware;
 using static KraidMouthMappingsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kraid mouth hitbox geometry and lower-bank bus behavior against retail cartridge and live address-space reads.</summary>
 internal static class KraidMouthHitboxesVerification
 {
+    /// <summary>Checks head-program pointers, rectangle boundaries, all lower-half starts, and rejection of unrelated cartridge pointers.</summary>
     internal static void VerifyKraidMouthHitboxes(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidMouthShapeCases), () => VerifyKraidMouthShapeCases(rom));
@@ -137,6 +139,7 @@ internal static class KraidMouthHitboxesVerification
                 $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),
         };
 
+    /// <summary>Allows live lower-half bus reads while rejecting upper bank-A7 cartridge geometry reads.</summary>
     private static MutableCartridgeReadGuard NewKraidMouthLowHalfGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -145,18 +148,25 @@ internal static class KraidMouthHitboxesVerification
         return guard;
     }
 
+    /// <summary>Answers bank-A7 lower-window reads with address-derived bytes so boundary-crossing source selection is visible.</summary>
     [CpuBusBoundary("exact bus test: synthetic bank-$A7 low-window WRAM/SRAM/peripheral responder witnessing which bus source each Kraid mouth and head boundary-crossing operand byte selects")]
     internal sealed class KraidMouthBoundaryReadBus : ISnesAddressSpace, IImportCartridgeSource,
         ISnesMutableMemory, ISnesCpuPeripheralSource
     {
+        /// <summary>Returns the fixture byte for a lower-window WRAM read.</summary>
         public byte ReadWorkRamByte(int address) => ReadByte(address);
+        /// <summary>Returns the fixture byte for a lower-window save-RAM read.</summary>
         public byte ReadSaveRamByte(int address) => ReadByte(address);
+        /// <summary>Returns the fixture byte for a lower-window peripheral read.</summary>
         public byte ReadPeripheralByte(int address) => ReadByte(address);
 
+        /// <summary>Derives a recognizable byte from the selected bank-relative offset.</summary>
         public static byte Value(ushort pointer) => unchecked((byte)(pointer ^ 0x5a));
 
+        /// <summary>Routes cartridge-source attempts through the same lower-window validation.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
+        /// <summary>Rejects upper-window and other-bank reads before returning the offset-derived fixture byte.</summary>
         public static byte ReadByte(int address)
         {
             SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
@@ -168,10 +178,12 @@ internal static class KraidMouthHitboxesVerification
             return Value(sourceAddress.Offset);
         }
 
+        /// <summary>Rejects writes because the mouth geometry fixture supplies only read behavior.</summary>
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException("Kraid mouth geometry is read-only.");
     }
 
+    /// <summary>Runs the Kraid mouth geometry suite using the retail ROM oracle.</summary>
     [VerificationCommand("--kraid-mouth-hitboxes")]
     internal static int KraidMouthHitboxesCommand()
     {

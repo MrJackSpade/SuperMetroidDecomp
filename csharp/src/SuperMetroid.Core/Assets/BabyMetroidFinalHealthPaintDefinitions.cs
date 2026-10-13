@@ -34,6 +34,7 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
     /// <summary>$AD:E87E, fang contour is three quarters of initial$A9:94EC, nearest rounding with ties toward dark.</summary>
     private const int ContourNumerator = 3, ContourDenominator = 4;
 
+    /// <summary>Selects a final-health fade endpoint for the fourteen transferred palette slots.</summary>
     internal static Bgr555 Color(int color)
     {
         var slot = (BabyMetroidInitialColorSlot)color;
@@ -61,6 +62,7 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
         };
     }
 
+    /// <summary>Adds half the initial glint increment to the weakened organ light, with channel-specific rounding.</summary>
     private static Bgr555 Glint()
     {
         int green = Math.Min(31, InnardLight.Green + (InitialSlots.InnardGlintAddition + GlintDivisor - 1) / GlintDivisor);
@@ -68,6 +70,7 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
         return new(InnardLight.Red, green, blue);
     }
 
+    /// <summary>Interpolates the organ's red by smoothstep, green linearly, and blue by one unit per shade.</summary>
     private static Bgr555 InnardShade(int shade)
     {
         int intervals = BabyMetroidInitialColorSlot.InnardDark - BabyMetroidInitialColorSlot.InnardLight;
@@ -80,6 +83,7 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
         return new(red, green, blue);
     }
 
+    /// <summary>Darkens the initial fang outline to three quarters with the selected rounding policy.</summary>
     private static Bgr555 FangContour() => InitialSlots.FangOutline.Map((_, channel) =>
         (channel * ContourNumerator + (ContourDenominator - 1) / 2) / ContourDenominator);
 }

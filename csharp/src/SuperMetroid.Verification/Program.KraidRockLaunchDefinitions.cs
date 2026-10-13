@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kraid spit-rock launch velocity and production spawn behavior.</summary>
 internal static class KraidRockLaunchDefinitionsVerification
 {
+    /// <summary>Compares all RNG words against the eight native signed 8.8 speed choices.</summary>
     private static void VerifyKraidRockLaunchSpeedSelection(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -16,9 +18,11 @@ internal static class KraidRockLaunchDefinitionsVerification
         }
     }
 
+    /// <summary>Reads the native velocity table as the selection oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid rock launch speed selection")]
     private static byte KraidRockLaunchSpeedSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks wrapped spawn offsets, projectile fields, and RNG read count without table rereads.</summary>
     internal static void VerifyKraidRockLaunchDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         Suite(nameof(VerifyKraidRockLaunchSpeedSelection), () => VerifyKraidRockLaunchSpeedSelection(rom));
@@ -66,9 +70,11 @@ internal static class KraidRockLaunchDefinitionsVerification
         Console.WriteLine("Kraid rock launch: eight native words and 65536 actual wrapped spawns pass with table reads and RNG advances forbidden.");
     }
 
+    /// <summary>Reads the original launch-speed words for production spawn comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid rock launch definitions")]
     private static byte KraidRockLaunchDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Rejects runtime access to the migrated speed table and unexpected bus writes.</summary>
     private static CartridgeReadGuard NewKraidRockGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .ForbidRange(0xa7bc65, 0xa7bc75 - 0xa7bc65, _ => "Unexpected migrated Kraid rock velocity read.")

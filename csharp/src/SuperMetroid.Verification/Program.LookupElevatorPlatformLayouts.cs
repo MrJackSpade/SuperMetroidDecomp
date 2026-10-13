@@ -6,12 +6,17 @@ using static SamusEaterPlmDefinitionsVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Compares the three exported elevator platform PLM draw lists with cartridge data and room effects.</summary>
 internal static class LookupElevatorPlatformLayoutsVerification
 {
+    /// <summary>Checks draw run positions, continuation offsets, and resulting room block placement.</summary>
     internal static void VerifyElevatorPlatformLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 0);
+    /// <summary>Checks collision bits of each exported level word against the native draw lists.</summary>
     internal static void VerifyElevatorPlatformLayoutCollision(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 1);
+    /// <summary>Checks the visible tile bits of each exported level word against the native draw lists.</summary>
     internal static void VerifyElevatorPlatformLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 2);
 
+    /// <summary>Checks the requested word field across the calculated shape, DTO exports, and native PLM list.</summary>
     private static void VerifyElevatorPlatformLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0xaa97,0xaaaf,0xaac7];

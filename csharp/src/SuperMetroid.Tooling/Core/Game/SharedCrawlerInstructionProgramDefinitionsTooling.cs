@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(SharedCrawlerInstructionProgramDefinitions))]
 internal abstract class SharedCrawlerInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Two setup words, one duration per pose, and a closing command pair per surface.</summary>
     internal const int WordsPerList = 2 + SharedCrawlerInstructionProgramDefinitions.PoseCount + 2;
+    /// <summary>Compiled words across all crawler surface orientations.</summary>
     public static int MechanicsWordCount => SharedCrawlerInstructionProgramDefinitions.SurfaceCount * WordsPerList;
+    /// <summary>One drawing operand per pose for every crawler surface orientation.</summary>
     public static int PresentationWordCount => SharedCrawlerInstructionProgramDefinitions.SurfaceCount * SharedCrawlerInstructionProgramDefinitions.PoseCount;
+    /// <summary>Locates a setup, duration, or closing word within the selected surface list.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -20,11 +24,13 @@ internal abstract class SharedCrawlerInstructionProgramDefinitionsTooling : IIns
         ushort address = (ushort)(SharedCrawlerInstructionProgramDefinitions.UpsideRight + index / WordsPerList * SharedCrawlerInstructionProgramDefinitions.ListBytes + offset);
         return new(address, SharedCrawlerInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Locates the drawing operand after a crawler pose duration.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(SharedCrawlerInstructionProgramDefinitions.UpsideRight + index / SharedCrawlerInstructionProgramDefinitions.PoseCount * SharedCrawlerInstructionProgramDefinitions.ListBytes + SharedCrawlerInstructionProgramDefinitions.SetupBytes + index % SharedCrawlerInstructionProgramDefinitions.PoseCount * SharedCrawlerInstructionProgramDefinitions.PoseBytes + 2);
     }
+    /// <summary>Filters bank-$A3 list bytes to exclude the presentation operands.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa30000) return false;

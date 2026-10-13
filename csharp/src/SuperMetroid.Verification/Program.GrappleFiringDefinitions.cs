@@ -18,8 +18,10 @@ using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 using static WordSamplesVerification;
 
+/// <summary>Checks compiled Grapple launch, origin, and movement data through production firing and connection paths.</summary>
 internal static class GrappleFiringDefinitionsVerification
 {
+    /// <summary>Compares launch and draw origins across authored poses, input directions, wrap boundaries, and trajectory frames.</summary>
     internal static void VerifyGrappleFiringDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGrappleLaunchXSelection), () => VerifyGrappleLaunchXSelection(rom));
@@ -193,9 +195,11 @@ internal static class GrappleFiringDefinitionsVerification
         Console.WriteLine("Grapple firing definitions: 70 native words, loud non-catalog origin rejection, every direction and aiming pose with every signed graphics-Y class and position wrap boundary, every held direction combination, 200 trajectory frames with flare overrides and 54 locked snaps pass; authored mechanics reads forbidden.");
     }
 
+    /// <summary>Reads a native grapple definition byte solely for comparison with compiled data.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple firing definitions")]
     private static byte GrappleFiringDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks normal and running X-origin aliases across all ten directions.</summary>
     internal static void VerifyGrappleOriginXSelection(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginXReferenceAddress,
@@ -204,14 +208,17 @@ internal static class GrappleFiringDefinitionsVerification
             true, origin => origin.X, "running X alias"));
     }
 
+    /// <summary>Checks the ordinary Y-origin table across all Grapple directions.</summary>
     internal static void VerifyGrappleOriginDefaultYSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginYReferenceAddress,
             false, origin => origin.Y, "default Y"));
 
+    /// <summary>Checks the running Y-origin table across all Grapple directions.</summary>
     internal static void VerifyGrappleOriginRunningYSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.RunningOriginYReferenceAddress,
             true, origin => origin.Y, "running Y"));
 
+    /// <summary>Compares one origin component with native words and rejects unsupported directions.</summary>
     private static void VerifyGrappleOriginField(SuperMetroidAddressSpace rom, int address,
         bool running, Func<(short X, short Y), short> select, string label)
     {
@@ -227,20 +234,25 @@ internal static class GrappleFiringDefinitionsVerification
                 $"Grapple origin {label} bounds");
     }
 
+    /// <summary>Reads a native Grapple origin byte for the comparison oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple origin field")]
     private static byte GrappleOriginFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    /// <summary>Checks launch X velocity for every direction.</summary>
     internal static void VerifyGrappleLaunchXSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.XVelocityReferenceAddress,
             direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).XVelocity), "X velocity"));
 
+    /// <summary>Checks launch Y velocity for every direction.</summary>
     internal static void VerifyGrappleLaunchYSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.YVelocityReferenceAddress,
             direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).YVelocity), "Y velocity"));
 
+    /// <summary>Checks initial Grapple angle for every direction.</summary>
     internal static void VerifyGrappleLaunchAngleAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.AngleReferenceAddress,
             direction => GrappleFiringDefinitions.Launch(direction).Angle, "angle"));
 
+    /// <summary>Compares one launch field with all native table entries and checks selector bounds.</summary>
     private static void VerifyGrappleLaunchField(SuperMetroidAddressSpace rom, int source,
         Func<byte, ushort> select, string label)
     {
@@ -254,6 +266,7 @@ internal static class GrappleFiringDefinitionsVerification
         AssertThrows<IndexOutOfRangeException>(() => select(byte.MaxValue), $"Grapple {label} invalid maximum");
     }
 
+    /// <summary>Reads a native Grapple launch byte for the comparison oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple launch field")]
     private static byte GrappleLaunchFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Forbids the selected source pose's compiled movement and graphics-offset bytes and every migrated Grapple firing table.</summary>
@@ -273,6 +286,7 @@ internal static class GrappleFiringDefinitionsVerification
         return guard;
     }
 
+    /// <summary>Runs the standalone Grapple firing definition verification command.</summary>
     [VerificationCommand("--grapple-firing-definitions")]
     internal static int GrappleFiringDefinitionsCommand()
     {

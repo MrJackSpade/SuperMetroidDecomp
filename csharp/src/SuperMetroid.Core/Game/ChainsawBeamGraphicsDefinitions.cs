@@ -22,6 +22,7 @@ internal static class ChainsawBeamGraphicsDefinitions
         0x19, 0xc9, 0x4e, 0x00, 0xf0, 0x14, 0xad,
     ];
 
+    /// <summary>Loads beam colors through the glitched adjacent-table pointer, masking arbitrary source words to CGRAM's fifteen color bits.</summary>
     internal static void LoadPalette(ISnesAddressSpace bus, SnesCgram cgram)
     {
         for (ushort color = 0; color < Assets.BeamPaletteDefinitions.ColorCount; color++)

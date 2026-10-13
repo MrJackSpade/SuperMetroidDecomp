@@ -79,21 +79,35 @@ internal static class RenderFrameSnapshotWriter
     /// <summary>Forwards writes and counts them, so any destination gets the packet size bound.</summary>
     private sealed class CountingStream(Stream inner) : Stream
     {
+        /// <summary>Number of packet bytes forwarded to the wrapped destination.</summary>
         public long Written { get; private set; }
+        /// <summary>Packet writer never reads its destination.</summary>
         public override bool CanRead => false;
+        /// <summary>Packet writer never seeks its destination.</summary>
         public override bool CanSeek => false;
+        /// <summary>Packet bytes may be forwarded to the wrapped destination.</summary>
         public override bool CanWrite => true;
+        /// <summary>Length is unavailable because the wrapped destination need not seek.</summary>
         public override long Length => throw new NotSupportedException();
+        /// <summary>Position is unavailable because the wrapped destination need not seek.</summary>
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        /// <summary>Flushes packet bytes to the wrapped destination.</summary>
         public override void Flush() => inner.Flush();
+        /// <summary>Rejects reads from the write-only packet destination.</summary>
         public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        /// <summary>Rejects seeks from the sequential packet writer.</summary>
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        /// <summary>Rejects length changes to the wrapped destination.</summary>
         public override void SetLength(long value) => throw new NotSupportedException();
+        /// <summary>Forwards an array segment and includes its bytes in the packet count.</summary>
         public override void Write(byte[] buffer, int offset, int count) { inner.Write(buffer, offset, count); Written += count; }
+        /// <summary>Forwards a byte span and includes its length in the packet count.</summary>
         public override void Write(ReadOnlySpan<byte> buffer) { inner.Write(buffer); Written += buffer.Length; }
+        /// <summary>Forwards one byte and advances the packet count.</summary>
         public override void WriteByte(byte value) { inner.WriteByte(value); Written++; }
     }
 
+    /// <summary>Writes complete VRAM, CGRAM, OAM, and sprite-count images in packet order.</summary>
     private static void WriteMemory(BinaryWriter writer, PpuMemorySnapshot memory)
     {
         writer.Write(memory.Vram);
@@ -102,6 +116,7 @@ internal static class RenderFrameSnapshotWriter
         writer.Write(memory.ModeledSpriteCount);
     }
 
+    /// <summary>Writes an operation count after enforcing the format's maximum.</summary>
     private static void WriteCount(BinaryWriter writer, int count)
     {
         if (count > RenderPacketFormat.MaximumOperations)
@@ -109,9 +124,7 @@ internal static class RenderFrameSnapshotWriter
         writer.Write(count);
     }
 
-    // The packet format stores each spatial value as its X then Y component at the original
-    // field widths: unsigned words for positions, signed words for Mode 7 offsets and 32-bit
-    // integers for tilemap sizes.
+    /// <summary>Writes an unsigned spatial position as X then Y 16-bit components.</summary>
     private static void WritePosition<TSpace>(BinaryWriter writer, Position16<TSpace> position)
         where TSpace : ISpatialSpace
     {
@@ -119,18 +132,21 @@ internal static class RenderFrameSnapshotWriter
         writer.Write(position.Y);
     }
 
+    /// <summary>Writes a signed spatial offset as X then Y 16-bit components.</summary>
     private static void WriteOffset<TSpace>(BinaryWriter writer, Offset16<TSpace> offset) where TSpace : ISpatialSpace
     {
         writer.Write(offset.X);
         writer.Write(offset.Y);
     }
 
+    /// <summary>Writes tilemap width and height as 32-bit values.</summary>
     private static void WriteMapSize(BinaryWriter writer, Extent16<TilemapCells> size)
     {
         writer.Write((int)size.X);
         writer.Write((int)size.Y);
     }
 
+    /// <summary>Encodes ordinary gameplay scroll, map, window, mosaic, and per-line registers.</summary>
     private static void WriteGameplayLayer(BinaryWriter writer, OrdinaryGameplayRenderLayer layer)
     {
         OrdinaryGameplayRegisters r = layer.Registers;
@@ -149,12 +165,14 @@ internal static class RenderFrameSnapshotWriter
         WriteScrolls(writer, layer.MainScreenLayersByLine);
     }
 
+    /// <summary>Marks whether optional line-scroll values exist before writing their words.</summary>
     private static void WriteScrolls(BinaryWriter writer, ReadOnlySpan<ushort> values)
     {
         writer.Write(!values.IsEmpty);
         foreach (ushort value in values) writer.Write(value);
     }
 
+    /// <summary>Writes a layer discriminator and its matching payload, recursively for nested scenes.</summary>
     private static void WriteLayer(BinaryWriter writer, RenderLayer layer)
     {
         switch (layer)
@@ -271,6 +289,7 @@ internal static class RenderFrameSnapshotWriter
         }
     }
 
+    /// <summary>Encodes Mode 7 matrix, HUD placement, and optional floor projection.</summary>
     private static void WriteMode7Gameplay(BinaryWriter writer, Mode7GameplayRenderLayer layer)
     {
         Mode7RenderRegisters m = layer.Registers;

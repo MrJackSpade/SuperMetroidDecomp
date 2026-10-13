@@ -22,8 +22,10 @@ using static GrappleTileArtworkVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Compares editable charge-flare sprite compositions with native OAM output and production rendering.</summary>
 internal static class ChargeFlareCompositionsVerification
 {
+    /// <summary>Checks extracted parts across selector, position, and OAM capacity cases, then validates visual edits and malformed assets.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus,
         bool flareOnly = false, string sourceRom = "Super Metroid.smc")
@@ -115,11 +117,13 @@ internal static class ChargeFlareCompositionsVerification
         }
     }
 
+    /// <summary>Reads one native pointer in the bank-$93 charge-flare selector table for comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native charge-flare selector table")]
     private static ushort ReadNativeChargeFlareSelector(ISnesAddressSpace bus, int selector) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             ChargeFlareSpriteDefinitions.SelectorTable + selector * 2);
 
+    /// <summary>Runs focused charge-flare composition checks against the repository ROM.</summary>
     [VerificationCommand("--charge-flare-compositions")]
     internal static int ChargeFlareCompositionsCommand()
     {

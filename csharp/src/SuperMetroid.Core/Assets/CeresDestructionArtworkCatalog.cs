@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresDestructionArtworkCatalog
 {
+    /// <summary>Retains validated Ceres map slices, Zebes reveal art, sprite compositions, and actor placements.</summary>
     private CeresDestructionArtworkCatalog(byte[] ceresMaps,
         RoomBackgroundTilemapAtlas zebesMap, RoomCharacterAtlas zebesCharacters,
         CeresDestructionSpritePresentation sprites, CeresRevealActorLayout revealActors,
@@ -93,6 +94,7 @@ public sealed class CeresDestructionArtworkCatalog
         json.Write(bytes);
     }
 
+    /// <summary>Requires three ordered 32-by-24 Mode 7 slices whose cells fit the eight-bit map lane.</summary>
     private static CeresDestructionMapDocument ReadMap(Stream json)
     {
         CeresDestructionMapDocument document;

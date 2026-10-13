@@ -14,8 +14,11 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusLiquidPhysicsState
 {
+    /// <summary>Audio requests published by movement, liquid effects, and landing during one Samus handler frame.</summary>
     private readonly List<SamusSoundRequest> _soundRequests = [];
+    /// <summary>Transient Power Bomb state that suppresses selected sounds without entering saved Samus state.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
+    /// <summary>Fallback RNG for standalone animation calls that have no shared bank-$80 owner.</summary>
     private readonly Bank80SystemState _standaloneRandom = new();
 
     /// <summary>
@@ -403,6 +406,7 @@ public sealed class SamusLiquidPhysicsState
         HandleLandingGraphics(samus);
     }
 
+    /// <summary>Selects landing dust or splash by area and room while leaving impact sound policy to the caller.</summary>
     private void HandleLandingGraphics(SamusState samus)
     {
         // `$91:F0AA` is an eight-entry area jump table. Invalid area bytes would execute
@@ -448,6 +452,7 @@ public sealed class SamusLiquidPhysicsState
         }
     }
 
+    /// <summary>Applies Crateria's cinematic, rain, entrance-depth, and room-index landing particle branches.</summary>
     private void HandleCrateriaLandingGraphics(SamusState samus)
     {
         // Crateria's cinematic path deletes both landing-owned slots before consulting room
@@ -506,6 +511,7 @@ public sealed class SamusLiquidPhysicsState
         DeleteLandingPair();
     }
 
+    /// <summary>Writes landing-owned particle slots two and three when Samus's last occupied pixel is above active liquid.</summary>
     private void SpawnLandingPairUnlessSubmerged(SamusState samus, byte type)
     {
         // GetBottom_R18 uses the current pose definition and includes the last
@@ -532,6 +538,7 @@ public sealed class SamusLiquidPhysicsState
         AtmosphericEffects.SetSlot(3, type, 0, 3, new(secondX, y));
     }
 
+    /// <summary>Clears only the packed frame/type words of the two landing slots, preserving their timers and positions.</summary>
     private void DeleteLandingPair()
     {
         // Native STZ writes only the packed frame/type words; timers and coordinates survive.
@@ -614,6 +621,7 @@ public sealed class SamusLiquidPhysicsState
             PeriodicDamage + wholeDamage + SnesCarry.OutOfWord(fractional)));
     }
 
+    /// <summary>Creates either the diving surface particle or paired shallow splashes selected by movement type.</summary>
     internal void SpawnWaterSplash(
         SamusState samus,
         SamusMovementType movementType,
@@ -636,6 +644,7 @@ public sealed class SamusLiquidPhysicsState
             new(unchecked((ushort)(samus.Position.X.Whole - 3)), unchecked((ushort)(bottom - 4))));
     }
 
+    /// <summary>Creates a bubble every 128 accepted NMIs only when Samus's mouth is underwater and particle slot two is free.</summary>
     private void TrySpawnAirBubbles(
         SamusState samus,
         ushort top,
@@ -657,6 +666,7 @@ public sealed class SamusLiquidPhysicsState
         QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, (byte)((random & 1) != 0 ? 0x0f : 0x11)), maximumQueued: 6);
     }
 
+    /// <summary>Starts the four-slot lava spray while Samus's top is above the surface and the previous spray has cleared.</summary>
     private void TrySpawnLavaSurfaceSpray(
         SamusState samus,
         ushort top,
@@ -687,6 +697,7 @@ public sealed class SamusLiquidPhysicsState
             QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x10), maximumQueued: 6);
     }
 
+    /// <summary>Emits room-dependent wet or boosted footstep art at running contact frames and applies native sound suppression.</summary>
     private void TrySpawnRunningFootsteps(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -739,6 +750,7 @@ public sealed class SamusLiquidPhysicsState
         }
     }
 
+    /// <summary>Places the two running-footstep particles on opposite sides of Samus according to facing.</summary>
     private void SpawnFootstepPair(ISnesAddressSpace bus, SamusState samus, byte type)
     {
         bool directionIsFour = samus.PoseMetadata.IsFacingLeft(bus);
@@ -753,6 +765,7 @@ public sealed class SamusLiquidPhysicsState
         AtmosphericEffects.SetSlot(1, type, 0, 3, new(secondX, y));
     }
 
+    /// <summary>Publishes a bounded sound request marked for suppression while a Power Bomb is active.</summary>
     private void QueueSound(SoundEffectId soundEffect, byte maximumQueued) =>
         _soundRequests.Add(new SamusSoundRequest(soundEffect, maximumQueued,
             SoundSuppressed: _audioPowerBomb?.IsActive == true));
@@ -769,10 +782,12 @@ public sealed class SamusLiquidPhysicsState
         return IsBelowSurface(LavaAcidYPosition, boundary) ? SamusLiquidMedium.LavaOrAcid : SamusLiquidMedium.Air;
     }
 
+    /// <summary>Applies the room's water-disable option before comparing a boundary with the water surface.</summary>
     internal bool WaterAffectsBoundary(ushort boundary) =>
         (LiquidOptions & RoomFxRomData.Water.PhysicsDisabledOption) == 0 &&
         IsBelowSurface(FxYPosition, boundary);
 
+    /// <summary>Uses native signed 16-bit subtraction and rejects a negative absent-surface sentinel.</summary>
     internal static bool IsBelowSurface(ushort surface, ushort boundary) =>
         unchecked((short)surface) >= 0 &&
         unchecked((short)(surface - boundary)) < 0;

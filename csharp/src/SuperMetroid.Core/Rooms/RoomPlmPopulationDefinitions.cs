@@ -11,6 +11,9 @@ namespace SuperMetroid.Core.Rooms;
 internal static partial class RoomPlmPopulationDefinitions
 {
 
+    /// <summary>Emits the complete compiled PLM population for a bank-$8F room pointer and rejects unknown populations.</summary>
+    /// <param name="pointer">The room's native PLM population pointer.</param>
+    /// <param name="place">Receives each PLM header, tile coordinates, and room argument in native order.</param>
     internal static void Place(ushort pointer, Action<PlmHeaderId, byte, byte, ushort> place)
     {
         Ensure.NotNull(place);

@@ -9,8 +9,10 @@ using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Confirms gameplay audio acknowledgements no longer depend on whether the host renders audio (#1303).</summary>
 internal static class HostIndependentAudioAcknowledgementsVerification
 {
+    /// <summary>Updates allowed for the door transition to finish waiting on the sound queues.</summary>
     private const int DoorFrames = 300;
 
     /// <summary>
@@ -90,10 +92,12 @@ internal static class HostIndependentAudioAcknowledgementsVerification
     /// <summary>The pre-#1303 audio-enabled host path: acknowledgements read back from a separate renderer.</summary>
     private sealed class RendererAcknowledgements(CartridgeAudioRenderer renderer) : ISoundAcknowledgementSource
     {
+        /// <summary>Returns the renderer's acknowledgements in place of the session's modeled ones.</summary>
         public CartridgeAudioAcknowledgements ForNextFrame(CartridgeAudioAcknowledgements modeled) =>
             renderer.ReadAcknowledgements();
     }
 
+    /// <summary>Builds a retail gameplay session standing in the Landing Site with a reset audio queue.</summary>
     private static SuperMetroidGame CreateLandingSiteSession()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -111,6 +115,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         return game;
     }
 
+    /// <summary>Resolves the Landing Site's first door block and enters the door transition.</summary>
     private static void EnterLandingSiteDoor(SuperMetroidGame game)
     {
         SuperMetroidRuntime runtime = game.RuntimeForVerification!;
@@ -127,6 +132,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         throw new InvalidDataException("Landing Site has no door block.");
     }
 
+    /// <summary>Runs the host-independent audio acknowledgement suite.</summary>
     [VerificationCommand("--host-independent-audio-acknowledgements")]
     internal static int HostIndependentAudioAcknowledgementsCommand()
     {

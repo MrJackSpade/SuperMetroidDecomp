@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(ShaktoolInstructionProgramDefinitions))]
 internal abstract class ShaktoolInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Compiled words from the saw-hand attack through the last Shaktool list.</summary>
     public static int MechanicsWordCount => 110;
+    /// <summary>Six saw-hand, one arm, and eight head-aim drawing operands.</summary>
     public static int PresentationWordCount => 15;
+    /// <summary>Walks Shaktool's contiguous instruction region, skipping presentation operands.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -19,6 +22,7 @@ internal abstract class ShaktoolInstructionProgramDefinitionsTooling : IInstruct
         }
         throw new InvalidOperationException("Shaktool mechanics-word index is inconsistent.");
     }
+    /// <summary>Locates a saw-hand, arm, or head-aim presentation word.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -26,6 +30,7 @@ internal abstract class ShaktoolInstructionProgramDefinitionsTooling : IInstruct
         if (index == 6) return ShaktoolInstructionProgramDefinitions.ArmPieceNormal + 2;
         return (ushort)(ShaktoolInstructionProgramDefinitions.HeadAimingLeft + (index - 7) * 8 + 2);
     }
+    /// <summary>Classifies bank-$AA instruction bytes outside the fifteen drawing operands.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xaa0000) return false;

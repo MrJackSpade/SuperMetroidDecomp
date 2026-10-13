@@ -3,9 +3,12 @@
 /// <summary>The escape explosions species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class EscapeExplosionsBehavior
 {
+    /// <summary>Shared queue that applies native enemy sound limits to each explosion sound.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Room pool that owns the emitted explosion sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
 
+    /// <summary>Connects the escape explosion publisher to the room's shared sound and sprite owners.</summary>
     internal EscapeExplosionsBehavior(EnemyAudioQueue audio, RoomSpriteObjectPool spriteObjects)
     {
         _audio = audio;
@@ -13,12 +16,11 @@ internal sealed class EscapeExplosionsBehavior
     }
 
     /// <summary>Native $8F:C1A9 sprite/sound publication through the shared object pool.</summary>
+    /// <remarks>A random low nibble of eight or more leaves the inherited X selector unchanged; the caller may supply zero or a block offset.</remarks>
     public void SpawnEscapeExplosion(Position16<RoomPixels> position, ushort random, ushort inheritedX)
     {
         int choice = random & 15;
-        // The cartridge leaves X unchanged when the random nibble is 8..15. The
-        // fourth-frame caller inherits zero; the nonblank caller leaves its block offset.
-        // Preserve this quirk rather than importing the upstream C port's bugfix.
+        // Preserve the cartridge's unchanged-X branch, not the upstream C port's bugfix.
         if (choice < 8)
         {
             inheritedX = (ushort)choice;

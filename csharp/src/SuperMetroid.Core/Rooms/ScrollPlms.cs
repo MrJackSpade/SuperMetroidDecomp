@@ -6,8 +6,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Scroll PLMs: setup, stepping and the scroll-cell mutation they apply when Samus touches them.</summary>
 internal sealed class ScrollPlms
 {
+    /// <summary>Native-order PLM slots searched for resident scroll triggers.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Binds scroll-trigger operations to the room's PLM slot table.</summary>
     internal ScrollPlms(PlmSlotTable slotTable)
     {
         _slotTable = slotTable;
@@ -46,6 +48,7 @@ internal sealed class ScrollPlms
         return false;
     }
 
+    /// <summary>Runs ordered scroll writes after a trigger wakes, or preserves its dormant sleep.</summary>
     internal static bool TryStepScrollPlm(
         RoomLevelData level,
         RoomScrollGrid? scrolls,
@@ -94,6 +97,7 @@ internal sealed class ScrollPlms
             $"Scroll PLM data $8F:{slot.RoomArgument:X4} has no negative terminator.");
     }
 
+    /// <summary>Restores the type-$3 special-air trigger and rearms its waiting instruction list.</summary>
     private static void FinishScrollMutation(RoomLevelData level, PlmSlot slot)
     {
         // Instruction $8B55 clears PLM_Vars and restores type-$3 special air, then
@@ -149,8 +153,10 @@ internal sealed class ScrollPlms
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
     }
 
+    /// <summary>Per-PLM scroll trigger latch and its bound retail or constructed write program.</summary>
     internal sealed class ScrollPlmState
     {
+        /// <summary>Latched on first touch until ordered scroll writes finish.</summary>
         public bool Triggered { get; set; }
         /// <summary>Bound retail program identity; independent of later room-argument edits.</summary>
         public ushort? CompiledSource { get; set; }

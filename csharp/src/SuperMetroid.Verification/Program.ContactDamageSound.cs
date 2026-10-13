@@ -14,6 +14,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the Sciser contact-damage sound that delayed a door transition in the 13% recording.</summary>
 internal static class ContactDamageSoundVerification
 {
     /// <summary>
@@ -45,6 +46,7 @@ internal static class ContactDamageSoundVerification
         Console.WriteLine("  Contact-damage sound: Samus's damaging touch queues library-two $0B.");
     }
 
+    /// <summary>Runs the focused Speed Booster contact-sound check from the verification command line.</summary>
     [VerificationCommand("--contact-damage-sound")]
     internal static int ContactDamageSoundCommand()
     {

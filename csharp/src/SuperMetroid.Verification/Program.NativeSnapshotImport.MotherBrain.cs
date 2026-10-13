@@ -2,6 +2,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 
+/// <summary>Maps Mother Brain's native body, brain, neck, and rainbow-sequence WRAM into a loaded encounter.</summary>
 internal static class NativeSnapshotImportMotherBrainVerification
 {
     /// <summary>
@@ -161,10 +162,14 @@ internal static class MotherBrainMemory
     public const int HitboxesEnabled = 0x7808;
     /// <summary>$7E:780E: walk counter.</summary>
     public const int WalkCounter = 0x780e;
-    /// <summary>$7E:7818/$781A: neck and brain palette indices.</summary>
-    public const int NeckPaletteIndex = 0x7818, BrainPaletteIndex = 0x781a;
-    /// <summary>$7E:781C/$781E: room palette instruction list and timer.</summary>
-    public const int RoomPaletteInstructionList = 0x781c, RoomPaletteInstructionTimer = 0x781e;
+    /// <summary>$7E:7818: neck palette index.</summary>
+    public const int NeckPaletteIndex = 0x7818;
+    /// <summary>$7E:781A: brain palette index.</summary>
+    public const int BrainPaletteIndex = 0x781a;
+    /// <summary>$7E:781C: room palette instruction-list pointer.</summary>
+    public const int RoomPaletteInstructionList = 0x781c;
+    /// <summary>$7E:781E: room palette instruction timer.</summary>
+    public const int RoomPaletteInstructionTimer = 0x781e;
     /// <summary>$7E:782E: death (hand) beam attack phase.</summary>
     public const int DeathBeamAttackPhase = 0x782e;
     /// <summary>$7E:7830: attack phase.</summary>
@@ -175,8 +180,10 @@ internal static class MotherBrainMemory
     public const int DeleteTurretsAndRinkas = 0x783a;
     /// <summary>$7E:7826: Baby Metroid attack counter.</summary>
     public const int BabyMetroidAttackCounter = 0x7826;
-    /// <summary>$7E:782A/$782C: rainbow beam sound queue countdown and playing flag.</summary>
-    public const int RainbowBeamSoundQueueCount = 0x782a, RainbowBeamSoundPlaying = 0x782c;
+    /// <summary>$7E:782A: rainbow beam sound queue countdown.</summary>
+    public const int RainbowBeamSoundQueueCount = 0x782a;
+    /// <summary>$7E:782C: rainbow beam sound playing flag.</summary>
+    public const int RainbowBeamSoundPlaying = 0x782c;
     /// <summary>$7E:783E: phase-two corpse state.</summary>
     public const int Phase2CorpseState = 0x783e;
     /// <summary>$7E:7862: health-based palette handling flag.</summary>
@@ -189,11 +196,20 @@ internal static class MotherBrainMemory
     public const int EnableUnpauseHook = 0x7844;
     /// <summary>$7E:784A: bomb counter.</summary>
     public const int BombCounter = 0x784a;
-    /// <summary>$7E:7860/$7864/$7866/$7868/$786A: brain palette, drool and purple breath flags.</summary>
-    public const int BrainPaletteHandling = 0x7860, DroolGeneration = 0x7864, DroolProjectileParameter = 0x7866,
-        SmallPurpleBreathGeneration = 0x7868, SmallPurpleBreathActive = 0x786a;
-    /// <summary>$7E:8000/$8002: brain instruction timer and list pointer.</summary>
-    public const int BrainInstructionTimer = 0x8000, BrainInstructionList = 0x8002;
+    /// <summary>$7E:7860: brain palette handling enable flag.</summary>
+    public const int BrainPaletteHandling = 0x7860;
+    /// <summary>$7E:7864: drool projectile generation enable flag.</summary>
+    public const int DroolGeneration = 0x7864;
+    /// <summary>$7E:7866: parameter used when spawning drool projectiles.</summary>
+    public const int DroolProjectileParameter = 0x7866;
+    /// <summary>$7E:7868: small purple breath generation enable flag.</summary>
+    public const int SmallPurpleBreathGeneration = 0x7868;
+    /// <summary>$7E:786A: active small purple breath flag.</summary>
+    public const int SmallPurpleBreathActive = 0x786a;
+    /// <summary>$7E:8000: brain instruction timer.</summary>
+    public const int BrainInstructionTimer = 0x8000;
+    /// <summary>$7E:8002: brain instruction-list pointer.</summary>
+    public const int BrainInstructionList = 0x8002;
     /// <summary>$7E:8004: sprite tile transfer entry pointer.</summary>
     public const int SpriteTileTransferEntry = 0x8004;
     /// <summary>$7E:8006-$8013: death beam next X/Y sub-position and position, velocities, angle.</summary>
@@ -202,13 +218,22 @@ internal static class MotherBrainMemory
     public const int RainbowBeamAngularWidth = 0x8026;
     /// <summary>$7E:802E: grey transition counter.</summary>
     public const int GreyTransitionCounter = 0x802e;
-    /// <summary>$7E:8030/$8032: fake death explosion timer and index.</summary>
-    public const int FakeDeathExplosionTimer = 0x8030, FakeDeathExplosionIndex = 0x8032;
-    /// <summary>$7E:8040/$8042: lower and upper neck angles.</summary>
-    public const int LowerNeckAngle = 0x8040, UpperNeckAngle = 0x8042;
+    /// <summary>$7E:8030: fake death explosion timer.</summary>
+    public const int FakeDeathExplosionTimer = 0x8030;
+    /// <summary>$7E:8032: fake death explosion index.</summary>
+    public const int FakeDeathExplosionIndex = 0x8032;
+    /// <summary>$7E:8040: lower neck angle.</summary>
+    public const int LowerNeckAngle = 0x8040;
+    /// <summary>$7E:8042: upper neck angle.</summary>
+    public const int UpperNeckAngle = 0x8042;
     /// <summary>$7E:8044: five neck segments, each X, Y and distance.</summary>
     public const int NeckSegments = 0x8044;
-    /// <summary>$7E:8062-$8069: neck movement enable, movement indices and angle delta.</summary>
-    public const int NeckMovementEnabled = 0x8062, LowerNeckMovementIndex = 0x8064,
-        UpperNeckMovementIndex = 0x8066, NeckAngleDelta = 0x8068;
+    /// <summary>$7E:8062: neck movement enable flag.</summary>
+    public const int NeckMovementEnabled = 0x8062;
+    /// <summary>$7E:8064: lower neck movement index.</summary>
+    public const int LowerNeckMovementIndex = 0x8064;
+    /// <summary>$7E:8066: upper neck movement index.</summary>
+    public const int UpperNeckMovementIndex = 0x8066;
+    /// <summary>$7E:8068: angle delta shared by the neck movement sequence.</summary>
+    public const int NeckAngleDelta = 0x8068;
 }

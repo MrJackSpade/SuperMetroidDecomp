@@ -15,7 +15,9 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
     /// <summary>Initial closed-gate sleep instruction at $86:E566.</summary>
     internal const ushort ClosedSleep = 0xe566;
 
+    /// <summary>Control words spanning movement setup, two pose sequences, the closed hold, and deletion.</summary>
     public static int MechanicsWordCount => 28;
+    /// <summary>Interleaved spritemap operands across opening and closing gate frames.</summary>
     public static int PresentationWordCount => 9;
 
     /// <summary>
@@ -48,6 +50,7 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Maps a pose duration or following sleep opcode within a four-stage movement sequence.</summary>
     private static InstructionMechanicsWord MovementPoseWord(ushort start, int word)
     {
         bool sleep = (word & 1) != 0;
@@ -55,6 +58,7 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
             sleep ? (ushort)EnemyProjectileInstruction.Sleep : (ushort)1);
     }
 
+    /// <summary>Locates one of nine live visual operands without reading its cartridge spritemap.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -62,10 +66,12 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
         return (ushort)(index < 4 ? Moving + 10 + 6 * index
             : index == 4 ? Closed + 6 : Closed + 16 + 6 * (index - 5));
     }
+    /// <summary>Recognizes the moving and closed downward-gate projectile kinds.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.DownwardGateMoving or
         RoomEnemyProjectileKind.DownwardGateClosed;
 
+    /// <summary>Looks up a compiled bank-$86 control word and rejects presentation or unknown addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

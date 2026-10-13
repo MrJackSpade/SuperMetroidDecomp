@@ -4,6 +4,7 @@ using SuperMetroid.Core.Input;
 /// <summary>A demo-input owner whose list uses only the shared instructions and pre-instructions (#633).</summary>
 internal sealed class DemoInputListProgram : IDemoInputProgram
 {
+    /// <summary>Reads words from the owning fixture's bounded compiled demo list.</summary>
     private readonly Func<ushort, ushort> readInstructionWord;
 
     /// <summary>Wraps the owner's bounded compiled list reader.</summary>

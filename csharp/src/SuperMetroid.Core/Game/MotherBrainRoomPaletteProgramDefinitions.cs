@@ -24,6 +24,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
     /// <summary>$A9:D07E: closing Goto opcode following the timed frames.</summary>
     internal const ushort LoopInstruction = FlashStart + PresentationWordCount * 4;
 
+    /// <summary>Returns the palette operand two bytes after one of the fourteen timed fake-death flash entries.</summary>
     internal static ushort PresentationWordAddress(int index) =>
         (uint)index < PresentationWordCount ? (ushort)(FlashStart + index * 4 + 2) :
             throw new IndexOutOfRangeException();
@@ -38,6 +39,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
         _ => throw new IndexOutOfRangeException(),
     };
 
+    /// <summary>Supplies two-tick flash waits and the closing goto while rejecting palette operands and unknown addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - FlashStart;

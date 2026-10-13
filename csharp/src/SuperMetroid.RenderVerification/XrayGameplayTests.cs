@@ -4,8 +4,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks gameplay color math and X-ray source selection against software and D3D11 pixels.</summary>
 internal static class XrayGameplayTests
 {
+    /// <summary>Exercises window reveal, OBJ palette exemptions, subscreen math, old packet decoding, and patterned frames.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {

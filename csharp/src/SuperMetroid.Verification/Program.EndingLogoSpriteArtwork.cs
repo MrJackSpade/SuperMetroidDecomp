@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static MapSpritesVerification;
 
+/// <summary>Checks ending logo OAM and presentation overrides against native spritemaps.</summary>
 internal static class EndingLogoSpriteArtworkVerification
 {
+    /// <summary>Compares every installed logo frame at visible and wrapped origins with native OAM.</summary>
     internal static void VerifyEndingLogoSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
@@ -38,6 +40,7 @@ internal static class EndingLogoSpriteArtworkVerification
         }
     }
 
+    /// <summary>Loads a moved circle frame from an override and verifies that missing named art is rejected.</summary>
     internal static EndingObjectArtworkCatalog LoadEditedEndingLogoArtwork(
         GameInstallation installation)
     {

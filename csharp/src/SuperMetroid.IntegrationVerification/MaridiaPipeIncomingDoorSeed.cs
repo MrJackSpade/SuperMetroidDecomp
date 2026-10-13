@@ -6,6 +6,7 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Constructs a bounded source-room boundary; subsequent frames use the frontend door owner.</summary>
 internal static class MaridiaPipeIncomingDoorSeed
 {
+    /// <summary>Places Samus above the authored Plasma Spark door block and lets gravity drive the source-room approach before the frontend owns the transition.</summary>
     public static void Apply(SuperMetroidRuntime runtime, ISnesAddressSpace bus, CartridgeDoorHeader door)
     {
         runtime.LoadCartridgeRoomForDebug(MaridiaPipeFixtureDefinitions.PlasmaSparkRoom);
@@ -26,8 +27,6 @@ internal static class MaridiaPipeIncomingDoorSeed
             new Position16<RoomPixels>((ushort)(SnesLittleEndian.HighByteInPlace(x)), (ushort)(SnesLittleEndian.HighByteInPlace(y))));
         runtime.Player.Samus!.Kinematics.Position = runtime.Player.Samus!.Kinematics.Position.WithX(new SnesFixedPosition(x, 0));
         runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithY(new SnesFixedPosition(y, 0));
-        // Let gravity reach the authored door block. Publishing a pending door here
-        // skipped the source camera's approach and retained an arbitrary scroll phase.
         Console.WriteLine($"incoming seed block={entry} Samus={x}/{y} door={door.Pointer:X4}");
     }
 }

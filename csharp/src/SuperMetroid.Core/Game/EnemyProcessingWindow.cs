@@ -12,11 +12,16 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyProcessingWindow
 {
+    /// <summary>Frame policy that can force off-screen enemies into the active list.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>HDMA behavior stepped before enemy selection in the main-loop prologue.</summary>
     private readonly MorphBallEyeBehavior _morphBallEyeBehavior;
+    /// <summary>Room load guard for selection against a valid enemy population.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Physical slots traversed in native order while choosing active enemies.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Binds processing-window decisions to one room's frame policy and enemy pool.</summary>
     internal EnemyProcessingWindow(EnemyFrameContext frameContext, MorphBallEyeBehavior morphBallEyeBehavior, EnemyRoomBinding room, EnemySlotTable slotTable)
     {
         _frameContext = frameContext;
@@ -24,7 +29,9 @@ internal sealed class EnemyProcessingWindow
         _room = room;
         _slotTable = slotTable;
     }
+    /// <summary>Native indexes scheduled for AI this frame, including forced off-screen actors.</summary>
     internal readonly List<ushort> _activeEnemyIndexes = new();
+    /// <summary>Active native indexes still eligible for Samus interaction and grapple endpoint scans.</summary>
     internal readonly List<ushort> _interactiveEnemyIndexes = new();
 
     /// <summary>
@@ -47,6 +54,7 @@ internal sealed class EnemyProcessingWindow
         DetermineWhichEnemiesToProcess(camera);
     }
 
+    /// <summary>Rebuilds active and interactive lists after clearing deleted slots and applying off-screen policy.</summary>
     internal void DetermineWhichEnemiesToProcess(Position16<RoomPixels> camera)
     {
         _activeEnemyIndexes.Clear();
@@ -74,6 +82,7 @@ internal sealed class EnemyProcessingWindow
         }
     }
 
+    /// <summary>Applies native radius-aware horizontal and asymmetric vertical bounds around the camera.</summary>
     private static bool EnemyIsWithinProcessingWindow(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
@@ -104,6 +113,7 @@ internal sealed class EnemyProcessingWindow
         return EnemyMath.IsNegative16(fromCamera) || !EnemyMath.IsNegative16(fromCamera - 0x100 - slot.Radius.X);
     }
 
+    /// <summary>Uses the normal-sprite processing window to determine whether all bounds reject a slot.</summary>
     internal static bool EnemyWithNormalSpritesIsOffScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>

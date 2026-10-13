@@ -19,7 +19,8 @@ internal readonly record struct MotherBrainNeckGeometry(
 /// </summary>
 internal static class MotherBrainNeckKinematics
 {
-    /// <summary>Ports the lower and upper dispatchers at <c>$A9:9072-$91B7</c>.</summary>
+    /// <summary>Advances the lower and upper neck angles through bobbing or one-way raise/lower movement at <c>$A9:9072-$91B7</c>.</summary>
+    /// <remarks>The upper dispatcher runs second and observes the lower angle and movement state changed in the same frame.</remarks>
     internal static void StepAngles(
         ref ushort lowerAngle,
         ref ushort upperAngle,
@@ -169,6 +170,7 @@ internal static class MotherBrainNeckKinematics
         return new MotherBrainNeckGeometry(segment0, segment1, segment2, segment3, segment4);
     }
 
+    /// <summary>Places a lower-neck joint from the body-relative reference point and its signed polar displacement.</summary>
     private static Position16<RoomPixels> CalculateLowerSegment(
         Position16<RoomPixels> reference,
         byte angle,

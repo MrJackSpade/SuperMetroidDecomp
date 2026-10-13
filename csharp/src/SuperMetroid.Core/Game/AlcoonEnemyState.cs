@@ -28,13 +28,20 @@ public enum AlcoonEnemyFunction : ushort
 /// </summary>
 public sealed class AlcoonEnemyState
 {
+    /// <summary>Common enemy-slot words that hold Alcoon's function and motion state.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Whole vertical acceleration words indexed by native enemy slot.</summary>
     private readonly ushort[] _yAccelerations;
+    /// <summary>Fractional vertical acceleration words indexed by native enemy slot.</summary>
     private readonly ushort[] _ySubaccelerations;
+    /// <summary>Original whole X positions used to bound Alcoon's walking distance.</summary>
     private readonly ushort[] _spawnXPositions;
+    /// <summary>Floor Y positions found during Alcoon's initialization jump.</summary>
     private readonly ushort[] _landingYPositions;
+    /// <summary>Walking cycles remaining until the next fire volley.</summary>
     private readonly ushort[] _stepCounters;
 
+    /// <summary>Maps one enemy slot onto its parallel extra-WRAM arrays without copying their values.</summary>
     internal AlcoonEnemyState(
         RoomEnemySlot slot,
         ushort[] yAccelerations,

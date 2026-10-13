@@ -14,8 +14,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the reported first Ridley-room trajectory against a captured player movie segment.</summary>
 internal static class RidleyPlayerOpeningVerification
 {
+    /// <summary>Checks arrival collision edges, then compares boss motion while feeding recorded Samus position and RNG as isolated inputs.</summary>
     internal static void VerifyRidleyPlayerOpening()
     {
         Func<RoomEnemySlot, Position16<RoomPixels>, Extent16<RoomPixels>, bool> overlaps = CeresRidleyBehavior.IsWithinRidleyRectangle;
@@ -73,6 +75,7 @@ internal static class RidleyPlayerOpeningVerification
         Console.WriteLine("Ridley player opening trajectory matches native movie frames 375..744.");
     }
 
+    /// <summary>Runs the captured Ridley opening trajectory comparison.</summary>
     [VerificationCommand("--ridley-player-opening")]
     internal static int RidleyPlayerOpeningCommand()
     {

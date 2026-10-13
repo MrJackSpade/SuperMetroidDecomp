@@ -11,9 +11,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CrystalFlashColorCatalog
 {
+    /// <summary>Complete edited body frames, retained only when any supplied color differs from the native calculated pulse.</summary>
     internal readonly Bgr555[][]? body;
+    /// <summary>Bubble samples that differ from the rotating ramp, including the independently painted stock white.</summary>
     internal readonly Dictionary<int, Bgr555> bubble = [];
 
+    /// <summary>Compares all supplied frames with native color rules before retaining only independent edits.</summary>
     private CrystalFlashColorCatalog(Bgr555[][] body, Bgr555[][] bubble)
     {
         // Discard stock body rows only after checking every supplied color. Edited
@@ -32,6 +35,7 @@ public sealed class CrystalFlashColorCatalog
                 this.bubble.Add(frame * CrystalFlashColorFormat.BubbleColorCount + color, bubble[frame][color]);
     }
 
+    /// <summary>Writes camel-case presentation JSON and rejects unrecognized document fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -162,6 +166,7 @@ public sealed class CrystalFlashColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates an authored palette grid's dimensions and RGB5 channels before packing its colors.</summary>
     private static Bgr555[][] Compile(PaletteRgb5[][]? source, int frameCount,
         int colorCount, string name)
     {
@@ -188,6 +193,7 @@ public sealed class CrystalFlashColorCatalog
         return result;
     }
 
+    /// <summary>Rejects repeated JSON property names before deserialization can replace a supplied palette.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Crystal Flash color property {name}."));

@@ -13,8 +13,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyProjectileEngine
 {
-    // Handler sources are serialized object references; the delegate table is rebuilt from them on first use,
-    // so debugger states never hold compiler-generated handler identities.
+    /// <summary>Serialized handler owners; their delegate table is rebuilt after restore to avoid compiler-generated identities.</summary>
     private readonly List<IEnemyProjectileHandlerSource> _handlerSources = [];
 
     /// <summary>
@@ -23,9 +22,11 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     internal void AddHandlerSource(IEnemyProjectileHandlerSource source) => _handlerSources.Add(source);
 
+    /// <summary>Lazy runtime dispatch table rebuilt from the serialized handler owners.</summary>
     [field: NonSerialized]
     private EnemyProjectileHandlerTable Handlers => field ??= BuildHandlers();
 
+    /// <summary>Registers inert native RTS addresses and every species-owned projectile handler.</summary>
     private EnemyProjectileHandlerTable BuildHandlers()
     {
         var table = new EnemyProjectileHandlerTable();
@@ -58,11 +59,16 @@ internal sealed class EnemyProjectileEngine
         return table;
     }
 
+    /// <summary>Supplies room RNG and artwork for projectile effects.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Owns bank-$B4 dust and explosion sprites separate from projectile slots.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
+    /// <summary>Publishes room quake effects requested by projectile instructions.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Queues species projectile sounds under native queue limits.</summary>
     private readonly EnemyAudioQueue _audio;
 
+    /// <summary>Connects the physical bank-$86 pool to room sprites, earthquakes and audio.</summary>
     internal EnemyProjectileEngine(EnemyRoomBinding room, RoomSpriteObjectPool spriteObjects, RoomEarthquake earthquake, EnemyAudioQueue audio)
     {
         _room = room;
@@ -70,10 +76,10 @@ internal sealed class EnemyProjectileEngine
         _earthquake = earthquake;
         _audio = audio;
     }
-    // Super Metroid reserves native indexes $00..$22, in steps of two, for eighteen enemy
-    // projectiles. Keeping the same capacity exposes saturation and spawn failure honestly.
+    /// <summary>Eighteen physical enemy-projectile indices $00..$22 in two-byte steps.</summary>
     private const int RoomEnemyProjectileSlotCount = 18;
 
+    /// <summary>Native pool including inactive entries, traversed from the highest physical slot down.</summary>
     private readonly RoomEnemyProjectileSlot[] _enemyProjectiles =
         Enumerable.Range(0, RoomEnemyProjectileSlotCount)
             .Select(index => new RoomEnemyProjectileSlot(index))
@@ -173,7 +179,7 @@ internal sealed class EnemyProjectileEngine
         return hitCount;
     }
 
-    // Standalone audits that supply no NMI counter advance this projectile clock instead.
+    /// <summary>Fallback frame clock for standalone calls without a supplied NMI counter.</summary>
     private byte _standaloneFrameCounter8;
 
     /// <summary>Discards every projectile and restarts the standalone clock when a room loads.</summary>
@@ -308,6 +314,7 @@ internal sealed class EnemyProjectileEngine
             EnemyProjectileDrawPriority.Low, timeIsFrozen);
     }
 
+    /// <summary>Draws one priority class in descending slot order so earlier OAM entries win overlaps.</summary>
     internal void DrawEnemyProjectilePass(
         OamBuffer oam,
         Position16<RoomPixels> camera,
@@ -344,6 +351,7 @@ internal sealed class EnemyProjectileEngine
         }
     }
 
+    /// <summary>Searches physical slots $22 down to $00 and returns null when the finite pool is full.</summary>
     internal RoomEnemyProjectileSlot? AllocateEnemyProjectile()
     {
         // SpawnEnemyProjectile searches from native index $22 toward zero.
@@ -390,6 +398,7 @@ internal sealed class EnemyProjectileEngine
         projectile.GraphicsIndex = graphicsIndex;
     }
 
+    /// <summary>Dispatches the slot's current bank-$86 movement callback before its timed instruction list.</summary>
     private void RunEnemyProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
@@ -408,6 +417,7 @@ internal sealed class EnemyProjectileEngine
         handler(new EnemyProjectilePreInstructionContext(projectile, level, samus, camera, nmiFrameCounter8, samusBombs));
     }
 
+    /// <summary>Moves one projectile axis through each crossed room block and clamps it flush at the first collision.</summary>
     internal static bool MoveProjectileAxis(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
@@ -488,6 +498,7 @@ internal sealed class EnemyProjectileEngine
         return false;
     }
 
+    /// <summary>Tests a leading-edge block through extension and slope geometry for one projectile move.</summary>
     private static bool ProjectileAxisProbeHitsRoom(
         RoomLevelData level,
         RoomEnemyProjectileSlot projectile,
@@ -613,6 +624,7 @@ internal sealed class EnemyProjectileEngine
     internal static bool NonAirBlockAt(RoomLevelData level, Position16<RoomPixels> pixel) =>
         level.GetCollisionBlock(new(unchecked((ushort)(pixel.X >> 4)), unchecked((ushort)(pixel.Y >> 4)))).CollisionType != RoomCollisionType.Air;
 
+    /// <summary>Checks radius overlap and publishes touch-list or damage behavior for a projectile that reaches Samus.</summary>
     internal static ushort? ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
@@ -661,6 +673,7 @@ internal sealed class EnemyProjectileEngine
         return knockbackXDirection;
     }
 
+    /// <summary>Ticks a slot's bank-$86 timed list and interprets common or registered species opcodes.</summary>
     internal void ProcessEnemyProjectileInstructions(
         RoomEnemyProjectileSlot projectile,
         SamusState? samus,
@@ -1004,6 +1017,7 @@ internal sealed class EnemyProjectileEngine
                         $"Enemy projectile visual operand $86:{operandAddress:X4} has no compiled selector.");
     }
 
+    /// <summary>Reads an instruction operand only from installed bank-$86 mechanics definitions.</summary>
     internal static ushort ReadEnemyProjectileInstructionMechanicsWord(
         RoomEnemyProjectileSlot projectile,
         ushort address)
@@ -1319,6 +1333,7 @@ internal sealed class EnemyProjectileEngine
         _ = _spriteObjects.SpawnRoomSpriteObject(new(x, y), kind, graphicsIndex: 0);
     }
 
+    /// <summary>Uses native RNG rejection and sign bits to reposition a projectile within its packed X/Y masks.</summary>
     private void MoveEnemyProjectileRandomlyWithinRadius(
         RoomEnemyProjectileSlot projectile,
         ushort instructionPointer)
@@ -1580,6 +1595,7 @@ internal sealed class EnemyProjectileEngine
     }
 
 
+    /// <summary>Registers Skree/Metaree particle movement with falling acceleration and camera-square deletion.</summary>
     internal static void RegisterMetalSkreeParticlePreInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -1595,6 +1611,7 @@ internal sealed class EnemyProjectileEngine
     }
 
 
+    /// <summary>Registers tile gravity and impact dust/sound when Ceres debris strikes room terrain.</summary>
     internal void RegisterCeresFallingTilePreInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -1612,6 +1629,7 @@ internal sealed class EnemyProjectileEngine
     }
 
 
+    /// <summary>Registers the bank-$86 conditional goto that takes its operand branch on one of four RNG high-bit outcomes.</summary>
     internal void RegisterProbabilityGotoInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterInstruction(EnemyProjectileInstruction.GotoY_Probability_1_4, null,

@@ -43,6 +43,10 @@ public static class AudioAssetOverrideInstaller
         }
     }
 
+    /// <summary>
+    /// Recreates the stock directory tree in staging and copies every file before the
+    /// catalog validates the isolated copy and promotes it to the override path.
+    /// </summary>
     private static void CopyDirectory(string source, string destination)
     {
         Directory.CreateDirectory(destination);

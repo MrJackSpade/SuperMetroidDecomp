@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static YardInstructionProgramDefinitionsVerification;
 
+/// <summary>Checks installed Yard animation selectors and editable OAM against retail data.</summary>
 internal static class YardVisualsVerification
 {
+    /// <summary>Confirms 112 selectors cover 104 distinct frames without runtime cartridge program reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Yard visuals")]
     internal static void VerifyInstalledYardVisuals(

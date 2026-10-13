@@ -19,6 +19,7 @@ public sealed class SamusAtmosphericEffectsState
     /// <summary>Four shared slots, represented by four words in each native timer, X, Y, and packed frame/type array.</summary>
     public const int SlotCount = 4;
 
+    /// <summary>Fixed WRAM-order storage shared by splashes, bubbles, lava spray, and boost dust.</summary>
     private readonly SamusAtmosphericEffectSlot[] _slots =
     [
         new(),
@@ -82,8 +83,7 @@ public sealed class SamusAtmosphericEffectsState
     /// </summary>
     /// <param name="bus">Address space providing mirrored WRAM for type two attributes and the Samus spritemap path.</param>
     /// <param name="oam">OAM buffer to which visible sprites are appended, with slot three processed first.</param>
-    /// <param name="camera.X">Room-space camera X origin in whole pixels.</param>
-    /// <param name="camera.Y">Room-space camera Y origin in whole pixels.</param>
+    /// <param name="camera">Room-space camera X and Y origin in whole pixels.</param>
     /// <param name="fxYPosition">Live liquid-surface Y in room pixels, used to anchor the diving splash on each update.</param>
     /// <param name="artwork">Installed Samus spritemaps required when visible diving splashes or bubbles use the spritemap draw path.</param>
     /// <param name="directArtwork">Installed small-sprite attributes required for visible direct effects other than type two's WRAM-backed attributes.</param>
@@ -174,6 +174,7 @@ public sealed class SamusAtmosphericEffectsState
         }
     }
 
+    /// <summary>Clips an eight-pixel effect to the 256-pixel OAM viewport, then uses installed attributes or type two's live WRAM word.</summary>
     private static void DrawDirectSmallSprite(
         ISnesAddressSpace bus,
         OamBuffer oam,
@@ -195,9 +196,11 @@ public sealed class SamusAtmosphericEffectsState
         oam.AddRawSmallSprite(new Position16<OamPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), attributes);
     }
 
+    /// <summary>Preserves type two's native zero list pointer, which aliases mutable WRAM instead of fixed artwork.</summary>
     private static ushort ReadTypeTwoWorkRamAttributes(ISnesAddressSpace bus, byte frame) =>
         new SamusOverreadMemory(bus).AtmosphericTypeTwoAttributes(frame);
 
+    /// <summary>Requires an installed direct-sprite entry for the visible type and animation frame.</summary>
     private static ushort ResolveInstalledAttributes(
         SamusAtmosphericArtworkCatalog? artwork, byte type, byte frame)
     {
@@ -210,6 +213,7 @@ public sealed class SamusAtmosphericEffectsState
         return attributes;
     }
 
+    /// <summary>Draws splash/bubble frames through Samus's spritemap table, clipping Y's high byte while preserving native X wrap.</summary>
     private static void DrawSamusTableSpritemap(
         ISnesAddressSpace bus,
         OamBuffer oam,
@@ -235,6 +239,7 @@ public sealed class SamusAtmosphericEffectsState
                 "Samus atmospheric spritemap requires installed artwork."));
     }
 
+    /// <summary>Restricts literal slot operations to the four native atmospheric records.</summary>
     private static void ValidateSlotIndex(int slotIndex)
     {
         if ((uint)slotIndex >= SlotCount)
@@ -264,6 +269,7 @@ public sealed class SamusAtmosphericEffectSlot
     /// </summary>
     public Position16<RoomPixels> Position { get; internal set; }
 
+    /// <summary>Resets the packed word, delayed timer, and anchor during room or Samus initialization.</summary>
     internal void Clear()
     {
         FrameAndType = 0;

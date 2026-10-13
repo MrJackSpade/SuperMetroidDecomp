@@ -51,8 +51,10 @@ public enum KiHunterWingFunction : ushort
 /// </summary>
 public sealed class KiHunterEnemyState
 {
+    /// <summary>Live body or wing slot carrying Ki-Hunter's six common variable words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Captures the slot's body or wing role before native deletion can clear its definition identity.</summary>
     internal KiHunterEnemyState(RoomEnemySlot slot)
     {
         _slot = slot;

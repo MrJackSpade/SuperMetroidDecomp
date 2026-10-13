@@ -5,12 +5,15 @@ internal static class ColoredDoorPlmDrawDefinitions
 {
     /// <summary>Yellow left-facing closed cap at $84:A767.</summary>
     private const ushort YellowLeft = 0xa767;
+    /// <summary>Native stride for a four-cell cap draw record and its final displacement bytes.</summary>
     internal const int DrawListBytes = 12;
 
-    /// <summary>One of forty-eight twelve-byte records at $84:A767..A9A6.</summary>
+    /// <summary>Color, direction, and animation phase decoded from one native cap pointer.</summary>
     internal readonly record struct Draw(int Color, int Orientation, int Frame)
     {
+        /// <summary>Left and right caps draw a vertical four-cell run in native list orientation.</summary>
         internal bool Vertical => Orientation < 2;
+        /// <summary>Encodes the native run direction and four-cell count.</summary>
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
 
         /// <summary>
@@ -34,6 +37,7 @@ internal static class ColoredDoorPlmDrawDefinitions
         }
     }
 
+    /// <summary>Decodes only the forty-eight aligned twelve-byte cap pointers into color, orientation, and frame.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         int offset = pointer - YellowLeft;
@@ -43,6 +47,7 @@ internal static class ColoredDoorPlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Enumerates yellow, green, and red cap frames in their native pointer order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -55,7 +60,7 @@ internal static class ColoredDoorPlmDrawDefinitions
         }
     }
 
-    // Temporary import/export DTOs; the runtime calculates cells directly.
+    /// <summary>Builds an import/export draw-list DTO while runtime collision cells remain calculated.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -66,6 +71,7 @@ internal static class ColoredDoorPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Names a compiled cap frame by color, direction, and phase for editable artwork.</summary>
     internal static string VisualId(ushort pointer)
     {
         if (!TryDescribe(pointer, out var draw))
@@ -75,6 +81,7 @@ internal static class ColoredDoorPlmDrawDefinitions
         return $"{color}-{direction}-frame-{draw.Frame}";
     }
 
+    /// <summary>Resolves an exact ordinal visual identity back to its compiled draw record.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         for (int index = 0; index < 48; index++)

@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
 
+/// <summary>Checks bomb-jump wall contact and carried Morph Ball ceiling response.</summary>
 internal static class BombJumpWallVerification
 {
+    /// <summary>Confirms an X-only wall hit clears horizontal speed while retaining the bomb-jump handler and ascent.</summary>
     internal static void VerifyBombJumpWallContact()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -46,6 +48,7 @@ internal static class BombJumpWallVerification
         Suite(nameof(VerifyCarriedMorphCeiling), () => VerifyCarriedMorphCeiling(bus));
     }
 
+    /// <summary>Checks upward platform carry, deferred ceiling pose response, and hurt interruption of bomb input.</summary>
     private static void VerifyCarriedMorphCeiling(SuperMetroidAddressSpace bus)
     {
         var words = new ushort[32 * 16];
@@ -101,6 +104,7 @@ internal static class BombJumpWallVerification
         AssertTrue(!hurt.BombJumpPoseInputLocked, "hurt expiry restores normal pose input");
     }
 
+    /// <summary>Runs the wall-contact and carried-ceiling bomb-jump checks.</summary>
     [VerificationCommand("--bomb-wall")]
     internal static int BombWallCommand()
     {

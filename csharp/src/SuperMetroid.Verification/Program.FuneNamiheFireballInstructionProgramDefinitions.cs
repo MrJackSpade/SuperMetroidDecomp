@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks migrated Fune and Namihe fireball instruction words and calculated visual selectors.</summary>
 internal static class FuneNamiheFireballInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge oracle for directional fireball program verification.</summary>
     internal static void VerifyFuneNamiheFireballInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFuneNamiheFireballInstructionProgramDefinitions), () => VerifyFuneNamiheFireballInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises both species in both directions through their three-frame loops while forbidding compiled mechanics reads.</summary>
     internal static void VerifyFuneNamiheFireballInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -105,6 +108,7 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
             "with mechanics bytes forbidden.");
     }
 
+    /// <summary>Compares six fireball spritemap selectors with cartridge pointers and rejects every non-selector address.</summary>
     private static void VerifyFuneNamiheFireballVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xde98, 0xde9c, 0xdea0, 0xdea8, 0xdeac, 0xdeb0];
@@ -139,8 +143,10 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
                 "fireball resolver rejects distant invalid inputs");
     }
 
+    /// <summary>Reads bank-$8D spritemap bytes only for the retail visual-selector oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Fune Namihe fireball visual selectors")]
     private static byte FuneNamiheFireballVisualSelectorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    /// <summary>Checks exact bank-$86 mechanics-word ownership and rejection of visual operands and neighboring data.</summary>
     private static void VerifyFuneNamiheFireballMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xde96, 0xde9a, 0xde9e, 0xdea2, 0xdea4, 0xdea6, 0xdeaa, 0xdeae, 0xdeb2, 0xdeb4];
@@ -183,6 +189,7 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
                 "FuneNamihe-fireball mechanics ordinal bounds");
     }
 
+    /// <summary>Checks the six native operand positions exposed to installed fireball artwork.</summary>
     private static void VerifyFuneNamiheFireballPresentationAddresses()
     {
         ushort[] expected = [0xde98, 0xde9c, 0xdea0, 0xdea8, 0xdeac, 0xdeb0];
@@ -196,6 +203,7 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
                 "FuneNamihe-fireball presentation ordinal bounds");
     }
 
+    /// <summary>Consumes warmed left and right mechanics words for a per-frame allocation check.</summary>
     private static int ProbeFuneNamiheFireballInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -209,6 +217,7 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
         return checksum;
     }
 
+    /// <summary>Runs the fireball instruction comparison against the local retail cartridge image.</summary>
     [VerificationCommand("--fune-namihe-fireball-instruction-mechanics")]
     internal static int FuneNamiheFireballInstructionMechanicsCommand()
     {

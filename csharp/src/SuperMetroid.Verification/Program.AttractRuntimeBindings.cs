@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static EnemyContentIdentityFixtureVerification;
 
+/// <summary>Checks installed artwork, palette, random state, and cheat-option ownership in attract and selected play.</summary>
 internal static class AttractRuntimeBindingsVerification
 {
+    /// <summary>Reproduces missing-palette construction failure and verifies cartridge-free attract runtime bindings.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyAttractRuntimeBindings()
     {
@@ -60,6 +62,7 @@ internal static class AttractRuntimeBindingsVerification
         Console.WriteLine("Attract runtime bindings: missing-palette failure reproduced; shared construction loads installed colors/artwork without ROM, preserves RNG, and isolates demo options.");
     }
 
+    /// <summary>Runs the focused attract runtime binding verification command.</summary>
     [VerificationCommand("--attract-runtime-bindings")]
     internal static int AttractRuntimeBindingsCommand()
     {

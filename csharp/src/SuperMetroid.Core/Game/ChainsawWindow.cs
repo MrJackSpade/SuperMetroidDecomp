@@ -6,8 +6,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The misaligned Chainsaw callback: it stores into the shared cached window registers ($60..$6D) before running the power-bomb pre-instruction.</summary>
 internal sealed class ChainsawWindow
 {
+    /// <summary>Projectile animation owner used when the misaligned callback clears its slot.</summary>
     private readonly ProjectileAnimation _animation;
 
+    /// <summary>Connects the shared cached-window side effect to projectile animation cleanup.</summary>
     internal ChainsawWindow(ProjectileAnimation animation)
     {
         _animation = animation;

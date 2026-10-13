@@ -8,16 +8,24 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Ceres Ridley, shared Norfair Ridley health, and private Baby draw colors.</summary>
 public sealed class CeresRidleyColorCatalog
 {
+    /// <summary>Startup colors also supply the unchanged retreat door/container entries.</summary>
     internal readonly CeresRidleyStartColorDefinitions start;
+    /// <summary>Three-color fade rows used by the eyes and the retreat background composition.</summary>
     internal readonly CeresRidleyFadeColorDefinitions eyeFade;
+    /// <summary>Eleven-color fade rows shared by the body shadow and retreat background.</summary>
     internal readonly CeresRidleyFadeColorDefinitions bodyFade;
+    /// <summary>Health paint resolves its unchanged colors through the body and eye fade families.</summary>
     internal readonly CeresRidleyHealthPaintDefinitions health;
+    /// <summary>The reflected self-destruct text cycle is independent of Ridley's body fades.</summary>
     internal readonly CeresRidleyAlarmColorDefinitions alarm;
+    /// <summary>Only retreat BG colors that differ from the body, eye, and neutral composition.</summary>
     internal readonly Dictionary<int, Bgr555> retreatBg = [];
     /// <summary>Only supplied differences from the first eight door paints: native $A6:AA01-AA10 repeats $A6:E171-E180.</summary>
     internal readonly Dictionary<int, Bgr555> retreatShared = [];
+    /// <summary>Private Baby draw shades retain their link to the body fade family.</summary>
     internal readonly CeresBabyPaintDefinitions baby;
 
+    /// <summary>Retains independent palette edits and collapses unchanged retreat colors onto their startup and fade owners.</summary>
     private CeresRidleyColorCatalog(CeresRidleyColorParts parts)
     {
         this.start = new(parts.Start, parts.Baby);
@@ -35,6 +43,7 @@ public sealed class CeresRidleyColorCatalog
         this.baby = parts.Baby;
     }
 
+    /// <summary>Uses the installed asset's camel-case schema and rejects unknown properties during loading.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -48,6 +57,7 @@ public sealed class CeresRidleyColorCatalog
             throw new ArgumentOutOfRangeException(nameof(color));
         return retreatBg.TryGetValue(color, out Bgr555 edited) ? edited : CalculateRetreatBg(color);
     }
+    /// <summary>Composes the native retreat background from body-fade row one, eye-fade row fourteen, and its neutral final color.</summary>
     private Bgr555 CalculateRetreatBg(int color) => color < 11 ? bodyFade.Resolve(1, color)
         : color < 14 ? eyeFade.Resolve(14, color - 11) : CeresRidleyMode7PaintDefinitions.RetreatNeutral;
     /// <summary>Returns one BGR555 retreat shared color, index 0..7; unedited values reuse startup colors 1..8, matching native $A6:AA01 and $A6:E171.</summary>
@@ -172,6 +182,7 @@ public sealed class CeresRidleyColorCatalog
         return bytes;
     }
 
+    /// <summary>Requires the palette family's exact row count and validates every row with its expected color width.</summary>
     private static Bgr555[][] CompileRows(PaletteRgb5[][]? rows, int count,
         int colorsPerRow, string name)
     {
@@ -183,6 +194,7 @@ public sealed class CeresRidleyColorCatalog
         return compiled;
     }
 
+    /// <summary>Converts an exact-width RGB5 row to BGR555 after rejecting missing colors and channels outside five-bit range.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? colors, int count, string name)
     {
         if (colors is null || colors.Length != count)
@@ -199,6 +211,7 @@ public sealed class CeresRidleyColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects repeated JSON keys with ordinal name comparison before deserialization could discard an earlier value.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Ceres Ridley color property {name}."));

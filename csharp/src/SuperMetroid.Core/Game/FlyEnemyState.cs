@@ -19,8 +19,10 @@ public enum FlyEnemyFunction : ushort
 /// </summary>
 public sealed class FlyEnemyState
 {
+    /// <summary>Physical fly-family enemy slot holding movement, target, and AI words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects Mellow-family private words from the occupied enemy slot.</summary>
     internal FlyEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native <c>Flies.retreatTimer</c> in variable A at <c>$0FA8,x</c>; counts up per attack update, down through signed underflow during retreat, and then down from 24 to gate another idle attack.</summary>

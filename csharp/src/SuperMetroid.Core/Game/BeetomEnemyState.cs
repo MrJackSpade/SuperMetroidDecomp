@@ -73,16 +73,26 @@ public enum BeetomEnemyFunction : ushort
 /// </summary>
 public sealed class BeetomEnemyState
 {
+    /// <summary>The owning enemy slot that stores Beetom's common native variables.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot instruction-list pointers selected by Beetom setup states.</summary>
     private readonly ushort[] _installedInstructionLists;
+    /// <summary>Per-slot starting quadratic-table indices for short hops.</summary>
     private readonly ushort[] _initialShortLeapYSpeedIndexes;
+    /// <summary>Per-slot starting quadratic-table indices for long hops.</summary>
     private readonly ushort[] _initialLongLeapYSpeedIndexes;
+    /// <summary>Per-slot starting quadratic-table indices for lunges toward Samus.</summary>
     private readonly ushort[] _initialLungeYSpeedIndexes;
+    /// <summary>Per-slot flags selecting the falling half of an airborne arc.</summary>
     private readonly ushort[] _fallingFlags;
+    /// <summary>Per-slot latches that prevent attachment from being initialized twice.</summary>
     private readonly ushort[] _attachedFlags;
+    /// <summary>Per-slot native direction words used by movement and art selection.</summary>
     private readonly ushort[] _directions;
+    /// <summary>Per-slot Samus-relative offsets captured on initial attachment.</summary>
     private readonly Offset16<RoomPixels>[] _initialAttachmentOffsets;
 
+    /// <summary>Binds the native common words in a slot to the matching shared extra-WRAM arrays.</summary>
     internal BeetomEnemyState(RoomEnemySlot slot, BeetomSharedTables tables)
     {
         _slot = slot;

@@ -51,6 +51,7 @@ public readonly record struct SamusMode7Transform(
             unchecked((ushort)(Center.Y - transformedVerticalDistance)));
     }
 
+    /// <summary>Multiplies two signed matrix/distance words and truncates the shifted result to the cartridge's 16-bit intermediate.</summary>
     private static ushort MultiplySigned8Point8(ushort left, ushort right)
     {
         int product = unchecked((short)left) * unchecked((short)right);

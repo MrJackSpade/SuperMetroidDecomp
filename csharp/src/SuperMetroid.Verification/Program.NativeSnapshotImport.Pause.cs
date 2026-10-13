@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Restores stable pause-map state from a native WRAM snapshot for frame comparison.</summary>
 internal static class NativeSnapshotImportPauseVerification
 {
     /// <summary>

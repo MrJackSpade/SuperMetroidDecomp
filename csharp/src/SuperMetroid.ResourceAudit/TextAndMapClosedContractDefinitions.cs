@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Reviewed text and map loaders with complete finite resource domains, not cinematic or navigation tests.</summary>
 internal static class TextAndMapClosedContractDefinitions
 {
+    /// <summary>Reviewed finite text, credits, and map presentation loaders with their guarded methods and source ownership files.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.EscapeTypewriterPresentation", "escape-text-complete-program-membership", ["Get"],

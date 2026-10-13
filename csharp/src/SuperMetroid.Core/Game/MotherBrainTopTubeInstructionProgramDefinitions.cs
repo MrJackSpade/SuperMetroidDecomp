@@ -23,6 +23,7 @@ internal abstract class MotherBrainTopTubeInstructionProgramDefinitions
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
 
+    /// <summary>Four one-frame top-tube poses, each followed by a sleep command.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xcc43),
         Entry(TopRight),
@@ -37,15 +38,19 @@ internal abstract class MotherBrainTopTubeInstructionProgramDefinitions
         Entry(TopMiddleRight),
         Frame(1),
         Op((ushort)EnemyProjectileInstruction.Sleep));
+    /// <summary>One separately installed spritemap operand for each ceiling tube.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Locates a ceiling-tube frame operand within the native program.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Recognizes the four Mother Brain ceiling-tube projectile variants.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainTopRightTube or
         RoomEnemyProjectileKind.MotherBrainTopLeftTube or
         RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube or
         RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube;
 
+    /// <summary>Reads only the compiled timing and sleep words of the top-tube lists.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

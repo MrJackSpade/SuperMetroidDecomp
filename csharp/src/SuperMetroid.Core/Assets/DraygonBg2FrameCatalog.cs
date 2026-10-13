@@ -9,10 +9,13 @@ public sealed class DraygonBg2FrameCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => frames.ContentIdentity;
 
+    /// <summary>Validated BG2 write runs keyed by Draygon's native body-frame pointer.</summary>
     private readonly EnemyBg2FrameCatalog frames;
 
+    /// <summary>Wraps the validated common BG2 catalog after Draygon's required poses have been admitted.</summary>
     private DraygonBg2FrameCatalog(EnemyBg2FrameCatalog frames) => this.frames = frames;
 
+    /// <summary>Finds ordered BG2 tilemap writes for a compiled Draygon body pose; absent pointers leave the caller's frame unresolved.</summary>
     internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
         frames.TryGet(pointer, out writes);
 

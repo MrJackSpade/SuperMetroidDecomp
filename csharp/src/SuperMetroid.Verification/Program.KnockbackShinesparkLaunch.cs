@@ -12,6 +12,7 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 
+/// <summary>Exercises a shinespark direction launch after knockback has replaced Samus's windup movement handler.</summary>
 internal static class KnockbackShinesparkLaunchVerification
 {
     /// <summary>
@@ -38,6 +39,7 @@ internal static class KnockbackShinesparkLaunchVerification
         Console.WriteLine("  Knockback shinespark launch: a direction launches from a windup pose without its handler.");
     }
 
+    /// <summary>Runs the focused 13% movie knockback-to-left-shinespark transition check.</summary>
     [VerificationCommand("--knockback-shinespark-launch")]
     internal static int KnockbackShinesparkLaunchCommand()
     {

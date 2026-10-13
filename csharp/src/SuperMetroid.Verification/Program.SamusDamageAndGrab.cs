@@ -16,10 +16,11 @@ using static HyperBeamPaletteFxProgramDefinitionsVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Constructed cartridge checks for Samus draining, solid-enemy probes, and Draygon grab control.</summary>
 internal static class SamusDamageAndGrabVerification
 {
 
-/// <summary>Drained Samus, solid-enemy collision, and Draygon-grab verification.</summary>
+/// <summary>Checks drained-pose animation, control recovery, and palette progression against native pose streams.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifySamusDrainedController()
 {
@@ -872,6 +873,7 @@ static void InstallHyperBeamProjectilePaletteProgramFixture(TestAddressSpace bus
     WriteTestWord(bus, 0x8dd9ce, 0xd904);
 }
 
+    /// <summary>Runs the focused bank-$A0 solid-enemy collision probe fixture.</summary>
     [VerificationCommand("--samus-solid-enemy-collision")]
     internal static int SamusSolidEnemyCollisionCommand()
     {

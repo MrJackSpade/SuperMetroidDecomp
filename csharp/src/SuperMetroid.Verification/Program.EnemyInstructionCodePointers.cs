@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks enemy instruction catalog uniqueness, mapped addresses, and optional retail readability.</summary>
 internal static class EnemyInstructionCodePointersVerification
 {
     /// <summary>
@@ -179,6 +180,7 @@ internal static class EnemyInstructionCodePointersVerification
         return readableEntries;
     }
 
+    /// <summary>Requires each catalog's ushort instruction constants to be distinct mapped-bank offsets.</summary>
     private static void AssertUniqueMappedInstructionPointers(Type catalog)
     {
         FieldInfo[] fields = GetUshortConstants(catalog);
@@ -192,6 +194,7 @@ internal static class EnemyInstructionCodePointersVerification
             AssertTrue(pointer >= 0x8000, $"{catalog.Name} pointer ${pointer:X4} is mapped");
     }
 
+    /// <summary>Returns public literal ushort or ushort-backed enum fields from an instruction catalog.</summary>
     internal static FieldInfo[] GetUshortConstants(Type catalog) => CatalogFields.Of(catalog, BindingFlags.Public | BindingFlags.Static)
         .Where(field => field.IsLiteral && (field.FieldType == typeof(ushort) ||
             field.FieldType.IsEnum && Enum.GetUnderlyingType(field.FieldType) == typeof(ushort)))

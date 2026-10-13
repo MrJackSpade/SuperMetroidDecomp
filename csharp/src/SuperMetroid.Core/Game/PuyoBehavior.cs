@@ -6,18 +6,24 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Puyo species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class PuyoBehavior : IEnemySpecies
 {
+    /// <summary>Supplies the shared room RNG used when choosing Puyo hop type and bounce height.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Resolves the room collisions that reverse, land or drop an airborne Puyo.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Binds Puyo hop decisions to room randomness and terrain collision.</summary>
     internal PuyoBehavior(EnemyRoomBinding room, EnemyTerrain terrain)
     {
         _room = room;
         _terrain = terrain;
     }
 
+    /// <summary>Bytes per native whole/fraction quadratic-speed record.</summary>
     private const int QuadraticSpeedRecordSize = 8;
+    /// <summary>Upper bound applied to the airborne speed-table index.</summary>
     private const ushort MaximumPuyoYSpeedTableIndex = 0x4000;
 
+    /// <summary>Typed grounded, airborne and dropping state indexed by native enemy slot.</summary>
     internal readonly PuyoEnemyState?[] _puyoStates =
         new PuyoEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -402,6 +408,7 @@ internal sealed class PuyoBehavior : IEnemySpecies
         SetPuyoInstructionList(slot, instructionList);
     }
 
+    /// <summary>Flips the two-entry native direction domain after a terrain impact.</summary>
     private static PuyoDirection Opposite(PuyoDirection direction) => direction switch
     {
         PuyoDirection.Right => PuyoDirection.Left,
@@ -410,6 +417,7 @@ internal sealed class PuyoBehavior : IEnemySpecies
             $"Puyo direction {(ushort)direction} is outside the two-entry ROM domain."),
     };
 
+    /// <summary>Starts a selected pose or hop list with a one-tick instruction countdown.</summary>
     private static void SetPuyoInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -417,10 +425,12 @@ internal sealed class PuyoBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
     }
 
+    /// <summary>Requires initialized per-slot Puyo state before its AI dispatcher runs.</summary>
     private PuyoEnemyState RequirePuyoState(RoomEnemySlot slot) =>
         _puyoStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Puyo state.");
 
+    /// <summary>Routes bank-$A2 Puyo initialization to matching enemy definitions.</summary>
     internal void RegisterPuyoInitializationAi(EnemyAiTable table)
     {
 
@@ -430,6 +440,7 @@ internal sealed class PuyoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Puyo's grounded, airborne, giant-hop and dropping dispatch.</summary>
     internal void RegisterPuyoMainAi(EnemyAiTable table)
     {
 

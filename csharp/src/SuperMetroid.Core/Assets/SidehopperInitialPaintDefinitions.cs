@@ -27,6 +27,7 @@ internal static class SidehopperInitialPaintDefinitions
     /// <summary>$A9:F8E0, ink13: saturated-yellow paired head features.</summary>
     private static readonly Bgr555 HeadYellow = new(31, 31, 0);
 
+    /// <summary>Combines reviewed ink endpoints with derived midtones for the standalone Sidehopper palette.</summary>
     internal static Bgr555 Color(int color) => color switch
     {
         0 => TransparentSlot,

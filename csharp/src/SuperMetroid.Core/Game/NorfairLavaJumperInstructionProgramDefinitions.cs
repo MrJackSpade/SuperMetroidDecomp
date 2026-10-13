@@ -25,10 +25,12 @@ internal abstract class NorfairLavaJumperInstructionProgramDefinitions
     /// <summary><c>Instruction_NorfairLavaJumper_SetAnimationFinished</c> at $A2:BE8E.</summary>
     internal const ushort AnimationFinishedCallback = 0xbe8e;
 
-    // Jump pose holds are authored animation cadence (reviewed under #1165).
+    /// <summary>Seven selected jump-pose hold durations; their uneven cadence is authored animation timing.</summary>
     private static readonly ushort[] JumpHolds = [1, 5, 9, 7, 3, 10, 1];
 
+    /// <summary>Hidden wait, jump and callback, then follower startup and counted-loop control words.</summary>
     public static int MechanicsWordCount => 23;
+    /// <summary>Fourteen visual operands across hidden, jump, and follower instruction lists.</summary>
     public static int PresentationWordCount => 14;
 
     /// <summary>
@@ -54,6 +56,7 @@ internal abstract class NorfairLavaJumperInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Finds the bank-$A2 visual operand in one of the three compiled lava-jumper lists.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -62,6 +65,7 @@ internal abstract class NorfairLavaJumperInstructionProgramDefinitions
         if (index < 10) return (ushort)(Follower + 2 + (index - 8) * 4);
         return (ushort)(Follower + 14 + (index - 10) * 4);
     }
+    /// <summary>Returns a compiled duration, callback, or loop word while rejecting sprite operands and unknown addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

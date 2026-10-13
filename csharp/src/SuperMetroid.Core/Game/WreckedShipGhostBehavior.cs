@@ -5,20 +5,29 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Wrecked Ship ghost species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class WreckedShipGhostBehavior : IEnemySpecies
 {
+    /// <summary>Owns the live OBJ palette row whitened and restored during each apparition.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Binds the ghost's palette updates to the room's shared presentation buffer.</summary>
     internal WreckedShipGhostBehavior(EnemyPresentation presentation)
     {
         _presentation = presentation;
     }
 
-    private const ushort WreckedShipGhostInitialDelay = 0x0118; // $78 + $A0 at $A8:9B17.
+    /// <summary>$A8:9B17 combines the 120-frame appearance delay with an additional 160-frame startup wait.</summary>
+    private const ushort WreckedShipGhostInitialDelay = 0x0118;
+    /// <summary>Frames the ghost remains visible after its appearance cycle enters bobbing.</summary>
     private const ushort WreckedShipGhostVisibleDuration = 0x0078;
+    /// <summary>Samus tracking must remain within the positional margin this long before spawning.</summary>
     private const ushort WreckedShipGhostStablePositionDuration = 0x0040;
+    /// <summary>Samus's facing must remain stable for this many tracking calls.</summary>
     private const ushort WreckedShipGhostStableDirectionDuration = 0x0010;
+    /// <summary>Initial whole-pixel vertical speed of the visible bobbing cycle.</summary>
     private const ushort WreckedShipGhostInitialVerticalVelocityWhole = 1;
+    /// <summary>Fractional vertical acceleration applied to the bobbing ghost.</summary>
     private const int WreckedShipGhostVerticalAccelerationFraction = 0x1800;
 
+    /// <summary>Stores each native ghost slot's apparition timers, flicker phase, and target palette.</summary>
     internal readonly WreckedShipGhostEnemyState?[] _wreckedShipGhostStates =
         new WreckedShipGhostEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -378,6 +387,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
         return componentsChanged;
     }
 
+    /// <summary>Moves one five-bit color component by a single level and counts an actual change.</summary>
     private static Bgr555 StepWreckedShipGhostPaletteComponent(
         Bgr555 current,
         Bgr555 target,
@@ -394,13 +404,16 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
         return current.With(channel, currentComponent);
     }
 
+    /// <summary>Selects the ghost's OBJ palette row from its native palette index.</summary>
     private CgramPalette WreckedShipGhostPalette(RoomEnemySlot slot) =>
         _presentation.CgramRows.ObjectRow((slot.PaletteIndex >> 9) & 7);
 
+    /// <summary>Rejects a ghost main callback before its slot has initialized apparition state.</summary>
     private WreckedShipGhostEnemyState RequireWreckedShipGhostState(RoomEnemySlot slot) =>
         _wreckedShipGhostStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Wrecked Ship ghost slot {slot.SlotIndex} has no initialized native state.");
 
+    /// <summary>Routes the native Coven initialization callback to the ghost's slot-zero setup.</summary>
     internal void RegisterWreckedShipGhostInitializationAi(EnemyAiTable table)
     {
         table.RegisterInitialization(EnemyAiRoutine.InitAI_Coven, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven, (slot, level, samus, controllerInput, cameraX) =>
@@ -409,6 +422,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes Coven main AI through the ghost's six apparition and tracking phases.</summary>
     internal void RegisterWreckedShipGhostMainAi(EnemyAiTable table)
     {
 

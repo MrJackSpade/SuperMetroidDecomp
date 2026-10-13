@@ -107,6 +107,7 @@ public static class GameplayHudDefinitions
     /// </summary>
     private const int AutoFullPalette = 7, AutoEmptyPalette = 3;
 
+    /// <summary>Builds one reflected AUTO label or arrow cell with palette seven for stored energy and palette three otherwise.</summary>
     internal static ushort AutoReserveWord(int cell, bool containsEnergy)
     {
         if ((uint)cell >= AutoReserveCellCount) throw new IndexOutOfRangeException();
@@ -123,8 +124,10 @@ public static class GameplayHudDefinitions
     /// shares the canonical blank's palette/priority; glyph pixels remain separate.
     /// </summary>
     private const int MinimapTopRightCapGlyph = 0x1c;
+    /// <summary>Five minimap columns fit at the HUD's right edge beside the border cap.</summary>
     private const int MinimapVisibleColumns = 5;
 
+    /// <summary>Builds a static top-row word, leaving the HUD blank until the right-aligned minimap border.</summary>
     internal static ushort TopRowWord(int column)
     {
         if ((uint)column >= Width) throw new IndexOutOfRangeException();
@@ -149,6 +152,7 @@ public static class GameplayHudDefinitions
     /// </summary>
     private const int MinimapEmptyGlyph = 0x12, MinimapConnectorStartGlyph = 0x22;
 
+    /// <summary>Builds one initial mutable HUD cell, including the energy label and native minimap starter picture.</summary>
     internal static ushort TemplateWord(int index)
     {
         if ((uint)index >= CellCount) throw new IndexOutOfRangeException();
@@ -189,12 +193,14 @@ public static class GameplayHudDefinitions
     /// </summary>
     private const int MissileShaftStartGlyph = 0x49, TwoColumnItemStartGlyph = 0x34;
 
+    /// <summary>Uses a three-cell missile icon and two-cell icons for the other selectable items.</summary>
     internal static int IconWidth(int item)
     {
         _ = IconName(item);
         return item == 0 ? 3 : 2;
     }
 
+    /// <summary>Builds a reflected, deselected BG3 icon tile word for one row-major pictogram cell.</summary>
     internal static ushort IconWord(int item, int cell)
     {
         int width = IconWidth(item);

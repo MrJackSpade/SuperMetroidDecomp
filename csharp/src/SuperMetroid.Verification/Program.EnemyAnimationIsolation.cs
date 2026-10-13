@@ -17,8 +17,10 @@ using static EnemyContentIdentityFixtureVerification;
 using static GoldenTorizoRightOrbFramesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks that replacing enemy display sequences leaves compiled gameplay timelines intact.</summary>
 internal static class EnemyAnimationIsolationVerification
 {
+    /// <summary>Compares stock and edited artwork identities, then runs ordinary and boss behavior fixtures.</summary>
     internal static void VerifyEnemyAnimationIsolation()
     {
         var stock = new EnemyIdentityFixture().Build();
@@ -30,6 +32,7 @@ internal static class EnemyAnimationIsolationVerification
             "boss attack/hitbox windows and death progression remain frame-exact with replaced display sequences and projectile art.");
     }
 
+    /// <summary>Tracks Boyon's proximity bounce across a moving arc while its replacement changes every OAM draw.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyBoyonAnimationIsolation(EnemyAnimationFixture stock, EnemyAnimationFixture edited)
     {
@@ -61,6 +64,7 @@ internal static class EnemyAnimationIsolationVerification
             $"{heights.Count} Y positions and {bounceSounds} bounce callbacks; OAM changes every frame without changing mechanics.");
     }
 
+    /// <summary>Checks Torizo's orb attack, hit windows, RNG use, and death publication against alternate art.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyTorizoAnimationIsolation(EnemyAnimationFixture stock, EnemyAnimationFixture edited)
     {
@@ -123,6 +127,7 @@ internal static class EnemyAnimationIsolationVerification
             "identical motion, projectiles, damage fields, RNG and progression with different OAM.");
     }
 
+    /// <summary>Samples shot and touch offsets around the boss to compare physical callbacks frame by frame.</summary>
     private static void CompareTorizoHitWindows(EnemyAnimationFixture stock, EnemyAnimationFixture edited,
         int frame, ref int hits, ref int misses)
     {
@@ -140,6 +145,7 @@ internal static class EnemyAnimationIsolationVerification
         }
     }
 
+    /// <summary>Runs the animation isolation verification through the command dispatcher.</summary>
     [VerificationCommand("--enemy-animation-isolation")]
     internal static int EnemyAnimationIsolationCommand()
     {

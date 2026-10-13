@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Checks the Golden Torizo inventory code's exact held chord and native reward values.</summary>
 internal static class GoldenTorizoCodeVerification
 {
+    /// <summary>Confirms only an undefeated Golden Torizo with the exact input chord grants the native inventory.</summary>
     internal static void VerifyGoldenTorizoCode()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -67,9 +69,11 @@ internal static class GoldenTorizoCodeVerification
              samus.EquippedBeams, samus.CollectedBeams];
     }
 
+    /// <summary>Reads a cartridge byte for the native code's input mask and inventory oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo code")]
     private static byte GoldenTorizoCodeRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Runs the focused Golden Torizo code grant check.</summary>
     [VerificationCommand("--golden-torizo-code")]
     internal static int GoldenTorizoCodeCommand()
     {

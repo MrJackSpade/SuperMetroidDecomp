@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+/// <summary>Supplies representative word and byte classes for bounded arithmetic verification.</summary>
 internal static class WordSamplesVerification
 {
     /// <summary>

@@ -22,37 +22,68 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class PauseMenuState
 {
+    /// <summary>Address space supplying native menu pose and timing data.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Queues menu navigation and animation sounds when a live frontend owns audio.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>Advances the map highlight colors once per accepted menu update.</summary>
     internal readonly MapPaletteAnimation paletteAnimation;
+    /// <summary>Live inventory owner mutated by equipment and reserve controls.</summary>
     private readonly SamusState samus;
+    /// <summary>Provides persistent area map and exploration bits.</summary>
     private readonly Bank80SystemState system;
+    /// <summary>Area whose map and pause backdrop are displayed.</summary>
     private readonly AreaId area;
+    /// <summary>Room header map origin used to locate Samus on the area map.</summary>
     private readonly Position16<MapTiles> roomMapPosition;
+    /// <summary>Visibility rule for the installed map and its scroll bounds.</summary>
     private readonly MapRevealMode mapRevealMode;
+    /// <summary>Host-bound map artwork, rebound after debugger state restoration.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    /// <summary>Pause-owned VRAM image, including retained gameplay HUD rows.</summary>
     internal readonly SnesVram vram = new();
+    /// <summary>Pause-owned CGRAM image with live palette and reserve-arrow edits.</summary>
     internal readonly SnesCgram cgram = new();
+    /// <summary>OAM assembled in native map or equipment drawing order.</summary>
     internal readonly OamBuffer oam = new();
+    /// <summary>Mutable BG1 equipment page including current inventory labels and tanks.</summary>
     internal readonly byte[] equipmentTilemap;
+    /// <summary>Mutable button-label source whose palette bits survive page transitions.</summary>
     private readonly byte[] pauseButtonTilemap;
+    /// <summary>Current map/equipment fade or load phase.</summary>
     internal PauseMenuTransition transition;
+    /// <summary>Counter inserted between brightness changes during fade-in.</summary>
     private int transitionFadeCounter;
+    /// <summary>Current page-transition brightness, from black to full intensity.</summary>
     internal int transitionBrightness = 15;
+    /// <summary>Equipment or reserve category selected by the native cursor.</summary>
     internal PauseEquipmentCategory selectedCategory;
+    /// <summary>Selected item index within the current equipment category.</summary>
     internal int selectedItem;
+    /// <summary>Current BG1 map scroll in map pixels.</summary>
     internal Position16<MapPixels> mapScrollPosition;
+    /// <summary>Bounded map-scroll controller initialized from visible area cells.</summary>
     internal PauseMapScroll mapScroll = null!;
+    /// <summary>Animated map arrows and their current visibility state.</summary>
     internal FileSelectMapAnimations? mapArrows;
+    /// <summary>Whether elevator labels draw before map icons during a fade-out.</summary>
     private bool mapLabelsBeforeIcons;
+    /// <summary>Current bank-$82 map-position marker frame.</summary>
     internal int mapIndicatorAnimationFrame;
+    /// <summary>Remaining updates in the map-position marker frame.</summary>
     internal int mapIndicatorAnimationTimer;
+    /// <summary>Current equipment selector sprite frame.</summary>
     internal int itemSelectorAnimationFrame;
+    /// <summary>Remaining updates in the equipment selector frame.</summary>
     internal int itemSelectorAnimationTimer;
+    /// <summary>Tracks the retail Boots-to-Plasma label copy overrun across artwork rebinds.</summary>
     private bool plasmaLabelOverrunActive;
+    /// <summary>Last selected map marker or equipment selector origin for diagnostics.</summary>
     internal Position16<OamPixels> lastIndicatorOrigin;
+    /// <summary>Last native marker or selector sprite identity for diagnostics.</summary>
     internal ushort lastIndicatorSpritemapId;
 
+    /// <summary>Creates the isolated pause PPU image and initial map/equipment state from live gameplay.</summary>
     public PauseMenuState(ISnesAddressSpace bus, PauseMenuEntry entry)
     {
         this.bus = Ensure.NotNull(bus);
@@ -223,12 +254,14 @@ internal sealed class PauseMenuState
             StepItemSelectorAnimation();
     }
 
-    /// <summary>Composes the cartridge's BG2 frame and current BG1 page at 256x224.</summary>
-    // Raster scratch reused across draws; never part of saved state (restores reallocate it).
+    /// <summary>Reusable OBJ color raster, excluded from saved state.</summary>
     [NonSerialized] private Rgba32[]? objScratchPixels;
+    /// <summary>Reusable OBJ priority raster, excluded from saved state.</summary>
     [NonSerialized] private byte[]? objScratchPriorities;
+    /// <summary>Reusable BG3 priority plane, rebuilt after state restoration.</summary>
     [NonSerialized] private Rgba32[]? bg3ScratchPlane;
 
+    /// <summary>Composites BG and OBJ priorities in Mode-1 order and applies page-transition brightness.</summary>
     public Rgba32[] Render()
     {
         Rgba32[] output = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
@@ -289,6 +322,7 @@ internal sealed class PauseMenuState
             PauseMenuLayout.ObjectSelection, checked((byte)(transition == PauseMenuTransition.None ? 15 : transitionBrightness)));
     }
 
+    /// <summary>Assembles map markers or equipment sprites in their native page-specific OAM order.</summary>
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
@@ -313,6 +347,7 @@ internal sealed class PauseMenuState
         oam.FinalizeFrame();
     }
 
+    /// <summary>Composites one priority half of the scrolling BG1 map or fixed BG2 backdrop.</summary>
     private void CompositePauseBg(
         Span<Rgba32> output,
         ushort tilemapBaseWord,
@@ -323,6 +358,7 @@ internal sealed class PauseMenuState
         SnesBgTilemapRenderer.Composite4BppViewport(output, vram, cgram, new BgVramAddresses { TilemapBaseWord = tilemapBaseWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(isMapLayer && ScreenMode == 0 ? mapScrollPosition.X : (ushort)0, unchecked((ushort)((isMapLayer && ScreenMode == 0 ? mapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline))), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(checked((ushort)tilemapWidthInTiles), 32) }, priority: priority);
     }
 
+    /// <summary>Renders one priority half of the retained gameplay HUD BG3 layer.</summary>
     private void CompositePauseBg3(Span<Rgba32> output, bool priority)
     {
         Rgba32[] plane = bg3ScratchPlane ??= new Rgba32[32 * 8 * 32 * 8];
@@ -334,6 +370,7 @@ internal sealed class PauseMenuState
             output.Length));
     }
 
+    /// <summary>Copies only OBJ pixels matching one native priority rung.</summary>
     private static void CompositeResolvedObjPriority(
         Span<Rgba32> output,
         ResolvedObjFrame objects,
@@ -346,6 +383,7 @@ internal sealed class PauseMenuState
         }
     }
 
+    /// <summary>Advances map/equipment fade, page load, and brightness phases.</summary>
     private void StepPageTransition()
     {
         switch (transition)
@@ -404,6 +442,7 @@ internal sealed class PauseMenuState
         }
     }
 
+    /// <summary>Selects reserves first when available, otherwise the first collected inventory item.</summary>
     private void SelectFirstCollectedEquipment()
     {
         // $82:ABAD-$ABB5 selects the tank mode control whenever reserve capacity exists,
@@ -432,12 +471,15 @@ internal sealed class PauseMenuState
         selectedItem = 0;
     }
 
+    /// <summary>Reads collected beam or item bits from live Samus inventory.</summary>
     private ushort GetCollectedBits(PauseEquipmentCategory category) =>
         category == PauseEquipmentCategory.Beams ? samus.CollectedBeams : samus.CollectedItems;
 
+    /// <summary>Reads equipped beam or item bits from live Samus inventory.</summary>
     private ushort GetEquippedBits(PauseEquipmentCategory category) =>
         category == PauseEquipmentCategory.Beams ? samus.EquippedBeams : samus.EquippedItems;
 
+    /// <summary>Rebuilds the equipment page from its template and current inventory state.</summary>
     private void RebuildEquipmentTilemap()
     {
         // Restore the literal base before applying inventory-dependent labels. This makes
@@ -482,6 +524,7 @@ internal sealed class PauseMenuState
         }
     }
 
+    /// <summary>Selects and patches the pause wireframe for Samus's equipped suit.</summary>
     private void WriteSamusWireframe()
     {
         int variant = PauseEquipmentRules.WireframeIndex(samus.EquippedItems);
@@ -490,6 +533,7 @@ internal sealed class PauseMenuState
             .PauseWireframes.ApplyTo(equipmentTilemap, (PauseWireframeKind)variant);
     }
 
+    /// <summary>Builds the area map from installed presentation and exploration bits into BG1.</summary>
     private void LoadPauseMapTilemap()
     {
         IAreaMapView map = (mapPresentation ?? throw new InvalidOperationException(
@@ -501,6 +545,7 @@ internal sealed class PauseMenuState
         // Installed backdrops already contain their authored area lettering.
     }
 
+    /// <summary>Derives native map-scroll bounds and initial offset from visible tiles and Samus's map cell.</summary>
     private void SetupMapScrolling()
     {
         int areaIndex = AreaIds.ToIndex(area);
@@ -603,9 +648,11 @@ internal sealed class PauseMenuState
         mapScrollPosition = new(horizontal, vertical);
     }
 
+    /// <summary>Maps Samus's current room screen to the area map with its one-row Y convention.</summary>
     private Position16<MapTiles> SamusMapCell() =>
         roomMapPosition + new Offset16<MapTiles>(checked((short)(SnesEightEight.WholeOf(samus.Position.X.Whole))), checked((short)((SnesEightEight.WholeOf(samus.Position.Y.Whole)) + 1)));
 
+    /// <summary>Draws the animated Samus map marker at the scrolled screen position.</summary>
     private void DrawMapPositionIndicator()
     {
         Position16<OamPixels> origin = SamusMapCell().ToMapPixels().ToScreen(mapScrollPosition).ToOam();
@@ -618,6 +665,7 @@ internal sealed class PauseMenuState
             ReadPauseSpritePaletteBits());
     }
 
+    /// <summary>Advances the map marker's native timer-before-draw frame cadence.</summary>
     private void StepMapIndicatorAnimation()
     {
         // The native timer starts at zero, advances to frame one on the first draw, then
@@ -631,6 +679,7 @@ internal sealed class PauseMenuState
         mapIndicatorAnimationTimer--;
     }
 
+    /// <summary>Restarts the equipment selector at its first authored frame.</summary>
     private void ResetItemSelectorAnimation()
     {
         itemSelectorAnimationFrame = 0;
@@ -639,6 +688,7 @@ internal sealed class PauseMenuState
             .PauseSelectors.InitialDurationTicks;
     }
 
+    /// <summary>Advances the equipment selector only while inventory offers a selectable item.</summary>
     private void StepItemSelectorAnimation()
     {
         if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == 0 && samus.CollectedBeams == 0)
@@ -656,6 +706,7 @@ internal sealed class PauseMenuState
         itemSelectorAnimationTimer = selectors.Duration(itemSelectorAnimationFrame);
     }
 
+    /// <summary>Draws the selected equipment item's authored sprite and records its origin.</summary>
     private void DrawEquipmentItemSelector()
     {
         if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == 0 && samus.CollectedBeams == 0)
@@ -671,6 +722,7 @@ internal sealed class PauseMenuState
         selector.Draw(oam, selectedCategory, selectedItem, itemSelectorAnimationFrame);
     }
 
+    /// <summary>Gets the native OBJ palette bits shared by pause map markers.</summary>
     private static ushort ReadPauseSpritePaletteBits() => PauseMenuLayout.MapMarkerPaletteBits;
 
     /// <summary>
@@ -735,6 +787,7 @@ internal sealed class PauseMenuState
                 PauseMenuLayout.ButtonRowsByteCount));
     }
 
+    /// <summary>Draws an installed map sprite composition with its selected palette bits.</summary>
     private void DrawMenuSpritemap(MapSpriteId id, Position16<OamPixels> origin, ushort paletteBits)
     {
         // Map compositions use this shared entry. Extracted equipment selectors
@@ -744,12 +797,15 @@ internal sealed class PauseMenuState
             .Sprites.Draw(id, oam, origin, paletteBits);
     }
 
+    /// <summary>Uploads the current mutable equipment page to BG1 VRAM.</summary>
     private void UploadEquipmentTilemap() =>
         new PauseVram(vram).Bg1Tilemap.Load(equipmentTilemap);
 
+    /// <summary>Gets the inventory bit represented by an item in an equipment category.</summary>
     private static ushort ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
         PauseEquipmentRules.Mask(category.Category, item);
 
+    /// <summary>Dispatches reserve input or moves and toggles equipment in native update order.</summary>
     private void HandleEquipmentInput(SnesButton pressed, byte nmiFrameCounter8)
     {
         PauseEquipmentCategory dispatchedCategory = selectedCategory;
@@ -807,6 +863,7 @@ internal sealed class PauseMenuState
         UploadEquipmentTilemap();
     }
 
+    /// <summary>Patches one equipment label, retaining the retail overlong Plasma copy when selected.</summary>
     private void UpdateEquipmentLabel(PauseEquipmentCategory categoryIndex, int item, int wordCount, bool disabled)
     {
         var category = PauseEquipmentCategories.Get(categoryIndex);
@@ -819,6 +876,7 @@ internal sealed class PauseMenuState
                 equipmentTilemap, categoryIndex, item, wordCount, disabled);
     }
 
+    /// <summary>Scans collected items in one category and moves the selector to the first eligible item.</summary>
     private bool TrySelectEquipment(PauseEquipmentCategory categoryIndex, int start, int step)
     {
         if (categoryIndex == PauseEquipmentCategory.Beams && samus.HyperBeam != 0)
@@ -844,6 +902,7 @@ internal sealed class PauseMenuState
         return false;
     }
 
+    /// <summary>Moves the selector to reserve mode when Samus has reserve capacity.</summary>
     private bool TrySelectReserves()
     {
         if (samus.MaxReserveEnergy == 0) return false;
@@ -853,6 +912,7 @@ internal sealed class PauseMenuState
         return true;
     }
 
+    /// <summary>Applies native directional links among beam, suit, boot, and reserve rows.</summary>
     private void MoveEquipmentSelector(SnesButton pressed)
     {
         bool left = (pressed & SnesButton.Left) != 0, right = (pressed & SnesButton.Right) != 0;
@@ -923,6 +983,7 @@ internal sealed class PauseMenuState
         new PauseVram(vram).AcceptedHudRows.Load(new PauseVram(gameplayVram).AcceptedHudRows);
     }
 
+    /// <summary>Rebinds edited map and pause artwork while retaining live scroll, palette, and label state.</summary>
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
         AreaMapPresentationCatalog? previousCatalog = mapPresentation;
@@ -988,6 +1049,7 @@ internal sealed class PauseMenuState
         if (ScreenMode == 0) LoadPauseMapTilemap();
     }
 
+    /// <summary>Loads the selected area's installed pause backdrop into BG2.</summary>
     private void LoadPauseBackdrop()
     {
         (mapPresentation ?? throw new InvalidOperationException(
@@ -995,6 +1057,7 @@ internal sealed class PauseMenuState
             .PauseBackdrops.LoadTo(new PauseVram(vram).Bg2Tilemap, area);
     }
 
+    /// <summary>Adopts replacement button art while preserving palette bits from the live menu.</summary>
     private void RefreshPauseButtonArtwork()
     {
         byte[] replacement = (mapPresentation ?? throw new InvalidOperationException(
@@ -1014,12 +1077,13 @@ internal sealed class PauseMenuState
         replacement.CopyTo(pauseButtonTilemap, 0);
     }
 
-    // The arrow state latched by its native owner: equipment setup lights it and tank
-    // dispatches update it; other categories leave it latched. Content rebinds re-apply this
-    // state with the new presentation rather than re-running the owner.
+    /// <summary>Whether reserve-arrow ownership has published a state to retain across artwork rebinds.</summary>
     private bool reserveArrowLatched;
+    /// <summary>Last requested visibility of the reserve arrow.</summary>
     private bool reserveArrowLatchedEnabled;
+    /// <summary>Whether the last arrow color request used its animated palette.</summary>
     private bool reserveArrowLatchedAnimated;
+    /// <summary>NMI frame retained for reproducing the arrow's current color on rebind.</summary>
     private byte reserveArrowLatchedFrame;
 
     /// <summary>Runs $82:AD0A after the tank input handler and D-pad response.</summary>
@@ -1032,6 +1096,7 @@ internal sealed class PauseMenuState
         SetReserveArrow(enabled, animated, nmiFrameCounter8);
     }
 
+    /// <summary>Applies reserve-arrow tile and palette state, then latches it for content rebinds.</summary>
     private void SetReserveArrow(bool enabled, bool animated = false, byte nmiFrameCounter8 = 0)
     {
         PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
@@ -1049,6 +1114,7 @@ internal sealed class PauseMenuState
     private void ReapplyLatchedReserveArrow() =>
         SetReserveArrow(reserveArrowLatchedEnabled, reserveArrowLatchedAnimated, reserveArrowLatchedFrame);
 
+    /// <summary>Writes reserve mode and tank labels only when reserve capacity exists.</summary>
     private void WriteReserveLabels()
     {
         // Absence of capacity leaves the original blank template intact. Restoring
@@ -1066,7 +1132,7 @@ internal sealed class PauseMenuState
                 preserveAttributes: true);
     }
 
-    // Retained at the simulation boundary so redraws cannot advance fill flicker.
+    /// <summary>Accepted NMI phase retained so repeated renders cannot advance tank fill flicker.</summary>
     private byte pauseNmiFrameCounter8;
 
     /// <summary>Ports $82:B2AA's full/partial/empty strip and final cap.</summary>
@@ -1101,8 +1167,7 @@ internal sealed class PauseMenuState
         }
     }
 
-    // Native $0757 persists while the selector moves away. It is not a host
-    // task or timer: only the selected reserve-transfer subdispatcher ticks it.
+    /// <summary>Native $0757 sound cadence, advanced only by the selected reserve-transfer handler.</summary>
     internal NativeCountdown reserveTransferSoundDelay;
 
     /// <summary>The selected item while the reserve-tank category is selected.</summary>
@@ -1160,13 +1225,21 @@ internal sealed class PauseMenuState
     }
 }
 
+/// <summary>Map/equipment page fade and load phases owned by the pause menu.</summary>
 internal enum PauseMenuTransition
 {
+    /// <summary>No page change is in progress; normal input and rendering run.</summary>
     None,
+    /// <summary>Dim the map before loading equipment graphics.</summary>
     MapToEquipmentFadeOut,
+    /// <summary>Brighten the newly loaded equipment page.</summary>
     MapToEquipmentFadeIn,
+    /// <summary>Dim equipment before restoring the map.</summary>
     EquipmentToMapFadeOut,
+    /// <summary>Brighten the restored map page.</summary>
     EquipmentToMapFadeIn,
+    /// <summary>Swap map BG1 for equipment BG1 while the screen is black.</summary>
     MapToEquipmentLoad,
+    /// <summary>Restore map BG1 after the equipment page has faded out.</summary>
     EquipmentToMapLoad,
 }

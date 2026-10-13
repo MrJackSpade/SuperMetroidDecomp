@@ -10,8 +10,10 @@ using static RoomPlmPopulationVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 
+/// <summary>Checks Mother Brain escape gate visual overrides against PLM collision and install contracts.</summary>
 internal static class EscapeGateVisualsVerification
 {
+    /// <summary>Checks cloned closed and half-closed frames, rejected physical bits, and live and installed edits.</summary>
     internal static void VerifyEscapeGateVisuals(SuperMetroidAddressSpace rom)
     {
         RoomPlmEscapeGateVisualEntry[] entries =
@@ -60,6 +62,7 @@ internal static class EscapeGateVisualsVerification
             "Escape-gate visuals: closed/closing edits preserve physical collision, installed overrides survive refresh, and invalid content fails loudly.");
     }
 
+    /// <summary>Runs resident and door-triggered gates to prove edited tiles leave collision unchanged.</summary>
     private static void VerifyEscapeGateLiveVisual(
         RoomPlmEscapeGateVisualCatalog edited)
     {
@@ -129,6 +132,7 @@ internal static class EscapeGateVisualsVerification
             "escape-gate visuals never reread compiled program or draw payloads");
     }
 
+    /// <summary>Checks extraction, override reload after stock refresh, and tampered stock rejection.</summary>
     private static void VerifyEscapeGateVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("escape-gate-visual");

@@ -7,9 +7,12 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>One of four Baby-Metroid slime drops created by $8B:BA73.</summary>
 internal sealed class IntroEggSlimeDrop
 {
+    /// <summary>Discovery sprite owning this drop's position, timer, and impact instruction list.</summary>
     internal readonly IntroDiscoverySprite sprite;
+    /// <summary>Stops velocity integration when the drop reaches the puddle-animation height.</summary>
     private bool motionEnabled = true;
 
+    /// <summary>Starts one of four drops at the confused Baby's position, using its index as trajectory selector.</summary>
     public IntroEggSlimeDrop(Position16<ScreenPixels> babyPosition, byte index)
     {
         if (index >= IntroEggEffectDefinitions.SlimeDropCount)
@@ -29,6 +32,7 @@ internal sealed class IntroEggSlimeDrop
         sprite.PreInstructionPointerForDiscovery(definition.PreInstruction);
     }
 
+    /// <summary>Applies index-specific horizontal motion and parity-specific gravity until Y $A8, then runs the puddle list in place.</summary>
     public void Step()
     {
         if (!sprite.IsActive)
@@ -66,10 +70,12 @@ internal sealed class IntroEggSlimeDrop
         sprite.Step(instructionWord: IntroEggEffectInstructionDefinitions.ReadWord);
     }
 
+    /// <summary>Draws the drop's current frame with installed egg-effect artwork when provided.</summary>
     public void Draw(OamBuffer oam,
         IntroEggEffectSpritePresentation? installedArt = null) =>
         sprite.Draw(oam, installedArt: installedArt);
 
+    /// <summary>Adds native 16.16 motion to one screen coordinate while preserving its fractional part.</summary>
     private void AddVelocity(bool horizontal, (ushort Whole, ushort Fraction) velocity)
     {
         (ushort wholeVelocity, ushort fractionVelocity) = velocity;

@@ -11,8 +11,10 @@ namespace SuperMetroid.ArchitectureAudit;
 /// </summary>
 internal static class Program
 {
+    /// <summary>Requires an explicit solution path and reserves --write for inventory regeneration.</summary>
     private const string Usage = "Usage: SuperMetroid.ArchitectureAudit --solution <SuperMetroid.Full.slnx> [--write]";
 
+    /// <summary>Stable camel-case JSON settings shared by inventory and review documents.</summary>
     private static readonly JsonSerializerOptions Json = new()
     {
         WriteIndented = true,
@@ -20,6 +22,7 @@ internal static class Program
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
+    /// <summary>Checks the reviewed type inventory or rewrites it while reporting failures through the guarded console boundary.</summary>
     private static async Task<int> Main(string[] args)
     {
         NativeConsoleErrors.DisableDialogs();
@@ -92,6 +95,7 @@ internal static class Program
         return problems;
     }
 
+    /// <summary>Projects a discovered type with its reviewed disposition and only its current flags.</summary>
     private static object Reviewed(TypeEntry entry, IReadOnlyList<Review> reviews)
     {
         Review? review = reviews.FirstOrDefault(candidate => candidate.Type == entry.Type);
@@ -109,6 +113,7 @@ internal static class Program
         };
     }
 
+    /// <summary>Root of the checked-in architecture review list.</summary>
     private sealed record ReviewDocument(IReadOnlyList<Review> Reviews);
 
     /// <summary>A reviewed acceptance of a type's flags.</summary>

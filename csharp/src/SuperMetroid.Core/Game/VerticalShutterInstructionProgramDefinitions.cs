@@ -15,12 +15,14 @@ internal abstract class VerticalShutterInstructionProgramDefinitions
     /// <summary>True only for the plain vertical shutter, not the Kamer platform loop.</summary>
     internal static bool IsPlainShutterPresentationWord(ushort address) => address == Plain + 2;
 
+    /// <summary>Identifies the four spritemap operands following Kamer's ten-tick frame waits.</summary>
     internal static bool IsKamerPresentationWord(ushort address)
     {
         int offset = address - (KamerPlatform + 2);
         return (uint)offset < 16 && offset % 4 == 0;
     }
 
+    /// <summary>Returns the plain shutter's one-tick sleep or Kamer's four timed frames and goto, rejecting visual operands.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address == Plain) return 1;

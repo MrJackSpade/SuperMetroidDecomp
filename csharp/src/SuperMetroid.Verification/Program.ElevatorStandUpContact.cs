@@ -13,6 +13,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Reproduces same-frame elevator contact when Samus stands from a crouch.</summary>
 internal static class ElevatorStandUpContactVerification
 {
     /// <summary>
@@ -50,6 +51,7 @@ internal static class ElevatorStandUpContactVerification
         Console.WriteLine("  Elevator stand-up contact: standing up on the elevator arms it in the same frame.");
     }
 
+    /// <summary>Runs the standing-pose elevator contact check from the verification host.</summary>
     [VerificationCommand("--elevator-stand-up-contact")]
     internal static int ElevatorStandUpContactCommand()
     {

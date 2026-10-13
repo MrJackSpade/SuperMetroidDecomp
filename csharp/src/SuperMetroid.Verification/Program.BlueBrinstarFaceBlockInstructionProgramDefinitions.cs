@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks face-block instruction mechanics and installed visual bindings against retail behavior.</summary>
 internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerification
 {
+    /// <summary>Runs the retail-backed face-block mechanics and visual ownership checks as a named suite.</summary>
     internal static void VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions), () => VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled control words and sprite operands with bank $A8, then executes initial and both Samus-side activation programs under a cartridge-read guard.</summary>
     internal static void VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -91,6 +94,7 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
             "three production programs, both activation sides, and seven compiled " +
             "spritemap selectors pass without instruction or presentation ROM reads.");
 
+        // Initialize one face block, optionally activate it from a Samus side, and advance to sleep.
         static void VerifyBlueBrinstarFaceBlockProgram(
             CartridgeReadGuard guard,
             ushort parameter2,
@@ -136,6 +140,7 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
         }
     }
 
+    /// <summary>Checks all ten control words against retail bytes and proves the mechanics-byte predicate owns only those bank-$A8 bytes.</summary>
     private static void VerifyFaceBlockMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [0xe80c,0xe810,0xe814,0xe818,0xe81a,0xe81e,0xe822,0xe826,0xe828,0xe82c];
@@ -165,6 +170,7 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
         foreach (int index in new[] {int.MinValue,-1,10,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.MechanicsWord(index), "face-block control ordinal bounds");
     }
+    /// <summary>Checks the seven interleaved spritemap operand locations and rejects every other word address as a presentation operand.</summary>
     private static void VerifyFaceBlockPresentationMapping()
     {
         ushort[] expected = [0xe80e,0xe812,0xe816,0xe81c,0xe820,0xe824,0xe82a];
@@ -177,6 +183,7 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
         foreach (int index in new[] {int.MinValue,-1,7,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "face-block operand ordinal bounds");
     }
+    /// <summary>Checks compiled sprite selectors and exported four-piece frame identities against the native face-block program and frame table.</summary>
     private static void VerifyFaceBlockVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xe80e,0xe812,0xe816,0xe81c,0xe820,0xe824,0xe82a];
@@ -210,6 +217,7 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => BlueBrinstarFaceBlockVisualDefinitions.FrameAt(address), "face-block distant invalid operand");
     }
+    /// <summary>Repeatedly consumes the initial compiled control word so the caller can measure warmed lookup allocation.</summary>
     private static int ProbeBlueBrinstarFaceBlockInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -221,12 +229,14 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
         return checksum;
     }
 
+    /// <summary>Reads a retail bank-$A8 word solely as the oracle for compiled face-block definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Blue Brinstar face block words")]
     internal static ushort ReadBlueBrinstarFaceBlockWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
+    /// <summary>Forbids production reads of compiled control bytes while recording any presentation-word reads during instruction execution.</summary>
     private static CartridgeReadGuard NewBlueBrinstarFaceBlockProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -235,6 +245,7 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
                 BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount,
                 BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Exposes the face-block compiled-mechanics verification through its dedicated command-line switch.</summary>
     [VerificationCommand("--blue-brinstar-face-block-instruction-mechanics")]
     internal static int BlueBrinstarFaceBlockInstructionMechanicsCommand()
     {

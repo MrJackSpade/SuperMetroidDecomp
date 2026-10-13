@@ -24,84 +24,85 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed class RoomPlmSystem
 {
-    /// <summary>The <see cref="BlockReactionPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Creates collision-triggered block PLMs from Samus and projectile reactions.</summary>
     internal BlockReactionPlms BlockReactions { get; }
 
-    /// <summary>The <see cref="BossRoomMutationPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Applies boss encounter mutations to the active room's PLM slots.</summary>
     internal BossRoomMutationPlms BossRoomMutations { get; }
 
-    /// <summary>The <see cref="PlmSlotTable"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Connects room events, enemy actors, and memory to the PLM family handlers.</summary>
     internal PlmRoomBindings Bindings { get; }
 
+    /// <summary>Forty native word-indexed PLM slots shared by the room's object families.</summary>
     internal PlmSlotTable SlotTable { get; }
 
-    /// <summary>The <see cref="PlmSoundQueue"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Queues sound requests emitted by room object instructions.</summary>
     internal PlmSoundQueue Sounds { get; }
 
-    /// <summary>The <see cref="PlmBlockDrawing"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Turns PLM draw-list commands into level changes and BG tilemap updates.</summary>
     internal PlmBlockDrawing Drawing { get; }
 
-    /// <summary>The <see cref="ProjectileTriggerPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Spawns PLMs for breakable blocks struck by projectile impacts.</summary>
     internal ProjectileTriggerPlms ProjectileTriggers { get; }
 
-    /// <summary>The <see cref="EnemyBreakableTerrainPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Handles enemy-triggered changes to breakable room terrain.</summary>
     internal EnemyBreakableTerrainPlms BreakableTerrain { get; }
 
-    /// <summary>The <see cref="QuicksandPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Runs quicksand room objects through the shared slot allocation.</summary>
     internal QuicksandPlms Quicksand { get; }
 
-    /// <summary>The <see cref="ShaktoolPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Coordinates Shaktool's tunnel digging and block replacement PLMs.</summary>
     internal ShaktoolPlms Shaktool { get; }
 
-    /// <summary>The <see cref="SamusEaterPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Runs Samus Eater plant damage, release, and room object state.</summary>
     internal SamusEaterPlms SamusEater { get; }
 
-    /// <summary>The <see cref="TourianPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Runs Tourian room object instructions, including encounter scenery.</summary>
     internal TourianPlms Tourian { get; }
 
-    /// <summary>The <see cref="EscapeAnimalPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Controls escape animal room triggers and their persistent event.</summary>
     internal EscapeAnimalPlms EscapeAnimals { get; }
 
-    /// <summary>The <see cref="SpeedBoosterEscapePlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Handles speed-booster escape tunnel block reactions.</summary>
     internal SpeedBoosterEscapePlms SpeedBoosterEscape { get; }
 
-    /// <summary>The <see cref="ChozoStatuePlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Connects Chozo statue activity with its room FX and PLM state.</summary>
     internal ChozoStatuePlms ChozoStatue { get; }
 
-    /// <summary>The <see cref="ScrollPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Applies PLM-driven room scroll grid changes.</summary>
     internal ScrollPlms Scrolls { get; }
 
-    /// <summary>The <see cref="DraygonCannonPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Handles Draygon arena cannon room objects and their block changes.</summary>
     internal DraygonCannonPlms DraygonCannons { get; }
 
-    /// <summary>The <see cref="BombTorizoHandPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Runs Bomb Torizo's hand and statue room object sequences.</summary>
     internal BombTorizoHandPlms BombTorizoHand { get; }
 
-    /// <summary>The <see cref="NoobTubePlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Runs the glass tube's scripted break and sound sequence.</summary>
     internal NoobTubePlms NoobTube { get; }
 
-    /// <summary>The <see cref="WreckedShipTreadmillPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Advances Wrecked Ship treadmill animated tile objects.</summary>
     internal WreckedShipTreadmillPlms WreckedShipTreadmill { get; }
 
-    /// <summary>The <see cref="GatePlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Opens and closes colored gates after their matching triggers.</summary>
     internal GatePlms Gates { get; }
 
-    /// <summary>The <see cref="MotherBrainGlassPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Controls the Mother Brain chamber glass barrier and shatter sequence.</summary>
     internal MotherBrainGlassPlms MotherBrainGlass { get; }
 
-    /// <summary>The <see cref="PlmPopulationLoader"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Builds a room's PLM population into native-order physical slots.</summary>
     internal PlmPopulationLoader PopulationLoader { get; }
 
-    /// <summary>The <see cref="StationPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Runs save, map, and refill station room interactions.</summary>
     internal StationPlms Stations { get; }
 
-    /// <summary>The <see cref="CollectiblePlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Handles collectible item reveals, pickup, and persistence.</summary>
     internal CollectiblePlms CollectiblePlms { get; }
 
-    /// <summary>The <see cref="EyeDoorPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Runs eye door opening and projectile interaction instructions.</summary>
     internal EyeDoorPlms EyeDoors { get; }
 
-    /// <summary>The <see cref="GreyDoorPlms"/> owner of this RoomPlmSystem.</summary>
+    /// <summary>Handles grey door conditions and opening animation.</summary>
     internal GreyDoorPlms GreyDoors { get; }
 
     /// <summary>Creates the forty empty PLM slots and the PLM family owners that run in them.</summary>
@@ -137,6 +138,7 @@ public sealed class RoomPlmSystem
         BossRoomMutations = new BossRoomMutationPlms(SlotTable);
     }
 
+    /// <summary>Door-object instruction owner bound to this room's allocation and draw state.</summary>
     internal DoorPlms DoorPlms { get; }
 
     /// <summary>
@@ -262,6 +264,7 @@ public sealed class RoomPlmSystem
         return Drawing._tilemapUpdates;
     }
 
+    /// <summary>Dispatches bank-$84 controls until a timed draw pair is installed; rejects uncompiled or runaway chains.</summary>
     private void ExecuteInstructionStream(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, RoomScrollGrid? scrolls, ushort collectedItems)
     {
         // An instruction list may execute multiple negative instruction words before it
@@ -537,16 +540,15 @@ public sealed class RoomPlmSystem
         throw new InvalidDataException("Movement-owned PLM instruction chain did not reach a timer.");
     }
 
+    /// <summary>Reads a wrapped PLM instruction word through the low-bank live WRAM alias.</summary>
     internal static ushort ReadPlmWorkRamWord(ISnesMutableMemory memory, ushort offset) =>
         new PlmLowBankAliasMemory(memory).Word(offset);
 
+    /// <summary>Reads a wrapped PLM instruction byte through the low-bank live WRAM alias.</summary>
     internal static byte ReadPlmWorkRamByte(ISnesMutableMemory memory, ushort offset) =>
         new PlmLowBankAliasMemory(memory).Byte(offset);
 
-    // Instruction control is compiled independently of PLM draw-list payloads. A
-    // compiled family claims only its own exact control addresses; all other bank-$84
-    // identities must have compiled mechanics.
-    // A low-window wrap may still read live WRAM; no branch can read cartridge bytes.
+    /// <summary>Reads only compiled bank-$84 control words, or live WRAM after a low-window wrap; draw-list payloads have separate ownership.</summary>
     internal static ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
         RoomPlmProgramDefinitions.TryReadWord(address, out ushort value)
             ? value
@@ -556,6 +558,7 @@ public sealed class RoomPlmSystem
                 : throw new InvalidDataException(
                     $"PLM program word $84:{address:X4} has no compiled definition.");
 
+    /// <summary>Reads a compiled bank-$84 control byte or live wrapped WRAM without falling back to cartridge data.</summary>
     internal static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
         RoomPlmProgramDefinitions.TryReadByte(address, out byte value)
             ? value

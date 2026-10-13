@@ -2,15 +2,20 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks every compiled downward-gate PLM control, draw, operand, and sound address against ROM.</summary>
 internal static class LookupDownwardGateProgramVerification
 {
+    /// <summary>Checks opcode and duration words in the native gate program.</summary>
     internal static void VerifyDownwardGateProgramControls(SuperMetroidAddressSpace rom) =>
         VerifyDownwardGateProgramField(rom, 0);
+    /// <summary>Checks draw-pointer words in the native gate program.</summary>
     internal static void VerifyDownwardGateProgramDraws(SuperMetroidAddressSpace rom) =>
         VerifyDownwardGateProgramField(rom, 1);
+    /// <summary>Checks non-draw operands in the native gate program.</summary>
     internal static void VerifyDownwardGateProgramOperands(SuperMetroidAddressSpace rom) =>
         VerifyDownwardGateProgramField(rom, 2);
 
+    /// <summary>Checks the selected word class and exact owned-address domain through both gate and shared PLM readers.</summary>
     private static void VerifyDownwardGateProgramField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] controls = [0xbc13,0xbc17,0xbc19,0xbc1d,0xbc1f,0xbc23,0xbc27,
@@ -49,6 +54,7 @@ internal static class LookupDownwardGateProgramVerification
         }
     }
 
+    /// <summary>Checks both native gate sound bytes and rejects every other byte address.</summary>
     internal static void VerifyDownwardGateProgramSounds(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xbc29,0xbc4c];
@@ -76,6 +82,7 @@ internal static class LookupDownwardGateProgramVerification
         }
     }
 
+    /// <summary>Reads a native sound operand solely as the cartridge comparison oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for downward gate program sounds")]
     private static byte DownwardGateProgramSoundsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

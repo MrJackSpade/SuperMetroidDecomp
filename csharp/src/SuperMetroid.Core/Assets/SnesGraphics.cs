@@ -74,7 +74,8 @@ public static class SnesGraphics
         return pixels;
     }
 
-    // A sheet of complete 8x8 characters, tilesPerRow wide; at least one tile in each axis.
+    /// <summary>Sizes a sheet of complete 8x8 characters at the requested row
+    /// width, retaining one tile in each axis even for an empty source.</summary>
     private static Extent16<ImagePixels> TileSheetSize(int tileCount, int tilesPerRow) =>
         new(checked((ushort)(Math.Max(1, Math.Min(tilesPerRow, tileCount)) * 8)),
             checked((ushort)(Math.Max(1, (tileCount + tilesPerRow - 1) / tilesPerRow) * 8)));

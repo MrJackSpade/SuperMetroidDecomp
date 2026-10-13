@@ -35,6 +35,7 @@ internal abstract class GoldenTorizoWalkingInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Compiles left-foot and right-foot walking callbacks, durations, attacks, and loop targets while reserving visual operands.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd20d),
         Entry(GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg),
@@ -81,6 +82,8 @@ internal abstract class GoldenTorizoWalkingInstructionProgramDefinitions
         Frame(4),
         Op((ushort)TorizoInstruction.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0000),
         Op((ushort)CommonEnemyInstruction.Goto, TorizoWalkingLeftRightLegMoving));
+    /// <summary>Number of extended-frame selectors interleaved with the two walking-left lists.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Locates one separately editable frame selector in the native walking program.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

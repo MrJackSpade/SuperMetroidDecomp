@@ -7,10 +7,13 @@ using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static PolypRockInstructionProgramDefinitionsVerification;
 
+/// <summary>Checks installed Kzan, Polyp, and Polyp-rock artwork and older catalog override migration.</summary>
 internal static class SingleFrameEnemyVisualsVerification
 {
-    // #1166: confirm the statically identified single-operand omissions, including
-    // the installed compositions consumed immediately after instruction selection.
+    /// <summary>
+    /// Checks the single-operand omissions identified in #1166, including OAM compositions
+    /// consumed immediately after instruction selection and edits preserved from older schemas.
+    /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifySingleFrameEnemyVisuals()
     {

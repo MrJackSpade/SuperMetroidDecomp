@@ -166,6 +166,7 @@ public sealed class EscapeTimer
         return unchecked((byte)result);
     }
 
+    /// <summary>Clears timer RAM, installs the selected whole-minute duration, and enters the initial delay.</summary>
     private bool Start(byte minutesBcd)
     {
         // Both start functions clear all timer RAM, set a whole-minute value through the
@@ -176,6 +177,7 @@ public sealed class EscapeTimer
         return false;
     }
 
+    /// <summary>Advances the X-fraction alias to sixteen without decrementing the countdown.</summary>
     private bool ProcessInitialDelay()
     {
         IncrementXLowByte();
@@ -186,6 +188,7 @@ public sealed class EscapeTimer
         return false;
     }
 
+    /// <summary>Counts down while the aliased X counter advances to its movement threshold.</summary>
     private bool ProcessMovementDelay(ushort nmiFrameCounter)
     {
         IncrementXLowByte();
@@ -200,6 +203,7 @@ public sealed class EscapeTimer
         return Decrement(nmiFrameCounter);
     }
 
+    /// <summary>Moves the 8.8 timer origin toward pixel (220, 48) while continuing the countdown.</summary>
     private bool ProcessMovement(ushort nmiFrameCounter)
     {
         int axesInPosition = 0;
@@ -233,6 +237,7 @@ public sealed class EscapeTimer
         return Decrement(nmiFrameCounter);
     }
 
+    /// <summary>Subtracts this NMI's BCD correction and reports expiration at exactly zero.</summary>
     private bool Decrement(ushort nmiFrameCounter)
     {
         byte correction = EscapeTimerCadenceDefinitions.Centiseconds(nmiFrameCounter);
@@ -266,18 +271,21 @@ public sealed class EscapeTimer
         return (CentisecondsBcd | SecondsBcd | MinutesBcd) == 0;
     }
 
+    /// <summary>Increments the X fraction used as a startup counter while preserving visible X.</summary>
     private void IncrementXLowByte()
     {
         byte nextCounter = unchecked((byte)((byte)Position.X + 1));
         Position = Position.WithX((ushort)((SnesLittleEndian.HighByteInPlace(Position.X)) | nextCounter));
     }
 
+    /// <summary>Advances the dispatch state while preserving the active high-byte flag.</summary>
     private void IncrementStatusLowByte()
     {
         byte nextState = unchecked((byte)((byte)RawStatus + 1));
         RawStatus = (ushort)((SnesLittleEndian.HighByteInPlace(RawStatus)) | nextState);
     }
 
+    /// <summary>Rejects a timer byte whose high or low nibble is not a decimal digit.</summary>
     private static void ValidateBcd(byte value, string parameterName)
     {
         if ((value & 0x0f) > 9 || ((value >> 4) & 0x0f) > 9)

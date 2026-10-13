@@ -12,8 +12,10 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Audio;
 
+/// <summary>Checks SPC sound effect allocation offsets against the pinned upstream player layout.</summary>
 internal static class SpcAllocationAddressesVerification
 {
+    /// <summary>Verifies each library's field base, per-channel serialization, and rejection of invalid selectors.</summary>
     internal static void VerifySpcAllocationAddresses()
     {
         // Independent original kSomeAddrs and SpcPlayer member offsets from
@@ -34,6 +36,7 @@ internal static class SpcAllocationAddressesVerification
         }
     }
 
+    /// <summary>Runs the focused allocation-address verification from the command line.</summary>
     [VerificationCommand("--lookup-spc-allocation-addresses")]
     internal static int LookupSpcAllocationAddressesCommand()
     {

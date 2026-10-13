@@ -9,6 +9,8 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM map highlight palette sequence → map palette cycle colors and durations")]
 internal static class MapPaletteCycleExtractor
 {
+    /// <summary>Reads timed RGB5 map-highlight frames until the native $FF duration
+    /// terminator and writes the bounded editable palette-cycle document.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var frames = new List<MapPaletteCycleFrame>();

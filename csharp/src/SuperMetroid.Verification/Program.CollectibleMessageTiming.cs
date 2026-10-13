@@ -12,10 +12,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hardware;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the pickup grant and delayed visual update around the synchronous item message.</summary>
 internal static class CollectibleMessageTimingVerification
 {
-    // #1255: $84:8968 grants energy before its synchronous bank-$85 message,
-    // but the following PLM empty draw and main-loop HUD update wait for return.
+    /// <summary>Confirms $84:8968 grants energy before the bank-$85 message, while empty PLM draw and HUD update wait for return (#1255).</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyCollectibleMessageTiming()
     {
@@ -90,6 +90,7 @@ internal static class CollectibleMessageTimingVerification
         Console.WriteLine("  Pickup message: native early grant, retained pickup/HUD during fanfare, and post-message visual update agree.");
     }
 
+    /// <summary>Runs the early-grant and post-message visual update reproduction.</summary>
     [VerificationCommand("--collectible-message-timing")]
     internal static int CollectibleMessageTimingCommand()
     {

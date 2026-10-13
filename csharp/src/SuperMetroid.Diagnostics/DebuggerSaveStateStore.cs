@@ -12,11 +12,16 @@ namespace SuperMetroid.Desktop;
 internal sealed class DebuggerSaveStateStore
 {
 
+    /// <summary>Directory containing numbered and automatic debugger state files.</summary>
     private readonly string directory;
+    /// <summary>Supported source-cartridge digest copied at store construction.</summary>
     private readonly byte[] romDigest;
+    /// <summary>Interactive host options to apply after restoration; null preserves captured replay options.</summary>
     private readonly SuperMetroidGameOptions? hostOptions;
+    /// <summary>Installed asset receipt compared with each state's serialized content digests.</summary>
     private readonly GameContentIdentity contentIdentity;
 
+    /// <summary>Creates a state store with a verified source digest and optional host policy override.</summary>
     internal DebuggerSaveStateStore(
         string directory,
         byte[] romDigest,
@@ -62,18 +67,21 @@ internal sealed class DebuggerSaveStateStore
             contentIdentity);
     }
 
+    /// <summary>Formats manual slots as decimal digits and the dedicated automatic slot as <c>auto</c>.</summary>
     public static string SlotName(int slot)
     {
         ValidateSlot(slot);
         return slot == DebuggerStateFormat.AutomaticSlot ? "auto" : slot.ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 
+    /// <summary>Places a validated slot in the store directory with the debugger-state file extension.</summary>
     public string GetSlotPath(int slot)
     {
         ValidateSlot(slot);
         return Path.Combine(directory, $"SuperMetroid-debug-slot-{SlotName(slot)}.smstate");
     }
 
+    /// <summary>Captures address space, gameplay and optional SPC state into a temporary file before replacing the selected slot.</summary>
     public DebuggerSaveStateMetadata Save(
         int slot,
         SuperMetroidAddressSpace addressSpace,
@@ -138,6 +146,7 @@ internal sealed class DebuggerSaveStateStore
         }
     }
 
+    /// <summary>Restores an occupied slot, checking format and content identity while reporting compatible build differences as warnings.</summary>
     public DebuggerSaveStateLoadResult Load(int slot)
     {
         ValidateSlot(slot);
@@ -234,6 +243,7 @@ internal sealed class DebuggerSaveStateStore
         return true;
     }
 
+    /// <summary>Requires the installed content receipt's supported ROM digest; mutable live memory contains no cartridge image to hash.</summary>
     private void EnsureRomMatches(SuperMetroidAddressSpace addressSpace)
     {
         Ensure.NotNull(addressSpace);
@@ -244,6 +254,7 @@ internal sealed class DebuggerSaveStateStore
                 "Debugger states require an installed, revision-verified content identity.");
     }
 
+    /// <summary>Reads a complete build GUID, adding a compatibility warning when it differs from the current executable.</summary>
     private static void ReadBuildIdentity(BinaryReader reader, Guid expected, string label, List<string> warnings)
     {
         byte[] bytes = reader.ReadBytes(DebuggerStateFormat.GuidBytes);
@@ -253,6 +264,7 @@ internal sealed class DebuggerSaveStateStore
             warnings.Add($"Debugger state {label} differs from this executable; attempting compatible restoration. Behavior may differ from the captured build.");
     }
 
+    /// <summary>Writes the compiled-definition ID and fixed and additional asset digests in state-file order.</summary>
     private static void WriteContentIdentity(
         BinaryWriter writer,
         GameContentIdentitySnapshot identity)
@@ -267,6 +279,7 @@ internal sealed class DebuggerSaveStateStore
         GameContentComponentFormat.Write(writer.BaseStream, identity.AdditionalContentSha256);
     }
 
+    /// <summary>Reads the serialized asset receipt, rejecting invalid versions and truncated fixed digests.</summary>
     private static GameContentIdentitySnapshot ReadContentIdentity(BinaryReader reader)
     {
         int formatVersion = reader.ReadInt32();
@@ -285,6 +298,7 @@ internal sealed class DebuggerSaveStateStore
         };
     }
 
+    /// <summary>Writes one content digest only after checking the state format's fixed byte width.</summary>
     private static void WriteDigest(BinaryWriter writer, byte[] digest, string component)
     {
         if (digest.Length != DebuggerStateFormat.DigestBytes)
@@ -295,6 +309,7 @@ internal sealed class DebuggerSaveStateStore
         writer.Write(digest);
     }
 
+    /// <summary>Reads a fixed-width state field and diagnoses truncation with its component name.</summary>
     private static byte[] ReadExact(BinaryReader reader, int byteCount, string field)
     {
         byte[] bytes = reader.ReadBytes(byteCount);
@@ -303,6 +318,7 @@ internal sealed class DebuggerSaveStateStore
         return bytes;
     }
 
+    /// <summary>Writes a room or room-state pointer as a presence byte followed by its native word.</summary>
     private static void WriteNullableWord(BinaryWriter writer, ushort? value)
     {
         writer.Write(value.HasValue);
@@ -310,24 +326,30 @@ internal sealed class DebuggerSaveStateStore
             writer.Write(value.Value);
     }
 
+    /// <summary>Restores an optional room pointer using the state format's presence byte.</summary>
     private static ushort? ReadNullableWord(BinaryReader reader) =>
         reader.ReadBoolean() ? reader.ReadUInt16() : null;
 
+    /// <summary>Allows ten manual slots and one dedicated automatic slot.</summary>
     private static void ValidateSlot(int slot)
     {
         if ((uint)slot > DebuggerStateFormat.AutomaticSlot)
             throw new ArgumentOutOfRangeException(nameof(slot), slot, "Debugger state slot must be 0-9 or auto.");
     }
 
+    /// <summary>Groups the three runtime owners serialized together as one debugger capture.</summary>
     private sealed class DebuggerSaveStateRoot(
         SuperMetroidAddressSpace addressSpace,
         SuperMetroidGame game)
     {
+        /// <summary>Mutable WRAM, SRAM and bus state at the captured frame.</summary>
         public readonly SuperMetroidAddressSpace AddressSpace = addressSpace;
+        /// <summary>Gameplay and frontend state at the captured frame.</summary>
         public readonly SuperMetroidGame Game = game;
     }
 }
 
+/// <summary>Capture timestamp, frame and room identity of one debugger slot.</summary>
 internal readonly record struct DebuggerSaveStateMetadata(
     DateTimeOffset SavedUtc,
     ushort FrameNumber,
@@ -336,6 +358,7 @@ internal readonly record struct DebuggerSaveStateMetadata(
     ushort? RoomStatePointer,
     string Path);
 
+/// <summary>Restored runtime owners, file metadata and any compatible build-identity warnings.</summary>
 internal readonly record struct DebuggerSaveStateLoadResult(
     SuperMetroidAddressSpace AddressSpace,
     SuperMetroidGame Game,

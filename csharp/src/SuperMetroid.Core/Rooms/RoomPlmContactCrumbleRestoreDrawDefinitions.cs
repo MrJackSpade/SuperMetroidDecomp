@@ -18,10 +18,13 @@ internal enum ContactCrumbleRestoreDraw : ushort
 /// </summary>
 internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
 {
+    /// <summary>One linked crumble shape's orientation and whether it occupies a second run.</summary>
     internal readonly record struct Draw(ushort Pointer, bool Vertical, bool Square)
     {
+        /// <summary>Square restoration has two rows; horizontal and vertical shapes use one run.</summary>
         internal int RunCount => Square ? 2 : 1;
 
+        /// <summary>Rebuilds parent type B and linked child type 5 or D while keeping the common crumble visual tile.</summary>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)run >= RunCount || (uint)block >= 2)
@@ -35,6 +38,7 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
         }
     }
 
+    /// <summary>Recognizes only the three authored linked contact-crumble draw pointers.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         if (!Enum.IsDefined((ContactCrumbleRestoreDraw)pointer))
@@ -52,8 +56,7 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
         return true;
     }
 
-    // Temporary draw DTOs support existing artwork import/export consumers.
-    // Runtime draws the calculated descriptor directly; no generated cache remains.
+    /// <summary>Creates temporary draw-list views for artwork import and export; runtime uses calculated descriptors directly.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -64,6 +67,7 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
         }
     }
 
+    /// <summary>Encodes each shape's horizontal or vertical two-block run for existing draw-list consumers.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList Export(Draw draw)
     {
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];

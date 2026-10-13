@@ -21,11 +21,16 @@ public sealed class TourianStatueColorCatalog
                 Enumerable.Range(0, TourianStatuePaletteRomData.EyeColorCount).Select(color => ResolveEye(row, color)).ToArray()).ToArray());
         });
 
+    /// <summary>Sixteen base-decoration inks installed at OBJ palette seven.</summary>
     internal readonly PaletteBand baseColors;
+    /// <summary>Sixteen statue-body inks installed at OBJ palette two.</summary>
     internal readonly PaletteBand statueColors;
+    /// <summary>Four boss-specific eye rows overlaid on base-decoration colors nine through twelve.</summary>
     internal readonly PaletteBand eyeColors;
+    /// <summary>Eight grey inks installed at the animation instruction's CGRAM destination.</summary>
     internal readonly PaletteBand greyColors;
 
+    /// <summary>Separates the supplied base, statue, eye, and grey colors into independent paint bands.</summary>
     private TourianStatueColorCatalog(Bgr555[] baseColors, Bgr555[] statueColors,
         Bgr555[][] eyeColors, Bgr555[] greyColors)
     {
@@ -35,6 +40,7 @@ public sealed class TourianStatueColorCatalog
         this.greyColors = new(TourianStatuePaintBand.Grey, greyColors);
     }
 
+    /// <summary>Writes camel-case resource JSON and rejects unknown members on load.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -119,6 +125,7 @@ public sealed class TourianStatueColorCatalog
         return bytes;
     }
 
+    /// <summary>Checks a band's required length and five-bit channels before converting to hardware color words.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? colors, int count, string label)
     {
         if (colors is null || colors.Length != count)
@@ -138,9 +145,13 @@ public sealed class TourianStatueColorCatalog
     /// <summary>One independent installed domain: stock colors calculate; arbitrary supplied words own sparse overrides.</summary>
     internal sealed class PaletteBand
     {
+        /// <summary>Calculated stock paint family used when a color has no supplied override.</summary>
         private readonly TourianStatuePaintBand band;
+        /// <summary>Number of indexed colors in this band's native palette geometry.</summary>
         private readonly int count;
+        /// <summary>Only supplied colors that differ from the calculated stock band.</summary>
         internal readonly Dictionary<int, Bgr555> edits = [];
+        /// <summary>Compares supplied colors with stock paint and retains independent edits.</summary>
         internal PaletteBand(TourianStatuePaintBand band, ReadOnlySpan<Bgr555> supplied)
         {
             this.band = band;
@@ -148,22 +159,26 @@ public sealed class TourianStatueColorCatalog
             for (int color = 0; color < count; color++)
                 if (supplied[color] != TourianStatuePaintDefinitions.Color(band, color)) edits.Add(color, supplied[color]);
         }
+        /// <summary>Resolves an edited color or calculates its stock paint after validating the index.</summary>
         internal Bgr555 Read(int color)
         {
             if ((uint)color >= count) throw new IndexOutOfRangeException();
             return edits.TryGetValue(color, out Bgr555 edited) ? edited : TourianStatuePaintDefinitions.Color(band, color);
         }
+        /// <summary>Materializes the selected band for content hashing in indexed color order.</summary>
         internal Bgr555[] Words()
         {
             var result = new Bgr555[count];
             for (int color = 0; color < count; color++) result[color] = Read(color);
             return result;
         }
+        /// <summary>Writes every selected color into the supplied CGRAM palette slice.</summary>
         internal void Apply(CgramPalette destination)
         {
             for (int color = 0; color < count; color++) destination.Write(color, Read(color));
         }
     }
+    /// <summary>Rejects duplicate JSON properties before an authored palette value can be hidden.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate Tourian statue color property."));

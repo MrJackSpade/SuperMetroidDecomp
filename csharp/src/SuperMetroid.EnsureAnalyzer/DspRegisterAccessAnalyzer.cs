@@ -23,6 +23,7 @@ public sealed class DspRegisterAccessAnalyzer() : LayoutBoundaryAnalyzer(AccessA
     /// <summary>Marks an approved S-DSP register boundary.</summary>
     public const string BoundaryAttributeName = "DspRegisterBoundaryAttribute";
 
+    /// <summary>SME6310 warning for use of raw S-DSP register APIs outside a declared audio boundary.</summary>
     private static readonly DiagnosticDescriptor RawAccessRule = new(
         RawAccessId,
         "Raw S-DSP register access outside an audio boundary",
@@ -33,6 +34,7 @@ public sealed class DspRegisterAccessAnalyzer() : LayoutBoundaryAnalyzer(AccessA
         description: "Register numbers, voice strides, masks and register encodings belong to the DSP implementation, " +
             "its typed controls, native-quirk adapters and exact register tests, which declare [DspRegisterBoundary].");
 
+    /// <summary>SME6311 warning for implementing a raw S-DSP contract outside an approved boundary.</summary>
     private static readonly DiagnosticDescriptor RawImplementationRule = new(
         RawImplementationId,
         "Raw S-DSP contract implemented outside an audio boundary",

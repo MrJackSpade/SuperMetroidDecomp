@@ -12,6 +12,7 @@ public sealed class RoomLevelStreamCatalog
     /// <summary>Smallest valid stream: the leading BG1 layer-size word.</summary>
     internal const int MinimumStreamByteCount = 2;
 
+    /// <summary>Complete decompressed native level streams keyed by their 24-bit source address.</summary>
     private readonly Dictionary<int, ReadOnlyMemory<byte>> streams;
 
     /// <summary>Copies a validated installation and requires exactly every retail level source.</summary>

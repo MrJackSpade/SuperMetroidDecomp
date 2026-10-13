@@ -19,6 +19,7 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Exercises the Glass Tunnel PLM's two-stage trigger, break sequence, and reload state.</summary>
 internal static class NoobTubePlmVerification
 {
     /// <summary>
@@ -219,6 +220,7 @@ internal static class NoobTubePlmVerification
             "  N00b tube: setup, two-stage wake, debris, earthquake, event, water, and reload agree.");
     }
 
+    /// <summary>Checks the pinned cartridge revision before comparing tube controls, draw lists, callbacks, events, and sound.</summary>
     private static void VerifyNoobTubeProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -335,6 +337,7 @@ internal static class NoobTubePlmVerification
             "already-broken n00b-tube branch never rereads program bytes");
     }
 
+    /// <summary>Rejects reads from the compiled tube instruction ranges while the fixture runs.</summary>
     private static CartridgeReadGuard NewNoobTubeProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x84d4d4 and <= 0x84d518 or
@@ -356,6 +359,7 @@ internal static class NoobTubePlmVerification
         return roomFx;
     }
 
+    /// <summary>Advances one PLM tick with the requested new-input edge and a fixed camera.</summary>
     internal static void StepNoobTube(
         RoomPlmSystem plms,
         ISnesAddressSpace bus,
@@ -425,6 +429,7 @@ internal static class NoobTubePlmVerification
         WriteOneBlockDraw(bus, 0x98dd, 0x8005);
     }
 
+    /// <summary>Runs the full tube coroutine verification from the command line.</summary>
     [VerificationCommand("--noob-tube-plm-program")]
     internal static int NoobTubePlmProgramCommand()
     {
@@ -432,6 +437,7 @@ internal static class NoobTubePlmVerification
         return 0;
     }
 
+    /// <summary>Runs the tube and permanent-collectible checks for resident PLM triggers.</summary>
     [VerificationCommand("--grapple-resident-trigger")]
     internal static int GrappleResidentTriggerCommand()
     {

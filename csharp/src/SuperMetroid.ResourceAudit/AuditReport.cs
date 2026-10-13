@@ -2,34 +2,52 @@ using System.Text.Json;
 
 namespace SuperMetroid.ResourceAudit;
 
+/// <summary>One missing resource or unresolved audit boundary with its owner and source location.</summary>
 internal sealed record AuditFinding(string Code, string Domain, string Owner, string Resource,
     string Source, string Message);
+/// <summary>Reference and export totals for one resource identity domain.</summary>
 internal sealed record AuditCoverage(string Domain, int References, int Exports);
+/// <summary>One production consumer and how the audit resolved its resource reference.</summary>
 internal sealed record AuditConsumer(string Owner, string Source,     string Resolution);
+/// <summary>A resource identity supplied directly by compiled definitions.</summary>
 internal sealed record AuditCompiledDefinition(string Domain, string Resource);
+/// <summary>Recorded classification of a production owner at a source location.</summary>
 internal sealed record AuditClassification(string Owner, string Source);
 
 /// <summary>Separate concrete missing exports from unresolved analysis boundaries.</summary>
 internal sealed class AuditReport
 {
+    /// <summary>Finding code for a referenced resource absent from its provider catalog.</summary>
     public const string Missing = "SMRA001";
+    /// <summary>Finding code for a reference the static audit cannot yet resolve.</summary>
     public const string Unresolved = "SMRA002";
+    /// <summary>Number of resource references examined, including those that resolve.</summary>
     public int ReferenceCount { get; set; }
+    /// <summary>Number of missing-reference findings, including repeated uses of one resource.</summary>
     public int MissingCount => Findings.Count(item => item.Code == Missing);
+    /// <summary>Number of distinct missing resources by domain and identity.</summary>
     public int MissingResourceCount => Findings.Where(item => item.Code == Missing)
         .Select(item => (item.Domain, item.Resource)).Distinct().Count();
+    /// <summary>Number of findings left unresolved by the static audit.</summary>
     public int UnresolvedCount => Findings.Count(item => item.Code != Missing);
+    /// <summary>Per-domain reference and export totals.</summary>
     public List<AuditCoverage> Coverage { get; } = [];
+    /// <summary>Missing resources and unresolved analysis boundaries.</summary>
     public List<AuditFinding> Findings { get; } = [];
+    /// <summary>Production sites that consume audited resources.</summary>
     public List<AuditConsumer> Consumers { get; } = [];
+    /// <summary>Resource identities supplied by compiled catalogs.</summary>
     public List<AuditCompiledDefinition> CompiledDefinitions { get; } = [];
+    /// <summary>Recorded classifications for audit owners.</summary>
     public List<AuditClassification> Classifications { get; } = [];
+    /// <summary>Stable, indented JSON formatting for machine-readable audit output.</summary>
     public static JsonSerializerOptions JsonOptions { get; } = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
     };
 
+    /// <summary>Counts a production reference and records it if no matching export exists.</summary>
     public void Require(string domain, string owner, string key, string source, ResourceIndex exports)
     {
         ReferenceCount++;
@@ -38,9 +56,11 @@ internal sealed class AuditReport
                 $"Referenced resource {key} has no definition in the audited production provider catalog."));
     }
 
+    /// <summary>Records a production reference whose identity cannot be resolved statically.</summary>
     public void Gap(string domain, string owner, string source, string message) =>
         Findings.Add(new(Unresolved, domain, owner, string.Empty, source, message));
 
+    /// <summary>Orders every report section deterministically for stable audit output.</summary>
     public void Sort()
     {
         Findings.Sort((left, right) => StringComparer.Ordinal.Compare(
@@ -55,17 +75,23 @@ internal sealed class AuditReport
     }
 }
 
+/// <summary>Tracks exported resource identities separately for each audit domain.</summary>
 internal sealed class ResourceIndex
 {
+    /// <summary>Maps each resource domain to its exported identity set.</summary>
     private readonly Dictionary<string, HashSet<string>> domains = new(StringComparer.Ordinal);
+    /// <summary>Adds one exported identity under its domain.</summary>
     public void Add(string domain, string key)
     {
         if (!domains.TryGetValue(domain, out HashSet<string>? entries))
             domains.Add(domain, entries = new(StringComparer.Ordinal));
         entries.Add(key);
     }
+    /// <summary>Checks whether a domain exports the requested resource identity.</summary>
     public bool Contains(string domain, string key) =>
         domains.TryGetValue(domain, out HashSet<string>? entries) && entries.Contains(key);
+    /// <summary>Counts distinct exported identities in one domain.</summary>
     public int Count(string domain) => domains.TryGetValue(domain, out var entries) ? entries.Count : 0;
+    /// <summary>Formats a native bank and pointer as an audit resource key.</summary>
     public static string Address(int bank, int pointer) => $"{bank:X2}:{pointer:X4}";
 }

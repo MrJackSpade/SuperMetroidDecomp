@@ -9,11 +9,18 @@ namespace SuperMetroid.Core.Assets;
 /// Replacing those strokes with coordinate cases would merely disguise the font.</summary>
 internal sealed class MenuShoulderButtonArtwork
 {
+    /// <summary>Two rounded edge tiles and two letter-bearing middle tiles form the pressed buttons.</summary>
     internal const int TileCount = 4;
-    private readonly ushort leftLetter, rightLetter;
+    /// <summary>Four-by-four source pixel mask for the L glyph.</summary>
+    private readonly ushort leftLetter;
+    /// <summary>Four-by-four source pixel mask for the R glyph.</summary>
+    private readonly ushort rightLetter;
+    /// <summary>Imported pixels that differ from the calculated button pill and selected glyphs.</summary>
     internal readonly Dictionary<int, byte>? edits;
+    /// <summary>Recognizes the four menu-atlas tiles used by pressed L and R buttons.</summary>
     internal static bool Contains(int tile) => tile is >= 0x28 and <= 0x2a or 0x2e;
 
+    /// <summary>Reads the authored L/R glyphs, then keeps only differences from the rounded pill calculation.</summary>
     internal MenuShoulderButtonArtwork(IndexedPngImage image)
     {
         leftLetter = ReadLetter(0x29);
@@ -39,12 +46,14 @@ internal sealed class MenuShoulderButtonArtwork
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
     }
 
+    /// <summary>Uses an imported pixel edit when present, otherwise calculates the pressed-button pixel.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
+    /// <summary>Composes a glyph mask with the shared 24-by-seven pill outline and shaded edge.</summary>
     private byte Basis(int tile, Position16<CharacterPixels> point)
     {
         if (point.Y == 7) return 0;

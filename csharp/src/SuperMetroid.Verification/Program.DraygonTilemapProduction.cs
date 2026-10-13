@@ -14,6 +14,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Draygon's full BG2 staging and DMA output from a fresh room.</summary>
 internal static class DraygonTilemapProductionVerification
 {
     /// <summary>#385: reconstruct fresh-room BG2 staging and native DMA, not merely retained current-command destinations.</summary>
@@ -96,6 +97,7 @@ internal static class DraygonTilemapProductionVerification
         Console.WriteLine($"Fresh Draygon production: {commands} commands, {transfers} transfers, {streams.Count} distinct streams, {destinations.Count} distinct destinations, {functions.Count} AI functions, {comparisons} complete-map word comparisons agree with native staging/DMA reconstruction.");
     }
 
+    /// <summary>Runs the fresh-room BG2 production comparison with the retail cartridge.</summary>
     [VerificationCommand("--draygon-tilemap-production")]
     internal static int DraygonTilemapProductionCommand()
     {
@@ -104,6 +106,7 @@ internal static class DraygonTilemapProductionVerification
     }
 }
 
+/// <summary>Native room identity used to start Draygon's BG2 producer from a blank state.</summary>
 internal static class DraygonProductionAuditDefinitions
 {
     /// <summary>$8F:DA60, fresh two-screen-wide/tall Maridia Draygon room.</summary>

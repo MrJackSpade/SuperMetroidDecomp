@@ -37,7 +37,9 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort SpitRockShotDelete = 0x9ca1;
 
+    /// <summary>Compiled control words in the two fixed poses and the spit-rock shot sequence.</summary>
     public static int MechanicsWordCount => 12;
+    /// <summary>Interleaved spritemap operands for fixed poses and five shot frames.</summary>
     public static int PresentationWordCount => 7;
 
     /// <summary>Two fixed poses end in Sleep. The shot sequence installs its
@@ -76,6 +78,7 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
         RoomEnemyProjectileKind.KagoBug,
     ];
 
+    /// <summary>Checks that a projectile kind owns the selected shared, right-rising, or shot cursor.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) => OwnerKinds.Contains(kind) && kind switch
     {
         RoomEnemyProjectileKind.KraidSpitRock =>
@@ -87,6 +90,7 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
         _ => throw new InvalidOperationException($"{kind} is not a Kraid rock owner."),
     };
 
+    /// <summary>Finds a compiled bank-$86 Kraid-rock control word, rejecting presentation addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
@@ -130,6 +134,7 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
         RisingRight,
     }
 
+    /// <summary>Maps a fixed-pose cursor to the shared or right-rising rock program.</summary>
     private static FixedPoseProgram ProgramOf(FixedPoseCursor cursor) => cursor switch
     {
         FixedPoseCursor.SharedPose or FixedPoseCursor.SharedSleep => FixedPoseProgram.Shared,
@@ -137,15 +142,19 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(FixedPoseCursor)} {(int)cursor}."),
     };
 
+    /// <summary>Checks whether a cursor is one of a fixed-pose program's pose or sleep words.</summary>
     private static bool IsFixedPoseCursor(ushort address, FixedPoseProgram program) =>
         Enum.IsDefined((FixedPoseCursor)address) && ProgramOf((FixedPoseCursor)address) == program;
 
+    /// <summary>Checks the pose or sleep cursor shared by rocks and the Kago bug.</summary>
     private static bool IsSharedProgramAddress(ushort address) =>
         IsFixedPoseCursor(address, FixedPoseProgram.Shared);
 
+    /// <summary>Checks the separate right-rising rock pose or sleep cursor.</summary>
     private static bool IsRisingRightProgramAddress(ushort address) =>
         IsFixedPoseCursor(address, FixedPoseProgram.RisingRight);
 
+    /// <summary>Checks an odd-aligned control cursor in the spit-rock shot list.</summary>
     private static bool IsSpitShotProgramAddress(ushort address) =>
         address >= SpitRockShot && address <= SpitRockShotDelete && (address & 1) != 0;
 }

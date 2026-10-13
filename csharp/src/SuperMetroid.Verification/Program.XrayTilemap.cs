@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks X-Ray reveal tilemap copying, extension blocks, screen wrapping, and area-specific overlays.</summary>
 internal static class XrayTilemapVerification
 {
+    /// <summary>Confirms four-piece reveals survive block extensions and viewport edges without crossing native BG1 screen boundaries.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyXrayTilemap()
     {

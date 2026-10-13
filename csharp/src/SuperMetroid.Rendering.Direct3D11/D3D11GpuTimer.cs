@@ -6,12 +6,18 @@ namespace SuperMetroid.Rendering.Direct3D11;
 /// <summary>Owner-thread timestamp ring. Full rings skip telemetry, never wait for the GPU.</summary>
 internal sealed class D3D11GpuTimer : IDisposable
 {
+    /// <summary>Render device and immediate context whose owner thread issues every query.</summary>
     private readonly D3D11RenderDevice owner;
+    /// <summary>Reusable disjoint and timestamp query sets for pending frame samples.</summary>
     internal readonly Slot[] slots;
+    /// <summary>Ring insertion, removal, and pending-sample cursors.</summary>
     internal int head, tail, pending;
+    /// <summary>Tracks an open interval and final disposal of its query resources.</summary>
     private bool active, disposed;
+    /// <summary>Intervals omitted because all query slots were awaiting GPU results.</summary>
     internal long SkippedSamples { get; private set; }
 
+    /// <summary>Creates a fixed number of query slots on the render device's owner thread.</summary>
     internal D3D11GpuTimer(D3D11RenderDevice owner, int capacity = 8)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
@@ -25,6 +31,7 @@ internal sealed class D3D11GpuTimer : IDisposable
         catch { foreach (var slot in slots) slot?.Dispose(); throw; }
     }
 
+    /// <summary>Starts a disjoint clock interval unless the ring is full; a full ring increments skipped telemetry.</summary>
     internal bool TryBegin(RenderFrameIdentity identity)
     {
         CheckOwner();
@@ -49,6 +56,7 @@ internal sealed class D3D11GpuTimer : IDisposable
         slots[head].HasCompositionBoundary = true;
     }
 
+    /// <summary>Closes the current GPU interval and queues its query slot for nonblocking retrieval.</summary>
     internal void End()
     {
         CheckOwner();
@@ -61,6 +69,7 @@ internal sealed class D3D11GpuTimer : IDisposable
         pending++;
     }
 
+    /// <summary>Reads the oldest ready query set without flushing the GPU and discards disjoint or reversed timestamps.</summary>
     internal bool TryRead(out GpuTimingSample sample)
     {
         CheckOwner();
@@ -79,6 +88,7 @@ internal sealed class D3D11GpuTimer : IDisposable
         return true;
     }
 
+    /// <summary>Queries data without a GPU flush; S_FALSE leaves the interval pending.</summary>
     private unsafe bool Read<T>(ID3D11Query query, out T data) where T : unmanaged
     {
         T value = default;
@@ -88,12 +98,14 @@ internal sealed class D3D11GpuTimer : IDisposable
         return result.Code == 0; // S_FALSE is pending, not a zero-duration measurement.
     }
 
+    /// <summary>Requires the rendering thread and a live timer before touching D3D queries.</summary>
     private void CheckOwner()
     {
         owner.VerifyOwner();
         ObjectDisposedException.ThrowIf(disposed, this);
     }
 
+    /// <summary>Releases every query slot on the rendering thread.</summary>
     public void Dispose()
     {
         owner.VerifyOwner();
@@ -102,11 +114,16 @@ internal sealed class D3D11GpuTimer : IDisposable
         disposed = true;
     }
 
+    /// <summary>Four queries bounding one frame and its optional composition split.</summary>
     internal sealed class Slot : IDisposable
     {
+        /// <summary>Disjoint clock plus start, finish, and intermediate composition timestamps.</summary>
         internal readonly ID3D11Query Disjoint, Start, Finish, CompositionFinished;
+        /// <summary>Whether the composition timestamp belongs to this interval.</summary>
         internal bool HasCompositionBoundary;
+        /// <summary>Frame identity supplied when the interval was opened.</summary>
         internal RenderFrameIdentity Identity;
+        /// <summary>Allocates all queries, releasing earlier ones if a later allocation fails.</summary>
         internal Slot(D3D11RenderDevice owner)
         {
             Disjoint = owner.Device.CreateQuery(new QueryDescription(QueryType.TimestampDisjoint));
@@ -123,8 +140,10 @@ internal sealed class D3D11GpuTimer : IDisposable
             }
             catch { Disjoint.Dispose(); throw; }
         }
+        /// <summary>Releases this slot's query objects in reverse allocation order.</summary>
         public void Dispose() { CompositionFinished.Dispose(); Finish.Dispose(); Start.Dispose(); Disjoint.Dispose(); }
     }
 }
 
+/// <summary>GPU duration for one interval and its composition portion, or invalid values after a disjoint clock.</summary>
 internal readonly record struct GpuTimingSample(bool Valid, double Milliseconds, double CompositionMilliseconds);

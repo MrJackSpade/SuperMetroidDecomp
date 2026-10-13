@@ -10,6 +10,8 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal static class PlaybackFrameBatch
 {
+    /// <summary>Advances up to the requested count, polling input anew for each frame and retaining only the last completed result.</summary>
+    /// <remarks>Stops before polling when the host gate closes, or after an advance returns no frame; zero requested frames do not poll.</remarks>
     internal static (int CompletedFrames, FrontendFrame? LastFrame) Run(
         int requestedFrames,
         Func<ushort> readInput,
@@ -25,9 +27,7 @@ internal static class PlaybackFrameBatch
         for (int index = 0; index < requestedFrames; index++)
         {
             if (canAdvance is not null && !canAdvance()) break;
-            // Rendering/audio can consume enough wall time for a complete pad tap
-            // inside this batch. Poll at each emulated frame boundary, just as the
-            // single-step path does; never reuse a stale word for catch-up frames.
+            // Rendering/audio can consume a complete pad tap inside a catch-up batch.
             FrontendFrame? next = advanceFrame(readInput());
             if (next is null) break;
             lastFrame = next;

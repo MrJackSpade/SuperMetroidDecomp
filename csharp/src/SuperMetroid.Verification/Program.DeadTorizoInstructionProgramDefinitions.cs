@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Dead Torizo's compiled instruction words and actual corpse initialization against bank $A9.</summary>
 internal static class DeadTorizoInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the pinned cartridge and runs the Dead Torizo mechanics comparison.</summary>
     internal static void VerifyDeadTorizoInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDeadTorizoInstructionProgramDefinitions), () => VerifyDeadTorizoInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks native words, guarded production execution, mechanics boundaries, and allocation behavior.</summary>
     internal static void VerifyDeadTorizoInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -89,6 +92,7 @@ internal static class DeadTorizoInstructionProgramDefinitionsVerification
             "terminal sleep, and the compiled spritemap selector pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Exercises warmed instruction lookups repeatedly so the caller can measure per-frame allocation.</summary>
     private static int ProbeDeadTorizoInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -102,6 +106,7 @@ internal static class DeadTorizoInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects runtime rereads of compiled mechanics bytes and observes the presentation selector.</summary>
     private static CartridgeReadGuard NewDeadTorizoInstructionReadGuard(ISnesAddressSpace source,
         Action sawPresentationWord) =>
         new CartridgeReadGuard(source)
@@ -115,6 +120,7 @@ internal static class DeadTorizoInstructionProgramDefinitionsVerification
                 },
                 _ => sawPresentationWord());
 
+    /// <summary>Dispatches the cartridge-backed Dead Torizo instruction verification command.</summary>
     [VerificationCommand("--dead-torizo-instruction-mechanics")]
     internal static int DeadTorizoInstructionMechanicsCommand()
     {

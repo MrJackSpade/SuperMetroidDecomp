@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks compiled water and heat wave tables through their rendering consumers.</summary>
 internal static class LookupLiquidWaveVerification
 {
+    /// <summary>Compares 16 retail displacements and signed scroll wrap across phases and camera offsets.</summary>
     internal static void VerifyMirroredLiquidWave(SuperMetroidAddressSpace rom)
     {
         short Water(int index) => unchecked((short)ReadVerificationWord(rom, 0x88c46e + 2 * index));

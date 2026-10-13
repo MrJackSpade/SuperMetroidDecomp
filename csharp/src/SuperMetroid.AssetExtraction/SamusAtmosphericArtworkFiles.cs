@@ -17,7 +17,9 @@ public static class SamusAtmosphericArtworkFiles
     public const string ArtworkFileName = "samus-atmosphere.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the atmospheric JSON's SHA-256.</summary>
     public const string ManifestFileName = "samus-atmosphere-manifest.json";
+    /// <summary>Schema revision shared by the extracted artwork and its provenance manifest.</summary>
     private const int FormatVersion = 1;
+    /// <summary>Strict camel-case JSON contract for both the stock and replacement lists.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -86,6 +88,7 @@ public static class SamusAtmosphericArtworkFiles
         }
     }
 
+    /// <summary>Requires both four-word direct-OBJ lists before installing a ROM-independent catalog.</summary>
     private static SamusAtmosphericArtworkCatalog Build(ArtworkDocument document, string source)
     {
         if (document.Version != FormatVersion || document.TypeOne is null ||
@@ -94,6 +97,7 @@ public static class SamusAtmosphericArtworkFiles
         return new SamusAtmosphericArtworkCatalog(document.TypeOne, document.SharedTypeFour);
     }
 
+    /// <summary>Imports the four packed attribute words of one native atmospheric list.</summary>
     private static ushort[] ReadList(ISnesAddressSpace bus, ushort pointer)
     {
         var words = new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount];
@@ -102,6 +106,7 @@ public static class SamusAtmosphericArtworkFiles
         return words;
     }
 
+    /// <summary>Checks that each atmospheric type still selects its expected authored or zero list pointer.</summary>
     private static void AssertPointer(ISnesAddressSpace bus, int table, int type, ushort expected)
     {
         ushort actual = CartridgeImportSource.Require(bus).ReadCartridgeWord((table + type * 2));
@@ -110,6 +115,8 @@ public static class SamusAtmosphericArtworkFiles
                 $"Atmospheric type {type} points to ${actual:X4}, expected ${expected:X4}.");
     }
 
+    /// <summary>Editable direct-OBJ words for footsteps and the shared lava/dust effect.</summary>
     private sealed record ArtworkDocument(int Version, ushort[] TypeOne, ushort[] SharedTypeFour);
+    /// <summary>Stock source revision and artwork-byte hash used before any override is selected.</summary>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);
 }

@@ -25,8 +25,11 @@ internal abstract class ShaktoolProjectileInstructionProgramDefinitions
     private const ushort BackLaunchTicks = 10;
     /// <summary>$86:BD70/84/94: repeated final-pose hold. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
     private const ushort HeldPoseTicks = 119;
+    /// <summary>Sentinel separating editable spritemap operands from compiled control words.</summary>
     internal const int PresentationOperand = -1;
+    /// <summary>Eight sprite operands occur across the three attack-circle programs.</summary>
     public static int PresentationWordCount => 8;
+    /// <summary>Locates a sprite operand in native front, middle, then back program order.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -34,10 +37,12 @@ internal abstract class ShaktoolProjectileInstructionProgramDefinitions
         if (index < 6) return (ushort)(Middle + (index == 3 ? 2 : 10 + (index - 4) * 4));
         return (ushort)(Back + 2 + (index - 6) * 8);
     }
+    /// <summary>Recognizes the three Shaktool circle projectiles controlled by these lists.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) =>
         kind is RoomEnemyProjectileKind.ShaktoolAttackFrontCircle or
             RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle or
             RoomEnemyProjectileKind.ShaktoolAttackBackCircle;
+    /// <summary>Reads a bounded aligned control word while rejecting presentation slots.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address >= Front && address < End && (address & 1) == 0)
@@ -58,6 +63,7 @@ internal abstract class ShaktoolProjectileInstructionProgramDefinitions
         Back,
     }
 
+    /// <summary>Maps a circle's front, middle, or back identity to its native list start.</summary>
     private static ushort StartOf(CircleProgram program) => program switch
     {
         CircleProgram.Front => Front,
@@ -66,6 +72,7 @@ internal abstract class ShaktoolProjectileInstructionProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(CircleProgram)} {program}."),
     };
 
+    /// <summary>Reconstructs timing, movement callback, and held-pose loop words at a bank-$86 address.</summary>
     internal static int ProgramWord(ushort address)
     {
         CircleProgram program = address < Middle ? CircleProgram.Front
@@ -98,14 +105,20 @@ internal abstract class ShaktoolProjectileInstructionProgramDefinitions
         writer.Command(heldPose);
         return writer.Value;
     }
+    /// <summary>Tracks an address through emitted instruction words to select one compiled value.</summary>
     private struct WordSelector(ushort address, ushort start)
     {
+        /// <summary>Word offset from the selected program start.</summary>
         private int remaining = (address - start) / 2;
 
+        /// <summary>Selected instruction word, or failure if the emitted program did not reach the address.</summary>
         public int Value { get => field == int.MinValue
             ? throw new InvalidOperationException("Shaktool projectile program shape is incomplete.") : field; private set; } = int.MinValue;
+        /// <summary>Emits a control word without a following presentation slot.</summary>
         public void Command(ushort command) => Emit(command);
+        /// <summary>Emits a duration followed by one editable sprite operand slot.</summary>
         public void Timed(ushort duration) { Emit(duration); Emit(PresentationOperand); }
+        /// <summary>Records the emitted word when it matches the requested address offset.</summary>
         private void Emit(int value) { if (remaining-- == 0) Value = value; }
     }
 }

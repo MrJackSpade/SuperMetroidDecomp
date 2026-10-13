@@ -14,8 +14,11 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("backend: software PPU Mode 7 rasterizer")]
 public static class SnesMode7Renderer
 {
+    /// <summary>Mode 7's square tile-number map spans 128 cells per axis.</summary>
     private const int MapWidthInTiles = 128;
+    /// <summary>Each Mode 7 character occupies an eight-pixel square in high VRAM bytes.</summary>
     private const int CharacterWidth = 8;
+    /// <summary>Wraps transformed source coordinates to the native 1024-pixel map.</summary>
     private const int Mode7CoordinateMask = 0x03ff;
 
     /// <summary>
@@ -91,5 +94,6 @@ public static class SnesMode7Renderer
         }
     }
 
+    /// <summary>Interprets a Mode 7 center or scroll register using its low thirteen signed bits.</summary>
     private static int SignExtend13(short register) => (register << 19) >> 19;
 }

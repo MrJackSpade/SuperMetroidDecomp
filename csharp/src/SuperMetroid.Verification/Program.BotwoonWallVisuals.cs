@@ -18,8 +18,10 @@ using static BotwoonWallPlmsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks editable Botwoon wall-clear tiles remain separate from PLM collision and timing.</summary>
 internal static class BotwoonWallVisualsVerification
 {
+    /// <summary>Compares the nine stock draw words with cartridge data and checks cloned custom artwork.</summary>
     internal static void VerifyBotwoonWallStockMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] native = new ushort[9];
@@ -55,6 +57,7 @@ internal static class BotwoonWallVisualsVerification
         Suite(nameof(VerifyBotwoonWallVisualSeparation), () => VerifyBotwoonWallVisualSeparation(custom));
     }
 
+    /// <summary>Requires only the native clear-draw pointer to resolve to Botwoon's stable visual ID.</summary>
     internal static void VerifyBotwoonWallVisualIdMapping()
     {
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
@@ -64,6 +67,7 @@ internal static class BotwoonWallVisualsVerification
                 AssertThrows<InvalidDataException>(() => BotwoonWallPlmDrawDefinitions.VisualId((ushort)pointer), "Botwoon visual ID accepts only the clear draw");
     }
 
+    /// <summary>Checks extraction, installed overrides, stock repair, and rejection of physical-bit edits.</summary>
     internal static void VerifyBotwoonWallVisuals()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -139,6 +143,7 @@ internal static class BotwoonWallVisualsVerification
             "Botwoon wall visuals: native nine-tile clear, live art edit, physical/timing isolation, stock repair and strict failures pass.");
     }
 
+    /// <summary>Checks an edited clear tile reaches immediate and later BG1 draws without changing collision or deletion.</summary>
     internal static void VerifyBotwoonWallVisualSeparation(
         RoomPlmBotwoonWallVisualCatalog edited)
     {
@@ -178,6 +183,7 @@ internal static class BotwoonWallVisualsVerification
             "edited Botwoon wall draw reads no source bytes");
     }
 
+    /// <summary>Runs the installed Botwoon wall visual check from the command dispatcher.</summary>
     [VerificationCommand("--botwoon-wall-visuals")]
     internal static int BotwoonWallVisualsCommand()
     {

@@ -13,7 +13,9 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class SamusFrameState
 {
+    /// <summary>Remaining native load-appearance updates before ordinary Samus drawing resumes.</summary>
     internal NativeCountdown _samusLoadAppearanceFramesRemaining;
+    /// <summary>Palette-FX definition selected while Samus's load appearance is active.</summary>
     internal ushort _samusLoadAppearancePaletteFxDefinition;
 
     /// <summary>

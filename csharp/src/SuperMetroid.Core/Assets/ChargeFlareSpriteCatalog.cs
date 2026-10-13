@@ -6,7 +6,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable charge-flare compositions, independent of cadence, placement and projectile physics.</summary>
 public sealed class ChargeFlareSpriteCatalog
 {
+    /// <summary>Installed OAM parts keyed by the distinct flare composition pointers.</summary>
     private readonly ProjectileSpriteCatalog sprites;
+    /// <summary>Keeps the compiled compositions separate from native selector cadence and placement.</summary>
     private ChargeFlareSpriteCatalog(ProjectileSpriteCatalog sprites) => this.sprites = sprites;
 
     /// <summary>Compiles version-one charge/Hyper/grapple flare and directional spark artwork for all twenty-eight distinct bank-$93 compositions, independently of the fifty-four repeated animation selectors.</summary>

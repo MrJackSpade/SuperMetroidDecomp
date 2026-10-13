@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Complete $84:B9A2-B9B8 rescue-wall break/event/delete records.</summary>
 internal static class EscapeAnimalPlmProgramDefinitions
 {
+    /// <summary>Reads the rescue-wall sequence's draw holds, event instruction, and final deletion from bank $84.</summary>
     internal static bool TryReadWord(ushort address, out ushort value)
     {
         int offset = address - EscapeAnimalPlmRomData.ReactionList;
@@ -22,6 +23,7 @@ internal static class EscapeAnimalPlmProgramDefinitions
         return value != 0;
     }
 
+    /// <summary>Reads the one-byte break sound operand immediately after the queue instruction.</summary>
     internal static bool TryReadByte(ushort address, out byte value)
     {
         value = RoomPlmShotBlockProgramDefinitions.BreakSoundId;

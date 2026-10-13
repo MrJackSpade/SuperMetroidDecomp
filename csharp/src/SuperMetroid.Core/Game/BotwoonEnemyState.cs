@@ -63,8 +63,10 @@ public enum BotwoonHeadFunction : ushort
 /// </summary>
 public sealed class BotwoonEnemyState
 {
+    /// <summary>Botwoon's live head slot, whose variables D through F select three independent callbacks.</summary>
     private readonly RoomEnemySlot _head;
 
+    /// <summary>Attaches the named boss state to its physical head enemy slot.</summary>
     internal BotwoonEnemyState(RoomEnemySlot head) => _head = head;
 
     /// <summary>Variable D's bank-$B3 main-function pointer, owning initial waiting, traversal/spitting, and synchronized death progression.</summary>

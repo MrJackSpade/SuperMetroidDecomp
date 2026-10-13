@@ -13,8 +13,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 using static SuiteTimingVerification;
 
+/// <summary>Checks SPC sound-effect stream pointer tables and invalid-command handling.</summary>
 internal static class SpcSoundLibrary2PointersVerification
 {
+    /// <summary>Loads the supported retail revision and runs the second sound-library pointer audit.</summary>
     internal static void VerifySpcSoundLibrary2Pointers()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -23,10 +25,14 @@ internal static class SpcSoundLibrary2PointersVerification
         Suite(nameof(VerifySpcSoundStream2), () => VerifySpcSoundStream2(rom));
     }
 
+    /// <summary>Checks all 66 stream pointers in the first sound-effect library.</summary>
     internal static void VerifySpcSoundStream1(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 0, 66, 0xcf96f5);
+    /// <summary>Checks all 127 stream pointers in the second sound-effect library.</summary>
     internal static void VerifySpcSoundStream2(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 1, 127, 0xcfa5bb);
+    /// <summary>Checks all 47 stream pointers in the third sound-effect library.</summary>
     internal static void VerifySpcSoundStream3(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 2, 47, 0xcfba97);
 
+    /// <summary>Compares native pointers and command bounds, then checks driver acknowledgement and rejection timing.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC sound streams")]
     private static void VerifySpcSoundStreams(ISnesAddressSpace rom, int library, int count, int source)
     {
@@ -61,6 +67,7 @@ internal static class SpcSoundLibrary2PointersVerification
             "runtime rejects the first undefined sound command before stream dispatch");
     }
 
+    /// <summary>Runs the focused retail sound-library pointer verification command.</summary>
     [VerificationCommand("--spc-sound-library-2-pointers")]
     internal static int SpcSoundLibrary2PointersCommand()
     {

@@ -133,6 +133,10 @@ public static class SamusHurtFlashPalette
         return queued;
     }
 
+    /// <summary>
+    /// At hurt counter forty, restores the movement sound selected by Samus's current
+    /// spin or active grapple state; a charged flare instead defers beam audio.
+    /// </summary>
     private static SamusHurtFlashRecoveryAction RecoverInterruptedSound(
         ISnesAddressSpace bus,
         SamusState samus,

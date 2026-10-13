@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM Mother Brain room-flash BGR555 payloads → Mother Brain room colors")]
 internal static class MotherBrainRoomColorExtractor
 {
+    /// <summary>Imports room-flash rows and selected encounter palettes into an editable RGB5 document.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

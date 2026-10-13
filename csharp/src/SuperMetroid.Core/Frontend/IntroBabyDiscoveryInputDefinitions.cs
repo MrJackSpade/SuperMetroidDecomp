@@ -15,9 +15,11 @@ internal static class IntroBabyDiscoveryInputDefinitions
     /// <summary>$91:8784, exclusive end of the SR388 demo object definition.</summary>
     internal const ushort HeaderEnd = 0x8784;
 
+    /// <summary>Emits a demo record's duration, held input, or newly pressed edge.</summary>
     private static ushort InputWord(int field, ushort duration, SnesButton held = 0, bool press = false) =>
         field == 0 ? duration : field == 1 || press ? (ushort)held : (ushort)0;
 
+    /// <summary>Compiles the running, stop-and-look, aim, and terminal commands of the SR388 demo input list.</summary>
     private static ushort ListWord(int word)
     {
         if (word < 9)
@@ -49,6 +51,7 @@ internal static class IntroBabyDiscoveryInputDefinitions
         };
     }
 
+    /// <summary>Compiles the demo object's no-op setup, running-left pre-instruction, and list pointer.</summary>
     private static ushort HeaderWord(int word) => word switch
     {
         0 => DemoInputRomData.Routines.NoOp,
@@ -57,6 +60,7 @@ internal static class IntroBabyDiscoveryInputDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(word)),
     };
 
+    /// <summary>Reads either byte of the compiled input list or six-byte object header.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         int offset;
@@ -76,6 +80,7 @@ internal static class IntroBabyDiscoveryInputDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Reads overlapping little-endian words without crossing either program boundary.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer is >= ListStart and < (ListEnd - 1) or >= HeaderStart and < (HeaderEnd - 1))

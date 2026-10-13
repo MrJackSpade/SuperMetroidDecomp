@@ -23,8 +23,10 @@ public enum MetareeEnemyFunction : ushort
 /// </summary>
 public sealed class MetareeEnemyState
 {
+    /// <summary>Physical enemy slot backing Metaree's timer, function, animation, and dive speed.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects Metaree's six private words from its occupied enemy slot.</summary>
     internal MetareeEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Reloaded to 21 during flight, then counted down while underground.</summary>

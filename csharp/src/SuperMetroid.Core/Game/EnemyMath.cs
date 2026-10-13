@@ -175,6 +175,7 @@ internal static class EnemyMath
         return (unchecked((short)whole), fraction);
     }
 
+    /// <summary>Rotates the native fixed sine multiplication by a quarter turn for cosine, retaining its negative-fraction behavior.</summary>
     internal static (short Whole, ushort Fraction) ReadEightBitCosineFixedProduct(
         ushort angle,
         ushort radius) =>
@@ -182,6 +183,7 @@ internal static class EnemyMath
             unchecked((ushort)(angle + SnesAngle.QuarterTurn.TableIndex)),
             radius);
 
+    /// <summary>Rotates the native fixed sine multiplication by a half turn to obtain negative sine.</summary>
     internal static (short Whole, ushort Fraction) ReadEightBitNegativeSineFixedProduct(
         ushort angle,
         ushort radius) =>
@@ -208,10 +210,12 @@ internal static class EnemyMath
         return unchecked((int)product);
     }
 
+    /// <summary>Multiplies a signed sine-table sample by speed with the cartridge's fixed-point rounding.</summary>
     internal static ushort MultiplyCartridgeSinCos(ushort speed, byte angle)
     {
         return EnemyTrigonometryTables.MultiplySignedSine(speed, angle);
     }
 
+    /// <summary>Tests the sign of the low sixteen bits as a 65816 word, ignoring higher host bits.</summary>
     internal static bool IsNegative16(int value) => (short)unchecked((ushort)value) < 0;
 }

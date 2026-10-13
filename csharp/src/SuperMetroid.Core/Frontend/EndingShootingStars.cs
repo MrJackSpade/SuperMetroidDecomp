@@ -6,8 +6,10 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>$8B:E7BB/E812: bounded post-credits star records, independent of explosion stars.</summary>
 internal sealed class EndingShootingStars
 {
+    /// <summary>One state record per authored post-credits star, retained across scene updates.</summary>
     internal readonly EndingShootingStar[] stars = new EndingShootingStar[EndingShootingStarDefinitions.Count];
 
+    /// <summary>Seeds each star at the common origin and arms any authored start delay.</summary>
     internal EndingShootingStars()
     {
         for (int index = 0; index < stars.Length; index++)
@@ -20,6 +22,7 @@ internal sealed class EndingShootingStars
         }
     }
 
+    /// <summary>Advances delayed or active stars, accelerates later frames, and resets those leaving the visible bounds.</summary>
     internal void Step()
     {
         for (int index = 0; index < stars.Length; index++)
@@ -57,6 +60,7 @@ internal sealed class EndingShootingStars
         }
     }
 
+    /// <summary>Draws only active stars with a nonzero animation frame into the supplied OAM buffer.</summary>
     internal void Draw(OamBuffer oam)
     {
         foreach (var star in stars)
@@ -68,6 +72,7 @@ internal sealed class EndingShootingStars
         }
     }
 
+    /// <summary>Returns a star to the shared origin with its initial animation timer and original index.</summary>
     private static void Reset(ref EndingShootingStar star, ushort index) => star = new()
     {
         IndexAndFrame = index,
@@ -76,10 +81,15 @@ internal sealed class EndingShootingStars
     };
 }
 
+/// <summary>Mutable position, velocity, and packed delay or animation phase of one post-credits star.</summary>
 internal struct EndingShootingStar
 {
+    /// <summary>Native packed star index or animation frame.</summary>
     internal ushort IndexAndFrame;
+    /// <summary>Current delay or animation countdown.</summary>
     internal NativeCountdown Timer;
+    /// <summary>Fixed-point screen position before centering the sprite for OAM.</summary>
     internal FixedPosition<ScreenPixels> Position;
+    /// <summary>Current signed 8.8 motion accumulated by the star's acceleration.</summary>
     internal EightEightVector<ScreenPixels> Velocity;
 }

@@ -13,11 +13,16 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class HdmaObjectPhase
 {
+    /// <summary>Supplies the authored freeze gate to the shared room liquid update.</summary>
     private readonly GameplayTimeFreeze _freeze;
+    /// <summary>Owner of the room's liquid and layer-3 HDMA pre-instruction state.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Shared system state passed to native liquid pre-instructions.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Owner of the Tourian statues' delayed BG2 descent.</summary>
     private readonly TourianStatueSequence _tourianStatues;
 
+    /// <summary>Connects the HDMA pre-instruction phase to its live freeze, liquid, system, and statue owners.</summary>
     internal HdmaObjectPhase(GameplayTimeFreeze freeze, RoomLayer3FxState roomLayer3Fx, Bank80SystemState system, TourianStatueSequence tourianStatues)
     {
         _freeze = freeze;

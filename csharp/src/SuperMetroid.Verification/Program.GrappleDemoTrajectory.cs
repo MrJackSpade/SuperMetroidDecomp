@@ -7,8 +7,12 @@ using SuperMetroid.Core.Runtime;
 using static AttractInputFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the retail grapple attract demo's scripted shots, ceiling
+/// connections, aim after release, and final landing.</summary>
 internal static class GrappleDemoTrajectoryVerification
 {
+    /// <summary>Replays the basic grapple demo through production gameplay and
+    /// checks six ordered attachments to the room's real ceiling anchors.</summary>
     internal static void VerifyGrappleDemoTrajectory()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

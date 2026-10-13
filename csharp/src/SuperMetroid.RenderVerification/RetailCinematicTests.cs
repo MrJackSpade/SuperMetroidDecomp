@@ -4,8 +4,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Compares translated intro snapshots with direct retail-frame rendering on a D3D device.</summary>
 internal static class RetailCinematicTests
 {
+    /// <summary>Samples phase transitions and periodic frames through Ceres flight, retaining sampled packets across advancement.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));

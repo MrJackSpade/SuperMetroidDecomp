@@ -390,6 +390,7 @@ public static class SamusKnockbackMovement
         EndWithoutPoseChange(samus);
     }
 
+    /// <summary>Finishes a Morph or Spring Ball hit while retaining its current pose, collision radii and rolling animation.</summary>
     private static KnockbackMovementResult EndWithoutPoseChange(SamusState samus)
     {
         // `$90:DE40` republishes the current pose, so UpdateSamusPose neither reloads its
@@ -398,6 +399,7 @@ public static class SamusKnockbackMovement
         return FinishKnockback(samus);
     }
 
+    /// <summary>Restores ordinary input and movement ownership and clears native hurt motion words after expiry.</summary>
     private static KnockbackMovementResult FinishKnockback(SamusState samus)
     {
         // The native expiry command restores the normal input pointer as well as
@@ -420,6 +422,7 @@ public static class SamusKnockbackMovement
         return new KnockbackMovementResult();
     }
 
+    /// <summary>Uses ordinary aerial vertical speed calculations during rising knockback, including the native direction reversal.</summary>
     private static BlockMoveResult MoveWithSharedVerticalSpeedCalculation(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -436,6 +439,7 @@ public static class SamusKnockbackMovement
         return SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, nmiFrameCounter, out _, out _);
     }
 
+    /// <summary>Applies externally supplied downward displacement through the shared vertical collision path without accelerating it.</summary>
     private static BlockMoveResult MoveDownWithoutSpeedCalculation(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -454,5 +458,6 @@ public static class SamusKnockbackMovement
 }
 
 /// <summary>Collision and lifetime result from one `$90:DF38` frame.</summary>
+/// <param name="Landed">Whether downward collision produced the landing seam consumed by presentation and transition owners.</param>
 public readonly record struct KnockbackMovementResult(
     bool Landed = false);

@@ -15,14 +15,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks both Owtch directional animation loops and their bank $A2 control and visual words.</summary>
 internal static class OwtchInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the pinned cartridge and runs the Owtch instruction comparison.</summary>
     internal static void VerifyOwtchInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyOwtchInstructionProgramDefinitions), () => VerifyOwtchInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks native selectors, live directional callbacks and cadence, guarded reads, and lookup allocation.</summary>
     internal static void VerifyOwtchInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -137,6 +140,7 @@ internal static class OwtchInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeats warmed Owtch instruction lookups for the caller's allocation measurement.</summary>
     private static int ProbeOwtchInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -148,6 +152,7 @@ internal static class OwtchInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids rereads of compiled Owtch mechanics and spritemap operands.</summary>
     private static CartridgeReadGuard NewOwtchInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(OwtchInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -156,6 +161,7 @@ internal static class OwtchInstructionProgramDefinitionsVerification
                 OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read compiled Owtch instruction byte ${address:X6}.");
 
+    /// <summary>Dispatches the Owtch cadence comparison under its lookup-stream command name.</summary>
     [VerificationCommand("--lookup-stream-1-owtch-cadence")]
     internal static int LookupStream1OwtchCadenceCommand()
     {
@@ -163,6 +169,7 @@ internal static class OwtchInstructionProgramDefinitionsVerification
         return 0;
     }
 
+    /// <summary>Dispatches the Owtch instruction mechanics verification command.</summary>
     [VerificationCommand("--owtch-instruction-mechanics")]
     internal static int OwtchInstructionMechanicsCommand()
     {

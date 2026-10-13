@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Mochtroid species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class MochtroidBehavior : IEnemySpecies
 {
+    /// <summary>Resolves axis movement against terrain in the native order for each flight mode.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Queues an individual drain sound for each qualifying attached actor.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Provides the shared enemy counter that gates attached drain sounds.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Runs common touch damage when Samus has an active contact-damage mode.</summary>
     private readonly EnemyCollision _collision;
 
+    /// <summary>Binds movement, audio, frame counter, and collision services for Mochtroid AI.</summary>
     internal MochtroidBehavior(EnemyTerrain terrain, EnemyAudioQueue audio, EnemyFrameContext frameContext, EnemyCollision collision)
     {
         _terrain = terrain;
@@ -20,10 +25,14 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         _collision = collision;
     }
 
+    /// <summary>Number of overlapping contacts between attached health drains.</summary>
     private const ushort MochtroidAttachmentDamagePeriod = 0x0050;
+    /// <summary>Whole-pixel speed cap for proportional free flight.</summary>
     private const int MochtroidMaximumVelocity = 3;
+    /// <summary>Signed 16.16 speed of one pixel per attached-flight axis step.</summary>
     private const int MochtroidAttachedVelocity = 1 << 16;
 
+    /// <summary>Per-slot movement and attachment state cleared on room load.</summary>
     internal readonly MochtroidEnemyState?[] _mochtroidStates =
         new MochtroidEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -77,6 +86,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Accelerates toward Samus, resolving Y before X and clearing velocity on terrain contact.</summary>
     private void RunMochtroidFreeFlight(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
@@ -107,6 +117,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies
             slot, state, MochtroidInstructionProgramDefinitions.FreeFlight);
     }
 
+    /// <summary>Caps a signed 16.16 velocity by its whole-pixel component at three pixels.</summary>
     private static int ClampMochtroidVelocity(int velocity)
     {
         short whole = unchecked((short)(SnesSixteenSixteen.WholeOf(velocity)));
@@ -117,6 +128,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         return velocity;
     }
 
+    /// <summary>Moves one pixel per axis toward Samus, resolving X before Y while attached.</summary>
     private void RunMochtroidAttachedFlight(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
@@ -142,6 +154,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         _terrain.MoveEnemyVertically(level, slot, yVelocity);
     }
 
+    /// <summary>Applies the authored four-direction shake offset and counts down to free flight.</summary>
     private static void RunMochtroidShake(RoomEnemySlot slot, MochtroidEnemyState state)
     {
         // This third dispatch entry is unused by retail callers but present in the shipped
@@ -157,16 +170,19 @@ internal sealed class MochtroidBehavior : IEnemySpecies
             slot, state, MochtroidInstructionProgramDefinitions.FreeFlight);
     }
 
+    /// <summary>Stores the current raw 16.16 horizontal velocity in the species state.</summary>
     private static void StoreMochtroidXVelocity(MochtroidEnemyState state, int velocity)
     {
         state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromRaw(velocity));
     }
 
+    /// <summary>Stores the current raw 16.16 vertical velocity in the species state.</summary>
     private static void StoreMochtroidYVelocity(MochtroidEnemyState state, int velocity)
     {
         state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromRaw(velocity));
     }
 
+    /// <summary>Installs a changed flight or attachment list and restarts its instruction timers.</summary>
     internal static void SetMochtroidInstructionList(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
@@ -239,10 +255,12 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         samus.KnockbackTimer = NativeCountdown.Start(0);
     }
 
+    /// <summary>Returns the state initialized for this physical enemy slot.</summary>
     private MochtroidEnemyState RequireMochtroidState(RoomEnemySlot slot) =>
         _mochtroidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Mochtroid state.");
 
+    /// <summary>Registers the guarded native Mochtroid initialization routine.</summary>
     internal void RegisterMochtroidInitializationAi(EnemyAiTable table)
     {
 
@@ -252,6 +270,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the guarded free, attached, and shake movement routine.</summary>
     internal void RegisterMochtroidMainAi(EnemyAiTable table)
     {
 
@@ -261,6 +280,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the named attachment and drain reaction for Samus overlap.</summary>
     internal void RegisterMochtroidTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid &&
@@ -279,6 +299,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies
     {
     }
 
+    /// <summary>Registers the Mochtroid-specific shot callback when its definition selects one.</summary>
     internal static void RegisterMochtroidShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid &&

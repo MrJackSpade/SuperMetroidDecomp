@@ -18,6 +18,7 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
         Odd = CeresFlightSpriteDefinitions.VortexOdd,
     }
 
+    /// <summary>Calculates stock vortex grid parts only when a recognized frame and its supplied part count match.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied, SpriteComposition? reflectionSource = null)
     {
         if (!Enum.IsDefined((VortexFrame)pointer)) return supplied;
@@ -40,7 +41,9 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
         IReadOnlyList<CompiledSpritePart> selectedStars = odd ? CeresStarPointParts.CalculateIfMatching(stars, false) : CeresReflectedStarParts.CalculateIfMatching(reflectionSource, stars);
         return supplied.CalculateIfMatching(new CeresVortexParts(odd, anchor, selectedStars));
     }
+    /// <summary>Counts thirteen vortex parts plus the remaining stars for the selected frame.</summary>
     public int Count => odd ? 33 : 36;
+    /// <summary>Calculates a vortex grid part or returns a preserved star part in native OAM order.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -69,12 +72,15 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
+    /// <summary>Enumerates the alternating frame's vortex and star parts in OAM order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same frame parts through the non-generic collection interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
+/// <summary>Atlas tile identities used to calculate the Ceres vortex core and edge.</summary>
 internal static class CeresVortexAtlas
 {
     /// <summary>Tile1C0, first large vortex tile; eleven large pieces are packed

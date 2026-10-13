@@ -6,21 +6,21 @@ internal static class BombTorizoMovementDefinitions
     /// <summary>
     /// The sixteen X words at <c>$AA:C3EE-$AA:C40D</c> and eight wrapping Y words at
     /// <c>$AA:C40E-$AA:C41D</c>. The sitting-down copies at <c>$AA:C440-$AA:C46F</c>
-    /// are byte-identical and are subtracted by the caller.
+    /// are byte-identical and are subtracted by the caller. Left-facing per-frame
+    /// displacements are authored to the posture animation, including its uneven steps;
+    /// right-facing movement reflects their horizontal sign rather than storing a second table.
     /// </summary>
-    // Left-facing per-frame displacements are authored to the posture animation (no ramp or
-    // symmetry fits -9,-6,-7,5,-16,-7). Right-facing movement reflects their horizontal sign;
-    // no second stock sequence is stored (see residualScalarInputsReview).
     private static readonly short[] LeftPostureX = [-9, -6, -7, 5, -16, -7, 0, 0];
 
+    /// <summary>Eight authored vertical posture offsets repeat for both Bomb Torizo facings.</summary>
     private static readonly short[] PostureY =
         [0, -6, -6, -7, 0, 0, 0, 0];
 
     /// <summary>
     /// The twenty velocities duplicated at <c>$AA:C4BD-$AA:C4E4</c> and
     /// <c>$AA:C532-$AA:C559</c> by the normal and faceless walking instructions.
+    /// These ten authored stride magnitudes share one table because facing only changes their sign.
     /// </summary>
-    // Ten per-frame stride magnitudes authored to the walk animation; facing only changes sign.
     private static readonly short[] LeftWalkVelocities = [-5, 0, -5, -19, -16, -7, 0, -7, -17, -18];
 
     /// <summary>Returns the frame-relative posture displacement selected by an even byte offset.</summary>

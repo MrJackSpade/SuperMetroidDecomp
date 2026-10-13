@@ -16,6 +16,7 @@ public readonly record struct ColorAddWindow(byte Left, byte Right, byte Red, by
 /// </summary>
 public sealed record ScanlineColorAddRenderLayer : RenderLayer
 {
+    /// <summary>Private copy that keeps each physical scanline's color window stable after construction.</summary>
     private readonly ColorAddWindow[] windows;
     /// <summary>Exactly 224 immutable per-scanline windows in top-to-bottom physical display order.</summary>
     public ReadOnlySpan<ColorAddWindow> Windows => windows;

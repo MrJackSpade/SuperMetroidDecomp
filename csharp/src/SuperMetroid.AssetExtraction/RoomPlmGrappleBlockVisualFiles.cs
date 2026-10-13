@@ -18,8 +18,10 @@ public static class RoomPlmGrappleBlockVisualFiles
     public const string VisualFileName = "grapple-blocks.json";
     /// <summary>Stock manifest filename recording format version one, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Schema revision shared by Grapple-block visual JSON and its stock manifest.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Readable camel-case encoding for the visual document and provenance manifest.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -104,6 +106,7 @@ public static class RoomPlmGrappleBlockVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Checks every native one-cell draw's direction, level word, and terminal offsets before exporting visuals.</summary>
     private static RoomPlmGrappleBlockVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmGrappleBlockVisualEntry>();
@@ -127,6 +130,7 @@ public static class RoomPlmGrappleBlockVisualFiles
         return entries.ToArray();
     }
 
+    /// <summary>Validates a document's version and pointer-to-word entries with its source path in any error.</summary>
     private static RoomPlmGrappleBlockVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -141,8 +145,10 @@ public static class RoomPlmGrappleBlockVisualFiles
         }
     }
 
+    /// <summary>Reads a required Grapple-block JSON file and preserves its path in validation failures.</summary>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
 
+    /// <summary>Deserializes JSON bytes, rejecting empty or malformed documents with file context.</summary>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -156,7 +162,9 @@ public static class RoomPlmGrappleBlockVisualFiles
         }
     }
 
+    /// <summary>Stock provenance and visual-file hash required even when an override is selected.</summary>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
+    /// <summary>Versioned five-entry pointer-to-visual-word document.</summary>
     private sealed record VisualDocument(int Version, RoomPlmGrappleBlockVisualEntry[] Entries);
 }

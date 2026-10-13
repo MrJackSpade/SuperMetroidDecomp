@@ -8,8 +8,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks post-credits Samus wave HDMA, color addition, and serialized rendering.</summary>
 internal static class EndingWavySamusTests
 {
+    /// <summary>Compares all 180 wave frames with native scroll math and selected frames with independent pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
@@ -107,6 +109,7 @@ internal static class EndingWavySamusTests
         static void Require(bool condition, string message) { if (!condition) throw new InvalidDataException(message); }
     }
 
+    /// <summary>Reads a signed native sine sample used by the independent wave-scroll calculation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending wave sine table at $A0:B443")]
     private static short NativeWaveSample(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, int offset) =>
         unchecked((short)rom.ReadCartridgeWord(0xa0b443 + offset));

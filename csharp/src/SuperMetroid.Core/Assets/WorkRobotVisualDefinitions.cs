@@ -23,6 +23,7 @@ internal static class WorkRobotVisualDefinitions
     /// <summary>$A8:D7C1: unpowered-left record immediately follows both complete powered-facing groups.</summary>
     private const ushort UnpoweredLeft = FirstPoweredFrame + 2 * PoweredPosesPerFacing * PoweredRecordBytes;
 
+    /// <summary>Yields twelve powered poses for each facing, then unpowered neutral, left, and right identities in installed compatibility order.</summary>
     internal static IEnumerable<EnemySpritemapDefinition> Frames()
     {
         for (int facing = 0; facing < 2; facing++)
@@ -32,8 +33,6 @@ internal static class WorkRobotVisualDefinitions
             ushort pointer = (ushort)(FirstPoweredFrame + (facing * PoweredPosesPerFacing + pose) * PoweredRecordBytes);
             yield return new(Bank, pointer, $"work_robot_{direction}_{pose.ToString("00", System.Globalization.CultureInfo.InvariantCulture)}");
         }
-        // Installed compatibility order is neutral, then the two facing identities;
-        // the native physical record order is left, neutral, right.
         yield return new(Bank, UnpoweredLeft + UnpoweredRecordBytes, "work_robot_unpowered_neutral");
         yield return new(Bank, UnpoweredLeft, "work_robot_unpowered_left");
         yield return new(Bank, UnpoweredLeft + 2 * UnpoweredRecordBytes, "work_robot_unpowered_right");

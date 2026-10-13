@@ -3,8 +3,10 @@ using SuperMetroid.Core.Audio;
 /// <summary>Verification access to <see cref="ManagedSnesDsp"/> members production does not use.</summary>
 internal static class ManagedSnesDspAccess
 {
+    /// <summary>Exposes the private DSP register array to the register-boundary oracle.</summary>
     extension(ManagedSnesDsp self)
     {
+        /// <summary>Reads a mirrored S-DSP register byte using its seven-bit hardware index.</summary>
         [DspRegisterAccess]
         internal byte ReadRegister(byte address) => self.registers[address & 0x7f];
     }
@@ -13,6 +15,7 @@ internal static class ManagedSnesDspAccess
 /// <summary>Verification views of FLG's two meanings: the control bits and the noise rate (#631 alias proof).</summary>
 internal static class DspFlagsAccess
 {
+    /// <summary>Separates FLG control bits from the aliased noise-rate field.</summary>
     extension(DspFlags self)
     {
         /// <summary>The reset (bit 7), mute (bit 6) and echo-write-disable (bit 5) bits.</summary>
@@ -28,6 +31,7 @@ internal static class DspFlagsAccess
 /// <summary>Verification access to <see cref="ManagedSpcPlayer"/> members production does not use.</summary>
 internal static class ManagedSpcPlayerAccess
 {
+    /// <summary>Exposes deterministic DSP and APU memory views for friend-assembly checks.</summary>
     extension(ManagedSpcPlayer self)
     {
         /// <summary>Exposes the mirrored DSP register file to deterministic verification.</summary>
@@ -50,6 +54,7 @@ internal static class ManagedSpcPlayerAccess
 /// <summary>Verification access to <see cref="MusicCommandDelay"/> members production does not use.</summary>
 internal static class MusicCommandDelayAccess
 {
+    /// <summary>Reconstructs a validated effective delay without invoking production queueing.</summary>
     extension(MusicCommandDelay)
     {
         /// <summary>
@@ -71,6 +76,7 @@ internal static class MusicCommandDelayAccess
 /// <summary>Verification access to <see cref="SoundEffectLibraries"/> members production does not use.</summary>
 internal static class SoundEffectLibrariesAccess
 {
+    /// <summary>Converts raw cartridge library bytes to the bounded sound-library type.</summary>
     extension(SoundEffectLibraries)
     {
         /// <summary>Validates a raw cartridge library number before it enters typed code.</summary>

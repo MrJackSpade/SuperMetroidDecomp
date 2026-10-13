@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks WinMM gamepad axes, POV priority, and both generic face-button layouts.</summary>
 internal static class GamepadInputVerification
 {
+/// <summary>Checks the SNES USB adapter by printed button label and other pads by physical position.</summary>
 internal static void VerifyGenericGamepadInput()
 {
     UsbGamepadIdentifier snesAdapter =
@@ -91,6 +93,7 @@ internal static void VerifyGenericGamepadInput()
         "  Gamepad: axes, POV, positional/0079:0011 face layouts, shoulders, and menus agree.");
 }
 
+/// <summary>Checks one physical button independently so face-button permutations remain visible.</summary>
 static void VerifyGamepadButton(
     int zeroBasedButtonIndex,
     SnesButton expected,

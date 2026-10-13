@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Retail-word and guarded-execution checks for Yapping Maw attack and cooldown programs.</summary>
 internal static class YappingMawInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail data for the Yapping Maw instruction check.</summary>
     internal static void VerifyYappingMawInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYappingMawInstructionProgramDefinitions), () => VerifyYappingMawInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs all attack and cooldown entries, checking sound, held-Samus offsets, and initial facing selection.</summary>
     internal static void VerifyYappingMawInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -138,6 +141,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             "cooldown entries, seven callbacks, and 52 compiled visual selectors pass.");
     }
 
+    /// <summary>Checks native parameter-two facing selection and linked body projectile setup.</summary>
     private static void VerifyYappingMawInitializerSelections(
         ISnesAddressSpace bus)
     {
@@ -170,6 +174,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Creates a guarded Yapping Maw slot with a selected instruction entry and typed state.</summary>
     private static (
         RoomEnemySystem Enemies,
         RoomEnemySlot Slot,
@@ -190,6 +195,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         return (enemies, slot, state);
     }
 
+    /// <summary>Forces each requested instruction call through the production enemy interpreter.</summary>
     private static void RunYappingMawInstructionFrames(
         RoomEnemySystem enemies,
         object?[] arguments,
@@ -203,6 +209,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates warmed attack and cooldown control lookups for allocation accounting.</summary>
     private static int ProbeYappingMawInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -216,6 +223,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects compiled Yapping Maw control and frame-selector reads during execution.</summary>
     private static CartridgeReadGuard NewYappingMawInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(YappingMawInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -223,6 +231,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             .ForbidWords(0xa80000, YappingMawInstructionProgramDefinitions.PresentationWordCount, YappingMawInstructionProgramDefinitions.PresentationWordAddress,
                 address => $"Production read compiled Yapping Maw visual byte ${address:X6}.");
 
+    /// <summary>Runs the retail-backed Yapping Maw instruction migration command.</summary>
     [VerificationCommand("--yapping-maw-instruction-program-definitions")]
     internal static int YappingMawInstructionProgramDefinitionsCommand()
     {

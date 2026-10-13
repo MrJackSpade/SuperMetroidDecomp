@@ -16,6 +16,7 @@ internal static class PipeBugVisualDefinitions
     /// <summary>Each native Pipe Bug OAM composition has a two-byte count and one five-byte part.</summary>
     private const int FrameBytes = 2 + 5;
 
+    /// <summary>Maps a timed instruction operand to the matching Zeb, Zebbo, Gamet, or Geega OAM frame.</summary>
     internal static ushort FrameAt(EnemyDefinitionId enemyDefinition, ushort address)
     {
         switch (enemyDefinition)
@@ -71,6 +72,7 @@ internal static class PipeBugVisualDefinitions
         return (ushort)(frames + FrameBytes * (group * 3 + Math.Min(record, 4 - record)));
     }
 
+    /// <summary>Rejects an operand outside the compiled Pipe Bug presentation records.</summary>
     private static ushort Invalid(ushort address) => throw new InvalidDataException(
         $"Pipe Bug visual operand $B3:{address:X4} is not compiled.");
 }

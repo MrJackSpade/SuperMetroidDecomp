@@ -8,9 +8,12 @@ using System.Buffers.Binary;
 /// </summary>
 internal sealed class NativeCheckpointMemory
 {
+    /// <summary>The complete WRAM image, or only the layout payload.</summary>
     private readonly byte[] bytes;
+    /// <summary>Ranges held by a payload; null for a complete image.</summary>
     private readonly ReplayTraceLayout? layout;
 
+    /// <summary>Wraps a complete image (no layout) or a layout payload.</summary>
     private NativeCheckpointMemory(byte[] bytes, ReplayTraceLayout? layout)
     {
         this.bytes = bytes;

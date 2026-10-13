@@ -14,10 +14,14 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameOverPresentation
 {
+    /// <summary>Stores an authored tilemap only when it differs from the calculated stock game-over text page.</summary>
     internal readonly byte[]? tilemap;
+    /// <summary>Compiled Baby, egg, and missile-cursor compositions indexed by schema frame identity.</summary>
     internal readonly Dictionary<string, SpriteComposition> sprites;
+    /// <summary>Installed idle and crying color sets for the Baby's fixed CGRAM row.</summary>
     private readonly GameOverBabyColorCatalog babyPalettes;
 
+    /// <summary>Retains compiled artwork and screen anchors, eliding an unchanged stock tilemap.</summary>
     private GameOverPresentation(
         byte[] tilemap,
         Dictionary<string, SpriteComposition> sprites,
@@ -224,21 +228,25 @@ public sealed class GameOverPresentation
         output.Write(bytes);
     }
 
+    /// <summary>Encodes an installed OBJ palette selector into the packed sprite attribute bits.</summary>
     private static ushort PaletteBits(int index) =>
         SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
 
+    /// <summary>Checks both coordinates of a game-over screen anchor fit the native OAM byte range.</summary>
     private static void ValidatePoint(Position16<OamPixels> point, string name)
     {
         ValidateCoordinate(point.X, $"{name} X");
         ValidateCoordinate(point.Y, $"{name} Y");
     }
 
+    /// <summary>Rejects a screen coordinate outside the 0–255 range used by authored menu layout.</summary>
     private static void ValidateCoordinate(int value, string name)
     {
         if ((uint)value > byte.MaxValue)
             throw new InvalidDataException($"{name} must be 0..255.");
     }
 
+    /// <summary>Rejects an OBJ palette selector outside the eight hardware rows.</summary>
     private static void ValidatePaletteIndex(int value, string name)
     {
         if ((uint)value > 7)
@@ -292,12 +300,14 @@ public static class GameOverPresentationDefinitions
     /// <summary>Schema sprite identity of the egg composition, drawn at the Baby anchor.</summary>
     public const string EggFrame = "Egg";
 
+    /// <summary>Required Baby, egg, and cursor frame identities in schema order.</summary>
     private static readonly string[] spriteNames =
     [
         "Baby.Closed", "Baby.Middle", "Baby.Open", EggFrame,
         "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3",
     ];
 
+    /// <summary>Required idle and crying Baby color phases in schema order.</summary>
     private static readonly string[] paletteNames =
         ["Baby.Idle", "Baby.ClosedCry", "Baby.MiddleCry", "Baby.OpenCry"];
 
@@ -359,6 +369,7 @@ public static class GameOverPresentationDefinitions
         return GameOverRomData.BlankTile.Raw;
     }
 
+    /// <summary>Maps a character in the native small-font text lines to its tile word.</summary>
     private static ushort SmallLetter(char letter) => letter switch
     {
         >= 'A' and <= 'Z' => (ushort)(SmallLetterA + letter - 'A'),

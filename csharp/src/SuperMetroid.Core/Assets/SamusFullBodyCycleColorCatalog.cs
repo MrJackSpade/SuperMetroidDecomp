@@ -32,15 +32,36 @@ namespace SuperMetroid.Core.Assets;
 /// This disposition covers only these full-body inputs, not other palettes.</remarks>
 public sealed class SamusFullBodyCycleColorCatalog
 {
+    /// <summary>Authored colors remaining after canonical shade relationships and independent endpoint channels are removed.</summary>
     internal readonly Dictionary<int, Bgr555> colors;
-    // Independent channel inputs for the seven remaining Speed Booster endpoints.
-    internal readonly LoadingPaletteInputView.Channels powerDim1, powerDim2, powerBright9, powerDim12;
-    internal readonly LoadingPaletteInputView.Channels variaBright10, variaDim12, gravityDim2;
-    /// <summary>Active-shinespark blue inputs at9C64/9C84 and9C50; Varia9E84 shares Power9C64.</summary>
-    internal readonly LoadingPaletteInputView.Channels activePowerMiddle2, activePowerBright2, activePowerDim8;
-    /// <summary>Screw Attack endpoint components at9D14/9D1E/9F04.</summary>
-    internal readonly LoadingPaletteInputView.Channels screwPowerBright10, screwPowerBright15, screwVariaBright2;
+    /// <summary>Independent red and green input for Power's first dim Speed Booster ink.</summary>
+    internal readonly LoadingPaletteInputView.Channels powerDim1;
+    /// <summary>Independent blue input for Power's second dim Speed Booster ink.</summary>
+    internal readonly LoadingPaletteInputView.Channels powerDim2;
+    /// <summary>Independent blue input for Power's ninth bright Speed Booster ink.</summary>
+    internal readonly LoadingPaletteInputView.Channels powerBright9;
+    /// <summary>Independent red and green input for Power's twelfth dim Speed Booster ink.</summary>
+    internal readonly LoadingPaletteInputView.Channels powerDim12;
+    /// <summary>Independent blue input for Varia's tenth bright Speed Booster ink.</summary>
+    internal readonly LoadingPaletteInputView.Channels variaBright10;
+    /// <summary>Independent red input for Varia's twelfth dim Speed Booster ink.</summary>
+    internal readonly LoadingPaletteInputView.Channels variaDim12;
+    /// <summary>Independent blue input for Gravity's second dim Speed Booster ink.</summary>
+    internal readonly LoadingPaletteInputView.Channels gravityDim2;
+    /// <summary>Active-shinespark blue input at <c>$9C64</c>, also shared by Varia at <c>$9E84</c>.</summary>
+    internal readonly LoadingPaletteInputView.Channels activePowerMiddle2;
+    /// <summary>Active-shinespark blue input at <c>$9C84</c>.</summary>
+    internal readonly LoadingPaletteInputView.Channels activePowerBright2;
+    /// <summary>Active-shinespark blue input at <c>$9C50</c>.</summary>
+    internal readonly LoadingPaletteInputView.Channels activePowerDim8;
+    /// <summary>Screw Attack red input for Power's tenth bright ink at <c>$9D14</c>.</summary>
+    internal readonly LoadingPaletteInputView.Channels screwPowerBright10;
+    /// <summary>Screw Attack green input for Power's fifteenth bright ink at <c>$9D1E</c>.</summary>
+    internal readonly LoadingPaletteInputView.Channels screwPowerBright15;
+    /// <summary>Screw Attack red input for Varia's second bright ink at <c>$9F04</c>.</summary>
+    internal readonly LoadingPaletteInputView.Channels screwVariaBright2;
 
+    /// <summary>Separates supplied colors into categorical ink overrides and endpoint channels with computable shade bases.</summary>
     private SamusFullBodyCycleColorCatalog(Bgr555[][] palettes)
     {
         colors = new Dictionary<int, Bgr555>();
@@ -118,6 +139,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         }
     }
 
+    /// <summary>Uses strict camel-case JSON and rejects unknown full-body palette fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -135,6 +157,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         return ResolveIndex(index);
     }
 
+    /// <summary>Resolves an indexed ink through endpoint channels, categorical overrides, and shared shade formulas.</summary>
     private Bgr555 ResolveIndex(int index)
     {
         switch (index)
@@ -180,6 +203,7 @@ public sealed class SamusFullBodyCycleColorCatalog
             ResolveIndex((palette / 16 * 16 + 4) * 16 + color), palette % 4);
     }
 
+    /// <summary>Computes an active-shinespark gold-ramp basis for a palette's second ink.</summary>
     private Bgr555 ActiveGoldExpected(int palette)
     {
         _ = SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, 2,
@@ -187,6 +211,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         return value;
     }
 
+    /// <summary>Computes a Screw Attack tint basis, including Varia's separate second-ink formula.</summary>
     private Bgr555 ScrewExpected(int palette, int color)
     {
         Bgr555 basis = ResolveIndex((palette / 16 * 16 + 12) * 16 + color);
@@ -240,6 +265,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates a family's three suits and four shades, then places RGB5 colors at compiled native pointers.</summary>
     private static void AddFamily(Bgr555[][] destination,
         SamusFullBodyCycleFamily family, PaletteRgb5[][][]? source)
     {
@@ -274,6 +300,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         }
     }
 
+    /// <summary>Rejects repeated JSON property names before deserialization can overwrite an authored palette.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate full-body color property {name}."));

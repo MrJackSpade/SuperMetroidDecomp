@@ -13,8 +13,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks the reported Reserve Mode X-Ray freeze branch and subsequent palette ownership handoffs.</summary>
 internal static class ReserveModeVerification
 {
+    /// <summary>Compares the original CPU trace with ordinary and reserve X-Ray cleanup, Crystal Flash, and crouch storage.</summary>
     internal static void VerifyReserveMode(string nativeTracePath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -114,6 +116,7 @@ internal static class ReserveModeVerification
             "Reserve Mode: original phase-five freeze-word branch, greyout ownership, Crystal Flash and crouch-storage handoffs pass.");
     }
 
+    /// <summary>Starts X-Ray with either ordinary health or exhausted health and available auto reserves.</summary>
     private static SamusState CreateXrayReserveFixture(
         ISnesAddressSpace bus,
         ushort reserveEnergy)
@@ -136,6 +139,7 @@ internal static class ReserveModeVerification
         return samus;
     }
 
+    /// <summary>Advances the live X-Ray object through setup and beam phases to its cleanup entry.</summary>
     private static void AdvanceXrayToFinish(ISnesAddressSpace bus, SamusState samus)
     {
         while (samus.Xray.SetupStage != XraySetupStage.Complete)
@@ -144,6 +148,7 @@ internal static class ReserveModeVerification
             samus.Xray.StepBeam(bus, samus, controllerInput: 0);
     }
 
+    /// <summary>Dispatches the Reserve Mode comparison using the recorded native trace.</summary>
     [VerificationCommand("--reserve-mode")]
     internal static int ReserveModeCommand()
     {

@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Retail oracle checks for both paired Torizo jump-back instruction lists and their selected collision geometry.</summary>
 internal static class TorizoJumpBackDefinitionsVerification
 {
+    /// <summary>Checks 52 control words, eight sprite selectors, three selected frames, and four hitbox lists for the paired jump-back programs against bank $AA.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo jump back definitions")]
     internal static void VerifyTorizoJumpBackDefinitions(ISnesAddressSpace rom)
     {
@@ -121,6 +123,7 @@ internal static class TorizoJumpBackDefinitionsVerification
         Suite(nameof(VerifyTorizoJumpBackLeftDefinitions), () => VerifyTorizoJumpBackLeftDefinitions(rom));
     }
 
+    /// <summary>Repeats the control, sprite, and collision-geometry comparison for the left-facing jump-back instruction list.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo jump back left definitions")]
     private static void VerifyTorizoJumpBackLeftDefinitions(ISnesAddressSpace rom)
     {

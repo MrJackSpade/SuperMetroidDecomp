@@ -11,7 +11,9 @@ internal abstract class KagoInstructionProgramDefinitions
     /// <summary><c>InstList_Kago_TakenHit_FastAnimation</c> at $A8:AB32.</summary>
     internal const ushort Fast = 0xab32;
 
+    /// <summary>Each four-frame loop contributes four duration words and a goto pair.</summary>
     public static int MechanicsWordCount => 12;
+    /// <summary>Selects ten-tick slow or three-tick post-hit frames, followed by the loop's goto and target.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -28,6 +30,7 @@ internal abstract class KagoInstructionProgramDefinitions
         int offset = address - Slow;
         return (uint)offset < 40 && offset % 20 < 16 && offset % 4 == 2;
     }
+    /// <summary>Reads compiled duration and goto words while rejecting interleaved spritemap operands.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

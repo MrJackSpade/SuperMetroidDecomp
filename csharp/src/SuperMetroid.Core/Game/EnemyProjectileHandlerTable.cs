@@ -54,8 +54,11 @@ internal interface IEnemyProjectileHandlerSource
 /// </summary>
 internal sealed class EnemyProjectileHandlerTable
 {
+    /// <summary>Closed native pre-instruction identities and their sole registered implementations.</summary>
     private readonly Dictionary<EnemyProjectilePreInstruction, EnemyProjectilePreInstructionHandler> _preInstructions = [];
+    /// <summary>Kind-specific pre-instruction hooks evaluated before closed native dispatch.</summary>
     private readonly List<EnemyProjectilePreInstructionInterceptor> _preInstructionInterceptors = [];
+    /// <summary>Kind-specific instruction hooks evaluated before closed native dispatch.</summary>
     private readonly List<EnemyProjectileInstructionInterceptor> _instructionInterceptors = [];
 
     /// <summary>Adds a pre-instruction interceptor; interceptors run in registration order before the closed decode.</summary>
@@ -99,6 +102,7 @@ internal sealed class EnemyProjectileHandlerTable
         }
     }
 
+    /// <summary>Ordered species handlers for each native instruction, with optional projectile guards.</summary>
     private readonly Dictionary<EnemyProjectileInstruction, List<(Func<RoomEnemyProjectileSlot, bool>? Applies, EnemyProjectileInstructionHandler Handler)>> _instructions = [];
 
     /// <summary>

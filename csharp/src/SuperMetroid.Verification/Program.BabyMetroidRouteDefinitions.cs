@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Baby Metroid's compiled route records against pinned native words and pointer bounds.</summary>
 internal static class BabyMetroidRouteDefinitionsVerification
 {
     /// <summary>
@@ -49,10 +50,12 @@ internal static class BabyMetroidRouteDefinitionsVerification
             "  Baby route definitions: 33 overlapping native words and callback identities agree.");
     }
 
+    /// <summary>Reads one native route word solely as the verification oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle words for cartridge definition comparisons")]
     internal static ushort ReadRomWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
+    /// <summary>Forbids production reads of the migrated Baby Metroid route source range.</summary>
     private static CartridgeReadGuard NewBabyRouteReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(BabyMetroidRouteDefinitionsConstants.SourceAddress,
             BabyMetroidRouteDefinitionsConstants.SourceByteLength,

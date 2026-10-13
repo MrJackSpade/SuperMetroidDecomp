@@ -12,10 +12,14 @@ using SuperMetroid.Core.Spatial;
 /// </summary>
 internal sealed class ShallowWaterJumpScenario
 {
+    /// <summary>Names the seven columns in the native and port jump traces.</summary>
     internal const string TraceHeader = "frame,pose,y,yspeed,ydir,radius,medium";
+    /// <summary>Covers takeoff through the recorded shallow-water jump arc.</summary>
     internal const int JumpFrameCount = 60;
 
+    /// <summary>Owns the initialized retail-room runtime advanced by this scenario.</summary>
     internal SuperMetroidRuntime Runtime { get; }
+    /// <summary>Exposes the runtime's Samus state for takeoff and per-frame capture.</summary>
     internal SamusState Samus => Runtime.Player.Samus!;
 
     /// <summary>Places Samus standing in the water and settles two frames, ready for takeoff.</summary>

@@ -13,6 +13,7 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public readonly record struct DoorListEntry
 {
+    /// <summary>Pairs the native list pointer with a physical header, or leaves the header absent for an elevator entry.</summary>
     private DoorListEntry(ushort pointer, CartridgeDoorHeader? door)
     {
         Pointer = pointer;

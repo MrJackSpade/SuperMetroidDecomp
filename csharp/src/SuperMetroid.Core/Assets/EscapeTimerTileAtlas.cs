@@ -5,13 +5,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable four-bit OBJ characters used by the Ceres and Zebes escape timers.</summary>
 public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
 {
-    // Native digit/label identities select a typeface; they do not generate its selected contours.
-    // The reviewed original basis is275 fill sites plus their blank complement and four edge choices.
-    // Independent PNG edits remain separate from calculated defaults and shared pixel relationships.
+    /// <summary>Independent fill sites of the native timer typeface beyond the calculated defaults.</summary>
     internal readonly HashSet<int> fillPixels;
+    /// <summary>PNG edits that change whether a calculated basis pixel uses the fill ink.</summary>
     internal readonly Dictionary<int, bool> fillOverrides;
+    /// <summary>Independent PNG colors that differ from a shared source pixel or calculated outline.</summary>
     internal readonly Dictionary<int, byte> pixelOverrides;
 
+    /// <summary>Separates selected timer contours from shared pixel relationships and calculated default fill sites.</summary>
     private EscapeTimerTileAtlas(byte[] pixels)
     {
         fillPixels = new HashSet<int>();
@@ -35,6 +36,7 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
                 pixelOverrides.Add(index, pixels[index]);
     }
 
+    /// <summary>Determines whether a pixel uses the glyph fill ink, honoring an independently edited shared pixel.</summary>
     private bool IsFill(int index)
     {
         int source = EscapeTimerGlyphDefinitions.SourcePixel(index);
@@ -42,9 +44,11 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
             ? value == EscapeTimerGlyphDefinitions.FillInk(index) : BasisFill(source);
     }
 
+    /// <summary>Resolves a basis pixel from its PNG override, native calculated fill, or retained fill-site set.</summary>
     private bool BasisFill(int index) => fillOverrides.TryGetValue(index, out bool supplied) ? supplied :
         EscapeTimerGlyphDefinitions.TryDefaultFill(index, out bool calculated) ? calculated : fillPixels.Contains(index);
 
+    /// <summary>Resolves an edited pixel, shared source pixel, or calculated fill and outline ink.</summary>
     private byte Pixel(int index)
     {
         if (pixelOverrides.TryGetValue(index, out byte value)) return value;
@@ -53,6 +57,7 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
         return BasisFill(index) ? EscapeTimerGlyphDefinitions.FillInk(index) : EscapeTimerGlyphDefinitions.Outline(index, IsFill);
     }
 
+    /// <summary>Rebuilds all 25 timer characters in native four-bit planar DMA order.</summary>
     internal byte[] Transfer() => SnesPlanarTileEncoder.Encode(
         Enumerable.Range(0, EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height).Select(Pixel).ToArray(),
         new(EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height), EscapeTimerTileAtlasFormat.BitsPerPixel);
@@ -135,6 +140,7 @@ public enum EscapeTimerTilePage
 /// <summary>Native transfer records of the escape-timer character pages.</summary>
 public static class EscapeTimerTilePages
 {
+    /// <summary>Both native timer transfer pages in their upload order.</summary>
     private static readonly EscapeTimerTilePage[] Pages = Enum.GetValues<EscapeTimerTilePage>();
 
     /// <summary>The page's native long source address.</summary>

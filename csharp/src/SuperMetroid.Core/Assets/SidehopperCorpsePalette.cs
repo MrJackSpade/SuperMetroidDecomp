@@ -9,11 +9,16 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class SidehopperCorpsePalette
 {
+    /// <summary>Stores either the complete supplied colors or independent colors plus a fade endpoint.</summary>
     internal readonly Bgr555[] independentOrSupplied;
+    /// <summary>Marks palettes whose white slot and seven-step gradient can be reproduced exactly.</summary>
     private readonly bool calculated;
+    /// <summary>Uses reviewed stock paint definitions for a matching sixteen-color target.</summary>
     private readonly bool stockTarget;
+    /// <summary>Number of colors in the imported fifteen-color prefix or full target palette.</summary>
     internal int Count { get; }
 
+    /// <summary>Preserves supplied paint unless its gradient has one exact reproducible endpoint.</summary>
     internal SidehopperCorpsePalette(Bgr555[] colors)
     {
         Count = colors.Length;
@@ -57,6 +62,7 @@ internal sealed class SidehopperCorpsePalette
         calculated = true;
     }
 
+    /// <summary>Resolves a stock, independently supplied, or reconstructed corpse palette color.</summary>
     internal Bgr555 Resolve(int color)
     {
         if ((uint)color >= Count) throw new ArgumentOutOfRangeException(nameof(color));
@@ -67,6 +73,7 @@ internal sealed class SidehopperCorpsePalette
         return Interpolate(independentOrSupplied[7], independentOrSupplied[8], color - 8);
     }
 
+    /// <summary>Interpolates RGB5 channels with the cartridge's seven-interval nearest rounding.</summary>
     internal static Bgr555 Interpolate(Bgr555 start, Bgr555 end, int phase)
     {
         return start.Zip(end, (_, a, b) => ((a * (7 - phase) + b * phase + 3) / 7));

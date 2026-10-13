@@ -6,13 +6,20 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Magdollite species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class MagdolliteBehavior : IEnemySpecies
 {
+    /// <summary>Supplies the room artwork used by the shared palette hook.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Allocates the lava shots emitted by the overlay's instruction list.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Resolves the three adjacent records that form one Magdollite.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Provides the live CGRAM target for the palette cycle.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Runs common contact damage before the species reaction.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>Creates the item drop when a thrown lava projectile is destroyed.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
+    /// <summary>Connects the Magdollite AI, projectile, combat and palette services.</summary>
     internal MagdolliteBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
     {
         _room = room;
@@ -23,11 +30,16 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         _deathsAndDrops = deathsAndDrops;
     }
 
+    /// <summary>Typed state indexed by the three physical enemy records of each composite.</summary>
     internal readonly MagdolliteEnemyState?[] _magdolliteStates =
         new MagdolliteEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Eight-frame countdown for the singleton graphics-drawn palette hook.</summary>
     internal NativeCountdown _magdollitePaletteAnimationTimer;
+    /// <summary>Frame cursor masked into the four-frame palette cycle.</summary>
     internal ushort _magdollitePaletteAnimationIndex;
+    /// <summary>OBJ palette byte offset selected by the final initialized Magdollite record.</summary>
     internal ushort _magdollitePaletteBaseByteOffset;
+    /// <summary>Whether any Magdollite initializer installed the room's palette hook.</summary>
     internal bool _magdollitePaletteAnimationInstalled;
 
     /// <summary>Last library-two sound emitted by throw opcode $A8:AE12 this frame.</summary>
@@ -102,6 +114,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         _magdollitePaletteAnimationIndex = 0;
     }
 
+    /// <summary>Starts the head in its Samus-facing idle list, retaining the initializer's reversed marker convention until the first tick.</summary>
     private static void InitializeMagdolliteHead(
         RoomEnemySlot slot,
         MagdolliteEnemyState state,
@@ -125,6 +138,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
 
+    /// <summary>Hides the rising body 32 pixels below its origin until the head triggers an attack.</summary>
     private static void InitializeMagdolliteBody(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
@@ -140,6 +154,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
 
+    /// <summary>Hides the projectile-throwing overlay below its origin and starts its pillar-cap list.</summary>
     private static void InitializeMagdolliteOverlay(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
@@ -205,6 +220,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Tracks Samus while idle and begins submerging when the overlay cooldown expires within the head's horizontal range.</summary>
     private void RunMagdolliteHeadWaiting(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
@@ -237,6 +253,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         state.Function = MagdolliteEnemyFunction.HeadWaitingForAttackAnimation;
     }
 
+    /// <summary>Wakes the adjacent body only after the head's submerge animation has cleared its busy flag.</summary>
     private void RunMagdolliteHeadWaitingForAttackAnimation(
         RoomEnemySlot head,
         MagdolliteEnemyState state)
@@ -250,6 +267,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         state.Function = MagdolliteEnemyFunction.HeadWaitingForBodyLanding;
     }
 
+    /// <summary>Starts the Samus-facing emerge list once the falling body releases the head's landing latch.</summary>
     private static void RunMagdolliteHeadWaitingForBodyLanding(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
@@ -267,6 +285,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         state.Function = MagdolliteEnemyFunction.HeadWaitingForReturnAnimation;
     }
 
+    /// <summary>Restores the appropriate idle list after the emerge animation finishes.</summary>
     private static void RunMagdolliteHeadWaitingForReturnAnimation(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
@@ -284,6 +303,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
 
+    /// <summary>Returns the hidden body to its origin and enters rising once the head clears its wake latch.</summary>
     private static void RunMagdolliteBodyDormant(
         RoomEnemySlot body,
         MagdolliteEnemyState state)
@@ -298,6 +318,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         body.Position = body.Position.WithWholeY(state.OriginY);
     }
 
+    /// <summary>Rises using the preceding head's velocity, advances growth phases at their native thresholds, and stops at the apex or above Samus.</summary>
     internal void RunMagdolliteBodyRising(
         RoomEnemySlot body,
         MagdolliteEnemyState state,
@@ -346,6 +367,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         InstallMagdolliteInstructionList(body, state);
     }
 
+    /// <summary>Retraces the body's growth phases and releases the head's landing latch at its origin.</summary>
     internal void RunMagdolliteBodyFalling(
         RoomEnemySlot body,
         MagdolliteEnemyState state)
@@ -381,6 +403,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         InstallMagdolliteInstructionList(body, state);
     }
 
+    /// <summary>Begins following the rising body when the head enters its attack animation.</summary>
     private void RunMagdolliteOverlayWaiting(
         RoomEnemySlot overlay,
         MagdolliteEnemyState state)
@@ -393,6 +416,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Holds the head radius while throwing, then restores the overlay and starts the body's descent.</summary>
     private void RunMagdolliteOverlayAnimation(
         RoomEnemySlot overlay,
         MagdolliteEnemyState state)
@@ -412,6 +436,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         UpdateMagdolliteHeadRadius(overlay);
     }
 
+    /// <summary>Positions the overlay over each rising body phase, then starts its Samus-facing throw at the apex.</summary>
     internal void RunMagdolliteOverlayTrackingRise(
         RoomEnemySlot overlay,
         MagdolliteEnemyState state,
@@ -441,6 +466,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         UpdateMagdolliteHeadRadius(overlay);
     }
 
+    /// <summary>Follows the descending body until the head returns to idle, while maintaining its collision radius.</summary>
     private void RunMagdolliteOverlayTrackingFall(
         RoomEnemySlot overlay,
         MagdolliteEnemyState state)
@@ -474,6 +500,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         head.Radius = head.Radius.WithY(EnemyMath.IsNegative16(radius - 8) ? (ushort)8 : radius);
     }
 
+    /// <summary>Adds signed whole and fractional Y velocity with the native carry and returns the resulting whole-pixel delta.</summary>
     private static int AddMagdolliteY(
         RoomEnemySlot slot,
         ushort wholeVelocity,
@@ -487,6 +514,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         return wholeDelta;
     }
 
+    /// <summary>Restarts instruction timing only when the desired animation list differs from the installed list.</summary>
     private static void InstallMagdolliteInstructionList(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
@@ -499,10 +527,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
     }
 
+    /// <summary>Rejects a physical enemy slot that has no Magdollite state for the current room.</summary>
     private MagdolliteEnemyState RequireMagdolliteState(RoomEnemySlot slot) =>
         _magdolliteStates[slot.SlotIndex] ?? throw new InvalidDataException(
             $"Magdollite slot {slot.SlotIndex} has no typed state.");
 
+    /// <summary>Finds and validates the retail-ordered head, body and overlay around any one component.</summary>
     private (RoomEnemySlot Head, RoomEnemySlot Body, RoomEnemySlot Overlay)
         RequireMagdolliteComposite(RoomEnemySlot member)
     {
@@ -658,6 +688,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Resolves the next physical record used by paired base-and-pillar animation opcodes.</summary>
     private RoomEnemySlot NextMagdolliteSlot(RoomEnemySlot slot)
     {
         if (slot.SlotIndex + 1 >= RoomEnemySystem.MaximumEnemyCount)
@@ -700,6 +731,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Attaches the species tail after common bomb damage when the shot AI selects Magdollite's reaction.</summary>
     internal void RegisterMagdolliteBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
@@ -709,6 +741,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Connects thrown-lava movement and its shot-list drop instruction to the projectile interpreter.</summary>
     internal void RegisterMagdolliteProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -725,6 +758,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
             });
     }
 
+    /// <summary>Binds the bank-$A8 initialization address to the three-part species initializer.</summary>
     internal void RegisterMagdolliteInitializationAi(EnemyAiTable table)
     {
 
@@ -734,6 +768,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Binds the bank-$A8 main address to the per-component function dispatch.</summary>
     internal void RegisterMagdolliteMainAi(EnemyAiTable table)
     {
 
@@ -743,6 +778,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Dispatches Magdollite's private animation opcodes before the generic enemy interpreter.</summary>
     internal void RegisterMagdolliteOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -752,6 +788,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Propagates common power-bomb death and freezing effects to following composite records.</summary>
     internal void RegisterMagdollitePowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
@@ -761,6 +798,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Propagates common shot death and freezing effects to following composite records.</summary>
     internal void RegisterMagdolliteShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
@@ -770,9 +808,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Applies normal Samus contact damage before mirroring the enemy's death or freeze state.</summary>
     internal void RegisterMagdolliteTouch(EnemyAiTable table)
     {
-        // Common touch damage followed by the species' own reaction.
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MagdolliteTouch,
             context =>
@@ -781,7 +819,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
                 ResolveMagdolliteCombatAfterCommon(context.Slot);
             });
     }
+    /// <summary>Positive 8.8 speed used for rightward thrown lava.</summary>
     private const ushort MagdolliteLavaHorizontalSpeed = 0x0300;
+    /// <summary>Negative 8.8 value that the leftward routine reads from the projectile's Y velocity field.</summary>
     private const ushort MagdolliteLavaUpwardSpeed = 0xfd00;
 
     /// <summary>Last drop request produced by a destroyed lava projectile this frame.</summary>

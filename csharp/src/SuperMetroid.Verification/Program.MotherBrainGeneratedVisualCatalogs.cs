@@ -3,8 +3,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks generated Mother Brain body OAM and BG2 frame catalogs.</summary>
 internal static class MotherBrainGeneratedVisualCatalogsVerification
 {
+    /// <summary>Pinned bank A9 body frame addresses and names, including the initial dummy pose.</summary>
     private static readonly EnemyExtendedFrameDefinition[] OriginalMotherBrainFrames =
     [
         new(0xa9, 0x9fa0, "mother_brain_body_oam_standing"),
@@ -27,6 +29,7 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
 
     ];
 
+    /// <summary>Checks 17 OAM identities, native part counts, iteration, and bounds.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain generated OAM catalog")]
     internal static void VerifyMotherBrainGeneratedOamCatalog(SuperMetroidAddressSpace rom)
     {
@@ -48,6 +51,7 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
         AssertThrows<IndexOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Frame(17), "Mother Brain OAM past end");
     }
 
+    /// <summary>Checks 16 BG2 frames, excluding the dummy, and parity of generated extraction JSON.</summary>
     internal static void VerifyMotherBrainGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
     {
         EnemyBg2FrameDefinition[] expected = OriginalMotherBrainFrames.Where(frame => frame.Pointer != 0xa320)

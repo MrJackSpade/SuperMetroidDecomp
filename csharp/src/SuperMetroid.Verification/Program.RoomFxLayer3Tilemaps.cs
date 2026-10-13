@@ -20,8 +20,10 @@ using static LookupLiquidTilemapsVerification;
 using static LookupSporeTilemapVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks six installed room-FX BG3 tilemap pages against native VRAM output under read guards.</summary>
 internal static class RoomFxLayer3TilemapsVerification
 {
+    /// <summary>Checks all six extracted BG3 pages and guarded installed FX loads against native VRAM words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for every room-FX BG3 tilemap page")]
     internal static void VerifyRoomFxLayer3Tilemaps()
@@ -59,6 +61,7 @@ internal static class RoomFxLayer3TilemapsVerification
         Console.WriteLine("  Room-FX BG3 tilemaps: six complete native pages and five guarded installed loads pass.");
     }
 
+    /// <summary>Checks a lava tile edit reaches production VRAM and removing the override restores stock art.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomFxLayer3TilemapOverride(
         string stock, string overrides, AreaMapPresentationCatalog baseline)
@@ -106,6 +109,7 @@ internal static class RoomFxLayer3TilemapsVerification
         Console.WriteLine("Room-FX BG3 override: edited lava tile reaches VRAM and removal restores stock.");
     }
 
+    /// <summary>Loads one compiled default FX record into constructed VRAM with native tilemap reads forbidden.</summary>
     private static SnesVram LoadConstructedRoomFxTilemap(RoomFxType type,
         RoomFxLayer3TilemapCatalog catalog, RoomFxPaletteBlendCatalog paletteColors,
         out CartridgeReadGuard guarded)
@@ -126,6 +130,7 @@ internal static class RoomFxLayer3TilemapsVerification
         return vram;
     }
 
+    /// <summary>Forbids bank-$8A tilemap payloads and the FX tilemap pointer table.</summary>
     private static CartridgeReadGuard NewForbiddenRoomFxTilemapBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => (SnesAddressMath.BankNumber(address)) == 0x8a ||
@@ -133,6 +138,7 @@ internal static class RoomFxLayer3TilemapsVerification
                 address < RoomFxRomData.Tables.Layer3TilemapPointers + 14,
             address => $"Installed room-FX BG3 tilemap read ROM ${address:X6}.");
 
+    /// <summary>Runs the FX tilemap source lookup suite.</summary>
     [VerificationCommand("--lookup-fx-tilemap-sources")]
     internal static int LookupFxTilemapSourcesCommand()
     {
@@ -140,6 +146,7 @@ internal static class RoomFxLayer3TilemapsVerification
         return 0;
     }
 
+    /// <summary>Runs the installed room-FX BG3 tilemap suite.</summary>
     [VerificationCommand("--room-fx-layer3-tilemaps")]
     internal static int RoomFxLayer3TilemapsCommand()
     {

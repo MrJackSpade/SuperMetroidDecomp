@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static FakeKraidInstructionProgramDefinitionsVerification;
 
+/// <summary>Checks the separation of Fake Kraid's compiled control words and editable visual operands.</summary>
 internal static class FakeKraidProgramMappingsVerification
 {
+    /// <summary>Compares all forty-eight bank-$A6 control words with ROM and audits byte-level ownership bounds.</summary>
     internal static void VerifyFakeKraidMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         // Independent native control-word addresses, including jump operands.
@@ -58,6 +60,7 @@ internal static class FakeKraidProgramMappingsVerification
                 "Fake Kraid mechanics enumeration preserves bounds");
     }
 
+    /// <summary>Checks the twenty-four interleaved visual operand addresses and their index bounds.</summary>
     internal static void VerifyFakeKraidPresentationAddresses()
     {
         ushort[] addresses =

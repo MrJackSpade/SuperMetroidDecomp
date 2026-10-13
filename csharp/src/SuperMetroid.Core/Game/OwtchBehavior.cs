@@ -5,8 +5,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Owtch species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class OwtchBehavior : IEnemySpecies
 {
+    /// <summary>Supplies the shared room random sequence used for burial and emergence.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>Binds Owtch AI to the room's shared random source.</summary>
     internal OwtchBehavior(EnemyRoomBinding room)
     {
         _room = room;
@@ -36,8 +38,10 @@ internal sealed class OwtchBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Owtch sinks sixteen whole pixels below its walking height.</summary>
     private const ushort OwtchMaximumBurialDepth = 16;
 
+    /// <summary>Per-slot movement, burial, and velocity state for room Owtches.</summary>
     internal readonly OwtchEnemyState?[] _owtchStates =
         new OwtchEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -225,6 +229,7 @@ internal sealed class OwtchBehavior : IEnemySpecies
     private static bool OwtchAcceptsOrdinaryShot(OwtchEnemyState state) =>
         unchecked((short)((ushort)state.Behavior - 1)) < 0;
 
+    /// <summary>Restarts the selected facing animation at its first instruction.</summary>
     private static void SetOwtchInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -232,10 +237,12 @@ internal sealed class OwtchBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
     }
 
+    /// <summary>Rejects Owtch AI or collision callbacks before slot initialization.</summary>
     private OwtchEnemyState RequireOwtchState(RoomEnemySlot slot) =>
         _owtchStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Owtch state.");
 
+    /// <summary>Allows common bomb damage only while Owtch occupies vulnerable movement state zero.</summary>
     internal void RegisterOwtchBombReactions(EnemyAiTable table)
     {
         // Owtch's shell accepts common damage only during its vulnerable state zero.
@@ -246,6 +253,7 @@ internal sealed class OwtchBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Connects the Owtch definition to its parameter-driven native initializer.</summary>
     internal void RegisterOwtchInitializationAi(EnemyAiTable table)
     {
 
@@ -255,6 +263,7 @@ internal sealed class OwtchBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Dispatches each Owtch frame through movement, sinking, burial, and rising.</summary>
     internal void RegisterOwtchMainAi(EnemyAiTable table)
     {
 
@@ -264,6 +273,7 @@ internal sealed class OwtchBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes Owtch's two private animation callbacks to its movement-state setter.</summary>
     internal void RegisterOwtchOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -273,6 +283,7 @@ internal sealed class OwtchBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Preserves collision marking while rejecting ordinary shots against Owtch's shell.</summary>
     internal void RegisterOwtchShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch &&

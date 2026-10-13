@@ -10,10 +10,13 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class SelectedPresentationHash
 {
+    /// <summary>The running SHA-256 digest of length-framed selected content.</summary>
     private readonly IncrementalHash hash;
 
+    /// <summary>Wraps a fresh incremental digest for one selected-content identity.</summary>
     private SelectedPresentationHash(IncrementalHash hash) => this.hash = hash;
 
+    /// <summary>Hashes a domain label followed by the caller's canonical selected-data fields.</summary>
     public static string Create(string domain, Action<SelectedPresentationHash> append)
     {
         using IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
@@ -23,6 +26,7 @@ internal sealed class SelectedPresentationHash
         return Convert.ToHexString(hash.GetHashAndReset());
     }
 
+    /// <summary>Hashes shared bytes and source-keyed transfer payloads in numeric source order.</summary>
     public static string FromTransfers<T>(string domain, IReadOnlyDictionary<int, T> sources,
         Func<T, ReadOnlyMemory<byte>> transfer, ReadOnlyMemory<byte> shared = default) =>
         Create(domain, content =>
@@ -46,6 +50,7 @@ internal sealed class SelectedPresentationHash
             }
         });
 
+    /// <summary>Adds a UTF-8 field label and byte payload with explicit lengths to prevent boundary ambiguity.</summary>
     public void Append(string label, ReadOnlySpan<byte> bytes)
     {
         byte[] name = Encoding.UTF8.GetBytes(label);
@@ -55,6 +60,7 @@ internal sealed class SelectedPresentationHash
         hash.AppendData(bytes);
     }
 
+    /// <summary>Adds a signed integer field in four-byte little-endian form.</summary>
     public void Append(string label, int value)
     {
         Span<byte> bytes = stackalloc byte[sizeof(int)];
@@ -62,6 +68,7 @@ internal sealed class SelectedPresentationHash
         Append(label, bytes);
     }
 
+    /// <summary>Adds a sequence of 16-bit values in little-endian order.</summary>
     public void AppendWords(string label, ReadOnlySpan<ushort> words)
     {
         var bytes = new byte[checked(words.Length * sizeof(ushort))];
@@ -115,6 +122,7 @@ internal sealed class SelectedPresentationHash
             Append("attributes", part.Attributes.Raw);
         }
     }
+    /// <summary>Frames a field or payload length as a little-endian 32-bit count.</summary>
     private void AppendLength(int value)
     {
         Span<byte> bytes = stackalloc byte[sizeof(int)];

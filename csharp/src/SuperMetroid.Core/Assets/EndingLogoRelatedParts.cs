@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// of the complete right wrap. References preserve independently supplied artwork.</summary>
 internal sealed class EndingLogoRelatedParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Supplied upper or complete-right logo composition whose selected parts are reused.</summary>
     private readonly SpriteComposition source;
+    /// <summary>First source part included at this wrap stage.</summary>
     private readonly int offset;
+    /// <summary>Whether this stage rotates selected parts 180 degrees around their OAM origins.</summary>
     private readonly bool rotate;
+    /// <summary>Records the source slice and rotation only after its calculated composition matches supplied artwork.</summary>
     private EndingLogoRelatedParts(SpriteComposition source, int offset, int count, bool rotate)
     {
         this.source = source;
@@ -18,6 +22,7 @@ internal sealed class EndingLogoRelatedParts : IReadOnlyList<CompiledSpritePart>
         this.rotate = rotate;
     }
 
+    /// <summary>Recognizes a logo wrap stage and substitutes a calculated source slice only when every supplied OAM part matches.</summary>
     internal static SpriteComposition CalculateIfMatching(int frame, SpriteComposition supplied,
         SpriteComposition upper, SpriteComposition completeRight)
     {
@@ -40,7 +45,9 @@ internal sealed class EndingLogoRelatedParts : IReadOnlyList<CompiledSpritePart>
         return supplied.CalculateIfMatching(new EndingLogoRelatedParts(source, offset, count, rotate));
     }
 
+    /// <summary>Number of source parts visible at this wrap stage.</summary>
     public int Count { get; }
+    /// <summary>Returns a retained source part or its 180-degree reflected position and flip flags.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -56,9 +63,11 @@ internal sealed class EndingLogoRelatedParts : IReadOnlyList<CompiledSpritePart>
                     (SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical)), part.InheritPalette);
         }
     }
+    /// <summary>Yields the selected logo parts in their authored OAM order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Preserves authored logo-part order for non-generic consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

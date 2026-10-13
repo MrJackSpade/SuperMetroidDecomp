@@ -20,8 +20,10 @@ public static class RoomLevelStreamFiles
 {
     /// <summary>Stock manifest filename recording version-one provenance and each retail source's address, byte count, and SHA-256.</summary>
     public const string ManifestFileName = "room-level-streams.json";
+    /// <summary>Manifest schema version this loader accepts.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Serializer settings shared by manifest writes and reads.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -129,7 +131,9 @@ public static class RoomLevelStreamFiles
     /// <exception cref="InvalidDataException">Provenance, hashes, lengths, schema, or coverage are invalid.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory);
 
+    /// <summary>One retail level source: its 24-bit address, decompressed byte count and SHA-256 digest.</summary>
     private sealed record StreamFileEntry(int SourceAddress, int ByteCount, string Sha256);
+    /// <summary>Records schema and source-ROM identity plus every installed level-stream file entry.</summary>
     private sealed record StreamFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, StreamFileEntry> Entries);
 }

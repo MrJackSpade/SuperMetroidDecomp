@@ -17,8 +17,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Checks installed ending text and font assets against native tilemaps and guarded typewriter execution.</summary>
 internal static class EndingTextPresentationVerification
 {
+    /// <summary>Matches extracted font bytes and panels to the cartridge, then checks text edits, snapshot rebinding, and glyph validation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending font characters")]
     internal static void VerifyEndingTextPresentation(string romPath)
     {
@@ -119,6 +121,7 @@ internal static class EndingTextPresentationVerification
         Console.WriteLine("Ending font: 160 PNG tiles compile to exact native 4-bpp bytes; an indexed-pixel edit changes installed VRAM content.");
     }
 
+    /// <summary>Reads a bank-$8C tilemap span for the independent result or copyright panel comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending text presentation words")]
     internal static ushort[] ReadEndingWords(ISnesAddressSpace bus, ushort pointer, int count)
     {
@@ -129,6 +132,7 @@ internal static class EndingTextPresentationVerification
         return result;
     }
 
+    /// <summary>Checks deterministic text extraction and that an override changes catalog identity and fails loudly when corrupt.</summary>
     internal static void VerifyEndingTextAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -158,6 +162,7 @@ internal static class EndingTextPresentationVerification
         Console.WriteLine("Ending-text catalog: deterministic stock, override identity and corruption failure pass.");
     }
 
+    /// <summary>Checks deterministic indexed-PNG extraction and that a pixel override changes installed VRAM bytes.</summary>
     internal static void VerifyEndingFontAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -189,12 +194,14 @@ internal static class EndingTextPresentationVerification
         Console.WriteLine("Ending-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
     }
 
+    /// <summary>Forbids installed typewriter execution from rereading the bank-$8C text and panel source range.</summary>
     private static CartridgeReadGuard NewEndingTextReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => SnesAddressMath.BankNumber(address) == EndingTextDefinitions.Native.Bank &&
                     (SnesAddressMath.OffsetInBank(address)) is >= EndingTextDefinitions.Native.ResultPanel and <= 0xe1e8,
                 address => $"Installed ending text read cartridge address ${address:X6}.");
 
+    /// <summary>Runs the retail-cartridge ending text and font presentation check.</summary>
     [VerificationCommand("--ending-text-presentation")]
     internal static int EndingTextPresentationCommand()
     {

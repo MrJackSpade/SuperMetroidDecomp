@@ -10,8 +10,10 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks editable elevator PLM art while retaining platform collision and stock installation rules.</summary>
 internal static class ElevatorPlatformVisualsVerification
 {
+    /// <summary>Changes one streamed tile and checks the real PLM keeps its physical block.</summary>
     internal static void VerifyElevatorPlatformVisuals()
     {
         RoomPlmElevatorPlatformVisualCatalog stock =
@@ -71,6 +73,7 @@ internal static class ElevatorPlatformVisualsVerification
         Suite(nameof(VerifyElevatorPlatformVisualInstallation), () => VerifyElevatorPlatformVisualInstallation());
     }
 
+    /// <summary>Checks extracted stock, override survival, and rejection of collision-bit or manifest corruption.</summary>
     private static void VerifyElevatorPlatformVisualInstallation()
     {
         using var testRootScratch = new TestScratchDirectory("elevator-platform-visual");

@@ -20,7 +20,9 @@ internal abstract class GunshipInstructionProgramDefinitions
     /// <summary><c>InstList_ShipBottom</c> at $A2:A61C.</summary>
     public const ushort BottomHull = 0xa61c;
 
+    /// <summary>The indexed control words cover pad opening, closing, and the two hull idle programs.</summary>
     public static int MechanicsWordCount => 28;
+    /// <summary>The indexed visual selectors cover the pad transitions and top and bottom hulls.</summary>
     public static int PresentationWordCount => 22;
 
     /// <summary>Opening begins with a40-tick wait and a24-tick intermediate hold, then accelerates8..4; closing reverses the transition.</summary>
@@ -31,6 +33,7 @@ internal abstract class GunshipInstructionProgramDefinitions
         _ => Math.Clamp(13 - frame, 4, 8),
     });
 
+    /// <summary>Reconstructs a control word from the compiled gunship program without consulting the cartridge.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -47,6 +50,7 @@ internal abstract class GunshipInstructionProgramDefinitions
             local % 2 == 0 ? (ushort)1 : (ushort)CommonEnemyInstruction.Sleep);
     }
 
+    /// <summary>Locates an interleaved visual selector for resolution through the installed OAM presentation.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -54,6 +58,7 @@ internal abstract class GunshipInstructionProgramDefinitions
         if (index < 20) return (ushort)(EntrancePadClosing + 2 + 4 * (index - 11));
         return (ushort)(TopHull + 2 + 6 * (index - 20));
     }
+    /// <summary>Looks up a compiled control word by its native address and rejects uncompiled pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

@@ -17,8 +17,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Checks compiled Samus pose dispatch words and allocation-free live lookups.</summary>
 internal static class PoseDispatchDefinitionsVerification
 {
+    /// <summary>Compares all 256 pose records with the ROM while forbidding live pose-table reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pose dispatch definitions")]
     internal static void VerifyPoseDispatchDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -62,6 +64,7 @@ internal static class PoseDispatchDefinitionsVerification
 
         Console.WriteLine("Pose dispatch: all 256 facing/movement/fallback/aim byte indexes match native with all ROM reads forbidden, including three adjacent-code records; warmed production lookups allocate nothing.");
     }
+    /// <summary>Measures allocations across warmed facing, movement, and fallback lookups.</summary>
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
     private static long MeasurePoseDispatchAllocation(ISnesAddressSpace forbidden, out int checksum)
     {
@@ -77,6 +80,7 @@ internal static class PoseDispatchDefinitionsVerification
         return GC.GetAllocatedBytesForCurrentThread() - before;
     }
 
+    /// <summary>Runs pose dispatch, collision, projectile-origin, and HUD definition checks.</summary>
     [VerificationCommand("--pose-dispatch-definitions")]
     internal static int PoseDispatchDefinitionsCommand()
     {

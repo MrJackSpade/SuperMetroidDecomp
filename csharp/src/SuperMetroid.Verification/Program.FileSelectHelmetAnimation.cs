@@ -2,8 +2,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks file-select helmet spritemap and timing definitions against the native bank-$81 animation.</summary>
 internal static class FileSelectHelmetAnimationVerification
 {
+    /// <summary>Compares all nine native selectors, duration and terminal clamp instructions, and rejects invalid frame indices.</summary>
     internal static void VerifyFileSelectHelmetAnimation(ISnesAddressSpace rom)
     {
         AssertEqual(9, FileSelectHelmetAnimation.NativeEntryCount, "complete native helmet mapping");
@@ -24,6 +26,7 @@ internal static class FileSelectHelmetAnimationVerification
                 "unsupported helmet sample");
     }
 
+    /// <summary>Reads a native helmet-animation instruction byte solely for the cartridge-oracle comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select helmet animation")]
     private static byte FileSelectHelmetAnimationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

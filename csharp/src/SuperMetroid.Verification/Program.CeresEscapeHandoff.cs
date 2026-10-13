@@ -19,6 +19,7 @@ using static SuiteTimingVerification;
 using static SyntheticSamusAnimationDelaysVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Focused Ceres escape checks for Ridley's shove, shaft rotation, and the departure blackout.</summary>
 internal static class CeresEscapeHandoffVerification
 {
     /// <summary>
@@ -123,6 +124,7 @@ internal static class CeresEscapeHandoffVerification
         AssertEqual(0x13, airborne.Kinematics.Radius.Y, "ejection initialization leaves the live radius for the pose epilogue");
     }
 
+    /// <summary>Checks the shaft's 60-call rotation delay, forward/reverse matrix indexing, gameplay-gated trigger, and one-frame departure request.</summary>
     private static void VerifyCeresElevatorShaftRoomMain()
     {
         var bus = new TestAddressSpace();
@@ -188,6 +190,7 @@ internal static class CeresEscapeHandoffVerification
         AssertTrue(!repeated.DepartureRequestedThisFrame, "departure request is a one-frame publication");
     }
 
+    /// <summary>Checks the exact 60-call departure hold and 15 visible fade steps before forced blank renders black.</summary>
     private static void VerifyCeresDepartureDispatcherTiming()
     {
         var departure = new CeresDepartureState();
@@ -241,6 +244,7 @@ internal static class CeresEscapeHandoffVerification
         return bus;
     }
 
+    /// <summary>Seeds the type-$0A normal-air speed entry used when ejected Samus meets the left room wall.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres ejection type-$0A air speed record")]
     private static void SeedCeresEjectionAirSpeedRecord(TestAddressSpace bus)
     {
@@ -252,6 +256,7 @@ internal static class CeresEscapeHandoffVerification
             1, 0, 1, 0, 0, 0);
     }
 
+    /// <summary>Runs the Ceres escape handoff fixture from its dedicated command-line switch.</summary>
     [VerificationCommand("--ceres-escape-handoff")]
     internal static int CeresEscapeHandoffCommand()
     {

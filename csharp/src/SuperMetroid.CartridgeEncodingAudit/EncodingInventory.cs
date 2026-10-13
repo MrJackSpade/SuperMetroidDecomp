@@ -9,7 +9,7 @@ namespace SuperMetroid.CartridgeEncodingAudit;
 /// </summary>
 internal static class EncodingInventory
 {
-    // First match wins. Boss and sequence names precede the generic families that also contain them.
+    /// <summary>Ordered subsystem matches; boss and sequence names precede overlapping generic families.</summary>
     private static readonly (string Fragment, string Subsystem)[] NameRules =
     [
         ("FakeKraid", Enemies), ("MiniKraid", Enemies),
@@ -27,11 +27,17 @@ internal static class EncodingInventory
         ("PaletteFx", RoomEffects), ("Hdma", RoomEffects), ("Fx", RoomEffects), ("Earthquake", RoomEffects),
     ];
 
+    /// <summary>Inventory group for ordinary enemy AI and instruction programs.</summary>
     private const string Enemies = "Enemies: regular AI and instruction programs";
+    /// <summary>Inventory group for enemy projectile behavior and presentation.</summary>
     private const string EnemyProjectiles = "Enemy projectiles";
+    /// <summary>Inventory group for Samus motion, poses, and projectiles.</summary>
     private const string Samus = "Samus: movement, poses and projectiles";
+    /// <summary>Inventory group for PLMs and door interactions.</summary>
     private const string Plms = "PLMs and doors";
+    /// <summary>Inventory group for room FX, palette FX, and HDMA.</summary>
     private const string RoomEffects = "Room FX, palette FX and HDMA";
+    /// <summary>Inventory group for scripted cinematic sequences.</summary>
     private const string Sequences = "Cinematics and scripted sequences";
 
     /// <summary>Writes the inventory JSON to <paramref name="path"/>.</summary>
@@ -139,6 +145,7 @@ internal static class EncodingInventory
         };
     }
 
+    /// <summary>Counts occurrences by audit rule and proposed encoding class, including storage-width members.</summary>
     private static Dictionary<string, int> Totals(IReadOnlyCollection<CartridgeEncodingOccurrence> occurrences, int storageWidthMembers)
     {
         var totals = new Dictionary<string, int>(StringComparer.Ordinal);

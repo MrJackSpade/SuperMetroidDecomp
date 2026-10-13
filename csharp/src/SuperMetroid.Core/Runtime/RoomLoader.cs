@@ -13,42 +13,78 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class RoomLoader
 {
+    /// <summary>Supplies decoded graphics and palette assets for the room being entered.</summary>
     private readonly RuntimeArtwork _artwork;
+    /// <summary>Executes VRAM background uploads requested during room transitions.</summary>
     private readonly BackgroundScrollPhase _backgroundPhase;
+    /// <summary>Tracks both background layers' scroll positions across door loading.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Resets bomb and projectile actors when constructing a destination room.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
+    /// <summary>Owns the Ceres elevator shaft's room-specific startup state.</summary>
     private readonly CeresElevatorShaftRoomMainState _ceresElevatorShaft;
+    /// <summary>Owns the haze effect installed by Ceres room loading.</summary>
     private readonly CeresHazeState _ceresHaze;
+    /// <summary>Receives room and player palette data during a load.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Retains controller state needed when a room transition begins.</summary>
     private readonly ControllerInputState _controller1;
+    /// <summary>Publishes the display setup for a newly active room.</summary>
     private readonly GameplayDisplayState _display;
+    /// <summary>Coordinates the native door loader's staged transition states.</summary>
     private readonly DoorTransitionRunner _doorTransition;
+    /// <summary>Creates and initializes the destination room's enemy slots.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Applies room-scoped visual effects driven by enemies.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
+    /// <summary>Installs escape-specific room behavior when entering the relevant room.</summary>
     private readonly EscapeRoomEffects _escapeEffects;
+    /// <summary>Restores the save slot's accumulated game time.</summary>
     private readonly GameTimeState _gameTime;
+    /// <summary>Holds HUD values carried into the loaded room.</summary>
     private readonly HudState _hud;
+    /// <summary>Initializes the HUD presentation after room assets are available.</summary>
     private readonly GameplayHudSetup _hudSetup;
+    /// <summary>Owns Maridia elevatube room setup during a load.</summary>
     private readonly MaridiaElevatubeRoomMainState _maridiaElevatube;
+    /// <summary>Receives the door IRQ's request to advance the NMI counter.</summary>
     private readonly NmiClock _nmi;
+    /// <summary>Restores the saved controller and movement options.</summary>
     private readonly GameplayOptions _options;
+    /// <summary>Holds Samus and her load-time presentation state.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Constructs room PLMs after persistent state has been restored.</summary>
     private readonly RoomPlmSystem _plms;
+    /// <summary>Resets Samus projectiles for the destination room.</summary>
     private readonly SamusProjectileSystem _projectiles;
+    /// <summary>Holds the active room, camera, selected door, and load-station identity.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Installs layer-three effects selected by the room state.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Starts palette effects belonging to the destination room.</summary>
     private readonly RoomPaletteFxSystem _roomPaletteFx;
+    /// <summary>Resets animated spike tiles for the destination room.</summary>
     private readonly RoomSpikeAnimatedTilesState _roomSpikes;
+    /// <summary>Resets animated treadmill tiles for the destination room.</summary>
     private readonly RoomTreadmillAnimatedTilesState _roomTreadmills;
+    /// <summary>Resets animated sand tiles for the destination room.</summary>
     private readonly RoomSandAnimatedTilesState _sandAnimatedTiles;
+    /// <summary>Provides persistent event and boss bits used by room-state selectors.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Applies tester inventory overrides after saved state is restored.</summary>
     private readonly TesterTools _tester;
+    /// <summary>Coordinates the Tourian statue room sequence on room entry.</summary>
     private readonly TourianStatueSequence _tourianStatues;
+    /// <summary>Receives the initial tile and sprite graphics uploads.</summary>
     private readonly SnesVram _vram;
+    /// <summary>Queues VRAM writes that must occur at the next display boundary.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>Resets Wrecked Ship's animated treadmill tiles on entry.</summary>
     private readonly WreckedShipTreadmillAnimatedTilesState _wreckedShipTreadmill;
+    /// <summary>Reads remaining native tables needed for room construction.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Captures the owners of room, player, graphics, and door state used by the loader.</summary>
     internal RoomLoader(RoomLoaderDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
@@ -87,13 +123,19 @@ internal sealed class RoomLoader
         _wreckedShipTreadmill = dependencies.WreckedShipTreadmill;
         _addressSpace = dependencies.AddressSpace;
     }
-    // The IRQ owns these coordinates while state $0B waits inside LoadMoreThings. Keep
-    // that ownership explicit instead of reducing the native scroll to a frontend timer.
+    /// <summary>
+    /// Whether the active door IRQ requests the native NMI-counter reset while state
+    /// $0B waits in <c>LoadMoreThings</c>.
+    /// </summary>
     private bool _doorScrollingIrqRequestsNmi;
+    /// <summary>The four-pixel IRQ trajectory retained across atomic room construction.</summary>
     private DoorOpeningScrollState? _doorOpeningScroll;
-    // An arriving elevator's placement of Samus, made by the one-step room load but due
-    // when the cartridge's door loader reaches that enemy's init AI.
+    /// <summary>
+    /// Elevator placement produced by the atomic room load but deferred until the native
+    /// door loader reaches that enemy's initialization slot.
+    /// </summary>
     private LoaderSamusPlacement? _pendingLoaderSamusPlacement;
+    /// <summary>Source-room PPU scroll retained until door-opening IRQ offsets are installed.</summary>
     private DoorOpeningPpuScroll? _pendingDoorOpeningPpuScroll;
 
     /// <summary>
@@ -692,6 +734,10 @@ internal sealed class RoomLoader
         return LoadPendingDoorDestination(RoomViewportLoadMode.StreamThroughDoor, sourceSamus);
     }
 
+    /// <summary>
+    /// Builds the selected door's destination while preserving the source position needed
+    /// to replay door-opening scroll when the viewport is streamed rather than replaced.
+    /// </summary>
     private InitialViewportResult LoadPendingDoorDestination(
         RoomViewportLoadMode viewportLoadMode, FixedPosition<RoomPixels>? sourcePosition = null)
     {

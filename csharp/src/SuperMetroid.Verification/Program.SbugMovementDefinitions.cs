@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static AssertionsVerification;
 
+/// <summary>Retail-word and guarded-execution checks for compiled Sbug movement programs.</summary>
 internal static class SbugMovementDefinitionsVerification
 {
+    /// <summary>Checks compiled Sbug facing, activation, and instruction data against retail words, then runs every facing loop with migrated reads forbidden.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Sbug movement definitions")]
     internal static void VerifySbugMovementDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -171,6 +173,7 @@ internal static class SbugMovementDefinitionsVerification
             "and all 32 visual-selector reads forbidden.");
     }
 
+    /// <summary>Repeatedly reads a warmed mechanics word so thread allocation accounting can detect per-frame lookup storage.</summary>
     private static int ProbeSbugInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -182,16 +185,19 @@ internal static class SbugMovementDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects reads of the two migrated Sbug movement-selector tables.</summary>
     private static CartridgeReadGuard NewSbugMovementReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3a111 and < 0xa3a12f,
             address => $"Sbug movement attempted migrated selector read ${address:X6}.");
 
+    /// <summary>Rejects compiled instruction mechanics reads while observing presentation-word accesses.</summary>
     private static CartridgeReadGuard NewSbugProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(SbugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Sbug mechanics byte ${address:X6}.")
             .ObserveWords(0xa30000, SbugInstructionProgramDefinitions.PresentationWordCount, SbugInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the retail-backed Sbug movement and instruction migration check.</summary>
     [VerificationCommand("--sbug-instruction-mechanics")]
     internal static int SbugInstructionMechanicsCommand()
     {

@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class WaverEnemyState
 {
+    /// <summary>Physical enemy slot retaining Waver's fixed-point motion and animation words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects Waver's seven private words from its occupied enemy slot.</summary>
     internal WaverEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Low 16 bits of the signed horizontal 16.16 displacement.</summary>

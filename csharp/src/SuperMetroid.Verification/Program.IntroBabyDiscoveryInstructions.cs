@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled baby-discovery instruction spans against the native bank-$8B source.</summary>
 internal static class IntroBabyDiscoveryInstructionsVerification
 {
+    /// <summary>Compares every authored byte and overlapping word, then verifies reads stop at all three source-region boundaries.</summary>
     internal static void VerifyIntroBabyDiscoveryInstructions(ISnesAddressSpace rom)
     {
         foreach ((int start, int end) in new[] { (0xcb33, 0xcb9f), (0xcc2b, 0xcc47), (0xce53, 0xce55) })
@@ -23,6 +25,7 @@ internal static class IntroBabyDiscoveryInstructionsVerification
         }
     }
 
+    /// <summary>Reads a native baby-discovery instruction byte for this focused cartridge-oracle check.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Baby discovery instructions")]
     private static byte IntroBabyDiscoveryInstructionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -12,8 +12,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Input;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Reports observed Samus/platform overlap in the Brinstar shutter room under repeated bombs.</summary>
 internal static class ShutterRepeatedBombsVerification
 {
+    /// <summary>Records the worst vertical gap across specified bomb intervals, offsets, and unmorph times.</summary>
     internal static void AuditRepeatedShutterBombs()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -55,6 +57,7 @@ internal static class ShutterRepeatedBombsVerification
         Console.WriteLine($"{cases} repeated-bomb sequences; minimum gap {worstGap}. Investigation only: this is not a regression assertion of resolved embedding.");
     }
 
+    /// <summary>Runs the shutter overlap diagnostic from the verification command line.</summary>
     [VerificationCommand("--shutter-repeat")]
     internal static int ShutterRepeatCommand()
     {

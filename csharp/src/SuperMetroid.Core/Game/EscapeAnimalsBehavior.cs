@@ -6,24 +6,34 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The escape animals species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class EscapeAnimalsBehavior : IEnemySpecies
 {
+    /// <summary>Provides room events and live Samus state used by both escape-animal branches.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Runs Etecoon's slope-ignoring horizontal move and settling ground probe.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Binds escape-animal AI to room events and terrain collision for the current enemy system.</summary>
     internal EscapeAnimalsBehavior(EnemyRoomBinding room, EnemyTerrain terrain)
     {
         _room = room;
         _terrain = terrain;
     }
 
+    /// <summary>Bank-$B3 blank frame selected when an escaped animal deletes its visible actor.</summary>
     private const ushort EmptyBankB3Spritemap = 0x804d;
 
+    /// <summary>Whole-pixel horizontal step used by each Dachora movement-list callback.</summary>
     private const ushort EscapeDachoraPixelsPerCallback = 6;
+    /// <summary>Lava Y threshold tested by both families' acid-height branch instructions.</summary>
     private const ushort EscapeAnimalLavaBranchY = 0x00ce;
+    /// <summary>One unit of 16.16 downward acceleration applied during Etecoon's exit.</summary>
     private const int EscapeEtecoonGravity = 1 << 16;
+    /// <summary>Signed 16.16 horizontal speed used when Etecoon exits without a wall collision.</summary>
     private const int EscapeEtecoonUncollidedExitSpeed = 0x00038000;
 
+    /// <summary>Typed Etecoon dispatch state indexed by stable enemy slot, cleared on room load.</summary>
     internal readonly EscapeEtecoonEnemyState?[] _escapeEtecoonStates =
         new EscapeEtecoonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Typed Dachora state indexed by stable enemy slot, cleared on room load.</summary>
     private readonly EscapeDachoraEnemyState?[] _escapeDachoraStates =
         new EscapeDachoraEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -237,16 +247,20 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         return false;
     }
 
+    /// <summary>Samples event $0F for Dachora's instruction-list branch and room revisit handling.</summary>
     private bool HasCrittersEscaped() => _room.Services.Events.Has(EventNumber.CrittersEscaped);
 
+    /// <summary>Treats absent Samus/liquid context as the native maximum Y for acid-height branches.</summary>
     private static ushort EscapeAnimalLavaY(SamusState? samus) =>
         samus?.LiquidPhysics.LavaAcidYPosition ?? ushort.MaxValue;
 
+    /// <summary>Reads the word immediately after a family-owned bank-$B3 instruction opcode.</summary>
     private static ushort ReadEscapeAnimalOperand(RoomEnemySlot slot, ushort instructionCursor) =>
         EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
             slot,
             unchecked((ushort)(instructionCursor + 2)));
 
+    /// <summary>Adds a signed 16.16 displacement with native 32-bit wraparound to the actor's X position.</summary>
     private static void AddEscapeAnimalX(RoomEnemySlot slot, int displacement)
     {
         uint fixedPosition = slot.Position.X.RawValue;
@@ -254,10 +268,12 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)fixedPosition)));
     }
 
+    /// <summary>Fetches the typed Etecoon dispatch state after initialization, failing for an uninitialized slot.</summary>
     private EscapeEtecoonEnemyState RequireEscapeEtecoonState(RoomEnemySlot slot) =>
         _escapeEtecoonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized escape-Etecoon state.");
 
+    /// <summary>Connects bank-$B3 Etecoon and Dachora initialization callbacks to their definition identities.</summary>
     internal void RegisterEscapeAnimalsInitializationAi(EnemyAiTable table)
     {
 
@@ -272,6 +288,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Etecoon's per-frame indirect AI; Dachora movement remains in its instruction list.</summary>
     internal void RegisterEscapeAnimalsMainAi(EnemyAiTable table)
     {
 
@@ -284,6 +301,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes only the escape families' private branch and movement opcodes into their interpreter.</summary>
     internal void RegisterEscapeAnimalsOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -305,6 +323,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Registers Dachora's literal RTL main handler while the common instruction pass performs its movement.</summary>
     internal static void RegisterEscapeDachoraMainAi(EnemyAiTable table)
     {
         table.RegisterMain(EnemyAiRoutine.RTL_B3EB1A, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DachoraEscape, (slot, frame, nmiFrameCounter8) =>

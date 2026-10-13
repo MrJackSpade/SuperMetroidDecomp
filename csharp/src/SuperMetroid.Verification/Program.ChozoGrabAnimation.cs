@@ -12,8 +12,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+/// <summary>Checks the Wrecked Ship Chozo hand's Samus carry and optional Power Bomb continuation.</summary>
 internal static class ChozoGrabAnimationVerification
 {
+    /// <summary>Checks frozen ball animation during capture, movement and release, and blast state when armed.</summary>
     internal static void VerifyChozoGrabAnimation(bool powerBomb = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -121,12 +123,14 @@ internal static class ChozoGrabAnimationVerification
         Console.WriteLine($"Walking Chozo: native hand, frozen frame/timer through {frames} carry frames, movement and release verified.");
     }
 
+    /// <summary>Runs the Chozo carry fixture with a Power Bomb detonating before capture.</summary>
     [VerificationCommand("--chozo-power-bomb")]
     internal static int ChozoPowerBombCommand()
     {
      VerifyChozoGrabAnimation(powerBomb: true); return 0; 
     }
 
+    /// <summary>Runs the focused Chozo hand grab and animation fixture.</summary>
     [VerificationCommand("--chozo-grab-animation")]
     internal static int ChozoGrabAnimationCommand()
     {

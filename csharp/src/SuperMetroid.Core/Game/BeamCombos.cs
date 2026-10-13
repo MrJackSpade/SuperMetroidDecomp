@@ -5,11 +5,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Beam combination attacks (charge plus special weapon): activation, and the ice, plasma, spazer and wave combo steps with the Spacetime palette copy tail.</summary>
 internal sealed class BeamCombos
 {
+    /// <summary>Clears expired combo slots through the same projectile lifecycle as ordinary beams.</summary>
     private readonly ProjectileAnimation _animation;
+    /// <summary>Resets Samus's charge flare while combo particles control shared firing state.</summary>
     private readonly BeamChargeState _charge;
+    /// <summary>Holds the four projectile slots populated together when a special beam attack starts.</summary>
     private readonly ProjectileSlotTable _slotTable;
+    /// <summary>Spawns periodic Wave and other combo trails from their live particle slots.</summary>
     private readonly ProjectileTrails _trails;
 
+    /// <summary>Connects special beam activation and particle updates to shared projectile, charge, and trail owners.</summary>
     internal BeamCombos(ProjectileAnimation animation, BeamChargeState charge, ProjectileSlotTable slotTable, ProjectileTrails trails)
     {
         _animation = animation;
@@ -98,6 +103,7 @@ internal sealed class BeamCombos
         return activated;
     }
 
+    /// <summary>Selects damage and instruction data from the charged, combo, or Spazer echo tables and initializes its first frame.</summary>
     internal static void InitializeComboData(SamusProjectileSlot slot, bool ordinary, bool echo)
     {
         int table = ordinary ? SamusProjectileRomData.Beams.ChargedDataPointers :
@@ -322,9 +328,11 @@ internal sealed class BeamCombos
         return 0;
     }
 
+    /// <summary>Advances the Spazer particle's byte-sized angular phase by its signed native step.</summary>
     private static void AdvanceSpazerAngle(SamusProjectileSlot slot) =>
         slot.Variable = unchecked((byte)(slot.Variable + slot.Velocity.Y.SignedRawValue));
 
+    /// <summary>Moves a circling Spazer particle outward and switches its primary pair to falling echo artwork.</summary>
     private static void BeginSpazerFall(SamusProjectileSlot slot)
     {
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (slot.SlotIndex < 2 ? 16 : -16))));
@@ -376,6 +384,7 @@ internal sealed class BeamCombos
         return slot.SlotIndex == 3 && (oldXSpeed < 0) != (slot.Velocity.X.SignedRawValue < 0) ? SamusComboRomData.WavePulseSound : (ushort)0;
     }
 
+    /// <summary>Moves one Wave velocity component toward Samus, respecting the native acceleration and signed speed bound.</summary>
     private static short AccelerateWaveAxis(short speed, short targetDelta)
     {
         if (targetDelta < 0)

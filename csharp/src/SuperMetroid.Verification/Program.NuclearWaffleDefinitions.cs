@@ -16,8 +16,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 
+/// <summary>Checks Nuclear Waffle sweep geometry and body-loop mechanics against bank-$A6 ROM and production enemy state.</summary>
 internal static class NuclearWaffleDefinitionsVerification
 {
+    /// <summary>Compares both sweep directions and the full body loop with retail data while guarding migrated geometry and program reads.</summary>
     internal static void VerifyNuclearWaffleDefinitions(SuperMetroidAddressSpace rom)
     {
         const int endpointTable = 0xa695f6;
@@ -159,6 +161,7 @@ internal static class NuclearWaffleDefinitionsVerification
             "runtime ROM reads forbidden; 12 executed selectors match the cartridge.");
     }
 
+    /// <summary>Repeatedly reads the compiled body loop to check warmed mechanics lookup allocates no memory.</summary>
     private static int ProbeNuclearWaffleInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -170,17 +173,20 @@ internal static class NuclearWaffleDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects live reads from the migrated bank-$A6 sweep endpoint, spacing, and threshold tables.</summary>
     private static CartridgeReadGuard NewNuclearWaffleDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa695f6 and < 0xa6960e,
                 address => $"Nuclear Waffle attempted migrated geometry read ${address:X6}.");
 
+    /// <summary>Rejects compiled program reads and observes attempted visual-selector reads in the body loop.</summary>
     private static CartridgeReadGuard NewNuclearWaffleProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => NuclearWaffleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled Nuclear Waffle mechanics byte ${address:X6}.")
             .ObserveWords(0xa60000, NuclearWaffleInstructionProgramDefinitions.PresentationWordCount, NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Nuclear Waffle geometry and instruction verification command.</summary>
     [VerificationCommand("--nuclear-waffle-instruction-mechanics")]
     internal static int NuclearWaffleInstructionMechanicsCommand()
     {

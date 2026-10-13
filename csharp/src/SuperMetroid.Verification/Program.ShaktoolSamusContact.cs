@@ -4,6 +4,7 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Reproduces Shaktool segment contact during the recorded 100% route.</summary>
 internal static class ShaktoolSamusContactVerification
 {
     /// <summary>
@@ -41,6 +42,7 @@ internal static class ShaktoolSamusContactVerification
         Console.WriteLine("  Shaktool Samus contact: a touching segment damages Samus through the common touch.");
     }
 
+    /// <summary>Runs the focused Shaktool damage and invincibility verification.</summary>
     [VerificationCommand("--shaktool-samus-contact")]
     internal static int ShaktoolSamusContactCommand()
     {

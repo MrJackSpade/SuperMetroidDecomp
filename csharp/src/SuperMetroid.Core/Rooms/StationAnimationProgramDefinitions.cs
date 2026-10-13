@@ -22,6 +22,9 @@ internal enum StationAnimationList : ushort
 /// <summary>Immutable timing and draw-list selections for the four station animation families.</summary>
 internal static class StationAnimationProgramDefinitions
 {
+    /// <summary>Pairs a station frame's native hold duration with the bank-$84 PLM draw list used while it is held.</summary>
+    /// <param name="Duration">Number of station animation ticks before advancing to the next frame.</param>
+    /// <param name="DrawPointer">Bank-$84 pointer of the blocks displayed for this frame.</param>
     internal readonly record struct Frame(ushort Duration, ushort DrawPointer);
 
     /// <summary>Timed frames in each list: three for map/resource cycles, one for each save entry.</summary>

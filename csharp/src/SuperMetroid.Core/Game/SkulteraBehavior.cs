@@ -6,8 +6,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Skultera species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class SkulteraBehavior : IEnemySpecies
 {
+    /// <summary>Room collision helper used by Skultera's horizontal and vertical swim steps.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Binds Skultera movement to the room enemy terrain rules.</summary>
     internal SkulteraBehavior(EnemyTerrain terrain)
     {
         _terrain = terrain;
@@ -46,11 +48,17 @@ internal sealed class SkulteraBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Per-slot radius used to turn the sine phase into vertical bob distance.</summary>
     internal readonly ushort[] _skulteraRadii = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Per-slot instruction flag consumed by main AI on the frame after a turn animation sleeps.</summary>
     internal readonly ushort[] _skulteraTurnFinishedFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Per-slot angle step, negated when a completed turn reverses the swim wave.</summary>
     internal readonly ushort[] _skulteraAngleDeltas = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Previous sine Y offset used to move by the difference between adjacent phases.</summary>
     internal readonly ushort[] _skulteraPreviousYOffsets = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Current sine Y offset retained after successful movement or vertical collision.</summary>
     internal readonly ushort[] _skulteraCurrentYOffsets = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Initialized species state associated with each room enemy slot.</summary>
     internal readonly SkulteraEnemyState?[] _skulteraStates =
         new SkulteraEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -169,6 +177,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies
         state.PreviousYOffset = state.CurrentYOffset;
     }
 
+    /// <summary>Switches swimming AI to its opposite-facing turn animation after a terrain collision.</summary>
     internal static void BeginSkulteraTurn(
         RoomEnemySlot slot,
         SkulteraEnemyState state,
@@ -205,10 +214,12 @@ internal sealed class SkulteraBehavior : IEnemySpecies
             : SkulteraInstructionProgramDefinitions.SwimmingRight;
     }
 
+    /// <summary>Gets the initialized state for a Skultera slot, rejecting calls before its setup.</summary>
     private SkulteraEnemyState RequireSkulteraState(RoomEnemySlot slot) =>
         _skulteraStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Skultera state.");
 
+    /// <summary>Registers bank-$A3 initialization only for the Skultera enemy definition.</summary>
     internal void RegisterSkulteraInitializationAi(EnemyAiTable table)
     {
 
@@ -218,6 +229,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers swimming and turn-completion dispatch with the room enemy AI table.</summary>
     internal void RegisterSkulteraMainAi(EnemyAiTable table)
     {
 
@@ -227,6 +239,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Skultera's layer and turn-finished opcodes with the instruction interpreter.</summary>
     internal void RegisterSkulteraOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

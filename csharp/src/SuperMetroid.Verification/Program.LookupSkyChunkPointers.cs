@@ -4,14 +4,18 @@ using SuperMetroid.Core.Rooms;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Compares compiled land and ocean sky chunk pointers and caller row transfers with native bank-$88 tables.</summary>
 internal static class LookupSkyChunkPointersVerification
 {
+    /// <summary>Checks the land sky table and its full camera-coordinate transfer behavior.</summary>
     internal static void VerifyLandSkyChunkPointers(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Land, RoomMainCallback.ScrollingSkyLand));
 
+    /// <summary>Checks the ocean sky table and its full camera-coordinate transfer behavior.</summary>
     internal static void VerifyOceanSkyChunkPointers(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Ocean, RoomMainCallback.ScrollingSkyOcean));
 
+    /// <summary>Checks reachable and adjacent pointer indices, then compares four queued source rows for every 16-bit camera position.</summary>
     private static void VerifySkyChunkPointers(SuperMetroidAddressSpace rom, ScrollingSkyChunkTable table, RoomMainCallback callback)
     {
         ushort Original(int index) => ReadVerificationWord(rom, 0x880000 | (((int)table + 2 * index) & 0xffff));
@@ -35,8 +39,6 @@ internal static class LookupSkyChunkPointersVerification
             AssertEqual("pointerTable", exception.ParamName!, "Table rejection precedes index handling");
         }
 
-        // Exercise the actual caller's mask, signed row probes, source offset and wrap
-        // over its complete ushort camera input, using only original ROM pointers.
         for (int camera = 0; camera <= ushort.MaxValue; camera++)
         {
             var queue = new VramWriteQueue();

@@ -3,14 +3,18 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks the five compiled game-over text transfers against their native source and destination immediates.</summary>
 internal static class GameOverTextLookupsVerification
 {
+    /// <summary>Checks source pointers in the five $A0 load instructions.</summary>
     internal static void VerifyGameOverTextSources(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyGameOverTextField), () => VerifyGameOverTextField(rom, 0, 0xa0, stream => stream.SourcePointer, "source"));
 
+    /// <summary>Checks destination offsets in the five $A2 load instructions.</summary>
     internal static void VerifyGameOverTextDestinations(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyGameOverTextField), () => VerifyGameOverTextField(rom, 3, 0xa2, stream => stream.DestinationByteOffset, "destination"));
 
+    /// <summary>Compares selector and enumeration order with retail immediates and rejects invalid selectors.</summary>
     private static void VerifyGameOverTextField(ISnesAddressSpace rom, int fieldOffset,
         byte opcode, Func<GameOverTextStream, int> field, string name)
     {
@@ -31,6 +35,7 @@ internal static class GameOverTextLookupsVerification
                 $"invalid game-over text {name} selector {invalid}");
     }
 
+    /// <summary>Reads a native instruction byte only for the cartridge oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for game over text field")]
     private static byte GameOverTextFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

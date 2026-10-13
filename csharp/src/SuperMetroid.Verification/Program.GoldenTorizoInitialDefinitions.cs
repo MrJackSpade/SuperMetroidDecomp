@@ -25,8 +25,10 @@ using static SuiteTimingVerification;
 using static TorizoFallingLeftDefinitionsVerification;
 using static TorizoJumpBackDefinitionsVerification;
 
+/// <summary>Checks Golden Torizo's initial and awakening control words, selected frames, and collision layout against ROM.</summary>
 internal static class GoldenTorizoInitialDefinitionsVerification
 {
+    /// <summary>Compares the initial entry with bank AA, then runs the related Golden Torizo program suites.</summary>
     internal static void VerifyGoldenTorizoInitialDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;
@@ -83,9 +85,11 @@ internal static class GoldenTorizoInitialDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>Reads one bank-AA cartridge byte for the initial program's independent word comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo initial definitions")]
     private static byte GoldenTorizoInitialDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks awakening mechanics, visual selectors, seven physical frames, and their nine hitbox lists.</summary>
     internal static void VerifyGoldenTorizoAwakeningDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
@@ -195,9 +199,11 @@ internal static class GoldenTorizoInitialDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>Reads one bank-AA cartridge byte for awakening program and collision records.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo awakening definitions")]
     private static byte GoldenTorizoAwakeningDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Runs the Golden Torizo awakening layout check through the verification command dispatcher.</summary>
     [VerificationCommand("--lookup-stream2-golden-awakening-layout")]
     internal static int LookupStream2GoldenAwakeningLayoutCommand()
     {

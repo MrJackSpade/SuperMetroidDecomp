@@ -15,8 +15,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks extracted room graphics-set palettes and their installation into room CGRAM.</summary>
 internal static class RoomStaticPalettesVerification
 {
+    /// <summary>Compares all distinct native palettes and checks room loading plus a single-color JSON edit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room base palettes")]
     internal static void VerifyRoomStaticPaletteExtraction()
@@ -102,10 +104,12 @@ internal static class RoomStaticPalettesVerification
             "and RGB5 edits reach room CGRAM.");
     }
 
+    /// <summary>Blocks a compressed palette source while its installed room graphics load.</summary>
     private static CartridgeReadGuard NewRoomBasePaletteReadGuard(ISnesAddressSpace source, int paletteSource) =>
         new CartridgeReadGuard(source).Forbid(address => address == paletteSource,
             address => $"Installed room loader reread base palette source ${address:X6}.");
 
+    /// <summary>Runs the room static palette extraction and installation check.</summary>
     [VerificationCommand("--room-static-palettes")]
     internal static int RoomStaticPalettesCommand()
     {

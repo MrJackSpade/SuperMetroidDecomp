@@ -55,8 +55,10 @@ public enum BabyTurtleAiFunction : ushort
 /// </summary>
 public sealed class MamaTurtleEnemyState
 {
+    /// <summary>Physical parent slot whose common variable words remain debugger-visible.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Attaches Mama Turtle's typed state to its native parent record.</summary>
     internal MamaTurtleEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets the current bank-$A2 Mama Turtle AI function pointer.</summary>
@@ -81,8 +83,9 @@ public sealed class MamaTurtleEnemyState
         }
     }
 
-    // Extension words behind Velocity: the horizontal fraction and the vertical 16.16 axis.
+    /// <summary>Extra-WRAM fractional half of the parent's horizontal 16.16 velocity.</summary>
     private ushort _horizontalSubvelocity;
+    /// <summary>Extra-WRAM vertical 16.16 velocity, paired with common-slot horizontal motion.</summary>
     private SnesSignedSixteenSixteen _verticalVelocity;
 
     /// <summary>Wake counter at variable F; each Baby touch or shot decrements it.</summary>
@@ -109,8 +112,10 @@ public sealed class MamaTurtleEnemyState
 /// <summary>Typed view of a Baby Turtle's ordinary variables and required extension words.</summary>
 public sealed class BabyTurtleEnemyState
 {
+    /// <summary>Physical child slot whose common words hold parent identity and shell-path state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Attaches one Baby Turtle's typed view to its native child record.</summary>
     internal BabyTurtleEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets the current bank-$A2 Baby Turtle AI function pointer.</summary>
@@ -155,7 +160,7 @@ public sealed class BabyTurtleEnemyState
         }
     }
 
-    // Extension word behind Velocity's vertical axis.
+    /// <summary>Extra-WRAM signed vertical velocity paired with common-slot horizontal speed.</summary>
     private short _verticalVelocity;
 
     /// <summary>Gets the phase-specific Baby Turtle countdown.</summary>

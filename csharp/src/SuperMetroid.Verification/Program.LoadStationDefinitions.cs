@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks the compiled seven-area load-station table against all retail records.</summary>
 internal static class LoadStationDefinitionsVerification
 {
+    /// <summary>Compares native list lengths, valid area/station pairs, and every station placement field.</summary>
     internal static void VerifyCompiledLoadStationDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -30,6 +32,7 @@ internal static class LoadStationDefinitionsVerification
         Console.WriteLine("Load stations: all134 original records, seven area lengths, six placement fields and complete byte area/station bounds pass.");
     }
 
+    /// <summary>Uses consecutive native pointer-table entries to derive one area's fourteen-byte record count.</summary>
     private static int OriginalLoadStationCount(SuperMetroidAddressSpace rom, int area)
     {
         // Original pointer table includes the debug-list start after Ceres; that
@@ -40,6 +43,7 @@ internal static class LoadStationDefinitionsVerification
         return (end - start) / 14;
     }
 
+    /// <summary>Checks all byte-sized area/station pairs against the seven supported native lists.</summary>
     private static void VerifyLoadStationDomain(SuperMetroidAddressSpace rom)
     {
         int total = 0;
@@ -67,13 +71,20 @@ internal static class LoadStationDefinitionsVerification
         AssertEqual(134, total, "All original retail station slots");
     }
 
+    /// <summary>Checks every destination room header pointer against its native station record.</summary>
     private static void VerifyLoadStationRoomPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.RoomPointer, "RoomPointer");
+    /// <summary>Checks every destination door pointer against its native station record.</summary>
     private static void VerifyLoadStationDoorPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.DoorPointer, "DoorPointer");
+    /// <summary>Checks camera X placement for all 134 retail station slots.</summary>
     private static void VerifyLoadStationCameraX(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.CameraPosition.X, "CameraX");
+    /// <summary>Checks camera Y placement for all 134 retail station slots.</summary>
     private static void VerifyLoadStationCameraY(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.CameraPosition.Y, "CameraY");
+    /// <summary>Checks vertical Samus offset and the resulting wrapped room position.</summary>
     private static void VerifyLoadStationSamusYOffset(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.SamusOffset.Y, "SamusYOffset");
+    /// <summary>Checks horizontal Samus offset and its signed sixteen-bit wrap during placement.</summary>
     private static void VerifyLoadStationSamusXOffset(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.SamusOffset.X, "SamusXOffset");
 
+    /// <summary>Compares one selected field across every native area list, including placeholder stations and Ceres.</summary>
     private static void VerifyLoadStationField(SuperMetroidAddressSpace rom,
         Func<LoadStationEntry, int> field, string name)
     {
@@ -95,6 +106,7 @@ internal static class LoadStationDefinitionsVerification
         AssertEqual(134, total, "Complete original field domain including placeholders and Ceres exception");
     }
 
+    /// <summary>Runs the compiled load-station comparison against the retail cartridge.</summary>
     [VerificationCommand("--load-station-definitions")]
     internal static int LoadStationDefinitionsCommand()
     {

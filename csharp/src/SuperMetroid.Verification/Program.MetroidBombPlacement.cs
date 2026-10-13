@@ -14,8 +14,10 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks a placed bomb detaching a Metroid and its subsequent escape motion.</summary>
 internal static class MetroidBombPlacementVerification
 {
+    /// <summary>Checks natural bomb detonation, four native jitter updates, and return to homing.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Metroid post-bomb escape jitter table")]
     internal static void VerifyMetroidBombPlacement()
     {
@@ -72,6 +74,7 @@ internal static class MetroidBombPlacementVerification
         }
     }
 
+    /// <summary>Compares the retail room's placed-bomb detach trajectory with native frames 61 through 66.</summary>
     private static void VerifyMetroidBombRuntime(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
         // Use the dry-floor setup from the full-alpha native capture, not the
@@ -137,6 +140,7 @@ internal static class MetroidBombPlacementVerification
         }
     }
 
+    /// <summary>Runs the Metroid bomb placement and escape regression.</summary>
     [VerificationCommand("--metroid-bomb-placement")]
     internal static int MetroidBombPlacementCommand()
     {

@@ -14,6 +14,7 @@ using SuperMetroid.Core.Hardware;
 using static FullMovieReplayVerification;
 using static NativeSnapshotImportVerification;
 
+/// <summary>Compares native snapshot import with the same 100% movie update reached through production replay.</summary>
 internal static class SnapshotImportAuditVerification
 {
     /// <summary>
@@ -38,6 +39,7 @@ internal static class SnapshotImportAuditVerification
         Console.WriteLine($"Snapshot import audit after update {update}: {differences.Count} differences.");
     }
 
+    /// <summary>Runs the snapshot comparison at the requested converted update and prints any state differences.</summary>
     [VerificationCommand("--snapshot-import-audit", "auditTraceDirectory", "auditUpdate")]
     internal static int SnapshotImportAuditCommand(string auditTraceDirectory, string auditUpdate)
     {

@@ -18,8 +18,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
 using static LibraryBackgroundProgramsVerification;
 
+/// <summary>Checks library-background command sources, native transfer behavior, and installed artwork boundaries.</summary>
 internal static class LibraryBackgroundVerification
 {
+/// <summary>Compares the retail list operands with compiled sources and validates every compressed page count.</summary>
 [CpuBusBoundary("exact bus test: retail ROM oracle decompressing every library-background tilemap source to validate its page count")]
 internal static void VerifyLibraryBackgroundSourceInventory()
 {
@@ -65,6 +67,7 @@ internal static void VerifyLibraryBackgroundSourceInventory()
             $"VRAM ${transfer.VramDestination:X4} via {transfer.Command}");
 }
 
+/// <summary>Confirms installed Kraid HUD pixels reproduce the native upload and that an edit reaches VRAM.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 [CpuBusBoundary("exact bus test: retail ROM oracle for the Kraid HUD library-background planar characters")]
 static void VerifyKraidLibraryHudArtwork(
@@ -117,6 +120,7 @@ static void VerifyKraidLibraryHudArtwork(
     Console.WriteLine("  Kraid BG list: installed HUD PNG matches stock VRAM, and an edit reaches VRAM.");
 }
 
+/// <summary>Exercises Ceres BG2 transfers, typed ROM/WRAM reads, command wrapping, and native clearing.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 internal static void VerifyLibraryBackgroundLoader()
 {
@@ -204,35 +208,45 @@ private static void VerifyLibraryBackgroundBankEndWrap(byte[] rom)
         "bank-end command high byte comes from the WRAM mirror");
 }
 
+/// <summary>Counts cartridge and WRAM reads separately to verify library-background source routing.</summary>
 [CpuBusBoundary("exact bus test: counts cartridge and WRAM reads separately to witness that library backgrounds route each source byte through its typed bus read")]
 internal sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace source) :
     ISnesMemoryBus, IImportCartridgeSource
 {
+    /// <summary>Counts source bytes fetched through the cartridge-only bus path.</summary>
     public int CartridgeReads { get; private set; }
+    /// <summary>Counts bytes fetched through the low-WRAM mirror or decompression workspace.</summary>
     public int WorkRamReads { get; private set; }
 
+    /// <summary>Fails if a library-background operation bypasses typed memory reads.</summary>
     public static byte ReadByte(int address) => throw new InvalidOperationException(
         $"Library background used the untyped CPU reader at ${address:X6}.");
+    /// <summary>Forwards a cartridge read while recording that the typed cartridge path was used.</summary>
     public byte ReadCartridgeByte(int address)
     {
         CartridgeReads++;
         return source.ReadCartridgeByte(address);
     }
+    /// <summary>Forwards a WRAM read while recording that the typed workspace path was used.</summary>
     public byte ReadWorkRamByte(int address)
     {
         WorkRamReads++;
         return source.ReadWorkRamByte(address);
     }
+    /// <summary>Preserves save-RAM behavior when a fixture bus requests it.</summary>
     public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);
+    /// <summary>Forwards writes so fixture setup retains the source bus's address mapping.</summary>
     public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 }
 
+/// <summary>Writes a little-endian command word at a bank-$8F pointer, wrapping the offset at 16 bits.</summary>
 private static void WriteLibraryWord(byte[] rom, ushort pointer, ushort value)
 {
     WriteLibraryByte(rom, pointer, (byte)value);
     WriteLibraryByte(rom, unchecked((ushort)(pointer + 1)), SnesLittleEndian.HighByte(value));
 }
 
+/// <summary>Writes a three-byte source address into a synthetic bank-$8F command list.</summary>
 private static void WriteLibraryLong(byte[] rom, ushort pointer, int value)
 {
     WriteLibraryByte(rom, pointer, (byte)value);
@@ -240,12 +254,14 @@ private static void WriteLibraryLong(byte[] rom, ushort pointer, int value)
     WriteLibraryByte(rom, unchecked((ushort)(pointer + 2)), SnesLittleEndian.BankByte(value));
 }
 
+/// <summary>Places a fixture command byte at the LoROM offset addressed through bank $8F.</summary>
 private static void WriteLibraryByte(byte[] rom, ushort pointer, byte value)
 {
     int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(0x8f0000 | pointer);
     rom[offset] = value;
 }
 
+    /// <summary>Runs the focused library-background command interpreter verification.</summary>
     [VerificationCommand("--library-background-loader")]
     internal static int LibraryBackgroundLoaderCommand()
     {
@@ -253,6 +269,7 @@ private static void WriteLibraryByte(byte[] rom, ushort pointer, byte value)
         return 0;
     }
 
+    /// <summary>Runs the retail background-source inventory against compiled definitions.</summary>
     [VerificationCommand("--library-background-inventory")]
     internal static int LibraryBackgroundInventoryCommand()
     {
@@ -260,6 +277,7 @@ private static void WriteLibraryByte(byte[] rom, ushort pointer, byte value)
         return 0;
     }
 
+    /// <summary>Checks installed background artwork against retail transfer behavior.</summary>
     [VerificationCommand("--library-background-artwork-boundary")]
     internal static int LibraryBackgroundArtworkBoundaryCommand()
     {

@@ -12,9 +12,12 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport report)
 {
+    /// <summary>Shipped program owners already audited across source parts and tooling adapters.</summary>
     private readonly HashSet<string> inspected = new(StringComparer.Ordinal);
+    /// <summary>Number of presentation operands resolved for coverage reporting.</summary>
     private int references;
 
+    /// <summary>Finds a program's operand contract and verifies each declared target has an exported visual resource.</summary>
     public void Inspect(ClassDeclarationSyntax declaration, SemanticModel semantic)
     {
         if (!declaration.Members.OfType<PropertyDeclarationSyntax>()
@@ -99,6 +102,7 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
         }
     }
 
+    /// <summary>Records the operand count against available selector and projectile exports.</summary>
     public void Complete() => report.Coverage.Add(new("compiled-presentation-operands", references,
         exports.Count(ResourceDomains.CompiledSelector) + exports.Count(ResourceDomains.EnemyProjectileProgram) +
         exports.Count(ResourceDomains.EnemyProjectileSprite)));

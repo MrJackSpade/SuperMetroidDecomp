@@ -10,6 +10,7 @@ using SuperMetroid.Core.Hardware;
 /// </summary>
 internal sealed class ReferencePaletteFxColorSource(ISnesAddressSpace source) : IPaletteFxColorSource
 {
+    /// <summary>Reads a BGR555 word from the palette-FX bank and reports it available to the diagnostic fixture.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for palette-FX color words")]
     public bool TryReadColor(ushort pointer, out Bgr555 color)
     {

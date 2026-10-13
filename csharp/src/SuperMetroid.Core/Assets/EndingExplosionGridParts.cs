@@ -9,9 +9,12 @@ namespace SuperMetroid.Core.Assets;
 /// Palette bits inherit the actor, as in the native generic spritemap loader.</summary>
 internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>The native planet or lava pose whose grid will be reconstructed.</summary>
     private readonly int pose;
+    /// <summary>Captures a bounded native pose index for the four-part grid.</summary>
     private EndingExplosionGridParts(int pose) => this.pose = pose;
 
+    /// <summary>Reconstructs grid parts only for the ten contiguous planet and lava records.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         int offset = pointer - EndingExplosionSpriteDefinitions.PlanetPointer(0);
@@ -20,7 +23,9 @@ internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePar
         return supplied.CalculateIfMatching(new EndingExplosionGridParts(offset / recordBytes));
     }
 
+    /// <summary>Each native pose draws a two-by-two tile grid.</summary>
     public int Count => 4;
+    /// <summary>Calculates tile order, position, and lava reflections for a native grid part.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -38,9 +43,11 @@ internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePar
                 unchecked((byte)((row - 1) * 16)), SnesObjAttributeWord.Create(tile, 0, 0, flips), true);
         }
     }
+    /// <summary>Yields the four parts in native drawing order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes native drawing order through non-generic enumeration.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

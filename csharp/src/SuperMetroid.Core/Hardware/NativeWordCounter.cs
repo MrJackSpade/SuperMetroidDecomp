@@ -68,6 +68,7 @@ public readonly record struct NativeLowByteCounterStep(ushort Remaining)
 [SnesEncodingOwner]
 public readonly record struct NativeCountdown
 {
+    /// <summary>Stores <paramref name="rawValue"/> exactly; callers use <see cref="Start"/> or <see cref="FromRaw"/>.</summary>
     private NativeCountdown(ushort rawValue) => RawValue = rawValue;
 
     /// <summary>The exact native word, for sites that also read the timer as a number or index.</summary>

@@ -8,8 +8,10 @@ using SuperMetroid.Core.Spatial;
 using static MapWindowMotionDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed world-map labels and opening windows against native pixels and motion.</summary>
 internal static class WorldMapLabelsVerification
 {
+    /// <summary>Verifies stock output with ROM coordinates blocked, then checks editable anchors and override preservation.</summary>
     internal static void VerifyWorldMapLabels(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         Suite(nameof(VerifyMapWindowOriginX), () => VerifyMapWindowOriginX(bus, original.Labels));
@@ -70,6 +72,7 @@ internal static class WorldMapLabelsVerification
         Console.WriteLine("World-map labels: native pixels/window timing, blocked ROM reads, visible edits, availability isolation and override preservation pass.");
     }
 
+    /// <summary>Blocks migrated label positions and window motion tables while allowing unrelated cartridge reads.</summary>
     private static MutableCartridgeReadGuard NewWorldLabelReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);

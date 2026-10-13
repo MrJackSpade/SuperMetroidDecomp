@@ -15,8 +15,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Crocomire's wall-rumble cursor records and death-sequence timing against retail data.</summary>
 internal static class CrocomireRumbleDefinitionsVerification
 {
+    /// <summary>Audits all source words, then compares every rumble update through wall-spike palette publication.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire rumble definitions")]
     internal static void VerifyCrocomireRumbleDefinitions(SuperMetroidAddressSpace rom)
@@ -134,6 +136,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             $"Crocomire rumble definitions: all 32 native words and {frames} exact production frames pass with the source stream forbidden.");
     }
 
+    /// <summary>Advances a separate cartridge-word reference cursor for one rumble frame.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Crocomire rumble reference step")]
     private static void StepCrocomireRumbleReference(
         ISnesAddressSpace rom,
@@ -180,6 +183,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             : unchecked((ushort)(yOffset + delta));
     }
 
+    /// <summary>Blocks live reads of rumble records and Crocomire palette source ranges.</summary>
     private static CartridgeReadGuard NewCrocomireRumbleReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa498ca and < 0xa4990a or
@@ -188,6 +192,7 @@ internal static class CrocomireRumbleDefinitionsVerification
                     CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort)),
                 address => $"Crocomire rumble attempted migrated data read ${address:X6}.");
 
+    /// <summary>Runs the Crocomire rumble comparison from the command dispatcher.</summary>
     [VerificationCommand("--lookup-stream5-crocomire-rumble")]
     internal static int LookupStream5CrocomireRumbleCommand()
     {

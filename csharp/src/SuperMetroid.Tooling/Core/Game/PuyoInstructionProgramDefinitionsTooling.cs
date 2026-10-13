@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(PuyoInstructionProgramDefinitions))]
 internal abstract class PuyoInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Puyo's three grounded loops and five directional poses contribute 28 control words.</summary>
     public static int MechanicsWordCount => 28;
+    /// <summary>The grounded and directional Puyo programs retain 17 visual operands.</summary>
     public static int PresentationWordCount => 17;
+    /// <summary>Maps an index across grounded loops and directional poses, skipping their spritemap words.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -21,12 +24,14 @@ internal abstract class PuyoInstructionProgramDefinitionsTooling : IInstructionP
         else pointer = PuyoInstructionProgramDefinitions.RightFrame0LeftFrame4 + (index - 18) / 2 * 6 + (index % 2) * 4;
         return new((ushort)pointer, PuyoInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer));
     }
+    /// <summary>Locates a grounded-loop or directional-pose visual operand in bank $A2.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 12 ? PuyoInstructionProgramDefinitions.GroundedFast + index / 4 * 20 + index % 4 * 4 + 2 :
             PuyoInstructionProgramDefinitions.RightFrame0LeftFrame4 + (index - 12) * 6 + 2);
     }
+    /// <summary>Matches Puyo timing and control bytes in bank $A2 while excluding interleaved spritemaps.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000) return false;

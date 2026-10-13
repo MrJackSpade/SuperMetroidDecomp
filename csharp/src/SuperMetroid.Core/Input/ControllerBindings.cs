@@ -193,6 +193,7 @@ public readonly record struct ControllerBindings(
         return this;
     }
 
+    /// <summary>Replaces one menu-row action word while retaining the other six bindings.</summary>
     private ControllerBindings WithAction(int action, ushort value) => action switch
     {
         0 => this with { Shoot = value },
@@ -205,6 +206,7 @@ public readonly record struct ControllerBindings(
         _ => throw new ArgumentOutOfRangeException(nameof(action)),
     };
 
+    /// <summary>Sets a canonical action bit when its configured physical button is pressed in the sampled input.</summary>
     private static ushort Map(
         ushort physicalInput,
         ushort physicalBinding,

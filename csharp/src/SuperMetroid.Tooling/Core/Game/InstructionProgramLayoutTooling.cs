@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Development-tool instance members of <see cref="InstructionProgramLayout"/>.</summary>
 internal static class InstructionProgramLayoutToolingExtensions
 {
+    /// <summary>Lets development tools inspect indexed native instruction words by address.</summary>
     extension(InstructionProgramLayout self)
     {
         /// <summary>The <paramref name="index"/>th mechanics word in address order.</summary>

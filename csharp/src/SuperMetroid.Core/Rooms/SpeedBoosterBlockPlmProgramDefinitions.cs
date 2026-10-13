@@ -14,14 +14,18 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
     /// <summary>Library-two destruction sound operand <c>$06</c> in all five contact lists.</summary>
     internal const byte BreakSoundId = 0x06;
 
+    /// <summary>One Speed Booster block list's respawn behavior, crumble timing, and final draw callback.</summary>
     internal readonly record struct Program(
         ushort Start, bool Respawns, ushort InitialCrumbleDelay,
         bool UseDrawBlockClone)
     {
+        /// <summary>Respawning blocks animate back through three recovery frames; permanent blocks stop after crumble.</summary>
         internal int FrameCount => Respawns ? 7 : 4;
+        /// <summary>First instruction after the list's timed crumble and optional recovery frames.</summary>
         internal ushort Terminal => checked((ushort)(Start + 3 + FrameCount * 4));
     }
 
+    /// <summary>Five reachable contact lists; the bomb-special reveal is separate.</summary>
     internal const int ProgramCount = 5;
 
     /// <summary>The five reachable Speed Booster collision programs, in native table order.</summary>
@@ -39,6 +43,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         Permanent,
     }
 
+    /// <summary>Selects a contact list in native table order.</summary>
     internal static Program ProgramAt(int index) => ProgramOf(index switch
     {
         0 => SpeedBlockProgram.BrinstarSlowRespawning,
@@ -49,6 +54,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         _ => throw new IndexOutOfRangeException(),
     });
 
+    /// <summary>Assigns native pointer, respawn state, initial hold, and clone-draw choice to a block variant.</summary>
     private static Program ProgramOf(SpeedBlockProgram program) => program switch
     {
         SpeedBlockProgram.BrinstarSlowRespawning => new(RoomPlmInstructionLists.SpeedBlockBrinstarSlowRespawning,
@@ -64,6 +70,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBlockProgram)} {program}."),
     };
 
+    /// <summary>Reconstructs aligned bomb-reveal and contact-list control words, including timed crumble frames.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address == BombReveal)
@@ -132,6 +139,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         return false;
     }
 
+    /// <summary>Admits only the one-byte library-two break sound operand in each contact list.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         for (int index = 0; index < ProgramCount; index++)

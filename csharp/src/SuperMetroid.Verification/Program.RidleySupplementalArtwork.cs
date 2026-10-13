@@ -5,8 +5,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 
+/// <summary>Checks installed Ridley wing and tail sprites against native OAM without runtime ROM reads.</summary>
 internal static class RidleySupplementalArtworkVerification
 {
+    /// <summary>Compares all wing phases and tail directions with native selectors and rendered OAM.</summary>
     internal static void VerifyInstalledRidleySupplementalArtwork(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -56,6 +58,7 @@ internal static class RidleySupplementalArtworkVerification
             "Ridley rejects adjacent tail-tip OAM as a pointer-table entry");
     }
 
+    /// <summary>Constructs a Ridley state and draws its installed wing or articulated-tail supplement.</summary>
     internal static OamBuffer DrawInstalledRidleySupplement(
         EnemyTileArtworkCatalog artwork, ISnesAddressSpace rom,
         RidleyFacing facing, ushort wingFrame, int? tailDirection)
@@ -88,12 +91,14 @@ internal static class RidleySupplementalArtworkVerification
         return oam;
     }
 
+    /// <summary>Checks exact OAM image content and byte count for a supplemental draw.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void AssertRidleySupplementOam(
         OamBuffer expected, OamBuffer actual, string description) =>
         AssertTrue(expected.ImageEquals(actual) &&
                    expected.NextByteOffset == actual.NextByteOffset, description);
 
+    /// <summary>Forbids wing, tail-tip, and segment ROM reads while installed Ridley art is drawn.</summary>
     private static CartridgeReadGuard NewRidleySupplementReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa6db02 and < 0xa6db2a or
                 >= 0xa6dc90 and < 0xa6de7a,

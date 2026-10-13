@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks compiled room visuals against native level streams while keeping collision and BTS authoritative.</summary>
 internal static class RoomVisualLayoutsVerification
 {
     /// <summary>
@@ -299,6 +300,7 @@ internal static class RoomVisualLayoutsVerification
             directory => EditManifest(directory, manifest => manifest["entries"]!.AsObject().Remove(firstName)));
     }
 
+    /// <summary>Rejects a runtime read of the compressed level source already supplied by the installed corpus.</summary>
     private static CartridgeReadGuard NewRoomLevelStreamReadGuard(ISnesAddressSpace source, int levelSource) =>
         new CartridgeReadGuard(source).Forbid(address => address == levelSource,
             address => $"Installed room reread native level source ${address:X6}.");

@@ -61,6 +61,7 @@ internal static class MetroidsClearedPlmRomData
         EventNumber.SecondMetroidShaftCleared,
     ];
 
+    /// <summary>Converts a room argument into one of thirteen native table entries, rejecting odd or out-of-range byte offsets.</summary>
     private static int ValidateAndGetWordIndex(ushort roomArgument)
     {
         if ((roomArgument & 1) != 0 || roomArgument / 2 >= 13)

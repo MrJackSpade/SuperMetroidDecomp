@@ -15,8 +15,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks Crystal Flash body-palette durations and the full production color cycle.</summary>
 internal static class CrystalFlashPaletteTimingDefinitionsVerification
 {
+    /// <summary>Compares ten native timer words and checks 100 palette updates without runtime timer reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crystal Flash palette timing definitions")]
     internal static void VerifyCrystalFlashPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)
@@ -91,6 +93,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
             "100-call production cycle pass with timer-word reads forbidden.");
     }
 
+    /// <summary>Blocks the timer word of each migrated body-palette record during updates.</summary>
     private static CartridgeReadGuard NewCrystalFlashPaletteTimingReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {
@@ -103,6 +106,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
             },
             address => $"Crystal Flash palette handler attempted timer read ${address:X6}.");
 
+    /// <summary>Runs the Crystal Flash palette timing verification command.</summary>
     [VerificationCommand("--crystal-flash-palette-timing-definitions")]
     internal static int CrystalFlashPaletteTimingDefinitionsCommand()
     {

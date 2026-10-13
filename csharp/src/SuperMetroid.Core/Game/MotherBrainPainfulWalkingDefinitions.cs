@@ -23,6 +23,7 @@ internal static class MotherBrainPainfulWalkingDefinitions
     /// <summary>$A9:C049: each successive forward/backward pair adds sixteen pause ticks.</summary>
     internal static ushort FunctionTimer(int stage) => (ushort)((Pair(stage) + 1) * 16);
 
+    /// <summary>Maps each forward/backward stagger stage to its shared timing pair, rejecting stages outside the eight-entry sequence.</summary>
     private static int Pair(int stage) => (uint)stage < StageCount
         ? stage / 2 : throw new IndexOutOfRangeException();
 }

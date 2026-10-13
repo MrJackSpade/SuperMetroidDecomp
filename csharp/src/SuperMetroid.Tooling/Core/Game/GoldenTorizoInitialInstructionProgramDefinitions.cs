@@ -17,6 +17,7 @@ internal abstract class GoldenTorizoInitialInstructionProgramDefinitions : IInst
     /// <summary>Golden Torizo's Samus-position wake function at $AA:D5C2.</summary>
     internal const ushort WakeWhenSamusApproaches = 0xd5c2;
 
+    /// <summary>Covers seven control words between the initial tile upload and first sleep.</summary>
     public static int MechanicsWordCount => 7;
 
     /// <summary>
@@ -41,11 +42,14 @@ internal abstract class GoldenTorizoInitialInstructionProgramDefinitions : IInst
         };
         return new(address, value);
     }
+    /// <summary>The first standing pose supplies this list's only presentation operand.</summary>
     public static int PresentationWordCount => 1;
+    /// <summary>Accepts only the initial extended-spritemap word at $AA:C9DE.</summary>
     public static ushort PresentationWordAddress(int index) => index == 0
         ? InitialFrameOperand
         : throw new ArgumentOutOfRangeException(nameof(index));
 
+    /// <summary>Matches both bytes of each bank $AA control word while excluding DMA and pose data.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xaa0000)

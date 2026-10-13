@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Waver steady and spinning programs, completion callbacks, and compiled-only playback.</summary>
 internal static class WaverInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail data and runs the Waver instruction program suite.</summary>
     internal static void VerifyWaverInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWaverInstructionProgramDefinitions), () => VerifyWaverInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks control words, steady and spinning programs, completion callbacks, and forbidden ROM reads.</summary>
     internal static void VerifyWaverInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -134,6 +137,7 @@ internal static class WaverInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeatedly resolves a steady-list word to measure warmed lookup allocation.</summary>
     private static int ProbeWaverInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -145,6 +149,7 @@ internal static class WaverInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids Waver mechanics bytes and installed visual-selector words during production playback.</summary>
     private static CartridgeReadGuard NewWaverInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(WaverInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -152,6 +157,7 @@ internal static class WaverInstructionProgramDefinitionsVerification
             .ForbidWords(0xa30000, WaverInstructionProgramDefinitionsTooling.PresentationWordCount, WaverInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read installed Waver selector ${address:X6}.");
 
+    /// <summary>Runs the Waver instruction mechanics verification command.</summary>
     [VerificationCommand("--waver-instruction-mechanics")]
     internal static int WaverInstructionMechanicsCommand()
     {

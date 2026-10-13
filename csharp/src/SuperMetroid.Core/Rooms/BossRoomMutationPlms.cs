@@ -8,8 +8,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Boss-room terrain PLMs: Botwoon's wall, the Spore Spawn ceiling, and the Kraid, Crocomire, baby Metroid wall and Mother Brain room mutations.</summary>
 internal sealed class BossRoomMutationPlms
 {
+    /// <summary>The shared native PLM allocation table used by each boss-room hardcoded spawn.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Uses the room's PLM table so boss mutations contend with ordinary room PLMs for the same forty slots.</summary>
     internal BossRoomMutationPlms(PlmSlotTable slotTable)
     {
         _slotTable = slotTable;

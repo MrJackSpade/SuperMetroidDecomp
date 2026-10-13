@@ -6,6 +6,10 @@ using SuperMetroid.Desktop;
 using static FrontendRomFreeVerification;
 using static SuiteTimingVerification;
 
+/// <summary>
+/// Compares installed-art and cartridge-backed frontend rendering from isolated
+/// pre-room snapshots during the optional retail-room census.
+/// </summary>
 internal static class FrontendRomFreeCensusVerification
 {
     /// <summary>

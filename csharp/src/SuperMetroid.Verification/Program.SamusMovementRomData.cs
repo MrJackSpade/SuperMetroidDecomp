@@ -3,6 +3,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks native address ranges for Samus pose, speed, liquid, and slope movement tables.</summary>
 internal static class SamusMovementRomDataVerification
 {
     /// <summary>
@@ -112,6 +113,7 @@ internal static class SamusMovementRomDataVerification
             "records, liquid tables, effects, and 32 slope profiles are in range.");
     }
 
+    /// <summary>Checks both ends of a positive-length table range stay mapped within one SNES bank.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle reads at both ends of a Samus movement data range")]
     internal static void TouchRange(
         SuperMetroidAddressSpace bus,

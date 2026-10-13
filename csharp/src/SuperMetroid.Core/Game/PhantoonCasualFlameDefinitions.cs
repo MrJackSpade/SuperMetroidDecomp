@@ -26,6 +26,7 @@ public static class PhantoonCasualFlameDefinitions
     /// <param name="pattern">Native selector 0..3. Direct construction assumes a valid selector; <see cref="Pattern"/> validates it.</param>
     public readonly struct Schedule(int pattern) : IReadOnlyList<ushort>
     {
+        /// <summary>Controls the uniform burst's flame count and hold length; irregular rank retains seven flames.</summary>
         private int BurstRank => pattern == 0 ? 2 : pattern == 1 ? 1 : 3;
         /// <summary>Number of stored words, including the two header words; not the number of flames.</summary>
         public int Count => 2 * BurstRank + 3;
@@ -49,6 +50,7 @@ public static class PhantoonCasualFlameDefinitions
         {
             for (int index =0;index<Count;index++) yield return this[index];
         }
+        /// <summary>Exposes the same native storage order through non-generic enumeration.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

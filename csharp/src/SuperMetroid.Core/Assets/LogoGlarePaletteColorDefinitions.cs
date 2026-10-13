@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Assets;
 /// exception; no intermediate animation color is included in that disposition.</summary>
 internal static class LogoGlarePaletteColorDefinitions
 {
+    /// <summary>Accepts aligned color words in the fourteen glare frames after each frame's leading command word.</summary>
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
     {
         frame = color = 0;

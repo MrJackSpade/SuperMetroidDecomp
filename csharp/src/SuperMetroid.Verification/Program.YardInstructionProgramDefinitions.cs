@@ -15,8 +15,10 @@ using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Yard's crawling, turning, hiding, and airborne instruction entries against bank A3.</summary>
 internal static class YardInstructionProgramDefinitionsVerification
 {
+    /// <summary>The 38 authored entry pointers used to exercise every Yard instruction-list family.</summary>
     private static readonly ushort[] YardInstructionEntries =
     [
         YardInstructionProgramDefinitions.OutsideTurnUpsideRightMovingUp,
@@ -59,12 +61,14 @@ internal static class YardInstructionProgramDefinitionsVerification
         YardInstructionProgramDefinitions.AirborneFacingRightLoop,
     ];
 
+    /// <summary>Loads the retail cartridge as the oracle for Yard mechanics words and visual selectors.</summary>
     internal static void VerifyYardInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYardInstructionProgramDefinitions), () => VerifyYardInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled words, executes all 38 entries, and checks visual selectors without live reads.</summary>
     internal static void VerifyYardInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -135,6 +139,7 @@ internal static class YardInstructionProgramDefinitionsVerification
             "five private callbacks, and 112 compiled visual selectors pass.");
     }
 
+    /// <summary>Creates a bank A3 Yard slot with deterministic random input and its behavior state installed.</summary>
     internal static RoomEnemySystem CreateYardInstructionSystem(
         ISnesAddressSpace bus,
         out RoomEnemySlot yard)
@@ -153,6 +158,7 @@ internal static class YardInstructionProgramDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>Alternates crawling and airborne words repeatedly to expose mechanics lookup allocations.</summary>
     private static int ProbeYardInstructionAllocation()
     {
         int checksum = 0;
@@ -166,6 +172,7 @@ internal static class YardInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects compiled mechanics reads and optionally rejects visual operand reads as well.</summary>
     internal static CartridgeReadGuard NewYardInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
     {
         var guard = new CartridgeReadGuard(source).Forbid(YardInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -176,6 +183,7 @@ internal static class YardInstructionProgramDefinitionsVerification
             : guard.ObserveWords(0xa30000, YardInstructionProgramDefinitions.PresentationWordCount, YardInstructionProgramDefinitions.PresentationWordAddress);
     }
 
+    /// <summary>Runs the Yard instruction comparison from the verification command dispatcher.</summary>
     [VerificationCommand("--yard-instruction-program-definitions")]
     internal static int YardInstructionProgramDefinitionsCommand()
     {

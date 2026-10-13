@@ -21,10 +21,14 @@ public static class SamusBodyArtworkFiles
 {
     /// <summary>Body-art JSON filename containing split-DMA definitions, pose/frame selectors, spritemaps, vertical offsets, and stock PNG provenance hashes.</summary>
     public const string ManifestFileName = "samus-body.json";
+    /// <summary>Manifest revision containing source hashes, selectors, spritemaps, and vertical offsets.</summary>
     private const int FormatVersion = 4;
+    /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
+    /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>
     private const int DefinitionHeight = 16;
 
+    /// <summary>Serializes strict camel-case manifests and rejects unknown JSON members.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -161,6 +165,7 @@ public static class SamusBodyArtworkFiles
     /// <exception cref="InvalidDataException">The body installation or any linked artwork resource is invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Exports each upper or lower DMA set as a padded PNG and records its native source sizes.</summary>
     private static DefinitionEntry[][] ExtractHalf(ISnesAddressSpace bus, string directory,
         ushort[] pointers, ushort[] sortedPointers, bool upperHalf,
         Dictionary<string, string> hashes)
@@ -206,6 +211,7 @@ public static class SamusBodyArtworkFiles
         return sets;
     }
 
+    /// <summary>Combines selected body halves with spritemaps and all linked Samus artwork catalogs.</summary>
     private static SamusBodyArtworkCatalog BuildCatalog(string stockDirectory, Manifest manifest,
         string? overrideDirectory)
     {
@@ -226,6 +232,7 @@ public static class SamusBodyArtworkFiles
         return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = manifest.TopPointers, BottomPointers = manifest.BottomPointers, PosePointers = manifest.PosePointers, GraphicsYOffsets = manifest.GraphicsYOffsets, Frames = manifest.Frames, Top = top, Bottom = bottom, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTiles = deathTiles, ArmCannon = armCannon, LandingYOffsets = manifest.LandingYOffsets, PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets });
     }
 
+    /// <summary>Re-encodes selected PNG sets into native planar bytes and rejects painted padding tiles.</summary>
     private static SamusBodyTileDefinition[][] LoadHalf(string stockDirectory,
         string? overrideDirectory, Manifest manifest, bool upperHalf)
     {
@@ -272,6 +279,7 @@ public static class SamusBodyArtworkFiles
         return result;
     }
 
+    /// <summary>Checks source revision, manifest version, required tables, and nonempty DMA sets.</summary>
     private static void ValidateManifest(Manifest manifest)
     {
         if (manifest.Version != FormatVersion ||
@@ -293,9 +301,11 @@ public static class SamusBodyArtworkFiles
             throw new InvalidDataException("Samus body manifest does not match this installation.");
     }
 
+    /// <summary>Reads a contiguous little-endian pointer table from the cartridge.</summary>
     private static ushort[] ReadPointers(ISnesAddressSpace bus, int start, int count) =>
         Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(bus).ReadCartridgeWord((start + i * 2))).ToArray();
 
+    /// <summary>Imports a bounded bank-$92 Samus map as five-byte sprite parts.</summary>
     private static SamusSpritemapDefinition ReadSpritemap(ISnesAddressSpace bus, ushort pointer)
     {
         int address = CartridgeBankWindow.At(SamusCartridgeTables.AnimationBank, pointer);
@@ -312,9 +322,11 @@ public static class SamusBodyArtworkFiles
         return new SamusSpritemapDefinition(pointer, parts);
     }
 
+    /// <summary>Names the editable upper or lower body PNG by native set index.</summary>
     private static string FileName(bool upperHalf, int set) =>
         $"{(upperHalf ? "top" : "bottom")}-{set:X2}.png";
 
+    /// <summary>Persists split-DMA identities, pose selectors, spritemaps, offsets, and stock PNG hashes.</summary>
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
         ushort[] TopPointers, ushort[] BottomPointers, ushort[] PosePointers,
         sbyte[] GraphicsYOffsets,
@@ -325,5 +337,6 @@ public static class SamusBodyArtworkFiles
         sbyte[] PostureYOffsets, sbyte[] DrainedYOffsets,
         Dictionary<string, string> Hashes);
 
+    /// <summary>Retains one native DMA source address and the two transfer lengths sharing its PNG slot.</summary>
     private sealed record DefinitionEntry(int SourceAddress, ushort FirstSize, ushort SecondSize);
 }

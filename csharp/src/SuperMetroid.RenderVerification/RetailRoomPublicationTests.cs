@@ -7,8 +7,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks captured and retained gameplay frames across retail room-local publication fixtures.</summary>
 internal static class RetailRoomPublicationTests
 {
+    /// <summary>Compares serialized frame packets with legacy pixels, including water and heat FX publication.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         (ushort Room, PublishedFx Fx)[] rooms =
@@ -81,6 +83,7 @@ internal static class RetailRoomPublicationTests
     }
 }
 
+/// <summary>Retail room identities and liquid-surface data used by frame publication checks.</summary>
 internal static class RoomPublicationFixtureDefinitions
 {
     /// <summary>Retail Brinstar water room $01/$27, header $8F:A3DD.</summary>

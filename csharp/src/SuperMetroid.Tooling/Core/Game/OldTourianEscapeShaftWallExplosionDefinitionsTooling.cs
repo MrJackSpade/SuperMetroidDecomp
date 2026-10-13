@@ -19,12 +19,17 @@ internal abstract class OldTourianEscapeShaftWallExplosionDefinitionsTooling : I
         0xb46a, 0xb46c, 0xb46e,
     ];
 
+    /// <summary>Includes fixed control words and one duration before each wall-explosion pose.</summary>
     public static int MechanicsWordCount => WordAddresses.Length;
+    /// <summary>Pairs a selected $86 instruction address with its compiled mechanic value.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) =>
         new(WordAddresses[index], OldTourianEscapeShaftWallExplosionDefinitions.ReadMechanicsWord(WordAddresses[index]));
+    /// <summary>Bounds pose spritemap operands, excluding the sound operand at $86:B451.</summary>
     public static int PresentationWordCount => OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordCount;
+    /// <summary>Locates the spritemap word following a wall-explosion pose duration.</summary>
     public static ushort PresentationWordAddress(int index) => OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordAddress(index);
 
+    /// <summary>Matches both bytes of each enumerated control or duration word in bank $86.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

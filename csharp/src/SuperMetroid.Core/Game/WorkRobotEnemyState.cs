@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class WorkRobotEnemyState
 {
+    /// <summary>Live enemy slot whose variable words back the debugger-facing Work Robot state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects the bank-$A8 Work Robot aliases over its current native enemy slot.</summary>
     internal WorkRobotEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

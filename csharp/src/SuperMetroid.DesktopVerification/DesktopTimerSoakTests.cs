@@ -12,8 +12,10 @@ using SuperMetroid.Core.Spatial;
 
 using static DesktopVerificationSupport;
 
+/// <summary>Measures bounded desktop timer and GPU telemetry in gameplay and paused scenes.</summary>
 internal static class DesktopTimerSoakTests
 {
+    /// <summary>Runs the production WinForms timer for both scenes and reports frames, latency, memory, and audio health.</summary>
     internal static async Task RunDesktopTimerSoak(int seconds)
     {
         if (seconds is < 5 or > 300) throw new ArgumentOutOfRangeException(nameof(seconds));
@@ -119,6 +121,7 @@ internal static class DesktopTimerSoakTests
             new JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
     }
 
+    /// <summary>Creates a gameplay or paused debugger slot for the desktop timer run.</summary>
     private static void CreateDesktopSoakSeed(SuperMetroid.AssetExtraction.GameInstallation installation,
         SuperMetroidGameOptions options, bool paused)
     {

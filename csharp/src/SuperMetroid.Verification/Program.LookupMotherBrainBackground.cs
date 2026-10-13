@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks Mother Brain fake-death background draw geometry and collision words.</summary>
 internal static class LookupMotherBrainBackgroundVerification
 {
+    /// <summary>Checks the 12 native background rows, descriptor ownership, dimensions, offsets, and column bounds.</summary>
     internal static void VerifyMotherBrainBackgroundGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];
@@ -36,9 +38,11 @@ internal static class LookupMotherBrainBackgroundVerification
         }
     }
 
+    /// <summary>Reads one cartridge byte as the independent row-offset oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain background geometry")]
     private static byte MotherBrainBackgroundGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks that every background cell keeps the ROM's collision and visual word intact.</summary>
     internal static void VerifyMotherBrainBackgroundCollision(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];

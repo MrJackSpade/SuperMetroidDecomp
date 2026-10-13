@@ -14,8 +14,10 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static RoomMainCodeCatalogVerification;
 
+/// <summary>Checks compiled explicit and implicit room scroll grids across every retail room state.</summary>
 internal static class RoomScrollDefinitionsVerification
 {
+    /// <summary>Compares all state grids and Ceres entry with cartridge behavior while blocking scroll-source reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room scroll definitions")]
     internal static void VerifyCompiledRoomScrollDefinitions()
     {
@@ -129,7 +131,7 @@ internal static class RoomScrollDefinitionsVerification
             "allocations and Ceres match without native scroll reads.");
     }
 
-    // The scroll buffer itself is WRAM the previous room left; implicit grids keep it.
+    /// <summary>Allows only prior WRAM scroll storage so implicit grids retain the previous room's residue.</summary>
     private static MutableCartridgeReadGuard NewRoomScrollNoReadAddressSpace(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -139,6 +141,7 @@ internal static class RoomScrollDefinitionsVerification
         return guard;
     }
 
+    /// <summary>Rejects runtime access to the selected cartridge scroll allocation during Ceres entry.</summary>
     private static MutableCartridgeReadGuard NewRoomScrollSourceReadGuard(ISnesAddressSpace source, ushort scrollPointer)
     {
         int start = RoomAssetRomData.Tilesets.DefinitionBank | scrollPointer;
@@ -148,6 +151,7 @@ internal static class RoomScrollDefinitionsVerification
         return guard;
     }
 
+    /// <summary>Runs the complete retail room scroll audit from the command dispatcher.</summary>
     [VerificationCommand("--room-scroll-definitions")]
     internal static int RoomScrollDefinitionsCommand()
     {

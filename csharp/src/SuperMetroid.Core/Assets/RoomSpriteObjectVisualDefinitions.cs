@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Compiled visual selectors for the bank-$B4 room sprite-object programs.</summary>
 internal static class RoomSpriteObjectVisualDefinitions
 {
+    /// <summary>The native room sprite-object visual operands and spritemaps reside in bank $B4.</summary>
     internal const byte Bank = 0xb4;
 
     /// <summary>
@@ -37,6 +38,7 @@ internal static class RoomSpriteObjectVisualDefinitions
         return [.. additional.OrderBy(frame => frame.Pointer)];
     }
 
+    /// <summary>Resolves a compiled bank-$B4 visual operand to its spritemap, rejecting operands absent from the selector table.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {
         if (CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress,

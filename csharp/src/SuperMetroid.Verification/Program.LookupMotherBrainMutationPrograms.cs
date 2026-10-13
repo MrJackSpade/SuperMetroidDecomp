@@ -2,17 +2,20 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
 
+/// <summary>Checks all 22 Mother Brain fake-death PLM lists against bank-$84 control and draw words.</summary>
 internal static class LookupMotherBrainMutationProgramsVerification
 {
+    /// <summary>Compares duration and deletion controls with the retail fake-death lists.</summary>
     internal static void VerifyMotherBrainMutationProgramControls(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainMutationProgramField), () => VerifyMotherBrainMutationProgramField(rom, false));
 
+    /// <summary>Compares the lists' interleaved draw operands with their retail words.</summary>
     internal static void VerifyMotherBrainMutationProgramDraws(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainMutationProgramField), () => VerifyMotherBrainMutationProgramField(rom, true));
 
+    /// <summary>Checks complete word ownership, including two unused rows, before comparing the chosen field kind.</summary>
     private static void VerifyMotherBrainMutationProgramField(ISnesAddressSpace rom, bool draw)
     {
-        // Independent original list starts, including the two unused row lists.
         ushort[] starts = [0xac05,0xac0b,0xac11,0xac17,0xac1d,0xac23,0xac29,0xac2f,
             0xac35,0xac3b,0xac41,0xac47,0xac4d,0xac53,0xac59,0xac5f,0xac65,0xac6b,
             0xac71,0xac77,0xac7d,0xac83];
@@ -38,6 +41,7 @@ internal static class LookupMotherBrainMutationProgramsVerification
         }
     }
 
+    /// <summary>Reads one original bank-$84 byte for the mutation-list comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain mutation program field")]
     private static byte MotherBrainMutationProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -18,9 +18,12 @@ internal sealed class IntroJapaneseSubtitles
     /// <summary>$8B:B5B1 and its siblings: frames the second subtitle holds a page's input wait.</summary>
     public const ushort SecondSubtitleHoldFrames = 0x3c;
 
+    /// <summary>Three native mode 7 object slots, searched from highest index downward.</summary>
     private const int SlotCount = 3;
+    /// <summary>Active subtitle objects in native slot order; an empty slot is available for the next page.</summary>
     private readonly SubtitleObject?[] slots = new SubtitleObject?[SlotCount];
 
+    /// <summary>Selects Japanese subtitle handling from the opening's alternate-text setting.</summary>
     public IntroJapaneseSubtitles(bool enabled) => Enabled = enabled;
 
     /// <summary>Native <c>AltText</c> ($09E2) at the start of the intro.</summary>
@@ -90,6 +93,7 @@ internal sealed class IntroJapaneseSubtitles
         throw new InvalidOperationException("All three intro subtitle object slots are occupied.");
     }
 
+    /// <summary>Instruction-list stages for first-subtitle transfer and second-subtitle input wait.</summary>
     private enum SubtitleStage
     {
         /// <summary>First record of a page's first-subtitle list: load the text, then a one-frame transfer record.</summary>
@@ -105,7 +109,9 @@ internal sealed class IntroJapaneseSubtitles
     /// <summary>One mode 7 object: its instruction timer and position in its subtitle list.</summary>
     private sealed class SubtitleObject(IntroNarrationPageId page, SubtitleStage stage)
     {
+        /// <summary>Current native subtitle instruction-list stage.</summary>
         private SubtitleStage stage = stage;
+        /// <summary>One-frame transfer or wait-loop countdown before the next list action.</summary>
         private NativeCountdown instructionTimer = NativeCountdown.Start(1);
 
         /// <summary>

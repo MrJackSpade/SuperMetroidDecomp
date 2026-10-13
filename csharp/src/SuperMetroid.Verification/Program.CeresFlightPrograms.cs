@@ -3,8 +3,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Ceres flight sprite lists against bank-$8B bytes and loop behavior.</summary>
 internal static class CeresFlightProgramsVerification
 {
+    /// <summary>Checks the three rear station flight lists, including their shared destruction aliases.</summary>
     internal static void VerifyCeresRearPrograms(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyCeresFlightProgram), () => VerifyCeresFlightProgram(rom, 0xcc47, 0xcc4f, true, true));
@@ -12,6 +14,7 @@ internal static class CeresFlightProgramsVerification
         Suite(nameof(VerifyCeresFlightProgram), () => VerifyCeresFlightProgram(rom, 0xcc57, 0xcc63, false, true));
     }
 
+    /// <summary>Checks all five flight lists and rejects byte or word reads outside owned ranges.</summary>
     internal static void VerifyCeresFlightPrograms(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyCeresRearPrograms), () => VerifyCeresRearPrograms(rom));
@@ -24,6 +27,7 @@ internal static class CeresFlightProgramsVerification
         }
     }
 
+    /// <summary>Compares one list's bytes, cross-list aliases, and 32 interpreter frames with the cartridge.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight program")]
     private static void VerifyCeresFlightProgram(ISnesAddressSpace rom, ushort start, ushort end, bool crossesIntoNext, bool destructionAlias)
     {

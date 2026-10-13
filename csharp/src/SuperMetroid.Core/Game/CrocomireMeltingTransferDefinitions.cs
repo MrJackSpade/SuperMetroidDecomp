@@ -22,7 +22,9 @@ internal readonly record struct CrocomireMeltingPass(
     ushort NextHeaderOffset,
     int ChunkCount)
 {
+    /// <summary>Consecutive source-to-scratch pairs for this pass's six or seven chunks.</summary>
     internal CrocomireMeltingCopySequence Copies => new(this);
+    /// <summary>Scratch-to-VRAM transfers for the same chunks after the copy sentinel.</summary>
     internal CrocomireMeltingUploadSequence Uploads => new(this);
 }
 
@@ -42,6 +44,7 @@ internal enum CrocomireMeltingHeader : ushort
 /// </summary>
 internal static class CrocomireMeltingTransferDefinitions
 {
+    /// <summary>Projects the two native melt passes without storing duplicate transfer records.</summary>
     internal static CrocomireMeltingPassSequence Passes => new();
 
     /// <summary>Six chunks in the first pass and seven in the second. Each header
@@ -60,6 +63,7 @@ internal static class CrocomireMeltingTransferDefinitions
         return new(offset, 0x58, 0x30, 0x200, 0xa4, start, end, (ushort)(end + 2), chunks);
     }
 
+    /// <summary>Accepts only the transfer-list start of one of the two compiled melt headers.</summary>
     internal static CrocomireMeltingPass Transfers(ushort offset)
     {
         if (offset == Header((ushort)CrocomireMeltingHeader.First).TransferStartOffset) return Header((ushort)CrocomireMeltingHeader.First);
@@ -90,7 +94,9 @@ internal static class CrocomireMeltingTransferDefinitions
 /// source. Preserve that native chunk and the caller's inclusive $0201-word copy.</summary>
 internal readonly record struct CrocomireMeltingCopySequence(CrocomireMeltingPass Pass)
 {
+    /// <summary>Six first-pass or seven second-pass source/scratch pairs.</summary>
     internal int Length => Pass.ChunkCount;
+    /// <summary>Calculates one $0200-stride source address and its scratch destination.</summary>
     internal CrocomireMeltingCopy this[int index]
     {
         get
@@ -101,11 +107,16 @@ internal readonly record struct CrocomireMeltingCopySequence(CrocomireMeltingPas
         }
     }
 
+    /// <summary>Traverses copy pairs in the native melt-table order.</summary>
     public Enumerator GetEnumerator() => new(this);
+    /// <summary>Value enumerator over calculated source-to-scratch copies.</summary>
     internal struct Enumerator(CrocomireMeltingCopySequence sequence)
     {
+        /// <summary>Current zero-based copy ordinal, initially before the first entry.</summary>
         private int index = -1;
+        /// <summary>Advances until every chunk of the selected pass has been visited.</summary>
         public bool MoveNext() => ++index < sequence.Length;
+        /// <summary>Calculates the native copy pair at the current ordinal.</summary>
         public CrocomireMeltingCopy Current => sequence[index];
     }
 }
@@ -113,7 +124,9 @@ internal readonly record struct CrocomireMeltingCopySequence(CrocomireMeltingPas
 /// in bank $7E, to successive $0100-word VRAM destinations.</summary>
 internal readonly record struct CrocomireMeltingUploadSequence(CrocomireMeltingPass Pass)
 {
+    /// <summary>Number of scratch chunks uploaded in this melt pass.</summary>
     internal int Length => Pass.ChunkCount;
+    /// <summary>Transfers $0160 bytes from one bank-$7E scratch chunk to its matching VRAM destination.</summary>
     internal CrocomireMeltingUpload this[int index]
     {
         get
@@ -126,6 +139,7 @@ internal readonly record struct CrocomireMeltingUploadSequence(CrocomireMeltingP
 /// <summary>Enumerates the two native melt passes without stored records.</summary>
 internal readonly record struct CrocomireMeltingPassSequence()
 {
+    /// <summary>Decodes the first or second native melt header by pass ordinal.</summary>
     internal CrocomireMeltingPass this[int index] => index switch
     {
         0 => CrocomireMeltingTransferDefinitions.Header((ushort)CrocomireMeltingHeader.First),

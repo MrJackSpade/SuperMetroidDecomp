@@ -25,6 +25,7 @@ public sealed class RenderFrameSnapshot
     public Rgba32? SolidColor { get; }
     /// <summary>Native visible output size of 256 pixels by 224 physical scanlines, including the HUD where present, before any host presentation scaling.</summary>
     public Extent16<ScreenPixels> Size { get; } = SnesPpuLayout.ScreenSize;
+    /// <summary>Owned copy of the ordered outer fade levels, insulated from the caller's input span.</summary>
     private readonly byte[] brightnessPasses;
 
     /// <summary>
@@ -65,6 +66,7 @@ public sealed class RenderFrameSnapshot
         ReadOnlySpan<byte> brightnessPasses = default)
         : this(identity, brightnessPasses) => SolidColor = solidColor;
 
+    /// <summary>Validates host identity and SNES fade bounds before copying the packet's outer brightness passes.</summary>
     private RenderFrameSnapshot(RenderFrameIdentity identity, ReadOnlySpan<byte> brightnessPasses)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(identity.Sequence);

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Compares Direct3D tile and color-math output with the software PPU renderer.</summary>
 internal static class TileSmokeTests
 {
+    /// <summary>Checks background geometry, priority, scrolling, transparency, brightness, and plane selection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
@@ -40,6 +42,7 @@ internal static class TileSmokeTests
         }
     }
 
+    /// <summary>Checks the flipped fourth-plane byte that previously selected the wrong palette color.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyFourthPlaneByteSelection(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {

@@ -47,14 +47,17 @@ internal static class PhantoonCollisionDefinitions
     /// <summary>$A7:DD9B, Phantoon's active shot callback.</summary>
     internal const ushort ShotAi = 0xdd9b;
 
-    // Authored silhouette inputs, retained for #1165: half widths, tentacle near/far extents and
-    // the vertical bounds are fitted to the drawing. Pixel-centered reflection supplies every
-    // opposite X edge, so only these extents are stored.
+    /// <summary>Half width of the full body's central collision rectangle.</summary>
     private const short BodyHalfWidth = 33;
+    /// <summary>Half width of the vulnerable eye's central collision rectangle.</summary>
     private const short EyeHalfWidth = 9;
+    /// <summary>Half width of the centered tentacle collision rectangle.</summary>
     private const short CenterTentacleHalfWidth = 12;
+    /// <summary>Near horizontal edge of each mirrored side tentacle rectangle.</summary>
     private const short SideTentacleInnerExtent = 16;
+    /// <summary>Far horizontal edge of each mirrored side tentacle rectangle.</summary>
     private const short SideTentacleOuterExtent = 23;
+    /// <summary>Native vertical extents of the body, eye, and three tentacle hitboxes.</summary>
     private static readonly (short Top, short Bottom)[] RequiredVerticalBounds =
         [(-40, 56), (22, 39), (52, 71), (53, 70), (53, 69)];
 
@@ -79,6 +82,7 @@ internal static class PhantoonCollisionDefinitions
 
         static (short Left, short Right) Centered(short halfWidth) => ((short)-halfWidth, (short)(halfWidth - 1));
     }
+    /// <summary>Maps a BG2 frame to its active body/eye hitbox or inert point components.</summary>
     internal static ComponentSequence ComponentsAt(ushort pointer)
     {
         if (!PhantoonBg2FrameDefinitions.IsFrame(pointer))
@@ -97,26 +101,33 @@ internal static class PhantoonCollisionDefinitions
         };
     }
 
+    /// <summary>Gets the engine-owned rectangles and callbacks for a supported hitbox-list pointer.</summary>
     internal static HitboxSequence HitboxesAt(ushort pointer) =>
         new(ClosedNativeWords.Decode<PhantoonHitboxList>(pointer, "Phantoon hitbox list"));
 
     /// <summary>Native frame components use their actor origin; tentacle frames have two inert components.</summary>
     internal readonly struct ComponentSequence(PhantoonHitboxList list, int count) : IReadOnlyList<PhantoonCollisionComponent>
     {
+        /// <summary>Gets the number of frame components, including both inert tentacle components.</summary>
         public int Count => count;
+        /// <summary>Gets a zero-offset component bound to the frame's selected hitbox list.</summary>
         public PhantoonCollisionComponent this[int index] => (uint)index < Count
             ? new(Offset16<RoomPixels>.Zero, (ushort)list) : throw new IndexOutOfRangeException();
+        /// <summary>Yields the frame's collision components in native order.</summary>
         public IEnumerator<PhantoonCollisionComponent> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same component order to non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     /// <summary>$A7:E06C repeats the full body's eye rectangle at $A7:E03C; hidden lists use a no-op point.</summary>
     internal readonly struct HitboxSequence(PhantoonHitboxList list) : IReadOnlyList<PhantoonCollisionHitbox>
     {
+        /// <summary>Gets five rectangles for the full body or one for the eye and inert point lists.</summary>
         public int Count => list == PhantoonHitboxList.FullBody ? RequiredVerticalBounds.Length : 1;
+        /// <summary>Gets the selected native rectangle or no-op point with its touch and shot callbacks.</summary>
         public PhantoonCollisionHitbox this[int index]
         {
             get
@@ -126,10 +137,12 @@ internal static class PhantoonCollisionDefinitions
                 return BodyHitbox(list == PhantoonHitboxList.EyeOnly ? 1 : index);
             }
         }
+        /// <summary>Yields the selected hitbox list in native rectangle order.</summary>
         public IEnumerator<PhantoonCollisionHitbox> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same hitbox order to non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

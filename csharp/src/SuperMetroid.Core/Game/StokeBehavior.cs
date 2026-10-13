@@ -6,10 +6,14 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Stoke species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class StokeBehavior : IEnemySpecies
 {
+    /// <summary>Supplies the shared room RNG for Stoke's fireball attack branch.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Probes the floor and resolves Stoke's horizontal collision and turn.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Allocates Stoke's fireball into the enemy projectile subsystem.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Binds Stoke movement and fireball behavior to the current enemy room.</summary>
     internal StokeBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles)
     {
         _room = room;
@@ -45,8 +49,10 @@ internal sealed class StokeBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Two-pixel downward probe used to test for a solid floor without moving Stoke.</summary>
     private const int StokeFloorProbeDisplacement = 2 << 16;
 
+    /// <summary>Typed movement and attack state indexed by native enemy slot.</summary>
     internal readonly StokeEnemyState?[] _stokeStates =
         new StokeEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -181,6 +187,7 @@ internal sealed class StokeBehavior : IEnemySpecies
             SetStokeInstructionList(slot, StokeInstructionProgramDefinitions.MovingRight);
     }
 
+    /// <summary>Switches the active animation list so its first command executes on the next instruction tick.</summary>
     private static void SetStokeInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -188,6 +195,7 @@ internal sealed class StokeBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
     }
 
+    /// <summary>Looks up initialized Stoke dispatch state, failing if a slot reached AI before initialization.</summary>
     private StokeEnemyState RequireStokeState(RoomEnemySlot slot) =>
         _stokeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Stoke state.");
@@ -206,6 +214,7 @@ internal sealed class StokeBehavior : IEnemySpecies
         state.Direction = StokeDirection.Right;
     }
 
+    /// <summary>Connects the fireball's horizontal motion and viewport cull pre-instruction.</summary>
     internal static void RegisterStokeProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -215,6 +224,7 @@ internal sealed class StokeBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.StokeFireball);
     }
 
+    /// <summary>Registers bank-$A2 Stoke initialization for matching enemy definitions.</summary>
     internal void RegisterStokeInitializationAi(EnemyAiTable table)
     {
 
@@ -224,6 +234,7 @@ internal sealed class StokeBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Stoke's per-frame movement and random fireball attack dispatcher.</summary>
     internal void RegisterStokeMainAi(EnemyAiTable table)
     {
 
@@ -233,6 +244,7 @@ internal sealed class StokeBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes fireball spawn and movement-resume opcodes to Stoke's private instruction interpreter.</summary>
     internal void RegisterStokeOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

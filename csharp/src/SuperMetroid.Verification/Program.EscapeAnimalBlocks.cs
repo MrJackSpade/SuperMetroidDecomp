@@ -16,8 +16,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static GrappleDoorsVerification;
 
+/// <summary>Verifies the escape-room rescue PLMs using imported room population and the native shot-block sequence.</summary>
 internal static class EscapeAnimalBlocksVerification
 {
+    /// <summary>Checks the escape-room rescue wall against imported PLM behavior: grapple leaves it intact, while a beam shot runs the opening animation and raises the critters event.</summary>
     internal static void VerifyEscapeAnimalBlocks(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -58,6 +60,7 @@ internal static class EscapeAnimalBlocksVerification
         Console.WriteLine("Animal rescue: native setup, ROM break animation, cleared wall and event verified.");
     }
 
+    /// <summary>Runs the animal rescue wall and escape-room effects checks against the supplied cartridge image.</summary>
     [VerificationCommand("--escape-animals", "argument1")]
     internal static int EscapeAnimalsCommand(string[] args)
     {

@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Retail-data and guarded-execution checks for Zoa instruction programs.</summary>
 internal static class ZoaInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail image and delegates to the Zoa program verification suite.</summary>
     internal static void VerifyZoaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyZoaInstructionProgramDefinitions), () => VerifyZoaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs all four Zoa animations and their speed callbacks while forbidding reads of compiled control and frame words.</summary>
     internal static void VerifyZoaInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags =
@@ -130,6 +133,7 @@ internal static class ZoaInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Matches each compiled control word and its exact bank-A3 byte ownership to the retail source.</summary>
     internal static void VerifyZoaMechanicsDispatch(SuperMetroidAddressSpace rom)
     {
         // Independent native word positions from bank_A3.asm, not the enumerator.
@@ -161,6 +165,7 @@ internal static class ZoaInstructionProgramDefinitionsVerification
                 "Zoa mechanics enumeration bounds");
     }
 
+    /// <summary>Checks the twelve interleaved frame-selector positions against independent native offsets.</summary>
     internal static void VerifyZoaPresentationPositions(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xb3c5, 0xb3cb, 0xb3d1, 0xb3d9, 0xb3dd, 0xb3e1,
@@ -177,6 +182,7 @@ internal static class ZoaInstructionProgramDefinitionsVerification
             AssertThrows<IndexOutOfRangeException>(() => ZoaInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid),
                 "Zoa presentation enumeration bounds");
     }
+    /// <summary>Exercises a warmed control-word lookup for the no-allocation assertion.</summary>
     private static int ProbeZoaInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -188,6 +194,7 @@ internal static class ZoaInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Fails production reads of migrated Zoa mechanics and presentation words.</summary>
     private static CartridgeReadGuard NewZoaInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(ZoaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -195,6 +202,7 @@ internal static class ZoaInstructionProgramDefinitionsVerification
             .ForbidWords(0xa30000, ZoaInstructionProgramDefinitionsTooling.PresentationWordCount, ZoaInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read installed Zoa selector ${address:X6}.");
 
+    /// <summary>Runs the retail-backed Zoa instruction migration suite from the verification host.</summary>
     [VerificationCommand("--zoa-instruction-mechanics")]
     internal static int ZoaInstructionMechanicsCommand()
     {

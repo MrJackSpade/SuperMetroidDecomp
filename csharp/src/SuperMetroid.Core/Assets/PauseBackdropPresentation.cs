@@ -8,10 +8,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Complete authored pause backdrops, including area lettering, without runtime ROM patches.</summary>
 public sealed class PauseBackdropPresentation
 {
-    // Exact independent stock differences and supplied edits remain explicit;
-    // calculated complete backdrops are never cached.
+    /// <summary>Per-area authored tile words that differ from stock; complete backdrops are calculated on demand.</summary>
     internal readonly Dictionary<int, ushort>[] areas;
+    /// <summary>Authored foreground tile words that differ from the stock button page.</summary>
     internal readonly Dictionary<int, ushort> buttons;
+    /// <summary>Retains validated sparse edits for every area and the separate button overlay.</summary>
     private PauseBackdropPresentation(Dictionary<int, ushort>[] areas, Dictionary<int, ushort> buttons)
     { this.areas = areas; this.buttons = buttons; }
 
@@ -38,6 +39,7 @@ public sealed class PauseBackdropPresentation
             destination.Write(cell, selected.TryGetValue(cell, out ushort value) ? value : PauseBackdropDefinitions.StockAreaWord(area, cell));
     }
 
+    /// <summary>Extracts only tilemap words changed from the stock calculation, preserving independent authored edits.</summary>
     private static Dictionary<int, ushort> Differences(byte[] selected, Func<int, ushort> calculate)
     {
         var result = new Dictionary<int, ushort>();

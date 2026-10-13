@@ -14,6 +14,7 @@ internal readonly record struct DownwardGateShotBlockDefinition(
 internal static class DownwardGateShotBlockDefinitions
 {
 
+    /// <summary>The final even byte offset in the native eight-entry color and side table at $84:C70A.</summary>
     private const ushort LastRoomArgument = 14;
 
     /// <summary>

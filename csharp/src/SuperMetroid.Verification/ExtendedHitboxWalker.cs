@@ -21,6 +21,7 @@ internal static class ExtendedHitboxWalker
         return found;
     }
 
+    /// <summary>Reads a typed value from an argument row, treating null as the struct default and rejecting a mismatched type.</summary>
     private static T Value<T>(object?[] arguments, int index) where T : struct => arguments[index] switch
     {
         null => default,

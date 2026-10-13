@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Mochtroid's compiled instruction mechanics, animation loops, and separated visual selectors.</summary>
 internal static class MochtroidInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the production Mochtroid program comparison.</summary>
     internal static void VerifyMochtroidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares mechanics words, runs both live animation loops with ROM reads forbidden, and checks allocation.</summary>
     internal static void VerifyMochtroidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -100,6 +103,7 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
             "selectors pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Forces successive instruction ticks through the production enemy instruction runner.</summary>
     private static void ExecuteMochtroidProgram(
         RoomEnemySystem enemies,
         RoomEnemySlot mochtroid,
@@ -114,6 +118,7 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeatedly reads both compiled loop entries to expose unexpected lookup allocations.</summary>
     private static int ProbeMochtroidInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -127,12 +132,14 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Blocks compiled mechanics bytes and records accesses to visual selector operands.</summary>
     private static CartridgeReadGuard NewMochtroidInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => MochtroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled Mochtroid mechanics byte ${address:X6}.")
             .ObserveWords(0xa30000, MochtroidInstructionProgramDefinitionsTooling.PresentationWordCount, MochtroidInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Runs the Mochtroid mechanics and visual-selector checks against the retail ROM.</summary>
     [VerificationCommand("--mochtroid-instruction-program-definitions")]
     internal static int MochtroidInstructionProgramDefinitionsCommand()
     {

@@ -23,6 +23,7 @@ internal static class EyeDoorPlmProgramDefinitions
     /// <summary>$84:A9E3, DrawInst_EyeDoorEyeFacingRight, replacement blue-cap draw.</summary>
     private const ushort RightBlueCapDraw = 0xa9e3;
 
+    /// <summary>Reads a two-byte native control value within the left/right eye-door lists, including byte-packed operands.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
@@ -31,6 +32,7 @@ internal static class EyeDoorPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Reads a bounded native byte, including the sound, hit threshold, and loop-count operands that change alignment.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
@@ -39,6 +41,7 @@ internal static class EyeDoorPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Projects a left or mirrored-right eye/component list into its native byte layout.</summary>
     private static byte ByteAt(int address)
     {
         int orientation = (address - FirstAddress) / OrientationBytes;
@@ -62,6 +65,7 @@ internal static class EyeDoorPlmProgramDefinitions
         return (byte)(EyeWord(start, wordOffset, orientation != 0) >> ((local - wordOffset) * 8));
     }
 
+    /// <summary>Builds a passive middle/bottom component's proximity wait, four-pose animation, and door-bit deletion.</summary>
     private static ushort ComponentWord(int start, int offset, bool right, int component)
     {
         int draw = ComponentDrawFirst + (right ? DrawMirrorBytes : 0) + component * 18;
@@ -92,6 +96,7 @@ internal static class EyeDoorPlmProgramDefinitions
         };
     }
 
+    /// <summary>Builds active eye control for proximity, shots, hit reaction, smoke, and conversion to a blue door.</summary>
     private static ushort EyeWord(int start, int offset, bool right)
     {
         int eye = EyeDrawFirst + (right ? DrawMirrorBytes : 0);

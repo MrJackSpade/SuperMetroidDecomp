@@ -13,8 +13,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class RidleyEncounter
 {
+    /// <summary>Physical slot table used to distinguish the Ceres actor from the Norfair boss.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Binds both Ridley encounters to their shared enemy slot table.</summary>
     internal RidleyEncounter(EnemySlotTable slotTable)
     {
         _slotTable = slotTable;
@@ -42,6 +44,7 @@ internal sealed class RidleyEncounter
     /// </summary>
     public ushort CeresStatus { get; set; }
 
+    /// <summary>Requires a slot-zero Ridley definition and its shared bank-$A6 state extension.</summary>
     internal RidleyEnemyState RequireRidley(RoomEnemySlot slot)
     {
         if (!RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
@@ -55,6 +58,7 @@ internal sealed class RidleyEncounter
         return Ridley;
     }
 
+    /// <summary>Admits only Lower Norfair Ridley before returning the shared state extension.</summary>
     internal RidleyEnemyState RequireNorfairRidley(RoomEnemySlot slot)
     {
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Ridley)
@@ -66,6 +70,7 @@ internal sealed class RidleyEncounter
         return RequireRidley(slot);
     }
 
+    /// <summary>Admits only Ceres Ridley's slot-zero actor and initialized state extension.</summary>
     internal RidleyEnemyState RequireCeresRidley(RoomEnemySlot slot)
     {
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||

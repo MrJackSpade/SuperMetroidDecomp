@@ -10,9 +10,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class TitlePalettePresentation : IPaletteFxColorSource
 {
+    /// <summary>Compiled initial CGRAM image in native slot order.</summary>
     internal readonly Bgr555[] colors;
+    /// <summary>Ambient samples retained only when they differ from the calculated paint.</summary>
     internal readonly Dictionary<ushort, Bgr555> animatedColors;
 
+    /// <summary>Retains the selected initial image, ambient edits, and independent skip-only inks.</summary>
     private TitlePalettePresentation(
         Bgr555[] colors,
         Dictionary<ushort, Bgr555> animatedColors,
@@ -142,6 +145,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
             PackColor(document.SkipCopyrightRed, "skip copyright red"));
     }
 
+    /// <summary>Validates one skip-only RGB5 color before packing its CGRAM word.</summary>
     private static Bgr555 PackColor(PaletteRgb5? color, string name)
     {
         if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||

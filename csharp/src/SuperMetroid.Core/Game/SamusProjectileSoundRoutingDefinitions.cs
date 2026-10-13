@@ -40,8 +40,7 @@ public static class SamusProjectileSoundRoutingDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
     };
 
-    // Library one reserves four adjacent sounds per beam family (Power, Spazer, Plasma),
-    // followed by the same three families charged, twelve request IDs later.
+    /// <summary>Indexes four adjacent library-one sounds per Power, Spazer, or Plasma family, then adds twelve IDs for the charged bank.</summary>
     private static ushort Authored(bool charged, SamusBeamCombination combination)
     {
         int family = combination.HasPlasma ? 8 : combination.HasSpazer ? 4 : 0;

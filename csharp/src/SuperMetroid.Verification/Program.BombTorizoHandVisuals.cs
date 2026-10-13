@@ -5,8 +5,12 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using static LookupBombTorizoHandStockVerification;
 
+/// <summary>Checks Bomb Torizo hand draw-list extraction, installed overrides,
+/// stock refresh, and rejection of collision bits in visual words.</summary>
 internal static class BombTorizoHandVisualsVerification
 {
+    /// <summary>Extracts the native hand art into a scratch installation and
+    /// confirms one edited block survives loading and stock replacement.</summary>
     internal static void VerifyBombTorizoHandVisualInstallation()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(

@@ -13,6 +13,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM ending palettes and bank-$8C logo crossfade colors → ending palette artwork files")]
 public static class EndingPaletteArtworkFiles
 {
+    /// <summary>Manifest schema recording seven stock hashes and cartridge provenance.</summary>
     private const int ManifestVersion = 2;
 
     /// <summary>Exports all seven ending palette roles to RGB5 JSON and a hashed manifest, verifying native color-byte round-trips and flattening logo fades in destination order.</summary>
@@ -162,6 +163,7 @@ public static class EndingPaletteArtworkFiles
         return native;
     }
 
+    /// <summary>Camel-case manifest encoding accepted by the installed artwork loader.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -169,6 +171,7 @@ public static class EndingPaletteArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Records source ROM identity and a digest for each exported stock palette file.</summary>
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> StockSha256);
 }

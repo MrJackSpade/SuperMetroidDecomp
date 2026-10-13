@@ -15,6 +15,7 @@ using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 using static TilemapJsonContractsEnvironmentVerification;
 
+/// <summary>Checks JSON tilemap shape through the production room and Kraid asset loaders.</summary>
 internal static class TilemapJsonContractsVerification
 {
     /// <summary>Exercises the actual shared room/Kraid loaders, not a parallel JSON validator.</summary>
@@ -84,6 +85,7 @@ internal static class TilemapJsonContractsVerification
             $"exact word roundtrips/historical casing; {rejected} invalid documents rejected.");
     }
 
+    /// <summary>Generates malformed and ambiguous tilemap documents that shared loaders must reject.</summary>
     internal static IEnumerable<string> TilemapContractCorruptions(string json, Func<JsonObject, JsonObject> cell)
     {
         yield return TilemapContractMutate(json, root => root["attackDuration"] = 7);
@@ -99,6 +101,7 @@ internal static class TilemapJsonContractsVerification
         yield return TilemapContractMutate(json, root => cell(root)["palette"] = RoomBackgroundTilemapFormat.PaletteCount);
     }
 
+    /// <summary>Builds deterministic native tilemap words covering tile, palette, priority, and flip bits.</summary>
     internal static byte[] TilemapContractWords(int count)
     {
         var bytes = new byte[count * sizeof(ushort)];
@@ -107,6 +110,7 @@ internal static class TilemapJsonContractsVerification
         return bytes;
     }
 
+    /// <summary>Decodes a native BG word into the editable room tilemap cell fields.</summary>
     internal static RoomBackgroundTilemapCell TilemapContractCell(ushort word)
     {
         var fields = new SnesBgTilemapWord(word);
@@ -119,6 +123,7 @@ internal static class TilemapJsonContractsVerification
         };
     }
 
+    /// <summary>Applies one JSON mutation to a parsed tilemap document.</summary>
     internal static string TilemapContractMutate(string json, Action<JsonObject> mutate)
     {
         var root = (JsonObject)JsonNode.Parse(json)!;
@@ -126,11 +131,14 @@ internal static class TilemapJsonContractsVerification
         return root.ToJsonString();
     }
 
+    /// <summary>Provides UTF-8 tilemap JSON to a loader without giving it a writable stream.</summary>
     internal static MemoryStream TilemapContractStream(string text) => new(Encoding.UTF8.GetBytes(text), writable: false);
+    /// <summary>Changes supported property names to historical casing for compatibility checks.</summary>
     internal static string TilemapContractHistoricalCasing(string json) => json
         .Replace("\"version\"", "\"VERSION\"", StringComparison.Ordinal)
         .Replace("\"tileColumn\"", "\"TILECOLUMN\"", StringComparison.Ordinal);
 
+    /// <summary>Runs room and Kraid tilemap JSON contract checks.</summary>
     [VerificationCommand("--tilemap-json-contracts")]
     internal static int TilemapJsonContractsCommand()
     {

@@ -16,15 +16,25 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed class RoomLevelData
 {
+    /// <summary>Mutable logical BG1 level words shared by terrain collision and room rendering.</summary>
     internal readonly ushort[] _foregroundEntries;
+    /// <summary>Parallel BTS bytes interpreted according to each BG1 word's collision nibble.</summary>
     internal readonly byte[] _behaviorBytes;
+    /// <summary>Logical BG2 level words kept in the room's authored row-major dimensions.</summary>
     internal readonly ushort[] _backgroundEntries;
+    /// <summary>Combined CRE and area 8-by-8 tile definitions selected by visual block numbers.</summary>
     internal readonly byte[] _blockDefinitions;
+    /// <summary>Native-sized BG1 allocation, including the decompressed tail used by streaming.</summary>
     internal readonly ushort[] _streamingForegroundAllocation;
+    /// <summary>Native-sized BG2 allocation, including its decompressed tail.</summary>
     internal readonly ushort[] _streamingBackgroundAllocation;
+    /// <summary>Editable BG1 visual references kept separate from collision words.</summary>
     internal readonly ushort[] _visualStreamingForegroundAllocation;
+    /// <summary>Editable BG2 visual references used by background streaming.</summary>
     internal readonly ushort[] _visualStreamingBackgroundAllocation;
+    /// <summary>Bounded level-data storage for PLM writes outside the authored room plane.</summary>
     internal readonly ushort[] _plmForegroundAllocation;
+    /// <summary>BTS storage paired with native PLM indices, including their bounded tail.</summary>
     internal readonly byte[] _plmBehaviorAllocation;
 
     /// <summary>Copies the logical BG1/BTS/BG2 planes and visual block definitions into one mutable room allocation, retaining bounded native streaming tails and prefilled PLM storage; an installed layout changes only initial visual references.</summary>

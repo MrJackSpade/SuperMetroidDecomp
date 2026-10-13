@@ -9,7 +9,9 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 public sealed class SamusAtmosphericArtworkCatalog
 {
+    /// <summary>Edited type-one footstep OBJ attributes by animation-frame ordinal.</summary>
     internal readonly Dictionary<int, ushort> typeOne = new();
+    /// <summary>Edited lava/dust attributes shared by types four, six, and seven.</summary>
     internal readonly Dictionary<int, ushort> sharedTypeFour = new();
 
     /// <summary>Captures selected four-frame attribute lists, retaining independent differences from calculated stock words without retaining caller arrays.</summary>
@@ -63,19 +65,25 @@ public sealed class SamusAtmosphericArtworkCatalog
         return true;
     }
 
+    /// <summary>Uses a supplied edit when present, otherwise calculates the stock direct-OBJ word.</summary>
     private ushort Resolve(bool footstep, int frame) =>
         (footstep ? typeOne : sharedTypeFour).TryGetValue(frame, out ushort attributes)
             ? attributes : SamusAtmosphericArtworkDefinitions.Attributes(footstep, frame);
 
+    /// <summary>Read-only four-frame view over one selected atmospheric attribute list.</summary>
     private sealed class FrameSequence(SamusAtmosphericArtworkCatalog owner, bool footstep) : IReadOnlyList<ushort>
     {
+        /// <summary>The native direct-attribute list has four animation positions.</summary>
         public int Count => SamusMovementRomData.Environment.DirectAtmosphericFrameCount;
+        /// <summary>Resolves a bounded frame from its owning footstep or shared lava/dust list.</summary>
         public ushort this[int index] => (uint)index < Count
             ? owner.Resolve(footstep, index) : throw new ArgumentOutOfRangeException(nameof(index));
+        /// <summary>Yields selected attribute words in animation-frame order.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int frame = 0; frame < Count; frame++) yield return this[frame];
         }
+        /// <summary>Exposes the same attribute sequence to non-generic consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

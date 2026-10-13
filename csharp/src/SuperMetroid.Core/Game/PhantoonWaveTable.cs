@@ -24,11 +24,13 @@ public static class PhantoonWaveTable
         }
     }
 
+    /// <summary>
+    /// Multiplies the signed sine sample by amplitude, retaining only native product
+    /// bits 16-23 before restoring sign, including for unaligned phase samples.
+    /// </summary>
     internal static int CalculateDisplacement(ushort phase, ushort amplitude)
     {
         short sine = PhantoonWaveRomData.ReadSineAtBytePhase(phase);
-        // Native unsigned byte products truncate BEFORE restoring sign. Its final
-        // AND $FF00 / XBA retains only product bits 16..23, even for unaligned samples.
         int magnitude = unchecked((byte)SnesSixteenSixteen.Multiply(Math.Abs((int)sine), amplitude));
         return sine < 0 ? -magnitude : magnitude;
     }

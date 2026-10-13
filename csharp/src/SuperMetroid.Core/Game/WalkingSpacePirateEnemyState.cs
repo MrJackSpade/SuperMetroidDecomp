@@ -42,8 +42,10 @@ public enum WalkingSpacePirateFunction : ushort
 /// </summary>
 public sealed class WalkingSpacePirateEnemyState
 {
+    /// <summary>Native enemy slot backing the walking Pirate's function and patrol posts.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Binds the typed walking-Pirate view to its existing enemy slot.</summary>
     internal WalkingSpacePirateEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Bank-$B2 function address stored in native enemy variable A.</summary>

@@ -16,6 +16,7 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
     /// <summary>Native duration of each ceiling appearance.</summary>
     internal const ushort FrameDuration = 4;
 
+    /// <summary>Reads the crumble and clear lists' timing, draw, and delete words without claiming adjacent setup code.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address is >= (Crumble + 3) and < Clear)
@@ -46,6 +47,7 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
         return word.HasValue;
     }
 
+    /// <summary>Reads the packed crumble sound ID following its library-two queue command.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == Crumble + 2)

@@ -8,7 +8,9 @@ public interface ISnesMemoryBus : ISnesAddressSpace, ISnesMutableMemory;
 [CpuBusAccess]
 public readonly struct WramByte
 {
+    /// <summary>Mutable CPU bus supplying this cell's WRAM reads and writes.</summary>
     private readonly ISnesMemoryBus bus;
+    /// <summary>Fixed CPU address validated as a one-byte WRAM cell.</summary>
     private readonly int address;
 
     /// <summary>Binds a one-byte WRAM <paramref name="cell"/>.</summary>
@@ -34,7 +36,9 @@ public readonly struct WramByte
 [CpuBusAccess]
 public readonly struct WramWord
 {
+    /// <summary>Mutable CPU bus supplying the word's bank-wrapped byte accesses.</summary>
     private readonly ISnesMemoryBus bus;
+    /// <summary>Fixed CPU address of the word's low byte.</summary>
     private readonly int address;
 
     /// <summary>Binds a two-byte WRAM <paramref name="cell"/>.</summary>
@@ -46,6 +50,7 @@ public readonly struct WramWord
         address = cell.Address;
     }
 
+    /// <summary>Creates an element view after the containing word table has checked its bounds.</summary>
     private WramWord(ISnesMemoryBus bus, int address)
     {
         this.bus = bus;
@@ -74,7 +79,9 @@ public readonly struct WramWord
 [CpuBusAccess]
 public readonly struct WramBytes
 {
+    /// <summary>Mutable CPU bus supplying this bounded WRAM range.</summary>
     private readonly ISnesMemoryBus bus;
+    /// <summary>CPU address of the range's first byte.</summary>
     private readonly int address;
 
     /// <summary>Binds a WRAM range <paramref name="cell"/>.</summary>
@@ -104,6 +111,7 @@ public readonly struct WramBytes
             Write(index, bytes[index]);
     }
 
+    /// <summary>Checks a byte index and adds it with fixed-bank CPU address wrapping.</summary>
     private int Address(int index)
     {
         if ((uint)index >= (uint)Length)
@@ -119,7 +127,9 @@ public readonly struct WramBytes
 [CpuBusAccess]
 public readonly struct WramWords
 {
+    /// <summary>Mutable CPU bus supplying the table's two-byte elements.</summary>
     private readonly ISnesMemoryBus bus;
+    /// <summary>CPU address of the table's first word.</summary>
     private readonly int address;
 
     /// <summary>Binds a WRAM word-table <paramref name="cell"/> (an even byte count).</summary>
@@ -156,7 +166,9 @@ public readonly struct WramWords
 [CpuBusAccess]
 public readonly struct SramBytes
 {
+    /// <summary>Mutable CPU bus supplying this bounded save-RAM range.</summary>
     private readonly ISnesMemoryBus bus;
+    /// <summary>CPU address of the range's first byte in a save-RAM window.</summary>
     private readonly int address;
 
     /// <summary>Binds an SRAM range <paramref name="cell"/>.</summary>
@@ -188,6 +200,7 @@ public readonly struct SramBytes
         Write(index + 1, SnesLittleEndian.HighByte(value));
     }
 
+    /// <summary>Checks a byte index and resolves its linear save-RAM window address.</summary>
     private int Address(int index)
     {
         if ((uint)index >= (uint)Length)

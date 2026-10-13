@@ -5,8 +5,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>PLMs triggered by Samus projectiles reaching their block rather than by contact.</summary>
 internal sealed class ProjectileTriggerPlms
 {
+    /// <summary>Physical PLM slots searched from highest index to lowest on a projectile hit.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Binds the active room's PLM population for generic projectile collision dispatch.</summary>
     internal ProjectileTriggerPlms(PlmSlotTable slotTable)
     {
         _slotTable = slotTable;

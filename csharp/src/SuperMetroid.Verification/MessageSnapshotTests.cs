@@ -7,8 +7,10 @@ using static GraphDigestVerification;
 using static RenderPacketCodecTestsVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks gameplay message snapshots, reveal geometry, packet ownership, and codec validation.</summary>
 internal static class MessageSnapshotTestsVerification
 {
+    /// <summary>Compares every retail message's changing overlay with captured packets and checks retained and malformed packets.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry, native VRAM words")]
     internal static void VerifyMessageSnapshots()
     {

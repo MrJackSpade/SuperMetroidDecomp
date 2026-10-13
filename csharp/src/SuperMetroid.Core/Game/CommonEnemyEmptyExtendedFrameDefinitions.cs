@@ -12,7 +12,9 @@ internal static class CommonEnemyEmptyExtendedFrameDefinitions
     /// <summary>Bank-local empty ordinary spritemap at $804D.</summary>
     internal const ushort EmptySpritemap = 0x804d;
 
+    /// <summary>Limits the shared empty records to the enemy banks that carry native copies.</summary>
     private static bool IsSupportedBank(byte bank) => bank is 0xa0 or >= 0xa2 and <= 0xaa or 0xb2 or 0xb3;
+    /// <summary>Recognizes the point-hitbox extended frame only in banks with the shared record.</summary>
     internal static bool HasFrame(byte bank, ushort pointer) =>
         pointer == Frame && IsSupportedBank(bank);
 
@@ -24,6 +26,7 @@ internal static class CommonEnemyEmptyExtendedFrameDefinitions
     internal static bool HasEmptySpritemap(byte bank, ushort pointer) =>
         pointer == EmptySpritemap && IsSupportedBank(bank);
 
+    /// <summary>Selects the shared bank-$A0 shot or touch callback used by the empty frame.</summary>
     internal static ushort Callback(bool selectShot) => selectShot
         ? EnemyAiCodePointers.BankA0.NormalEnemyShot
         : EnemyAiCodePointers.BankA0.NormalEnemyTouch;

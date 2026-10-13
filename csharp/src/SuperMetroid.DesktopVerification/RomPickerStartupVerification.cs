@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 /// <summary>Opens and cancels the real setup button's native dialog on the player's entry apartment.</summary>
 internal static partial class RomPickerStartupVerification
 {
+    /// <summary>Invokes the actual Choose ROM button on the game's apartment and cancels its native dialog.</summary>
     [ReflectionAudit("published-assembly dialog test: the form type comes from the loaded package, and Button.PerformClick is inert on an unshown form, so WinForms OnClick is raised directly")]
     public static void Run(string gameAssemblyPath)
     {
@@ -86,12 +87,17 @@ internal static partial class RomPickerStartupVerification
         Console.WriteLine("PASS actual Choose ROM handler: native dialog opened and cancellation returned on the player's STA apartment; no installation or saves touched.");
     }
 
+    /// <summary>Receives each top-level window on the test-owned dialog thread.</summary>
     private delegate bool WindowCallback(nint window, nint parameter);
+    /// <summary>Gets the native ID used to enumerate only the test thread's windows.</summary>
     [LibraryImport("kernel32.dll")] private static partial uint GetCurrentThreadId();
+    /// <summary>Enumerates windows owned by the ROM-picker dialog thread.</summary>
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool EnumThreadWindows(uint thread, WindowCallback callback, nint parameter);
+    /// <summary>Reads each window class so the native common dialog can be identified.</summary>
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int GetClassName(nint window, System.Text.StringBuilder name, int capacity);
+    /// <summary>Posts WM_CLOSE to the identified common dialog to exercise cancellation.</summary>
     [LibraryImport("user32.dll", EntryPoint = "PostMessageW")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool PostMessage(nint window, uint message, nint wParam, nint lParam);

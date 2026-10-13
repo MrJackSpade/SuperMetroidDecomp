@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Dachora species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class DachoraBehavior : IEnemySpecies
 {
+    /// <summary>Provides the room bus and active context for Dachora's native AI.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Probes floors, walls, and ceiling during the run and shinespark arc.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Provides the four physical echo slots immediately after Dachora's body.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Supplies installed palette art for speed and shine color cycles.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Binds the room, terrain, echo slots, and presentation used by Dachora's AI callbacks.</summary>
     internal DachoraBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemySlotTable slotTable, EnemyPresentation presentation)
     {
         _room = room;
@@ -20,28 +25,45 @@ internal sealed class DachoraBehavior : IEnemySpecies
         _presentation = presentation;
     }
 
+    /// <summary>Library-two sound queued when Samus wakes the tutorial Dachora.</summary>
     private const ushort DachoraActivationSound = 0x001d;
+    /// <summary>Library-two sound accompanying Dachora's Speed Booster run.</summary>
     private const ushort DachoraSpeedBoosterSound = 0x0039;
+    /// <summary>Library-two sound queued while Dachora stores its shinespark.</summary>
     private const ushort DachoraChargeSound = 0x003d;
+    /// <summary>Library-two sound queued when Dachora launches upward.</summary>
     private const ushort DachoraLaunchSound = 0x003b;
+    /// <summary>Library-two sound queued on Dachora's ceiling contact.</summary>
     private const ushort DachoraCeilingImpactSound = 0x003c;
+    /// <summary>Library-two sound queued at the scripted left wall turn.</summary>
     private const ushort DachoraWallImpactSound = 0x0071;
 
-    // NTSC retail constants at $A7:F4C9-$F4DB. They are kept as paired native words so
-    // fixed-point carry and exact threshold frames remain visible and auditable.
+    /// <summary>Native $A7:F4C9 horizontal proximity threshold for activating the bird.</summary>
     private const int DachoraActivationXDistance = 0x60;
+    /// <summary>Native $A7:F4CB vertical proximity threshold for activating the bird.</summary>
     private const int DachoraActivationYDistance = 0x40;
+    /// <summary>Native warning interval before Dachora starts its leftward run.</summary>
     private const ushort DachoraBlinkDuration = 0x78;
+    /// <summary>Native stored-shine countdown before Dachora launches.</summary>
     private const ushort DachoraChargeDuration = 0x3c;
+    /// <summary>Accepted-frame interval between echo position captures.</summary>
     private const ushort DachoraEchoPositionInterval = 1;
+    /// <summary>Accepted-frame lifetime of each Dachora shine echo.</summary>
     private const ushort DachoraEchoLifetime = 8;
+    /// <summary>Whole half of the bird's native 16.16 run speed cap.</summary>
     private const ushort DachoraMaximumSpeedWhole = 8;
+    /// <summary>Fraction half of the bird's native 16.16 run speed cap.</summary>
     private const ushort DachoraMaximumSpeedFraction = 0;
+    /// <summary>Whole half of Dachora's native 16.16 running acceleration.</summary>
     private const ushort DachoraAccelerationWhole = 0;
+    /// <summary>Fraction half of Dachora's native 16.16 running acceleration.</summary>
     private const ushort DachoraAccelerationFraction = 0x1000;
+    /// <summary>Scripted room X where Dachora reverses its leftward run.</summary>
     private const ushort DachoraLeftTurnX = 0x0060;
+    /// <summary>Scripted room X where Dachora begins its stored-shine demonstration.</summary>
     private const ushort DachoraShinesparkX = 0x0480;
 
+    /// <summary>Per-slot body and echo state reset when a new room population loads.</summary>
     internal readonly DachoraEnemyState?[] _dachoraStates =
         new DachoraEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -482,6 +504,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         throw new InvalidOperationException("Dachora requires installed palette-cycle colors.");
     }
 
+    /// <summary>Finds the four consecutive Dachora echoes following the body and rejects a malformed formation.</summary>
     private RoomEnemySlot[] RequireDachoraEchoSlots(RoomEnemySlot body)
     {
         if (body.SlotIndex + 4 >= RoomEnemySystem.MaximumEnemyCount)
@@ -501,22 +524,27 @@ internal sealed class DachoraBehavior : IEnemySpecies
         return echoes;
     }
 
+    /// <summary>Finds initialized Dachora state for a body or echo callback.</summary>
     private DachoraEnemyState RequireDachoraState(RoomEnemySlot slot) =>
         _dachoraStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Dachora slot {slot.SlotIndex} has no initialized native state.");
 
+    /// <summary>Starts an authored Dachora animation list at its first interpreter tick.</summary>
     private static void InstallDachoraInstruction(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
+    /// <summary>Uses wrapped signed positions and a strict native proximity threshold on one axis.</summary>
     private static bool DachoraWithinAxis(ushort actor, ushort samus, int distance) =>
         Math.Abs(unchecked((short)(actor - samus))) < distance;
 
+    /// <summary>Combines signed whole and unsigned fraction words into Dachora's 16.16 motion value.</summary>
     private static int ComposeDachoraFixed(ushort whole, ushort fraction) =>
         unchecked((SnesSixteenSixteen.FromWhole((int)(short)whole)) | fraction);
 
+    /// <summary>Adds paired native whole and fraction words with carry, preserving 32-bit wraparound.</summary>
     private static (ushort Whole, ushort Fraction) AddDachoraFixed(
         ushort whole,
         ushort fraction,
@@ -529,6 +557,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         return (SnesFixedPosition.WholeOf(unchecked((int)value)), unchecked((ushort)value));
     }
 
+    /// <summary>Registers Dachora's initialization callback for body and echo records.</summary>
     internal void RegisterDachoraInitializationAi(EnemyAiTable table)
     {
 
@@ -538,6 +567,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Dachora's body and echo frame dispatch under the bank-$A7 main AI identity.</summary>
     internal void RegisterDachoraMainAi(EnemyAiTable table)
     {
 

@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 using static LookupGlassProjectileProgramVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Mother Brain glass shard and sparkle cadence, control words, loop targets, and ROM-free playback.</summary>
 internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads retail data and runs the Mother Brain glass projectile instruction suite.</summary>
     internal static void VerifyMotherBrainGlassInstructionProgramDefinitions() =>
         Suite(nameof(VerifyMotherBrainGlassInstructionProgramDefinitions), () => VerifyMotherBrainGlassInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks shard and sparkle control words, live loops, shared deletion, and forbidden ROM reads.</summary>
     internal static void VerifyMotherBrainGlassInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -149,6 +152,7 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates shard and sparkle word lookups to measure warmed allocation.</summary>
     private static int ProbeMotherBrainGlassInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -162,6 +166,7 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids private and shared glass mechanics bytes while observing presentation operands.</summary>
     private static CartridgeReadGuard NewMotherBrainGlassInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => MotherBrainGlassInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||

@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
+/// <summary>Checks native pose-history word shifts and the movement-byte gate for wall-jump probing.</summary>
 internal static class SamusPoseHistoryVerification
 {
+    /// <summary>Checks distinct and repeated transitions, then all 256 movement bytes with direction held separately.</summary>
     internal static void VerifySamusPoseHistory()
     {
         // Literal fixture for $91:E719. Preserve the packed direction/movement words

@@ -18,8 +18,10 @@ using static SamusEaterPlmDefinitionsVerification;
 using static SporeSpawnCeilingPlmsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks editable Spore Spawn ceiling artwork while retaining compiled PLM physics and timing.</summary>
 internal static class SporeSpawnCeilingVisualsVerification
 {
+    /// <summary>Checks four stock frames, two edited two-by-two draws, override persistence, and strict asset rejection.</summary>
     internal static void VerifySporeSpawnCeilingVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -98,6 +100,7 @@ internal static class SporeSpawnCeilingVisualsVerification
             "Spore Spawn ceiling visuals: four native frames, live 2x2 edits, physical/timing isolation, stock repair and strict failures pass.");
     }
 
+    /// <summary>Compares flattened stock visual words with cartridge draws and checks catalog identity, shape, and bounds.</summary>
     private static void VerifySporeSpawnCeilingStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmSporeSpawnCeilingVisualCatalog installed)
     {
@@ -115,6 +118,7 @@ internal static class SporeSpawnCeilingVisualsVerification
         var entries = frames.Select(frame => new RoomPlmSporeSpawnCeilingVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmSporeSpawnCeilingVisualCatalog.Stock();
         var imported = new RoomPlmSporeSpawnCeilingVisualCatalog(entries.Reverse());
+        // Hash flattened visual frames by native draw pointer for catalog identity comparison.
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
             nameof(RoomPlmSporeSpawnCeilingVisualCatalog), words);
         foreach (var catalog in new[] {stock, imported, installed})
@@ -156,6 +160,7 @@ internal static class SporeSpawnCeilingVisualsVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(entries), "Spore ceiling visual bits only");
     }
 
+    /// <summary>Runs a clear or crumble ceiling PLM and checks edited redraws without changing collision or deletion timing.</summary>
     private static void VerifySporeSpawnCeilingVisualSeparation(
         RoomPlmSporeSpawnCeilingVisualCatalog edited, bool clear)
     {
@@ -207,6 +212,7 @@ internal static class SporeSpawnCeilingVisualsVerification
             $"Spore Spawn {(clear ? "clear" : "crumble")} edited draw reads no source bytes");
     }
 
+    /// <summary>Runs stock and edited Spore Spawn ceiling visual verification.</summary>
     [VerificationCommand("--spore-spawn-ceiling-visuals")]
     internal static int SporeSpawnCeilingVisualsCommand()
     {

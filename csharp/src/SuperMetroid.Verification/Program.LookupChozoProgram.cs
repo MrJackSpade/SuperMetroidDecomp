@@ -2,14 +2,21 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks each Chozo statue PLM program field against its native bank $84 bytes.</summary>
 internal static class LookupChozoProgramVerification
 {
+    /// <summary>Checks command and duration ownership across the full 16-bit address space.</summary>
     internal static void VerifyChozoProgramControls(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 0);
+    /// <summary>Checks the seven interleaved statue drawing words against retail bytes.</summary>
     internal static void VerifyChozoProgramDraws(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 1);
+    /// <summary>Checks the program's target-address word against the native record.</summary>
     internal static void VerifyChozoProgramTargets(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 2);
+    /// <summary>Checks the statue callback operand against the native record.</summary>
     internal static void VerifyChozoProgramCallback(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 3);
+    /// <summary>Checks the event operand against the native record.</summary>
     internal static void VerifyChozoProgramEvent(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 4);
 
+    /// <summary>Checks byte and overlapping word ownership while comparing one selected field family.</summary>
     private static void VerifyChozoProgramField(SuperMetroidAddressSpace rom, int field)
     {
         int[] draws = [0xd0f8,0xd0fc,0xd100,0xd104,0xd151,0xd3d1,0xd3ee];
@@ -46,6 +53,7 @@ internal static class LookupChozoProgramVerification
         AssertEqual(field switch {0 => 36,1 => 14,2 => 2,3 => 2,_ => 2}, count, "ChozoProgram independent field count");
     }
 
+    /// <summary>Reads one retail PLM byte for the selected field's source comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo program field")]
     private static byte ChozoProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

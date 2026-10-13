@@ -3,6 +3,8 @@ using System.Text;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
+/// <summary>Development command for rebuilding literal enemy visual-selector source
+/// from the pinned cartridge inventory.</summary>
 internal static class EnemyVisualSelectorGenerator
 {
     /// <summary>Regenerates the checked-in compiled enemy visual-selector catalog from the inventory.</summary>

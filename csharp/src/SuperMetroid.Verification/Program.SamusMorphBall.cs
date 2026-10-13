@@ -17,10 +17,11 @@ using static RetailRuntimeFixtureVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Constructed cartridge checks for ball movement, bombs, blast reactions, and tight passages.</summary>
 internal static class SamusMorphBallVerification
 {
 
-/// <summary>Morph Ball, bomb, reaction-PLM, and tunnel verification.</summary>
+/// <summary>Checks morph entry, bomb spread and jump timing, reaction PLMs, bounce, and tunnel collision.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
 internal static void VerifySamusMorphBallMovement()
 {
@@ -1642,6 +1643,7 @@ internal static void VerifySamusMorphBallMovement()
     Console.WriteLine("  Morph Ball: entry, bomb spread, bomb jump, reaction PLMs, bounce, and tunnel collision agree.");
 }
 
+/// <summary>Advances one planted power bomb through fuse expiry to its first center-block boundary scan.</summary>
 private static void RunPowerBombToInitialBoundary(
     ISnesAddressSpace bus,
     RoomLevelData level,
@@ -1877,6 +1879,7 @@ static void InstallBombReactionPlmFixture(TestAddressSpace bus)
     bus.WriteBytes(0x84a4f3, [0x01, 0x00, 0xb6, 0xb0, 0x00, 0x00]);
 }
 
+    /// <summary>Runs the Morph Ball movement and bomb-reaction fixture.</summary>
     [VerificationCommand("--samus-morph-ball")]
     internal static int SamusMorphBallCommand()
     {

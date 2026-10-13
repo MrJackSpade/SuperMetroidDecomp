@@ -19,8 +19,10 @@ using static ObjSubscreenVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks ending Mode 7 and reward artwork DMA against retail VRAM lane placement.</summary>
 internal static class EndingDmaVerification
 {
+    /// <summary>Confirms escape artwork uses split VRAM lanes and reward artwork uses contiguous bytes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending escape and reward VRAM DMA")]
     internal static void VerifyEndingDma()
     {
@@ -59,6 +61,7 @@ internal static class EndingDmaVerification
             "native post-credits reward DMA writes contiguous bytes, not the Mode-7 high lane");
     }
 
+    /// <summary>Runs ending DMA and render-snapshot checks together.</summary>
     [VerificationCommand("--ending-dma")]
     internal static int EndingDmaCommand()
     {

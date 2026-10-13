@@ -13,6 +13,7 @@ using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
+/// <summary>Checks Samus's final carry placement before Draygon consumes the escape signal.</summary>
 internal static class DraygonEscapeDragVerification
 {
     /// <summary>
@@ -41,6 +42,7 @@ internal static class DraygonEscapeDragVerification
         Console.WriteLine("  Draygon escape drag: the first carry call after an escape still places Samus.");
     }
 
+    /// <summary>Runs the focused 13% movie Draygon release-placement check from the verification command line.</summary>
     [VerificationCommand("--draygon-escape-drag")]
     internal static int DraygonEscapeDragCommand()
     {

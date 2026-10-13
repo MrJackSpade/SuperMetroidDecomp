@@ -28,6 +28,7 @@ public sealed class ModeledSoundAcknowledgements : ISoundAcknowledgementSource
     /// <summary>Shared stateless policy for normal play.</summary>
     public static ModeledSoundAcknowledgements Instance { get; } = new();
 
+    /// <summary>Prevents instances other than <see cref="Instance"/>.</summary>
     private ModeledSoundAcknowledgements() { }
 
     /// <summary>Returns the modeled acknowledgements unchanged.</summary>

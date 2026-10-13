@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks compiled area-animation selectors against the bank-$83 retail lookup tables.</summary>
 internal static class LookupAnimatedAreasVerification
 {
+    /// <summary>Matches all eight native list pointers and rejects area indices outside that table.</summary>
     internal static void VerifyAnimatedAreaListPointers(SuperMetroidAddressSpace rom)
     {
         for (int area = 0; area < 8; area++)
@@ -14,6 +16,7 @@ internal static class LookupAnimatedAreasVerification
                 () => AreaAnimatedTileObjectDefinitions.NativeListPointer(invalid), "Native area bounds");
     }
 
+    /// <summary>Checks each area/bit selection and preserves the distinct native and retail validation order.</summary>
     internal static void VerifyAnimatedAreaObjectSelection(SuperMetroidAddressSpace rom)
     {
         for (int area = 0; area < 256; area++)

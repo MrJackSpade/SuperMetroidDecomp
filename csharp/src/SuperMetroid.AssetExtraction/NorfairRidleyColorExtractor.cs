@@ -40,6 +40,7 @@ public static class NorfairRidleyColorExtractor
         });
     }
 
+    /// <summary>Decodes contiguous SNES BGR555 words into RGB5 channels and rejects bit fifteen, which is outside palette color data.</summary>
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int source, int count)
     {
         var colors = new PaletteRgb5[count];

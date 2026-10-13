@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Reads bank-$86 program bytes from the retail cartridge as a verifier oracle.</summary>
 internal static class EnemyProjectileProgramOracleVerification
 {
     /// <summary>

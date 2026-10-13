@@ -9,12 +9,18 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class EscapeRoomEffects
 {
+    /// <summary>Owns earthquake state and the escape-explosion projectile publisher.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Suppresses explosion generation while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
+    /// <summary>Sets the native two- or four-frame explosion cadence.</summary>
     private readonly NmiClock _nmi;
+    /// <summary>Provides the active room callback, camera, level, and scratch countdown.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Supplies the cartridge random sequence and Zebes timebomb event.</summary>
     private readonly Bank80SystemState _system;
 
+    /// <summary>Binds room, enemy, freeze, clock, and system owners used by escape callbacks.</summary>
     internal EscapeRoomEffects(RoomEnemySystem enemies, GameplayTimeFreeze freeze, NmiClock nmi, ActiveRoomState room, Bank80SystemState system)
     {
         _enemies = enemies;
@@ -23,6 +29,7 @@ internal sealed class EscapeRoomEffects
         _room = room;
         _system = system;
     }
+    /// <summary>Initializes the selected room's quake and clears diagonal countdowns only for the two native switchers.</summary>
     internal void SetupEscapeRoomEffects(RoomSetupCallback setup)
     {
         // $8F:C93C/$C964 clear the diagonal countdown (RoomMainASMVar1) for the two rooms

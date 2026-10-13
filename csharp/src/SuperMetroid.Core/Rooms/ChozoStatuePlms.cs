@@ -6,17 +6,20 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Chozo statue hand PLMs ($84:D6EA family): the Wrecked Ship and Lower Norfair hand checks and the hardcoded statue spawns.</summary>
 internal sealed class ChozoStatuePlms
 {
+    /// <summary>Room progression, area, and other services used by statue hand setup.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Descending native PLM allocation scanned for temporary reactions and persistent statue actors.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Binds Chozo hand behavior to its room services and PLM slot allocation.</summary>
     internal ChozoStatuePlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
     {
         _bindings = bindings;
         _slotTable = slotTable;
     }
-    // These are wiring, not emulated state. Runtime binds them before collision and on
-    // room initialization, including the first frame after restoring an older state.
+    /// <summary>Bound enemy owner for statue hand activation; reattached after room load or state restore.</summary>
     [NonSerialized] internal RoomEnemySystem? _chozoEnemies;
+    /// <summary>Bound room FX owner for Lower Norfair acid height writes; reattached after restore.</summary>
     [NonSerialized] internal RoomLayer3FxState? _chozoRoomFx;
 
     /// <summary>Connects the bank-$84 hand setup to the existing bank-$AA actor owner.</summary>
@@ -98,6 +101,7 @@ internal sealed class ChozoStatuePlms
         return false;
     }
 
+    /// <summary>Changes a hand or plug block's collision type and BTS while preserving its visual word.</summary>
     private static void WriteChozoBlock(RoomLevelData level, int index,
         RoomCollisionType type, byte bts)
     {
@@ -106,6 +110,7 @@ internal sealed class ChozoStatuePlms
         level.SetBehavior(index, bts);
     }
 
+    /// <summary>Handles the hand's event branch, spike/slope changes, and lowered acid FX instruction.</summary>
     internal bool TryExecuteChozoStatueInstruction(ISnesAddressSpace bus, RoomLevelData level, PlmSlot slot, RoomPlmInstruction instruction)
     {
         // GotoIfEventSet belongs to this handler only for the Lower Norfair hand.
@@ -155,6 +160,7 @@ internal sealed class ChozoStatuePlms
         return true;
     }
 
+    /// <summary>Restores the Lower Norfair hand collision block once its trigger location becomes air.</summary>
     internal static void RunChozoStatuePreInstruction(RoomLevelData level, PlmSlot slot)
     {
         if (slot.PreInstruction != ChozoStatuePlmRomData.WaitForLowerNorfairHand) return;

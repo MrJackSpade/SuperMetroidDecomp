@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Cacatac spike projectile programs, live spawns, and presentation selectors against bank $86.</summary>
 internal static class CacatacProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the pinned cartridge and runs the Cacatac projectile comparison.</summary>
     internal static void VerifyCacatacProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCacatacProjectileInstructionProgramDefinitions), () => VerifyCacatacProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks all ten directional programs through spawn, frame install, terminal sleep, and read guards.</summary>
     internal static void VerifyCacatacProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -104,6 +107,7 @@ internal static class CacatacProjectileInstructionProgramDefinitionsVerification
             "forbidden.");
     }
 
+    /// <summary>Repeats warmed spike instruction lookups for the caller's allocation measurement.</summary>
     private static int ProbeCacatacProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -115,18 +119,21 @@ internal static class CacatacProjectileInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids compiled mechanics rereads and observes native presentation word access.</summary>
     private static CartridgeReadGuard NewCacatacProjectileInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(CacatacProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Cacatac spike mechanics ${address:X6}.")
             .ObserveWords(0x860000, CacatacProjectileInstructionProgramDefinitions.PresentationWordCount, CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the cartridge-backed Cacatac fixture through its short command alias.</summary>
     [VerificationCommand("--cacatac-fixture")]
     internal static int CacatacFixtureCommand()
     {
      VerifyCacatacProjectileInstructionProgramDefinitions(); return 0; 
     }
 
+    /// <summary>Dispatches the Cacatac projectile instruction mechanics verification command.</summary>
     [VerificationCommand("--cacatac-projectile-instruction-mechanics")]
     internal static int CacatacProjectileInstructionMechanicsCommand()
     {

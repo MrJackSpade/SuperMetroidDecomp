@@ -31,6 +31,7 @@ public sealed class RoomPlmMotherBrainGlassVisualCatalog
         }
     });
 
+    /// <summary>Copied visual overrides by compiled glass-layout pointer; unchanged layouts use stock visual words.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates all eleven glass layouts and copies visual differences without changing damage thresholds, shards, event timing, physical words, or signed draw offsets.</summary>

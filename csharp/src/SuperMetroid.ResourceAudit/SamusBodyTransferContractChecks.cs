@@ -11,6 +11,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified missing-record admission gap using authored data, not poses in gameplay.</summary>
 internal static class SamusBodyTransferContractChecks
 {
+    /// <summary>Checks physical-definition admission, native cross-group addressing, and static consumer classification.</summary>
     internal static void Run()
     {
         bool rejected = false;
@@ -34,6 +35,7 @@ internal static class SamusBodyTransferContractChecks
         ConfirmStaticCalls();
     }
 
+    /// <summary>Builds a minimal body catalog with a missing physical record or invalid adjacent frame when requested.</summary>
     private static SamusBodyArtworkCatalog Body(bool shortFirstGroup, bool invalidAdjacentFrame = false)
     {
         // Twenty-four groups, with two records in the first and one in each other
@@ -74,6 +76,7 @@ internal static class SamusBodyTransferContractChecks
         return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = pointers[..SamusBodyArtworkCatalog.TopSetCount], BottomPointers = pointers[SamusBodyArtworkCatalog.TopSetCount..], PosePointers = Enumerable.Repeat((ushort)SamusBodyArtworkCatalog.FirstFrameOffset, SamusBodyArtworkCatalog.PoseCount).ToArray(), GraphicsYOffsets = new sbyte[SamusBodyArtworkCatalog.PoseCount], Frames = frames, Top = groups[..SamusBodyArtworkCatalog.TopSetCount], Bottom = groups[SamusBodyArtworkCatalog.TopSetCount..], Spritemaps = sprites, Atmosphere = atmosphere, DeathPalettes = deathColors, DeathTiles = deathTiles, ArmCannon = cannon, LandingYOffsets = new ushort[SamusRenderingRomData.Body.LandingVerticalOffsetByteCount], PostureYOffsets = new sbyte[SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount], DrainedYOffsets = new sbyte[SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount] });
     }
 
+    /// <summary>Compiles representative transfer calls and checks audit behavior under valid and stale source contracts.</summary>
     private static void ConfirmStaticCalls()
     {
         var trees = SamusBodyTransferClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -124,6 +127,7 @@ internal static class SamusBodyTransferContractChecks
         Require(Inspect(Compile(trees.Append(extra)), true).UnresolvedCount == 8, "unreviewed private-state access revokes transfer closure");
     }
 
+    /// <summary>Creates a transparent indexed PNG stream for synthetic body artwork dependencies.</summary>
     private static MemoryStream Png(Extent16<ImagePixels> size)
     {
         var stream = new MemoryStream();
@@ -132,6 +136,7 @@ internal static class SamusBodyTransferContractChecks
         return stream;
     }
 
+    /// <summary>Reports a failed transfer-contract assertion with its specific reason.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Samus transfer confirmation failed: " + reason);

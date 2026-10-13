@@ -9,7 +9,9 @@ namespace SuperMetroid.Core.Hardware;
 [SnesEncodingOwner]
 public readonly record struct SnesAddress
 {
+    /// <summary>Highest packed address representable by the SNES eight-bit bank and sixteen-bit offset.</summary>
     private const int MaximumValue = 0x00ff_ffff;
+    /// <summary>Upper-half bank offset bit distinguishing cartridge-backed LoROM windows.</summary>
     private const ushort UpperLoRomWindowMask = 0x8000;
 
     /// <summary>Creates an address from its exact native bank and offset fields.</summary>
@@ -18,6 +20,7 @@ public readonly record struct SnesAddress
         Value = (bank << 16) | offset;
     }
 
+    /// <summary>Retains a packed address after the public factory has checked its 24-bit range.</summary>
     private SnesAddress(int checkedValue)
     {
         Value = checkedValue;

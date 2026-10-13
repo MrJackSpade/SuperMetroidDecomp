@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Compares compiled rain velocities with the four retail words and their full random-selection domain.</summary>
 internal static class LookupRainVelocityVerification
 {
+    /// <summary>Checks all four entries, 65,536 native RNG selectors, and out-of-range rejection.</summary>
     internal static void VerifyRainHorizontalVelocity(SuperMetroidAddressSpace rom)
     {
         for (int selection = 0; selection < 4; selection++)

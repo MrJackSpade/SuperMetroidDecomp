@@ -15,8 +15,10 @@ using SuperMetroid.Core.Hardware;
 using static EnemyContentIdentityFixtureVerification;
 using static KraidHeadInstructionsVerification;
 
+/// <summary>Checks Kraid's growth transition when a head command is interrupted by a foot lunge.</summary>
 internal static class KraidGrowthCommandCursorVerification
 {
+    /// <summary>Verifies the offset-two command cursor, retained head image, 64-frame delay, and ROM-free execution.</summary>
     internal static void VerifyKraidGrowthCommandCursor()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -67,9 +69,11 @@ internal static class KraidGrowthCommandCursorVerification
         Console.WriteLine("Kraid growth command cursor: reported foot-lunge transition, native 64-frame delay, retained display, and offset-two words for all declared commands pass.");
     }
 
+    /// <summary>Reads one native command byte as an independent growth-selection oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth command cursor")]
     private static byte KraidGrowthCommandCursorRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Runs the Kraid growth command-cursor regression.</summary>
     [VerificationCommand("--kraid-growth-command-cursor")]
     internal static int KraidGrowthCommandCursorCommand()
     {

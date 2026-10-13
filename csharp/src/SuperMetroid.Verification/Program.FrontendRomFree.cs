@@ -20,6 +20,7 @@ using static FrontendRomFreeCensusVerification;
 using static GoldenTorizoRoomSetupVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Compares installed ROM-free frontend execution with a cartridge-backed reference.</summary>
 internal static class FrontendRomFreeVerification
 {
     /// <summary>
@@ -791,6 +792,7 @@ internal static class FrontendRomFreeVerification
             "operand-free Torizo return executes without reading $AA:F002");
     }
 
+    /// <summary>Wraps installed memory with a guard rejecting cartridge reads and marked BG2 visual streams.</summary>
     internal static MutableCartridgeReadGuard NewFrontendCartridgeReadGuard(
         ISnesAddressSpace source, HashSet<int>? blockedPresentationBytes = null)
     {
@@ -803,6 +805,7 @@ internal static class FrontendRomFreeVerification
         return guard;
     }
 
+    /// <summary>Marks native extended-frame BG2 source bytes so installed play cannot reread them.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for block frontend extended BG2 streams")]
     private static void BlockFrontendExtendedBg2Streams(HashSet<int> blockedPresentationBytes,
         ISnesAddressSpace catalogueSource, byte bank, EnemyBg2FrameDefinitionSequence frames)
@@ -843,6 +846,7 @@ internal static class FrontendRomFreeVerification
         }
     }
 
+    /// <summary>Runs installed frontend parity from reset through title, options, intro, and room checks.</summary>
     [VerificationCommand("--rom-free-startup")]
     internal static int RomFreeStartupCommand()
     {
@@ -850,6 +854,7 @@ internal static class FrontendRomFreeVerification
         return 0;
     }
 
+    /// <summary>Runs the same startup parity with the optional configured room census.</summary>
     [VerificationCommand("--rom-free-room-census")]
     internal static int RomFreeRoomCensusCommand()
     {

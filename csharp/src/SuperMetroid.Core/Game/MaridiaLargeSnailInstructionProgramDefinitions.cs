@@ -36,6 +36,7 @@ internal abstract class MaridiaLargeSnailInstructionProgramDefinitions
     /// <summary>Native program bank $A2.</summary>
     internal const byte Bank = 0xa2;
 
+    /// <summary>Control layout for both facing directions, including attack completion and rolling rotation callbacks.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xca4b),
         Entry(FacingLeftIdle),
@@ -127,6 +128,7 @@ internal abstract class MaridiaLargeSnailInstructionProgramDefinitions
         Op((ushort)MaridiaLargeSnailInstruction.DisallowAttackRotation),
         Op((ushort)CommonEnemyInstruction.Goto, FacingRightRollingBackwards));
 
+    /// <summary>Resolves an Oum control word in bank $A2 and rejects presentation or unknown addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

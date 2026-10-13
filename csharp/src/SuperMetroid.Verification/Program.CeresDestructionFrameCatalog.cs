@@ -2,8 +2,12 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the Ceres destruction sprite catalog's names, frame
+/// pointers, part counts, ordering, and index bounds against native operands.</summary>
 internal static class CeresDestructionFrameCatalogVerification
 {
+    /// <summary>Compares all twenty-three backdrop and blast frames with
+    /// cartridge definitions and rejects indexes outside each frame family.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres destruction frame catalog")]
     internal static void VerifyCeresDestructionFrameCatalog(ISnesAddressSpace rom)
     {

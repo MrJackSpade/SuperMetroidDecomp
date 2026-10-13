@@ -4,8 +4,12 @@ using SuperMetroid.Core.Hardware;
 using static IntroMotherBrainExplosionPartsVerification;
 using static MapSpritesVerification;
 
+/// <summary>Checks calculated Zebes planet bands against native sprite parts
+/// while preserving editable Ceres destruction presentation.</summary>
 internal static class ZebesPlanetBandPartsVerification
 {
+    /// <summary>Compares stock part fields and visible or wrapped OAM, then
+    /// checks each independently edited field bypasses calculated substitution.</summary>
     internal static void VerifyZebesPlanetBandParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("ZebesPlanetBand", value.AppendIdentity);

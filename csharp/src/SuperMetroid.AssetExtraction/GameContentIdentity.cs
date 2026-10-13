@@ -190,6 +190,7 @@ public sealed record GameContentIdentity(
         return warnings;
     }
 
+    /// <summary>Frames a UTF-8 identity component with its little-endian byte length before hashing it.</summary>
     private static void Append(IncrementalHash hash, string value)
     {
         byte[] bytes = Encoding.UTF8.GetBytes(value);
@@ -199,6 +200,7 @@ public sealed record GameContentIdentity(
         hash.AppendData(bytes);
     }
 
+    /// <summary>Requires a 64-character hexadecimal SHA-256 digest before incorporating a selected component.</summary>
     private static void ValidateDigest(string digest, string parameterName)
     {
         if (digest is null || digest.Length != SHA256.HashSizeInBytes * 2 ||
@@ -210,6 +212,7 @@ public sealed record GameContentIdentity(
         }
     }
 
+    /// <summary>Adds a component-specific compatibility warning when recorded and selected digest bytes differ.</summary>
     private static void AddDigestWarning(
         List<string> warnings,
         string component,

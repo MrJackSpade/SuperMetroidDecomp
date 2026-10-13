@@ -18,8 +18,10 @@ using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Samus Eater PLM draw geometry, editable visual blocks and physical collision isolation against retail data.</summary>
 internal static class SamusEaterVisualsVerification
 {
+    /// <summary>Extracts all eight native draws, checks their compiled geometry and live floor/ceiling redraws, and rejects collision-changing overrides.</summary>
     internal static void VerifySamusEaterVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -93,6 +95,7 @@ internal static class SamusEaterVisualsVerification
         Console.WriteLine("Samus Eater visuals: eight exact native draw lists, editable live floor/ceiling art, physical isolation, stock integrity and repair pass.");
     }
 
+    /// <summary>Matches each installed visual frame to its native draw-list words while checking clone and ID validation rules.</summary>
     private static void VerifySamusEaterStockVisualMapping(SuperMetroidAddressSpace rom,
         RoomPlmSamusEaterVisualCatalog installed)
     {
@@ -171,12 +174,15 @@ internal static class SamusEaterVisualsVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmSamusEaterVisualCatalog(entries), "plant collision bits rejected");
     }
 
+    /// <summary>Checks the run sizes and signed offsets of each compiled Samus Eater draw.</summary>
     private static void VerifySamusEaterDrawGeometry(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterDrawField), () => VerifySamusEaterDrawField(rom, false));
 
+    /// <summary>Checks every compiled physical level word against its cartridge draw list.</summary>
     private static void VerifySamusEaterDrawWords(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterDrawField), () => VerifySamusEaterDrawField(rom, true));
 
+    /// <summary>Scans pointer ownership and compares either draw geometry or level words for all eight native lists.</summary>
     private static void VerifySamusEaterDrawField(SuperMetroidAddressSpace rom, bool words)
     {
         ushort[] pointers = [0x9e0d, 0x9e45, 0x9e61, 0x9e7d, 0x9e99, 0x9ed1, 0x9eed, 0x9f09];
@@ -242,6 +248,7 @@ internal static class SamusEaterVisualsVerification
         }
     }
 
+    /// <summary>Draws an edited PLM into a room and checks that the rendered block changes while native collision words and placement remain intact.</summary>
     private static void VerifySamusEaterLiveDraw(
         SuperMetroidAddressSpace rom, RoomPlmSamusEaterVisualCatalog visuals, ushort pointer,
         ushort physicalWord, ushort visualWord)
@@ -286,11 +293,13 @@ internal static class SamusEaterVisualsVerification
             "compiled Samus Eater draw never reads ROM at runtime");
     }
 
+    /// <summary>Forbids cartridge reads and CPU-bus writes during the installed-artwork redraw path.</summary>
     private static CartridgeReadGuard NewSamusEaterVisualSourceGuard() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Samus Eater drew from native ROM ${address:X6}.")
             .RejectWrites(_ => "Samus Eater draw wrote to CPU bus.");
 
+    /// <summary>Runs the Samus Eater visual and physical draw checks from the verification command.</summary>
     [VerificationCommand("--samus-eater-visuals")]
     internal static int SamusEaterVisualsCommand()
     {

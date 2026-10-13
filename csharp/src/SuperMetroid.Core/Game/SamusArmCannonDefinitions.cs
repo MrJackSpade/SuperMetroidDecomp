@@ -7,6 +7,7 @@ internal static class SamusArmCannonDefinitions
     /// <summary>Number of HUD selections accepted by the native arm-cannon dispatcher.</summary>
     public const int HudItemCount = 6;
 
+    /// <summary>Native selected-HUD-item values whose weapon cover policy is mutually exclusive.</summary>
     private enum HudSelection : ushort
     {
         /// <summary>SelectedHUDItem $0000: no HUD weapon; beam fire.</summary>

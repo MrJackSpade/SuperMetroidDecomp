@@ -22,6 +22,7 @@ internal static class IntroScientistInstructionDefinitions
     /// <summary>$8B:CC0F, subtitle-arrow loop included in the original examination view.</summary>
     private const ushort ArrowStart = 0xcc0f;
 
+    /// <summary>Calculates delivery or examination timer, page-request, and frame words across the repeated pulse program.</summary>
     private static ushort ActorWord(bool examination, int word)
     {
         ushort start = examination ? ExaminationStart : DeliveryStart;
@@ -38,6 +39,7 @@ internal static class IntroScientistInstructionDefinitions
         return IntroScientistSpriteDefinitions.FramePointer((examination ? 6 : 3) + frame);
     }
 
+    /// <summary>Calculates the neighboring subtitle arrow's frame loop and blank hold.</summary>
     private static ushort ArrowWord(int word)
     {
         if (word < 8)
@@ -51,6 +53,7 @@ internal static class IntroScientistInstructionDefinitions
         };
     }
 
+    /// <summary>Reads a byte from the compiled delivery, examination, caret, arrow, or shared-delete view.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is >= DeletePointer and < (DeletePointer + 2))
@@ -75,6 +78,7 @@ internal static class IntroScientistInstructionDefinitions
         return unchecked((byte)(word >> (8 * (offset & 1))));
     }
 
+    /// <summary>Reassembles a bounded actor instruction word, including intentionally overlapping byte reads.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer == DeletePointer)

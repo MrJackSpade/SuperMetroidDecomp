@@ -24,6 +24,7 @@ internal static class CrocomireSkeletonVisualDefinitions
     private const ushort SingleComponentStart = ThreeComponentCollapse + 2 + 8 * 3;
 
 
+    /// <summary>Accepts only one of the 33 selected Crocomire skeleton roots in bank $A4, excluding component interiors and adjacent poses.</summary>
     internal static bool IsFrame(byte bank, ushort pointer)
     {
         if (bank != Bank) return false;
@@ -50,6 +51,7 @@ internal static class CrocomireSkeletonVisualDefinitions
         };
     }
 
+    /// <summary>Names an indexed skeleton OAM root by its native pointer for installed artwork lookup.</summary>
     internal static EnemyExtendedFrameDefinition Frame(int index)
     {
         ushort pointer = FramePointer(index);

@@ -13,12 +13,14 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Desktop;
 using System.Diagnostics;
 
+/// <summary>Hidden-window checks for D3D11 swapchain presentation, worker recovery and bounded frame publication.</summary>
 internal static partial class SwapchainTests
 {
     /// <summary>Reads the worker mailbox's private publication counters under its own lock.</summary>
     private static RenderMailboxCounterView MailboxCounters(D3D11RenderWorker worker) =>
         worker.mailbox.VerificationCounters;
 
+    /// <summary>Checks worker startup, latest-frame mailbox accounting, retained redraw, resize and both device-loss recoveries.</summary>
     internal static void RunWorker(D3D11RenderDevice selection)
     {
         nint window = CreateWindowExW(0, "STATIC", "Hidden GPU worker verification", 0, 0, 0, 640, 480, 0, 0, 0, 0);
@@ -89,6 +91,7 @@ internal static partial class SwapchainTests
         VerifySurfaceSuspension(selection.Kind);
     }
 
+    /// <summary>Pumps Win32 messages while waiting up to ten seconds for an asynchronous worker condition.</summary>
     private static void PumpUntil(Func<bool> finished)
     {
         var timeout = System.Diagnostics.Stopwatch.StartNew();
@@ -101,22 +104,41 @@ internal static partial class SwapchainTests
         }
     }
 
+    /// <summary>Blittable Win32 MSG payload used to keep hidden verification windows responsive.</summary>
     [StructLayout(LayoutKind.Sequential)]
     [SpatialComponents("Win32 interop: the blittable MSG layout flattens its POINT cursor field into two ints.")]
     private struct WindowMessage
     {
-        public nint Window; public uint Id; public nuint WParam; public nint LParam;
-        public uint Time; public int X, Y; public uint Private;
+        /// <summary>Target HWND supplied by the Win32 message queue.</summary>
+        public nint Window;
+        /// <summary>Win32 message identifier.</summary>
+        public uint Id;
+        /// <summary>Pointer-sized first message parameter.</summary>
+        public nuint WParam;
+        /// <summary>Pointer-sized second message parameter.</summary>
+        public nint LParam;
+        /// <summary>Queue timestamp in the native MSG layout.</summary>
+        public uint Time;
+        /// <summary>Cursor X coordinate from the flattened Win32 POINT.</summary>
+        public int X;
+        /// <summary>Cursor Y coordinate from the flattened Win32 POINT.</summary>
+        public int Y;
+        /// <summary>Private queue field retained for the full MSG layout.</summary>
+        public uint Private;
     }
+    /// <summary>Dequeues pending Win32 messages while hidden GPU windows are active.</summary>
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool PeekMessageW(out WindowMessage message, nint window, uint min, uint max, uint flags);
+    /// <summary>Produces character messages from a dequeued keyboard event.</summary>
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool TranslateMessage(in WindowMessage message);
+    /// <summary>Dispatches a dequeued message to its hidden window procedure.</summary>
     [LibraryImport("user32.dll")]
     private static partial nint DispatchMessageW(in WindowMessage message);
 
+    /// <summary>Checks flip-swapchain readiness, generation rejection, frame identity and several hidden-window resizes.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         // Predefined STATIC class, no WS_VISIBLE, no activation or message dialog.
@@ -152,13 +174,16 @@ internal static partial class SwapchainTests
         finally { if (!DestroyWindow(window)) throw new Win32Exception(Marshal.GetLastWin32Error()); }
     }
 
+    /// <summary>Creates a nonvisible STATIC window for swapchain and worker checks.</summary>
     [LibraryImport("user32.dll", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
     private static partial nint CreateWindowExW(uint extendedStyle, string className, string windowName,
         uint style, int x, int y, int width, int height, nint parent, nint menu, nint instance, nint parameter);
+    /// <summary>Releases the hidden window after worker or presenter shutdown.</summary>
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool DestroyWindow(nint window);
 
+    /// <summary>Checks that a blocked GPU consumer does not let a queued gameplay door transition corrupt frame identity or progress.</summary>
     internal static void VerifyBlockedDoor(D3D11RenderDevice device, D3D11FrameRenderer renderer,
         SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort door, ushort destination, string context)
     {
@@ -211,6 +236,7 @@ internal static partial class SwapchainTests
         }
     }
 
+    /// <summary>Checks bounded recreation attempts and preservation of the original terminal worker fault.</summary>
     private static void VerifyRecoveryFailure(D3D11DeviceKind kind, bool repeatDeviceLoss)
     {
         nint window = CreateWindowExW(0, "STATIC", "Hidden recovery failure verification", 0, 0, 0, 640, 480, 0, 0, 0, 0);
@@ -251,6 +277,7 @@ internal static partial class SwapchainTests
         }
     }
 
+    /// <summary>Compares real desktop audio under normal and blocked GPU consumption in two recorded room slices.</summary>
     internal static void RunSlowConsumerAudio(D3D11RenderDevice selection)
     {
         foreach (ushort room in new[] { SlowConsumerFixture.AlphaPowerBombRoom, SlowConsumerFixture.MaridiaTubeRoom })
@@ -258,6 +285,7 @@ internal static partial class SwapchainTests
                 RunSlowConsumerAudioRoom(selection, room, blockConsumer);
     }
 
+    /// <summary>Runs one room-local controller and pause slice through legacy, captured and headless audio paths.</summary>
     private static void RunSlowConsumerAudioRoom(D3D11RenderDevice selection, ushort room, bool blockConsumer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
@@ -400,6 +428,7 @@ internal static partial class SwapchainTests
         }
     }
 
+    /// <summary>Checks zero-size suspension, latest-frame replacement, generation invalidation and restore without presenting while suspended.</summary>
     private static void VerifySurfaceSuspension(D3D11DeviceKind kind)
     {
         // Exercise the real worker and swapchain without showing or minimizing the

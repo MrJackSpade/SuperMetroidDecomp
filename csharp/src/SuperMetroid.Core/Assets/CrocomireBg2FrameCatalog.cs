@@ -6,10 +6,13 @@ public sealed class CrocomireBg2FrameCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => frames.ContentIdentity;
 
+    /// <summary>The installed mixed-body frame catalog that owns Crocomire's ordered BG2 writes.</summary>
     private readonly EnemyBg2FrameCatalog frames;
 
+    /// <summary>Retains the validated frame catalog after loading its complete pointer set.</summary>
     private CrocomireBg2FrameCatalog(EnemyBg2FrameCatalog frames) => this.frames = frames;
 
+    /// <summary>Finds the ordered tilemap writes for a compiled mixed-body frame pointer.</summary>
     internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
         frames.TryGet(pointer, out writes);
 

@@ -14,6 +14,7 @@ internal sealed class AudioFocusProbe(Activity activity, Func<AudioFocusProbe.Ho
     /// <summary>The Activity's focus, lifecycle and audio services at the moment the probe reads them.</summary>
     internal readonly record struct HostState(bool Focused, bool Resumed, bool CanRun, AudioManager? AudioManager, Handler? Handler);
 
+    /// <summary>Prevents overlapping secondary focus requests while a timed probe runs.</summary>
     private bool focusProbeActive;
 
     /// <summary>Logs one audio-focus callback the game's own focus listener received.</summary>
@@ -33,9 +34,11 @@ internal sealed class AudioFocusProbe(Activity activity, Func<AudioFocusProbe.Ho
         handler.PostDelayed(() => Run(mode), 750);
     }
 
+    /// <summary>Appends a timestamped observation to the Activity's private probe log.</summary>
     private void Log(string text) =>
         File.AppendAllText(Path.Combine(activity.FilesDir!.AbsolutePath, "audio-focus-probe.log"), $"{DateTimeOffset.UtcNow:O} {text}\n");
 
+    /// <summary>Requests transient or duck focus, samples timing, and releases the request after three seconds.</summary>
     private void Run(string mode)
     {
         HostState state = host();
@@ -71,8 +74,10 @@ internal sealed class AudioFocusProbe(Activity activity, Func<AudioFocusProbe.Ho
         }, 3000);
     }
 
+    /// <summary>Records callbacks delivered to the probe's independent AudioManager client.</summary>
     private sealed class ProbeFocusListener : Java.Lang.Object, AudioManager.IOnAudioFocusChangeListener
     {
+        /// <summary>Logs the secondary client's focus changes apart from the game's listener.</summary>
         public void OnAudioFocusChange(AudioFocus focusChange) =>
             global::Android.Util.Log.Info("SuperMetroid", $"PROBE secondary focus={focusChange}");
     }

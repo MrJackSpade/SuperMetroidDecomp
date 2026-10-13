@@ -15,8 +15,10 @@ using System.Text.Json;
 using SuperMetroid.Core.Rendering;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Wrecked Ship treadmill DMA frames through rendered floor-character pixels.</summary>
 internal static class TreadmillVisualVerification
 {
+    /// <summary>Compares four cycling graphics frames with native transfer sources in powered treadmill rooms.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyTreadmillVisual()
     {
@@ -75,6 +77,7 @@ internal static class TreadmillVisualVerification
         }
     }
 
+    /// <summary>Runs the focused Wrecked Ship treadmill visual comparison.</summary>
     [VerificationCommand("--treadmill-visual")]
     internal static int TreadmillVisualCommand()
     {

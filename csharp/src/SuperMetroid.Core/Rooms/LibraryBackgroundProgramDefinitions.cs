@@ -13,6 +13,7 @@ public static partial class LibraryBackgroundProgramDefinitions
     /// <summary>All pinned program definitions, ordered by native list pointer.</summary>
     public static IReadOnlyList<LibraryBackgroundProgram> All { get; }
 
+    /// <summary>Checks the 68 compiled lists cover exactly the high-bank commands selected by retail room states.</summary>
     static LibraryBackgroundProgramDefinitions()
     {
         All = Array.AsReadOnly(programs);

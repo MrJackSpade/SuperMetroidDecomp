@@ -17,6 +17,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 
+/// <summary>Checks that Ceres gunship engine colors remain bound after a debugger state restore and artwork replacement.</summary>
 internal static class CeresEnginePaletteBindingVerification
 {
     /// <summary>
@@ -114,6 +115,7 @@ internal static class CeresEnginePaletteBindingVerification
             (owner.cgram).Colors.ToArray();
     }
 
+    /// <summary>Runs the focused Ceres engine palette binding regression against the installed artwork.</summary>
     [VerificationCommand("--ceres-engine-palette-binding")]
     internal static int CeresEnginePaletteBindingCommand()
     {

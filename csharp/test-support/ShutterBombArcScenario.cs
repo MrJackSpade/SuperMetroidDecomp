@@ -18,15 +18,24 @@ internal sealed class ShutterBombArcScenario
     /// <summary>Frames the scenario runs; bombs stop at frame 220.</summary>
     internal const int FrameCount = 260;
 
+    /// <summary>Enemy slot selecting the left or right shutter in the fixture room.</summary>
     internal int SlotIndex { get; }
+    /// <summary>Whether the sequence begins one block pair away and moves onto the platform.</summary>
     internal bool Approach { get; }
+    /// <summary>Update spacing between bomb presses before the sequence stops bombing.</summary>
     internal int Interval { get; }
+    /// <summary>Update at which Samus first rolls away from the shutter.</summary>
     internal int RollAt { get; }
+    /// <summary>Number of updates spent moving away, then the same number moving back.</summary>
     internal int Duration { get; }
+    /// <summary>Initialized retail room fixture stepped by this controller sequence.</summary>
     internal SuperMetroidRuntime Runtime { get; }
+    /// <summary>Samus state owned by the scenario runtime.</summary>
     internal SamusState Samus => Runtime.Player.Samus!;
+    /// <summary>Shutter enemy tracked for position comparison.</summary>
     internal RoomEnemySlot Platform => Runtime.Enemies.SlotTable.Slots[SlotIndex];
 
+    /// <summary>Places morphed, bomb-equipped Samus on or beside the selected shutter before the recorded sequence.</summary>
     /// <param name="runtime">A new invincible runtime bound to installed presentation assets.</param>
     /// <param name="bus">Address space used to initialize Samus collision geometry and animation.</param>
     /// <param name="slotIndex">Enemy slot identifying the shutter platform; slot zero uses the left-shutter approach direction.</param>
@@ -56,9 +65,11 @@ internal sealed class ShutterBombArcScenario
     /// <summary>The reported case: left shutter, starting on it, bombing every 8 frames, a 4-frame roll at 75.</summary>
     internal static ShutterBombArcScenario Reproduced(SuperMetroidRuntime runtime, ISnesAddressSpace bus) => new(runtime, bus, 0, false, 8, 75, 4);
 
+    /// <summary>Builds a configured shutter approach and bomb sequence for the native comparison fixture.</summary>
     internal static ShutterBombArcScenario Create(SuperMetroidRuntime runtime, ISnesAddressSpace bus, int slotIndex, bool approach, int interval, int rollAt, int duration) =>
         new(runtime, bus, slotIndex, approach, interval, rollAt, duration);
 
+    /// <summary>Horizontal input sign that moves Samus toward the selected shutter.</summary>
     private int Toward => SlotIndex == 0 ? -1 : 1;
 
     /// <summary>Controller word for <paramref name="frame"/>: periodic bombs, an approach, then roll off and back.</summary>

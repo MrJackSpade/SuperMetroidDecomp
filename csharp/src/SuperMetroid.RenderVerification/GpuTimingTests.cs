@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks bounded GPU timestamp capture and the rolling render timing window.</summary>
 internal static class GpuTimingTests
 {
+    /// <summary>Checks FIFO timestamps and frame identity while comparing the timed render with software output.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer, RenderFrameSnapshot frame)
     {
         VerifyTimingWindow();
@@ -38,6 +40,7 @@ internal static class GpuTimingTests
         Console.WriteLine($"{device.Kind}: bounded timestamp ring/parity passed; 16 diagnostic composition samples median={samples[8]:F3}ms max={samples[^1]:F3}ms (not a paced soak).");
     }
 
+    /// <summary>Checks warmup, eviction, percentile ranks, invalid samples, and allocation-free recording.</summary>
     private static void VerifyTimingWindow()
     {
         var window = new RenderTimingWindow(capacity: 4, warmup: 2);

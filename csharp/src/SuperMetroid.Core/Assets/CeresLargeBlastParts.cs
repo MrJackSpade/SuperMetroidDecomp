@@ -18,6 +18,7 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 internal sealed class CeresLargeBlastParts(int frame, int tile) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Replaces a matching one-part native blast with calculated placement while retaining its supplied tile drawing.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (supplied.PartCount != 1) return supplied;
@@ -26,11 +27,15 @@ internal sealed class CeresLargeBlastParts(int frame, int tile) : IReadOnlyList<
                 return supplied.CalculateIfMatching(new CeresLargeBlastParts(frame, supplied.Part(0).Attributes.TileNumber));
         return supplied;
     }
+    /// <summary>Each of the four blast frames emits exactly one 16-pixel sprite.</summary>
     public int Count => 1;
+    /// <summary>Places the supplied cloud tile at X=-8 and a frame-dependent rising Y offset.</summary>
     public CompiledSpritePart this[int index] => index == 0
         ? new(SnesSpritemapXWord.Create(-8, true), unchecked((byte)(-10 - 2 * frame)),
             SnesObjAttributeWord.Create(tile, 0, 3, 0), true)
         : throw new ArgumentOutOfRangeException(nameof(index));
+    /// <summary>Emits the sole sprite part in native draw order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator() { yield return this[0]; }
+    /// <summary>Uses the same single-part enumeration for non-generic consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

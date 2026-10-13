@@ -2,6 +2,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SamusMovementRomDataVerification;
 
+/// <summary>Checks extracted Samus death, suit-pickup, and Power Bomb sequence ranges before runtime consumption.</summary>
 internal static class SamusSpecialSequenceRomDataVerification
 {
     /// <summary>

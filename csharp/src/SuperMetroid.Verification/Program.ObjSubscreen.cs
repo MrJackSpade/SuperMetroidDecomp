@@ -6,8 +6,10 @@ using static GraphDigestVerification;
 using static RenderPacketCodecTestsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks PPU color math and render-packet compatibility for OBJ and BG subscreen layers.</summary>
 internal static class ObjSubscreenVerification
 {
+    /// <summary>Checks additive OBJ composition and delegates the related Mode 7, BG, and fixed-color cases.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     internal static void VerifyObjSubscreenAddition()
     {
@@ -43,6 +45,7 @@ internal static class ObjSubscreenVerification
             "legacy packets retain replacing OBJ composition");
     }
 
+    /// <summary>Checks Mode 7 BG1 self-addition and OBJ palette eligibility after main-screen priority selection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyMode7Bg1Addition()
     {
@@ -75,6 +78,7 @@ internal static class ObjSubscreenVerification
         }
     }
 
+    /// <summary>Checks per-channel Mode 7 minus OBJ subtraction and rejection of old packets that cannot encode it.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyMode7ObjSubtraction()
     {
@@ -99,6 +103,7 @@ internal static class ObjSubscreenVerification
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(unsupported), "older packet cannot claim Mode7 OBJ subtraction");
     }
 
+    /// <summary>Checks OBJ fixed-color addition, palette and priority filters, and legacy priority-packet decoding.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyObjFixedColor()
     {
@@ -141,6 +146,7 @@ internal static class ObjSubscreenVerification
             .SequenceEqual(RenderForComparison(legacyPriority)), "legacy priority packets remain readable without color payload");
     }
 
+    /// <summary>Checks four-bit BG subscreen decoding, object masking, and BG-versus-OBJ priority before addition.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyBg4SubscreenAddition()
     {

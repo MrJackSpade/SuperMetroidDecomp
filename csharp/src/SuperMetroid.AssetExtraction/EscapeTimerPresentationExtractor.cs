@@ -48,6 +48,8 @@ public static class EscapeTimerPresentationExtractor
         return output.ToArray();
     }
 
+    /// <summary>Decodes one native five-byte-per-part OAM map into bounded pixel offsets and tile attributes.</summary>
+    /// <remarks>The map's own palette bits are discarded so the presentation's fixed OBJ palette applies to every part.</remarks>
     private static EscapeTimerVisualPart[] ReadSpritemap(ISnesAddressSpace bus, int address)
     {
         int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);

@@ -16,8 +16,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 
+/// <summary>Retail-data and guarded-execution checks for Maridia Large Snail's eight directional programs.</summary>
 internal static class MaridiaLargeSnailInstructionDefinitionsVerification
 {
+    /// <summary>Checks selector installation, each program's callbacks and frames, and the forward-roll attack window.</summary>
     internal static void VerifyMaridiaLargeSnailInstructionDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -173,6 +175,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             "effects, and sixty executed selectors match cartridge data with runtime reads forbidden.");
     }
 
+    /// <summary>Forces the requested instruction calls while recording each executed visual operand.</summary>
     private static void ExecuteMaridiaLargeSnailProgram(
         ISnesAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -192,6 +195,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates warmed idle and attack control lookups for allocation accounting.</summary>
     private static int ProbeMaridiaLargeSnailInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -207,6 +211,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects compiled selector and control reads while observing frame-operand accesses.</summary>
     private static CartridgeReadGuard NewMaridiaLargeSnailInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa2cb77 and < 0xa2cb87 ||
@@ -216,6 +221,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                 MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordCount,
                 MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Runs the retail-backed Maridia Large Snail instruction migration command.</summary>
     [VerificationCommand("--maridia-large-snail-instruction-definitions")]
     internal static int MaridiaLargeSnailInstructionDefinitionsCommand()
     {

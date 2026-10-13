@@ -9,28 +9,56 @@ namespace SuperMetroid.Rendering.Direct3D11;
 /// never synchronously block its message pump while DXGI may be interacting with the window.</remarks>
 public sealed class D3D11RenderWorker
 {
+    /// <summary>Retains only the latest unpublished immutable visual packet.</summary>
     internal readonly LatestRenderFrameMailbox mailbox;
+    /// <summary>Prevents old-generation presents from crossing a simulation reset.</summary>
     internal readonly RenderPresentationGate gate;
+    /// <summary>Wakes the owner for new frames, resize, or shutdown.</summary>
     private readonly AutoResetEvent wake = new(false);
+    /// <summary>Serializes publication, resize requests, and worker shutdown.</summary>
     private readonly Lock lifecycle = new();
+    /// <summary>Reports device startup once renderer, swapchain, and timing resources exist.</summary>
     private readonly TaskCompletionSource<string> ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    /// <summary>Reports owner-thread exit or its unrecoverable exception.</summary>
     private readonly TaskCompletionSource completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    /// <summary>Preserves an owner-thread failure and its original stack for callers.</summary>
     private ExceptionDispatchInfo? fault;
+    /// <summary>Blocks new publication after shutdown begins.</summary>
     private bool stopping;
+    /// <summary>Latest pending client-size request, consumed by the render owner.</summary>
     private Extent16<DisplayPixels>? resize;
-    internal long presented, occluded, stale;
+    /// <summary>Counts successful DXGI presents across device recreations.</summary>
+    internal long presented;
+    /// <summary>Counts presentation attempts rejected by window occlusion.</summary>
+    internal long occluded;
+    /// <summary>Counts packets rejected because a load/reset generation advanced.</summary>
+    internal long stale;
+    /// <summary>Most recent packet sequence submitted for drawing.</summary>
     internal long lastConsumedSequence;
+    /// <summary>Counts redraws using a retained packet after resize or occlusion.</summary>
     internal long retainedRedraws;
+    /// <summary>Packs the last drawn width and height into one atomically published word.</summary>
     internal long lastDrawnSize;
+    /// <summary>Records whether a zero-sized client surface has suspended presentation.</summary>
     internal bool surfaceSuspended;
+    /// <summary>Counts successful GPU resource recreation after device loss.</summary>
     private long deviceRecoveries;
+    /// <summary>Latest device-loss details captured before resource teardown.</summary>
     internal D3D11DeviceLossDiagnostic? lastDeviceLoss;
+    /// <summary>CPU time spent submitting frame composition.</summary>
     private readonly RenderTimingWindow cpuCompositionTiming;
+    /// <summary>CPU time spent in display setup and Present.</summary>
     private readonly RenderTimingWindow cpuPresentationTiming;
+    /// <summary>GPU timestamp history for composition commands.</summary>
     private readonly RenderTimingWindow gpuCompositionTiming;
+    /// <summary>GPU timestamp history for the complete composition and display interval.</summary>
     private readonly RenderTimingWindow gpuFrameTiming;
+    /// <summary>CPU time charged to UpdateSubresource calls in each presentation attempt.</summary>
     private readonly RenderTimingWindow cpuUploadTiming;
-    private long submittedUploadBytes, submittedUploadCalls;
+    /// <summary>Cumulative bytes submitted through GPU resource updates.</summary>
+    private long submittedUploadBytes;
+    /// <summary>Cumulative number of GPU resource-update calls.</summary>
+    private long submittedUploadCalls;
     /// <summary>Thread-safe cumulative UpdateSubresource byte count for completed render/presentation attempts, including composition and display uploads; retained redraws count and this is not GPU memory residency.</summary>
     public long SubmittedUploadBytes => Interlocked.Read(ref submittedUploadBytes);
     /// <summary>Thread-safe cumulative UpdateSubresource call count recorded with completed render/presentation attempts, including retained redraws and continuing across device recreation.</summary>
@@ -41,14 +69,21 @@ public sealed class D3D11RenderWorker
     /// <returns>Independently sampled thread-safe timing histories without waiting for the render owner or GPU.</returns>
     public RenderWorkerTimings CaptureTimings() => new(cpuCompositionTiming.Snapshot(),
         cpuPresentationTiming.Snapshot(), gpuCompositionTiming.Snapshot(), gpuFrameTiming.Snapshot());
+    /// <summary>Latest valid asynchronous GPU composition duration.</summary>
     private double gpuCompositionMilliseconds = double.NaN;
-    private long validGpuTimingSamples, invalidGpuTimingSamples, skippedGpuTimingSamples;
+    /// <summary>Counts timestamp samples accepted into GPU timing histories.</summary>
+    private long validGpuTimingSamples;
+    /// <summary>Counts timestamp samples discarded for invalid GPU timing data.</summary>
+    private long invalidGpuTimingSamples;
+    /// <summary>Counts attempts that could not reserve a GPU timing query.</summary>
+    private long skippedGpuTimingSamples;
     /// <summary>Thread-safe count of completed timestamp samples rejected for a disjoint/zero-frequency clock or inconsistent ordering; they do not enter the timing distributions.</summary>
     public long InvalidGpuTimingSamples => Interlocked.Read(ref invalidGpuTimingSamples);
     /// <summary>Thread-safe count of render attempts without GPU timestamps because the query ring was full; telemetry is skipped without delaying composition or simulation.</summary>
     public long SkippedGpuTimingSamples => Interlocked.Read(ref skippedGpuTimingSamples);
     /// <summary>Thread-safe count of successful device/resource recreations after startup, excluding failed recovery attempts and the initial device.</summary>
     public long DeviceRecoveries => Interlocked.Read(ref deviceRecoveries);
+    /// <summary>Optional verification hook invoked after retaining a packet and before GPU submission.</summary>
     private readonly Action? beforeRenderForVerification;
 
     /// <summary>Initial startup task returning the actual device's diagnostic description once renderer/swapchain/timer resources are ready; startup failure faults the task, and later recovery does not replace its result.</summary>
@@ -71,6 +106,7 @@ public sealed class D3D11RenderWorker
         int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
         : this(window, clientSize, generation, kind, null, timingCapacity) { }
 
+    /// <summary>Starts the render owner with an optional pre-render verification hook.</summary>
     internal D3D11RenderWorker(nint window, Extent16<DisplayPixels> clientSize, long generation, D3D11DeviceKind kind,
         Action? beforeRenderForVerification, int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
     {
@@ -147,12 +183,14 @@ public sealed class D3D11RenderWorker
         return completion.Task;
     }
 
+    /// <summary>Rethrows an owner fault or rejects work after shutdown begins.</summary>
     private void VerifyRunning()
     {
         ThrowIfFaulted();
         if (stopping) throw new InvalidOperationException("GPU worker is stopping.");
     }
 
+    /// <summary>Owns the GPU thread, bounded device-loss recovery, and process-safe failure reporting.</summary>
     private void Run(nint window, Extent16<DisplayPixels> clientSize, D3D11DeviceKind kind)
     {
         try
@@ -193,6 +231,7 @@ public sealed class D3D11RenderWorker
         }
     }
 
+    /// <summary>Creates one device generation and consumes mailbox frames until shutdown or device loss.</summary>
     private void RunDevice(nint window, ref Extent16<DisplayPixels> clientSize, D3D11DeviceKind kind,
         ref RenderFrameSnapshot? retained, ref bool suspended, ref int consecutiveLosses)
     {

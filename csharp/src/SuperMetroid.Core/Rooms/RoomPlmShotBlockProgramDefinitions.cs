@@ -17,33 +17,49 @@ internal static class RoomPlmShotBlockProgramDefinitions
     /// <summary>Program roles in the native control-address enumeration order.</summary>
     internal enum Role
     {
+        /// <summary>One tile of ordinary shot terrain that restores its original level word.</summary>
         RespawningShot1x1,
+        /// <summary>Horizontal two-tile ordinary shot block that later restores.</summary>
         RespawningShot2x1,
+        /// <summary>Vertical two-tile ordinary shot block that later restores.</summary>
         RespawningShot1x2,
+        /// <summary>Square four-tile ordinary shot block that later restores.</summary>
         RespawningShot2x2,
+        /// <summary>One tile of ordinary shot terrain that remains broken.</summary>
         PermanentShot1x1,
+        /// <summary>Horizontal two-tile ordinary shot block that remains broken.</summary>
         PermanentShot2x1,
+        /// <summary>Vertical two-tile ordinary shot block that remains broken.</summary>
         PermanentShot1x2,
+        /// <summary>Square four-tile ordinary shot block that remains broken.</summary>
         PermanentShot2x2,
+        /// <summary>Super Missile block whose tile returns after the break animation.</summary>
         RespawningSuperMissile,
+        /// <summary>Power Bomb block whose tile returns after the break animation.</summary>
         RespawningPowerBomb,
+        /// <summary>Super Missile block whose tile remains removed.</summary>
         PermanentSuperMissile,
+        /// <summary>Power Bomb block whose tile remains removed and uses its shorter native cadence.</summary>
         PermanentPowerBomb,
+        /// <summary>Enemy-breakable single tile with the three-slot sound queue.</summary>
         EnemyBreakableTerrain,
     }
 
+    /// <summary>Derived program layout: start, restoration policy, draw stride, and sound instruction for one role.</summary>
     internal readonly record struct Program(Role Role, ushort Start, bool Respawns, bool RestoresLevelWord,
         ushort FirstDraw, int DrawStride, ushort RestoreDraw = 0,
         RoomPlmInstruction SoundOpcode = RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct)
     {
+        /// <summary>Number of timed draw records, including the extra blank hold for a respawning single tile.</summary>
         internal int FrameCount => Respawns ? RestoresLevelWord ? 7 : 8 : 4;
+        /// <summary>Bank-84 offset of the restore or delete command following the timed draws.</summary>
         internal ushort TerminalAddress => checked((ushort)(Start + 3 + 4 * FrameCount));
     }
 
-    // Enumeration preserves the public control-address order; named program roles
-    // determine shape, restoration and sound routing instead of stored records.
+    /// <summary>Derived layouts in native control-address order; roles determine shape, restoration, and sound routing.</summary>
     internal static readonly Program[] Programs = [.. Enum.GetValues<Role>().Select(ProgramFor)];
 
+    /// <summary>Maps a shot-block role to the native start of its instruction program.</summary>
     private static ushort StartOf(Role role) => role switch
     {
         Role.RespawningShot1x1 => RoomPlmInstructionLists.RespawningShotBlock1x1,
@@ -62,6 +78,7 @@ internal static class RoomPlmShotBlockProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined shot-block role {role}."),
     };
 
+    /// <summary>Derives a role's draw geometry, respawn policy, and sound command from the compiled definitions.</summary>
     private static Program ProgramFor(Role role)
     {
         bool respawns = role is Role.RespawningShot1x1 or Role.RespawningShot2x1 or
@@ -170,6 +187,7 @@ internal static class RoomPlmShotBlockProgramDefinitions
         return false;
     }
 
+    /// <summary>Resolves the packed break-sound byte following a shot-block program's initial command.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         foreach (Program program in Programs)

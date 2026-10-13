@@ -14,8 +14,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static BombTorizoHandArtworkVerification;
 
+/// <summary>Checks the escape-timer handoff from drained Samus to running animation.</summary>
 internal static class EscapeRunningFootstepsVerification
 {
+    /// <summary>Exercises both stand-up outcomes and facings through the reported acid footstep path.</summary>
     internal static void VerifyEscapeRunningFootsteps()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -70,6 +72,7 @@ internal static class EscapeRunningFootstepsVerification
         Console.WriteLine("Escape running footsteps: native timer handoff displaces both drained handlers; Up/jump in acid preserves both running animations and the cutscene failed-stand branch.");
     }
 
+    /// <summary>Runs the focused drained-handler and running-cadence regression.</summary>
     [VerificationCommand("--escape-running-footsteps")]
     internal static int EscapeRunningFootstepsCommand()
     {

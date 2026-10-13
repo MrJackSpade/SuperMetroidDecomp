@@ -8,7 +8,9 @@ namespace SuperMetroid.Core.Assets;
 /// vertical arm strips and independently positioned head/upper-body grids.</summary>
 internal sealed class EndingRewardSuitlessStandingParts(bool armsStraight) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Reusable lower-body tile grid for the straight-arm pose.</summary>
     private readonly EndingRewardSuitlessGridParts lower = new(Pose.SuitlessSamusLowerBody);
+    /// <summary>Applies the calculated composition only to the two supported standing frame pointers.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.SuitlessSamusStanding))
@@ -17,7 +19,9 @@ internal sealed class EndingRewardSuitlessStandingParts(bool armsStraight) : IRe
             return supplied.CalculateIfMatching(new EndingRewardSuitlessStandingParts(true));
         return supplied;
     }
+    /// <summary>Both standing variants use twenty-eight OAM pieces despite their different arm placement.</summary>
     public int Count => 28;
+    /// <summary>Calculates the selected pose's OAM tile, size, and offset, reusing lower-body pieces for straight arms.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -90,10 +94,12 @@ internal sealed class EndingRewardSuitlessStandingParts(bool armsStraight) : IRe
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Visits parts in the original standing composition's OAM order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same OAM order to the non-generic collection interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

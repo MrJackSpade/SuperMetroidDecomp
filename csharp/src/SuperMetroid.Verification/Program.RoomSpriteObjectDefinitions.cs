@@ -15,8 +15,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks all 62 room sprite-object selectors and their executed bank $B4 instruction programs.</summary>
 internal static class RoomSpriteObjectDefinitionsVerification
 {
+    /// <summary>Runs every native object identity until deletion, sleep, or loop while guarding compiled reads.</summary>
     internal static void VerifyRoomSpriteObjectDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -136,6 +138,7 @@ internal static class RoomSpriteObjectDefinitionsVerification
         }
     }
 
+    /// <summary>Repeats warmed sprite-object mechanics lookups for the caller's allocation measurement.</summary>
     private static int ProbeRoomSpriteObjectInstructionAllocation()
     {
         int checksum = 0;
@@ -147,6 +150,7 @@ internal static class RoomSpriteObjectDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids migrated selector and mechanics reads while observing presentation operands.</summary>
     private static CartridgeReadGuard NewRoomSpriteObjectDefinitionReadGuard(ISnesAddressSpace source)
     {
         var guard = new CartridgeReadGuard(source)
@@ -162,6 +166,7 @@ internal static class RoomSpriteObjectDefinitionsVerification
             });
     }
 
+    /// <summary>Dispatches the cartridge-backed room sprite-object verification command.</summary>
     [VerificationCommand("--room-sprite-object-definitions")]
     internal static int RoomSpriteObjectDefinitionsCommand()
     {

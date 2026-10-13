@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(DraygonProjectileInstructionProgramDefinitions))]
 internal abstract class DraygonProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Counts artwork selections in Draygon goop and wall-turret projectile programs.</summary>
     public static int PresentationWordCount => DraygonProjectileInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates a goop or wall-turret spritemap operand for resource validation.</summary>
     public static ushort PresentationWordAddress(int index) => DraygonProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>The goop touch, animated goop, shot response, and wall turrets contribute 38 control words.</summary>
     public static int MechanicsWordCount => 38;
+    /// <summary>Maps an index across Draygon's goop and wall-turret lists, skipping their visual operands.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -27,6 +31,7 @@ internal abstract class DraygonProjectileInstructionProgramDefinitionsTooling : 
         };
         return new((ushort)address, DraygonProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)address));
     }
+    /// <summary>Accepts a bank-$86 address only when its aligned word is recognized by Draygon's compiled control reader.</summary>
     public static bool IsCompiledMechanicsByte(int address) =>
         (SnesAddressMath.BankBase(address)) == EnemyProjectileCodePointers.BankBase &&
         DraygonProjectileInstructionProgramDefinitions.TryRead((ushort)(address & ~1), out _);

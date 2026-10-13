@@ -3,11 +3,14 @@ using SuperMetroid.Core.Game;
 using static AssertionsVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Confirms the boot-time corrupt-SRAM marker write and demo-set count latch (#1339).</summary>
 internal static class BootDemoSetCountVerification
 {
-    // #1339: boot's DetermineNumberOfDemoSets ($80:8261, called once from $80:8564) overwrites
-    // the completion marker with 'madadameyohn' when all three slots fail LoadFromSRAM
-    // ($80:8283-8290), and fixes NumberOfDemoSets ($1F59) until reset. Bank $82 only reads it.
+    /// <summary>
+    /// #1339: boot's <c>DetermineNumberOfDemoSets</c> (<c>$80:8261</c>, called once from <c>$80:8564</c>) overwrites
+    /// the completion marker with <c>madadameyohn</c> when all three slots fail <c>LoadFromSRAM</c>
+    /// (<c>$80:8283-8290</c>), and fixes <c>NumberOfDemoSets</c> (<c>$1F59</c>) until reset. Bank <c>$82</c> only reads it.
+    /// </summary>
     internal static void VerifyBootDemoSetCount()
     {
         var bus = new TestAddressSpace();
@@ -45,9 +48,11 @@ internal static class BootDemoSetCountVerification
         Console.WriteLine("Boot demo sets: no valid slot writes 'madadameyohn'; the count is fixed until reset.");
     }
 
+    /// <summary>Reads the SRAM completion marker as ASCII.</summary>
     private static string ReadMarker(TestAddressSpace bus) => System.Text.Encoding.ASCII.GetString(
         SaveRamImage.Capture(bus), SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length);
 
+    /// <summary>Runs the boot demo-set count suite.</summary>
     [VerificationCommand("--boot-demo-set-count")]
     internal static int BootDemoSetCountCommand()
     {

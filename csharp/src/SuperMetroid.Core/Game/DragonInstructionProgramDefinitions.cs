@@ -25,9 +25,12 @@ internal abstract class DragonInstructionProgramDefinitions
     /// <summary><c>$A2:E5D7</c>, five-frame attack body sequence facing right.</summary>
     internal const ushort AttackingFacingRight = 0xe5d7;
 
+    /// <summary>Number of compiled timing and control words across idle, wing, and attack lists.</summary>
     public static int MechanicsWordCount => 26;
+    /// <summary>Number of interleaved spritemap operand addresses left to presentation.</summary>
     public static int PresentationWordCount => 16;
 
+    /// <summary>Enumerates one native Dragon timing or control word by catalog index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -58,6 +61,7 @@ internal abstract class DragonInstructionProgramDefinitions
         return new((ushort)(attack + (attackWord < 6 ? 4 * attackWord : 22)), value);
     }
 
+    /// <summary>Maps an artwork operand index into the idle, wing, or attack list.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)

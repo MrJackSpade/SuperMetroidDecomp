@@ -2,8 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled gunship liftoff dust data and real projectile allocation against cartridge table values.</summary>
 internal static class GunshipDustDefinitionsVerification
 {
+    /// <summary>Compares all six dust definitions and wrapped spawn positions, then checks full-pool and invalid-parameter behavior.</summary>
     internal static void VerifyCompiledGunshipDust(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1)));
@@ -59,9 +61,11 @@ internal static class GunshipDustDefinitionsVerification
         Console.WriteLine("Gunship dust: 12 native words, 393216 real wrapped spawns, full-pool retention and parameter validation pass with migrated reads forbidden.");
     }
 
+    /// <summary>Reads a native dust-table byte solely as the verification oracle at the CPU bus boundary.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Gunship dust")]
     private static byte CompiledGunshipDustRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Allows cartridge oracle reads while rejecting migrated dust-table reads and every bus write from the spawn path.</summary>
     private static CartridgeReadGuard NewGunshipDustGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .ForbidRange(0x86a2d6, 0x86a2ee - 0x86a2d6, _ => "Unexpected migrated gunship dust table read.")

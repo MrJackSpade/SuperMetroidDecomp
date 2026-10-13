@@ -16,8 +16,10 @@ using SuperMetroid.Core.Spatial;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Work Robot's powered and unpowered instruction lists against bank A8.</summary>
 internal static class WorkRobotInstructionProgramDefinitionsVerification
 {
+    /// <summary>The 22 authored robot entries spanning idle, walk, wall, shot, laser, recoil, and fall behavior.</summary>
     private static readonly ushort[] WorkRobotInstructionEntries =
     [
         WorkRobotInstructionProgramDefinitions.NoPowerNeutral,
@@ -44,12 +46,14 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         WorkRobotInstructionProgramDefinitions.ApproachingFallLeft,
     ];
 
+    /// <summary>Loads the retail cartridge as the oracle for Work Robot control and visual selectors.</summary>
     internal static void VerifyWorkRobotInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWorkRobotInstructionProgramDefinitions), () => VerifyWorkRobotInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Compares compiled words, executes all 22 entries, and checks sprite selectors without runtime reads.</summary>
     internal static void VerifyWorkRobotInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -127,6 +131,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
             "entries, 18 callbacks, and 227 compiled visual selectors pass.");
     }
 
+    /// <summary>Installs a powered bank A8 robot with deterministic random input for list execution.</summary>
     internal static RoomEnemySystem CreateWorkRobotInstructionSystem(
         ISnesAddressSpace bus,
         out RoomEnemySlot robot)
@@ -146,6 +151,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>Builds a wide room with a solid floor for Work Robot movement and fall callbacks.</summary>
     private static RoomLevelData CreateWorkRobotInstructionRoom()
     {
         const int width = 64;
@@ -156,6 +162,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[8]);
     }
 
+    /// <summary>Alternates initial and recoil words repeatedly to expose compiled lookup allocations.</summary>
     private static int ProbeWorkRobotInstructionAllocation()
     {
         int checksum = 0;
@@ -169,6 +176,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects compiled mechanics reads and optionally rejects visual selector reads.</summary>
     internal static CartridgeReadGuard NewWorkRobotInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
     {
         var guard = new CartridgeReadGuard(source).Forbid(WorkRobotInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -179,6 +187,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
             : guard.ObserveWords(0xa80000, WorkRobotInstructionProgramDefinitionsTooling.PresentationWordCount, WorkRobotInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 
+    /// <summary>Runs Work Robot instruction checks from the verification command dispatcher.</summary>
     [VerificationCommand("--work-robot-instruction-program-definitions")]
     internal static int WorkRobotInstructionProgramDefinitionsCommand()
     {

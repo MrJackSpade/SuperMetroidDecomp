@@ -184,6 +184,7 @@ public static class DebuggerSaveStateSmokeTest
         }
     }
 
+    /// <summary>Checks that graph serialization restores a named generic delegate with its original method identity.</summary>
     private static void VerifyNamedDelegateRoundTrip()
     {
         using var stream = new MemoryStream();
@@ -195,6 +196,7 @@ public static class DebuggerSaveStateSmokeTest
             throw new InvalidDataException("Named generic delegate identity did not round-trip.");
     }
 
+    /// <summary>Checks that an installed recording retains its retail source digest, controller input, and selected content identity.</summary>
     private static void VerifyInstalledRecorder(
         string dataDirectory,
         ReadOnlySpan<byte> saveRam,
@@ -222,5 +224,6 @@ public static class DebuggerSaveStateSmokeTest
         }
     }
 
+    /// <summary>Provides a named generic method whose identity can be compared after debugger-state serialization.</summary>
     private static T Identity<T>(T value) => value;
 }

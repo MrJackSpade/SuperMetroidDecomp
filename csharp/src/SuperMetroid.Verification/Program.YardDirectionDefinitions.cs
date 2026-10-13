@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Yard direction tables and airborne transitions against the cartridge definitions and guarded runtime paths.</summary>
 internal static class YardDirectionDefinitionsVerification
 {
+    /// <summary>Compares every direction and airborne-list word with ROM, then exercises initialization, turning, and launch paths without table reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Yard direction definitions")]
     internal static void VerifyYardDirectionDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -133,6 +135,7 @@ internal static class YardDirectionDefinitionsVerification
             "Yard direction definitions: 48 direction words and all 24 duplicated airborne-list words match ROM; every real initializer, turn, detach, contact-kick and shot-launch handoff passes with the fixed tables forbidden.");
     }
 
+    /// <summary>Checks the instruction, property, hiding, facing, and optionally movement values installed for a Yard direction.</summary>
     private static void AssertYardDirectionState(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -155,6 +158,7 @@ internal static class YardDirectionDefinitionsVerification
         }
     }
 
+    /// <summary>Checks the visible and hiding lists selected when a Yard becomes airborne.</summary>
     private static void AssertYardAirborneLists(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -167,6 +171,7 @@ internal static class YardDirectionDefinitionsVerification
             $"{name} hiding list");
     }
 
+    /// <summary>Rejects reads from the Yard direction and airborne-list ranges that the migrated definitions replace.</summary>
     private static CartridgeReadGuard NewYardDirectionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3cd42 and < 0xa3cd82 or
                 >= 0xa3cdc2 and < 0xa3cde2 or

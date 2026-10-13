@@ -72,6 +72,7 @@ public static class SamusPostureMovement
         return MoveWithZeroBaseSpeed(bus, level, samus, nmiFrameCounter, plms);
     }
 
+    /// <summary>Runs horizontal collision with zero base displacement, then the coupled downward grounding probe.</summary>
     private static GroundedMovementResult MoveWithZeroBaseSpeed(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -103,6 +104,7 @@ public static class SamusPostureMovement
         return new GroundedMovementResult(horizontal, vertical);
     }
 
+    /// <summary>Requires the address space, level, and Samus state used by both posture handlers.</summary>
     private static void Validate(
         ISnesAddressSpace bus,
         RoomLevelData level,

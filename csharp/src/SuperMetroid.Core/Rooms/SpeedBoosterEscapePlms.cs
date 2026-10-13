@@ -5,8 +5,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>The Speed Booster escape PLMs: rising lava/acid FX and the earthquake the escape triggers.</summary>
 internal sealed class SpeedBoosterEscapePlms
 {
+    /// <summary>Live room owners for Samus, events, layer 3 FX, and earthquake timing.</summary>
     private readonly PlmRoomBindings _bindings;
 
+    /// <summary>Binds the escape PLM behavior to its room-level state owners.</summary>
     internal SpeedBoosterEscapePlms(PlmRoomBindings bindings)
     {
         _bindings = bindings;
@@ -70,6 +72,7 @@ internal sealed class SpeedBoosterEscapePlms
         }
     }
 
+    /// <summary>Starts the lavaquake when Speed Booster is owned, or removes a disabled escape PLM.</summary>
     private void RunWaitForSpeedBooster(
         PlmSlot slot,
         SamusState samus,
@@ -99,6 +102,7 @@ internal sealed class SpeedBoosterEscapePlms
         WakeAtNextInstruction(slot);
     }
 
+    /// <summary>Advances one lavaquake stage when Samus reaches its X threshold and records escape on completion.</summary>
     private void RunAdvanceLava(
         PlmSlot slot,
         SamusState samus,

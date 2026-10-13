@@ -13,8 +13,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Audio;
 using static AudioInstrumentsVerification;
 
+/// <summary>Checks extracted SPC sound programs, channel routing, and editable note playback.</summary>
 internal static class AudioSoundProgramsVerification
 {
+    /// <summary>Compares stock program bytes and routes with APU memory, then verifies an edited note changes audible PCM.</summary>
     [SpcMemoryBoundary("exact APU memory test: checks uploaded APU RAM bytes")]
     internal static void VerifyEditableSoundEffectPrograms()
     {
@@ -164,6 +166,7 @@ internal static class AudioSoundProgramsVerification
             "exact stock bytes, live audible note edit and strict failures pass.");
     }
 
+    /// <summary>Runs the editable SPC sound program contract checks.</summary>
     [VerificationCommand("--audio-sfx-programs")]
     internal static int AudioSfxProgramsCommand()
     {

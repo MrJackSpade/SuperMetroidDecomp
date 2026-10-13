@@ -36,11 +36,16 @@ internal static class MotherBrainRainbowShadeDefinitions
 /// </summary>
 internal sealed class MotherBrainRainbowShadeChannel
 {
+    /// <summary>Native phase's selected head, plate, tissue, and tail shade rule.</summary>
     private readonly MotherBrainRainbowShadeProfile profile;
+    /// <summary>Existing shared green channel used by the recovering phase.</summary>
     private readonly Func<int, int> sourceGreen;
+    /// <summary>Independent shade samples, or the complete supplied row when it differs from the reviewed rule.</summary>
     internal readonly byte[] inputs;
+    /// <summary>Whether every supplied shade matches the reviewed interpolation profile.</summary>
     private readonly bool calculated;
 
+    /// <summary>Retains independent samples only when the supplied row follows the native shade profile.</summary>
     internal MotherBrainRainbowShadeChannel(byte[] samples, MotherBrainRainbowShadeProfile profile, Func<int, int> sourceGreen)
     {
         this.profile = profile;
@@ -59,8 +64,10 @@ internal sealed class MotherBrainRainbowShadeChannel
         calculated = true;
     }
 
+    /// <summary>Uses the calculated shade for a matching row, or the exact supplied edit otherwise.</summary>
     internal byte this[int color] => calculated ? (byte)Calculate(color) : inputs[color];
 
+    /// <summary>Applies the phase's head ramp, plate and tissue rounding, and shared tail rule.</summary>
     private int Calculate(int color)
     {
         if (color < Layout.PlateStart)
@@ -98,11 +105,23 @@ internal sealed class MotherBrainRainbowShadeChannel
         return inputs[5 + color - Layout.TailStart];
     }
 
-    // Exposed-head outline shares the darkest cortex channel in these native phases.
+    /// <summary>Identifies phases where the exposed-head outline shares the darkest cortex channel.</summary>
     private static bool SharesDarkHeadTail(MotherBrainRainbowShadeProfile profile) =>
         profile is MotherBrainRainbowShadeProfile.FirstGreenRise or MotherBrainRainbowShadeProfile.MixedBlue or MotherBrainRainbowShadeProfile.MaximumBlue;
 
-    private enum Rounding { Floor, Ceiling, NearestUp, NearestEven }
+    /// <summary>Selected integer tie rule for a phase's material-shade interpolation.</summary>
+    private enum Rounding
+    {
+        /// <summary>Discards a positive fractional shade remainder.</summary>
+        Floor,
+        /// <summary>Raises a positive shade when interpolation leaves any remainder.</summary>
+        Ceiling,
+        /// <summary>Rounds halfway shades upward to the next channel value.</summary>
+        NearestUp,
+        /// <summary>Rounds a halfway shade to the even channel value.</summary>
+        NearestEven,
+    }
+    /// <summary>Interpolates between two supplied channel endpoints with the profile's integer tie rule.</summary>
     private static int Interpolate(int first, int last, int shade, int intervals, Rounding rounding)
     {
         int numerator = first * (intervals - shade) + last * shade;

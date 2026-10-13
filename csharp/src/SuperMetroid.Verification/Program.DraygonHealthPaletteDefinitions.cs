@@ -5,8 +5,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Draygon's compiled health bands through production palette selection.</summary>
 internal static class DraygonHealthPaletteDefinitionsVerification
 {
+    /// <summary>Compares eight retail thresholds, all authored health values, and boundary updates without table reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon health palette definitions")]
     internal static void VerifyDraygonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -79,6 +81,7 @@ internal static class DraygonHealthPaletteDefinitionsVerification
             "runs with the threshold table and terminator forbidden.");
     }
 
+    /// <summary>Forbids reads of the native threshold words and their terminator during palette selection.</summary>
     private static CartridgeReadGuard NewDraygonHealthThresholdReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .ForbidRange(DraygonHealthPaletteDefinitions.NativeThresholdAddress, 18,

@@ -13,8 +13,10 @@ using static PauseReserveAnchorsVerification;
 using static PauseReserveFramesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks reserve tank visuals across supply, flicker, edits, restore, and health transfer.</summary>
 internal static class PauseReserveTankAssetsVerification
 {
+    /// <summary>Compares native menu OAM and pixels with installed reserve art, then checks edits and state isolation.</summary>
     internal static void VerifyPauseReserveTankAssets(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog catalog)
     {
         Directory.CreateDirectory(overrides);
@@ -122,6 +124,7 @@ internal static class PauseReserveTankAssetsVerification
             return pause;
         }
     }
+    /// <summary>Blocks native reserve anchor and spritemap reads after installed artwork is bound.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the reserve-tank pause spritemap and tilemap ranges")]
     private static CartridgeReadGuard NewReserveTankAssetReadGuard(ISnesAddressSpace source)
     {

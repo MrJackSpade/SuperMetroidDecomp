@@ -7,6 +7,7 @@ public sealed class MotherBrainSpecialSpriteArtworkCatalog
     public string ContentIdentity => SelectedPresentationHash.FromTransfers(
         "enemy-mother-brain-special-v1", sheets, atlas => atlas.Transfer);
 
+    /// <summary>Validated full-source-address lookup for the four installed OBJ transfer sheets.</summary>
     private readonly Dictionary<int, RoomCharacterAtlas> sheets;
 
     /// <summary>Installs the four complete native OBJ source sheets for phase-two legs, Baby Metroid, restored attack characters, and the exploded escape door, copying the source lookup while retaining each compiled atlas.</summary>

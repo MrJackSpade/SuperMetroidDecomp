@@ -15,6 +15,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks automatic reserve recovery through the game frontend, including freeze timing, HUD updates, and health-warning audio.</summary>
 internal static class ReserveAutoFrontendVerification
 {
     /// <summary>The native HUD digit tilemap word for <paramref name="digit"/> at $80:9DBF.</summary>
@@ -33,6 +34,7 @@ internal static class ReserveAutoFrontendVerification
         return bus.ReadCartridgeWord(address);
     }
 
+    /// <summary>Drives zero-health entry and a complete refill through state eight, comparing visible digits, AUTO indicator, movement, and warning cues.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyReserveAutoFrontend()
     {
@@ -180,6 +182,7 @@ internal static class ReserveAutoFrontendVerification
         Console.WriteLine("Automatic reserve frontend: nonfinal freeze and same-frame completion movement pass.");
     }
 
+    /// <summary>Runs the reserve AUTO frontend verification command.</summary>
     [VerificationCommand("--reserve-auto-frontend")]
     internal static int ReserveAutoFrontendCommand()
     {

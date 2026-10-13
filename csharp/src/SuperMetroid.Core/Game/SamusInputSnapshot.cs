@@ -3,8 +3,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The input Samus's handlers see: the filtered held and new input of the previous draw, the auto-jump timer and pending jump, and the pose input locks for Shinespark and Crystal Flash.</summary>
 internal sealed class SamusInputSnapshot
 {
+    /// <summary>Samus owner supplying shine, Flash, and health state to input admission.</summary>
     private readonly SamusState _samus;
 
+    /// <summary>Binds draw-time input history to the active Samus actor.</summary>
     internal SamusInputSnapshot(SamusState owner)
     {
         _samus = owner;

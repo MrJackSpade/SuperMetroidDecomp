@@ -26,10 +26,18 @@ internal static class DownwardGatePlmProgramDefinitions
     internal const ushort TriggerEnd = 0xbcdf;
 
     /// <summary>The two movement-sound operands packed after the spawn and wake commands.</summary>
-    private enum PackedSound { Closing, Opening }
+    private enum PackedSound
+    {
+        /// <summary>Movement sound byte at $84:BC29 after the closing projectile spawn.</summary>
+        Closing,
+        /// <summary>Movement sound byte at $84:BC4C after the opening wake command.</summary>
+        Opening,
+    }
 
+    /// <summary>The two sound operands are separate byte positions within otherwise word-based programs.</summary>
     private static readonly PackedSound[] PackedSounds = Enum.GetValues<PackedSound>();
 
+    /// <summary>Locates the closing or opening sound byte after its respective projectile command.</summary>
     private static ushort AddressOf(PackedSound sound) => sound switch
     {
         PackedSound.Closing => ClosingSoundAddress,
@@ -37,6 +45,7 @@ internal static class DownwardGatePlmProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(PackedSound)} {(int)sound}."),
     };
 
+    /// <summary>Supplies only the two packed movement-sound operands.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         bool owned = false;
@@ -46,6 +55,7 @@ internal static class DownwardGatePlmProgramDefinitions
         return owned;
     }
 
+    /// <summary>Decodes trigger programs, mirrored gate frames, and resident control words at their native boundaries.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         int triggerOffset = address - RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft;

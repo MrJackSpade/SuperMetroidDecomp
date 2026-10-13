@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
+/// <summary>Checks the closed X-Ray setup-stage order, display rule, and debugger decoding boundary.</summary>
 internal static class XraySetupStageDomainVerification
 {
     /// <summary>

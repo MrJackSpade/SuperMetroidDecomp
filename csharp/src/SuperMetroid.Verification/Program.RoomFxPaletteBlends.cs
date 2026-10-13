@@ -20,8 +20,10 @@ using static LookupFxPairColorsVerification;
 using static LookupFxWeatherBlueVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks extracted room-FX blend colors, installed CGRAM writes, and Ceres haze color overrides.</summary>
 internal static class RoomFxPaletteBlendsVerification
 {
+    /// <summary>Compares compiled FX palettes with the retail source and checks guarded load and reload paths.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyRoomFxPaletteBlends()
     {
@@ -84,6 +86,7 @@ internal static class RoomFxPaletteBlendsVerification
         Console.WriteLine("  Room-FX blend palettes: all 24 native words and guarded load/reload paths pass.");
     }
 
+    /// <summary>Checks that edited haze channels reach both renderers without changing the stock fade timing.</summary>
     private static void VerifyCeresHazeTintOverride(ISnesAddressSpace rom)
     {
         RoomFxPaletteBlendDocument stock = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(
@@ -146,6 +149,7 @@ internal static class RoomFxPaletteBlendsVerification
             "older color overrides inherit the stock red haze tint");
     }
 
+    /// <summary>Installs a color override, verifies its CGRAM and haze effects, then checks identity restoration after removal.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyRoomFxPaletteBlendOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline)
@@ -192,6 +196,7 @@ internal static class RoomFxPaletteBlendsVerification
         Console.WriteLine("Room-FX blend override: edited color reaches CGRAM and removal restores stock.");
     }
 
+    /// <summary>Loads a selected compiled FX record into CGRAM through a bus that forbids bank-$89 reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static (RoomLayer3FxState State, CartridgeReadGuard Bus, SnesCgram Cgram)
         ConstructBlendLoad(RoomFxPaletteBlendCatalog catalog,
@@ -213,15 +218,18 @@ internal static class RoomFxPaletteBlendsVerification
         return (state, bus, cgram);
     }
 
+    /// <summary>Finds the compiled default FX record whose palette selector matches the requested blend.</summary>
     private static RoomFxRecordDefinition SelectCompiledBlendRecord(byte selection) =>
         RoomFxRecordDefinitions.All.FirstOrDefault(candidate =>
             candidate.DoorPointer == 0 && candidate.PaletteBlend == selection)
         ?? throw new InvalidDataException($"No compiled default room-FX record selects blend ${selection:X2}.");
 
+    /// <summary>Wraps fixture memory with a guard against installed palette-table reads from bank $89.</summary>
     private static CartridgeReadGuard NewForbiddenRoomFxPaletteBus(TestAddressSpace inner) =>
         new CartridgeReadGuard(inner).Forbid(address => (SnesAddressMath.BankNumber(address)) == 0x89,
             address => $"Installed room-FX blend read ROM ${address:X6}.");
 
+    /// <summary>Runs the room-FX blend checks from the lookup command.</summary>
     [VerificationCommand("--lookup-fx-blends")]
     internal static int LookupFxBlendsCommand()
     {
@@ -229,6 +237,7 @@ internal static class RoomFxPaletteBlendsVerification
         return 0;
     }
 
+    /// <summary>Runs the standalone room-FX palette blend verification command.</summary>
     [VerificationCommand("--room-fx-palette-blends")]
     internal static int RoomFxPaletteBlendsCommand()
     {

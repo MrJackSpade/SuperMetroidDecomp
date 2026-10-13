@@ -14,6 +14,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusPoseTransitionTable
 {
+    /// <summary>Held Start and Select bits excluded from the native pose-table input match.</summary>
     private const ushort StartAndSelectMask = 0x3000;
 
     /// <summary>

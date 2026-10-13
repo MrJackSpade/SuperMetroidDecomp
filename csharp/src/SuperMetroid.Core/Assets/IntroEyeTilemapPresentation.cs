@@ -6,8 +6,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Four editable 3x2 Samus-eye BG2 rectangles; blink timing stays in code.</summary>
 public sealed class IntroEyeTilemapPresentation
 {
+    /// <summary>Four compiled 3-by-2 eye patches in blink selector order.</summary>
     internal readonly EyeRectangle[] frames;
 
+    /// <summary>Retains edited eye words only when they differ from the calculated native atlas grid.</summary>
     private IntroEyeTilemapPresentation(ushort[][] frames) => this.frames = frames.Select((words, index) => new EyeRectangle(words, index)).ToArray();
 
     /// <summary>Identity of every selected eye rectangle in its compiled blink-selector order.</summary>
@@ -26,10 +28,14 @@ public sealed class IntroEyeTilemapPresentation
         return frames[index].Words;
     }
 
+    /// <summary>One eye patch whose stock BG words can be calculated from its first tile.</summary>
     internal sealed class EyeRectangle
     {
+        /// <summary>Blink frame selecting the patch's first tile.</summary>
         private readonly int frame;
+        /// <summary>Complete authored words when any cell differs from the native grid.</summary>
         internal readonly ushort[]? supplied;
+        /// <summary>Detects whether supplied words match the six-cell native patch.</summary>
         internal EyeRectangle(ushort[] words, int frame)
         {
             this.frame = frame;
@@ -40,8 +46,10 @@ public sealed class IntroEyeTilemapPresentation
                 break;
             }
         }
+        /// <summary>Calculates a cell's BG word from the frame anchor and 16-tile row stride.</summary>
         private ushort Calculate(int cell) => unchecked((ushort)(IntroEyeTilemapFormat.FirstWord(frame) +
             cell % IntroEyeTilemapFormat.Columns + cell / IntroEyeTilemapFormat.Columns * IntroEyeTilemapFormat.NativeRowStride));
+        /// <summary>Supplied override words or a reconstructed native rectangle.</summary>
         internal ReadOnlySpan<ushort> Words
         {
             get
@@ -143,6 +151,7 @@ public static class IntroEyeTilemapFormat
     private const int ClosedTile = 0x33a;
     /// <summary>$8C:D785-D7BF: selected portrait palette three, no priority or flips.</summary>
     private const int PortraitPalette = 3;
+    /// <summary>Selects the native open, half-open, closed, or adjacent deadpan patch anchor.</summary>
     internal static ushort FirstWord(int frame)
     {
         int tile = frame switch

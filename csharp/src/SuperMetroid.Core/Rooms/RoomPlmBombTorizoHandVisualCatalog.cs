@@ -31,6 +31,7 @@ public sealed class RoomPlmBombTorizoHandVisualCatalog
         }
     });
 
+    /// <summary>Copied visual-only edits keyed by compiled hand-frame pointer; stock frames use calculated words.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates complete hand-frame coverage and copies only authored visual differences, leaving Bombs gating, collision, draw geometry and debris/music choreography fixed.</summary>

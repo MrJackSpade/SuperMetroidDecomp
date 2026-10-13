@@ -12,25 +12,44 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class SamusFramePhases
 {
+    /// <summary>Supplies installed beam tiles and palettes for pause teardown and grapple selection.</summary>
     private readonly RuntimeArtwork _artwork;
+    /// <summary>Provides bomb occupancy and cooldown state for HUD X-ray admission.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
+    /// <summary>Receives Samus and grapple palette writes at their gameplay phase.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Supplies held and newly pressed controller bits to Samus phase handlers.</summary>
     private readonly ControllerInputState _controller1;
+    /// <summary>Provides enemy collision and grapple targets for Samus movement.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Preserves the enemy-main ordering seam relative to Samus movement.</summary>
     private readonly EnemyFramePhase _enemyPhase;
+    /// <summary>Gates movement and animation branches during gameplay time freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
+    /// <summary>Supplies elapsed gameplay frames to the Shinespark movement handler.</summary>
     private readonly GameTimeState _gameTime;
+    /// <summary>Provides accepted-NMI cadence for movement and animation behavior.</summary>
     private readonly NmiClock _nmi;
+    /// <summary>Supplies player options such as configured movement controls.</summary>
     private readonly GameplayOptions _options;
+    /// <summary>Owns the live Samus state and phase-specific handler selection.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Publishes terrain and special-block reactions reached during movement.</summary>
     private readonly RoomPlmSystem _plms;
+    /// <summary>Supplies projectile and beam-charge state for Samus phase dispatch.</summary>
     private readonly SamusProjectileSystem _projectiles;
+    /// <summary>Provides active level data, camera, and room state for movement scans.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Tracks the palette effect that ends Samus's saved-game load appearance.</summary>
     private readonly RoomPaletteFxSystem _roomPaletteFx;
+    /// <summary>Supplies persistent bank-$80 state consulted by movement handlers.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Queues beam and Samus character transfers before the next display frame.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>Provides native movement tables and routines still read at the runtime boundary.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Binds the frame owners required to preserve Samus's alpha, beta, and presentation ordering.</summary>
     internal SamusFramePhases(SamusFramePhasesDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
@@ -144,6 +163,7 @@ internal sealed class SamusFramePhases
         return grappleOwnsMovement;
     }
 
+    /// <summary>Loads the installed grapple firing palette and flare color into Samus's CGRAM slots.</summary>
     internal void LoadGrapplePalette()
     {
         // Both ordinary HUD firing and debug entry select the installed native palette.
@@ -209,6 +229,7 @@ internal sealed class SamusFramePhases
                     $"uninitialized pose ${(int)_player.Samus.Pose:X2} has no translated $90:A337 mover.");
         }
     }
+    /// <summary>Runs Samus's terrain probes and movement dispatcher after alpha input, honoring script locks and enemy-main ordering.</summary>
     internal void StepGroundedSamusMovement(SamusHandlerFrame frame, ushort gameState, bool enemyMainAlreadyRan, Func<bool> alphaInputLocked, SamusState samus, ScrollBoundaryCamera camera)
     {
         if (_player.GroundedSamusMovementEnabled)
@@ -1055,6 +1076,7 @@ Landed: true, HitCeiling: false);
         }
     }
 
+    /// <summary>Applies post-movement pose and animation transitions after the frame's selected Samus handler.</summary>
     internal void ApplySamusAnimationTransitions(SamusHandlerFrame frame, SamusState samus)
     {
         if (_player.GroundedSamusMovementEnabled && !frame.DeathOwnsSamus && !frame.SuitOwnsSamus &&

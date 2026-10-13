@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(MotherBrainGlassInstructionProgramDefinitions))]
 internal abstract class MotherBrainGlassInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Bounds shard and sparkle visual operands in Mother Brain's glass explosion.</summary>
     public static int PresentationWordCount => MotherBrainGlassInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates one visual operand from the native glass program.</summary>
     public static ushort PresentationWordAddress(int index) => MotherBrainGlassInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Includes ten mechanic words for each of eight shard loops and five sparkle words.</summary>
     public static int MechanicsWordCount => 85;
     /// <summary>Enumerate ten mechanics words per shard loop, then five sparkle words.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
@@ -23,6 +26,7 @@ internal abstract class MotherBrainGlassInstructionProgramDefinitionsTooling : I
         else address = MotherBrainGlassInstructionProgramDefinitions.Sparkle + (index - 80) * 4;
         return new((ushort)address, MotherBrainGlassInstructionProgramDefinitions.ReadMechanicsWord((ushort)address));
     }
+    /// <summary>Checks shard control and sparkle timing bytes in the projectile bank.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;

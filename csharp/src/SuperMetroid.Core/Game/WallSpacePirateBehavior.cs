@@ -6,13 +6,19 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The wall space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class WallSpacePirateBehavior : IEnemySpecies
 {
+    /// <summary>Advances the shared random source when a climbing opcode chooses a new direction.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Clamps vertical climbing to room blocks before a collision reverses direction.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Runs common Samus contact for the ordinary Pirate family.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>Handles Pirate death animation and Gold Ninja's special pickup scatter.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
+    /// <summary>Shares laser spawning and hitbox-shot behavior with walking Pirates.</summary>
     private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
 
+    /// <summary>Binds wall climbing, jump arcs, and family combat reactions to room services.</summary>
     internal WallSpacePirateBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, WalkingSpacePirateBehavior walkingSpacePirateBehavior)
     {
         _walkingSpacePirateBehavior = walkingSpacePirateBehavior;
@@ -22,14 +28,20 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         _deathsAndDrops = deathsAndDrops;
     }
 
+    /// <summary>Vertical distance below which a climbing Pirate starts its fire-and-jump list.</summary>
     private const int WallPirateSamusDetectionBand = 32;
+    /// <summary>Pixels above the actor origin where the shared Pirate laser is emitted.</summary>
     private const int WallPirateLaserMuzzleYOffset = 16;
+    /// <summary>Library-two cue requested after a successful laser allocation.</summary>
     private const ushort WallPirateLaserSound = 0x0067;
+    /// <summary>Library-two cue requested by the wall-jump opcode.</summary>
     private const ushort WallPirateJumpSound = 0x0066;
 
+    /// <summary>Climb direction, arc geometry, and animation state indexed by physical enemy slot.</summary>
     internal readonly WallSpacePirateEnemyState?[] _wallSpacePirateStates =
         new WallSpacePirateEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
+    /// <summary>Recognizes the six color variants that use wall-climbing Pirate AI.</summary>
     internal static bool IsWallSpacePirateDefinition(EnemyDefinitionId definition) => definition is
         EnemyDefinitionId.PirateGreyWall or
         EnemyDefinitionId.PirateGreenWall or
@@ -38,6 +50,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         EnemyDefinitionId.PirateMagentaWall or
         EnemyDefinitionId.PirateSilverWall;
 
+    /// <summary>Groups wall, walking, and Ninja Pirates that share ordinary Pirate combat callbacks.</summary>
     internal static bool IsOrdinarySpacePirateDefinition(EnemyDefinitionId definition) =>
         IsWallSpacePirateDefinition(definition) ||
         WalkingSpacePirateBehavior.IsWalkingSpacePirateDefinition(definition) ||
@@ -120,6 +133,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
             "Wall Space Pirate detection requires the active Samus position.");
     }
 
+    /// <summary>Moves along the rightward jump arc and installs the right-wall landing list at its target angle.</summary>
     private static void StepWallSpacePirateJumpRight(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
@@ -136,6 +150,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         SnapWallSpacePirateXToTile(slot);
     }
 
+    /// <summary>Moves along the leftward jump arc and installs the left-wall landing list at its target angle.</summary>
     private static void StepWallSpacePirateJumpLeft(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
@@ -152,6 +167,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         SnapWallSpacePirateXToTile(slot);
     }
 
+    /// <summary>Uses native sine and cosine products to place the Pirate on a parameter-two-sized jump ellipse.</summary>
     private static void PositionWallSpacePirateOnArc(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
@@ -169,10 +185,12 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
             EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle, (ushort)(slot.Parameter2 >> 2)))));
     }
 
+    /// <summary>Allows the fire-and-jump sequence when Samus is within the strict vertical detection band.</summary>
     private static bool WallSpacePirateCanAttack(RoomEnemySlot slot, SamusState samus) =>
         Math.Abs(unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))) <
             WallPirateSamusDetectionBand;
 
+    /// <summary>Applies the native split alignment rule when a Pirate starts or lands on a wall.</summary>
     private static void SnapWallSpacePirateXToTile(RoomEnemySlot slot)
     {
         // `$B2:EFFF` deliberately has two alignment grids. Nibbles 0..10 round down to an
@@ -182,6 +200,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
             : unchecked((ushort)((slot.Position.X.Whole & 0xfff0) + 16)));
     }
 
+    /// <summary>Starts a selected wall-Pirate list on its first instruction frame.</summary>
     private static void InstallWallSpacePirateInstruction(
         RoomEnemySlot slot,
         ushort instructionPointer)
@@ -190,6 +209,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
+    /// <summary>Advances a climbing opcode or redirects its cursor to the opposite list after terrain contact.</summary>
     private void MoveWallSpacePirateAndReverseOnCollision(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
@@ -219,6 +239,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         cursor = SelectWallSpacePirateClimbList(onRightWall, state.ClimbDirection);
     }
 
+    /// <summary>Consumes one random value and jumps directly to the chosen up or down climbing list.</summary>
     private void RandomizeWallSpacePirateClimbDirection(
         WallSpacePirateEnemyState state,
         bool onRightWall,
@@ -230,6 +251,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         cursor = SelectWallSpacePirateClimbList(onRightWall, state.ClimbDirection);
     }
 
+    /// <summary>Selects the native animation list for a wall side and vertical climb direction.</summary>
     private static ushort SelectWallSpacePirateClimbList(
         bool onRightWall,
         WallSpacePirateClimbDirection direction) => (onRightWall, direction) switch
@@ -246,6 +268,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
             $"Wall Pirate climb direction ${(ushort)direction} is not binary."),
     };
 
+    /// <summary>Captures the wall-to-wall destination, arc center, and starting angle from parameter two.</summary>
     private static void PrepareWallSpacePirateJump(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
@@ -262,6 +285,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         state.WallJumpArcAngle = jumpingRight ? (ushort)64 : (ushort)192;
     }
 
+    /// <summary>Emits a wall laser through the shared Pirate owner and queues sound only if allocation succeeds.</summary>
     private void FireWallSpacePirateLaser(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
@@ -376,10 +400,12 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Rejects a wall-Pirate callback before its slot has initialized species state.</summary>
     private WallSpacePirateEnemyState RequireWallSpacePirateState(RoomEnemySlot slot) =>
         _wallSpacePirateStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized wall Space Pirate state.");
 
+    /// <summary>Registers the native wall-Pirate initializer for all six color definitions.</summary>
     internal void RegisterWallSpacePirateInitializationAi(EnemyAiTable table)
     {
 
@@ -389,6 +415,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Dispatches climbing, attack-list waits, and wall-jump movement for wall Pirates.</summary>
     internal void RegisterWallSpacePirateMainAi(EnemyAiTable table)
     {
 
@@ -401,6 +428,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Claims wall-Pirate climbing, laser, and jump opcodes before common animation dispatch.</summary>
     internal void RegisterWallSpacePirateOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -410,12 +438,14 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Applies the ordinary Pirate power-bomb callback across wall, walking, and Ninja variants.</summary>
     internal static void RegisterWallSpacePiratePowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.SpacePiratePowerBomb));
     }
 
+    /// <summary>Uses shared Pirate shot logic, including hitbox quake, big death explosion, and Gold Ninja drops.</summary>
     internal void RegisterWallSpacePirateShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
@@ -444,6 +474,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Skips frozen contact and rejects unsupported extended hitbox callbacks before normal touch damage.</summary>
     internal void RegisterWallSpacePirateTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => IsOrdinarySpacePirateDefinition(slot.EnemyDefinitionPointer) &&

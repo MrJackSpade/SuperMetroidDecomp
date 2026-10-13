@@ -17,7 +17,9 @@ internal abstract class ViolaInstructionProgramDefinitions
     /// <summary><c>InstList_Viola_Normal</c> at $A3:B5EF.</summary>
     internal const ushort NormalLoop = 0xb5ef;
 
+    /// <summary>Four surface entries and the shared spin loop contribute thirty axis, timing, and branch words.</summary>
     public static int MechanicsWordCount => 30;
+    /// <summary>The normal spin loop selects fourteen frames, including repeated spritemaps.</summary>
     public static int PresentationWordCount => 14;
 
     /// <summary>Four axis-setting entries converge on fourteen ten-tick frames; the last entry falls through.</summary>
@@ -42,12 +44,14 @@ internal abstract class ViolaInstructionProgramDefinitions
             : new((ushort)(NormalLoop + 56 + 2 * (word - 14)), word == 14 ? (ushort)CommonEnemyInstruction.Goto : NormalLoop);
     }
 
+    /// <summary>Locates the visual operand after a ten-tick pose in the shared Viola loop.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(NormalLoop + 2 + 4 * index);
     }
+    /// <summary>Binary-searches compiled bank-$A3 axis and loop controls, rejecting visual operands.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

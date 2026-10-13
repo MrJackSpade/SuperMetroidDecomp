@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Platforms species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class PlatformsBehavior : IEnemySpecies
 {
+    /// <summary>Clips Tripper/Kamer horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Binds the platform movement family to terrain collision.</summary>
     internal PlatformsBehavior(EnemyTerrain terrain)
     {
         _terrain = terrain;
@@ -43,16 +45,25 @@ internal sealed class PlatformsBehavior : IEnemySpecies
 
 
 
+    /// <summary>Native horizontal and vertical dispatch indices retained for each enemy slot.</summary>
     internal readonly PlatformMovementFunctions[] _platformMovementFunctions = new PlatformMovementFunctions[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Pre-move whole position used to carry Samus by the platform's accepted displacement.</summary>
     internal readonly ushort[] _platformPreviousPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Tracks whether a moving vertical animation has been installed for each slot.</summary>
     internal readonly ushort[] _platformVerticallyMovingFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Tracks whether a stationary vertical animation has been installed for each slot.</summary>
     internal readonly ushort[] _platformVerticallyStillFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Quadratic-speed table caps selected by the platform variant.</summary>
     internal readonly ushort[] _platformMaximumYSpeedTableIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Previous vertical dispatcher words used when rise and sink states change.</summary>
     internal readonly ushort[] _platformPreviousYMovementFunctions = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Per-slot selector for the suspensor platform animation family.</summary>
     internal readonly ushort[] _platformSuspensorPlatformFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Typed movement state for Tripper and Kamer slots.</summary>
     internal readonly PlatformEnemyState?[] _platformStates =
         new PlatformEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
+    /// <summary>Recognizes the two enemy definitions sharing bank-$A3 platform movement.</summary>
     internal static bool IsPlatformDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2;
 
@@ -147,6 +158,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         return yRemainder <= slot.Radius.Y;
     }
 
+    /// <summary>Applies horizontal movement, reversing the dispatcher and still-art list on wall collision.</summary>
     private void MovePlatformHorizontally(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -173,6 +185,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         InstallPlatformVerticallyStillForCurrentDirection(slot, state);
     }
 
+    /// <summary>Routes the platform through rise or sink physics and carries a riding Samus by accepted motion.</summary>
     private void MovePlatformVertically(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -193,6 +206,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Returns a depressed platform toward its spawn height with the native one-pixel stop offset.</summary>
     private void RaisePlatform(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -219,6 +233,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         SetPlatformVerticallyStillInstruction(slot, state);
     }
 
+    /// <summary>Accelerates a ridden platform downward and publishes its collision-clipped displacement to Samus.</summary>
     private void SinkPlatform(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -251,6 +266,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
     }
 
+    /// <summary>Steps the quadratic-speed table index without crossing its variant-specific cap.</summary>
     private static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
     {
         state.YSpeedTableIndex = unchecked((ushort)(state.YSpeedTableIndex + 1));
@@ -261,6 +277,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Installs moving art once per phase and always clears the still-art flag at the native merge label.</summary>
     private static void SetPlatformVerticallyMovingInstruction(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -275,6 +292,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         state.VerticallyStillArtInstalled = false;
     }
 
+    /// <summary>Installs stationary art once per phase and always clears the moving-art flag.</summary>
     private static void SetPlatformVerticallyStillInstruction(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -288,6 +306,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         state.VerticallyMovingArtInstalled = false;
     }
 
+    /// <summary>Selects the moving list from suspensor identity and current horizontal dispatcher.</summary>
     internal static void InstallPlatformVerticallyMovingForCurrentDirection(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -297,6 +316,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         InstallPlatformInstruction(slot, instruction);
     }
 
+    /// <summary>Selects the stationary list from suspensor identity and current horizontal dispatcher.</summary>
     internal static void InstallPlatformVerticallyStillForCurrentDirection(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -306,6 +326,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         InstallPlatformInstruction(slot, instruction);
     }
 
+    /// <summary>Starts the selected animation program with a one-tick instruction timer.</summary>
     private static void InstallPlatformInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -321,10 +342,12 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         RequirePlatformState(slot).XMovement = movement;
     }
 
+    /// <summary>Requires typed platform movement state after the shared initializer has run.</summary>
     private PlatformEnemyState RequirePlatformState(RoomEnemySlot slot) =>
         _platformStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Tripper/Kamer state.");
 
+    /// <summary>Replaces a frozen Tripper's map after common Bomb reaction using its movement direction.</summary>
     internal void RegisterPlatformsBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Tripper &&
@@ -338,6 +361,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes the shared initializer to Tripper and Kamer's distinct native entry points.</summary>
     internal void RegisterPlatformsInitializationAi(EnemyAiTable table)
     {
 
@@ -351,6 +375,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         table.RegisterInitialization(EnemyAiRoutine.InitAI_Tripper, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Tripper, shared67);
     }
 
+    /// <summary>Registers the common riding, horizontal patrol and vertical rise/sink dispatcher.</summary>
     internal void RegisterPlatformsMainAi(EnemyAiTable table)
     {
 
@@ -360,6 +385,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Routes the four horizontal-dispatcher animation commands to platform state.</summary>
     internal void RegisterPlatformsOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -369,6 +395,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Applies Tripper's direction-specific frozen map after a successful common shot freeze.</summary>
     internal void RegisterPlatformsShotReactions(EnemyAiTable table)
     {
         // Tripper's private tail runs after common shot AI on the immediate-freeze path and replaces the current
@@ -384,6 +411,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers native RTL touch behavior so ordinary overlap does not damage Samus.</summary>
     internal static void RegisterPlatformsTouch(EnemyAiTable table)
     {
         // `$A3:9F07` is a literal RTL. Platform solidity and the asymmetric rider test live in other handlers;

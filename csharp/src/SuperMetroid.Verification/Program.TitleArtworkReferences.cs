@@ -13,6 +13,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks title-artwork selector coverage and editable OAM without entering gameplay.</summary>
 internal static class TitleArtworkReferencesVerification
 {
     /// <summary>Validates statically identified title selectors without running gameplay or reading a ROM.</summary>
@@ -98,6 +99,7 @@ internal static class TitleArtworkReferencesVerification
         }
     }
 
+    /// <summary>Runs the title selector coverage check as a standalone verification command.</summary>
     [VerificationCommand("--title-artwork-references")]
     internal static int TitleArtworkReferencesCommand()
     {

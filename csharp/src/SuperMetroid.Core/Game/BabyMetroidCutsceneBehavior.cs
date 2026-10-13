@@ -5,16 +5,25 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Baby Metroid cutscene species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class BabyMetroidCutsceneBehavior
 {
+    /// <summary>Initializes the dynamically allocated Baby through ordinary enemy dispatch.</summary>
     private readonly IEnemyDispatch _dispatch;
+    /// <summary>Supplies current room bus, RNG, and installed Baby artwork.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Queues healing, death, and cutscene cues with native queue limits.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Allocates the Baby in the first free native enemy slot.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Applies Baby and Mother Brain color changes to live CGRAM.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Supplies the enemy-frame counter used to gate incremental healing sound.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Spawns release dust and Baby death explosions.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Shares physical body, head, rainbow sequence, and requested music state with Mother Brain.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
 
+    /// <summary>Connects the cutscene Baby to its Mother Brain encounter and room services.</summary>
     internal BabyMetroidCutsceneBehavior(BabyMetroidCutsceneBehaviorDependencies dependencies)
     {
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
@@ -27,7 +36,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         _projectiles = dependencies.Projectiles;
     }
 
-    /// <summary>Executes the cutscene Baby Metroid's private animation instructions.</summary>
+    /// <summary>Claims the Baby's two same-bank goto opcodes while leaving unrelated enemy instructions to the shared interpreter.</summary>
     private static bool TryProcessBabyMetroidCutsceneInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
     {
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.BabyMetroidCutscene ||
@@ -38,7 +47,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         return true;
     }
 
-    /// <summary>Ports <c>$A9:BE1B-$BE27</c> through the generic one-part allocator.</summary>
+    /// <summary>Allocates the Baby in the first free native slot, runs its initializer, and preserves the post-init empty map until its first scheduled turn.</summary>
     internal void SpawnMotherBrainBabyMetroid(MotherBrainEnemyState state)
     {
         if (state.BabyMetroidSlot is { EnemyDefinitionPointer: not 0 })
@@ -77,7 +86,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
     }
 
-    /// <summary>Ports Baby initialization <c>$A9:C710-$C776</c>.</summary>
+    /// <summary>Creates the physical Baby only after the rainbow sequence exists and installs its first list and fifteen nontransparent palette colors.</summary>
     private void InitializeMotherBrainBabyMetroid(RoomEnemySlot slot)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
@@ -104,6 +113,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         LoadBabyMetroidCutsceneInitialPalette();
     }
 
+    /// <summary>Copies installed Baby start colors while leaving CGRAM's transparent entry untouched.</summary>
     internal void LoadBabyMetroidCutsceneInitialPalette()
     {
         var colors = _room.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
@@ -112,7 +122,7 @@ internal sealed class BabyMetroidCutsceneBehavior
             _presentation.BossPalettes.BabyMetroidCutscene.Write(color, colors.InitialColor(color));
     }
 
-    /// <summary>Runs one physical Baby main-AI call at <c>$A9:C779</c>.</summary>
+    /// <summary>Advances the later Baby slot, publishes cries/healing, and writes body and Baby list changes for their next ordered enemy turns.</summary>
     internal void RunMotherBrainBabyMetroidMain(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -188,6 +198,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         ApplyBabyMetroidFrameEffects(state, step);
     }
 
+    /// <summary>Copies cutscene position, property, palette, tile, and health state into the live enemy record.</summary>
     private static void CopyBabyMetroidActorToPhysicalSlot(
         RoomEnemySlot slot,
         BabyMetroidCutsceneState baby)
@@ -199,6 +210,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         slot.Health = baby.Health;
     }
 
+    /// <summary>Applies one step's music, sounds, dust, palette, attack-tile, and recovery-light requests to room systems.</summary>
     internal void ApplyBabyMetroidFrameEffects(
         MotherBrainEnemyState state,
         BabyMetroidCutsceneStepResult step)
@@ -241,6 +253,7 @@ internal sealed class BabyMetroidCutsceneBehavior
             LoadMotherBrainRecoveryLights(roomPalette);
     }
 
+    /// <summary>Requires the native two-destination recovery-light transfer layout before applying installed room colors.</summary>
     internal void LoadMotherBrainRecoveryLights(
         MotherBrainBackgroundPaletteTransferRequest request)
     {
@@ -261,6 +274,7 @@ internal sealed class BabyMetroidCutsceneBehavior
             .ApplyRecoveryLights(_presentation._cgram!, request.PaletteIndex);
     }
 
+    /// <summary>Requires the native fade source, destination, and color count before copying installed Baby shades to CGRAM.</summary>
     internal void LoadBabyMetroidCutsceneFadePalette(
         BabyMetroidPaletteTransferRequest palette)
     {
@@ -293,6 +307,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         };
     }
 
+    /// <summary>Binds Baby cutscene setup only to its physical enemy-definition ID.</summary>
     internal void RegisterBabyMetroidCutsceneInitializationAi(EnemyAiTable table)
     {
 
@@ -302,6 +317,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         });
     }
 
+    /// <summary>Binds the later-slot Baby update to its native main-AI routine.</summary>
     internal void RegisterBabyMetroidCutsceneMainAi(EnemyAiTable table)
     {
 
@@ -311,6 +327,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         });
     }
 
+    /// <summary>Registers Baby-only goto handling without taking ownership of common enemy opcodes.</summary>
     internal static void RegisterBabyMetroidCutsceneOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

@@ -16,8 +16,10 @@ using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks pause-menu reserve input and HUD DMA timing through the real frontend dispatcher.</summary>
 internal static class PauseReserveHudVerification
 {
+    /// <summary>Confirms AUTO label changes, manual refill digits, queued NMI presentation, and preservation of unrelated HUD cells.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve HUD")]
     internal static void VerifyPauseReserveHud()
@@ -88,6 +90,7 @@ internal static class PauseReserveHudVerification
         Console.WriteLine("Pause reserve HUD: real frontend input, six AUTO cells and per-frame health DMA pass.");
     }
 
+    /// <summary>Runs the paused reserve and HUD synchronization reproduction.</summary>
     [VerificationCommand("--pause-reserve-hud")]
     internal static int PauseReserveHudCommand()
     {

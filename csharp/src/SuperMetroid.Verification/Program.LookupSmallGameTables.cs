@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compact native tables for falling tubes, bomb bounce, Crocomire debris, Rinkas, and corpse layouts.</summary>
 internal static class LookupSmallGameTablesVerification
 {
     /// <summary>
@@ -24,6 +25,7 @@ internal static class LookupSmallGameTablesVerification
     }
 
 
+    /// <summary>Checks five falling-tube body radius and floor records against bank $A9.</summary>
     private static void VerifyMotherBrainFallingTubeBodies(ISnesAddressSpace rom)
     {
         for (int tube = 0; tube < 5; tube++)
@@ -36,6 +38,7 @@ internal static class LookupSmallGameTablesVerification
         AssertThrows<InvalidDataException>(() => MotherBrainBehavior.MotherBrainFallingTubeBody(5), "Falling tube upper bound");
     }
 
+    /// <summary>Checks every bomb-bounce gravity stage and its shared ordinary fall value.</summary>
     private static void VerifyMotherBrainBombBounceAccelerations(ISnesAddressSpace rom)
     {
         for (int stage = 0; stage < MotherBrainBombBounceDefinitions.StageCount; stage++)
@@ -46,6 +49,7 @@ internal static class LookupSmallGameTablesVerification
         AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBombBounceDefinitions.YAcceleration(10), "Bomb stage bound");
     }
 
+    /// <summary>Matches seven unrolled Crocomire bridge-dust spawn operands to their X/Y positions.</summary>
     private static void VerifyCrocomireBridgeDustPositions(ISnesAddressSpace rom)
     {
         // $A4:8F35..: each unrolled spawn is LDA #X / STA / LDA #Y / STA / LDA #$15 / JSL, twenty bytes.
@@ -61,9 +65,11 @@ internal static class LookupSmallGameTablesVerification
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBehavior.CrocomireBridgeDustPosition(7), "Dust upper bound");
     }
 
+    /// <summary>Reads a retail opcode byte when checking Crocomire's unrolled dust spawns.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire bridge dust positions")]
     private static byte CrocomireBridgeDustPositionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Matches all sixteen Ceres falling-debris column positions to their source words.</summary>
     private static void VerifyCeresFallingDebrisColumns(ISnesAddressSpace rom)
     {
         for (int column = 0; column < 16; column++)
@@ -72,6 +78,7 @@ internal static class LookupSmallGameTablesVerification
         AssertThrows<ArgumentOutOfRangeException>(() => RoomMainRoutines.CeresFallingDebrisX(16), "Debris column bound");
     }
 
+    /// <summary>Matches eleven Rinka spawn positions and resource tokens to bank $A2 records.</summary>
     private static void VerifyRinkaSpawnResources(ISnesAddressSpace rom)
     {
         for (int index = 0; index < 11; index++)
@@ -84,6 +91,7 @@ internal static class LookupSmallGameTablesVerification
         }
     }
 
+    /// <summary>Matches dead Tourian corpse copy geometry and initialization tile moves to native routines.</summary>
     private static void VerifyDeadTourianCorpseLayouts(ISnesAddressSpace rom)
     {
         const int bank = 0xa90000, workBuffer = 0x2000;
@@ -137,6 +145,7 @@ internal static class LookupSmallGameTablesVerification
         }
     }
 
+    /// <summary>Reads a retail opcode byte when checking dead-corpse copy and initialization routines.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for dead Tourian corpse layouts")]
     private static byte DeadTourianCorpseLayoutsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

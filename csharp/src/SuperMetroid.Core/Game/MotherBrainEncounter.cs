@@ -12,9 +12,12 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class MotherBrainEncounter
 {
+    /// <summary>VRAM and sprite presentation owner receiving encounter tile transfers.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Room services supplying installed artwork and mutable memory for native transfers.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>Binds the encounter's sprite transfers to presentation and room asset owners.</summary>
     internal MotherBrainEncounter(EnemyPresentation presentation, EnemyRoomBinding room)
     {
         _presentation = presentation;
@@ -30,6 +33,7 @@ internal sealed class MotherBrainEncounter
     /// </summary>
     public bool MotherBrainDeletedHdmaObjects { get; internal set; }
 
+    /// <summary>Loads known cartridge artwork from installed assets and preserves mutable WRAM DMA for the corpse buffer.</summary>
     [PpuLayoutBoundary("codec: Mother Brain sprite tile transfer requests' native VRAM destinations")]
     internal void ApplyMotherBrainRainbowTileTransfer(
         MotherBrainSpriteTileTransferRequest transfer)

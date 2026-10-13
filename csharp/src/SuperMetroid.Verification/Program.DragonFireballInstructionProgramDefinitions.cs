@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Dragon fireball instruction words and live rising-to-falling transitions against cartridge behavior.</summary>
 internal static class DragonFireballInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail ROM and runs the Dragon fireball instruction suite.</summary>
     internal static void VerifyDragonFireballInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDragonFireballInstructionProgramDefinitions), () => VerifyDragonFireballInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks compiled words, both directional frame loops, vertical zero crossing, and shared deletion without runtime ROM reads.</summary>
     internal static void VerifyDragonFireballInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -161,6 +164,7 @@ internal static class DragonFireballInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Consumes repeated rising and falling mechanics lookups for the warmed allocation check.</summary>
     private static int ProbeDragonFireballInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -174,6 +178,7 @@ internal static class DragonFireballInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids Dragon and shared-delete mechanics reads while observing visual operand access.</summary>
     private static CartridgeReadGuard NewDragonFireballInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -184,6 +189,7 @@ internal static class DragonFireballInstructionProgramDefinitionsVerification
                 DragonFireballInstructionProgramDefinitions.PresentationWordCount,
                 DragonFireballInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Dragon fireball suite through the verification command dispatcher.</summary>
     [VerificationCommand("--dragon-fireball-instruction-mechanics")]
     internal static int DragonFireballInstructionMechanicsCommand()
     {

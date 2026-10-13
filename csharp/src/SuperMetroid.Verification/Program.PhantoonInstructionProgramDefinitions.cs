@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Phantoon body, eye, tentacle, and mouth programs against native instruction data.</summary>
 internal static class PhantoonInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge and runs Phantoon instruction checks.</summary>
     internal static void VerifyPhantoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPhantoonInstructionProgramDefinitions), () => VerifyPhantoonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises reachable Phantoon programs and callbacks with compiled mechanics reads forbidden.</summary>
     internal static void VerifyPhantoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -193,6 +196,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
             "programs, four callbacks, and 27 native sprite selections pass with zero live reads.");
     }
 
+    /// <summary>Creates the four linked Phantoon parts and a deterministic random source for instruction execution.</summary>
     internal static RoomEnemySystem CreatePhantoonInstructionSystem(ISnesAddressSpace bus)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -221,6 +225,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>Advances a selected program and compares each resulting visual selector with the native operand.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon instruction program")]
     private static void RunPhantoonInstructionProgram(
         ISnesAddressSpace rom, HashSet<ushort> executedOperands,
@@ -245,6 +250,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates body and mouth mechanics lookups to detect warmed allocations.</summary>
     private static int ProbePhantoonInstructionAllocation()
     {
         int checksum = 0;
@@ -259,6 +265,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects compiled mechanics reads while observing any presentation-operand reads.</summary>
     private static CartridgeReadGuard NewPhantoonInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(PhantoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -266,6 +273,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
             .ObserveWords(0xa70000, PhantoonInstructionProgramDefinitions.PresentationWordCount,
                 PhantoonInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the standalone Phantoon instruction program verification command.</summary>
     [VerificationCommand("--phantoon-instruction-program-definitions")]
     internal static int PhantoonInstructionProgramDefinitionsCommand()
     {

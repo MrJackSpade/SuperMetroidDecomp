@@ -13,9 +13,9 @@ using static IntroCinematicArtworkVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed Ceres flight Mode 7, sprite, actor, and palette art against retail sources.</summary>
 internal static class CeresFlightArtworkVerification
 {
-    /// <summary>Exercises the actual front/rear Mode-7 transfers and restored Ceres flight.</summary>
     /// <summary>
     /// Standalone frames from a new flight into its visible front approach: $8B:BCA0's
     /// dispatch and $8B:BDE4's 24-dispatch music wait precede the 32-dispatch approach
@@ -23,6 +23,7 @@ internal static class CeresFlightArtworkVerification
     /// </summary>
     internal const int CeresFrontApproachTicks = 30;
 
+    /// <summary>Checks native front and rear transfers, visible edits, restored bindings, and stock repair.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight Mode 7 characters, maps, object characters and palette")]
     internal static void VerifyCeresFlightArtwork(GameInstallation installation,
@@ -186,6 +187,7 @@ internal static class CeresFlightArtworkVerification
         Console.WriteLine("Ceres flight art: native front/rear frames and five ROM-sourced rear actor placements, independent PNG/JSON/palette edits, rebind and strict failures pass.");
     }
 
+    /// <summary>Checks five native rear-view actor positions and an edited asteroid's live OAM result.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Ceres flight actor spritemap layout")]
     private static void VerifyCeresFlightActorLayout(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, CeresFlightArtworkCatalog stock,
@@ -263,6 +265,7 @@ internal static class CeresFlightArtworkVerification
         File.Delete(overridePath);
     }
 
+    /// <summary>Checks an edited palette in approach and destruction scenes, including restoration.</summary>
     private static void VerifyCeresFlightPaletteOverride(GameInstallation installation,
         ISnesAddressSpace guardedBus, CeresFlightArtworkCatalog stock)
     {
@@ -332,6 +335,7 @@ internal static class CeresFlightArtworkVerification
         File.Delete(overridePath);
     }
 
+    /// <summary>Confirms each PNG and both Mode 7 map views can alter rendered flight pixels.</summary>
     private static void VerifyCeresVisibleOverrides(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -417,6 +421,7 @@ internal static class CeresFlightArtworkVerification
         File.Delete(mapOverride);
     }
 
+    /// <summary>Constructs the exact front or rear VRAM image from selected map and character art.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
     private static byte[] ExpectedCeresFlightVram(CeresFlightArtworkCatalog artwork, bool rear)
     {

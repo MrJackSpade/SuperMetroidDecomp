@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static MapSpritesVerification;
 
+/// <summary>Checks pause equipment selector OAM against native sprites and editable phase compositions.</summary>
 internal static class PauseSelectorCompositionsVerification
 {
+    /// <summary>Checks stock compact storage and independent edits to selector parts and animation phases.</summary>
     internal static void VerifyPauseSelectorCompositions(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
@@ -76,6 +78,7 @@ internal static class PauseSelectorCompositionsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(new OamBuffer(), 0, 0, -1), "negative composition phase");
     }
 
+    /// <summary>Compares each group's 14 phases with native OAM at several preoccupied-buffer sizes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause selector native compositions")]
     internal static void VerifyPauseSelectorNativeCompositions(ISnesAddressSpace rom, PauseSelectorPresentation selector, int group)
     {

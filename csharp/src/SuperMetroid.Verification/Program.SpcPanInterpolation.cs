@@ -13,8 +13,10 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks SPC stereo pan interpolation against the cartridge's straight-line arithmetic.</summary>
 internal static class SpcPanInterpolationVerification
 {
+    /// <summary>Compares both DSP volume registers for the failing descending pair and all 16-bit pan inputs.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pan interpolation")]
     [SpcMemoryBoundary("exact APU memory test: fills APU RAM with the pan interpolation table")]
@@ -96,6 +98,7 @@ internal static class SpcPanInterpolationVerification
         }
     }
 
+    /// <summary>Runs the SPC pan arithmetic comparison as a verification command.</summary>
     [VerificationCommand("--lookup-spc-pan-interpolation")]
     internal static int LookupSpcPanInterpolationCommand()
     {

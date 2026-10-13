@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks Bomb Torizo's compiled posture offsets and walk velocities against native tables and their consumers.</summary>
 internal static class BombTorizoMovementDefinitionsVerification
 {
+    /// <summary>Compares six source tables and exercises actual posture and walking consumers with migrated reads forbidden.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo movement definitions")]
     internal static void VerifyBombTorizoMovementDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -118,6 +120,7 @@ internal static class BombTorizoMovementDefinitionsVerification
             "Bomb Torizo movement definitions: all 88 native words, 32 real posture applications and 20 real walk consumers pass with all six source tables forbidden.");
     }
 
+    /// <summary>Rejects reads of the original posture and walk tables while production behavior runs.</summary>
     private static CartridgeReadGuard NewBombTorizoMovementReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
                 address is >= 0xaac3ee and < 0xaac41e or
@@ -126,6 +129,7 @@ internal static class BombTorizoMovementDefinitionsVerification
                     >= 0xaac532 and < 0xaac55a,
             address => $"Bomb Torizo movement attempted migrated table read ${address:X6}.");
 
+    /// <summary>Runs the Bomb Torizo movement definition comparison against the retail ROM.</summary>
     [VerificationCommand("--lookup-stream2-torizo-movement")]
     internal static int LookupStream2TorizoMovementCommand()
     {

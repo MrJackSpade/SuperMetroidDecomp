@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static CollectibleVisualsVerification;
 
+/// <summary>Checks stock collectible visual words and content identity against the native PLM frame table.</summary>
 internal static class LookupCollectibleStockVerification
 {
+    /// <summary>Compares 24 native frame words with stock, imported, and installed catalogs, then checks unknown pointers, edited copies, and invalid imports.</summary>
     internal static void VerifyCollectibleStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmCollectibleVisualCatalog installed)
     {

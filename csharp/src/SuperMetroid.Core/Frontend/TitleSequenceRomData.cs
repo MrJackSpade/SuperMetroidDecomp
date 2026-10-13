@@ -143,6 +143,7 @@ public static class TitleSequenceRomData
             {
                 for (int frame = 0; frame < Count; frame++) yield return this[frame];
             }
+            /// <summary>Exposes the same four-page sequence through the non-generic collection contract.</summary>
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
         }
         /// <summary>Byte length of the complete title OBJ character upload: $4000 bytes.</summary>

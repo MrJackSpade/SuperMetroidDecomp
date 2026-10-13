@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Derives Samus arm-cannon and body draw records from native Ridley movie checkpoints.</summary>
 internal static class RidleySamusDrawReferenceVerification
 {
     /// <summary>
@@ -44,6 +45,7 @@ internal static class RidleySamusDrawReferenceVerification
             true, frame, direction, attributes, CartridgeImportSource.Require(rom).ReadCartridgeWord((tiles + frame * 2)), new(unchecked((ushort)x), unchecked((ushort)y)));
     }
 
+    /// <summary>Looks for the expected visible cannon sprite in native low and high OAM tables.</summary>
     internal static bool ContainsMovieCannonSprite(ReadOnlySpan<byte> low, ReadOnlySpan<byte> high,
         RidleyNativeCannonDrawResult draw)
     {

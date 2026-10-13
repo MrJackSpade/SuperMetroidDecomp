@@ -25,6 +25,7 @@ public static class GameplayMessagePanelDefinitions
     public const int VisibleColumns = GameplayMessageRomData.Layout.TilemapWidth -
         OuterLeftColumns - OuterRightColumns;
 
+    /// <summary>The closed set of item messages with editable four-row instruction bodies.</summary>
     private static readonly GameplayMessageId[] SupportedMessageIds =
     [
         GameplayMessageId.MissileTank,
@@ -36,10 +37,10 @@ public static class GameplayMessagePanelDefinitions
         GameplayMessageId.Bombs,
     ];
 
-    /// <summary>Gets the seven large item-instruction messages in their published asset order.</summary>
+    /// <summary>Exposes the seven large item-instruction messages in their published asset order.</summary>
     public static ReadOnlySpan<GameplayMessageId> MessageIds => SupportedMessageIds;
 
-    /// <summary>Gets the controller action whose glyph slot is patched in a large message panel.</summary>
+    /// <summary>Classifies the binding used to patch each supported panel's controller glyph.</summary>
     /// <param name="messageId">Message identity to classify.</param>
     /// <returns>The shoot or run binding, or <see cref="GameplayMessagePanelButtonBinding.None"/> for another message.</returns>
     public static GameplayMessagePanelButtonBinding ButtonBinding(GameplayMessageId messageId) =>

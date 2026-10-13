@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>$82:A881 arrow animations and $82:A92B palette animation, advanced by menu ticks only.</summary>
 public sealed class FileSelectMapAnimations
 {
+    /// <summary>Independent visibility, phase, and delay state for each map-scroll arrow.</summary>
     internal readonly Arrow[] arrows = new Arrow[MapArrowDefinitions.Count];
+    /// <summary>Native palette cycle state advanced separately from arrow timing.</summary>
     private readonly MapPaletteAnimation palette;
+    /// <summary>Installed visual phases rebound after state restoration without serializing artwork.</summary>
     [NonSerialized] private MapArrowPresentation? presentation;
 
     /// <summary>Creates independent arrow counters and palette timing for a map menu, binding installed arrow positions and phase durations without reading cartridge animation data.</summary>
@@ -52,6 +55,7 @@ public sealed class FileSelectMapAnimations
 
     /// <summary>ResetPauseMenuAnimations resets palette timing but does not clear the arrow counters.</summary>
     public void ResetPalette() => palette.Reset();
+    /// <summary>Replaces the installed palette colors and durations while retaining the menu-owned cycle state.</summary>
     internal void BindPalette(SuperMetroid.Core.Assets.MapPaletteCycle? cycle) => palette.Bind(cycle);
 
     /// <summary>Returns the native library-three sound request at the palette loop terminator.</summary>
@@ -103,11 +107,18 @@ public sealed class FileSelectMapAnimations
         }
     }
 
+    /// <summary>One map-scroll arrow's bound anchor and sprite identity with menu-tick counters.</summary>
     internal sealed class Arrow(Position16<OamPixels> position, MapSpriteId spriteBase)
     {
+        /// <summary>Installed screen anchor retained while the arrow advances its visual phase.</summary>
         public readonly Position16<OamPixels> Position = position;
+        /// <summary>Sprite composition selected for this scroll direction.</summary>
         public readonly MapSpriteId Base = spriteBase;
-        public int Timer, Frame;
+        /// <summary>Remaining menu ticks before the next phase transition.</summary>
+        public int Timer;
+        /// <summary>Current presentation phase, preserved modulo replacement phase count on rebinding.</summary>
+        public int Frame;
+        /// <summary>Current scroll-boundary admission result; hidden arrows retain their counters.</summary>
         public bool Visible;
     }
 }

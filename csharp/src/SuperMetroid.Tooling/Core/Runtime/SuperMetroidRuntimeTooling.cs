@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Development-tool instance members of <see cref="SuperMetroidRuntime"/>.</summary>
 internal static class SuperMetroidRuntimeToolingExtensions
 {
+    /// <summary>Provides direct room-loading seams for ROM-backed debug and extraction hosts.</summary>
     extension(SuperMetroidRuntime self)
     {
         /// <summary>

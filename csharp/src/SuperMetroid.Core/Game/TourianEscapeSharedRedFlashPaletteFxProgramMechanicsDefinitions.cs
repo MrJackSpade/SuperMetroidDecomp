@@ -48,10 +48,14 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
     private const ushort GeneralColorByte = 0x00a8;
     /// <summary>CGRAM byte $E8: Arkanoid-block and red-orb flash destination.</summary>
     private const ushort ArkanoidColorByte = 0x00e8;
+    /// <summary>Both palette-FX entries, ordered by their owner value and materialized without a backing array.</summary>
     internal static readonly IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition> Definitions = new ProgramEntries();
+    /// <summary>Projects each owner onto its definition pointer, entry list, CGRAM destination, and branch policy.</summary>
     private sealed class ProgramEntries : IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition>
     {
+        /// <summary>Tourian's two definitions converge on the same timed-record loop.</summary>
         public int Count => 2;
+        /// <summary>Indexes the general-level entry first and the Arkanoid/red-orb entry second.</summary>
         public TourianEscapeSharedRedFlashPaletteFxProgramDefinition this[int index] =>
             (TourianEscapeSharedRedFlashPaletteOwner)index switch
             {
@@ -63,15 +67,17 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
                     ArkanoidDefinitionPointer, ArkanoidProgramStart, ArkanoidColorByte, usesGoto: false),
                 _ => throw new ArgumentOutOfRangeException(nameof(index)),
             };
+        /// <summary>Visits both entries in the same order as the owner values.</summary>
         public IEnumerator<TourianEscapeSharedRedFlashPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Uses the typed entry iteration for callers of the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
-    /// <summary>Returns one shared timed-record pointer.</summary>
+    /// <summary>Calculates a timed-record address from the first frame and its 20-byte stride, rejecting out-of-range frames.</summary>
     public static ushort FramePointer(int frame)
     {
         if ((uint)frame >= FrameCount)
@@ -79,7 +85,7 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
         return unchecked((ushort)(FirstFramePointer + frame * FrameByteCount));
     }
 
-    /// <summary>Returns one color word, skipping the inline CGRAM-index instruction.</summary>
+    /// <summary>Locates a live color word, accounting for the inline CGRAM-index instruction before the seventh color.</summary>
     public static ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= ColorsPerFrame)
@@ -88,7 +94,7 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
         return unchecked((ushort)(FramePointer(frame) + offset));
     }
 
-    /// <summary>Resolves one compiled mechanics word across both entries and the loop.</summary>
+    /// <summary>Recognizes entry setup, loop control, duration, index increment, and wait words while leaving colors live.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
         foreach (TourianEscapeSharedRedFlashPaletteFxProgramDefinition definition in Definitions)
@@ -127,6 +133,7 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
 /// <summary>One entry into Tourian's shared escape red-flash loop.</summary>
 public sealed class TourianEscapeSharedRedFlashPaletteFxProgramDefinition
 {
+    /// <summary>Captures the setup and branch policy for one definition entering the shared red-flash loop.</summary>
     internal TourianEscapeSharedRedFlashPaletteFxProgramDefinition(
         TourianEscapeSharedRedFlashPaletteOwner owner,
         ushort definitionPointer,
@@ -156,7 +163,7 @@ public sealed class TourianEscapeSharedRedFlashPaletteFxProgramDefinition
     /// <summary>Whether this entry branches over the adjacent entry before the shared loop.</summary>
     public bool UsesGoto { get; }
 
-    /// <summary>Resolves one compiled mechanics word in this entry.</summary>
+    /// <summary>Recognizes this entry's color-index setup and optional branch into the common frame loop.</summary>
     internal bool TryReadEntryWord(ushort pointer, out ushort value)
     {
         value = pointer switch

@@ -18,7 +18,9 @@ internal abstract class BombTorizoDormantInstructionProgramDefinitions : IInstru
     /// <summary><c>WakeBT_WhenChozoIsCrumbled</c> at $AA:C6C6.</summary>
     internal const ushort WakeWhenHandCrumbles = 0xc6c6;
 
+    /// <summary>Counts six control words before Bomb Torizo's first sleep.</summary>
     public static int MechanicsWordCount => 6;
+    /// <summary>Returns an indexed dormant control word while skipping the interleaved frame operand.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -26,11 +28,14 @@ internal abstract class BombTorizoDormantInstructionProgramDefinitions : IInstru
         _ = TryReadMechanicsWord(address, out ushort value);
         return new(address, value);
     }
+    /// <summary>Counts the single extended frame selected by the dormant entry.</summary>
     public static int PresentationWordCount => 1;
+    /// <summary>Locates the dormant extended-spritemap operand and rejects other indices.</summary>
     public static ushort PresentationWordAddress(int index) => index == 0
         ? DormantFrameOperand
         : throw new ArgumentOutOfRangeException(nameof(index));
 
+    /// <summary>Reads compiled foot-state, animation-lock, wake-function, and sleep words in the bounded entry.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         // Establish foot state and animation lock, show the dormant frame, then install
@@ -50,6 +55,7 @@ internal abstract class BombTorizoDormantInstructionProgramDefinitions : IInstru
         return value != 0;
     }
 
+    /// <summary>Accepts the dormant control bytes in bank $AA while excluding the frame operand.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xaa0000) return false;

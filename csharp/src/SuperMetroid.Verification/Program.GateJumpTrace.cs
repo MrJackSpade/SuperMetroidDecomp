@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Compares gate-jump trajectories and switch activation with recorded native CPU traces.</summary>
 internal static class GateJumpTraceVerification
 {
+    /// <summary>Checks ordinary and spin timings across 1120 frames, including adjacent misses and falling control.</summary>
     internal static void VerifyGateJumpTraces()
     {
         foreach ((int shootFrame, int aimFrame, bool releaseLeft) in new[]
@@ -62,6 +64,7 @@ internal static class GateJumpTraceVerification
         Console.WriteLine("PASS 1120 original-CPU gate jump frames: ordinary/spin successes, adjacent misses and falling control.");
     }
 
+    /// <summary>Runs the focused gate-jump trace verification command.</summary>
     [VerificationCommand("--gate-jump-traces")]
     internal static int GateJumpTracesCommand()
     {

@@ -9,6 +9,8 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class PlmVramArtworkAudit
 {
+    /// <summary>Recognizes a positive PLM DMA span covered by an installed
+    /// enemy page, Torizo fragment, Ceres escape tile, or overlay resource.</summary>
     internal static bool OwnsInstalledTransfer(int source, int count) => count > 0 &&
         (EnemyTileSourceDefinitions.All.Any(page => page.SourceAddress == source && page.ByteCount == count) ||
          TorizoInstructionVramArtworkDefinitions.All.ToArray().Any(page =>
@@ -16,6 +18,8 @@ internal static class PlmVramArtworkAudit
          CeresEscapeTileArtworkDefinitions.Contains(source, count) ||
          CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(source, count));
 
+    /// <summary>Reports missing provider, importer, or NMI source files so a
+    /// named ROM range alone cannot prove installed artwork ownership.</summary>
     internal static void VerifySource(string root, PlmProgramAuditReport report)
     {
         // Includes the importer: a range merely named in Core must not count as

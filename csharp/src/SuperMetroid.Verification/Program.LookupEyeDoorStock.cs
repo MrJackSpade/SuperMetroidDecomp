@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks installed eye-door visual frames, mirrored clear tiles, and import validation.</summary>
 internal static class LookupEyeDoorStockVerification
 {
+    /// <summary>Compares 23 bank $84 frame identities and every stock tile word with the native map.</summary>
     internal static void VerifyEyeDoorStockMapping(SuperMetroidAddressSpace rom, RoomPlmEyeDoorVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [

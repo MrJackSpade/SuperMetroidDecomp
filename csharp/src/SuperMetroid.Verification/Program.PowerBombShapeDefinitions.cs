@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Power Bomb width and top-offset curves through scanline rendering.</summary>
 internal static class PowerBombShapeDefinitionsVerification
 {
+    /// <summary>Compares all 32 quantized sine widths with native bytes and rejects invalid indices.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb width algorithm")]
     internal static void VerifyPowerBombWidthAlgorithm(SuperMetroidAddressSpace rom)
     {
@@ -27,6 +29,7 @@ internal static class PowerBombShapeDefinitionsVerification
                 "Power Bomb width bounds");
     }
 
+    /// <summary>Compares all 32 quantized vertical boundaries with native bytes and rejects invalid indices.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb top offset algorithm")]
     internal static void VerifyPowerBombTopOffsetAlgorithm(SuperMetroidAddressSpace rom)
     {
@@ -38,6 +41,7 @@ internal static class PowerBombShapeDefinitionsVerification
                 "Power Bomb top offset bounds");
     }
 
+    /// <summary>Checks signed scanline profiles and clipped rendered pixels across radii and centers.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb shape")]
     internal static void VerifyCompiledPowerBombShape(SuperMetroidAddressSpace rom)
     {
@@ -104,11 +108,13 @@ internal static class PowerBombShapeDefinitionsVerification
         Console.WriteLine($"Power Bomb compiled shape: 64 native bytes, 197120 signed scanline cases and {frames} complete clipped/HUD-preserving frames match without a bus.");
     }
 
+    /// <summary>Rejects all bus access while the installed shape renderer calculates pixels.</summary>
     private static CartridgeReadGuard NewPowerBombShapeReadGuard() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Unexpected shape ROM read: {address:X6}.")
             .RejectWrites(_ => "Unexpected shape bus write.");
 
+    /// <summary>Runs the Power Bomb shape algorithm and pixel fixture.</summary>
     [VerificationCommand("--power-bomb-shape-fixture")]
     internal static int PowerBombShapeFixtureCommand()
     {
@@ -118,6 +124,7 @@ internal static class PowerBombShapeDefinitionsVerification
     }
 }
 
+/// <summary>Native bank $88 shape-table addresses used as independent comparison data.</summary>
 internal static class PowerBombShapeReferenceData
 {
     /// <summary>$88:A266, PowerBombExplosion_ShapeDefinitionTable_Unscaled_width: 32 bottom-to-center bytes.</summary>

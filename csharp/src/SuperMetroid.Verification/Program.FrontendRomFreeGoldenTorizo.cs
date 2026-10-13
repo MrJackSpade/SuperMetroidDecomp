@@ -17,6 +17,7 @@ using static FrontendRomFreeVerification;
 using static GoldenTorizoRoomSetupVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Compares Golden Torizo's room sequence on native and cartridge-free frontends.</summary>
 internal static class FrontendRomFreeGoldenTorizoVerification
 {
     /// <summary>
@@ -65,6 +66,7 @@ internal static class FrontendRomFreeGoldenTorizoVerification
         }
     }
 
+    /// <summary>Runs the focused 500-frame Golden Torizo dodge and fall comparison.</summary>
     [VerificationCommand("--golden-torizo-rom-free")]
     internal static int GoldenTorizoRomFreeCommand()
     {

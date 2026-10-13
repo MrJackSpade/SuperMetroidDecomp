@@ -21,7 +21,9 @@ internal abstract class KiHunterAcidSpitInstructionProgramDefinitions
     /// </summary>
     private static readonly ushort[] IntroductionHolds = [3, 3, 4, 3, 1];
 
+    /// <summary>Fixed pose durations, movement callbacks, splash control, and terminal words across both facings.</summary>
     public static int MechanicsWordCount => 27;
+    /// <summary>Seven poses per facing and five shared splash frames use extracted artwork.</summary>
     public static int PresentationWordCount => 19;
 
     /// <summary>
@@ -57,6 +59,7 @@ internal abstract class KiHunterAcidSpitInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Locates a left, right, or floor-splash spritemap operand in its bank-$86 list.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -65,10 +68,12 @@ internal abstract class KiHunterAcidSpitInstructionProgramDefinitions
         int start = index >= 12 ? Right : Left;
         return (ushort)(start + 2 + pose * 4 + (pose >= 5 ? 4 : 0));
     }
+    /// <summary>Selects the two KiHunter acid-spit projectile families that share these programs.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.KiHunterAcidSpitLeft or
         RoomEnemyProjectileKind.KiHunterAcidSpitRight;
 
+    /// <summary>Reads a compiled acid-spit control word and rejects presentation or unrelated addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

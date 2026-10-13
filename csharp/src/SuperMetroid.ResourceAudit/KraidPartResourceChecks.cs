@@ -5,6 +5,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms only the statically identified foot/lint composition omissions, not the fight.</summary>
 internal static class KraidPartResourceChecks
 {
+    /// <summary>Audits the selected Kraid foot extended frames or lint OAM frames against their required installed resource counts.</summary>
     internal static void Run(string part)
     {
         switch (part)

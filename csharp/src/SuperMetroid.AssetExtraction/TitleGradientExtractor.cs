@@ -9,6 +9,8 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Expands title HDMA streams into editable RGB5/control scanline records.</summary>
 internal static class TitleGradientExtractor
 {
+    /// <summary>Decodes the title HDMA gradient for every zoom high nibble and
+    /// writes per-scanline RGB5 and color-math controls as presentation data.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

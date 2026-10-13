@@ -13,8 +13,10 @@ namespace SuperMetroid.SourceAudit;
 /// </summary>
 internal static partial class ProductionMagicNumberAudit
 {
+    /// <summary>Repository-relative reviewed fingerprint set used to distinguish existing debt from new findings.</summary>
     private const string BaselineRelativePath = "csharp/magic-number-baseline.txt";
 
+    /// <summary>Functional source trees checked by the offline audit.</summary>
     private static readonly string[] ProductionSourceRoots =
     [
         "csharp/src/SuperMetroid.Core",
@@ -49,9 +51,11 @@ internal static partial class ProductionMagicNumberAudit
         "Words.cs",
     ];
 
+    /// <summary>Finds C# hexadecimal literals after comments and quoted text are stripped.</summary>
     [GeneratedRegex(@"0[xX][0-9a-fA-F_]+(?:[uUlL]{0,2})", RegexOptions.CultureInvariant)]
     private static partial Regex HexLiteralRegex();
 
+    /// <summary>Recognizes a raw hexadecimal switch discriminator before small-value exemptions apply.</summary>
     [GeneratedRegex(@"\bcase\s+0[xX]", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex RawCaseRegex();
 
@@ -143,6 +147,7 @@ internal static partial class ProductionMagicNumberAudit
         return findings;
     }
 
+    /// <summary>Reads a production file under its repository-relative identity for stable finding fingerprints.</summary>
     private static void AuditFile(
         string repositoryRoot,
         string path,
@@ -152,6 +157,7 @@ internal static partial class ProductionMagicNumberAudit
         AuditLines(relativePath, File.ReadLines(path), findings);
     }
 
+    /// <summary>Walks parent directories until the core source tree identifies the repository root.</summary>
     private static string? FindRepositoryRootFrom(string startingPath)
     {
         for (DirectoryInfo? directory = new(Path.GetFullPath(startingPath));
@@ -170,6 +176,7 @@ internal static partial class ProductionMagicNumberAudit
         return null;
     }
 
+    /// <summary>Skips reviewed definition owners, strips non-code text, and records classified hexadecimal uses.</summary>
     private static void AuditLines(
         string relativePath,
         IEnumerable<string> lines,
@@ -213,6 +220,7 @@ internal static partial class ProductionMagicNumberAudit
         }
     }
 
+    /// <summary>Assigns a domain to a raw value from its surrounding operation and numeric range.</summary>
     private static MagicNumberCategory? Classify(string code, ulong value)
     {
         string lower = code.ToLowerInvariant();
@@ -276,9 +284,11 @@ internal static partial class ProductionMagicNumberAudit
         return null;
     }
 
+    /// <summary>Checks whether a source expression contains any classifier cue using ordinal matching.</summary>
     private static bool ContainsAny(string value, params string[] fragments) =>
         fragments.Any(fragment => value.Contains(fragment, StringComparison.Ordinal));
 
+    /// <summary>Accepts an inline exception only when it names the finding category and supplies a reason.</summary>
     private static bool HasReviewedInlineExemption(
         string line,
         MagicNumberCategory category)
@@ -289,12 +299,14 @@ internal static partial class ProductionMagicNumberAudit
         return line.Contains(marker, StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>Parses a C# hex token after removing digit separators and unsigned or long suffixes.</summary>
     private static ulong ParseHexLiteral(string literal)
     {
         string digits = literal[2..].TrimEnd('u', 'U', 'l', 'L').Replace("_", string.Empty);
         return ulong.Parse(digits, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture);
     }
 
+    /// <summary>Decodes the reviewed 64-bit fingerprint prefixes from the compact baseline payload.</summary>
     private static HashSet<string> ReadBaseline(string path)
     {
         if (!File.Exists(path))
@@ -315,6 +327,7 @@ internal static partial class ProductionMagicNumberAudit
         return fingerprints;
     }
 
+    /// <summary>Retains only code on one line while carrying block-comment state across lines.</summary>
     private static string RemoveCommentsAndQuotedText(string line, ref bool insideBlockComment)
     {
         var result = new StringBuilder(line.Length);
@@ -362,21 +375,34 @@ internal static partial class ProductionMagicNumberAudit
     }
 }
 
+/// <summary>Domains whose raw hexadecimal values require a named owner or reviewed exemption.</summary>
 internal enum MagicNumberCategory
 {
+    /// <summary>A cartridge bus address that belongs in an address or range catalog.</summary>
     RomAddress,
+    /// <summary>A native callback or pre-instruction pointer embedded in functional code.</summary>
     CallbackPointer,
+    /// <summary>A switch-arm value selecting a domain state without a named member.</summary>
     DomainDiscriminator,
+    /// <summary>A room collision type that should use the collision domain.</summary>
     CollisionType,
+    /// <summary>A block BTS behavior byte that should use a named room behavior value.</summary>
     BlockBehavior,
+    /// <summary>A Samus pose or movement dispatch value outside its typed catalog.</summary>
     PoseOrMovement,
+    /// <summary>A projectile family or kind selected by a raw value.</summary>
     ProjectileFamily,
+    /// <summary>A sound or music command identifier used without its audio catalog.</summary>
     AudioId,
+    /// <summary>A controller bit mask embedded in an input expression.</summary>
     ControllerBits,
+    /// <summary>A bit-packed PPU or level word manipulated without a named wrapper.</summary>
     PackedPpuWord,
+    /// <summary>An SRAM offset used outside its saved-memory layout owner.</summary>
     SramOffset,
 }
 
+/// <summary>One classified source occurrence with a stable signature independent of line movement.</summary>
 internal sealed record MagicNumberFinding(
     string RelativePath,
     int LineNumber,
@@ -385,8 +411,10 @@ internal sealed record MagicNumberFinding(
     string Source,
     string Signature)
 {
+    /// <summary>First 64 SHA-256 bits used for membership in the compact reviewed baseline.</summary>
     public string BaselineFingerprint => Signature[..16];
 
+    /// <summary>Hashes the source identity, category, literal, and expression to identify a reviewed occurrence.</summary>
     public static MagicNumberFinding Create(
         string relativePath,
         int lineNumber,
@@ -406,10 +434,12 @@ internal sealed record MagicNumberFinding(
             signature);
     }
 
+    /// <summary>Actionable source location and expected named owner for this raw value.</summary>
     public string Diagnostic =>
         $"{RelativePath}:{LineNumber}: raw {Literal} [{Category}]. " +
         $"Expected {ExpectedContainer(Category)}. {Remediation(Category)} Source: {Source}";
 
+    /// <summary>Names the catalog or type expected to own values in a classified domain.</summary>
     private static string ExpectedContainer(MagicNumberCategory category) => category switch
     {
         MagicNumberCategory.RomAddress => "a named ROM address/range catalog",
@@ -426,11 +456,13 @@ internal sealed record MagicNumberFinding(
         _ => throw new ArgumentOutOfRangeException(nameof(category), category, "Undefined magic-number category."),
     };
 
+    /// <summary>Explains the named-owner and reviewed intrinsic-data paths for one category.</summary>
     private static string Remediation(MagicNumberCategory category) =>
         $"Move the value to the {ExpectedContainer(category)} and reference that symbol; " +
         $"if it is intrinsic algorithm data, add a reviewed same-line allow({category}) reason.";
 }
 
+/// <summary>Current audit occurrences, reviewed baseline size, and additions requiring remediation.</summary>
 internal sealed record MagicNumberAuditResult(
     int CurrentFindingCount,
     int BaselineCount,
@@ -438,5 +470,6 @@ internal sealed record MagicNumberAuditResult(
     IReadOnlyList<MagicNumberFinding> CurrentFindings,
     IReadOnlyList<MagicNumberFinding> NewFindings)
 {
+    /// <summary>Whether the production scan introduced no findings outside the reviewed baseline.</summary>
     public bool Passed => NewFindings.Count == 0;
 }

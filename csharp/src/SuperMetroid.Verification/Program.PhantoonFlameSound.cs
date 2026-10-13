@@ -15,8 +15,10 @@ using SuperMetroid.Core.Game;
 using static PhantoonInstructionProgramDefinitionsVerification;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Checks audio requests emitted by Phantoon's casual-flame and materialization callbacks.</summary>
 internal static class PhantoonFlameSoundVerification
 {
+    /// <summary>Confirms each actual flame spawn queues library-three sound $1D with Max6 without replacing materialization audio.</summary>
     internal static void VerifyPhantoonFlameSound()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -46,6 +48,7 @@ internal static class PhantoonFlameSoundVerification
         Console.WriteLine("Phantoon casual flame: actual spawn emits library 3 / 1D / Max6; materialization audio remains independent.");
     }
 
+    /// <summary>Runs the focused Phantoon flame and materialization sound check.</summary>
     [VerificationCommand("--phantoon-flame-sound")]
     internal static int PhantoonFlameSoundCommand()
     {

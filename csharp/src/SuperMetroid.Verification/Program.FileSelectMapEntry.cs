@@ -12,8 +12,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the file-select map entry's palette fade, transfer boundaries, and opening window.</summary>
 internal static class FileSelectMapEntryVerification
 {
+    /// <summary>Verifies two CGRAM cells fade in sixteen steps before the exact twenty-eight-update reveal rectangle.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFileSelectMapEntry()
     {
@@ -70,6 +72,7 @@ internal static class FileSelectMapEntryVerification
         AssertTrue(entry.Render(scene).SequenceEqual(scene), "complete entry reveals entire scene without clipped border");
     }
 
+    /// <summary>Runs the focused file-select map entry transition check.</summary>
     [VerificationCommand("--file-select-map-entry")]
     internal static int FileSelectMapEntryCommand()
     {

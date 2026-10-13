@@ -3,14 +3,22 @@
 /// <summary>The Rinka species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class RinkaBehavior : IEnemySpecies
 {
+    /// <summary>Retained enemy dispatcher supplied by the species composition root.</summary>
     private readonly IEnemyDispatch _dispatch;
+    /// <summary>Locates special Rinkas whose spawn choice was deferred during door loading.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Applies normal Samus contact damage before the Rinka-specific death tail.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>Indicates when door loading must defer camera-sensitive spawn selection.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Allocates Rinka dust and death explosion projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Retained room binding supplied by the species composition root.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Installs the ordinary Rinka's respawn placeholder after death.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
+    /// <summary>Connects Rinka AI to enemy slots, collision, frame context, and death effects.</summary>
     internal RinkaBehavior(IEnemyDispatch dispatch, EnemySlotTable slotTable, EnemyCollision collision, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops)
     {
         _dispatch = dispatch;
@@ -22,18 +30,23 @@ internal sealed class RinkaBehavior : IEnemySpecies
         _deathsAndDrops = deathsAndDrops;
     }
 
+    /// <summary>Native countdown before a newly fired Rinka aims at Samus.</summary>
     private const ushort RinkaInitialDelay = 26;
+    /// <summary>Health restored to a special Rinka after its death delay.</summary>
     private const ushort RinkaHealth = 10;
+    /// <summary>Enemy palette selected for both ordinary and Mother Brain variants.</summary>
     private static readonly ushort RinkaPaletteIndex = EnemyPaletteBits.Palette2;
+    /// <summary>Signed 8.8 magnitude used to resolve the cartridge angle into flight velocity.</summary>
     private const ushort RinkaSpeed = 0x0120;
+    /// <summary>Number of Mother Brain Rinka actors sharing the eleven spawn resources.</summary>
     private const ushort RinkaMaximumSpecialActors = 3;
 
-    // This is not a designed host spawn layout. These eleven triples are the untouched
-    // Japan/USA cartridge words at $A2:B75B, including their unusual even resource tokens.
-    // Mother Brain's three parameterized Rinka records compete for these locations and may
-    // rewrite their immutable spawn snapshots when the original point is on another screen.
-    // $A2:B75B: the eleven authored spawn points; each record's extra-RAM selector token is
-    // calculated from its position in the list.
+    /// <summary>
+    /// The eleven authored Japan/USA spawn points at <c>$A2:B75B</c>. Mother Brain's
+    /// three special actors compete for these resources and may rewrite their spawn snapshots
+    /// when the original point is outside the current screen. The even extra-RAM token is
+    /// derived from each point's position in this table.
+    /// </summary>
     private static readonly Position16<RoomPixels>[] RinkaSpawnPoints =
     [
         new(0x03e7, 0x0026),
@@ -49,18 +62,26 @@ internal sealed class RinkaBehavior : IEnemySpecies
         new(0x0080, 0x00a8),
     ];
 
+    /// <summary>Pairs an authored spawn point with its one-based even extra-RAM resource token.</summary>
     internal static RinkaSpawnResource RinkaSpawnResourceAt(int index) =>
         new(RinkaSpawnPoints[index], (ushort)(2 * (index + 1)));
 
+    /// <summary>Maps enemy slots to their current aim delay, velocity, and spawn ownership.</summary>
     internal readonly RinkaEnemyState?[] _rinkaStates =
         new RinkaEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Marks which of the eleven authored spawn points are currently reserved.</summary>
     private readonly bool[] _rinkaOccupiedSpawnResources =
         new bool[RinkaMaximumSpecialActors + 8]; // Eleven literal table entries.
+    /// <summary>Tracks active visible special Rinkas as private room state.</summary>
     private ushort _rinkaActiveCount;
+    /// <summary>Causes special Rinkas to be removed instead of launched or respawned.</summary>
     internal ushort _rinkaTerminationFlag;
+    /// <summary>Layer-1 camera coordinates used by the native spawn and flight windows.</summary>
     private Position16<RoomPixels> _rinkaCamera;
-    // Special Rinkas whose spawn choice awaits the door loader's camera; see
-    // CompleteLoaderTimeCameraReads. Ascending slot order, as Initialise_Enemies runs them.
+    /// <summary>
+    /// Special Rinka slots awaiting the door loader's camera for spawn selection, in the
+    /// ascending order used by <c>Initialise_Enemies</c>.
+    /// </summary>
     private readonly List<int> _deferredRinkaSpawnSlots = new();
 
     /// <summary>Clears the two shared words and all per-slot/extra-RAM spawn ownership.</summary>
@@ -138,6 +159,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         InitializeRinkaLife(slot, state);
     }
 
+    /// <summary>Resets the watch state and animation after initialization or respawn; deletes terminated special actors.</summary>
     private void InitializeRinkaLife(RoomEnemySlot slot, RinkaEnemyState state)
     {
         state.Function = RinkaEnemyFunction.WatchForLeavingViewport;
@@ -343,6 +365,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Releases a special spawn resource and restarts its life unless the room has terminated it.</summary>
     private void RecycleRinkaAfterLeavingViewport(
         RoomEnemySlot slot,
         RinkaEnemyState state)
@@ -417,6 +440,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         state.SpawnResourceToken = RinkaSpawnResourceAt(mappedIndex).Token;
     }
 
+    /// <summary>Finds the authored point for a population position, using native resource zero for an unknown point.</summary>
     private static int FindRinkaSpawnResource(Position16<RoomPixels> position)
     {
         for (int index = 0; index < RinkaSpawnPoints.Length; index++)
@@ -431,6 +455,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         return 0;
     }
 
+    /// <summary>Clears the occupied spawn entry identified by a special Rinka's even resource token.</summary>
     private void ReleaseSpecialRinkaSpawn(RinkaEnemyState state)
     {
         if (state.SpawnResourceToken == 0)
@@ -447,6 +472,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         state.SpawnResourceToken = 0;
     }
 
+    /// <summary>Decrements the active count only for visible special actors, saturating at zero.</summary>
     private void DecrementVisibleSpecialRinkaCount(RoomEnemySlot slot)
     {
         if (!IsSpecialRinka(slot) || slot.Properties.HasAny(EnemyProperties.Invisible))
@@ -483,12 +509,15 @@ internal sealed class RinkaBehavior : IEnemySpecies
             !EnemyMath.IsNegative16(position.X - _rinkaCamera.X - 256);
     }
 
+    /// <summary>Distinguishes Mother Brain's parameterized spawn-sharing actors from ordinary room Rinkas.</summary>
     private static bool IsSpecialRinka(RoomEnemySlot slot) => slot.Parameter1 != 0;
 
+    /// <summary>Requires an initialized per-slot Rinka state before running its lifecycle.</summary>
     private RinkaEnemyState RequireRinkaState(RoomEnemySlot slot) =>
         _rinkaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Rinka state.");
 
+    /// <summary>Runs the private lethal-health tail after common bomb damage without generic death.</summary>
     internal void RegisterRinkaBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
@@ -499,6 +528,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Installs Rinka initialization for both ordinary and special enemy slots.</summary>
     internal void RegisterRinkaInitializationAi(EnemyAiTable table)
     {
 
@@ -508,6 +538,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Advances aiming, flight, viewport recycling, and the special respawn delay.</summary>
     internal void RegisterRinkaMainAi(EnemyAiTable table)
     {
 
@@ -517,6 +548,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Claims private animation words that hide, activate, or fire a Rinka.</summary>
     internal void RegisterRinkaOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -526,6 +558,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Skips invisible actors and applies the private death lifecycle after power-bomb damage.</summary>
     internal void RegisterRinkaPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
@@ -537,6 +570,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Applies the private death tail after projectile damage but not immediate freezing.</summary>
     internal void RegisterRinkaShotReactions(EnemyAiTable table)
     {
         // Rinka's tail follows the damage path only; the immediate-freeze path skips it.
@@ -552,6 +586,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Applies normal contact damage before the Rinka-specific lethal-health lifecycle.</summary>
     internal void RegisterRinkaTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
@@ -574,6 +609,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
     {
         SetRinkaCamera(frame.Camera);
     }
+    /// <summary>Room-graphics dust definition parameter used by special Rinka deaths.</summary>
     private const ushort RinkaDustAnimationIndex = 3;
     /// <summary>Allocates <c>SpawnEprojWithRoomGfx($E509, 3)</c>.</summary>
     internal void SpawnRinkaDustExplosion(Position16<RoomPixels> position)
@@ -637,6 +673,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Attaches the native camera cull to miscellaneous dust and explosion projectiles.</summary>
     internal static void RegisterMiscDustPreInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -645,6 +682,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.MiscDust);
     }
 
+    /// <summary>Runs the Rinka viewport and termination check before common frozen AI.</summary>
     internal void RegisterRinkaFrozenPreemption(EnemyAiTable table) =>
         table.AddFrozenPreemption(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka, RunRinkaFrozenTail);
 }

@@ -14,12 +14,14 @@ using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Reproduces enemy sound ordering on the first door-entry update.</summary>
 internal static class DoorEntryEnemySoundVerification
 {
-    // #1269: state $0A ($82:E1B7) runs the enemy routine before Clear_Sounds_When_Going_
-    // Through_Door, $71 and DisableSounds, so an enemy instruction's sound on the entry frame
-    // is admitted ahead of the door's cancel. In the 100% movie a Ninja Pirate's $3F queued
-    // there lengthens the Metal Pirates exit's sound-queue wait.
+    /// <summary>
+    /// Confirms state $0A ($82:E1B7) runs enemy instructions before the door's $71
+    /// cancel and DisableSounds. The 100% movie exposed an entry-frame enemy sound
+    /// that lengthened the Metal Pirates exit's sound-queue wait.
+    /// </summary>
     internal static void VerifyDoorEntryEnemySound()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -68,6 +70,7 @@ internal static class DoorEntryEnemySoundVerification
         Console.WriteLine("Door entry enemy sound: the entry frame's enemy sounds precede the door's cancel and DisableSounds.");
     }
 
+    /// <summary>Runs the focused enemy-before-door sound ordering check.</summary>
     [VerificationCommand("--door-entry-enemy-sound")]
     internal static int DoorEntryEnemySoundCommand()
     {

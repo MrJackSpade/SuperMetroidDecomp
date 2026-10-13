@@ -68,8 +68,10 @@ public enum CacatacSpikeDirection : ushort
 /// </summary>
 public sealed class CacatacEnemyState
 {
+    /// <summary>Common enemy slot backing Cacatac's native patrol velocity and function words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects a live Cacatac slot into typed patrol and spike-facing state.</summary>
     internal CacatacEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native <c>$0FA8,x</c>, the fractional half of rightward velocity.</summary>
@@ -110,10 +112,10 @@ public sealed class CacatacEnemyState
         internal set => _slot.VariableE = (ushort)value;
     }
 
-    /// <summary>Native extended word <c>$7E:7800,x</c>.</summary>
+    /// <summary>Left patrol limit in whole room pixels, stored at native <c>$7E:7800,x</c>.</summary>
     public ushort MinimumXPosition { get; internal set; }
 
-    /// <summary>Native extended word <c>$7E:7802,x</c>.</summary>
+    /// <summary>Right patrol limit in whole room pixels, stored at native <c>$7E:7802,x</c>.</summary>
     public ushort MaximumXPosition { get; internal set; }
 
     /// <summary>

@@ -7,8 +7,10 @@ using SuperMetroid.Core.Spatial;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks pause selector identities, native anchor geometry, and editable coordinate admission.</summary>
 internal static class PauseSelectorAnchorsVerification
 {
+    /// <summary>Compares original selector names and coordinates with compiled stock and checks edited component storage.</summary>
     internal static void VerifyPauseSelectorAnchors(ISnesAddressSpace rom)
     {
         // Original names from the preconversion definition table, kept only as the oracle.
@@ -52,6 +54,7 @@ internal static class PauseSelectorAnchorsVerification
         }
     }
 
+    /// <summary>Rejects omitted, substituted, case-changed, and extra pause label keys.</summary>
     private static void VerifyPauseLabelIdentityAdmission(ISnesAddressSpace rom, string[] names)
     {
         byte[] source = PauseEquipmentLabelExtractor.Extract(rom);
@@ -77,6 +80,7 @@ internal static class PauseSelectorAnchorsVerification
                 "label loader rejects missing, substituted, case-changed or extra identities");
     }
 
+    /// <summary>Checks one coordinate axis against retail geometry and validates authored boundary values.</summary>
     private static void VerifyPauseSelectorAnchorField(ISnesAddressSpace rom, PauseSelectorDocument document,
         PauseSelectorPresentation stock, bool horizontal)
     {

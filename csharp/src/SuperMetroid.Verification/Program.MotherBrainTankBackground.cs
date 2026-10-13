@@ -13,8 +13,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 using static MotherBrainAscentCaptureVerification;
+/// <summary>Checks Mother Brain's tank background staging and phase-two BG2 uploads.</summary>
 internal static class MotherBrainTankBackgroundVerification
 {
+    /// <summary>Verifies pipe-room VRAM survives initialization and the crouched body updates only its authored BG2 words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static int VerifyMotherBrainTankBackground(bool ascentMaskOnly = false)
     {
@@ -67,12 +69,14 @@ internal static class MotherBrainTankBackgroundVerification
         ushort ReadStaged(int index) => new EnemyScratchMemory(bus).EnemyBg2Tilemap[index];
     }
 
+    /// <summary>Runs the ascent mask capture using the initialized Mother Brain room.</summary>
     [VerificationCommand("--mother-brain-ascent-capture")]
     internal static int MotherBrainAscentCaptureCommand()
     {
         return VerifyMotherBrainTankBackground(ascentMaskOnly: true);
     }
 
+    /// <summary>Runs the tank background staging and VRAM transfer check.</summary>
     [VerificationCommand("--mother-brain-tank-background")]
     internal static int MotherBrainTankBackgroundCommand()
     {

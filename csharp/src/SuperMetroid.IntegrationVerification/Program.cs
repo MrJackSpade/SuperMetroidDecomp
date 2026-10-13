@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rendering;
 /// </summary>
 internal static class Program
 {
+    /// <summary>Dispatches repository installation checks and verifies Android state continuation, diagnostic export, and recording integrity under a no-dialog error boundary.</summary>
     private static int Main(string[] args)
     {
         try
@@ -150,6 +151,7 @@ internal static class Program
         }
     }
 
+    /// <summary>Advances one captured Android frame and hashes its rendered pixels and PCM samples for exact save-state continuation comparisons.</summary>
     private static (uint Pixels, uint Pcm, ushort Frame) Advance(AndroidSessionData data, long sequence)
     {
         data.Record(0);

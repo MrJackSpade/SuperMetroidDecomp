@@ -5,6 +5,7 @@ using SuperMetroid.Core.Frontend;
 /// <summary>Exercises the published host's real INI loader without opening a window or touching player data.</summary>
 internal static class GameConfigurationPackageVerification
 {
+    /// <summary>Checks published defaults, first-use files, AppData preservation, and local override precedence.</summary>
     [ReflectionAudit("package verification: the published game assembly is loaded from disk, so its loader is reached by name")]
     public static void Run(string gameAssemblyPath)
     {

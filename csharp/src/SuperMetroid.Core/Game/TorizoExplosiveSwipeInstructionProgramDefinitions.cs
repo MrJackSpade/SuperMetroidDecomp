@@ -10,7 +10,9 @@ internal abstract class TorizoExplosiveSwipeInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_BombTorizoExplosionSwipe</c> at $86:A4AA.</summary>
     internal const ushort Initial = 0xa4aa;
 
+    /// <summary>One sound command, five pose durations, and the terminal deletion word.</summary>
     public static int MechanicsWordCount => 7;
+    /// <summary>Five spritemap operands accompany the five timed poses.</summary>
     public static int PresentationWordCount => 5;
 
     /// <summary>One packed sound command precedes five five-tick poses and deletion.</summary>
@@ -23,11 +25,13 @@ internal abstract class TorizoExplosiveSwipeInstructionProgramDefinitions
             ? (ushort)EnemyProjectileInstruction.Delete : (ushort)5);
     }
 
+    /// <summary>Locates the spritemap operand following each five-tick pose.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Initial + 5 + 4 * index);
     }
+    /// <summary>Reads a compiled control word and rejects addresses outside this projectile's instruction list.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

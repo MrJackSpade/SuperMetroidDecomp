@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(WaverInstructionProgramDefinitions))]
 internal abstract class WaverInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Compiled timing and control words in the steady and spinning Waver lists.</summary>
     public static int MechanicsWordCount => WaverInstructionProgramDefinitions.MechanicsWordCount;
+    /// <summary>Reads a mechanics word from a Waver facing or spin program.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => WaverInstructionProgramDefinitions.MechanicsWord(index);
+    /// <summary>Two steady poses and four spinning poses per facing direction.</summary>
     public static int PresentationWordCount => 10;
+    /// <summary>Locates the steady or spinning pose operand within its directional list.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -17,6 +21,7 @@ internal abstract class WaverInstructionProgramDefinitionsTooling : IInstruction
         return index < 2 ? (ushort)(WaverInstructionProgramDefinitions.SteadyFacingLeft + 6 * index + 2)
             : (ushort)(WaverInstructionProgramDefinitions.SpinningFacingLeft + 20 * ((index - 2) / 4) + 2 + 4 * ((index - 2) % 4));
     }
+    /// <summary>Matches either byte of a compiled Waver word in bank $A3.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa30000)

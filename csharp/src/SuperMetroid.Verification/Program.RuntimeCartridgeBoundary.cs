@@ -1,6 +1,7 @@
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Guards the compiled gameplay assembly's separation from cartridge import and untyped CPU reads.</summary>
 internal static class RuntimeCartridgeBoundaryVerification
 {
     /// <summary>

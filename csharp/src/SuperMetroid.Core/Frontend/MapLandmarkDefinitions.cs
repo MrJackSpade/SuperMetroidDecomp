@@ -33,8 +33,11 @@ public static class MapLandmarkDefinitions
     /// <summary>$82:C83B/C89D/C90B/C981/C9DB/CA9B are Crateria/Kraid/Ridley/Phantoon/Draygon/Ceres boss slots.</summary>
     public readonly struct BossSequence : IReadOnlyList<string?>
     {
+        /// <summary>Area selecting the native boss slot list, including Crateria's reserved entries.</summary>
         private readonly AreaId area;
+        /// <summary>Number of native boss bit slots consumed by this area's map list.</summary>
         private readonly int count;
+        /// <summary>Binds an area to its native boss slot count.</summary>
         internal BossSequence(AreaId area, int count) { this.area = area; this.count = count; }
         /// <summary>Gets the number of native boss slots consumed by the area.</summary>
         public int Count => count;
@@ -67,6 +70,7 @@ public static class MapLandmarkDefinitions
         {
             for (int i = 0; i < Count; i++) yield return this[i];
         }
+        /// <summary>Exposes native boss slot order through the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -77,8 +81,11 @@ public static class MapLandmarkDefinitions
     /// </summary>
     public readonly struct ElevatorSequence : IReadOnlyList<MapElevatorLabel>
     {
+        /// <summary>Source area whose fixed map labels and physical destinations are projected.</summary>
         private readonly AreaId area;
+        /// <summary>Number of destination labels in the area's native record list.</summary>
         private readonly int count;
+        /// <summary>Binds a source area to its native elevator label count.</summary>
         internal ElevatorSequence(AreaId area, int count) { this.area = area; this.count = count; }
         /// <summary>Gets the number of elevator label records for the area.</summary>
         public int Count => count;
@@ -109,6 +116,7 @@ public static class MapLandmarkDefinitions
         {
             for (int i = 0; i < Count; i++) yield return this[i];
         }
+        /// <summary>Exposes native elevator label order through the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$82:C759..C7CA use menu spritemaps $59..$5D for Crateria through Maridia labels.</summary>

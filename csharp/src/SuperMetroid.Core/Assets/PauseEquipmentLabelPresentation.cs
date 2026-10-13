@@ -10,9 +10,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable label artwork and placement for the pause equipment page.</summary>
 public sealed class PauseEquipmentLabelPresentation
 {
+    /// <summary>Each selector anchor retains only cells and placement that differ from stock pause artwork.</summary>
     private readonly Dictionary<string, CompiledLabel> labels;
+    /// <summary>Nonzero edits to the nine-cell native blank strip used when inventory text is absent.</summary>
     internal readonly Dictionary<int, ushort> blankEdits;
 
+    /// <summary>Captures compiled label differences, the disabled palette, and the hash of the source JSON bytes.</summary>
     private PauseEquipmentLabelPresentation(Dictionary<string, CompiledLabel> labels, Dictionary<int, ushort> blankEdits,
         int disabledPalette, string contentIdentity)
     {
@@ -27,6 +30,7 @@ public sealed class PauseEquipmentLabelPresentation
     /// <summary>Uppercase hexadecimal SHA-256 of the exact source JSON bytes, used by pause-menu rebinding to decide whether to rebuild inventory labels.</summary>
     public string ContentIdentity { get; }
 
+    /// <summary>Includes Hyper's five-word display and Plasma's nine-word overrun when deciding whether rebinding may replace a live tilemap cell.</summary>
     internal bool OwnsLiveCell(int cell)
     {
         foreach ((string key, CompiledLabel label) in labels)
@@ -42,7 +46,7 @@ public sealed class PauseEquipmentLabelPresentation
         return false;
     }
 
-    /// <summary>Builds every inventory-owned label without consulting cartridge tables.</summary>
+    /// <summary>Clears uncollected strips, recolors collected but unequipped strips, and replaces ordinary beam labels with Hyper when active.</summary>
     public void ApplyInventory(Span<byte> tilemap, ushort collectedBeams, ushort equippedBeams,
         ushort collectedItems, ushort equippedItems, bool hyperBeam)
     {
@@ -198,6 +202,7 @@ public sealed class PauseEquipmentLabelPresentation
                 BinaryPrimitives.WriteUInt16LittleEndian(destination[(cell * sizeof(ushort))..], word);
     }
 
+    /// <summary>Rejects partial buffers so fixed label destinations remain within the complete 32-by-32 pause tilemap.</summary>
     private static void ValidateTilemap(Span<byte> tilemap)
     {
         if (tilemap.Length != PauseEquipmentLabelDefinitions.TilemapColumns *
@@ -205,6 +210,7 @@ public sealed class PauseEquipmentLabelPresentation
             throw new ArgumentException("Pause equipment labels require a complete 32x32 tilemap.", nameof(tilemap));
     }
 
+    /// <summary>Changes each tile word's BG palette bits while retaining its character, priority, and flip fields.</summary>
     private static void Recolor(Span<byte> bytes, int palette)
     {
         for (int offset = 0; offset < bytes.Length; offset += sizeof(ushort))
@@ -214,11 +220,15 @@ public sealed class PauseEquipmentLabelPresentation
         }
     }
 
+    /// <summary>Stores placement and tile-word differences while resolving unchanged cells from stock label definitions.</summary>
     private sealed class CompiledLabel(string key, int? destinationEdit, Dictionary<int, ushort> edits)
     {
+        /// <summary>Returns the edited byte offset or the stock selector's tilemap destination.</summary>
         internal int DestinationByte => destinationEdit ?? PauseEquipmentLabelDefinitions.StockDestinationByte(key);
+        /// <summary>Uses the native selector's width even when its authored strip has edited cells.</summary>
         internal int WordCount => PauseEquipmentLabelDefinitions.StockWordCount(key);
 
+        /// <summary>Retains only tile words and destination coordinates that differ from the native selector.</summary>
         internal static CompiledLabel Load(string key, int destination, ReadOnlySpan<byte> bytes)
         {
             var edits = new Dictionary<int, ushort>();
@@ -232,6 +242,7 @@ public sealed class PauseEquipmentLabelPresentation
             return new(key, changedDestination, edits);
         }
 
+        /// <summary>Materializes edited cells over stock artwork for the requested prefix, including Plasma's extended write.</summary>
         internal void CopyTo(Span<byte> destination)
         {
             for (int cell = 0; cell < destination.Length / sizeof(ushort); cell++)

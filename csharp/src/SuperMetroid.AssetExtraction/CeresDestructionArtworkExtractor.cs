@@ -11,6 +11,9 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM Ceres map slices and Zebes reveal transfers → Ceres destruction artwork")]
 internal static class CeresDestructionArtworkExtractor
 {
+    /// <summary>Exports the three Ceres destruction map slices, Zebes reveal
+    /// artwork, sprite frames, and actor placements, then checks decoded transfer
+    /// bytes and pinned native coordinates before publishing the six asset files.</summary>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

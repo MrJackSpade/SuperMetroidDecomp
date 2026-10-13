@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class MultiviolaEnemyState
 {
+    /// <summary>The enemy slot whose C through F words hold the two velocity components.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Binds the typed velocity view to an existing native enemy slot.</summary>
     internal MultiviolaEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

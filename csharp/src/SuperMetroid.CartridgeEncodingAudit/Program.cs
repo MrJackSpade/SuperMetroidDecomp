@@ -9,6 +9,8 @@ namespace SuperMetroid.CartridgeEncodingAudit;
 /// </summary>
 internal static class Program
 {
+    /// <summary>Writes the encoding ratchet baseline and inventory from one
+    /// solution measurement, reporting exceptions through the console boundary.</summary>
     private static async Task<int> Main(string[] args)
     {
         NativeConsoleErrors.DisableDialogs();

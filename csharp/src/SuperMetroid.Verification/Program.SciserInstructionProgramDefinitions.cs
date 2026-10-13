@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Sciser's four surface animation loops and compiled instruction data against bank $A3.</summary>
 internal static class SciserInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the pinned cartridge and runs the Sciser instruction comparison.</summary>
     internal static void VerifySciserInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySciserInstructionProgramDefinitions), () => VerifySciserInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Checks native words, live crawler handoffs, read boundaries, and warmed lookup allocation.</summary>
     internal static void VerifySciserInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -103,6 +106,7 @@ internal static class SciserInstructionProgramDefinitionsVerification
             "with both instruction and presentation ROM reads forbidden.");
     }
 
+    /// <summary>Advances the real enemy instruction runner through a requested number of Sciser steps.</summary>
     private static void ExecuteSciserProgram(
         RoomEnemySystem enemies,
         RoomEnemySlot slot,
@@ -117,6 +121,7 @@ internal static class SciserInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeats warmed Sciser control-word lookups for the caller's allocation measurement.</summary>
     private static int ProbeSciserInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -130,18 +135,21 @@ internal static class SciserInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads a bank $A3 instruction word from the pinned cartridge for comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Sciser instruction words")]
     internal static ushort ReadSciserInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa30000 | address);
 
+    /// <summary>Forbids compiled mechanics rereads and observes native spritemap operand access.</summary>
     private static CartridgeReadGuard NewSciserInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(SciserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Sciser mechanics byte ${address:X6}.")
             .ObserveWords(0xa30000, SciserInstructionProgramDefinitionsTooling.PresentationWordCount, SciserInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Dispatches the Sciser instruction-program verification command.</summary>
     [VerificationCommand("--sciser-instruction-program-definitions")]
     internal static int SciserInstructionProgramDefinitionsCommand()
     {

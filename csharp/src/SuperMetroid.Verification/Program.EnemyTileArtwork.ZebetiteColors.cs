@@ -6,8 +6,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Zebetite's eight-frame two-color pulse against native
+/// CGRAM updates while preserving its runtime gates and counter.</summary>
 internal static class EnemyTileArtworkZebetiteColorsVerification
 {
+    /// <summary>Compares live pulse frames with cartridge colors, then checks
+    /// one edited channel, override persistence, and malformed asset rejection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Zebetite colors")]
     internal static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,

@@ -23,6 +23,7 @@ internal abstract class GoldenTorizoSuperMissileInstructionProgramDefinitions
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
 
+    /// <summary>Captures the reflected missile's 48-tick aim, eight-frame flight loop, and impact conversion sequence.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xb293),
         Entry(RightInitial),
@@ -67,9 +68,12 @@ internal abstract class GoldenTorizoSuperMissileInstructionProgramDefinitions
         Frame(5),
         Frame(5),
         Op((ushort)EnemyProjectileInstruction.Delete));
+    /// <summary>Counts the interleaved spritemap operands whose art is supplied by installed presentation data.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Locates a spritemap operand in the native program without resolving its editable art.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Resolves a bank-$86 control word or rejects an address outside the compiled missile programs.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

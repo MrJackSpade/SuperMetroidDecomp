@@ -55,6 +55,7 @@ internal static class EndingLogoInstructionDefinitions
         };
     }
 
+    /// <summary>Selects the upper or lower circle's reveal frame for one wrap stage.</summary>
     private static ushort WrapFrame(bool right, int stage) =>
         EndingLogoSpriteDefinitions.FramePointer((right ? 2 : 5) + stage);
 }

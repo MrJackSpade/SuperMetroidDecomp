@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks Mother Brain fake-death PLM visuals against native draw runs and editable catalog rules.</summary>
 internal static class LookupMotherBrainStockVerification
 {
+    /// <summary>Compares twenty-two frames and 230 visual cells, then checks custom copies and invalid input.</summary>
     internal static void VerifyMotherBrainStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMotherBrainFakeDeathVisualCatalog installed)
     {
@@ -87,6 +89,7 @@ internal static class LookupMotherBrainStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainFakeDeathVisualCatalog(entries), "MotherBrainFakeDeath visual bits only");
     }
 
+    /// <summary>Reads a native run displacement byte for the fake-death draw-list oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain stock mapping")]
     private static byte MotherBrainStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 

@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Checks game-options toggle boxes and language highlight palettes against native instructions.</summary>
 internal static class GameOptionsLanguagePalettesVerification
 {
+    /// <summary>Compares both toggle settings and highlight states across all four box regions.</summary>
     internal static void VerifyGameOptionsToggleGeometry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -64,9 +66,11 @@ internal static class GameOptionsLanguagePalettesVerification
         Console.WriteLine("Options toggle geometry: all eight native boxes, widths and both highlight states pass through extraction and presentation.");
     }
 
+    /// <summary>Reads native toggle geometry and palette operands for the layout comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for game options toggle geometry")]
     private static byte GameOptionsToggleGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks every tilemap word in four language regions for Japanese and English states.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyGameOptionsLanguagePalettes()
     {
@@ -124,9 +128,11 @@ internal static class GameOptionsLanguagePalettesVerification
             (BinaryPrimitives.ReadUInt16LittleEndian(tilemap.Slice(offset, 2)) >> 10) & 7;
     }
 
+    /// <summary>Reads native language-region operands for the tilemap palette comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for game options language palettes")]
     private static byte GameOptionsLanguagePalettesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Runs the options toggle geometry check.</summary>
     [VerificationCommand("--lookup-options-toggle-geometry")]
     internal static int LookupOptionsToggleGeometryCommand()
     {
@@ -134,6 +140,7 @@ internal static class GameOptionsLanguagePalettesVerification
         return 0;
     }
 
+    /// <summary>Runs the options language highlight check.</summary>
     [VerificationCommand("--game-options-language-palettes")]
     internal static int GameOptionsLanguagePalettesCommand()
     {

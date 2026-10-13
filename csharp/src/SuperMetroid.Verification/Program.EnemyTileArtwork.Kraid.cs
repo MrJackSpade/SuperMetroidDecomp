@@ -10,8 +10,10 @@ using static EnemyContentIdentityFixtureVerification;
 using static KraidInstalledPresentationOracleVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed Kraid BG2, BG3, head, and room-background artwork against native transfers.</summary>
 internal static class EnemyTileArtworkKraidVerification
 {
+    /// <summary>Matches Kraid's working BG2 map and both visible VRAM pages, then checks an edited tile.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid background tilemaps")]
     internal static void VerifyInstalledKraidBackground(
@@ -82,6 +84,7 @@ internal static class EnemyTileArtworkKraidVerification
         Suite(nameof(VerifyInstalledKraidHeadFrames), () => VerifyInstalledKraidHeadFrames(rom, directory, stock));
     }
 
+    /// <summary>Checks each authored Kraid head frame and confirms a JSON edit reaches live VRAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid head frames")]
     private static void VerifyInstalledKraidHeadFrames(
@@ -155,6 +158,7 @@ internal static class EnemyTileArtworkKraidVerification
         Suite(nameof(VerifyInstalledKraidBg3Restoration), () => VerifyInstalledKraidBg3Restoration(rom, directory, stock));
     }
 
+    /// <summary>Checks queued, direct, and restored BG3 tile uploads against installed HUD pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid BG3 restoration")]
     private static void VerifyInstalledKraidBg3Restoration(
@@ -249,6 +253,7 @@ internal static class EnemyTileArtworkKraidVerification
             "Kraid BG3 uses the current HUD PNG override after catalog reload");
     }
 
+    /// <summary>Invokes each death-phase BG3 quarter transfer through the live Kraid behavior.</summary>
     private static SnesVram RunKraidBg3Restoration(
         EnemyTileArtworkCatalog enemyArtwork,
         HudTileAtlas hud,
@@ -290,6 +295,7 @@ internal static class EnemyTileArtworkKraidVerification
         return vram;
     }
 
+    /// <summary>Checks the Kraid room-background character upload and a selected PNG pixel edit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid room background")]
     private static void VerifyInstalledKraidRoomBackground(
@@ -340,6 +346,7 @@ internal static class EnemyTileArtworkKraidVerification
             "malformed Kraid room-background PNG override fails at load");
     }
 
+    /// <summary>Captures the live room-background VRAM upload using a cartridge-free Kraid owner.</summary>
     private static SnesVram UploadKraidRoomBackground(EnemyTileArtworkCatalog artwork)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -352,6 +359,7 @@ internal static class EnemyTileArtworkKraidVerification
         return vram;
     }
 
+    /// <summary>Transfers a selected installed head tilemap into a fresh VRAM buffer.</summary>
     private static (KraidEnemyState State, SnesVram Vram) RunKraidHeadFrame(
         EnemyTileArtworkCatalog artwork, ushort pointer)
     {
@@ -366,6 +374,7 @@ internal static class EnemyTileArtworkKraidVerification
         return (state, vram);
     }
 
+    /// <summary>Runs Kraid's background initializer against installed art without cartridge reads.</summary>
     internal static KraidEnemyState BuildKraidWorkingMap(EnemyTileArtworkCatalog artwork)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -377,6 +386,7 @@ internal static class EnemyTileArtworkKraidVerification
         return state;
     }
 
+    /// <summary>Uploads both BG2 working-map pages and records their native transfer counts.</summary>
     private static SnesVram TransferKraidVisiblePages(KraidEnemyState state)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

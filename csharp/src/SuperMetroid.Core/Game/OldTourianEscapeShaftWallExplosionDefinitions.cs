@@ -21,17 +21,21 @@ internal static class OldTourianEscapeShaftWallExplosionDefinitions
 
     /// <summary>$86:B4A0/$B4A6: the wall-middle X/Y written to position and Var0/Var1.</summary>
     internal const ushort XPosition = 0x0110;
+    /// <summary>$86:B4A6 wall-middle Y used by both the projectile position and Var1.</summary>
     internal const ushort YPosition = 0x0888;
 
     /// <summary>$86:B44F-$B451: library-two small explosion $24, Max6.</summary>
     internal static SoundEffectId ExplosionSound => SoundEffectLibrary2Sounds.SmallExplosion;
+    /// <summary>Native maximum of six queued library-two small-explosion sounds.</summary>
     internal const byte ExplosionSoundMaximum = 6;
 
     /// <summary>$86:B452-$B468: six small-explosion poses holding 4, 6, 5, 5, 5 and 6 frames.</summary>
     private static ReadOnlySpan<ushort> FrameDurations => [4, 6, 5, 5, 5, 6];
 
+    /// <summary>First timed small-explosion frame in the counted loop.</summary>
     private const ushort FirstFrame = 0xb452;
 
+    /// <summary>Recognizes the old Tourian fake-wall explosion projectile kind.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) =>
         kind == RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion;
 
@@ -59,8 +63,10 @@ internal static class OldTourianEscapeShaftWallExplosionDefinitions
             $"Old Tourian escape-shaft wall explosion has no mechanics word at $86:{address:X4}.");
     }
 
+    /// <summary>One separately installed spritemap operand for each explosion pose.</summary>
     internal static int PresentationWordCount => FrameDurations.Length;
 
+    /// <summary>Locates a bounded visual operand among the six timed explosion frames.</summary>
     internal static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();

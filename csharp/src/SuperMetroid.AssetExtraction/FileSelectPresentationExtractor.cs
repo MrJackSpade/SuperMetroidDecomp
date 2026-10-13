@@ -24,6 +24,7 @@ public static class FileSelectPresentationExtractor
     {
         Ensure.NotNull(bus);
         var rawPatches = new Dictionary<ushort, RawPatch>();
+        // Cache a decoded native text patch by its bank-local pointer across page variants.
         RawPatch Patch(ushort pointer)
         {
             if (!rawPatches.TryGetValue(pointer, out RawPatch? patch))
@@ -36,6 +37,7 @@ public static class FileSelectPresentationExtractor
         ushort[] mainEmpty = BlankPage();
         AddMainStatic(mainEmpty, includeDataCommands: false);
 
+        // Build a copy-mode page with its prompt, optional YES/NO question, and optional completion text.
         ushort[] CopyPage(ushort prompt, int promptDestination,
             bool confirmation = false, ushort? completion = null)
         {
@@ -48,6 +50,7 @@ public static class FileSelectPresentationExtractor
             return page;
         }
 
+        // Build a clear-mode page with its prompt, optional confirmation, and optional cleared-result text.
         ushort[] ClearPage(ushort prompt, int promptDestination,
             bool confirmation = false, bool completed = false)
         {
@@ -179,6 +182,7 @@ public static class FileSelectPresentationExtractor
         });
         return output.ToArray();
 
+        // Overlay the title, three slot labels/time fields, Exit, and copy/clear commands only for occupied menus.
         void AddMainStatic(ushort[] page, bool includeDataCommands)
         {
             Apply(page, Patch(FileSelectTilemaps.SamusData), FileSelectLayout.SamusDataDestination);
@@ -196,6 +200,7 @@ public static class FileSelectPresentationExtractor
             Apply(page, Patch(FileSelectTilemaps.Exit), FileSelectLayout.ExitDestination);
         }
 
+        // Start a copy/clear page with its mode title, prompt, Exit, and three data-slot label/time fields.
         ushort[] DataBase(ushort mode, int modeDestination, ushort prompt,
             int promptDestination)
         {
@@ -212,6 +217,7 @@ public static class FileSelectPresentationExtractor
             return page;
         }
 
+        // Overlay the shared question and YES/NO choices on a copy or clear page.
         void AddConfirmation(ushort[] page)
         {
             Apply(page, Patch(FileSelectTilemaps.IsThisOkay),
@@ -221,6 +227,7 @@ public static class FileSelectPresentationExtractor
         }
     }
 
+    /// <summary>Decodes a bank-local text stream into relative cells, honoring row breaks until its end marker.</summary>
     private static RawPatch ReadPatch(ISnesAddressSpace bus, ushort pointer)
     {
         var cells = new List<RawPatchCell>();
@@ -242,6 +249,7 @@ public static class FileSelectPresentationExtractor
         }
     }
 
+    /// <summary>Places a relative text patch at a tilemap byte anchor and rejects cells escaping the page.</summary>
     private static void Apply(ushort[] page, RawPatch patch, int byteOffset)
     {
         Position16<TilemapCells> anchor = Point(byteOffset);
@@ -254,6 +262,7 @@ public static class FileSelectPresentationExtractor
         }
     }
 
+    /// <summary>Fills a complete file-select page with the cartridge's blank tile word.</summary>
     private static ushort[] BlankPage()
     {
         var page = new ushort[FileSelectPresentationDefinitions.CellCount];
@@ -261,6 +270,7 @@ public static class FileSelectPresentationExtractor
         return page;
     }
 
+    /// <summary>Derives one slot's energy, health, no-data, and time anchors from native tilemap offsets.</summary>
     private static FileSelectSlotFieldDocument Slot(int energyOffset, int timeOffset) => new()
     {
         EnergyAnchor = Point(energyOffset),
@@ -269,6 +279,7 @@ public static class FileSelectPresentationExtractor
         TimeValueAnchor = Point(timeOffset),
     };
 
+    /// <summary>Converts a decoded text patch to editable tile cells and relative coordinates.</summary>
     private static FileSelectPatchDocument Document(RawPatch patch) => new()
     {
         Cells = patch.Cells.Select(cell => new FileSelectPatchCellDocument
@@ -279,6 +290,7 @@ public static class FileSelectPresentationExtractor
         }).ToArray(),
     };
 
+    /// <summary>Reads complete little-endian tile words from a native page before converting their visual fields.</summary>
     private static MapPresentationCell[] Cells(ReadOnlySpan<byte> bytes)
     {
         if (bytes.Length % sizeof(ushort) != 0)
@@ -289,6 +301,7 @@ public static class FileSelectPresentationExtractor
         return Cells(words);
     }
 
+    /// <summary>Converts native tilemap words into editable file-select cell descriptors in row-major order.</summary>
     private static MapPresentationCell[] Cells(ReadOnlySpan<ushort> words)
     {
         var cells = new MapPresentationCell[words.Length];
@@ -297,6 +310,7 @@ public static class FileSelectPresentationExtractor
         return cells;
     }
 
+    /// <summary>Splits one SNES BG tile word into atlas position, palette, priority, and flip fields.</summary>
     private static MapPresentationCell Cell(ushort raw)
     {
         var word = new SnesBgTilemapWord(raw);
@@ -311,6 +325,7 @@ public static class FileSelectPresentationExtractor
         };
     }
 
+    /// <summary>Maps a tilemap byte offset to column and row within the file-select page width.</summary>
     private static Position16<TilemapCells> Point(int byteOffset)
     {
         int cell = byteOffset / sizeof(ushort);
@@ -318,6 +333,8 @@ public static class FileSelectPresentationExtractor
             checked((ushort)(cell / FileSelectPresentationDefinitions.Width)));
     }
 
+    /// <summary>Decoded relative tile cells from one native file-select text patch.</summary>
     private sealed record RawPatch(RawPatchCell[] Cells);
+    /// <summary>One patch tile word and its row/column offset from the destination anchor.</summary>
     private readonly record struct RawPatchCell(Offset16<TilemapCells> Offset, ushort Word);
 }

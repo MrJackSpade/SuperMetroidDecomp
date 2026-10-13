@@ -28,6 +28,7 @@ using static SpinChargeVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Projectile fixtures covering native shot production, flight, impact, artwork, and camera edges.</summary>
 internal static class SamusProjectilesVerification
 {
 
@@ -39,7 +40,7 @@ internal static class SamusProjectilesVerification
 static byte ReadRetailPowerBeamRadiusByte(ISnesAddressSpace rom, int direction, int offset) =>
     rom.ReadCartridgeByte(0x930000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord((0x938433 + direction * 2)) + offset));
 
-/// <summary>Samus beam and missile projectile verification.</summary>
+/// <summary>Checks beam and missile records, charge, impact, OAM, sound, and cartridge-timed projectile lifecycles.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
 internal static void VerifySamusPowerBeamProjectiles()
 {
@@ -2012,6 +2013,7 @@ static void WriteRoomPlmPopulationFixture(
     WriteTestWord(bus, 0x8f0000 | unchecked((ushort)(population + records.Length * 6)), 0);
 }
 
+    /// <summary>Runs projectile production, cooldown, camera-lifetime, and controlled hero-shot fixtures.</summary>
     [VerificationCommand("--samus-projectiles")]
     internal static int SamusProjectilesCommand()
     {

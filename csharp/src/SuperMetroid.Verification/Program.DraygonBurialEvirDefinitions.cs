@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the six Draygon burial Evir spawn and subspeed records.</summary>
 internal static class DraygonBurialEvirDefinitionsVerification
 {
+    /// <summary>Compares native tables and follows real sprite-object allocation and 16.16 movement.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon burial Evir definitions")]
     internal static void VerifyDraygonBurialEvirDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -92,6 +94,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
             "Draygon burial Evir definitions: all six spawn/movement records match ROM and the real allocation plus 16.16 movement paths pass with all three source tables forbidden.");
     }
 
+    /// <summary>Models native whole/fraction addition or subtraction for one burial axis.</summary>
     private static (ushort Position, ushort Subposition) AddDraygonBurialSubspeed(
         ushort position,
         ushort magnitude,
@@ -104,6 +107,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
         return (SnesFixedPosition.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition));
     }
 
+    /// <summary>Rejects gameplay reads from the three migrated bank-$A5 burial tables.</summary>
     private static CartridgeReadGuard NewDraygonBurialEvirReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa5a1af and < 0xa5a1f7,

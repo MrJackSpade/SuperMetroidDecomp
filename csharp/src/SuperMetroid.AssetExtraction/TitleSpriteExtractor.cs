@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM bank-$8C title spritemap parts → title sprites")]
 internal static class TitleSpriteExtractor
 {
+    /// <summary>Collects title text and logo spritemap pointers from native lists, then decodes their ordered OAM parts.</summary>
     public static TitleSpriteFrame[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
@@ -52,6 +53,7 @@ internal static class TitleSpriteExtractor
         }).ToArray();
     }
 
+    /// <summary>Decodes one bank-$8C title spritemap into bounded offsets, tile positions, and flip attributes.</summary>
     private static SpriteVisualPart[] ReadParts(ISnesAddressSpace bus, ushort pointer)
     {
         int address = ((int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, pointer));

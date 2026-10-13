@@ -16,8 +16,10 @@ using static EndingLogoVerification;
 using static EndingPostShotVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks post-credits reward actors, graphics uploads, gesture timing, and jump handoffs against bank-$8B source data.</summary>
 internal static class EndingRewardGestureVerification
 {
+    /// <summary>Compares sixteen upload chunks, both reward gesture timelines, and jump-to-shot sequences with native data and guarded definitions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for reward icon graphics and upload tables")]
     internal static void VerifyEndingRewardGesture()
@@ -110,6 +112,7 @@ internal static class EndingRewardGestureVerification
             "ending reward actors never reread compiled definition records");
     }
 
+    /// <summary>Forbids live rereads of the migrated reward icon source and destination address tables.</summary>
     private static CartridgeReadGuard NewEndingRewardUploadDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
@@ -131,6 +134,7 @@ internal static class EndingRewardGestureVerification
     private static readonly int[] RewardActorSpawnLoads =
         [0x8be3a1, 0x8be3a7, 0x8be385, 0x8be37f, 0x8be379, 0x8be38d, 0x8bf51e, 0x8bf575, 0x8bf55d, 0x8bf56a];
 
+    /// <summary>Matches ten native spawn operands, actor records, and four initializer origins against compiled definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending reward actor definitions")]
     internal static void VerifyEndingRewardActorDefinitions(ISnesAddressSpace bus)
     {
@@ -170,6 +174,7 @@ internal static class EndingRewardGestureVerification
             "  Reward definitions: ten spawn pointers, thirty record words and twelve initialization operands match.");
     }
 
+    /// <summary>Forbids live reads of all ten compiled six-byte reward actor records.</summary>
     private static CartridgeReadGuard NewEndingRewardDefinitionReadGuard(ISnesAddressSpace source)
     {
         var forbidden = new HashSet<int>();
@@ -183,6 +188,7 @@ internal static class EndingRewardGestureVerification
             address => $"Ending reward actor reread definition byte ${address:X6}.");
     }
 
+    /// <summary>Runs the ending reward actor and gesture verification command.</summary>
     [VerificationCommand("--ending-reward-definitions")]
     internal static int EndingRewardDefinitionsCommand()
     {

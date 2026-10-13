@@ -22,8 +22,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Checks compiled ownership of Mother Brain's hand-beam body instruction list.</summary>
 internal static class MotherBrainHandBeamBodyInstructionDefinitionsVerification
 {
+    /// <summary>Compares all 67 native words with their separate mechanics or visual owner under a ROM read guard.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain hand-beam body instruction list")]
     internal static void VerifyMotherBrainHandBeamBodyInstructionDefinitions()
     {
@@ -82,11 +84,13 @@ internal static class MotherBrainHandBeamBodyInstructionDefinitionsVerification
             $"{visualWords} visual-selector words match the pinned ROM without list reads.");
     }
 
+    /// <summary>Rejects live reads of the migrated bank-$A9 hand-beam instruction range.</summary>
     private static CartridgeReadGuard NewMotherBrainHandBeamListReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa99a42 and <= 0xa99ac7,
                 address => $"Mother Brain reread compiled hand-beam list ${address:X6}.");
 
+    /// <summary>Runs the Mother Brain instruction, beam, death, Samus, and Baby Metroid suites.</summary>
     [VerificationCommand("--mother-brain")]
     internal static int MotherBrainCommand()
     {

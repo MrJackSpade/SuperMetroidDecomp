@@ -13,6 +13,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Confirms an enemy's empty extended frame cannot receive a beam hit before its next solid frame.</summary>
 internal static class EmptyExtendedFrameShotsVerification
 {
     /// <summary>
@@ -53,6 +54,7 @@ internal static class EmptyExtendedFrameShotsVerification
         Console.WriteLine("  Empty extended frame: a beam over $804F leaves the pirate untouched.");
     }
 
+    /// <summary>Runs the focused empty-frame projectile collision check.</summary>
     [VerificationCommand("--empty-extended-frame-shots")]
     internal static int EmptyExtendedFrameShotsCommand()
     {

@@ -4,8 +4,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 
+/// <summary>Checks that Mother Brain's rising HDMA screen mask is captured and later removed through production state transitions.</summary>
 internal static class MotherBrainAscentCaptureVerification
 {
+    /// <summary>Verifies every native ascent scanline value, the completion reset, and snapshot independence after state changes.</summary>
     internal static int VerifyMotherBrainAscentCapture(SuperMetroidRuntime runtime)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

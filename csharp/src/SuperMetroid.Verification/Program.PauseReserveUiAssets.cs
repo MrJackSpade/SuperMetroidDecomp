@@ -7,8 +7,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using static PauseEquipmentRulesVerification;
 
+/// <summary>Compares installed pause reserve tiles, arrow color phases, and rendering with native source data.</summary>
 internal static class PauseReserveUiAssetsVerification
 {
+    /// <summary>Checks reserve labels, digits, and arrow phases against native rendering, then verifies edits, rebinding, and invalid assets.</summary>
     internal static void VerifyPauseReserveUiAssets(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original)
     {
@@ -111,6 +113,7 @@ internal static class PauseReserveUiAssetsVerification
         }
     }
 
+    /// <summary>Forbids the migrated reserve tilemap and arrow color ranges during installed menu playback.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve UI tilemap ranges")]
     private static CartridgeReadGuard NewPauseReserveUiReadGuard(ISnesAddressSpace source)
     {

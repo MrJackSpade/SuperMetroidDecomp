@@ -7,8 +7,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks D3D11 captures of the retail Ceres Ridley Mode 7 scene and retained packet replay.</summary>
 internal static class RetailRidleyCaptureTests
 {
+    /// <summary>Compares native HUD/floor scenes across scale, tilt, and scroll, then replays saved packets after replacing live GPU resources.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
@@ -21,8 +23,6 @@ internal static class RetailRidleyCaptureTests
         runtime.NmiHandler.RunNmi(0, true);
         var ridley = runtime.Enemies.RidleyEncounter.CeresRidley!;
         var retained = new List<(RenderFrameSnapshot Packet, Rgba32[] Expected)>();
-        // Retail PPU memory with controlled escape registers, not a simulated battle.
-        // Vary signed rotation/scale and scroll while retaining the native floor/HUD.
         foreach (ushort scale in new ushort[] { 128, 240, 256 })
         foreach (short tilt in new short[] { -33, 0, 33 })
         foreach (short scroll in new short[] { -19, 0, 19 })
@@ -47,8 +47,6 @@ internal static class RetailRidleyCaptureTests
         ridley.Mode7Active = false;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, new Bgr555(0, 0, 0));
-        // Replay in reverse order so every check also overwrites GPU resources from
-        // another packet. No borrowed room memory or previous output may satisfy it.
         foreach (var sample in retained.AsEnumerable().Reverse())
             PixelComparison.Verify(sample.Packet, sample.Expected, renderer.RenderForReadback(sample.Packet),
                 $"{device.Kind}: retained Ridley {sample.Packet.Identity.Sequence}");

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Rooms;
 using static BabyMetroidRouteDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks native block-reaction selectors for bomb shapes, reveals, and their live dispatch paths.</summary>
 internal static class BlockReactionSelectorsVerification
 {
+    /// <summary>Matches bomb-block break and reverse-reveal draw operands to the four native shape programs.</summary>
     internal static void VerifySharedBreakAnimationSelection(SuperMetroidAddressSpace rom)
     {
         // Independent operands in the four original respawning bomb programs,
@@ -25,6 +27,7 @@ internal static class BlockReactionSelectorsVerification
                 "shared breakup rejects unknown shapes");
     }
 
+    /// <summary>Checks the complete bombed-reveal physical draw domain and native run geometry.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for bombed reveal physical draw mapping")]
     internal static void VerifyBombedRevealPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
@@ -51,6 +54,7 @@ internal static class BlockReactionSelectorsVerification
         }
     }
 
+    /// <summary>Checks every possible address against the bombed-reveal control and operand domain.</summary>
     internal static void VerifyBombedRevealControlMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] controls = [0xc8ec,0xc8f0,0xc8f2,0xc8f6,0xc8f8,0xc8fc,0xc8fe,0xc902,0xc91c,0xc920,0xc922,0xc926];
@@ -71,6 +75,7 @@ internal static class BlockReactionSelectorsVerification
         }
     }
 
+    /// <summary>Matches all bombed-reveal draw operands to cartridge words and the shared PLM reader.</summary>
     internal static void VerifyBombedRevealDrawMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xc8ee,0xc8f4,0xc8fa,0xc900,0xc91e,0xc924];
@@ -83,6 +88,7 @@ internal static class BlockReactionSelectorsVerification
         }
     }
 
+    /// <summary>Checks contact-crumble headers for all supported BTS values and rejects unsupported indexes.</summary>
     internal static void VerifyContactCrumbleHeaderSelection(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 8; index++)
@@ -96,22 +102,27 @@ internal static class BlockReactionSelectorsVerification
                 "contact crumble header int bounds");
     }
 
+    /// <summary>Checks collision-triggered bomb PLM instruction selection through native headers.</summary>
     internal static void VerifyCollisionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94936b, 8,
             RoomPlmInstructionLists.CollisionBombByReactionIndex, "collision bomb"));
 
+    /// <summary>Checks projectile-triggered bomb reaction instruction selection through native headers.</summary>
     internal static void VerifyReactionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94a012, 8,
             RoomPlmInstructionLists.ReactionBombByReactionIndex, "bomb reaction"));
 
+    /// <summary>Checks crumble-reveal instruction selection for the four native sizes.</summary>
     internal static void VerifyCrumbleRevealInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 4,
             RoomPlmInstructionLists.CrumbleRevealBySize, "crumble reveal"));
 
+    /// <summary>Checks contact-crumble instruction selection for the eight native reactions.</summary>
     internal static void VerifyContactCrumbleInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949139, 8,
             RoomPlmInstructionLists.ContactCrumbleByReactionIndex, "contact crumble"));
 
+    /// <summary>Checks the bounded bomb-special BTS domain, including adjacent area aliases.</summary>
     internal static void VerifyBombSpecialInstructionSelection(SuperMetroidAddressSpace rom)
     {
         AssertEqual(80, BombSpecialBlockReactions.Count, "bounded native normal-BTS compatibility extent");
@@ -119,6 +130,7 @@ internal static class BlockReactionSelectorsVerification
             BombSpecialBlockReactions.InstructionListAt, "bomb special including adjacent area aliases"));
     }
 
+    /// <summary>Compares a selector with the native header indirection and rejects indexes outside its domain.</summary>
     private static void VerifyNativeBlockInstructionSelection(SuperMetroidAddressSpace rom,
         int nativeTable, int count, Func<int, ushort> select, string label)
     {

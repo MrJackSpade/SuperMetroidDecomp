@@ -8,8 +8,10 @@ using static DoorDefinitionsVerification;
 using static MapSpritesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks reserve tank OAM anchors against cartridge coordinates and edited presentation.</summary>
 internal static class PauseReserveAnchorsVerification
 {
+    /// <summary>Checks stock positions, independent axis edits, sprite output, and anchor bounds.</summary>
     internal static void VerifyPauseReserveAnchors(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
@@ -22,6 +24,7 @@ internal static class PauseReserveAnchorsVerification
             AssertThrows<IndexOutOfRangeException>(() => stock.Anchor(invalid), "reserve anchor array boundary preserved");
     }
 
+    /// <summary>Checks one anchor coordinate axis against native words and edited OAM placements.</summary>
     private static void VerifyPauseReserveAnchorField(ISnesAddressSpace rom, PauseReserveTankDocument document,
         PauseReserveTankPresentation stock, bool horizontal)
     {

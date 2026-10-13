@@ -27,10 +27,14 @@ internal static class IntroDiscoveryActorSpriteDefinitions
         return (ushort)(BabyStart + 7 * frame);
     }
 
+    /// <summary>Exposes sixteen egg states, three confused Baby states, and the separately keyed large Baby composition.</summary>
     internal static IReadOnlyList<IntroDiscoveryActorSpriteFrameDefinition> Frames { get; } = new FrameList();
+    /// <summary>Calculates native pointers and expected OAM part counts for the twenty discovery compositions.</summary>
     private sealed class FrameList : IReadOnlyList<IntroDiscoveryActorSpriteFrameDefinition>
     {
+        /// <summary>Sixteen egg states plus four Baby compositions.</summary>
         public int Count => 20;
+        /// <summary>Pairs a discovery frame's native pointer with its asset key and expected part count.</summary>
         public IntroDiscoveryActorSpriteFrameDefinition this[int index]
         {
             get
@@ -43,13 +47,16 @@ internal static class IntroDiscoveryActorSpriteDefinitions
                 return new(EggFramePointer(index), name, index == 0 ? 6 : index < 9 ? 9 : 3);
             }
         }
+        /// <summary>Enumerates discovery frames in egg, confused Baby, then large Baby order.</summary>
         public IEnumerator<IntroDiscoveryActorSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same frame order to non-generic collection consumers.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
 
+/// <summary>Native spritemap identity, editable asset name, and validated OAM part count for an opening actor.</summary>
 internal readonly record struct IntroDiscoveryActorSpriteFrameDefinition(
     ushort Pointer, string Name, int StockPartCount);

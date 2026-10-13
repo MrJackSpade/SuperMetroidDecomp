@@ -16,6 +16,7 @@ using System.Text.Json;
 /// </summary>
 internal static class InstallationOverrideLifecycleVerification
 {
+    /// <summary>Installs into scratch storage and checks override survival across ROM-free startup, stock repair, and format upgrade.</summary>
     internal static int Run(string sourceRom)
     {
         using var temporaryScratch = new TestScratchDirectory("override-lifecycle");
@@ -85,6 +86,7 @@ internal static class InstallationOverrideLifecycleVerification
         }
     }
 
+    /// <summary>Copies every declared installed domain into persistent overrides and adds an unrecognized user note.</summary>
     [ReflectionAudit("public coverage discovery: every override directory the installation exposes must match a declared installed domain")]
     private static string[] CopyEveryOverrideDomain(GameInstallation installation)
     {
@@ -111,6 +113,7 @@ internal static class InstallationOverrideLifecycleVerification
         return directories;
     }
 
+    /// <summary>Reads selected content identities from every declared zero-argument installation loader.</summary>
     [ReflectionAudit("public catalog discovery: every parameterless public Load* method of the installation must persist overrides")]
     private static Dictionary<string, string> CatalogSnapshot(GameInstallation installation)
     {
@@ -137,11 +140,13 @@ internal static class InstallationOverrideLifecycleVerification
         return result;
     }
 
+    /// <summary>Hashes each file under a directory by its relative path for byte-preservation checks.</summary>
     private static Dictionary<string, string> FileSnapshot(string root) =>
         Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories)
             .ToDictionary(file => Path.GetRelativePath(root, file),
                 file => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(file))), StringComparer.Ordinal);
 
+    /// <summary>Checks that a file or catalog identity snapshot retains exactly the expected keys and digests.</summary>
     private static void AssertSnapshot(Dictionary<string, string> expected, Dictionary<string, string> actual, string context)
     {
         Assert(expected.Count == actual.Count, context + ": file/catalog count");
@@ -149,6 +154,7 @@ internal static class InstallationOverrideLifecycleVerification
             Assert(actual.TryGetValue(key, out string? selected) && selected == digest, context + ": " + key);
     }
 
+    /// <summary>Requires only map, audio, standard-object, and gameplay-palette identities to change after the selected edits.</summary>
     private static void AssertOnlyEditedCatalogsChanged(Dictionary<string, string> baseline, Dictionary<string, string> selected)
     {
         string[] changed = [nameof(GameInstallation.LoadMaps), nameof(GameInstallation.LoadAudio),
@@ -157,6 +163,7 @@ internal static class InstallationOverrideLifecycleVerification
             Assert((selected[loader] != digest) == changed.Contains(loader), "isolated presentation edits: " + loader);
     }
 
+    /// <summary>Checks that a malformed user PNG remains on disk and reports its path instead of falling back to stock.</summary>
     private static void VerifyInvalidOverrideIsRetained(GameInstallation installation, Dictionary<string, string> expected)
     {
         string path = Path.Combine(installation.StandardObjectOverrideDirectory, StandardObjectArtworkFormat.FileName);
@@ -181,11 +188,13 @@ internal static class InstallationOverrideLifecycleVerification
         AssertSnapshot(expected, FileSnapshot(Path.Combine(installation.Root, "overrides")), "author repair restores override files");
     }
 
+    /// <summary>Raises a verification failure with the failed lifecycle condition.</summary>
     private static void Assert(bool condition, string message)
     {
         if (!condition) throw new InvalidDataException(message);
     }
 
+    /// <summary>Authors isolated PNG, font, RGB5, WAV, instrument, and sound-program changes and records their expected values.</summary>
     private static OverrideExpectations EditPresentation(GameInstallation installation)
     {
         byte[] standard = EditPng(Path.Combine(installation.StandardObjectOverrideDirectory,
@@ -238,6 +247,7 @@ internal static class InstallationOverrideLifecycleVerification
             instrument, program.Id, instructionIndex, arguments);
     }
 
+    /// <summary>Changes the first indexed pixel of an override PNG and returns its encoded SNES tile bytes.</summary>
     private static byte[] EditPng(string path, Extent16<ImagePixels> size, int bitsPerPixel)
     {
         IndexedPngImage image;
@@ -247,6 +257,7 @@ internal static class InstallationOverrideLifecycleVerification
         return SnesPlanarTileEncoder.Encode(image.Pixels, size, bitsPerPixel);
     }
 
+    /// <summary>Checks that selected catalogs still expose the authored bytes and unchanged override files at one lifecycle phase.</summary>
     private static void VerifySelected(GameInstallation installation, OverrideExpectations expected,
         Dictionary<string, string> identities, Dictionary<string, string> files, string phase)
     {
@@ -264,6 +275,7 @@ internal static class InstallationOverrideLifecycleVerification
             .Arguments.SequenceEqual(expected.SoundArguments), phase + ": actual authored SFX operation");
     }
 
+    /// <summary>Edited transfer, palette, and audio values expected to survive each installation transition.</summary>
     private sealed record OverrideExpectations(byte[] StandardObjects, byte[] Font, ushort Color,
         int Bank, byte Source, short PcmFirstSample, AudioInstrumentMetadata Instrument,
         string SoundProgram, int SoundInstruction, byte[] SoundArguments);

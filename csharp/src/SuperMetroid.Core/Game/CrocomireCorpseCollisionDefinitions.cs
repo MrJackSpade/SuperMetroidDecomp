@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Physical component and hitbox records for the 33 native Crocomire corpse frames, $A4:E1FE..E71F.</summary>
 internal static class CrocomireCorpseCollisionDefinitions
 {
+    /// <summary>Physical component offsets and hitbox-list pointers for each of the 33 corpse frames.</summary>
     private static readonly Dictionary<ushort, CrocomireBodyCollisionComponent[]> Frames = new()
     {
         // ExtendedSpritemap_CrocomireCorpse_0, $A4:E1FE.
@@ -73,15 +74,19 @@ internal static class CrocomireCorpseCollisionDefinitions
         [0xe716] = [new(new(32, 32), 0xe748)],
     };
 
+    /// <summary>Native body rectangles at $A4:E72E and the empty list at $A4:E748.</summary>
     private static readonly Dictionary<ushort, CrocomireBodyCollisionHitbox[]> Hitboxes = new()
     {
         [0xe72e] = [new(-38, -16, 0, 31, 0xb950, 0xb968), new(0, -29, 26, 28, 0xb950, 0xb968)],
         [0xe748] = [],
     };
 
+    /// <summary>Checks whether a native extended-spritemap pointer belongs to the corpse sequence.</summary>
     internal static bool HasFrame(ushort frame) => Frames.ContainsKey(frame);
+    /// <summary>Returns physical component placement for a compiled corpse frame.</summary>
     internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(ushort frame) =>
         Frames.TryGetValue(frame, out var parts) ? parts : throw new InvalidDataException($"Unknown Crocomire corpse frame $A4:{frame:X4}.");
+    /// <summary>Returns the selected native hitbox list, including the empty no-collision list.</summary>
     internal static ReadOnlySpan<CrocomireBodyCollisionHitbox> HitboxesAt(ushort address) =>
         Hitboxes.TryGetValue(address, out var parts) ? parts : throw new InvalidDataException($"Unknown Crocomire corpse hitboxes $A4:{address:X4}.");
 }

@@ -27,10 +27,12 @@ internal abstract class SporeSpawnProjectileInstructionProgramDefinitions
     /// Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.
     /// </summary>
     private static readonly ushort[] ShotDurations = [1, 3, 6, 5, 5, 5, 6];
-    // Closed-emitter hold 1 and airborne/stalk holds 5 are the same authored cadence (reviewed under #1165).
+    /// <summary>Twenty-eight address/value pairs for the native hold durations, callbacks, branches, and deletion; closed-emitter hold 1 and airborne/stalk holds 5 preserve authored cadence (#1165).</summary>
     public static int MechanicsWordCount => 28;
+    /// <summary>Seventeen sprite-frame operands kept separate from the compiled instruction control words.</summary>
     public static int PresentationWordCount => 17;
 
+    /// <summary>Reconstructs a native mechanics address/value pair in pointer order across emitter, spore, stalk, and shot programs.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -70,6 +72,7 @@ internal abstract class SporeSpawnProjectileInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Maps a visual operand ordinal to its bank-$86 address without exposing the associated editable spritemap value.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -80,11 +83,13 @@ internal abstract class SporeSpawnProjectileInstructionProgramDefinitions
         int shot = index - 10;
         return (ushort)(SporeShot + (shot == 0 ? 2 : shot < 4 ? 8 + 4 * (shot - 1) : 22 + 4 * (shot - 4)));
     }
+    /// <summary>Restricts this program catalog to Spore Spawn's stalk, airborne spores, and ceiling emitter.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.SporeSpawnStalk or
         RoomEnemyProjectileKind.SporeSpawnSpore or
         RoomEnemyProjectileKind.SporeSpawnSpawner;
 
+    /// <summary>Looks up a compiled control word by native address and rejects presentation-only or unknown addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

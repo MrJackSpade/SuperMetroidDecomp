@@ -96,10 +96,8 @@ publication/consumption sequence. Visible expose/recovery remains a separate gat
   The resolved Vortice packages are 3.8.3, Mathematics 2.1.0, and SharpGen Runtime/COM
   2.4.2-beta. The beta is an upstream transitive runtime dependency, explicitly
   recorded here rather than represented as entirely stable dependencies.
-- Windows SDK directory 10.0.26100.0, x64 FXC file version 10.0.26100.8249,
-  SHA256 `005EFF830845789C7EFB2831A0B41950EE6954E9BCD93BAF50DE67AD537728B2`.
-  `ShaderBuild.targets` verifies the compiler bytes and compiles source before
-  resource discovery with `/Ges /WX /O3 /T cs_5_0`. The bytecode is embedded in the
+- Windows SDK directory 10.0.26100.0, x64 FXC (any serviced build of that SDK).
+  `ShaderBuild.targets` compiles source before resource discovery with `/Ges /WX /O3 /T cs_5_0`. The bytecode is embedded in the
   assembly, not compiled at runtime or loaded from an untracked binary.
   Other serviced compiler versions fail the build and need an explicit reviewed
   tool-pin update. The SDK/compiler is not redistributed in this repository.

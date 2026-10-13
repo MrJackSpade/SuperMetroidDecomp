@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Tripper and Kamer platform instruction loops, selectors, and native visual exports.</summary>
 internal static class PlatformInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge and runs the platform instruction suite.</summary>
     internal static void VerifyPlatformInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPlatformInstructionProgramDefinitions), () => VerifyPlatformInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises eight species, direction, and motion programs with compiled mechanics reads forbidden.</summary>
     internal static void VerifyPlatformInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -125,6 +128,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             "spritemap selectors pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Forces the selected platform's instruction timer across several interpreter calls.</summary>
     private static void ExecutePlatformProgram(
         RoomEnemySystem enemies,
         RoomEnemySlot slot,
@@ -139,6 +143,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Compares all mechanics words and byte-ownership boundaries with bank $A3.</summary>
     private static void VerifyPlatformMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x9bbb, 0x9bbd, 0x9bc1, 0x9bc5, 0x9bc9, 0x9bcd, 0x9bcf, 0x9bd1, 0x9bd3, 0x9bd7, 0x9bdb, 0x9bdf, 0x9be3, 0x9be5, 0x9be7, 0x9be9, 0x9bed, 0x9bf1, 0x9bf5, 0x9bf9, 0x9bfb, 0x9bfd, 0x9bff, 0x9c03, 0x9c07, 0x9c0b, 0x9c0f, 0x9c11, 0x9c13, 0x9c15, 0x9c19, 0x9c1d, 0x9c21, 0x9c25, 0x9c27, 0x9c29, 0x9c2b, 0x9c2f, 0x9c33, 0x9c37, 0x9c3b, 0x9c3d, 0x9c3f, 0x9c41, 0x9c45, 0x9c49, 0x9c4d, 0x9c51, 0x9c53, 0x9c55, 0x9c57, 0x9c5b, 0x9c5f, 0x9c63, 0x9c67, 0x9c69];
@@ -166,6 +171,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         foreach (int index in new[] { int.MinValue, -1, 56, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => PlatformInstructionProgramDefinitionsTooling.MechanicsWord(index), "platform mechanics bounds");
     }
+    /// <summary>Checks the exact thirty-two Tripper and Kamer presentation operands.</summary>
     private static void VerifyPlatformPresentationMapping()
     {
         ushort[] expected = [0x9bbf, 0x9bc3, 0x9bc7, 0x9bcb, 0x9bd5, 0x9bd9, 0x9bdd, 0x9be1, 0x9beb, 0x9bef, 0x9bf3, 0x9bf7, 0x9c01, 0x9c05, 0x9c09, 0x9c0d, 0x9c17, 0x9c1b, 0x9c1f, 0x9c23, 0x9c2d, 0x9c31, 0x9c35, 0x9c39, 0x9c43, 0x9c47, 0x9c4b, 0x9c4f, 0x9c59, 0x9c5d, 0x9c61, 0x9c65];
@@ -178,6 +184,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         foreach (int index in new[] { int.MinValue, -1, 32, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => PlatformInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "platform presentation bounds");
     }
+    /// <summary>Compares selected spritemaps and their native sprite counts with cartridge data.</summary>
     private static void VerifyPlatformVisualPointers(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0x9bbf, 0x9bc3, 0x9bc7, 0x9bcb, 0x9bd5, 0x9bd9, 0x9bdd, 0x9be1,
@@ -209,6 +216,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
             AssertThrows<InvalidDataException>(() => TripperKamerVisualDefinitions.FrameAt(address), "platform distant invalid visual operand");
     }
+    /// <summary>Checks published frame order, asset names, and consecutive native record sizes.</summary>
     private static void VerifyPlatformExportIdentities(SuperMetroidAddressSpace rom)
     {
         // Independent published export order and names; addresses are the native map labels.
@@ -236,6 +244,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             AssertEqual((int)next, actual[i].Pointer + nativeSize, "platform export consecutive native record boundary");
         }
     }
+    /// <summary>Checks the native initial list for every full-word horizontal direction value.</summary>
     private static void VerifyPlatformInitialProgramSelection(SuperMetroidAddressSpace rom)
     {
         // LDY immediate operands in the two native initializers.
@@ -250,6 +259,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Checks moving and still list selection for both species and every direction value.</summary>
     private static void VerifyPlatformAnimationProgramSelection(SuperMetroidAddressSpace rom)
     {
         // Each native helper first loads Tripper's list, then substitutes Kamer's list.
@@ -270,6 +280,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
                     "platform animation program uses species, motion and full-word direction");
         }
     }
+    /// <summary>Checks the native zero-versus-nonzero direction choice for frozen Tripper frames.</summary>
     private static void VerifyTripperFrozenFrameSelection(SuperMetroidAddressSpace rom)
     {
         // Immediate operands of the native zero/nonzero branches, not an inferred pointer table.
@@ -284,6 +295,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | left), "Tripper frozen-left two-piece map");
         AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | right), "Tripper frozen-right two-piece map");
     }
+    /// <summary>Alternates Kamer and Tripper mechanics lookups to detect warmed allocations.</summary>
     private static int ProbePlatformInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -297,12 +309,14 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>One expected platform program for a species, motion state, and horizontal direction.</summary>
     internal readonly record struct PlatformProgramCase(
         bool IsKamer,
         bool IsMoving,
         PlatformHorizontalMovement Direction,
         ushort EntryPoint);
 
+    /// <summary>Rejects compiled mechanics reads and observes presentation-operand reads.</summary>
     private static CartridgeReadGuard NewPlatformInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(PlatformInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -310,6 +324,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             .ObserveWords(0xa30000, PlatformInstructionProgramDefinitionsTooling.PresentationWordCount,
                 PlatformInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Runs the standalone Tripper and Kamer instruction verification command.</summary>
     [VerificationCommand("--platform-instruction-program-definitions")]
     internal static int PlatformInstructionProgramDefinitionsCommand()
     {

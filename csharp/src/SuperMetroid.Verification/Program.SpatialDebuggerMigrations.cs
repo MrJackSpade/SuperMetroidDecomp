@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
 using static AssertionsVerification;
 
+/// <summary>Exercises restoration of retired scalar spatial fields into typed debugger capture state.</summary>
 internal static class SpatialDebuggerMigrationsVerification
 {
     /// <summary>
@@ -145,6 +146,7 @@ internal static class SpatialDebuggerMigrationsVerification
     /// The second #628 slice: scroll-grid size, BG3 room-FX scroll state, the Ceres Mode 7 pivot,
     /// room-shake displacements and every display-packet record a retained capture can hold.
     /// </summary>
+    /// <summary>Checks legacy render and FX scroll fields, including line arrays and malformed partial captures, against typed replacements.</summary>
     private static void VerifyRenderAndFxSpatialDebuggerMigrations()
     {
         RoomScrollGrid grid = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), new byte[RoomScrollGrid.StorageByteCount],
@@ -262,6 +264,7 @@ internal static class SpatialDebuggerMigrationsVerification
     /// <summary>A legacy field payload: an array of the retired per-line scroll pair, written in its historical shape.</summary>
     internal sealed record RetiredLineScrolls(Position16<BgPlanePixels>[] Lines);
 
+    /// <summary>Emits the historical two-field Mother Brain neck-point payload for production deserialization.</summary>
     private static void WriteRetiredNeckPoint(BinaryWriter writer, Stream data, Position16<RoomPixels> point)
     {
         const byte newObjectMarker = 2, fieldPayloadKind = 5;
@@ -280,6 +283,7 @@ internal static class SpatialDebuggerMigrationsVerification
         }
     }
 
+    /// <summary>Emits the retired background line-scroll array envelope and its X/Y element fields.</summary>
     private static void WriteRetiredLineScrolls(BinaryWriter writer, Stream data, Position16<BgPlanePixels>[] lines)
     {
         const byte newObjectMarker = 2, arrayPayloadKind = 3, fieldPayloadKind = 5;

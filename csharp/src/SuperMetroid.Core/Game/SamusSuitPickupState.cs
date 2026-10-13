@@ -22,6 +22,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusSuitPickupState
 {
+    /// <summary>Holds the setup sound request until the enemy audio owner can publish it once.</summary>
     private bool _transformationSoundPending;
     /// <summary>Native queue guard captured at suit setup, before deferred host publication.</summary>
     public bool TransformationSoundSuppressed { get; private set; }
@@ -33,6 +34,7 @@ public sealed class SamusSuitPickupState
         _transformationSoundPending = false;
         return pending;
     }
+    /// <summary>Stores the native WH0/WH1 endpoint word for each of the 256 HDMA scanlines.</summary>
     private readonly ushort[] _windowTable =
         new ushort[SamusSpecialSequenceRomData.SuitPickup.WindowScanlineCount];
 
@@ -199,6 +201,7 @@ public sealed class SamusSuitPickupState
         samus.DraygonGrabbed.SetSharedEscapeCounter(Substate);
     }
 
+    /// <summary>Extends the narrow beam inward from both screen edges until 128 rows are covered.</summary>
     private void StepLightBeamAppears()
     {
         LightBeamPosition = unchecked((ushort)(LightBeamPosition + 8));
@@ -217,6 +220,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
+    /// <summary>Moves the beam's left and right endpoints apart uniformly before curved widening begins.</summary>
     private void StepUniformWidening()
     {
         byte amount = unchecked((byte)(SnesEightEight.WholeOf(LightBeamWideningSpeed)));
@@ -234,6 +238,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
+    /// <summary>Applies the mirrored ROM curve to each row as the beam widens and fixed color approaches white.</summary>
     private void StepCurvedWidening()
     {
         AdvanceColorTowardWhite();
@@ -286,6 +291,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
+    /// <summary>Installs the equipment bit, suited front pose, and palette at the native third-stage handoff.</summary>
     private void RevealSuit(ISnesAddressSpace bus, SamusState samus, SnesCgram cgram)
     {
         ushort mask = Kind == SamusSuitPickupKind.Varia
@@ -303,6 +309,7 @@ public sealed class SamusSuitPickupState
         Substate++;
     }
 
+    /// <summary>Wipes beam rows from both edges while decelerating and restoring the suit-specific fixed color.</summary>
     private void StepLightBeamShrinks()
     {
         if (Kind == SamusSuitPickupKind.Gravity)
@@ -338,6 +345,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
+    /// <summary>Closes the single remaining center scanline until the native threshold ends the effect.</summary>
     private void StepLightBeamDissipates()
     {
         byte left = unchecked((byte)(LightBeamPosition + 8));
@@ -348,6 +356,7 @@ public sealed class SamusSuitPickupState
             Substate++;
     }
 
+    /// <summary>Clears the window and fixed-color effect, then releases Samus input after the last HDMA stage.</summary>
     private void Finish(SamusState samus)
     {
         FixedColorRed = SamusPaletteRomData.SuitPickup.ResetRed;
@@ -363,6 +372,7 @@ public sealed class SamusSuitPickupState
         IsActive = false;
     }
 
+    /// <summary>Raises each COLDATA component by two toward the white reveal color.</summary>
     private void AdvanceColorTowardWhite()
     {
         FixedColorRed = AddTwoAndClamp(FixedColorRed, SamusPaletteRomData.SuitPickup.WhiteRed);
@@ -370,11 +380,13 @@ public sealed class SamusSuitPickupState
         FixedColorBlue = AddTwoAndClamp(FixedColorBlue, SamusPaletteRomData.SuitPickup.WhiteBlue);
     }
 
+    /// <summary>Returns the Varia beam's fixed color toward its orange target during the shrinking stage.</summary>
     private void AdvanceColorTowardOrange() => StepColorDownToward(
         SamusPaletteRomData.SuitPickup.WhiteRed,
         SamusPaletteRomData.SuitPickup.VariaOrangeGreen,
         SamusPaletteRomData.SuitPickup.VariaOrangeBlue);
 
+    /// <summary>Returns the Gravity beam's fixed color toward its blue target during the shrinking stage.</summary>
     private void AdvanceColorTowardBlue() => StepColorDownToward(
         SamusPaletteRomData.SuitPickup.InitialRed,
         SamusPaletteRomData.SuitPickup.GravityGreen,
@@ -388,6 +400,7 @@ public sealed class SamusSuitPickupState
         if (FixedColorBlue != blue) FixedColorBlue--;
     }
 
+    /// <summary>Advances a raw fixed-color component by two without overshooting its stage target.</summary>
     private static byte AddTwoAndClamp(byte value, byte target)
     {
         if (value == target)

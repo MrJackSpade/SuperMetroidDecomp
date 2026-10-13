@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(RipperInstructionProgramDefinitions))]
 internal abstract class RipperInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Six Ripper lists with four frame holds and a closing goto pair each.</summary>
     public static int MechanicsWordCount => 36;
+    /// <summary>Four drawing operands in each of the six Ripper lists.</summary>
     public static int PresentationWordCount => 24;
+    /// <summary>Reconstructs a hold or goto word from its list start and record position.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -20,12 +23,14 @@ internal abstract class RipperInstructionProgramDefinitionsTooling : IInstructio
             record == 4 ? (ushort)CommonEnemyInstruction.Goto : start;
         return new((ushort)(start + offset), value);
     }
+    /// <summary>Locates the drawing operand paired with a Ripper frame hold.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(RipperInstructionProgramDefinitions.ProgramStart(index / 4) + 4 * (index % 4) + 2);
     }
+    /// <summary>Recognizes either byte of a compiled Ripper word in bank $A2.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000)

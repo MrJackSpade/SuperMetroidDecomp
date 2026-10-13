@@ -6,27 +6,35 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Rio species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class RioBehavior : IEnemySpecies
 {
+    /// <summary>Supplies the global enemy RNG word consumed on every Rio AI frame.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Resolves Rio's horizontal and vertical flight against current room terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Binds Rio AI to shared room RNG and enemy terrain collision.</summary>
     internal RioBehavior(EnemyRoomBinding room, EnemyTerrain terrain)
     {
         _room = room;
         _terrain = terrain;
     }
 
+    /// <summary>Strict horizontal Samus proximity threshold that starts a dive.</summary>
     private const ushort RioTriggerDistance = 0x00a0;
+    /// <summary>Library-two sound requested when an on-screen Rio begins its dive.</summary>
     private const ushort RioDiveSound = 0x0065;
+    /// <summary>8.8 vertical velocity decrement applied during dive and rebound.</summary>
     private const ushort RioGravityStep = 24;
 
     // These are live ROM words, not friendly host tuning constants. The retail routine
     // reads them at $A2:BBBB/$A2:BBBF immediately before a dive begins.
 
+    /// <summary>Per-slot Rio movement state cleared whenever a room loads.</summary>
     internal readonly RioEnemyState?[] _rioStates = new RioEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Most recent library-two sound request produced by Rio during this frame.</summary>
     public ushort? LastRioSoundEffect { get; private set; }
 
+    /// <summary>Discards prior Rio slot states and pending dive sound.</summary>
     internal void ResetRioRoomState()
     {
         Array.Clear(_rioStates);
@@ -232,6 +240,7 @@ internal sealed class RioBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Reverses vertical velocity after collision and enters the rebound phase.</summary>
     private static void ReverseRioVerticalVelocityAndBounce(RioEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.Y.SignedRawValue)));
@@ -245,16 +254,19 @@ internal sealed class RioBehavior : IEnemySpecies
     internal static ushort ReadRioSignedSineCosineSample(byte angle) =>
         unchecked((ushort)EnemyTrigonometryTables.SignedSine(angle));
 
+    /// <summary>Rejects movement dispatch without active room collision data.</summary>
     private static void RequireRioLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Rio movement requires the current room level data.");
     }
 
+    /// <summary>Returns the initialized Rio state paired with this physical enemy slot.</summary>
     private RioEnemyState RequireRioState(RoomEnemySlot slot) =>
         _rioStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Rio state.");
 
+    /// <summary>Registers Rio's guarded native initialization handler.</summary>
     internal void RegisterRioInitializationAi(EnemyAiTable table)
     {
 
@@ -264,6 +276,7 @@ internal sealed class RioBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers Rio's guarded dive, hover, and rebound AI.</summary>
     internal void RegisterRioMainAi(EnemyAiTable table)
     {
 
@@ -278,6 +291,7 @@ internal sealed class RioBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers the Rio-only animation-finished instruction with the interpreter.</summary>
     internal void RegisterRioOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

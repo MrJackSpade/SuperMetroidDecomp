@@ -82,14 +82,22 @@ public sealed class Bank80SystemState
     // Keep these arrays private. Returning writable arrays would let callers bypass the
     // same masking semantics that the ROM routines enforce and would make watch-window
     // corruption extremely difficult to trace.
+    /// <summary>Eight persistent story-event bytes mirrored from $7E:D820.</summary>
     private readonly byte[] _events = new byte[EventByteCount];
+    /// <summary>One native boss-bit byte per area.</summary>
     private readonly byte[] _bossBitsByArea = new byte[AreaCount];
+    /// <summary>Persistent broken-Chozo-orb bits, independent of item collection.</summary>
     private readonly byte[] _roomChozoBits = new byte[RoomChozoBitByteCount];
+    /// <summary>Persistent bits keyed by physical item PLM arguments.</summary>
     private readonly byte[] _collectedItemBits = new byte[ItemBitByteCount];
+    /// <summary>Persistent colored-door bits recorded after their accepted hit sequence.</summary>
     private readonly byte[] _openedDoorBits = new byte[DoorBitByteCount];
+    /// <summary>Seven 256-byte explored-map planes, including live-only Ceres.</summary>
     private readonly byte[] _exploredMapTiles =
         new byte[ExploredMapAreaCount * ExploredMapBytesPerArea];
+    /// <summary>Native save and elevator marker allocation preserved for SRAM packing.</summary>
     private readonly byte[] _usedSaveStationsAndElevators = new byte[UsedSaveStationByteCount];
+    /// <summary>Map-station acquisition bytes and their retained allocation padding.</summary>
     private readonly byte[] _mapStations = new byte[MapStationByteCount];
 
     /// <summary>
@@ -723,6 +731,7 @@ public sealed class Bank80SystemState
         return (int)eventNumber;
     }
 
+    /// <summary>Maps a PLM item argument to a checked collected-item byte and bit mask.</summary>
     private static (int ByteIndex, byte BitMask) ResolveCollectedItemBit(int bitIndex)
     {
         return ResolvePersistentRoomBit(
@@ -731,6 +740,7 @@ public sealed class Bank80SystemState
             "Collected-item bit index must fit the native 64-byte table.");
     }
 
+    /// <summary>Bounds a Chozo-orb or opened-door bit against its 64-byte persistent table.</summary>
     private static (int ByteIndex, byte BitMask) ResolvePersistentRoomBit(
         int bitIndex,
         int byteCount,
@@ -742,18 +752,21 @@ public sealed class Bank80SystemState
         return (bitIndex >> 3, unchecked((byte)(1 << (bitIndex & 7))));
     }
 
+    /// <summary>Rejects area indices outside the cartridge's eight persistent boss bytes.</summary>
     private static void ValidateAreaIndex(int areaIndex)
     {
         if ((uint)areaIndex >= AreaCount)
             throw new ArgumentOutOfRangeException(nameof(areaIndex), areaIndex, "Area index must be in the allocated 0-7 range.");
     }
 
+    /// <summary>Maps a 64-by-32 cell into the native two-plane explored-map byte layout.</summary>
     private static int ResolveExploredMapByteIndex(int areaIndex, Position16<MapTiles> cell)
     {
         int areaOffset = areaIndex * ExploredMapBytesPerArea;
         return areaOffset + AreaMapLayout.GetBitByteIndex(cell);
     }
 
+    /// <summary>Validates area and cell bounds before a map exploration bit is read or written.</summary>
     private static void ValidateExploredMapCoordinate(int areaIndex, Position16<MapTiles> cell)
     {
         if ((uint)areaIndex >= ExploredMapAreaCount)

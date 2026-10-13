@@ -570,6 +570,7 @@ public static class SamusAerialMovement
         return result;
     }
 
+    /// <summary>Applies the selected medium's base speed and wall collision, preserving the native no-input bypass and wall-jump exception.</summary>
     private static BlockMoveResult MoveNormalAerialX(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -608,6 +609,7 @@ public static class SamusAerialMovement
         return horizontal;
     }
 
+    /// <summary>Runs the shared Y mover and reduces its collision scan to landing and ceiling signals for the caller.</summary>
     private static AerialMovementResult FinishVerticalMovement(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -698,6 +700,7 @@ public static class SamusAerialMovement
         return vertical;
     }
 
+    /// <summary>Ends upward movement on Jump release or signed speed underflow.</summary>
     private static void ApplyVariableJumpCutoff(
         SamusKinematicsState state,
         ushort controllerInput)
@@ -715,6 +718,7 @@ public static class SamusAerialMovement
         }
     }
 
+    /// <summary>Tests the directional button matching the current facing pose.</summary>
     private static bool IsForwardHeld(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -830,6 +834,7 @@ public static class SamusAerialMovement
         return true;
     }
 
+    /// <summary>Clears ordinary base X velocity and acceleration while leaving separate boost momentum intact.</summary>
     private static void ClearBaseHorizontalMotion(SamusHorizontalSpeedState speed)
     {
         speed.BaseSpeed = 0;
@@ -837,6 +842,7 @@ public static class SamusAerialMovement
         speed.AccelerationMode = 0;
     }
 
+    /// <summary>Checks that terrain, address space and Samus state are available before an aerial step.</summary>
     private static void ValidateCommon(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -847,6 +853,7 @@ public static class SamusAerialMovement
         Ensure.NotNull(samus);
     }
 
+    /// <summary>Splits a 16.16 vertical magnitude back into Samus's independent native words.</summary>
     private static void SetVerticalSpeed(SamusKinematicsState state, uint speed)
     {
         state.YSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(speed)));
@@ -863,6 +870,7 @@ public readonly record struct AerialMovementResult(
     bool WallContact = false,
     ushort WallDistance = 0);
 
+/// <summary>Wall probe outcome including contact distance even when the launch chord does not trigger.</summary>
 internal readonly record struct WallJumpCheckResult(
     bool Triggered,
     bool Contact,

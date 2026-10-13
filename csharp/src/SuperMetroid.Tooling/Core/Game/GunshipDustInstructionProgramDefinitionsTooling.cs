@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(GunshipDustInstructionProgramDefinitions))]
 internal abstract class GunshipDustInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Compiled timing and control words in the gunship dust projectile lists.</summary>
     public static int MechanicsWordCount => GunshipDustInstructionProgramDefinitions.MechanicsWordCount;
+    /// <summary>Reads a word from the extracted gunship dust mechanics catalog.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => GunshipDustInstructionProgramDefinitions.MechanicsWord(index);
+    /// <summary>Drawing operands in the gunship dust projectile lists.</summary>
     public static int PresentationWordCount => GunshipDustInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates an extracted gunship dust drawing operand.</summary>
     public static ushort PresentationWordAddress(int index) => GunshipDustInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Matches either byte of a compiled dust word in the projectile bank.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

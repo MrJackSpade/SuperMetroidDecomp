@@ -577,6 +577,7 @@ public sealed class SamusXrayState
         return true;
     }
 
+    /// <summary>Rotates the beam upward one angle unit while keeping its edge within the facing-dependent limit.</summary>
     private void MoveAngleUp()
     {
         if (Angle.RawValue < SnesAngle.HalfTurn.RawValue)
@@ -613,6 +614,7 @@ public sealed class SamusXrayState
             Angle = SnesAngle.NormalizeTableIndex(SnesAngle.TableUnitsPerTurn - AngularWidth);
     }
 
+    /// <summary>Rotates the beam downward one angle unit while keeping its edge on the correct side of $80.</summary>
     private void MoveAngleDown()
     {
         if (Angle.RawValue < SnesAngle.HalfTurn.RawValue)
@@ -652,6 +654,7 @@ public sealed class SamusXrayState
                 SnesAngle.HalfTurn.TableIndex + AngularWidth);
     }
 
+    /// <summary>Restores Samus' normal pose and handlers, subsystem enables, palette request, and beam state.</summary>
     private void Finish(ISnesAddressSpace bus, SamusState samus)
     {
         // `$91:E2AD` intentionally classifies turning type `$0E` as standing. Releasing
@@ -695,6 +698,7 @@ public sealed class SamusXrayState
         DeactivationSoundRequested = true;
     }
 
+    /// <summary>Commits a frozen X-ray turn pose with refreshed radii, animation, and native history.</summary>
     private static void ApplyXrayPoseChange(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -708,6 +712,7 @@ public sealed class SamusXrayState
         samus.CommitPoseHistory(bus);
     }
 
+    /// <summary>Admits standing-like and crouching movement types to different visor poses.</summary>
     private static XrayPosture ClassifyAllowedMovement(SamusMovementType movementType) => movementType switch
     {
         SamusMovementType.Standing or
@@ -728,22 +733,28 @@ public sealed class SamusXrayState
         _ => throw new InvalidOperationException($"Undefined SamusMovementType {movementType}."),
     };
 
+    /// <summary>Records the starting HDMA phase separately from whether this call removed the object.</summary>
     private static XrayBeamStepResult SnapshotBeamStep(
         XrayBeamPhase phaseAtStart,
         bool completed) => new(
             phaseAtStart,
             completed);
 
+    /// <summary>Rejects movement or pose input after the X-ray handler has been removed.</summary>
     private void EnsureActive()
     {
         if (!IsActive)
             throw new InvalidOperationException("X-ray has no installed Samus handler.");
     }
 
+    /// <summary>Posture categories used by visor admission and pose choice.</summary>
     private enum XrayPosture
     {
+        /// <summary>Movement type outside the visor's standing and crouching entry paths.</summary>
         Disallowed,
+        /// <summary>Uses the standing right or left visor pose.</summary>
         Standing,
+        /// <summary>Uses the crouching right or left visor pose.</summary>
         Crouching,
     }
 }

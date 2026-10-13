@@ -301,6 +301,7 @@ public sealed class BackgroundScrollState
         return requests;
     }
 
+    /// <summary>Applies BG1 offsets and derives each BG2 axis from its scroll mode, preserving fixed-mode registers.</summary>
     private void CalculateGameplayScrolls()
     {
         Bg1Scroll = Layer1Position + Bg1Offset;
@@ -320,12 +321,14 @@ public sealed class BackgroundScrollState
         }
     }
 
+    /// <summary>Recomputes PPU scroll mirrors from existing layer positions without changing BG2 parallax state.</summary>
     private void CalculateScrollRegisters()
     {
         Bg1Scroll = Layer1Position + Bg1Offset;
         Bg2Scroll = Layer2Position + Bg2Offset;
     }
 
+    /// <summary>Primes the row and column crossing detector with the current source blocks.</summary>
     private void CopyCurrentBlocksToPrevious()
     {
         PreviousLayer1Block = Layer1Block;
@@ -340,6 +343,7 @@ public sealed class BackgroundScrollState
         PreviousLayer2Block += bias;
     }
 
+    /// <summary>Emits up to four newly exposed level or background strips when 16-pixel boundaries are crossed.</summary>
     private List<BackgroundUpdateRequest> CalculateBlocksAndUpdates()
     {
         CalculateBlockCoordinates();
@@ -409,6 +413,7 @@ public sealed class BackgroundScrollState
         Layer2Block = Layer2Position.ToSourceBlocks();
     }
 
+    /// <summary>Copies, freezes, or parallax-scales one layer-two axis using the room header's native mode byte.</summary>
     private static bool TryCalculateLayer2Position(ushort layer1Position, byte scrollMode, out ushort result)
     {
         if (scrollMode == 1)
@@ -431,6 +436,7 @@ public sealed class BackgroundScrollState
         return true;
     }
 
+    /// <summary>Interprets wrapped source-block subtraction as a signed 16-bit movement direction.</summary>
     private static int SignedDifference(ushort left, ushort right) => unchecked((short)(left - right));
 }
 

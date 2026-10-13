@@ -18,6 +18,7 @@ using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Confirms the SpaceTime beam's saved progression corruption and graphics against bounded retail probes.</summary>
 internal static class SpacetimeBeamVerification
 {
     /// <summary>
@@ -158,6 +159,7 @@ internal static class SpacetimeBeamVerification
             "equipment retention and SRAM persistence match the retail probe.");
     }
 
+    /// <summary>Checks each byte in the bounded copy source against the supported ROM before replaying the beam.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the bounded SpaceTime copy-source definition")]
     private static void VerifySpacetimeCopySourceAgainstRetailRom(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -196,6 +198,7 @@ internal static class SpacetimeBeamVerification
             bus.WriteByte(SaveRamLayout.ProgressionPaddingWramAddress + index, value);
     }
 
+    /// <summary>Copies a live progression-mirror table for bytewise comparison with the saved snapshot.</summary>
     private static byte[] ReadTable(WorkRamByteTable table)
     {
         var bytes = new byte[table.Length];
@@ -203,6 +206,7 @@ internal static class SpacetimeBeamVerification
         return bytes;
     }
 
+    /// <summary>Loads a SpaceTime-equipped save through both opening paths and checks Ceres restart inventory and progression.</summary>
     private static void VerifySpacetimeSaveRestartFrontend()
     {
         SuperMetroidSaveSnapshot CreateResetSnapshot()
@@ -303,6 +307,7 @@ internal static class SpacetimeBeamVerification
             AssertTrue(predicate(), context);
         }
     }
+    /// <summary>Checks direct and queued beam uploads while the aliased WRAM palette changes between runs.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: the SpaceTime palette pointer $90:19FF reads live enemy-projectile WRAM at $7E:19FF")]
     private static void VerifySpacetimeBeamGraphics()
@@ -349,7 +354,7 @@ internal static class SpacetimeBeamVerification
         return tiles;
     }
 
-    // No cartridge byte is readable while the production projectile path executes.
+    /// <summary>Forbids cartridge-byte reads during the production projectile path while allowing mutable bus memory.</summary>
     private static MutableCartridgeReadGuard NewSpacetimeMutableOnlyBus(SuperMetroidAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -358,6 +363,7 @@ internal static class SpacetimeBeamVerification
         return guard;
     }
 
+    /// <summary>Runs the SpaceTime beam and production magic-number checks from the verification command line.</summary>
     [VerificationCommand("--spacetime-beam")]
     internal static int SpacetimeBeamCommand()
     {

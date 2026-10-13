@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(BombTorizoStatueInstructionProgramDefinitions))]
 internal abstract class BombTorizoStatueInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Drawing operands across the Bomb Torizo statue's indexed projectile programs.</summary>
     public static int PresentationWordCount => BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates a statue projectile drawing operand for the dependency audit.</summary>
     public static ushort PresentationWordAddress(int index) => BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Each statue program contributes six timing, sound, callback, or delete words.</summary>
     public static int MechanicsWordCount => BombTorizoStatueInstructionProgramDefinitions.ProgramCount * 6;
+    /// <summary>Reads one of the six compiled words in the indexed statue program.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -29,6 +33,7 @@ internal abstract class BombTorizoStatueInstructionProgramDefinitionsTooling : I
         ushort address = (ushort)(program + offset);
         return new(address, BombTorizoStatueInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Accepts either byte of a statue projectile mechanics word in the projectile bank.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;
@@ -36,6 +41,7 @@ internal abstract class BombTorizoStatueInstructionProgramDefinitionsTooling : I
         return IsMechanicsWordStart(bankAddress) ||
             IsMechanicsWordStart(unchecked((ushort)(bankAddress - 1)));
     }
+    /// <summary>Checks the six mechanics offsets after resolving a statue program's base.</summary>
     internal static bool IsMechanicsWordStart(ushort address) =>
         BombTorizoStatueInstructionProgramDefinitions.TryDecodeProgramOffset(address, out _, out int offset) &&
         offset is 0 or 4 or 7 or 9 or 11 or 15;

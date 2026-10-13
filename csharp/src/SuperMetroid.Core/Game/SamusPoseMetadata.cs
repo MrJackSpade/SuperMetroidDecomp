@@ -8,8 +8,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Reads of the cartridge pose tables for Samus: collision radii, facing and movement kind, and the per-pose metadata the movement handlers consult, including the bomb-jump direction publication.</summary>
 internal sealed class SamusPoseMetadata
 {
+    /// <summary>Live Samus state receiving radii, pose changes, and transition publications.</summary>
     private readonly SamusState _samus;
 
+    /// <summary>Binds pose-table interpretation to one Samus state instance.</summary>
     internal SamusPoseMetadata(SamusState owner)
     {
         _samus = owner;

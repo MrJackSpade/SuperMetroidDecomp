@@ -13,27 +13,41 @@ namespace SuperMetroid.Core.Audio;
 /// </remarks>
 public sealed class CartridgeAudioState
 {
+    /// <summary>Commands awaiting bank-80 music dispatch in the native circular queue.</summary>
     private readonly MusicCommand[] _musicEntries =
         new MusicCommand[AudioRomData.Queues.MusicCapacity];
+    /// <summary>Per-entry frame delays paired with queued music commands.</summary>
     private readonly MusicCommandDelay[] _musicDelays =
         new MusicCommandDelay[AudioRomData.Queues.MusicCapacity];
+    /// <summary>Three independent unread SFX rings, one per SPC sound library.</summary>
     private readonly byte[,] _soundQueues = new byte[
         AudioRomData.Queues.SoundLibraryCount,
         AudioRomData.Queues.SoundCapacity];
+    /// <summary>Next unread position in each library's SFX ring.</summary>
     private readonly byte[] _soundReadPositions =
         new byte[AudioRomData.Queues.SoundLibraryCount];
+    /// <summary>Next insertion position in each library's SFX ring.</summary>
     private readonly byte[] _soundWritePositions =
         new byte[AudioRomData.Queues.SoundLibraryCount];
+    /// <summary>Per-library port handshake phase, from request through zero acknowledgement.</summary>
     private readonly byte[] _soundStates = new byte[AudioRomData.Queues.SoundLibraryCount];
+    /// <summary>Request byte currently awaiting each SPC library's acknowledgement.</summary>
     private readonly byte[] _currentSounds = new byte[AudioRomData.Queues.SoundLibraryCount];
+    /// <summary>Two-frame hold before a recognized SFX request is cleared from the APU port.</summary>
     private readonly byte[] _soundClearDelays =
         new byte[AudioRomData.Queues.SoundLibraryCount];
+    /// <summary>Reset and upload port commands deferred until the next audio frame.</summary>
     private readonly List<CartridgeAudioCommand> _pendingImmediateCommands = [];
 
+    /// <summary>Index of the music entry being retired or fetched by bank-80 dispatch.</summary>
     private byte _musicReadPosition;
+    /// <summary>Insertion index for the circular delayed-music command queue.</summary>
     private byte _musicWritePosition;
+    /// <summary>Native music delay countdown, including its active-timer bit behavior.</summary>
     private ushort _musicTimer;
+    /// <summary>Music command currently awaiting delay expiry and APU dispatch.</summary>
     private MusicCommand _musicEntry;
+    /// <summary>Frames for which a music change forces all SFX ports to zero.</summary>
     private byte _soundHandlerDowntime;
 
     /// <summary>Creates empty native music/SFX queues and zeroed acknowledgement state, scheduling the common audio-bank upload and reset port writes for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
@@ -288,6 +302,7 @@ public sealed class CartridgeAudioState
         return commands.Count == 0 ? Array.Empty<CartridgeAudioCommand>() : commands.ToArray();
     }
 
+    /// <summary>Enqueues a delayed music command, optionally dropping it when the native ring has no free slot.</summary>
     private void QueueMusic(
         MusicCommand command,
         MusicCommandDelay delay,
@@ -309,6 +324,7 @@ public sealed class CartridgeAudioState
         _musicWritePosition = next;
     }
 
+    /// <summary>Advances the bank-80 timer and emits either a data upload or music port write at expiry.</summary>
     private void HandleMusicQueue(List<CartridgeAudioCommand> commands)
     {
         bool timerExpired = _musicTimer-- == 1;
@@ -352,6 +368,7 @@ public sealed class CartridgeAudioState
         _musicTimer = _musicDelays[_musicReadPosition].Frames;
     }
 
+    /// <summary>Retires the processed music command and its delay before fetching the next entry.</summary>
     private void ClearAndAdvanceMusicEntry()
     {
         _musicEntries[_musicReadPosition] = default;
@@ -360,6 +377,7 @@ public sealed class CartridgeAudioState
             (_musicReadPosition + 1) & AudioRomData.Queues.MusicIndexMask));
     }
 
+    /// <summary>Either clears all three SFX ports during music downtime or advances their independent handshakes.</summary>
     private void HandleSoundEffects(
         CartridgeAudioAcknowledgements acknowledgements,
         List<CartridgeAudioCommand> commands)
@@ -385,6 +403,7 @@ public sealed class CartridgeAudioState
                 commands);
     }
 
+    /// <summary>Performs request, echo, clear-delay, and zero-echo phases for one SPC sound library.</summary>
     private void HandleSoundEffectQueue(
         int queue,
         byte acknowledgement,
@@ -439,6 +458,7 @@ public sealed class CartridgeAudioState
         }
     }
 
+    /// <summary>Dequeues one unread SFX request, writes its port, and enters the acknowledgement phase.</summary>
     private void SendNextSound(int queue, List<CartridgeAudioCommand> commands)
     {
         if (_soundReadPositions[queue] == _soundWritePositions[queue])

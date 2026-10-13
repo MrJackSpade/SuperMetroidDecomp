@@ -9,12 +9,18 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyDeathsAndDrops
 {
+    /// <summary>Tracks the room's cumulative enemy-kill count.</summary>
     private readonly EnemyRoomStatus _roomStatus;
+    /// <summary>Allocates death explosions and direct item-drop projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Supplies RNG and enemy header definitions for drop selection.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Finds a retained enemy slot when a death actor executes respawn.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Reinitializes a respawned enemy from its saved population record.</summary>
     private readonly IEnemyDispatch _dispatch;
 
+    /// <summary>Connects death animation, pickup, and respawn processing to the room systems.</summary>
     internal EnemyDeathsAndDrops(EnemyRoomStatus roomStatus, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemySlotTable slotTable, IEnemyDispatch dispatch)
     {
         _roomStatus = roomStatus;
@@ -23,15 +29,21 @@ internal sealed class EnemyDeathsAndDrops
         _slotTable = slotTable;
         _dispatch = dispatch;
     }
+    /// <summary>Bank-$86 callback that checks pickup lifetime, Grapple, and Samus contact.</summary>
     private const ushort EnemyPickupPreInstruction =
         (ushort)EnemyProjectilePreInstruction.Pickup;
+    /// <summary>Frames a newly spawned enemy pickup remains collectible.</summary>
     private const ushort EnemyPickupLifetime = 400;
+    /// <summary>Initial pickup frames during which a Grapple endpoint cannot collect it.</summary>
     private const ushort EnemyPickupGrappleDelay = 16;
 
 
-    // $7E:0E1E is intentionally stateful in the 30..49 energy grace band. Starting false
-    // matches cleared WRAM; room transitions do not reset it on the cartridge.
+    /// <summary>
+    /// WRAM $7E:0E1E biases drops in the 30..49 energy grace band; room transitions
+    /// retain it, and false is the cartridge's cleared initial value.
+    /// </summary>
     private bool _criticalEnergyDropBias;
+    /// <summary>Live Samus owner needed when a dying grappled enemy drops the beam.</summary>
     internal SamusState? _samusForEnemyDrops;
 
     /// <summary>Last library-two sound requested by a collected enemy pickup this frame.</summary>
@@ -105,11 +117,13 @@ internal sealed class EnemyDeathsAndDrops
         _roomStatus.EnemiesKilled = unchecked((ushort)(_roomStatus.EnemiesKilled + 1));
     }
 
+    /// <summary>Publishes the dying enemy's respawn property bit into the shared scratch word.</summary>
     internal static ushort RespawnScratchWord(RoomEnemySlot enemy) =>
         enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled)
             ? (ushort)EnemyProperties.RespawnIfKilled
             : (ushort)0;
 
+    /// <summary>Keeps a killed respawning slot occupied by replacing its header with the respawn placeholder.</summary>
     internal void InstallRespawnPlaceholder(RoomEnemySlot enemy)
     {
         // The cartridge reads the header through the new pointer on every dispatch.
@@ -119,6 +133,7 @@ internal sealed class EnemyDeathsAndDrops
         enemy.AiBank = enemy.Definition.Bank;
     }
 
+    /// <summary>Chooses header death art, upgrading a small explosion for Super Missile kills.</summary>
     internal static ushort SelectNormalShotDeathAnimation(
         RoomEnemySlot enemy,
         ushort projectileType,
@@ -160,6 +175,7 @@ internal sealed class EnemyDeathsAndDrops
         }
     }
 
+    /// <summary>Scatters drops within a 32-pixel square around a defeated actor.</summary>
     internal void SpawnEnemyDropScatterAround(
         EnemyDefinitionId enemyHeaderPointer,
         int count,
@@ -224,6 +240,7 @@ internal sealed class EnemyDeathsAndDrops
         return pickup;
     }
 
+    /// <summary>Rolls a direct drop and either starts its pickup list or the no-drop tail.</summary>
     private void InitializeDirectEnemyPickup(RoomEnemyProjectileSlot pickup)
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(pickup);
@@ -259,6 +276,7 @@ internal sealed class EnemyDeathsAndDrops
         BeginEnemyPickup(projectile, kind);
     }
 
+    /// <summary>Installs the selected pickup's animation, 400-frame life, and collision callback.</summary>
     internal static void BeginEnemyPickup(
         RoomEnemyProjectileSlot projectile,
         EnemyPickupKind kind)
@@ -275,6 +293,7 @@ internal sealed class EnemyDeathsAndDrops
         projectile.PersistsOnSamusContact = false;
     }
 
+    /// <summary>Switches a consumed or rejected drop to the blank, non-interactive deletion tail.</summary>
     private static void MakeEnemyPickupDormant(RoomEnemyProjectileSlot projectile)
     {
         // The blank map lasts 64 frames before $EF10 handles a retained respawning enemy
@@ -401,6 +420,7 @@ internal sealed class EnemyDeathsAndDrops
         return EnemyPickupKind.NoDrop;
     }
 
+    /// <summary>Uses an explicit boss chance table, a saved enemy header, or the cleared-header overread table.</summary>
     private ushort ResolveEnemyDropChancesPointer(RoomEnemyProjectileSlot projectile)
     {
         if (projectile.ItemDropChancesPointerOverride != 0)
@@ -410,6 +430,7 @@ internal sealed class EnemyDeathsAndDrops
         return EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.Bus!, projectile.EnemyHeaderPointer).ItemDropChancesPointer;
     }
 
+    /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>
     internal void RunEnemyPickupPreInstruction(
         RoomEnemyProjectileSlot projectile,
         SamusState? samus)
@@ -448,6 +469,7 @@ internal sealed class EnemyDeathsAndDrops
         CollectEnemyPickup(projectile, samus);
     }
 
+    /// <summary>Applies health or ammo from a touched pickup, publishes its sound, and makes it dormant.</summary>
     private void CollectEnemyPickup(
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
@@ -485,6 +507,7 @@ internal sealed class EnemyDeathsAndDrops
         MakeEnemyPickupDormant(projectile);
     }
 
+    /// <summary>Fills health first, spilling excess into capped reserves and enabling reserve auto mode.</summary>
     private static void RestoreEnemyDropEnergy(SamusState samus, ushort amount)
     {
         ushort restored = unchecked((ushort)(samus.Health + amount));
@@ -502,6 +525,7 @@ internal sealed class EnemyDeathsAndDrops
         samus.Health = samus.MaxHealth;
     }
 
+    /// <summary>Fills missiles first, spilling excess into reserves capped by inventory and 99.</summary>
     private static void RestoreEnemyDropMissiles(SamusState samus, ushort amount)
     {
         ushort restored = unchecked((ushort)(samus.Missiles + amount));
@@ -519,6 +543,7 @@ internal sealed class EnemyDeathsAndDrops
         samus.Missiles = samus.MaxMissiles;
     }
 
+    /// <summary>Adds a Super Missile and clamps it to the owned maximum.</summary>
     private static void RestoreEnemyDropSuperMissiles(SamusState samus, ushort amount)
     {
         ushort restored = unchecked((ushort)(samus.SuperMissiles + amount));
@@ -530,6 +555,7 @@ internal sealed class EnemyDeathsAndDrops
         }
     }
 
+    /// <summary>Adds a Power Bomb and clamps it to the owned maximum.</summary>
     private static void RestoreEnemyDropPowerBombs(SamusState samus, ushort amount)
     {
         ushort restored = unchecked((ushort)(samus.PowerBombs + amount));
@@ -541,6 +567,7 @@ internal sealed class EnemyDeathsAndDrops
         }
     }
 
+    /// <summary>Measures the absolute distance between native 16-bit coordinates.</summary>
     private static int AbsoluteWrappedDelta(ushort left, ushort right) =>
         Math.Abs((int)unchecked((short)(left - right)));
 
@@ -578,6 +605,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
 
+    /// <summary>Connects pickup lifetime and contact handling to the projectile engine.</summary>
     internal void RegisterPickupPreInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -588,6 +616,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
 
+    /// <summary>Registers death sounds, explosion-to-pickup conversion, and retained-enemy respawn opcodes.</summary>
     internal void RegisterDeathExplosionInstructions(EnemyProjectileHandlerTable table)
     {
         table.RegisterInstruction(EnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX, null,

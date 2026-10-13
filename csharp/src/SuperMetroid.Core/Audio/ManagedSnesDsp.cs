@@ -16,33 +16,58 @@ public sealed class ManagedSnesDsp
     /// <summary>Number of independent hardware S-DSP voices.</summary>
     public const int VoiceCount = 8;
 
+    /// <summary>Shared 64-KiB audio RAM holding BRR directories and the echo ring.</summary>
     private readonly byte[] apuRam;
+    /// <summary>Mirrored DSP registers, including values published by each sample cycle.</summary>
     private readonly byte[] registers = new byte[SnesDspRegisterMap.RegisterFileSize];
+    /// <summary>Eight independent pitch, envelope, and PCM windows mixed each cycle.</summary>
     private readonly Voice[] voices = Enumerable.Range(0, VoiceCount)
         .Select(_ => new Voice())
         .ToArray();
+    /// <summary>One gameplay update's interleaved native-rate stereo output.</summary>
     private readonly short[] sampleBuffer = new short[NativeStereoFramesPerVideoFrame * 2];
+    /// <summary>Eight signed FIR coefficients written through the voice-spaced DSP registers.</summary>
     private readonly sbyte[] firValues = new sbyte[8];
+    /// <summary>Recent left echo samples addressed by the FIR ring cursor.</summary>
     private readonly short[] firBufferLeft = new short[8];
+    /// <summary>Recent right echo samples addressed by the FIR ring cursor.</summary>
     private readonly short[] firBufferRight = new short[8];
 
+    /// <summary>Replaceable decoded PCM selected by key-on and loop directory reads.</summary>
     private ManagedPcmSampleBank? sampleBank;
+    /// <summary>FLG mute bit applied after voice and echo mixing.</summary>
     private bool mute;
+    /// <summary>FLG reset bit forcing voice envelopes into release.</summary>
     private bool reset;
+    /// <summary>Signed master gain for the left dry mix.</summary>
     private sbyte masterVolumeLeft;
+    /// <summary>Signed master gain for the right dry mix.</summary>
     private sbyte masterVolumeRight;
+    /// <summary>Current signed sample from the noise shift register.</summary>
     private short noiseSample;
+    /// <summary>Noise clock period selected by FLG.</summary>
     private ushort noiseRate;
+    /// <summary>Cycles elapsed toward the next noise shift-register step.</summary>
     private ushort noiseCounter;
+    /// <summary>Whether echo feedback may be written into APU RAM.</summary>
     private bool echoWrites;
+    /// <summary>Left filtered echo gain added to the final mix.</summary>
     private sbyte echoVolumeLeft;
+    /// <summary>Right filtered echo gain added to the final mix.</summary>
     private sbyte echoVolumeRight;
+    /// <summary>Gain applied when feeding filtered echo back into RAM.</summary>
     private sbyte feedbackVolume;
+    /// <summary>Echo buffer base address from the DSP ESA register.</summary>
     private ushort echoBufferAddress;
+    /// <summary>Number of stereo echo words in the configured delay loop.</summary>
     private ushort echoDelay;
+    /// <summary>Echo positions remaining before the ring returns to its base.</summary>
     private ushort echoRemaining;
+    /// <summary>Current stereo word offset within the echo buffer.</summary>
     private ushort echoBufferIndex;
+    /// <summary>Current position in the eight-tap FIR history ring.</summary>
     private byte firBufferIndex;
+    /// <summary>Native stereo frames currently written to the gameplay output buffer.</summary>
     private ushort sampleOffset;
 
     /// <summary>Creates a reset DSP bound to the supplied complete 64-KiB APU RAM image.</summary>
@@ -277,6 +302,7 @@ public sealed class ManagedSnesDsp
         sampleOffset = 0;
     }
 
+    /// <summary>Starts a PCM source at its beginning and resets the selected voice envelope.</summary>
     private void KeyOn(Voice voice)
     {
         ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException(
@@ -290,6 +316,7 @@ public sealed class ManagedSnesDsp
         voice.AdsrState = voice.UseGain ? EnvelopeState.Gain : EnvelopeState.Attack;
     }
 
+    /// <summary>Advances one voice's pitch, decoded window, interpolation, and envelope output.</summary>
     private void CycleVoice(int index)
     {
         Voice voice = voices[index];
@@ -352,6 +379,7 @@ public sealed class ManagedSnesDsp
         voice.SampleOutput = sample;
     }
 
+    /// <summary>Applies one attack, decay, sustain, gain-mode, or release envelope step.</summary>
     private static void HandleGain(Voice voice)
     {
         switch (voice.AdsrState)
@@ -407,6 +435,7 @@ public sealed class ManagedSnesDsp
         }
     }
 
+    /// <summary>Interpolates four neighboring PCM samples with the native Gaussian tap table.</summary>
     private static short GetInterpolatedSample(Voice voice, int sampleNumber, int offset)
     {
         var taps = SnesDspTables.GaussianCoefficients(offset);
@@ -418,6 +447,7 @@ public sealed class ManagedSnesDsp
         return unchecked((short)(Clamp16(output) >> 1));
     }
 
+    /// <summary>Refills a voice's PCM window and follows live loop-directory changes at BRR end.</summary>
     private void DecodePcm(int voiceIndex)
     {
         Voice voice = voices[voiceIndex];
@@ -485,6 +515,7 @@ public sealed class ManagedSnesDsp
             voice.PreviousFlags = sample.LoopSampleIndex.HasValue ? (byte)3 : (byte)1;
     }
 
+    /// <summary>Reads a source's loop pointer from the live BRR directory in audio RAM.</summary>
     [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM sample directory loop pointers")]
     private ushort ReadLoopAddress(byte source)
     {
@@ -511,6 +542,7 @@ public sealed class ManagedSnesDsp
         voice.ReleasedBrrCursor = unchecked((ushort)(cursor + DspBrrLayout.BlockBytes));
     }
 
+    /// <summary>Advances the noise shift register at the configured DSP clock period.</summary>
     private void HandleNoise()
     {
         if (noiseRate != 0)
@@ -523,6 +555,7 @@ public sealed class ManagedSnesDsp
         noiseCounter = 0;
     }
 
+    /// <summary>Filters echo history, mixes it into both channels, and optionally writes feedback to RAM.</summary>
     private void HandleEcho(ref int outputLeft, ref int outputRight)
     {
         ushort address = unchecked((ushort)(echoBufferAddress + echoBufferIndex * 4));
@@ -575,49 +608,83 @@ public sealed class ManagedSnesDsp
         }
     }
 
+    /// <summary>Reads a wrapped little-endian DSP word from shared audio RAM.</summary>
     [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM BRR directory and echo-buffer words")]
     private ushort ReadWord(int address) => SpcRamWords.Read(apuRam, address);
 
+    /// <summary>Writes a wrapped little-endian echo word into shared audio RAM.</summary>
     [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM echo-buffer samples")]
     private void WriteWord(int address, ushort value) => SpcRamWords.Write(apuRam, address, value);
 
+    /// <summary>Clamps an intermediate mix or echo sum to signed 16-bit amplitude.</summary>
     private static int Clamp16(int value) => Math.Clamp(value, short.MinValue, short.MaxValue);
 
+    /// <summary>The S-DSP envelope phases selected by ADSR, gain mode, and key-off.</summary>
     private enum EnvelopeState : byte
     {
+        /// <summary>Raises gain after a key-on until the decay threshold.</summary>
         Attack,
+        /// <summary>Reduces gain toward the configured sustain level.</summary>
         Decay,
+        /// <summary>Continues timed exponential reduction at the sustain rate.</summary>
         Sustain,
+        /// <summary>Uses the direct or stepped GAIN register behavior.</summary>
         Gain,
+        /// <summary>Reduces gain by eight on every sample cycle after key-off.</summary>
         Release,
     }
 
+    /// <summary>One hardware voice's interpolation window, pitch, envelope, and routing state.</summary>
     private sealed class Voice
     {
+        /// <summary>Fourteen-bit playback pitch written through the two voice registers.</summary>
         public ushort Pitch;
+        /// <summary>Fractional sample cursor advanced by scaled pitch each DSP cycle.</summary>
         public ushort PitchCounter;
+        /// <summary>Whether the preceding voice's output modulates this pitch.</summary>
         public bool PitchModulation;
+        /// <summary>Three retained samples plus the next sixteen-sample interpolation window.</summary>
         public short[] DecodeBuffer { get; } = new short[19];
+        /// <summary>Live BRR directory source number used at key-on and loop boundaries.</summary>
         public byte SourceNumber;
+        /// <summary>Decoded PCM source currently bound to this voice.</summary>
         public ManagedPcmSample? Sample;
+        /// <summary>Next sample index within the bound PCM source.</summary>
         public int SampleCursor;
+        /// <summary>Previous BRR END and LOOP flags used when the next window starts.</summary>
         public byte PreviousFlags;
+        /// <summary>BRR header cursor for a silent released voice whose PCM mapping vanished.</summary>
         public ushort? ReleasedBrrCursor;
+        /// <summary>Routes the shared noise sample into this voice instead of PCM.</summary>
         public bool UseNoise;
+        /// <summary>Rate periods for attack, decay, sustain, and gain modes.</summary>
         public ushort[] AdsrRates { get; } = new ushort[4];
+        /// <summary>Cycles accumulated toward the next non-release envelope step.</summary>
         public ushort RateCounter;
+        /// <summary>Current attack, decay, sustain, gain, or release phase.</summary>
         public EnvelopeState AdsrState;
+        /// <summary>Gain threshold at which decay changes to sustain.</summary>
         public ushort SustainLevel;
+        /// <summary>Selects GAIN behavior instead of ADSR rates.</summary>
         public bool UseGain;
+        /// <summary>Stepped GAIN mode selected by the GAIN register.</summary>
         public byte GainMode;
+        /// <summary>Applies a constant gain immediately instead of using a rate counter.</summary>
         public bool DirectGain;
+        /// <summary>Constant envelope level selected by direct GAIN mode.</summary>
         public ushort GainValue;
+        /// <summary>Current eleven-bit envelope amplitude.</summary>
         public ushort Gain;
+        /// <summary>Interpolated sample after envelope scaling, used for mixing and pitch modulation.</summary>
         public short SampleOutput;
+        /// <summary>Signed left-channel voice volume.</summary>
         public sbyte VolumeLeft;
+        /// <summary>Signed right-channel voice volume.</summary>
         public sbyte VolumeRight;
+        /// <summary>Includes this voice in the shared echo input.</summary>
         public bool EchoEnable;
 
+        /// <summary>Clears all voice registers, PCM cursors, and envelope state for DSP reset.</summary>
         public void Reset()
         {
             Pitch = PitchCounter = 0;

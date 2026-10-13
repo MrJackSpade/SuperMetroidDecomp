@@ -16,6 +16,7 @@ using System.Text.Json;
 using static FullRunSuitesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Runs registered verification suites serially or through isolated worker processes.</summary>
 internal static class SuiteSchedulingVerification
 {
     /// <summary>
@@ -145,6 +146,7 @@ internal static class SuiteSchedulingVerification
         return 0;
     }
 
+    /// <summary>Executes requested suite indices and emits one JSON result per input line.</summary>
     private static void RunWorkerSuites(RegisteredSuite[] suites, TextWriter protocol, StringWriter output, StringWriter error)
     {
         while (Console.In.ReadLine() is { } line)
@@ -176,12 +178,14 @@ internal static class SuiteSchedulingVerification
         }).ToArray();
     }
 
+    /// <summary>Loads prior suite timing hints used only to order the worker queue.</summary>
     private static Dictionary<string, double> ReadSuiteDurations() =>
         File.Exists(SuiteDurationsPath)
             ? JsonSerializer.Deserialize<Dictionary<string, double>>(File.ReadAllText(SuiteDurationsPath))
                 ?? throw new InvalidDataException($"{SuiteDurationsPath} is empty.")
             : [];
 
+    /// <summary>Persists per-suite elapsed time hints for the next parallel run.</summary>
     private static void WriteSuiteDurations(string[] keys, double[] durations)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(SuiteDurationsPath))!);
@@ -193,9 +197,12 @@ internal static class SuiteSchedulingVerification
     /// <summary>A <c>--suite-worker</c> child process of this verifier, driven over its standard streams.</summary>
     internal sealed class SuiteWorkerProcess : IDisposable
     {
+        /// <summary>Child verifier process receiving suite indices over standard input.</summary>
         private readonly Process process;
+        /// <summary>Runtime error text emitted outside the worker's per-suite capture.</summary>
         private readonly System.Text.StringBuilder unexpectedError = new();
 
+        /// <summary>Captures unexpected child standard error without mixing it into suite protocol lines.</summary>
         private SuiteWorkerProcess(Process process)
         {
             this.process = process;
@@ -208,6 +215,7 @@ internal static class SuiteSchedulingVerification
             process.BeginErrorReadLine();
         }
 
+        /// <summary>Launches this verifier as a worker with redirected protocol streams.</summary>
         internal static SuiteWorkerProcess Start()
         {
             string host = Environment.ProcessPath ?? throw new InvalidOperationException("The verifier's host executable path is unknown.");
@@ -241,6 +249,7 @@ internal static class SuiteSchedulingVerification
             return report;
         }
 
+        /// <summary>Waits for an unreported worker exit and returns its code and unexpected error text.</summary>
         internal string DescribeExit()
         {
             process.WaitForExit();
@@ -249,6 +258,7 @@ internal static class SuiteSchedulingVerification
                     (unexpectedError.Length == 0 ? "" : Environment.NewLine + unexpectedError);
         }
 
+        /// <summary>Closes worker input, waits for a live child, and releases its process handle.</summary>
         public void Dispose()
         {
             if (!process.HasExited)
@@ -260,6 +270,7 @@ internal static class SuiteSchedulingVerification
         }
     }
 
+    /// <summary>Runs the render-contract suites in registry order.</summary>
     [VerificationCommand("--render-contract")]
     internal static int RenderContractCommand()
     {
@@ -281,6 +292,7 @@ internal static class SuiteSchedulingVerification
     [VerificationCommand("--suite-worker")]
     internal static int SuiteWorkerCommand() => RunSuiteWorker(FullRunSuites());
 
+    /// <summary>Runs every registered suite with the requested serial or worker-process scheduler.</summary>
     private static int RunFullSuite(bool serial)
     {
         Console.WriteLine("Verifying translated Super Metroid routines...");

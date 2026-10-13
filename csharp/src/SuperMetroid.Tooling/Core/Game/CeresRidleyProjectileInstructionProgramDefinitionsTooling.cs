@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(CeresRidleyProjectileInstructionProgramDefinitions))]
 internal abstract class CeresRidleyProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>The drawing operands across Ceres Ridley's fireball, afterburn, and spawn lists.</summary>
     public static int PresentationWordCount => CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates a drawing operand in the projectile program catalog.</summary>
     public static ushort PresentationWordAddress(int index) => CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
-    // Each draw occupies a duration word and a presentation operand. Spawning
-    // programs insert their callback immediately after the first draw.
+    /// <summary>
+    /// Forty-two timing and control words across the projectile lists; spawn programs
+    /// place a callback immediately after their first drawing instruction.
+    /// </summary>
     public static int MechanicsWordCount => 42;
+    /// <summary>Reads a compiled word from the fireball, afterburn, or one of three spawn lists.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -49,6 +54,7 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitionsToolin
         }
         return new((ushort)address, CeresRidleyProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)address));
     }
+    /// <summary>Recognizes either byte of a compiled projectile instruction in the enemy projectile bank.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

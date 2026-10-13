@@ -118,6 +118,7 @@ public static class SuperMetroidGameOptionsIni
     /// </remarks>
     public static string DefaultFileContents { get; } = ReadDefaultFile();
 
+    /// <summary>Reads the embedded release INI template that supplies startup defaults.</summary>
     private static string ReadDefaultFile()
     {
         using Stream stream = typeof(SuperMetroidGameOptionsIni).Assembly.GetManifestResourceStream(
@@ -370,6 +371,7 @@ public static class SuperMetroidGameOptionsIni
         };
     }
 
+    /// <summary>Accepts an owner/repository pair made from GitHub-safe ASCII name characters.</summary>
     private static bool IsGitHubRepositoryName(string value)
     {
         string[] components = value.Split('/');
@@ -380,6 +382,7 @@ public static class SuperMetroidGameOptionsIni
                     char.IsAsciiLetterOrDigit(character) || character is '-' or '_' or '.'));
     }
 
+    /// <summary>Parses a strict true/false setting and includes its INI location on failure.</summary>
     private static bool ParseBoolean(
         string sourceName,
         int lineNumber,
@@ -394,6 +397,7 @@ public static class SuperMetroidGameOptionsIni
             $"{key} must be either true or false, not '{value}'");
     }
 
+    /// <summary>Formats a configuration error with the source filename and one-based line number.</summary>
     private static InvalidDataException Invalid(string sourceName, int lineNumber, string reason) =>
         new($"Invalid game configuration in '{sourceName}' at line {lineNumber}: {reason}.");
 

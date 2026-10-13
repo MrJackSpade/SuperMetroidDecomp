@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>In-world collectible PLMs: item and tank setup, pickup, fanfare and the dynamic collectible graphics slots.</summary>
 internal sealed class CollectiblePlms
 {
+    /// <summary>Supplies Samus, persistence, and room-FX owners at pickup time.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Updates level blocks and queues their tilemap draws.</summary>
     private readonly PlmBlockDrawing _drawing;
+    /// <summary>Enumerates active item PLMs in native slot order.</summary>
     private readonly PlmSlotTable _slotTable;
+    /// <summary>Receives item instruction sound requests.</summary>
     private readonly PlmSoundQueue _sounds;
 
+    /// <summary>Connects permanent-item PLMs to room state, drawing, and sound services.</summary>
     internal CollectiblePlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _bindings = bindings;
@@ -19,14 +24,18 @@ internal sealed class CollectiblePlms
         _slotTable = slotTable;
         _sounds = sounds;
     }
-    // Instruction $8764 rotates through four $100-byte character allocations. Its table
-    // offsets are words into TileTable at $7E:A000 and destinations are VRAM word addresses.
+    /// <summary>First TileTable word used by instruction $8764's four dynamic character slots.</summary>
     private const int DynamicBlockDefinitionFirstWord = 0x0470 / 2;
 
+    /// <summary>Pickup events published by the current PLM handler pass.</summary>
     private readonly List<CollectiblePickupEvent> _collectiblePickupEvents = new();
+    /// <summary>Next of four $100-byte dynamic collectible character allocations.</summary>
     private int _nextCollectibleGraphicsSlot;
+    /// <summary>Most recent pickup retained across the synchronous message wait.</summary>
     private CollectiblePickupEvent? _lastCollectiblePickup;
+    /// <summary>One-shot fanfare edge independent of the retained pickup event list.</summary>
     private bool _collectibleFanfareRequested;
+    /// <summary>Delays the Speed Booster Chozo lava motion write until message return.</summary>
     private bool _pendingSpeedBoosterPickupContinuation;
 
     /// <summary>Whether the PLM handler is waiting for its synchronous pickup message.</summary>
@@ -60,6 +69,7 @@ internal sealed class CollectiblePlms
         return _drawing._tilemapUpdates;
     }
 
+    /// <summary>Applies the delayed lava-rise velocity after the Speed Booster message returns.</summary>
     private void CompleteSpeedBoosterPickupContinuation()
     {
         if (!_pendingSpeedBoosterPickupContinuation)
@@ -156,8 +166,10 @@ internal sealed class CollectiblePlms
         return false;
     }
 
+    /// <summary>Clears pickup publications at the start of a PLM handler frame.</summary>
     internal void BeginCollectibleFrame() => _collectiblePickupEvents.Clear();
 
+    /// <summary>Clears dynamic graphics allocation and pickup/message state for a new room.</summary>
     internal void ResetCollectibleState()
     {
         _collectiblePickupEvents.Clear();
@@ -248,6 +260,7 @@ internal sealed class CollectiblePlms
         return false;
     }
 
+    /// <summary>Decodes an aligned four-byte entry in one permanent-item header table.</summary>
     private static bool TryDecodeCollectibleRange(
         PlmHeaderId header,
         PlmHeaderId firstHeader,
@@ -265,6 +278,7 @@ internal sealed class CollectiblePlms
         return false;
     }
 
+    /// <summary>Uploads two animation frames to the next VRAM slot and updates live block-definition words.</summary>
     private int LoadDynamicCollectibleGraphics(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -304,6 +318,7 @@ internal sealed class CollectiblePlms
         return graphicsSlot;
     }
 
+    /// <summary>Advances one item's reveal, pickup, message wait, or shot-block respawn list.</summary>
     internal bool TryStepCollectible(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
         CollectiblePlmState? item = slot.Item;
@@ -483,13 +498,16 @@ internal sealed class CollectiblePlms
         }
     }
 
+    /// <summary>Selects the visible frame for an item's kind, animation index, and dynamic art slot.</summary>
     private static ushort GetVisibleCollectibleDraw(CollectiblePlmState item) =>
         RoomPlmCollectibleDrawDefinitions.VisibleFrame(
             item.Kind, item.AnimationIndex, item.GraphicsSlot);
 
+    /// <summary>Executes a compiled item draw instruction against the level and background streamer.</summary>
     private void DrawCollectible(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, ushort drawPointer, PlmView view) =>
         _drawing.DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, drawPointer, view);
 
+    /// <summary>Sets persistence and inventory before publishing the synchronous message and fanfare request.</summary>
     private void AcquireCollectible(PlmSlot slot)
     {
         CollectiblePlmState item = slot.Item
@@ -522,6 +540,7 @@ internal sealed class CollectiblePlms
         item.Phase = CollectiblePhase.AwaitingMessage;
     }
 
+    /// <summary>Draws the empty item after message return or begins the shot block's delayed respawn.</summary>
     private void FinishCollectiblePickup(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
         CollectiblePlmState item = slot.Item
@@ -546,6 +565,7 @@ internal sealed class CollectiblePlms
         item.Timer = 1;
     }
 
+    /// <summary>Applies tank capacity, equipment, or beam ownership, including Spazer/Plasma exclusion.</summary>
     private static void ApplyCollectibleEffect(
         SamusState samus,
         InWorldCollectibleKind kind)
@@ -613,6 +633,7 @@ internal sealed class CollectiblePlms
         }
     }
 
+    /// <summary>Maps an equipment pickup to the native bit written in equipped and collected items.</summary>
     private static ushort GetEquipmentMask(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.Bombs => (ushort)SamusEquipmentFlags.Bombs,
@@ -629,6 +650,7 @@ internal sealed class CollectiblePlms
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not an equipment collectible."),
     };
 
+    /// <summary>Maps a beam pickup to its native bit for collected and equipped beams.</summary>
     private static ushort GetBeamMask(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.ChargeBeam => (ushort)SamusBeamFlags.Charge,
@@ -639,6 +661,7 @@ internal sealed class CollectiblePlms
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
     };
 
+    /// <summary>Selects the bank-$85 message shown synchronously after a permanent pickup.</summary>
     private static GameplayMessageId GetMessageBoxIndex(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.EnergyTank => GameplayMessageIds.EnergyTank,
@@ -665,21 +688,32 @@ internal sealed class CollectiblePlms
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
+    /// <summary>Tracks one physical item's presentation, graphics allocation, and instruction phase.</summary>
     internal sealed class CollectiblePlmState(
         InWorldCollectibleKind kind,
         CollectiblePresentation presentation,
         int graphicsSlot,
         CollectiblePhase phase)
     {
+        /// <summary>Inventory or capacity item granted when this PLM is acquired.</summary>
         public InWorldCollectibleKind Kind { get; } = kind;
+        /// <summary>Exposed, Chozo orb, or shot-block reveal behavior.</summary>
         public CollectiblePresentation Presentation { get; } = presentation;
+        /// <summary>Dynamic character slot used by equipment and beam item art.</summary>
         public int GraphicsSlot { get; } = graphicsSlot;
+        /// <summary>Current reveal, visible, message, empty, or respawn instruction phase.</summary>
         public CollectiblePhase Phase { get; set; } = phase;
+        /// <summary>Frames remaining in the current item instruction hold.</summary>
         public int Timer { get; set; }
+        /// <summary>Current visible or respawn animation frame index.</summary>
         public int AnimationIndex { get; set; }
+        /// <summary>Remaining paired visible frames in the item's animation loop.</summary>
         public int VisibleFramePairsRemaining { get; set; }
+        /// <summary>Contact or projectile reaction pending for the next PLM handler pass.</summary>
         public bool Triggered { get; set; }
+        /// <summary>Distinguishes a previously acquired concealed item during its reveal list.</summary>
         public bool WasCollectedBeforeReveal { get; set; }
+        /// <summary>Projectile family that last activated an orb or concealed block, retained for diagnostics.</summary>
         public SamusProjectileTypeWord LastTriggerProjectileType { get; set; }
     }
 }

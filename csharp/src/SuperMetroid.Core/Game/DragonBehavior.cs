@@ -4,10 +4,14 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Dragon species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class DragonBehavior : IEnemySpecies
 {
+    /// <summary>Allocates Dragon's three-shot fireball volleys from the room projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Resolves the cosmetic wing in the physical enemy slot following its body.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Performs common Samus touch resolution before Dragon's body and wing synchronization.</summary>
     private readonly EnemyCollision _collision;
 
+    /// <summary>Connects Dragon body AI, paired-wing state, and fireball spawning to room systems.</summary>
     internal DragonBehavior(EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision)
     {
         _projectiles = projectiles;
@@ -35,20 +39,30 @@ internal sealed class DragonBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Frames spent in each body rise or sink movement phase.</summary>
     private const ushort DragonRiseOrSinkFrames = 0x0030;
+    /// <summary>Fireballs requested by one attacking volley.</summary>
     private const ushort DragonShotCount = 3;
+    /// <summary>Pause after attack completion before the body begins sinking.</summary>
     private const ushort DragonWaitBeforeSinkFrames = 0x0060;
+    /// <summary>Pause beneath the platform before the next rise attempt.</summary>
     private const ushort DragonWaitBeforeRiseFrames = 0x0080;
+    /// <summary>Library-two cue published by a Dragon fireball volley.</summary>
     private const ushort DragonFireballSound = 0x0061;
 
+    /// <summary>Per-slot animation lists requested by Dragon AI before the instruction owner installs them.</summary>
     private readonly ushort[] _dragonRequestedInstructionLists = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Per-slot animation lists currently installed in the common enemy interpreter.</summary>
     private readonly ushort[] _dragonInstalledInstructionLists = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Per-slot callback flags signaling completion of Dragon's attack animation.</summary>
     private readonly ushort[] _dragonAnimationFinishedFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Body and wing state indexed by their native physical enemy slots.</summary>
     internal readonly DragonEnemyState?[] _dragonStates = new DragonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Last library-two sound queued by a Dragon volley during the current frame.</summary>
     public ushort? LastDragonSoundEffect { get; private set; }
 
+    /// <summary>Clears per-slot animation requests, completion flags, species state, and the pending fireball sound on room load.</summary>
     internal void ResetDragonRoomState()
     {
         Array.Clear(_dragonRequestedInstructionLists);
@@ -269,6 +283,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         following.AiHandlerBits = actor.AiHandlerBits;
     }
 
+    /// <summary>Installs a newly requested animation list once and resets its instruction and loop timers.</summary>
     internal static void InstallDragonInstructionList(
         RoomEnemySlot slot,
         DragonEnemyState state)
@@ -282,6 +297,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Requires Dragon's authored body/wing population pair in adjacent physical slots.</summary>
     private RoomEnemySlot GetDragonWing(RoomEnemySlot body)
     {
         if (body.SlotIndex >= RoomEnemySystem.MaximumEnemyCount - 1)
@@ -297,6 +313,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         return wing;
     }
 
+    /// <summary>Attaches one Dragon slot to the shared native animation-word arrays.</summary>
     private DragonEnemyState CreateDragonState(RoomEnemySlot slot)
     {
         var state = new DragonEnemyState(
@@ -308,10 +325,12 @@ internal sealed class DragonBehavior : IEnemySpecies
         return state;
     }
 
+    /// <summary>Rejects a Dragon callback that arrives before its physical slot has initialized state.</summary>
     private DragonEnemyState RequireDragonState(RoomEnemySlot slot) =>
         _dragonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Dragon state.");
 
+    /// <summary>Applies Dragon's paired-body combat tail after the common bomb-as-shot callback.</summary>
     internal void RegisterDragonBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
@@ -321,6 +340,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Connects Dragon fireballs to their per-frame gravity and camera-boundary pre-instruction.</summary>
     internal static void RegisterDragonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -329,6 +349,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.DragonFireball);
     }
 
+    /// <summary>Registers body and wing initialization for Dragon definition slots.</summary>
     internal void RegisterDragonInitializationAi(EnemyAiTable table)
     {
 
@@ -338,6 +359,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Dispatches Dragon's wait, rise, attack, and sink phases through the species state.</summary>
     internal void RegisterDragonMainAi(EnemyAiTable table)
     {
 
@@ -347,6 +369,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Handles Dragon's private attack-finished opcode before common instruction dispatch.</summary>
     internal void RegisterDragonOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -356,6 +379,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Synchronizes wing and body state after a Dragon power-bomb reaction.</summary>
     internal void RegisterDragonPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
@@ -365,6 +389,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Synchronizes wing and body state after common projectile damage resolution.</summary>
     internal void RegisterDragonShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
@@ -374,6 +399,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Runs ordinary enemy touch damage before mirroring Dragon's hurt and freeze state into its wing.</summary>
     internal void RegisterDragonTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
@@ -384,9 +410,13 @@ internal sealed class DragonBehavior : IEnemySpecies
                 ResolveDragonCombatAfterCommon(context.Slot);
             });
     }
+    /// <summary>Native upward launch velocity of each Dragon fireball, in signed eight-eight units.</summary>
     private const ushort DragonFireballInitialYVelocity = 0xfc3f;
+    /// <summary>Native leftward eight-eight fireball velocity.</summary>
     private const ushort DragonFireballLeftXVelocity = 0xfd40;
+    /// <summary>Native rightward eight-eight fireball velocity.</summary>
     private const ushort DragonFireballRightXVelocity = 0x02c0;
+    /// <summary>Eight-eight downward acceleration applied to a live fireball.</summary>
     private const ushort DragonFireballGravity = 0x0020;
 
     /// <summary>Ports projectile initializer $86:B4EF.</summary>

@@ -16,18 +16,9 @@ internal static class SamusBodyFrameDefinitions
     internal static int NormalFrameCount => FrameExtent(SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose);
     /// <summary>$92:DD18/DD20/DD28/DD30/DD48/DD50/DEB0/DEB8: the shared jump/fall sequences contain two records; the count derives from the adjacent named allocation.</summary>
     internal static int JumpFrameCount => FrameExtent(SamusPoseId.NormalJumpAimDownRightPose, SamusPoseId.NormalJumpAimDownLeftPose);
+    /// <summary>Derives a four-byte frame-list length from adjacent native pose allocations.</summary>
     private static int FrameExtent(SamusPoseId first, SamusPoseId next) => (SamusBodyPoseDefinitions.DefaultFrameList(next) - SamusBodyPoseDefinitions.DefaultFrameList(first)) / 4;
 
-    /// <summary>
-    /// Crouching X-ray upper set/position pairs at $92:DC20/DC34 share standing
-    /// $92:DBF8/DC0C frame selections, respectively. Lower set/position pairs remain
-    /// independent. Moving left and either gun-extended list share right-moving lower
-    /// components at $92:DC48, preserving their independent upper selections.
-    /// The six aiming-moving lists at $92:DF28/DF50/DF78/DFA0/DFC8/DFF0
-    /// use the same lower gait. Normal crouching shares standing upper components;
-    /// forward jumps share stationary gun-extended frames, and downward-aimed falls
-    /// share their jump frames. Remaining source components are the exact selected drawing identities documented in Batch 104.
-    /// </summary>
     /// <summary>$92:D928 -> CF6E, native top set5, right grapple outer angular allocation.</summary>
     private const int GrappleRightOuterSet = 5;
     /// <summary>$92:D924 -> CE80, native top set3, right grapple middle half-turn allocation.</summary>
@@ -68,16 +59,17 @@ internal static class SamusBodyFrameDefinitions
         value = 0;
         return false;
     }
-    // Resolved once: the alias walk is a pure function of the component index, so render-time
-    // lookups never rebuild its pose tables or closures.
+    /// <summary>Precomputed roots of the native body-frame alias graph, avoiding pose-table walks during rendering.</summary>
     private static readonly int[] sourceComponents = ResolveSourceComponents();
 
+    /// <summary>Maps a component to the earliest native body-frame entry containing its shared character selection.</summary>
     internal static int SourceComponent(int index)
     {
         if ((uint)index >= (uint)sourceComponents.Length) throw new ArgumentOutOfRangeException(nameof(index));
         return sourceComponents[index];
     }
 
+    /// <summary>Follows every alias to its earlier source and rejects any forward reference in the native selection graph.</summary>
     private static int[] ResolveSourceComponents()
     {
         var components = new int[SamusBodyArtworkCatalog.FrameCount * 4];
@@ -96,6 +88,11 @@ internal static class SamusBodyFrameDefinitions
         return components;
     }
 
+    /// <summary>
+    /// Resolves one native component-sharing edge. Crouching X-ray frames share standing upper
+    /// selections, aiming movement shares the lower gait, and selected jump and fall poses
+    /// reuse their matching frame lists while retaining independent components elsewhere.
+    /// </summary>
     private static int SourceStep(int index)
     {
         if ((uint)index >= SamusBodyArtworkCatalog.FrameCount * 4) throw new ArgumentOutOfRangeException(nameof(index));

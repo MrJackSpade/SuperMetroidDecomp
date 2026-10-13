@@ -24,13 +24,20 @@ namespace SuperMetroid.Core.Assets;
 /// separate full-body Hyper Beam palette or palette-program controls.</remarks>
 public sealed class HyperBeamFxColorCatalog
 {
+    /// <summary>Exact supplied colors that differ from every derived hue and shade relationship.</summary>
     private readonly Dictionary<int, Bgr555> colors = new();
+    /// <summary>Base RGB5 intensity shared by the stock neutral highlight channels.</summary>
     private readonly int neutralIntensity;
+    /// <summary>Independent edits to the neutral highlight's otherwise equal channels.</summary>
     private readonly LoadingPaletteInputView.Channels neutralOverrides;
+    /// <summary>Red, green, and magenta endpoint inks with paired hue channels.</summary>
     private readonly Dictionary<int, PairedChannels> pairedInputs = new();
+    /// <summary>Edited independent channels of endpoint inks sharing hue extrema.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> endpointInputs = new();
+    /// <summary>Edited midpoint-shade channels preserved beyond calculated neighbors.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
+    /// <summary>Separates supplied palette rows into canonical relationships and exact independent edits.</summary>
     private HyperBeamFxColorCatalog(Bgr555[][] frames)
     {
         neutralIntensity = frames[0][0].Red;
@@ -123,12 +130,17 @@ public sealed class HyperBeamFxColorCatalog
         frame == 0 ? (white.Red, null) :
         frame == 4 ? (null, red.Red) :
         color is 3 or 7 ? (null, red.Green) : (red.Red, null);
+    /// <summary>Stores independent endpoint channels while deriving the paired blue hue channel.</summary>
     internal readonly struct PairedChannels
     {
+        /// <summary>Edited red channel, or null when it shares the selected source.</summary>
         private readonly int? red;
+        /// <summary>Edited green channel, or null when it shares the selected source.</summary>
         private readonly int? green;
+        /// <summary>Edited blue channel, or null when it matches the paired red or green channel.</summary>
         private readonly int? blue;
 
+        /// <summary>Extracts only channels that differ from the shared red or green hue basis.</summary>
         internal PairedChannels(Bgr555 supplied, bool redHue, int? sharedRed = null, int? sharedGreen = null)
         {
             int suppliedRed = supplied.Red, suppliedGreen = supplied.Green;
@@ -138,12 +150,14 @@ public sealed class HyperBeamFxColorCatalog
             blue = (supplied.Blue) == expectedBlue ? null : supplied.Blue;
         }
 
+        /// <summary>Recombines edited channels with shared hue extrema and the paired blue channel.</summary>
         internal Bgr555 Resolve(bool redHue, int sharedRed = 0, int sharedGreen = 0)
         {
             int resolvedRed = red ?? sharedRed, resolvedGreen = green ?? sharedGreen;
             return new(resolvedRed, resolvedGreen, blue ?? (redHue ? resolvedGreen : resolvedRed));
         }
     }
+    /// <summary>Strict camel-case JSON settings for the editable Hyper Beam FX palette.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -214,6 +228,7 @@ public sealed class HyperBeamFxColorCatalog
         return bytes;
     }
 
+    /// <summary>Rejects duplicate palette properties before document deserialization.</summary>
     private static void RejectDuplicateProperties(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate Hyper Beam FX color property."));

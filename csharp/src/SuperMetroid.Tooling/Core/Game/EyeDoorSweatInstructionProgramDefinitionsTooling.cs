@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(EyeDoorSweatInstructionProgramDefinitions))]
 internal abstract class EyeDoorSweatInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Compiled timing and control words in the eye-door sweat initial and impact lists.</summary>
     public static int MechanicsWordCount => EyeDoorSweatInstructionProgramDefinitions.MechanicsWordCount;
+    /// <summary>Reads a compiled word from the initial or impact animation.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => EyeDoorSweatInstructionProgramDefinitions.MechanicsWord(index);
+    /// <summary>The four drawing operands used by the sweat animations.</summary>
     public static int PresentationWordCount => EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates a drawing operand in the initial or impact list.</summary>
     public static ushort PresentationWordAddress(int index) => EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Matches either byte of a cataloged sweat mechanics word in the projectile bank.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

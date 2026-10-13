@@ -3,8 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
+/// <summary>Checks calculated Mother Brain explosion sprites against native OAM and editable Ceres artwork.</summary>
 internal static class IntroMotherBrainExplosionPartsVerification
 {
+    /// <summary>Compares stock parts at visible and wrapped origins while preserving independently edited composition fields and part counts.</summary>
     internal static void VerifyIntroMotherBrainExplosionParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("MotherBrainExplosion", value.AppendIdentity);
@@ -56,6 +58,7 @@ internal static class IntroMotherBrainExplosionPartsVerification
             }
         }
     }
+    /// <summary>Checks that a Ceres alias frame loads and draws the supplied blast composition at both onscreen and wrapped origins.</summary>
     internal static void CheckCeresBlastLoader(ushort pointer, SpriteVisualPart[] visual)
     {
         var definition = CeresDestructionSpriteDefinitions.Frames.FirstOrDefault(frame => frame.Pointer == pointer);

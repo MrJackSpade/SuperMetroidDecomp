@@ -10,13 +10,20 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 internal sealed class RenderScratch : IDisposable
 {
+    /// <summary>Per-thread color-plane pools keyed by exact pixel count.</summary>
     [ThreadStatic] private static Dictionary<int, Stack<Rgba32[]>>? freeColors;
+    /// <summary>Per-thread byte-plane pools keyed by exact element count.</summary>
     [ThreadStatic] private static Dictionary<int, Stack<byte[]>>? freeBytes;
+    /// <summary>Per-thread PPU reader models available for reloading from a new snapshot.</summary>
     [ThreadStatic] private static Stack<SoftwarePpuSnapshotMemory>? freeMemory;
 
+    /// <summary>Color planes checked out for this render scope.</summary>
     private readonly List<Rgba32[]> colors = [];
+    /// <summary>Byte planes checked out for this render scope.</summary>
     private readonly List<byte[]> bytes = [];
+    /// <summary>PPU snapshot readers checked out for this render scope.</summary>
     private readonly List<SoftwarePpuSnapshotMemory> memories = [];
+    /// <summary>Prevents a completed scope from returning its planes twice.</summary>
     private bool disposed;
 
     /// <summary>A cleared color plane (every pixel transparent).</summary>
@@ -70,6 +77,7 @@ internal sealed class RenderScratch : IDisposable
         return new ResolvedObjFrame(pixels, priorities);
     }
 
+    /// <summary>Returns every checked-out intermediate plane and memory model to its thread-local pool.</summary>
     public void Dispose()
     {
         if (disposed) return;
@@ -82,9 +90,11 @@ internal sealed class RenderScratch : IDisposable
         memories.Clear();
     }
 
+    /// <summary>Reuses an exact-size plane or allocates one on the thread's first demand.</summary>
     private static T[] Take<T>(Dictionary<int, Stack<T[]>> free, int length) =>
         free.TryGetValue(length, out Stack<T[]>? stack) && stack.TryPop(out T[]? plane) ? plane : new T[length];
 
+    /// <summary>Places a returned plane into the pool for its exact element count.</summary>
     private static void Give<T>(Dictionary<int, Stack<T[]>> free, T[] plane)
     {
         if (!free.TryGetValue(plane.Length, out Stack<T[]>? stack))

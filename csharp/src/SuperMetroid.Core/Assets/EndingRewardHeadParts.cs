@@ -8,9 +8,11 @@ namespace SuperMetroid.Core.Assets;
 /// jump/helmet caps. Native draw order is preserved independently of tile order.</summary>
 internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Limits calculated compositions to the large helmet, jumping head, and four face frames.</summary>
     private static bool IsHead(Pose pose) => pose is >= Pose.LargeSamusHelmetFromEndingFrame1 and <= Pose.JumpingSamusHeadFromEnding
         or >= Pose.SamusHeadFromEndingFrame1 and <= Pose.SamusHeadWithHelmetFromEnding;
 
+    /// <summary>Recalculates a reward head only when its native frame pointer belongs to this head family.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         foreach (Pose pose in Enum.GetValues<Pose>())
@@ -19,6 +21,7 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
         return supplied;
     }
 
+    /// <summary>Face frames use two pieces; helmet and jump poses need their own cap and head part counts.</summary>
     public int Count => pose switch
     {
         Pose.LargeSamusHelmetFromEndingFrame1 or Pose.LargeSamusHelmetFromEndingFrame2 => 5,
@@ -28,6 +31,7 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
         _ => throw new ArgumentOutOfRangeException(nameof(pose)),
     };
 
+    /// <summary>Builds the authored head or helmet piece at its draw-order index using the shared atlas rows.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -72,9 +76,11 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Enumerates reward head pieces in native sprite draw order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Uses the same draw order for non-generic collection consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

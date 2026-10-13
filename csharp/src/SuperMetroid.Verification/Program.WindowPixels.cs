@@ -17,8 +17,10 @@ using static ColorWordsVerification;
 using static GraphDigestVerification;
 using static RenderPacketCodecTestsVerification;
 
+/// <summary>Checks hardware window masking against independently composed layer pixels and packet round trips.</summary>
 internal static class WindowPixelsVerification
 {
+    /// <summary>Compares windowed frames for layer admission masks and validates legacy packet defaults.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void VerifyWindowPixels()
     {
@@ -100,6 +102,7 @@ internal static class WindowPixelsVerification
                     enabled, Windows: windows, MainScreenWindowMask: admission)));
     }
 
+    /// <summary>Runs window pixels, gameplay snapshots, and the production magic-number audit.</summary>
     [VerificationCommand("--window-pixels")]
     internal static int WindowPixelsCommand()
     {

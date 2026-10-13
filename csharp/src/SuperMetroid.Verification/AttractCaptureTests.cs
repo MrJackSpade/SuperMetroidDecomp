@@ -10,8 +10,10 @@ using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks captured attract-demo frames against legacy rendering, audio, and state transitions.</summary>
 internal static class AttractCaptureTestsVerification
 {
+    /// <summary>Compares demo playback, held final image, cancellation, and return-to-title packets with the live frontend.</summary>
     internal static void VerifyAttractCapture()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));

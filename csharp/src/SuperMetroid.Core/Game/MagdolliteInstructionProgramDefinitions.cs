@@ -54,6 +54,7 @@ internal abstract class MagdolliteInstructionProgramDefinitions
     /// <summary>Native program bank $A8.</summary>
     internal const byte Bank = 0xa8;
 
+    /// <summary>Timed head, pillar, and hand control words, with visual operands left to the presentation catalog.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xac9c),
         Entry(LeftIdle),
@@ -203,6 +204,7 @@ internal abstract class MagdolliteInstructionProgramDefinitions
     /// <summary>Whether an address is one of the 53 authored visual operands.</summary>
     internal static bool IsPresentationWord(ushort address) => Layout.IsPresentationWord(address);
 
+    /// <summary>Reads a compiled Magdollite control word or rejects addresses outside its reachable mechanics.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

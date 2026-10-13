@@ -17,6 +17,7 @@ internal static class MotherBrainFakeDeathPlmProgramDefinitions
     /// <summary>Native size of each timer/draw/delete list in bytes.</summary>
     internal const int ProgramByteLength = 6;
 
+    /// <summary>Reads only aligned timer, draw, or delete words within the twenty-two six-byte mutation lists.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         int offset = address - Start;

@@ -8,11 +8,16 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Cartridge-scripted Ceres laboratory vignette between intro pages three and four.</summary>
 internal sealed class IntroScientistCutsceneState
 {
+    /// <summary>Delivered or examined Baby actor whose instruction list drives scene completion.</summary>
     private readonly IntroDiscoverySprite baby;
+    /// <summary>Optional intro sound queue for the three Baby cry opcodes.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>Selects delivery's horizontal pan or examination's vertical pan and page transition.</summary>
     private readonly ScientistSceneKind kind;
+    /// <summary>Instruction source, defaulting to the compiled scientist-scene program words.</summary>
     private readonly Func<ushort, ushort> instructionWord;
 
+    /// <summary>Initializes the selected laboratory page, mirrored camera pan, and Baby actor program.</summary>
     private IntroScientistCutsceneState(ScientistSceneKind kind, CartridgeAudioState? audio,
         Func<ushort, ushort>? instructionWord)
     {
@@ -37,20 +42,26 @@ internal sealed class IntroScientistCutsceneState
     /// <summary>The laboratory page's BG1 scroll.</summary>
     public Position16<RoomPixels> Background { get; private set; }
 
+    /// <summary>BG1 tilemap base $5800 for delivery or $5C00 for examination.</summary>
     public ushort TilemapBaseWord { get; }
 
+    /// <summary>Set when delivery's actor instruction hands the intro to page four.</summary>
     public bool PageFourRequested { get; private set; }
 
+    /// <summary>Set when examination's actor instruction hands the intro to page five.</summary>
     public bool PageFiveRequested { get; private set; }
 
+    /// <summary>Starts the delivered-Baby page with a leftward camera pan and page-four handoff.</summary>
     public static IntroScientistCutsceneState CreateDelivery(CartridgeAudioState? audio = null,
         Func<ushort, ushort>? instructionWord = null) =>
         new(ScientistSceneKind.Delivery, audio, instructionWord);
 
+    /// <summary>Starts the examined-Baby page with a downward camera pan and page-five handoff.</summary>
     public static IntroScientistCutsceneState CreateExamination(CartridgeAudioState? audio = null,
         Func<ushort, ushort>? instructionWord = null) =>
         new(ScientistSceneKind.Examination, audio, instructionWord);
 
+    /// <summary>Advances the Baby script and pans on every fourth function tick until the alternate crossfade timer redirects it to deletion.</summary>
     public void Step(
         ushort cinematicFunctionTimer,
         ushort introCrossfadeTimer)
@@ -87,10 +98,12 @@ internal sealed class IntroScientistCutsceneState
         baby.Step<IntroScientistBabyInstruction>(HandleInstruction, instructionWord);
     }
 
+    /// <summary>Draws the current Baby actor frame through the installed scientist-scene sprite presentation.</summary>
     public void Draw(OamBuffer oam,
         IntroScientistSpritePresentation? installedArt = null) =>
         baby.Draw(oam, installedArt: installedArt);
 
+    /// <summary>Queues authored Baby cries or requests the next intro page, leaving instruction advancement with the actor.</summary>
     private ushort HandleInstruction(IntroScientistBabyInstruction opcode, ushort argumentPointer)
     {
         switch (opcode)
@@ -123,9 +136,12 @@ internal sealed class IntroScientistCutsceneState
         }
     }
 
+    /// <summary>Distinct laboratory pages with opposite pan axes and later page destinations.</summary>
     private enum ScientistSceneKind
     {
+        /// <summary>Delivered Baby remains fixed against the subjects as the camera pans left.</summary>
         Delivery,
+        /// <summary>Examined Baby rises against the laboratory as the camera pans down.</summary>
         Examination,
     }
 }

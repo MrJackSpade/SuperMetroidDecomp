@@ -45,6 +45,7 @@ public static class MapSaveMarkerDefinitions
         return LoadStationDefinitions.Get(area, (byte)index).RoomPointer != 0;
     }
 
+    /// <summary>Rejects Ceres and undefined areas because only the six Zebes areas own marker tables.</summary>
     private static void ValidateArea(AreaId area)
     {
         if ((uint)area >= FileSelectMapRomData.AreaCount)

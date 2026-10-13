@@ -26,15 +26,20 @@ internal enum CrocomireArenaDraw : ushort
 /// </summary>
 internal static class CrocomireArenaPlmDrawDefinitions
 {
+    /// <summary>Decoded bridge or three-column wall geometry with its independently selected solid collision bit.</summary>
     internal readonly record struct Draw(CrocomireArenaDraw Pointer, bool Wall, bool Solid, int WordsPerRun)
     {
+        /// <summary>Wall layouts draw three columns; bridge layouts draw one horizontal run.</summary>
         internal int RunCount => Wall ? 3 : 1;
+        /// <summary>Sets the vertical-run bit for wall columns while retaining the native cells per run.</summary>
         internal ushort DirectionAndCount => (ushort)(WordsPerRun | (Wall ? 0x8000 : 0));
+        /// <summary>Offsets the next wall column from the draw origin rather than from the prior column.</summary>
         internal sbyte NextX(int run)
         {
             if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
             return run + 1 < RunCount ? (sbyte)(run + 1) : (sbyte)0;
         }
+        /// <summary>Calculates bridge tiles or the wall's alternating rows and final base row, applying solid collision only to the create-wall state.</summary>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)run >= RunCount || (uint)block >= WordsPerRun)
@@ -61,6 +66,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Assigns native run geometry to each of the five bounded arena draw pointers.</summary>
     private static Draw Describe(CrocomireArenaDraw pointer) => pointer switch
     {
         CrocomireArenaDraw.ClearBridge => new(pointer, false, false, 10),
@@ -70,7 +76,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined Crocomire arena draw {pointer}."),
     };
 
-    // Temporary DTOs serve the existing artwork interface; gameplay evaluates cells directly.
+    /// <summary>Projects calculated physical cells into temporary artwork records; gameplay evaluates cells directly.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -83,6 +89,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
         }
     }
 
+    /// <summary>Reconstructs one supported bridge or wall draw with its native run offsets.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
@@ -98,6 +105,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Maps the bank-$84 arena draw identity to the published bridge or wall artwork key.</summary>
     internal static string VisualId(ushort pointer) =>
         ClosedNativeWords.Decode<CrocomireArenaDraw>(pointer, "Crocomire arena draw") switch
         {
@@ -109,6 +117,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
             _ => throw new InvalidOperationException($"Undefined Crocomire arena draw ${pointer:X4}."),
         };
 
+    /// <summary>Finds the physical bridge or wall layout for one editable visual identity.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {

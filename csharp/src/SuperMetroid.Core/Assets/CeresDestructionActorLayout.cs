@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresDestructionActorLayout
 {
+    /// <summary>Custom placements, or null when all three actors use their compiled spawn positions.</summary>
     private readonly CeresDestructionActorPlacement[]? placements;
 
+    /// <summary>Stores an owned layout only if at least one actor differs from the native default.</summary>
     private CeresDestructionActorLayout(CeresDestructionActorPlacement[] placements)
     {
         bool stock = true;

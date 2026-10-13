@@ -50,8 +50,10 @@ public enum HopperEnemyFunction : ushort
 /// </summary>
 public sealed class HopperEnemyState
 {
+    /// <summary>Enemy slot whose variables A through D carry the hopper dispatcher and jump motion words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Binds the typed hopper state to an existing room enemy slot.</summary>
     internal HopperEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>The current bank-$A3 hopper dispatcher pointer, backed by the owning slot's VariableA and advanced one setup stage per AI call.</summary>

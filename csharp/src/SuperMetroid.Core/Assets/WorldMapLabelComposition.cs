@@ -16,12 +16,18 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class WorldMapLabelComposition
 {
+    /// <summary>Area label identity selecting the lettering and one- or two-line placement.</summary>
     private readonly MapSpriteId identity;
+    /// <summary>Authored horizontal start for the main or upper text line.</summary>
     private readonly int upperOrigin;
+    /// <summary>Separate start for Wrecked Ship's lower SHIP line.</summary>
     private readonly int lowerOrigin;
+    /// <summary>Nonstandard optical advances retained by glyph position.</summary>
     private readonly Dictionary<int, int>? letterAdvances;
+    /// <summary>Full compiled parts when supplied artwork does not fit the regular lettering composition.</summary>
     private readonly SpriteComposition? authored;
 
+    /// <summary>Retains selected text origins or independent authored parts after composition analysis.</summary>
     private WorldMapLabelComposition(MapSpriteId identity, int upperOrigin, int lowerOrigin,
         Dictionary<int, int>? letterAdvances, SpriteComposition? authored)
     { this.identity = identity; this.upperOrigin = upperOrigin; this.lowerOrigin = lowerOrigin;
@@ -39,9 +45,11 @@ internal sealed class WorldMapLabelComposition
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
+    /// <summary>Places Wrecked Ship's SHIP line below WRECKED and centers single-line area labels.</summary>
     private static int VerticalOffset(MapSpriteId id, int index) =>
         id == MapSpriteId.WorldWreckedShip ? (index < 4 ? 0 : -8) : -4;
 
+    /// <summary>Recognizes regular alphabet glyphs and retains only selected origins and optical advances; preserves other art verbatim.</summary>
     internal static WorldMapLabelComposition Compile(MapSpriteId id, SpriteVisualPart[] parts, string name)
     {
         string text = Text(id);
@@ -66,6 +74,7 @@ internal sealed class WorldMapLabelComposition
         return new(id, parts[^1].OffsetX, twoLines ? parts[3].OffsetX : 0, advances, null);
     }
 
+    /// <summary>Draws authored parts or reconstructs the area's glyph sequence with the caller's palette.</summary>
     internal void Draw(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (authored is not null) { authored.DrawOnScreen(oam, origin, paletteBits); return; }
@@ -80,6 +89,7 @@ internal sealed class WorldMapLabelComposition
         }
     }
 
+    /// <summary>Accumulates eight-pixel cells and selected optical advances from the line's authored start.</summary>
     private int HorizontalOffset(int index, int count)
     {
         bool bottom = identity == MapSpriteId.WorldWreckedShip && index < 4;

@@ -14,21 +14,27 @@ internal static class DownwardGatePlmDrawDefinitions
     /// <summary>$84:A5D7: blue-left trigger; color pairs occupy twenty bytes.</summary>
     private const ushort TriggerLeftFirst = 0xa5d7;
 
+    /// <summary>Decoded column step or colored trigger shape; physical block words are calculated from this native draw identity.</summary>
     internal readonly record struct Draw(bool Column, int Frame, bool Right)
     {
+        /// <summary>Columns and right triggers occupy one run; left triggers include a separate neighboring block.</summary>
         internal int RunCount => Column || Right ? 1 : 2;
+        /// <summary>Columns write five vertical cells; right triggers write two cells; each left-trigger run writes one.</summary>
         internal int WordCount(int run)
         {
             if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
             return Column ? 5 : Right ? 2 : 1;
         }
+        /// <summary>Sets the vertical-run bit for the gate column while preserving native block count.</summary>
         internal ushort DirectionAndCount(int run) =>
             (ushort)(WordCount(run) | (Column ? 0x8000 : 0));
+        /// <summary>Moves left between the two left-trigger runs; other runs stay in their column.</summary>
         internal sbyte NextX(int run)
         {
             if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
             return !Column && !Right && run == 0 ? (sbyte)-1 : (sbyte)0;
         }
+        /// <summary>Calculates the stationary/moving top tile, filled shootable rows, or color-specific trigger tile.</summary>
         internal ushort WordAt(int run, int word)
         {
             if ((uint)word >= WordCount(run)) throw new IndexOutOfRangeException();
@@ -59,6 +65,7 @@ internal static class DownwardGatePlmDrawDefinitions
         return false;
     }
 
+    /// <summary>Enumerates six column stages followed by four left/right trigger color pairs.</summary>
     private static IEnumerable<ushort> Pointers()
     {
         for (int frame = 0; frame < 6; frame++) yield return (ushort)(ResidentFirst + frame * 14);
@@ -69,6 +76,7 @@ internal static class DownwardGatePlmDrawDefinitions
         }
     }
 
+    /// <summary>Projects calculated physical shapes into temporary draw records for the artwork interface.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -81,6 +89,7 @@ internal static class DownwardGatePlmDrawDefinitions
         }
     }
 
+    /// <summary>Reconstructs one supported native draw list from its column or trigger geometry.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -96,6 +105,7 @@ internal static class DownwardGatePlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Maps a native pointer to the published artwork identity, preserving historic green/red labels.</summary>
     internal static string VisualId(ushort pointer)
     {
         if (!TryDescribe(pointer, out var draw))
@@ -106,6 +116,7 @@ internal static class DownwardGatePlmDrawDefinitions
         return $"{color}-{(draw.Right ? "right" : "left")}-trigger";
     }
 
+    /// <summary>Looks up a published visual name against supported native column and trigger draws.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (ushort pointer in Pointers())

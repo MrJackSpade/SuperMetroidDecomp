@@ -83,14 +83,14 @@ internal static class BotwoonVisualDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Botwoon projectile frame."),
     };
 
-    // The body and head programs share one layout: up-left, left, down-left, an unused
-    // down-facing-left slot, then down through up.
+    /// <summary>Maps facing to native body-program order, skipping the unused down-facing-left slot shared by body and head layouts.</summary>
     private static int BodyPhysicalSlot(BotwoonFacing facing)
     {
         int index = Array.IndexOf(PhysicalOrder, facing);
         return index < 3 ? index : index + 1;
     }
 
+    /// <summary>Selects the bank-$B3 closed-mouth spritemap, skipping the unused down-facing-left map.</summary>
     private static ushort ClosedMouth(BotwoonFacing facing) => facing switch
     {
         // Spritemaps_Botwoon_MouthClosed_Priority2_Aiming* at $B3:E329-$E389; the unused down-facing-left map is skipped.
@@ -105,6 +105,7 @@ internal static class BotwoonVisualDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
     };
 
+    /// <summary>Selects the bank-$B3 open-mouth spritemap; diagonal facings carry a third OAM piece.</summary>
     private static ushort OpenMouth(BotwoonFacing facing) => facing switch
     {
         // Spritemaps_Botwoon_MouthOpen_Priority2_Aiming* at $B3:E3A1-$E415; diagonal maps carry a third piece.

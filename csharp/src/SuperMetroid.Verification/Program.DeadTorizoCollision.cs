@@ -12,8 +12,10 @@ using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 
+/// <summary>Checks the dead Torizo corpse releases solid contact after each native rot trigger.</summary>
 internal static class DeadTorizoCollisionVerification
 {
+    /// <summary>Exercises contact, shot, Power Bomb, and delayed solid-contact triggers through real collision paths.</summary>
     internal static int VerifyDeadTorizoCollision()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -87,6 +89,7 @@ internal static class DeadTorizoCollisionVerification
         }
     }
 
+    /// <summary>Runs the focused corpse collision release check.</summary>
     [VerificationCommand("--dead-torizo-collision")]
     internal static int DeadTorizoCollisionCommand()
     {

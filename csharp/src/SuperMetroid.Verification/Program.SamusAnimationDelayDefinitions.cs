@@ -16,6 +16,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static FrontendRomFreeVerification;
 
+/// <summary>Checks compiled Samus pose delay streams and their intentional mutable-WRAM overread alias.</summary>
 internal static class SamusAnimationDelayDefinitionsVerification
 {
     /// <summary>Checks the entire compiled pose-delay definition domain against retail.</summary>
@@ -79,6 +80,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
         Console.WriteLine("Samus pose animation: 256 pointers and every stream byte match retail; mutable overread remains live.");
     }
 
+    /// <summary>Runs pose-delay and running-cadence checks against the retail ROM.</summary>
     [VerificationCommand("--mutable-animation-aliases")]
     internal static int MutableAnimationAliasesCommand()
     {

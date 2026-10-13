@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// on a common atlas grid. Native priority is zero for these four compositions.</summary>
 internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Uses calculated OAM parts only when a supplied falling, landing, or shooting frame matches its native composition.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         foreach (Pose pose in EndingRewardSpriteFrameSeries.ShootingScene)
@@ -15,6 +16,7 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
                 return supplied.CalculateIfMatching(new EndingRewardShootingSceneParts(pose));
         return supplied;
     }
+    /// <summary>Native part count depends on the figure's falling, landing, landed, or shooting pose.</summary>
     public int Count => pose switch
     {
         Pose.SamusFalling or Pose.SamusShooting => 15,
@@ -22,6 +24,7 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
         Pose.SamusLanded => 21,
         _ => throw new ArgumentOutOfRangeException(nameof(pose)),
     };
+    /// <summary>Calculates a pose's OAM tile, size, and origin while retaining its authored part order.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -91,10 +94,12 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
                 unchecked((byte)(originY + 8 * (tile / 16))), SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
+    /// <summary>Traverses calculated OAM pieces in the source composition's drawing order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same source drawing order to non-generic collection consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class TitleGradientPresentation
 {
+    /// <summary>Sixteen independently authored 224-line gradients indexed by the zoom high nibble.</summary>
     private readonly TitleGradientLine[][] variants;
 
+    /// <summary>Retains validated, owned title gradient scanline arrays.</summary>
     private TitleGradientPresentation(TitleGradientLine[][] variants) => this.variants = variants;
 
     /// <summary>Returns the authored scanlines selected by native zoom bits four through seven.</summary>

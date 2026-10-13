@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks editable projectile trail pixels reach their exact native VRAM bytes.</summary>
 internal static class ProjectileTrailAtlasVerification
 {
+    /// <summary>Confirms stock atlas parity and isolation of each of twelve edited trail characters.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyProjectileTrailAtlas(ISnesAddressSpace bus)
     {
@@ -50,6 +52,7 @@ internal static class ProjectileTrailAtlasVerification
         Console.WriteLine("Trail PNG: native room/NMI parity and twelve edited pixels preserve every other VRAM byte, including the interleaved graphics gap.");
     }
 
+    /// <summary>Checks edited trail artwork survives NMI upload, room reinitialization, and debugger restore.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyTrailAtlasBinding(ISnesAddressSpace bus, byte[] png)
     {

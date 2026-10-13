@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks stock and installed Noob Tube visual words against native PLM draw lists.</summary>
 internal static class LookupNoobTubeStockVerification
 {
+    /// <summary>Compares seven flattened frame shapes and identities, then checks copied edits and rejection of invalid visual entries.</summary>
     internal static void VerifyNoobTubeStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmNoobTubeVisualCatalog installed)
     {
@@ -77,6 +79,7 @@ internal static class LookupNoobTubeStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmNoobTubeVisualCatalog(entries), "Tube visual bits only");
     }
 
+    /// <summary>Reads native PLM run displacement bytes for the stock visual comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Noob tube stock mapping")]
     private static byte NoobTubeStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

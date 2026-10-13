@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Phantoon motion limits, figure-eight timing, and BG2 image placement.</summary>
 internal static class PhantoonPositionVerification
 {
+    /// <summary>Verifies NTSC speed caps and 1400 frames of live, NMI, and captured BG2 position handoff.</summary>
     internal static void VerifyPhantoonPosition()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -86,6 +88,7 @@ internal static class PhantoonPositionVerification
         Console.WriteLine($"  Phantoon: 1400 live/NMI/capture frames follow {positions.Count} distinct body positions.");
     }
 
+    /// <summary>Runs the focused Phantoon position and BG2 capture check.</summary>
     [VerificationCommand("--phantoon-position")]
     internal static int PhantoonPositionCommand()
     {

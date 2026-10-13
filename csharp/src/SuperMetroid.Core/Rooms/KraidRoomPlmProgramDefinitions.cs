@@ -97,6 +97,7 @@ internal static class KraidRoomPlmProgramDefinitions
         ClearSpikesDelete = ClearSpikes + 4,
     }
 
+    /// <summary>Reconstructs four timed crumble stages followed by the final layout and a delete or move-right command.</summary>
     private static ushort CrumbleWord(int word, ushort finalDraw, ushort afterDraw) => word switch
     {
         0 or 2 or 4 or 6 => CrumbleFrameDuration,
@@ -108,6 +109,7 @@ internal static class KraidRoomPlmProgramDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(word)),
     };
 
+    /// <summary>Admits the spike program's lone eight-bit timer operand for eleven two-column passes.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == CrumbleSpikes + 2)

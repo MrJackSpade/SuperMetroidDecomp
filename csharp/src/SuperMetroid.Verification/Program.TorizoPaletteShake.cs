@@ -15,8 +15,10 @@ using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
 using static TorizoLandingLifetimeVerification;
 
+/// <summary>Checks Torizo palette instruction steps without extending the authored landing earthquake.</summary>
 internal static class TorizoPaletteShakeVerification
 {
+    /// <summary>Checks shake duration, masked fades, save-state continuation, and palette catalog bytes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static int VerifyTorizoPaletteShake()
     {
@@ -120,6 +122,7 @@ internal static class TorizoPaletteShakeVerification
         }
     }
 
+    /// <summary>Runs the focused Torizo palette and landing-shake checks.</summary>
     [VerificationCommand("--torizo-palette-shake")]
     internal static int TorizoPaletteShakeCommand()
     {

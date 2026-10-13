@@ -19,6 +19,7 @@ namespace SuperMetroid.Core.Assets;
 /// Custom differences remain nullable overrides, never generated color caches.</remarks>
 internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
 {
+    /// <summary>Ordinary stored suit colors after the eight selected tinted endpoints are removed.</summary>
     private readonly Dictionary<ushort, Bgr555> colors;
     /// <summary>Power dim slot1, $8D:DC7E.</summary>
     private readonly Channels powerDim1;
@@ -37,6 +38,7 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
     /// <summary>Gravity dim slot2, $8D:DF4C.</summary>
     private readonly Channels gravityDim2;
 
+    /// <summary>Captures only channels differing from calculated tint endpoints, then removes those endpoints from ordinary storage.</summary>
     internal LoadingPaletteInputView(Dictionary<ushort, Bgr555> colors)
     {
         this.colors = colors;
@@ -58,10 +60,12 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
         colors.Remove((ushort)LoadingSuitColor.GravityDim2);
     }
 
+    /// <summary>Requires the normal-suit source color used to derive a loading tint endpoint.</summary>
     private Bgr555 Normal(ushort pointer) =>
         LoadingPaletteColorDefinitions.TryReadColor(pointer, colors, out Bgr555 value)
             ? value : throw new InvalidDataException($"Missing loading base ${pointer:X4}.");
 
+    /// <summary>Calculates the selected loading tint from a normal-suit source and shared channel rules.</summary>
     private Bgr555 Expected(LoadingSuitColor slot) => slot switch
     {
         LoadingSuitColor.PowerDim1 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb6d), 2),
@@ -76,10 +80,14 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
         _ => throw new InvalidOperationException($"Undefined loading suit color {slot}."),
     };
 
+    /// <summary>Nullable channel overrides for a tint endpoint whose other channels follow the common rule.</summary>
     internal readonly struct Channels
     {
+        /// <summary>Independent red value, or null when the calculated endpoint supplies it.</summary>
         private readonly int? red;
+        /// <summary>Independent green value, or null when the calculated endpoint supplies it.</summary>
         private readonly int? green;
+        /// <summary>Independent blue value, or null when the calculated endpoint supplies it.</summary>
         private readonly int? blue;
         /// <summary>Captures differing channels; independentMask bits0/1/2 always retain red/green/blue inputs.</summary>
         internal Channels(Bgr555 supplied, Bgr555 expected, int independentMask = 0)
@@ -88,9 +96,11 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
             green = (independentMask & 2) == 0 && supplied.Green == expected.Green ? null : supplied.Green;
             blue = (independentMask & 4) == 0 && supplied.Blue == expected.Blue ? null : supplied.Blue;
         }
+        /// <summary>Overlays retained independent channels on the calculated normal-suit tint.</summary>
         internal Bgr555 Apply(Bgr555 expected) => new(red ?? expected.Red, green ?? expected.Green, blue ?? expected.Blue);
     }
 
+    /// <summary>Resolves an ordinary stored color or reconstructs one of eight derived loading-tint endpoints.</summary>
     public bool TryGetValue(ushort pointer, out Bgr555 value)
     {
         // Pointers outside the eight tinted slots are ordinary stored colors.
@@ -112,9 +122,13 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
         value = channels.Apply(Expected(slot));
         return true;
     }
+    /// <summary>Requires a stored or derived loading color at its native pointer.</summary>
     public Bgr555 this[ushort key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
+    /// <summary>Includes ordinary stored colors and the eight reconstructed tint endpoints.</summary>
     public int Count => colors.Count + 8;
+    /// <summary>Checks whether a native pointer identifies a stored or derived loading color.</summary>
     public bool ContainsKey(ushort key) => TryGetValue(key, out _);
+    /// <summary>Enumerates stored pointers followed by the eight derived tint addresses.</summary>
     public IEnumerable<ushort> Keys
     {
         get
@@ -124,10 +138,13 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
             yield return (ushort)LoadingSuitColor.VariaBright10; yield return (ushort)LoadingSuitColor.VariaBright11; yield return (ushort)LoadingSuitColor.VariaDim12; yield return (ushort)LoadingSuitColor.GravityDim2;
         }
     }
+    /// <summary>Resolves values in the same stored-then-derived order as <see cref="Keys"/>.</summary>
     public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
+    /// <summary>Enumerates stored and reconstructed colors by their native pointers.</summary>
     public IEnumerator<KeyValuePair<ushort, Bgr555>> GetEnumerator()
     {
         foreach (ushort key in Keys) yield return new(key, this[key]);
     }
+    /// <summary>Exposes the same loading color pairs to non-generic collection consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

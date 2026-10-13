@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class RoomEnemyProjectileSlot
 {
+    /// <summary>Assigns the fixed pool index used for native projectile slot addressing.</summary>
     internal RoomEnemyProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
 
     /// <summary>Gets the physical pool index from zero through seventeen; twice this value is the native byte index $00..$22.</summary>
@@ -133,6 +134,7 @@ public sealed class RoomEnemyProjectileSlot
     /// </summary>
     internal void ReleaseIdentityOnly() => Kind = RoomEnemyProjectileKind.None;
 
+    /// <summary>Prepares a freed slot for reuse while retaining whole coordinates and velocity as native allocation does.</summary>
     internal void Clear()
     {
         Kind = RoomEnemyProjectileKind.None;

@@ -15,8 +15,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Tourian access crumble and clear PLM spawn identities and slot initialization.</summary>
 internal static class TourianAccessPlmDefinitionsVerification
 {
+    /// <summary>Compares native spawn operands, then confirms both states allocate the highest free slot at the fixed access block.</summary>
     internal static void VerifyTourianAccessPlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyTourianAccessHeaderSelection), () => VerifyTourianAccessHeaderSelection(rom));
@@ -52,12 +54,15 @@ internal static class TourianAccessPlmDefinitionsVerification
         }
     }
 
+    /// <summary>Compares both native spawn header operands with the compiled state selection.</summary>
     private static void VerifyTourianAccessHeaderSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyTourianAccessSpawnField), () => VerifyTourianAccessSpawnField(rom, false));
 
+    /// <summary>Compares the initial instruction pointers attached to both native headers.</summary>
     private static void VerifyTourianAccessInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyTourianAccessSpawnField), () => VerifyTourianAccessSpawnField(rom, true));
 
+    /// <summary>Reads the native crumble and already-unlocked spawn operands, including their fixed block coordinates.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian access spawn field")]
     private static void VerifyTourianAccessSpawnField(SuperMetroidAddressSpace rom, bool instruction)
     {
@@ -75,6 +80,7 @@ internal static class TourianAccessPlmDefinitionsVerification
         }
     }
 
+    /// <summary>Runs the Tourian access spawn definition comparison with a retail cartridge oracle.</summary>
     [VerificationCommand("--tourian-access-definitions")]
     internal static int TourianAccessDefinitionsCommand()
     {

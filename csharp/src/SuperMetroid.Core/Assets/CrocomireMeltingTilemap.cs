@@ -13,11 +13,16 @@ internal sealed class CrocomireMeltingTilemap
     private const ushort Blank = 0x0338;
     /// <summary>Both native illustrations use BG palette7 and priority1, with no reflections.</summary>
     private const ushort IllustrationStyle = 0x3c00;
+    /// <summary>Horizontal stride between vertically adjacent source tiles in the editable atlas.</summary>
     private const int AtlasColumns = 16;
+    /// <summary>Native BG tilemap row width used to decode linear cell positions.</summary>
     private const int BgColumns = 32;
+    /// <summary>Selects the eroded second illustration instead of the initial closed-jaw image.</summary>
     private readonly bool second;
+    /// <summary>Supplied cells that differ from the reviewed illustration composition.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>Retains custom cells while calculating unchanged composition and blank margins.</summary>
     internal CrocomireMeltingTilemap(bool second, ReadOnlySpan<ushort> supplied)
     {
         this.second = second;
@@ -27,6 +32,7 @@ internal sealed class CrocomireMeltingTilemap
             if (supplied[index] != Calculate(index)) edits.Add(index, supplied[index]);
     }
 
+    /// <summary>Builds a fresh native-order tilemap from calculated cells and retained edits.</summary>
     internal ushort[] Words()
     {
         var words = new ushort[CrocomireMeltingArtworkFormat.TilemapCellCount];
@@ -38,6 +44,7 @@ internal sealed class CrocomireMeltingTilemap
     /// <summary>Increasing atlas rows are contiguous source strips, sixteen tiles apart.</summary>
     private static int Strip(int first, int column, int start) => first + (column - start) * AtlasColumns;
 
+    /// <summary>Applies the common illustration palette and priority to a selected fragment or emits the blank glyph.</summary>
     private ushort Calculate(int index)
     {
         int row = index / BgColumns, column = index % BgColumns;

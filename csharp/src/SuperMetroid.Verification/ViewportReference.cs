@@ -3,9 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 
-// Frozen pre-optimization scalar reference: do not share the optimized tile-row loop.
+/// <summary>Frozen scalar four-bit BG viewport renderer used to compare the optimized tile-row implementation.</summary>
 internal static class ViewportReference
 {
+    /// <summary>Composites one BG priority plane with native page wrapping, tile flips, and transparent pixel handling.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     public static void Composite4BppViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, BgVramAddresses addresses, BgViewport viewport, bool? priority = null)
     {

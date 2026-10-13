@@ -14,9 +14,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal static class BeamPaintDefinitions
 {
+    /// <summary>Highest channel value in a five-bit SNES RGB component.</summary>
     private const int Rgb5Maximum = (1 << 5) - 1;
     /// <summary>$90:C3E1 and corresponding slot0 aliases copy this blue target despite OBJ transparency.</summary>
     private const int ClearTargetBlue = 14;
+    /// <summary>Builds a sixteen-color beam material row from shared clear/white/black slots and the selected power, ice, wave, plasma, or Spazer paint.</summary>
     internal static Bgr555 Color(SamusBeamCombination selection, int color)
     {
         if (color == 0) return new Bgr555(0, 0, ClearTargetBlue);
@@ -35,6 +37,7 @@ internal static class BeamPaintDefinitions
         return new Bgr555(red, green, blue);
     }
 
+    /// <summary>Combines Power's orange three-step ramp with its separate yellow, red, and dark accent inks.</summary>
     private static (int Red, int Green, int Blue) Power(int color)
     {
         if (color is >= 2 and <= 4)
@@ -55,6 +58,7 @@ internal static class BeamPaintDefinitions
         };
     }
 
+    /// <summary>Builds Ice's blue-white and frost ramps, including the selected extra green step in the final frost targets.</summary>
     private static (int Red, int Green, int Blue) Ice(int color)
     {
         if (color is >= 2 and <= 4)
@@ -85,6 +89,7 @@ internal static class BeamPaintDefinitions
         };
     }
 
+    /// <summary>Interpolates Wave's magenta ramp and its brighter violet accents.</summary>
     private static (int Red, int Green, int Blue) Wave(int color)
     {
         if (color is >= 2 and <= 4)
@@ -98,6 +103,7 @@ internal static class BeamPaintDefinitions
         return (level, 0, level);
     }
 
+    /// <summary>Interpolates Plasma's green ramp and the brighter green-white accent row.</summary>
     private static (int Red, int Green, int Blue) Plasma(int color)
     {
         if (color is >= 2 and <= 4)
@@ -113,6 +119,7 @@ internal static class BeamPaintDefinitions
         return color switch { 8 => (0, Rgb5Maximum, 0), 15 => (0, 9, 2), _ => throw new ArgumentOutOfRangeException(nameof(color)) };
     }
 
+    /// <summary>Reuses Plasma's green ramp channels for Spazer's yellow-green accents and supplies its remaining gold inks.</summary>
     private static (int Red, int Green, int Blue) Spazer(int color)
     {
         if (color is >= 5 and <= 7)

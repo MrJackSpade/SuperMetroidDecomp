@@ -79,13 +79,18 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// <summary>$A9:9C39, dying-drool head instruction list.</summary>
     public const ushort HeadDyingDroolInstructionList = 0x9c39;
 
-    // `$A9:BCA6/$BCB6` are indexed after incrementing the explosion index. Keeping all eight
-    // signed records here preserves the initial index-zero -> record-one behavior.
+    /// <summary>
+    /// Signed beam-explosion positions from $A9:BCA6/$BCB6. The index increments before
+    /// lookup, so its initial zero value selects the second record.
+    /// </summary>
     private static readonly Offset16<RoomPixels>[] ExplosionOffsets =
         [new(-8, -7), new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7)];
 
+    /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
+    /// <summary>Advances the post-fight corpse animation and its room effects.</summary>
     private readonly MotherBrainCorpseRottingState _corpseRotting = new();
+    /// <summary>Optional room artwork used to emit corpse tile transfers in installed rooms.</summary>
     private readonly RoomCharacterAtlas? _corpseArtwork;
 
     /// <summary>Standalone cartridge fixtures omit artwork; installed rooms bind the PNG.</summary>
@@ -791,9 +796,11 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return MakeBodyWalkBackwards(targetX, pointer);
     }
 
+    /// <summary>Requests the slow forward body animation until its target is reached.</summary>
     private MotherBrainWalkResult RequestWalkForwardReallySlow(ushort targetX) =>
         MakeBodyWalkForwards(targetX, BodyWalkingForwardReallySlowInstructionList);
 
+    /// <summary>Requests the slow backward body animation until its target is reached.</summary>
     private MotherBrainWalkResult RequestWalkBackwardReallySlow(ushort targetX) =>
         MakeBodyWalkBackwards(targetX, BodyWalkingBackwardReallySlowInstructionList);
 
@@ -945,6 +952,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
+    /// <summary>
+    /// Emits the death-phase explosions at the native timer cadence, consuming one global
+    /// random value per projectile so later enemy AI sees the same RNG sequence.
+    /// </summary>
     private void GenerateDeathExplosions(
         bool mixed,
         Func<ushort>? nextRandomNumber,
@@ -987,6 +998,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         }
     }
 
+    /// <summary>
+    /// Emits the next four-frame escape-door blast from its repeating native position table.
+    /// Returns no request on frames before the shared interval timer expires.
+    /// </summary>
     private MotherBrainEscapeDoorExplosionRequest? GenerateEscapeDoorExplosion(
         Func<ushort>? nextRandomNumber)
     {
@@ -1038,6 +1053,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         AimBeamAtSamus(samus);
     }
 
+    /// <summary>
+    /// Advances the held beam's sound countdown, alternating palette request, aim, width,
+    /// and explosion timer in the same call after the charge phase completes.
+    /// </summary>
     private void RunContinuingBeamEffects(
         SamusState samus,
         ushort enemyFrameCounter,
@@ -1090,6 +1109,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             ExplosionOffsets[offsetIndex]);
     }
 
+    /// <summary>Drains one health with Varia or two without, clamping native underflow to zero.</summary>
     private static void DamageSamusDueToRainbowBeam(SamusState samus)
     {
         // `$A9:C57D` loads `$FFFE` in both branches. The meaningful Varia distinction is
@@ -1100,6 +1120,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         samus.Health = NativeAtLeast(candidate, 1) ? candidate : (ushort)0;
     }
 
+    /// <summary>
+    /// Drains missiles and supers every fourth enemy pass and power bombs every pass while
+    /// the rainbow beam holds Samus.
+    /// </summary>
     private static void DecrementAmmoDueToRainbowBeam(
         SamusState samus,
         ushort mainEnemyExecutionCounter)
@@ -1115,6 +1139,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         samus.PowerBombs = DecrementOneAmmoType(samus, samus.PowerBombs, selectedItem: 3);
     }
 
+    /// <summary>Decrements one ammo count and clears the selected HUD item on depletion.</summary>
     private static ushort DecrementOneAmmoType(
         SamusState samus,
         ushort current,
@@ -1139,6 +1164,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return 0;
     }
 
+    /// <summary>Performs the cartridge's signed 16-bit subtraction test for a lower bound.</summary>
     private static bool NativeAtLeast(ushort value, ushort threshold) =>
         unchecked((short)(value - threshold)) >= 0;
 

@@ -462,6 +462,7 @@ public static class SamusBlockCollision
             EnemyCollision: enemyCollision);
     }
 
+    /// <summary>Vertical scan result including sand contact, which can affect motion without blocking travel.</summary>
     private readonly record struct VerticalTerrainScan(int AcceptedDisplacement, bool Collided, bool SandContact);
 
     /// <summary>
@@ -798,6 +799,10 @@ public static class SamusBlockCollision
     private static bool CanBreakCollisionBombBlock(SamusKinematicsState state, bool explicitAdmission) =>
         explicitAdmission || state.SamusOwner?.PoseMetadata.BreaksCollisionBombBlocks == true;
 
+    /// <summary>
+    /// Resolves a non-square slope against Samus's leading vertical boundary and retains
+    /// the clipped 16.16 distance when the slope intercepts the requested travel.
+    /// </summary>
     private static (int Displacement, bool Collided) ClipVerticalToNonSquareSlope(
         ISnesAddressSpace bus,
         SamusKinematicsState state,
@@ -982,6 +987,7 @@ public static class SamusBlockCollision
         return true;
     }
 
+    /// <summary>Clips horizontal travel at a solid block and writes the native X fraction for the hit side.</summary>
     private static int ClipHorizontalToSolid(
         SamusKinematicsState state,
         int displacement,
@@ -1005,6 +1011,7 @@ public static class SamusBlockCollision
         }
     }
 
+    /// <summary>Clips horizontal travel at the occupied half of a square slope tile.</summary>
     private static int ClipHorizontalToSquareSlope(
         SamusKinematicsState state,
         int displacement,
@@ -1028,6 +1035,7 @@ public static class SamusBlockCollision
         return SnesSixteenSixteen.FromWhole(rightWhole);
     }
 
+    /// <summary>Clips vertical travel at a solid block and writes the native Y fraction for the hit side.</summary>
     private static int ClipVerticalToSolid(
         SamusKinematicsState state,
         int displacement,
@@ -1051,6 +1059,7 @@ public static class SamusBlockCollision
         }
     }
 
+    /// <summary>Clips vertical travel against a square slope, marking support on downward contact.</summary>
     private static int ClipVerticalToSquareSlope(
         SamusKinematicsState state,
         int displacement,
@@ -1078,6 +1087,7 @@ public static class SamusBlockCollision
         return SnesSixteenSixteen.FromWhole(downWhole);
     }
 
+    /// <summary>Counts tile rows touched by Samus's current vertical collision extent.</summary>
     private static int GetVerticalBlockSpan(SamusKinematicsState state)
     {
         ushort alignedTop = unchecked((ushort)(state.Position.Y.Whole - state.Radius.Y));
@@ -1085,6 +1095,7 @@ public static class SamusBlockCollision
         return unchecked((ushort)(state.Radius.Y + state.Position.Y.Whole - 1 - alignedTop)) >> 4;
     }
 
+    /// <summary>Counts tile columns touched by Samus's current horizontal collision extent.</summary>
     private static int GetHorizontalBlockSpan(SamusKinematicsState state)
     {
         ushort alignedLeft = unchecked((ushort)(state.Position.X.Whole - state.Radius.X));
@@ -1157,6 +1168,10 @@ public static class SamusBlockCollision
             state.Position = state.Position.WithWholeY(unchecked((ushort)(state.Position.Y.Whole - GrappleVerticalOverlap(bus, level, state, down: true))));
     }
 
+    /// <summary>
+    /// Measures block overlap in the selected vertical direction after grapple releases
+    /// Samus, allowing the caller to eject her before the new pose radius is installed.
+    /// </summary>
     private static int GrappleVerticalOverlap(ISnesAddressSpace bus, RoomLevelData level, SamusKinematicsState state, bool down)
     {
         int boundary = unchecked((ushort)(state.Position.Y.Whole + (down ? state.Radius.Y - 1 : -state.Radius.Y)));

@@ -14,6 +14,10 @@ using SuperMetroid.Core.Runtime;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>
+/// Focused cartridge comparisons for aerial motion, jump poses, liquid drag, and
+/// atmosphere effects that share Samus's movement state.
+/// </summary>
 internal static class SamusAerialAndLiquidsVerification
 {
 

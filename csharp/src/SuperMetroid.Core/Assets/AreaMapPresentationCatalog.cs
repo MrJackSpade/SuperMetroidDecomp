@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable map content snapshot. Overrides never alter stock provenance or exploration rules.</summary>
 public sealed class AreaMapPresentationCatalog : IVramAssetProvider
 {
+    /// <summary>One validated map view per retail area in area-ID order.</summary>
     private readonly IAreaMapView[] areas;
-private AreaMapPresentationCatalog(AreaMapPresentationParts parts)
+    /// <summary>Captures the selected maps and shared presentation resources as one immutable snapshot.</summary>
+    private AreaMapPresentationCatalog(AreaMapPresentationParts parts)
     {
         this.areas = parts.Areas;
         ContentIdentity = parts.ContentIdentity;
@@ -385,18 +387,23 @@ private AreaMapPresentationCatalog(AreaMapPresentationParts parts)
     /// <summary>Reads stock files that must match the extraction manifest's SHA-256 values.</summary>
     private sealed class VerifiedStockReader : IDisposable
     {
+        /// <summary>Root of the extracted stock files subject to manifest checks.</summary>
         private readonly string directory;
+        /// <summary>Expected digests and provenance for the stock content.</summary>
         private readonly AreaMapCatalogManifest manifest;
+        /// <summary>Names actually verified during this catalog load.</summary>
         private readonly HashSet<string> read = new(StringComparer.Ordinal);
-        // Stock bytes live only for one catalog load; every buffer returns to the pool on dispose.
+        /// <summary>Buffers retained only for one load and returned to the shared pool on disposal.</summary>
         private readonly List<byte[]> rented = [];
 
+        /// <summary>Starts a manifest-bound read session in the extracted stock directory.</summary>
         private VerifiedStockReader(string directory, AreaMapCatalogManifest manifest)
         {
             this.directory = directory;
             this.manifest = manifest;
         }
 
+        /// <summary>Loads and validates the manifest's version and required resource count.</summary>
         public static VerifiedStockReader Open(string directory)
         {
             AreaMapCatalogManifest manifest;
@@ -412,6 +419,7 @@ private AreaMapPresentationCatalog(AreaMapPresentationParts parts)
             return new VerifiedStockReader(directory, manifest);
         }
 
+        /// <summary>Rents a buffer, reads one listed stock file, and checks its SHA-256 digest.</summary>
         public ArraySegment<byte> Read(string file)
         {
             if (!manifest.Sha256.TryGetValue(file, out string? expected))
@@ -430,12 +438,14 @@ private AreaMapPresentationCatalog(AreaMapPresentationParts parts)
             return bytes;
         }
 
+        /// <summary>Returns every stock buffer rented during this load to the shared pool.</summary>
         public void Dispose()
         {
             foreach (byte[] buffer in rented) ArrayPool<byte>.Shared.Return(buffer);
             rented.Clear();
         }
 
+        /// <summary>Validates seven station masks as distinct in-bounds row-major map cells.</summary>
         public Dictionary<AreaId, HashSet<int>> ReadStationCells()
         {
             Dictionary<string, int[]> masks;

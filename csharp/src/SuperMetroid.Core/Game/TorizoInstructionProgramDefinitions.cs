@@ -398,11 +398,15 @@ internal abstract class TorizoInstructionProgramDefinitions
     /// <summary><c>Function_GoldenTorizo_NormalMovement</c> at $AA:D5E6; native instruction callback operand.</summary>
     private const ushort Function_GoldenTorizo_NormalMovement = 0xd5e6;
 
+    /// <summary>Combines shared, Bomb Torizo, and Golden Torizo control words while reserving art pointers.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         [.. SharedItems, .. BombLeftItems, .. BombRightItems, .. GoldenLeftItems, .. GoldenRightItems]);
+    /// <summary>Number of interleaved spritemap words that remain presentation inputs.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Returns the native address of a Torizo spritemap word outside the mechanics layout.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads a compiled Torizo instruction or operand, rejecting pointers outside its authored control lists.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

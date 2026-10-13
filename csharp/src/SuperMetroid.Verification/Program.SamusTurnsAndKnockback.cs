@@ -14,10 +14,11 @@ using static AssertionsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Constructed pose-stream checks for aerial turns, wall jumps, hurt movement, and damage boosts.</summary>
 internal static class SamusTurnsAndKnockbackVerification
 {
 
-/// <summary>Aerial turn, wall-jump, knockback, and damage-boost verification.</summary>
+/// <summary>Checks auto-jump edges, turning animation endpoints, wall-jump admission, and pose transitions.</summary>
 internal static void VerifySamusAerialTurnsAndWallJump()
 {
     var bus = new TestAddressSpace();
@@ -972,6 +973,7 @@ static void SeedKnockbackDryVerticalRows(TestAddressSpace bus)
 // Exercises the bank-$9B/$94 connected-pendulum order with deliberately tiny ROM tables.
 // Hard-coded positions and velocities make this independent of production helper formulas.
 
+    /// <summary>Runs the focused aerial-turn and wall-jump pose fixture.</summary>
     [VerificationCommand("--samus-aerial-turns-walljump")]
     internal static int SamusAerialTurnsWalljumpCommand()
     {

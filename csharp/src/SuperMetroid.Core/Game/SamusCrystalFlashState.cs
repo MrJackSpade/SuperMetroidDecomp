@@ -236,6 +236,7 @@ public sealed class SamusCrystalFlashState
             BubbleHdmaRequested);
     }
 
+    /// <summary>Raises Samus two whole pixels for ten calls, then starts the drain phase and requests bubble HDMA.</summary>
     private void StepRaising(SamusState samus)
     {
         // `$90:D678-$D67D` changes only the whole-pixel word. The subposition survives.
@@ -260,6 +261,7 @@ public sealed class SamusCrystalFlashState
         samus.KnockbackActive = false;
     }
 
+    /// <summary>Consumes missiles, supers, then power bombs on each eighth NMI and restores 50 energy per decrement.</summary>
     private void StepAmmoDrain(SamusState samus, ushort nmiFrameCounter)
     {
         // All three pointed routines return immediately on seven of every eight accepted
@@ -305,6 +307,7 @@ public sealed class SamusCrystalFlashState
         samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 12, timer: 3);
     }
 
+    /// <summary>Waits for standing pose after the finish art, then releases input locks and requests palette restoration.</summary>
     private void StepFinish(ISnesAddressSpace bus, SamusState samus)
     {
         // Retail usually enters with equality because RaisedYPosition was captured at the
@@ -424,9 +427,11 @@ public sealed class SamusCrystalFlashState
         return true;
     }
 
+    /// <summary>Compares native word counters using the signed difference and its wraparound behavior.</summary>
     private static bool SignedLessThan(ushort left, ushort right) =>
         unchecked((short)(left - right)) < 0;
 
+    /// <summary>Mirrors Flash's frame and timer into WRAM words shared with other special palettes.</summary>
     private void PublishSharedPaletteWords(SamusState samus)
     {
         // `$0ACE/$0AD0` are not Crystal-Flash-private storage. Speed Booster, Screw Attack,

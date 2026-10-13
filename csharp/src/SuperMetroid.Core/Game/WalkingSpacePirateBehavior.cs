@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The walking space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
 {
+    /// <summary>Supplies solid-ground and ledge probes for the patrol AI.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Allocates the shared Pirate/Mother Brain laser projectile.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Binds the patrol collision owner and laser pool.</summary>
     internal WalkingSpacePirateBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles)
     {
         _terrain = terrain;
@@ -64,21 +67,30 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Library-two sound requested when the shared Pirate/Mother Brain laser launches.</summary>
     internal const ushort PirateMotherBrainLaserSound = 0x0067;
+    /// <summary>Fixed-point downward displacement used for the ground probe.</summary>
     private const int WalkingPirateOnePixelDown = 1 << 16;
+    /// <summary>Left patrol edge is probed one pixel farther than the right edge.</summary>
     private const int WalkingPirateLeftLedgeProbePixels = 17;
+    /// <summary>Right patrol ledge probe distance in room pixels.</summary>
     private const int WalkingPirateRightLedgeProbePixels = 16;
+    /// <summary>Native signed fixed-point displacement for a left patrol step.</summary>
     private const int WalkingPirateLeftStepDisplacement = -0x3801;
+    /// <summary>Native signed fixed-point displacement for a right patrol step.</summary>
     private const int WalkingPirateRightStepDisplacement = 0x3800;
+    /// <summary>Maximum vertical separation for choosing the laser attack.</summary>
     private const int WalkingPirateFiringBandPixels = 16;
+    /// <summary>Horizontal collision window used by the pirate's projectile flinch path.</summary>
     private const int WalkingPirateFlinchBoxPixels = 32;
+    /// <summary>Horizontal distance from the enemy center to the laser muzzle.</summary>
     private const int WalkingPirateLaserMuzzleXOffset = 24;
+    /// <summary>Slow laser's native whole-pixel movement per frame.</summary>
     private const int WalkingPirateSlowLaserPixelsPerFrame = 2;
+    /// <summary>Fast laser's native whole-pixel movement per frame.</summary>
     private const int WalkingPirateFastLaserPixelsPerFrame = 4;
 
-    // The six palette/health tiers share the same initialization, main AI, collision AI,
-    // dimensions, animation lists, and projectile. Definition identity must still remain
-    // explicit because damage, health, vulnerability, drops, tiles, and palette are ROM data.
+    /// <summary>Physical-slot state shared by six palette/health tiers; definition identity still controls damage, drops, and artwork.</summary>
     internal readonly WalkingSpacePirateEnemyState?[] _walkingSpacePirateStates =
         new WalkingSpacePirateEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -88,6 +100,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
     /// </summary>
     public ushort? LastSpacePirateSoundEffect { get; internal set; }
 
+    /// <summary>Recognizes the six walking variants that share patrol AI and laser behavior.</summary>
     internal static bool IsWalkingSpacePirateDefinition(EnemyDefinitionId definition) => definition is
         EnemyDefinitionId.PirateGreyWalking or
         EnemyDefinitionId.PirateGreenWalking or
@@ -305,12 +318,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
             : WalkingSpacePirateInstructionProgramDefinitions.WalkingRight;
     }
 
+    /// <summary>Tests signed vertical separation against the native sixteen-pixel firing band.</summary>
     private static bool WalkingSpacePirateIsVerticallyClose(
         RoomEnemySlot slot,
         SamusState samus) =>
         Math.Abs(unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))) <
             WalkingPirateFiringBandPixels;
 
+    /// <summary>Chooses a left or right laser instruction list from Samus's current side.</summary>
     private static void InstallWalkingSpacePirateAttack(
         RoomEnemySlot slot,
         SamusState samus) =>
@@ -320,6 +335,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
                 ? WalkingSpacePirateInstructionProgramDefinitions.FireLasersRight
                 : WalkingSpacePirateInstructionProgramDefinitions.FireLasersLeft);
 
+    /// <summary>Arms a newly selected instruction list for processing on the next tick.</summary>
     private static void InstallWalkingSpacePirateInstruction(
         RoomEnemySlot slot,
         ushort instructionPointer)
@@ -446,11 +462,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
             projectile.Clear();
     }
 
+    /// <summary>Requires the physical slot to have been initialized as a walking pirate.</summary>
     private WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
         RoomEnemySlot slot) =>
         _walkingSpacePirateStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized walking Space Pirate state.");
 
+    /// <summary>Registers laser movement and the opcode that immediately runs its installed pre-instruction.</summary>
     internal static void RegisterWalkingSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -480,6 +498,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
             });
     }
 
+    /// <summary>Dispatches the shared initialization routine for all six walking variants.</summary>
     internal void RegisterWalkingSpacePirateInitializationAi(EnemyAiTable table)
     {
 
@@ -489,6 +508,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Dispatches the patrol/attack AI using the initialized physical-slot state.</summary>
     internal void RegisterWalkingSpacePirateMainAi(EnemyAiTable table)
     {
 
@@ -503,6 +523,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Claims only the walking pirate's private function, laser, and movement opcodes.</summary>
     internal void RegisterWalkingSpacePirateOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -524,6 +545,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         LastSpacePirateSoundEffect = null;
     }
 
+    /// <summary>Runs the extended-hitbox shot callback, including native collision marking before rejection or reflection.</summary>
     internal bool ResolveSpacePirateHitboxShot(in EnemyShotContext c)
     {
         if (!c.UsesExtendedHitboxes)

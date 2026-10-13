@@ -16,8 +16,10 @@ using static ColorWordsVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks ending palette identity, native fade colors, installed artwork, and visible overrides.</summary>
 internal static class EndingPaletteArtworkVerification
 {
+    /// <summary>Checks the logo's reverse-copy palette fade against native pointers and actual CGRAM writes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette fade")]
     internal static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
@@ -117,6 +119,7 @@ internal static class EndingPaletteArtworkVerification
         AssertEqual(512, loaded.ColorCount, "computed fade retains published resource size");
     }
 
+    /// <summary>Derives six ending palette source ranges from native load operands and validates catalog metadata.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending palette metadata")]
     internal static void VerifyEndingPaletteMetadata(CartridgeImportAddressSpace rom)
     {
@@ -177,6 +180,7 @@ internal static class EndingPaletteArtworkVerification
         }
     }
 
+    /// <summary>Checks all seven constructor-position palette roles with distinct caller-owned colors.</summary>
     internal static void VerifyEndingPaletteRoleSelection()
     {
         // Distinct caller-owned values exercise the original constructor-position contract.
@@ -205,6 +209,7 @@ internal static class EndingPaletteArtworkVerification
             AssertThrows<IndexOutOfRangeException>(() => _ = catalog[(EndingPaletteId)invalid], "ending palette invalid role compatibility");
     }
 
+    /// <summary>Checks installed ending colors and visible scene overrides with cartridge reads guarded.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
@@ -403,6 +408,7 @@ internal static class EndingPaletteArtworkVerification
         Console.WriteLine("Ending palettes: seven native images and installed palette-FX colors, full ending CGRAM parity, ROM-free installed scene/audio-step guard, live visible overrides and strict failures pass.");
     }
 
+    /// <summary>Edits explosion palette-FX colors and checks that the ending scene visibly consumes them.</summary>
     private static void VerifyVisibleEndingPaletteFxOverride(GameInstallation installation,
         ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
     {
@@ -467,6 +473,7 @@ internal static class EndingPaletteArtworkVerification
             "edited Zebes lava palette-FX changes visible ending pixels without changing phase or VRAM");
     }
 
+    /// <summary>Compares installed logo fade CGRAM with native playback while prohibiting source color reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette artwork")]
     private static void VerifyEndingLogoPaletteArtwork(EndingPaletteCatalog stock,
@@ -505,6 +512,7 @@ internal static class EndingPaletteArtworkVerification
             "installed logo never reads either native palette color source");
     }
 
+    /// <summary>Edits credits palette colors and checks rendered ending pixels change without VRAM edits.</summary>
     private static void VerifyVisibleCreditsPaletteOverride(GameInstallation installation,
         ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
     {
@@ -555,6 +563,7 @@ internal static class EndingPaletteArtworkVerification
         File.Delete(overridePath);
     }
 
+    /// <summary>Edits logo crossfade colors and checks visible output while retaining tile data.</summary>
     private static void VerifyVisibleLogoPaletteOverride(GameInstallation installation,
         ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
     {
@@ -605,6 +614,7 @@ internal static class EndingPaletteArtworkVerification
         File.Delete(overridePath);
     }
 
+    /// <summary>Cartridge color intervals prohibited during ROM-free installed ending playback.</summary>
     private static readonly (EndingPaletteId Id, int Start, int End)[] EndingPaletteSourceRanges =
         Enum.GetValues<EndingPaletteId>()
             .Where(id => id != EndingPaletteId.LogoCrossfade)
@@ -637,6 +647,7 @@ internal static class EndingPaletteArtworkVerification
         return guard;
     }
 
+    /// <summary>Runs the seven-role palette identity check without a cartridge source.</summary>
     [VerificationCommand("--lookup-ending-palette-roles")]
     internal static int LookupEndingPaletteRolesCommand()
     {

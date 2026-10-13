@@ -327,6 +327,7 @@ using static ZoaAnimationDefinitionsVerification;
 using static ZoaInstructionProgramDefinitionsVerification;
 using static ZoaSpeedDefinitionsVerification;
 
+/// <summary>Registers compiled enemy math and instruction checks against pinned cartridge data.</summary>
 internal static class EnemyTrigonometryVerification
 {
     /// <summary>
@@ -654,9 +655,10 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyCompiledEnemySine), () => VerifyCompiledEnemySine()),
     ];
 
-    /// <summary>The whole family in registry order, in this process.</summary>
+    /// <summary>Runs the compiled enemy math and projectile suites serially in registry order.</summary>
     internal static void VerifyCompiledEnemyTrigonometry() => RunSuitesSerially(CompiledEnemyTrigonometrySuites());
 
+    /// <summary>Checks byte and unsigned sine products, phase shifts, truncation, and Sbug vectors against retail tables.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy sine")]
     private static void VerifyCompiledEnemySine()
     {
@@ -724,6 +726,7 @@ internal static class EnemyTrigonometryVerification
         Console.WriteLine("Compiled enemy sine: 256 exact samples, 65,536 byte inputs including both Sbug vector phases, and 8,388,608 unsigned products (two wrapped offsets) pass without any production bus dependency.");
     }
 
+    /// <summary>Checks signed sine and cinematic samples, then every tide phase and option combination against retail words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled signed trigonometry")]
     internal static void VerifyCompiledSignedTrigonometry(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
@@ -782,6 +785,7 @@ internal static class EnemyTrigonometryVerification
         Console.WriteLine("Compiled tide: all 65,536 phases in four option combinations preserve exact offset, phase advance and small-tide precedence without a bus.");
     }
 
+    /// <summary>Runs the registered compiled enemy trigonometry family.</summary>
     [VerificationCommand("--compiled-enemy-sine")]
     internal static int CompiledEnemySineCommand()
     {
@@ -789,6 +793,7 @@ internal static class EnemyTrigonometryVerification
         return 0;
     }
 
+    /// <summary>Runs signed sine and tide phase checks using a retail cartridge oracle.</summary>
     [VerificationCommand("--liquid-tide-phase")]
     internal static int LiquidTidePhaseCommand()
     {
@@ -798,6 +803,7 @@ internal static class EnemyTrigonometryVerification
     }
 }
 
+/// <summary>Pinned cartridge addresses used as independent enemy trigonometry oracles.</summary>
 internal static class EnemyMathReferenceData
 {
     /// <summary>Pinned $A0:B443-$B642 sign-extended 8.8 sine words.</summary>

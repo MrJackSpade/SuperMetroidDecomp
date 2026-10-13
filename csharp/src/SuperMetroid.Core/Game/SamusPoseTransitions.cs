@@ -8,8 +8,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Samus's pose transitions: grounded, aerial, posture and morph-ball changes, turn and wall-jump handling, and the collision checks a larger new pose must pass, applied to the Samus state it owns.</summary>
 internal sealed class SamusPoseTransitions
 {
+    /// <summary>The live Samus state whose pose, speed, and collision radius transitions are applied.</summary>
     private readonly SamusState _samus;
 
+    /// <summary>Binds pose transitions to one Samus instance so failed transitions preserve its current state.</summary>
     internal SamusPoseTransitions(SamusState owner)
     {
         _samus = owner;

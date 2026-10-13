@@ -15,8 +15,10 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Exercises native enemy drop selection, pickup effects, collision timing, and death conversion.</summary>
 internal static class EnemyDropsVerification
 {
+    /// <summary>First native enemy drop-chance record used by the synthetic definition header.</summary>
     internal const ushort NativeDropChancePointer = EnemyDropChanceDefinitions.FirstPointer;
 
     /// <summary>
@@ -38,6 +40,7 @@ internal static class EnemyDropsVerification
             "  Enemy drops: native random selection, five effects, collision/lifetime, grapple delay, slot-zero bug, and death conversion agree.");
     }
 
+    /// <summary>Confirms contact death replaces a respawning enemy with inert AI before the next frame.</summary>
     internal static void VerifyContactDeathStopsEnemyDispatch()
     {
         var samus = CreateDropTestSamus();
@@ -80,6 +83,7 @@ internal static class EnemyDropsVerification
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "placeholder cannot be killed twice");
     }
 
+    /// <summary>Checks resource changes and sounds for the five enemy pickup kinds.</summary>
     private static void VerifyEveryEnemyPickupEffect()
     {
         SamusState smallEnergySamus = CreateDropTestSamus();
@@ -147,6 +151,7 @@ internal static class EnemyDropsVerification
                     "super-missile pickup restores one"));
     }
 
+    /// <summary>Collects one spawned pickup and checks its sound and Samus resource effect.</summary>
     internal static void AssertEnemyPickupEffect(
         EnemyPickupKind kind,
         SamusState samus,
@@ -183,6 +188,7 @@ internal static class EnemyDropsVerification
         assertEffect(samus);
     }
 
+    /// <summary>Checks native random selection and eligibility rules for temporary enemy drops.</summary>
     internal static void VerifyEnemyDropSelectionRules()
     {
         // Random zero is explicitly rejected by $86:F106. A following value of one must
@@ -234,6 +240,7 @@ internal static class EnemyDropsVerification
             "full resources make the native record's ammo weights ineligible");
     }
 
+    /// <summary>Checks pickup contact timing, expiration, and transition to the shared blank tail.</summary>
     private static void VerifyEnemyPickupLifetimeAndCollision()
     {
         SamusState samus = CreateDropTestSamus();
@@ -265,6 +272,7 @@ internal static class EnemyDropsVerification
             "one pixel inside strict radius sum collects pickup");
     }
 
+    /// <summary>Checks the pickup's delayed collection while grapple interaction is active.</summary>
     private static void VerifyEnemyPickupGrappleDelay()
     {
         SamusState samus = CreateDropTestSamus();
@@ -324,6 +332,7 @@ internal static class EnemyDropsVerification
             "nineteenth allocation observes the shared eighteen-slot pool as full");
     }
 
+    /// <summary>Checks conversion of a generic death explosion into a pickup without replacing its projectile identity.</summary>
     private static void VerifyGenericEnemyDeathDropConversion()
     {
         SamusState samus = CreateDropTestSamus();
@@ -378,6 +387,7 @@ internal static class EnemyDropsVerification
             "converted death actor selects the compiled small-energy list");
     }
 
+    /// <summary>Creates a centered Samus fixture with full ordinary energy for pickup comparisons.</summary>
     internal static SamusState CreateDropTestSamus() => new()
     {
         Position = new(new(100, 0), new(100, 0)),
@@ -385,6 +395,7 @@ internal static class EnemyDropsVerification
         MaxHealth = 99,
     };
 
+    /// <summary>Loads a one-block room with ROM-shaped pickup programs and a controlled random queue.</summary>
     internal static EnemyDropFixture CreateEnemyDropFixture(
         SamusState samus,
         IReadOnlyList<ushort> randomValues)
@@ -402,6 +413,7 @@ internal static class EnemyDropsVerification
         return new EnemyDropFixture(bus, system, level);
     }
 
+    /// <summary>Seeds respawn enemy data and compiled pickup list pointers into the synthetic bus.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the respawn enemy definition copied into the synthetic pickup cartridge")]
     private static void SeedEnemyPickupRom(TestAddressSpace bus)
     {
@@ -443,11 +455,13 @@ internal static class EnemyDropsVerification
     private static void SeedContactDeathVulnerability(TestAddressSpace bus) =>
         bus.WriteBytes(0xb48014, [2]);
 
+    /// <summary>Groups the synthetic bus, loaded enemy system, and one-block level for pickup checks.</summary>
     internal readonly record struct EnemyDropFixture(
         TestAddressSpace Bus,
         RoomEnemySystem System,
         RoomLevelData Level);
 
+    /// <summary>Runs the complete enemy-drop verification command.</summary>
     [VerificationCommand("--enemy-drops")]
     internal static int EnemyDropsCommand()
     {
@@ -455,6 +469,7 @@ internal static class EnemyDropsVerification
         return 0;
     }
 
+    /// <summary>Runs the focused contact-death dispatch verification command.</summary>
     [VerificationCommand("--enemy-contact-death")]
     internal static int EnemyContactDeathCommand()
     {

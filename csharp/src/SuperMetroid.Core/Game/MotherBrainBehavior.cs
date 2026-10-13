@@ -7,27 +7,44 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Mother Brain species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class MotherBrainBehavior : IEnemySpecies
 {
+    /// <summary>Routes Mother Brain's AI and projectile handlers through the room dispatch tables.</summary>
     private readonly IEnemyDispatch _dispatch;
+    /// <summary>Provides room scratch memory, tiles, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Publishes screen shake during the encounter's collapse and attacks.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Queues the encounter's music and sound effects in enemy update order.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Retains the native body, head, and falling-tube slot layout.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Draws encounter artwork and applies installed palette data.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Supplies Samus and camera state for the current enemy frame.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Resolves the head, body, projectile, and Samus contact bounds.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>Applies the encounter's damage and death/drop rules.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
+    /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
 
+    /// <summary>Coordinates the Baby Metroid transfer and rainbow-beam rescue sequence.</summary>
     private readonly BabyMetroidCutsceneBehavior _babyMetroidCutsceneBehavior;
 
+    /// <summary>Provides Rinka behavior activated by the encounter.</summary>
     private readonly RinkaBehavior _rinkaBehavior;
 
+    /// <summary>Provides the space-pirate behavior selected during encounter setup.</summary>
     private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
+    /// <summary>Provides shared projectile movement used by the encounter.</summary>
     private readonly RidleyProjectiles _ridleyProjectiles;
+    /// <summary>Tracks room completion and boss status across the fight.</summary>
     private readonly EnemyRoomStatus _roomStatus;
 
+    /// <summary>Binds the encounter's room services while keeping one state owner for body and head.</summary>
     internal MotherBrainBehavior(MotherBrainBehaviorDependencies dependencies)
     {
         _dispatch = dependencies.Dispatch;
@@ -48,12 +65,15 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         _roomStatus = dependencies.RoomStatus;
     }
 
+    /// <summary>Native initial head instruction list at <c>$A9:9C21</c>.</summary>
     private const ushort MotherBrainInitialHeadInstruction = 0x9c21;
 
 
+    /// <summary>Recognizes the two enemy definitions that share the encounter state.</summary>
     private static bool IsMotherBrainDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead;
 
+    /// <summary>Discards the prior room's shared body/head state before enemy initialization.</summary>
     internal void ResetMotherBrainRoomState() => _motherBrainEncounter.MotherBrain = null;
 
     /// <summary>Ports <c>InitAI_MotherBrainBody</c> at <c>$A9:8687</c>.</summary>
@@ -100,6 +120,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         SpawnMotherBrainInitialTurrets();
     }
 
+    /// <summary>Applies the installed room-entry palette for glass and tube artwork.</summary>
     internal void LoadMotherBrainRoomEntryColors()
     {
         (_presentation.MotherBrainRoomColors ?? throw new InvalidOperationException(
@@ -162,6 +183,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             ResolveMotherBrainSamusCollision(state, samus);
     }
 
+    /// <summary>Dispatches the active body phase while preserving the phase-specific timer and attack order.</summary>
     private void RunMotherBrainBodyFunction(
         MotherBrainEnemyState state,
         SamusState? samus,
@@ -291,6 +313,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Updates the glass-bound first phase and advances its scripted reaction to Samus.</summary>
     private void RunMotherBrainFirstPhase(MotherBrainEnemyState state, SamusState? samus)
     {
         // Before PLM `$D6DE` finishes the nineteen missile increments and its 48-frame tail,
@@ -432,6 +455,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     private static readonly Offset16<RoomPixels>[] MotherBrainShakeOffsets =
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
+    /// <summary>Draws a selected world-space Mother Brain frame with palette and camera offsets.</summary>
     internal void DrawMotherBrainWorldSpritemap(
         OamBuffer oam,
         ushort spritemapPointer,
@@ -450,6 +474,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = MotherBrainVisualDefinitions.Bank, Pointer = spritemapPointer, Origin = screen.ToOam(), PaletteBits = paletteIndex, BaseTileIndex = vramTilesIndex });
     }
 
+    /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>
     private static Offset16<RoomPixels> GetMotherBrainBrainShake(
         MotherBrainEnemyState state,
         RoomEnemySlot head)
@@ -469,6 +494,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         return MotherBrainShakeOffsets[index];
     }
 
+    /// <summary>Moves neck segments toward the head and updates their attachment to Samus's position.</summary>
     private static void StepMotherBrainNeck(MotherBrainEnemyState state, SamusState samus)
     {
         if (state.NeckMovementEnabled)
@@ -921,12 +947,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         };
     }
 
+    /// <summary>Requires the active rainbow attack sequence for live phase transitions.</summary>
     private MotherBrainRainbowBeamAttackSequence RequireLiveMotherBrainRainbowSequence(
         RoomEnemySlot slot) =>
         RequireCompleteMotherBrainState(slot).RainbowBeamSequence ??
         throw new InvalidDataException(
             "Mother Brain head bytecode requires the live rainbow/Baby sequence.");
 
+    /// <summary>Requires a body and head pair initialized in their native enemy slots.</summary>
     private MotherBrainEnemyState RequireCompleteMotherBrainState(RoomEnemySlot slot)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
@@ -938,6 +966,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         return state;
     }
 
+    /// <summary>Installs the handlers used when Samus's bombs contact Mother Brain.</summary>
     internal void RegisterMotherBrainBombReactions(EnemyAiTable table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
@@ -945,6 +974,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             c => ResolveMotherBrainHeadNormalBomb(c.Enemy, c.Bomb));
     }
 
+    /// <summary>Registers the encounter-owned bombs, glass, beams, rings, turrets, tubes, and effects.</summary>
     internal void RegisterMotherBrainProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -1053,6 +1083,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             });
     }
 
+    /// <summary>Binds body and head initialization to their native enemy definitions.</summary>
     internal void RegisterMotherBrainInitializationAi(EnemyAiTable table)
     {
 
@@ -1072,6 +1103,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Binds body and head frame updates to their native enemy definitions.</summary>
     internal void RegisterMotherBrainMainAi(EnemyAiTable table)
     {
 
@@ -1091,6 +1123,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Binds encounter-specific enemy instruction commands to their handlers.</summary>
     internal void RegisterMotherBrainOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -1100,6 +1133,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Binds head and body shot responses for each combat phase.</summary>
     internal void RegisterMotherBrainShotReactions(EnemyAiTable table)
     {
 
@@ -1207,6 +1241,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             bomb.Variable1 = unchecked((ushort)(bomb.Variable1 + 2));
     }
 
+    /// <summary>Consumes an overlapping Samus bomb and resolves the Mother Brain bomb explosion.</summary>
     private bool TryDestroyMotherBrainBombWithSamusBomb(
         RoomEnemyProjectileSlot bomb,
         MotherBrainEnemyState state,
@@ -1242,6 +1277,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         return false;
     }
 
+    /// <summary>Advances a bomb through its native trajectory and reports arena-boundary expiry.</summary>
     private static bool MoveMotherBrainBomb(
         RoomEnemyProjectileSlot bomb,
         ushort acceleration)
@@ -1263,6 +1299,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Removes an expired bomb and emits the associated explosion effect.</summary>
     private void ExpireMotherBrainBomb(
         RoomEnemyProjectileSlot bomb,
         MotherBrainEnemyState state)
@@ -1282,6 +1319,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         state.LastSoundEffectLibrary3 = 0x0013;
     }
 
+    /// <summary>Clears a bomb slot when its native lifetime or collision ends.</summary>
     private static void DeleteMotherBrainBomb(
         RoomEnemyProjectileSlot bomb,
         MotherBrainEnemyState state)
@@ -1291,6 +1329,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         bomb.Clear();
     }
 
+    /// <summary>Uses strict hitbox intersection for bomb-to-bomb contact.</summary>
     private static bool MotherBrainBombStrictOverlap(
         Position16<RoomPixels> first,
         Extent16<RoomPixels> firstRadius,
@@ -1353,6 +1392,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         return false;
     }
 
+    /// <summary>Checks a single head or body contact region and applies the phase-specific collision response.</summary>
     internal static bool ResolveMotherBrainSamusCollisionPart(
         MotherBrainEnemyState state,
         SamusState samus,
@@ -1395,6 +1435,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         return false;
     }
 
+    /// <summary>Applies body contact damage while preserving Samus's invulnerability timing.</summary>
     private static void DamageSamusFromMotherBrainBody(RoomEnemySlot body, SamusState samus)
     {
         ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
@@ -1703,6 +1744,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Applies the requested body-color row during the death fade.</summary>
     internal void LoadMotherBrainDeathBodyFade(int frame)
     {
         if (_room.Artwork?.MotherBrainDeathColors is { } colors)
@@ -1719,6 +1761,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         throw new InvalidOperationException("Mother Brain death requires installed fade colors.");
     }
 
+    /// <summary>Applies the requested corpse-color row during the death fade.</summary>
     internal void LoadMotherBrainDeathCorpseFade(int frame)
     {
         if (_room.Artwork?.MotherBrainDeathColors is { } colors)
@@ -1730,6 +1773,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         throw new InvalidOperationException("Mother Brain corpse fade requires installed colors.");
     }
 
+    /// <summary>Restores the room door colors required after Mother Brain dies.</summary>
     internal void LoadMotherBrainDeathDoorPalette()
     {
         if (_room.Artwork?.MotherBrainDeathColors is { } colors)
@@ -1741,6 +1785,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         throw new InvalidOperationException("Mother Brain exploded door requires installed colors.");
     }
 
+    /// <summary>Places a death explosion with the requested position and visual phase.</summary>
     internal void SpawnMotherBrainDeathExplosion(MotherBrainDeathExplosionRequest request)
     {
         ushort instructionList =
@@ -1755,12 +1800,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         RunMotherBrainDeathExplosion(projectile);
     }
 
+    /// <summary>Advances a death explosion projectile through its installed program.</summary>
     internal void RunMotherBrainDeathExplosion(RoomEnemyProjectileSlot projectile)
     {
         var body = _motherBrainEncounter.MotherBrain?.Body ?? throw new InvalidOperationException("Body-relative death explosion has no Mother Brain owner.");
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + projectile.Velocity.X.RawValue)), unchecked((ushort)(body.Position.Y.Whole + projectile.Velocity.Y.RawValue))));
     }
 
+    /// <summary>Spawns a falling door fragment from the native parameter identity.</summary>
     internal void SpawnMotherBrainDoorFragment(ushort parameter)
     {
         MotherBrainDoorFragmentDefinition definition =
@@ -1773,6 +1820,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         fragment.Variable0 = MotherBrainDeathRomData.DoorFragmentLifetime;
     }
 
+    /// <summary>Updates a door fragment's fall and expiration after the room collapse.</summary>
     internal void RunMotherBrainDoorFragment(RoomEnemyProjectileSlot fragment)
     {
         bool negative = unchecked((short)fragment.Velocity.X.RawValue) < 0;
@@ -1789,11 +1837,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MotherBrainDeathRomData.DoorDustParameter);
     }
 
+    /// <summary>Keeps the escape subtitle projectile fixed to its screen position.</summary>
     internal static void PinMotherBrainEscapeSubtitle(RoomEnemyProjectileSlot subtitle)
     {
         subtitle.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         subtitle.Position = subtitle.Position.WithWhole(new(MotherBrainDeathRomData.SubtitleX, MotherBrainDeathRomData.SubtitleY));
     }
+    /// <summary>Native sequence of explosion positions used by the fake-death collapse.</summary>
     private static readonly (ushort X, ushort Y)[] MotherBrainFakeDeathExplosionPositions =
     [
         (136, 116),
@@ -1936,6 +1986,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Waits through the fake-death pause before control is locked for the next phase.</summary>
     private void RunMotherBrainPauseBeforeLock(MotherBrainEnemyState state, SamusState? samus)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
@@ -1966,6 +2017,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         return timer.IsNegative;
     }
 
+    /// <summary>Steps Mother Brain's fake-death gray fade and advances when its palette cycle completes.</summary>
     internal void RunMotherBrainFadeToGray(MotherBrainEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
@@ -2051,6 +2103,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             "Mother Brain room-palette list exceeded 16 commands without selecting a timed entry.");
     }
 
+    /// <summary>Copies the selected timed room-palette entry into CGRAM.</summary>
     private void ApplyMotherBrainRoomPalette(ushort timedEntryPointer)
     {
         (_presentation.MotherBrainRoomColors ?? throw new InvalidOperationException(
@@ -2058,6 +2111,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             .ApplyFlash(_presentation._cgram!, timedEntryPointer);
     }
 
+    /// <summary>Stops the palette effect and restores the encounter's steady room colors.</summary>
     internal void StopMotherBrainRoomPalette(MotherBrainEnemyState state)
     {
         state.RoomPaletteInstructionPointer = 0;
@@ -2067,6 +2121,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             .ApplyFinal(_presentation._cgram!);
     }
 
+    /// <summary>Emits timed explosions while the first-phase body appears to die.</summary>
     private void RunMotherBrainFakeDeathExplosion(MotherBrainEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FakeDeathExplosionTimer);
@@ -2088,6 +2143,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
 
     // Every spawn after the first ($A9:8983-$8ACB) begins with DEC timer : BPL return, so
     // each waits out the $20 (or $02) its preceding clear step set.
+    /// <summary>Schedules glass and tube collapse phases with their authored waits.</summary>
     internal void RunMotherBrainTubeCollapse(MotherBrainEnemyState state)
     {
         switch (state.TubeCollapseFunction)
@@ -2200,6 +2256,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Implements the tube phase's wraparound countdown transition.</summary>
     private static bool DecrementMotherBrainTubeTimerPastZero(MotherBrainEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.TubeCollapseTimer);
@@ -2207,6 +2264,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         return timer.IsNegative;
     }
 
+    /// <summary>Queues the room tile change at the tube's native location.</summary>
     private static void RequestMotherBrainTubePlm(
         MotherBrainEnemyState state,
         Position16<RoomBlocks> block,
@@ -2219,6 +2277,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         state.TubeCollapseTimer = timer;
     }
 
+    /// <summary>Spawns the top tube projectile for the scripted collapse.</summary>
     internal void SpawnMotherBrainTopTube(
         RoomEnemyProjectileKind kind,
         Position16<RoomPixels> position)
@@ -2260,6 +2319,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), animationIndex: 12);
     }
 
+    /// <summary>Creates a falling tube enemy from its population pointer.</summary>
     internal void SpawnMotherBrainFallingTube(ushort populationPointer)
     {
         int slotIndex = Array.FindIndex(_slotTable._slots, slot => slot.EnemyDefinitionPointer == 0);
@@ -2328,6 +2388,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Moves a falling tube, with a distinct path for the main tube.</summary>
     private void FallMotherBrainTube(RoomEnemySlot tube, bool mainTube)
     {
         tube.VariableC = unchecked((ushort)(tube.VariableC + 6));
@@ -2380,6 +2441,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         ExplodeMotherBrainTube(tube);
     }
 
+    /// <summary>Emits smoke at the falling tube's current position.</summary>
     private void SpawnMotherBrainTubeSmoke(RoomEnemySlot tube)
     {
         tube.VariableD = unchecked((ushort)(tube.VariableD - 1));
@@ -2393,6 +2455,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             animationIndex: 9);
     }
 
+    /// <summary>Finishes a falling tube with its explosion and tile update.</summary>
     private void ExplodeMotherBrainTube(RoomEnemySlot tube)
     {
         ushort x = tube.Position.X.Whole;
@@ -2403,6 +2466,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             _motherBrainEncounter.MotherBrain.LastSoundEffect = SoundEffectLibrary2Sounds.SmallExplosion.Value;
     }
 
+    /// <summary>Queues the BG2 room rows revealed by the tube collapse.</summary>
     private static void RequestMotherBrainRoomRows(
         MotherBrainEnemyState state,
         PlmHeaderId firstHeader,
@@ -2424,6 +2488,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         state.Function = next;
     }
 
+    /// <summary>Stages the phase-two body tilemap and requests its first VRAM transfer.</summary>
     internal void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
     {
         // `$A9:8D11` installs colors 1..15 of the attack and back-leg palettes. Color zero
@@ -2546,9 +2611,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         sparkle.GraphicsIndex = MotherBrainGlassShardDefinitions.GraphicsIndex;
     }
 
+    /// <summary>Reads the native signed sine table as its raw two-byte sample.</summary>
     internal static ushort ReadSignedSineSample(int index) =>
         unchecked((ushort)EnemyTrigonometryTables.SignedNegativeCosineWord(index));
+    /// <summary>Native body animation at <c>$A9:9A42</c> for the hand-beam windup.</summary>
     private const ushort MotherBrainHandBeamBodyInstruction = 0x9a42;
+    /// <summary>Native walking animation at <c>$A9:9852</c> for the hand-beam approach.</summary>
     private const ushort MotherBrainHandBeamWalkInstruction = 0x9852;
 
     /// <summary>Ports the four-entry body dispatcher at <c>$A9:B87D-B8EA</c>.</summary>
@@ -2710,18 +2778,26 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         beam.InstructionTimer = 1;
     }
 
+    /// <summary>Detects when a fired hand beam has crossed the fight arena's bounds.</summary>
     private static bool IsMotherBrainHandBeamOutsideArena(
         RoomEnemyProjectileSlot beam) =>
         unchecked((short)(beam.Position.Y.Whole - 0x0022)) < 0 ||
         unchecked((short)(beam.Position.Y.Whole - 0x00ce)) >= 0 ||
         unchecked((short)(beam.Position.X.Whole - 0x0002)) < 0 ||
         unchecked((short)(beam.Position.X.Whole - 0x00ee)) >= 0;
+    /// <summary>Native crouched body list at <c>$A9:9A02</c> used for bomb attacks.</summary>
     private const ushort MotherBrainCrouchedInstruction = 0x9a02;
+    /// <summary>Native slow uncrouch body list at <c>$A9:99AA</c>.</summary>
     private const ushort MotherBrainSlowUncrouchInstruction = 0x99aa;
+    /// <summary>Native head-stretch list at <c>$A9:9B7F</c> during the phase-two rise.</summary>
     private const ushort MotherBrainStretchingHeadInstruction = 0x9b7f;
+    /// <summary>Native neutral head list at <c>$A9:9C87</c> between phase-two attacks.</summary>
     private const ushort MotherBrainNeutralPhaseTwoHeadInstruction = 0x9c87;
+    /// <summary>Native four-ring attack head list at <c>$A9:9D3D</c>.</summary>
     private const ushort MotherBrainFourOnionRingsInstruction = 0x9d3d;
+    /// <summary>Native bomb-attack head list at <c>$A9:9ECC</c>.</summary>
     private const ushort MotherBrainBombPhaseTwoHeadInstruction = 0x9ecc;
+    /// <summary>Native laser-attack head list at <c>$A9:9F34</c>.</summary>
     private const ushort MotherBrainLaserHeadInstruction = 0x9f34;
 
     private static readonly ushort[] MotherBrainAscentDustXPositions =
@@ -2887,6 +2963,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Attaches the phase-two head and prepares its first animation and position.</summary>
     private void SetupMotherBrainPhaseTwoBrain(
         MotherBrainEnemyState state)
     {
@@ -2911,6 +2988,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         PauseBeforeMotherBrainRises(state);
     }
 
+    /// <summary>Holds the phase-two body before its scripted ascent begins.</summary>
     private void PauseBeforeMotherBrainRises(
         MotherBrainEnemyState state)
     {
@@ -2922,6 +3000,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         PrepareMotherBrainForRising(state);
     }
 
+    /// <summary>Stages the body and head state used by the rise from the collapsed room.</summary>
     internal void PrepareMotherBrainForRising(
         MotherBrainEnemyState state)
     {
@@ -2941,6 +3020,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         LoadMotherBrainLegTiles(state);
     }
 
+    /// <summary>Loads the leg tiles needed before the phase-two body becomes visible.</summary>
     private void LoadMotherBrainLegTiles(
         MotherBrainEnemyState state)
     {
@@ -2956,6 +3036,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         ContinueMotherBrainAscentPause(state);
     }
 
+    /// <summary>Drains the pending body sprite transfer and reports whether more VRAM work remains.</summary>
     internal bool ProcessMotherBrainSpriteTileTransfer(MotherBrainEnemyState state)
     {
         int index = state.SpriteTileTransferEntryPointer == 0
@@ -2980,6 +3061,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         return false;
     }
 
+    /// <summary>Consumes the pre-rise wait and advances to body ascent.</summary>
     private void ContinueMotherBrainAscentPause(MotherBrainEnemyState state)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
@@ -2991,6 +3073,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         state.Function = MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake;
     }
 
+    /// <summary>Switches the body into the rising state after its setup pause.</summary>
     private void StartMotherBrainAscent(MotherBrainEnemyState state)
     {
         SetMotherBrainInstructionList(state.Body, MotherBrainCrouchedInstruction);
@@ -3008,6 +3091,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         state.Function = MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain;
     }
 
+    /// <summary>Moves the body upward through the authored rise while updating its head attachment.</summary>
     internal void RaiseMotherBrain(MotherBrainEnemyState state)
     {
         // `$A9:8E4D` gates on NMI_FrameCounter ($05B6), not the separate 8-bit $05B5; the
@@ -3031,6 +3115,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         state.Function = MotherBrainBodyFunction.FakeDeathAscentWaitUntilUncrouched;
     }
 
+    /// <summary>Emits dust at the feet as the body rises from the floor.</summary>
     private void SpawnMotherBrainAscentDust(MotherBrainEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.BodySubFunctionTimer);
@@ -3045,6 +3130,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         state.LastSoundEffect = 0x0029;
     }
 
+    /// <summary>Holds the body phase until its slow uncrouch animation ends.</summary>
     private static void WaitForMotherBrainToFinishUncrouching(MotherBrainEnemyState state)
     {
         if (state.Pose != MotherBrainBodyPose.Standing)
@@ -3055,6 +3141,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         state.FunctionTimer = 0;
     }
 
+    /// <summary>Restores the combat palette after the gray fake-death phase.</summary>
     internal void TransitionMotherBrainFromGray(MotherBrainEnemyState state)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
@@ -3082,6 +3169,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         state.FunctionTimer = 0x0017;
     }
 
+    /// <summary>Applies the phase-two head shake before normal combat begins.</summary>
     private static void ShakeMotherBrainHeadMenacingly(
         MotherBrainEnemyState state)
     {
@@ -3095,6 +3183,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         BringMotherBrainHeadBackUp(state);
     }
 
+    /// <summary>Returns the head from its lowered pose after the stretch.</summary>
     private static void BringMotherBrainHeadBackUp(
         MotherBrainEnemyState state)
     {
@@ -3108,6 +3197,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         FinishMotherBrainStretching(state);
     }
 
+    /// <summary>Switches the head to its neutral phase-two instruction list.</summary>
     private static void FinishMotherBrainStretching(MotherBrainEnemyState state)
     {
         if (!DecrementMotherBrainTimerPastZero(state))
@@ -3117,6 +3207,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
     }
 
+    /// <summary>Advances the between-attacks delay and chooses when another attack may start.</summary>
     private void RunMotherBrainSecondPhaseThinking(
         MotherBrainEnemyState state,
         SamusState? samus,
@@ -3284,6 +3375,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Identifies Samus movement types considered airborne by the attack chooser.</summary>
     private static bool IsMotherBrainAirAttackMovement(SamusMovementType movementType) =>
         movementType is
             SamusMovementType.NormalJumping or
@@ -3387,6 +3479,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             FinishMotherBrainBombAttack(state);
     }
 
+    /// <summary>Returns the body and head to their neutral thinking phase after a bomb.</summary>
     private static void FinishMotherBrainBombAttack(MotherBrainEnemyState state) =>
         state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
 
@@ -3441,6 +3534,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Requires a live Samus state for combat-only phase logic.</summary>
     private static SamusState RequireMotherBrainCombatSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
             "Mother Brain phase-two attack selection requires the active Samus actor.");
@@ -3507,6 +3601,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         RunMotherBrainSecondPhaseThinking(state, samus);
     }
 
+    /// <summary>Advances the chosen walk direction, animation, and footstep cadence.</summary>
     private void HandleMotherBrainWalking(MotherBrainEnemyState state)
     {
         // `$A9:C6B8` alters only the walk accumulator and installs a ROM-authored body list;
@@ -3540,6 +3635,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             StartMotherBrainForwardWalk(state);
     }
 
+    /// <summary>Starts the body animation and state for a forward step.</summary>
     private static void StartMotherBrainForwardWalk(MotherBrainEnemyState state)
     {
         state.WalkCounter = 0x0080;
@@ -3591,6 +3687,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             _motherBrainEncounter.MotherBrain.LastSoundEffectLibrary3 = SoundEffectLibrary3Sounds.MotherBrainFormThreeFootstep.Value;
     }
 
+    /// <summary>Restarts a slot's native animation list with its initial timer.</summary>
     internal static void SetMotherBrainInstructionList(RoomEnemySlot slot, ushort pointer)
     {
         slot.CurrentInstruction = pointer;
@@ -3598,6 +3695,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Publishes the encounter's BG2 offset for the current body motion.</summary>
     private void PublishMotherBrainBg2Scroll(
         MotherBrainEnemyState state,
         Position16<Bg2Pixels> scroll)
@@ -3816,6 +3914,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Positions an unlaunched ring at the moving head's mouth.</summary>
     private static void PinMotherBrainOnionRingToMouth(
         RoomEnemyProjectileSlot ring,
         MotherBrainEnemyState state)
@@ -3825,6 +3924,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         ring.Position = ring.Position.WithWhole(new(unchecked((ushort)(head.Position.X.Whole + 0x000a)), unchecked((ushort)(head.Position.Y.Whole + 0x0010))));
     }
 
+    /// <summary>Checks ring contact against Samus's current hitbox.</summary>
     private static bool MotherBrainOnionRingOverlapsSamus(
         RoomEnemyProjectileSlot ring,
         SamusState samus) =>
@@ -3833,6 +3933,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         EnemyMath.WrappedMagnitude(unchecked((ushort)(ring.Position.Y.Whole - samus.Position.Y.Whole))) <
             ring.Radius.Y + samus.Kinematics.Radius.Y;
 
+    /// <summary>Checks ring contact against the Baby Metroid's current hitbox.</summary>
     private static bool MotherBrainOnionRingOverlapsBaby(
         RoomEnemyProjectileSlot ring,
         BabyMetroidCutsceneState baby) =>
@@ -3841,6 +3942,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         EnemyMath.WrappedMagnitude(unchecked((ushort)(ring.Position.Y.Whole - baby.Position.Y.Whole))) <
             ring.Radius.Y + BabyMetroidCutsceneState.YHitboxRadius;
 
+    /// <summary>Ends a ring on contact and spawns its explosion effect.</summary>
     private void ExplodeMotherBrainOnionRing(
         RoomEnemyProjectileSlot ring,
         MotherBrainEnemyState state,
@@ -3972,12 +4074,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             SnesLittleEndian.Word(reversedDirection, unchecked((byte)rotationDelta)))));
     }
 
+    /// <summary>Restarts the turret's wait before it chooses another firing direction.</summary>
     private void ResetMotherBrainTurretRotationTimer(RoomEnemyProjectileSlot turret)
     {
         ushort sample = unchecked((byte)_room.Random.Generate());
         turret.Velocity = turret.Velocity.WithX(new SnesSignedEightEight(Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay)));
     }
 
+    /// <summary>Restarts the turret's pause between fired bullets.</summary>
     private void ResetMotherBrainTurretCooldown(RoomEnemyProjectileSlot turret)
     {
         ushort sample = unchecked((byte)_room.Random.Generate());
@@ -4094,6 +4198,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }
 
+    /// <summary>Copies rainbow-beam phase state into the live actor slot.</summary>
     private static void SynchronizeLiveMotherBrainRainbowActor(
         MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackSequence sequence)
@@ -4282,6 +4387,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         RunMotherBrainRainbowChargingPreInstruction(projectile);
     }
 
+    /// <summary>Pins the charging effect to the head while the beam winds up.</summary>
     internal void RunMotherBrainRainbowChargingPreInstruction(
         RoomEnemyProjectileSlot projectile)
     {
@@ -4308,6 +4414,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         projectile.Position = projectile.Position.WithWhole(samusBeforeMovement + request.Offset);
     }
 
+    /// <summary>Advances the rainbow impact effect through its timed lifetime.</summary>
     internal static void RunMotherBrainRainbowExplosionPreInstruction(
         RoomEnemyProjectileSlot projectile,
         SamusState? samus)
@@ -4317,6 +4424,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(target.Position.X.Whole + projectile.Velocity.X.RawValue)), unchecked((ushort)(target.Position.Y.Whole + projectile.Velocity.Y.RawValue))));
     }
 
+    /// <summary>Maps rainbow sequence phases to the matching body AI phase.</summary>
     internal static MotherBrainBodyFunction MapLiveMotherBrainRainbowFunction(
         MotherBrainRainbowBeamAttackPhase phase) => phase switch
         {
@@ -4533,6 +4641,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Registers the head-touch reaction for the active body/head pair.</summary>
     internal void RegisterMotherBrainHeadTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
@@ -4553,6 +4662,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
 
     // `$A9:B503` is `CreateDudShot`. The multibox bomb walker has already marked the physical explosion, and the
     // body callback performs no health, phase, or multipart-state work of its own.
+    /// <summary>Registers body bomb reactions in the native AI dispatch table.</summary>
     internal static void RegisterMotherBrainBodyBombReactions(EnemyAiTable table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&

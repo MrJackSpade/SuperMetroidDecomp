@@ -16,6 +16,7 @@ using static ColorWordsVerification;
 using static SamusDeathExplosionTimingDefinitionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Verifies Samus's Crystal Flash, X-ray, and death state machines with focused cartridge fixtures.</summary>
 internal static class SamusSpecialStatesVerification
 {
 
@@ -89,7 +90,7 @@ static void SeedCrystalFlashCartridge(TestAddressSpace bus)
     bus.WriteBytes(0x888d85 + 3 * 3, [0x04, 0x03, 0x02]);
 }
 
-/// <summary>Crystal Flash, X-ray, and death-sequence verification.</summary>
+/// <summary>Checks Crystal Flash admission, ammo drain, pose timing, body and bubble colors, and release.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifySamusCrystalFlash()
 {
@@ -910,18 +911,21 @@ internal static void VerifySamusDeathSequence()
 // Exercises all five `$91:E4AD` drained-controller entries, command `$F7`, the shared
 // old-speed vertical recurrence, collision handoff, and both asymmetric `$FD` releases.
 
+    /// <summary>Runs the seeded death pose, explosion, palette, and whiteout verification.</summary>
     [VerificationCommand("--death-sequence-fixture")]
     internal static int DeathSequenceFixtureCommand()
     {
      VerifySamusDeathSequence(); return 0; 
     }
 
+    /// <summary>Runs Crystal Flash and X-ray palette state fixtures.</summary>
     [VerificationCommand("--special-palette-fixtures")]
     internal static int SpecialPaletteFixturesCommand()
     {
      VerifySamusCrystalFlash(); VerifySamusXray(); return 0; 
     }
 
+    /// <summary>Runs the X-ray visor, movement, and window fixture.</summary>
     [VerificationCommand("--samus-xray")]
     internal static int SamusXrayCommand()
     {
@@ -929,6 +933,7 @@ internal static void VerifySamusDeathSequence()
         return 0;
     }
 
+    /// <summary>Runs the Crystal Flash state and palette fixture.</summary>
     [VerificationCommand("--crystal-flash")]
     internal static int CrystalFlashCommand()
     {

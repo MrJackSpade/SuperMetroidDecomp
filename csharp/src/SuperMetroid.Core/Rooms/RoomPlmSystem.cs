@@ -33,6 +33,7 @@ public sealed class RoomPlmSystem
     /// <summary>The <see cref="PlmSlotTable"/> owner of this RoomPlmSystem.</summary>
     internal PlmRoomBindings Bindings { get; }
 
+    /// <summary>Forty native word-indexed PLM slots shared by the room's object families.</summary>
     internal PlmSlotTable SlotTable { get; }
 
     /// <summary>The <see cref="PlmSoundQueue"/> owner of this RoomPlmSystem.</summary>
@@ -137,6 +138,7 @@ public sealed class RoomPlmSystem
         BossRoomMutations = new BossRoomMutationPlms(SlotTable);
     }
 
+    /// <summary>Door-object instruction owner bound to this room's allocation and draw state.</summary>
     internal DoorPlms DoorPlms { get; }
 
     /// <summary>
@@ -262,6 +264,7 @@ public sealed class RoomPlmSystem
         return Drawing._tilemapUpdates;
     }
 
+    /// <summary>Dispatches bank-$84 controls until a timed draw pair is installed; rejects uncompiled or runaway chains.</summary>
     private void ExecuteInstructionStream(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, RoomScrollGrid? scrolls, ushort collectedItems)
     {
         // An instruction list may execute multiple negative instruction words before it
@@ -537,16 +540,15 @@ public sealed class RoomPlmSystem
         throw new InvalidDataException("Movement-owned PLM instruction chain did not reach a timer.");
     }
 
+    /// <summary>Reads a wrapped PLM instruction word through the low-bank live WRAM alias.</summary>
     internal static ushort ReadPlmWorkRamWord(ISnesMutableMemory memory, ushort offset) =>
         new PlmLowBankAliasMemory(memory).Word(offset);
 
+    /// <summary>Reads a wrapped PLM instruction byte through the low-bank live WRAM alias.</summary>
     internal static byte ReadPlmWorkRamByte(ISnesMutableMemory memory, ushort offset) =>
         new PlmLowBankAliasMemory(memory).Byte(offset);
 
-    // Instruction control is compiled independently of PLM draw-list payloads. A
-    // compiled family claims only its own exact control addresses; all other bank-$84
-    // identities must have compiled mechanics.
-    // A low-window wrap may still read live WRAM; no branch can read cartridge bytes.
+    /// <summary>Reads only compiled bank-$84 control words, or live WRAM after a low-window wrap; draw-list payloads have separate ownership.</summary>
     internal static ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
         RoomPlmProgramDefinitions.TryReadWord(address, out ushort value)
             ? value
@@ -556,6 +558,7 @@ public sealed class RoomPlmSystem
                 : throw new InvalidDataException(
                     $"PLM program word $84:{address:X4} has no compiled definition.");
 
+    /// <summary>Reads a compiled bank-$84 control byte or live wrapped WRAM without falling back to cartridge data.</summary>
     internal static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
         RoomPlmProgramDefinitions.TryReadByte(address, out byte value)
             ? value

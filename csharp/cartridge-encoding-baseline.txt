@@ -141,7 +141,7 @@ csharp/src/SuperMetroid.Core/Assets/WorldMapLabelComposition.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Assets/ZebesPlanetBandParts.cs	SME6340	10
 csharp/src/SuperMetroid.Core/Audio/AudioAssetCatalogData.cs	SME6340	25
 csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs	SME6340	17
-csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.cs	SME6340	47
+csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.cs	SME6340	46
 csharp/src/SuperMetroid.Core/Audio/SnesDspRegisterMap.cs	SME6340	31
 csharp/src/SuperMetroid.Core/Audio/SoundEffectId.cs	SME6340	7
 csharp/src/SuperMetroid.Core/Audio/SpcDriverData.cs	SME6340	34

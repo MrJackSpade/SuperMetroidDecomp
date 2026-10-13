@@ -7,7 +7,7 @@ are the `ApuPort` enum end to end.
 
 ## Boundary and enforcement
 
-- `[SpcMemoryAccess]`: the player's APU RAM array, the stored debugger byte
+- `[SpcMemoryAccess]`: the player's APU RAM array, `SpcCommandPorts`' port arrays, the stored debugger byte
   `CartridgeAudioCommand.Port`, and the verification reader `ReadApuByteForVerification`.
 - `[SpcMemoryBoundary("reason")]`: the driver-memory views, the DSP's shared view of APU RAM, the
   port-command codec, and exact APU memory tests.
@@ -28,7 +28,7 @@ are the `ApuPort` enum end to end.
 | Uploads and compiled definitions | `WriteBytes`, `WriteByte` | 16-bit wrapping copy |
 | Driver reset work regions | `ClearDriverWorkRegions()` | the regions the native reset clears |
 | DSP sample/echo memory | `CreateDsp()` | the DSP shares APU RAM |
-| CPU→APU / APU→CPU ports | `WritePort(ApuPort, byte)`, `ReadPort(ApuPort)`, `CartridgeAudioCommand.InputPort` | $2140-$2143 |
+| CPU→APU / APU→CPU ports | `WritePort(ApuPort, byte)`, `ReadPort(ApuPort)`, `CartridgeAudioCommand.InputPort`; latches and sound-effect acknowledgement ports owned by `SpcCommandPorts` | $2140-$2143 |
 
 **Alias:** pan indices from 21 read past the 21 pan samples ($1E1D + 21 = $1E32) into the echo FIR
 preset table. `ReadPanVolumePair` and `ReadFirCoefficient` are separate views of those bytes.

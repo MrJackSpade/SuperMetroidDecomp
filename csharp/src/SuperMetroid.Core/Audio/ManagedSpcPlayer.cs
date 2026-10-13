@@ -511,8 +511,7 @@ public sealed class ManagedSpcPlayer
 
     private void HandleMusicCommand()
     {
-        byte command = inputPorts[(byte)ApuPort.Music];
-        inputPorts[(byte)ApuPort.Music] = (byte)MusicPortCommand.None;
+        byte command = commandPorts.TakeMusicCommand();
         if (Enum.IsDefined((MusicPortCommand)command))
         {
             switch ((MusicPortCommand)command)
@@ -527,12 +526,12 @@ public sealed class ManagedSpcPlayer
                     throw new InvalidOperationException($"Undefined {nameof(MusicPortCommand)} {command}.");
             }
         }
-        else if (command != portsToSnes[(byte)ApuPort.Music])
+        else if (command != musicPortToSnes)
         {
             StartTrack(command);
             return;
         }
-        if (portsToSnes[(byte)ApuPort.Music] == 0)
+        if (musicPortToSnes == 0)
             return;
         if (counter == 0)
             goto ProcessChannels;
@@ -699,7 +698,7 @@ public sealed class ManagedSpcPlayer
 
     private void StartTrack(byte track)
     {
-        portsToSnes[(byte)ApuPort.Music] = track;
+        musicPortToSnes = track;
         // Track zero deliberately indexes the word immediately before the numbered table.
         musicTopLevelPointer = ReadPointerEntry(SpcDriverData.Ram.DefaultMusicPointer, track);
         counter = SpcDriverData.Music.TrackStartupTicks;
@@ -824,16 +823,8 @@ public sealed class ManagedSpcPlayer
     /// when that value changed. $1621 then echoes the acted-on value and latches the CPU's
     /// current write, so a request is echoed one service after the service that reads it.
     /// </remarks>
-    private void HandleSoundLibraryCommand(int libraryIndex)
-    {
-        int port = libraryIndex + (byte)ApuPort.SoundLibrary1;
-        byte previous = previousSoundCommandReads[libraryIndex];
-        byte command = soundCommandReads[libraryIndex];
-        previousSoundCommandReads[libraryIndex] = command;
-        ApplySoundLibraryCommand(libraryIndex, changed: command != previous, command);
-        portsToSnes[port] = command;
-        soundCommandReads[libraryIndex] = inputPorts[port];
-    }
+    private void HandleSoundLibraryCommand(int libraryIndex, SpcSoundEffectPoll poll) =>
+        ApplySoundLibraryCommand(libraryIndex, poll.Changed, poll.Command);
 
     private void ApplySoundLibraryCommand(int libraryIndex, bool changed, byte command)
     {
@@ -1176,12 +1167,10 @@ public sealed class ManagedSpcPlayer
 
     [SpcMemoryAccess]
     internal readonly byte[] ram = new byte[SpcDriverData.ApuRamSize];
-    private readonly byte[] portsToSnes = new byte[AudioRomData.Apu.PortCount];
-    private readonly byte[] inputPorts = new byte[AudioRomData.Apu.PortCount];
-    // SPC $01-$03: each SFX port's value latched by the previous service's $1621 read.
-    private readonly byte[] soundCommandReads = new byte[AudioRomData.Queues.SoundLibraryCount];
-    // SPC $09-$0B: the value acted on at the previous service, for change detection.
-    private readonly byte[] previousSoundCommandReads = new byte[AudioRomData.Queues.SoundLibraryCount];
+    // Input latches, sound-effect acknowledgement ports and the driver timer (#1304).
+    private readonly SpcCommandPorts commandPorts = new();
+    // Output port 0: the sequencer's echo of the playing track.
+    private byte musicPortToSnes;
     private readonly ManagedSpcMusicChannel[] channels = Enumerable
         .Range(0, SpcDriverData.ChannelCount)
         .Select(index => new ManagedSpcMusicChannel { Index = unchecked((byte)index) })
@@ -1201,14 +1190,12 @@ public sealed class ManagedSpcPlayer
     ];
 
     internal readonly ManagedSnesDsp dsp;
-    private byte timerCycles;
     private ushort counter;
     private byte affectedVolumeOrPitch;
     private byte channelOnMask;
     private byte fastForward;
     private ushort musicTopLevelPointer;
     private byte blockCount;
-    private byte soundEffectTimerAccumulator;
     internal byte keyOn;
     internal byte keyOff;
     private byte currentChannelBit;
@@ -1360,20 +1347,12 @@ public sealed class ManagedSpcPlayer
     }
 
     /// <summary>Writes one CPU-to-SPC communication port exactly as the cartridge does.</summary>
-    public void WritePort(ApuPort port, byte value)
-    {
-        if ((uint)port >= inputPorts.Length)
-            throw new ArgumentOutOfRangeException(nameof(port), port, "SPC input port must be zero through three.");
-        inputPorts[(int)port] = value;
-    }
+    public void WritePort(ApuPort port, byte value) => commandPorts.WritePort(port, value);
 
     /// <summary>Reads one SPC-to-CPU acknowledgement port.</summary>
-    public byte ReadPort(ApuPort port)
-    {
-        if ((uint)port >= portsToSnes.Length)
-            throw new ArgumentOutOfRangeException(nameof(port), port, "SPC output port must be zero through three.");
-        return portsToSnes[(int)port];
-    }
+    public byte ReadPort(ApuPort port) => port == ApuPort.Music
+        ? musicPortToSnes
+        : commandPorts.ReadSoundEffectPort(port);
 
     /// <summary>
     /// Applies a complete cartridge upload stream to APU RAM. Each record contains a little-
@@ -1405,13 +1384,8 @@ public sealed class ManagedSpcPlayer
             offset += length;
         }
 
-        portsToSnes[(byte)ApuPort.Music] = 0;
-        inputPorts[(byte)ApuPort.Music] = (byte)MusicPortCommand.None;
-        // $1E8B leaves $BB on output port 1 and finishes with $F1 = $31, which resets the
-        // CPU-to-APU input latches. The driver's $01-$0B words are untouched.
-        portsToSnes[(byte)ApuPort.SoundLibrary1] = SpcDriverData.UploadReadyLibraryOnePort;
-        for (int port = (byte)ApuPort.SoundLibrary1; port < AudioRomData.Apu.PortCount; port++)
-            inputPorts[port] = 0;
+        musicPortToSnes = 0;
+        commandPorts.ResetForUpload();
         musicTopLevelPointer = ReadWord(SpcDriverData.Ram.DefaultMusicPointer);
         counter = SpcDriverData.Music.TrackStartupTicks;
         keyOff |= unchecked((byte)~channelOnMask);
@@ -1426,27 +1400,23 @@ public sealed class ManagedSpcPlayer
                 $"Audio destination requires {SpcDriverData.HostStereoFramesPerVideoFrame * 2} samples.",
                 nameof(destination));
         }
-        if (timerCycles > SpcDriverData.DspCyclesPerDriverTick)
-            throw new InvalidDataException($"SPC timer contains impossible value {timerCycles}.");
-        if (dsp.BufferedStereoFrameCount > ManagedSnesDsp.NativeStereoFramesPerVideoFrame)
-            throw new InvalidDataException("S-DSP sample cursor escaped its native frame buffer.");
+        if (dsp.BufferedStereoFrameCount != 0)
+            throw new InvalidDataException("S-DSP sample cursor is not at a frame boundary.");
 
-        while (dsp.BufferedStereoFrameCount < ManagedSnesDsp.NativeStereoFramesPerVideoFrame)
+        // The command ports own the driver timer: they walk the frame's DSP cycles first and
+        // report where each tick and sound-effect poll falls; the sequencer and DSP follow.
+        Span<SpcDriverTick> schedule = stackalloc SpcDriverTick[SpcCommandPorts.MaximumTicksPerFrame];
+        int tickCount = commandPorts.AdvanceFrame(schedule);
+        int cycle = 0;
+        foreach (SpcDriverTick tick in schedule[..tickCount])
         {
-            if (timerCycles >= SpcDriverData.DspCyclesPerDriverTick)
-            {
-                LoopPartTwo(unchecked((byte)(timerCycles / SpcDriverData.DspCyclesPerDriverTick)));
-                LoopPartOne();
-                timerCycles &= SpcDriverData.DspCyclesPerDriverTick - 1;
-            }
-
-            int cycles = Math.Min(
-                ManagedSnesDsp.NativeStereoFramesPerVideoFrame - dsp.BufferedStereoFrameCount,
-                SpcDriverData.DspCyclesPerDriverTick - timerCycles);
-            timerCycles = unchecked((byte)(timerCycles + cycles));
-            for (int index = 0; index < cycles; index++)
+            for (; cycle < tick.DspCycleOffset; cycle++)
                 dsp.Cycle();
+            LoopPartTwo(tick);
+            LoopPartOne();
         }
+        for (; cycle < SpcCommandPorts.DspCyclesPerFrame; cycle++)
+            dsp.Cycle();
 
         dsp.CopyResampledSamples(destination, SpcDriverData.HostStereoFramesPerVideoFrame);
     }
@@ -1464,7 +1434,6 @@ public sealed class ManagedSpcPlayer
         Dsp.Global.WriteMasterVolume(DspStereoSide.Right, 0x60); // allow(HardwareMagnitude): cartridge reset master volume
         Dsp.Global.WriteSourceDirectory(0x6d); // allow(HardwareAddress): cartridge BRR directory page
         tempo = SpcFixedPoint.WithWhole(tempo, SpcDriverData.Music.InitialTempo);
-        timerCycles = 0;
         LoopPartOne();
     }
 
@@ -1495,15 +1464,14 @@ public sealed class ManagedSpcPlayer
         keyOff = keyOn = 0;
     }
 
-    private void LoopPartTwo(byte ticks)
+    private void LoopPartTwo(SpcDriverTick tick)
     {
-        int soundAccumulator = soundEffectTimerAccumulator + unchecked((byte)(ticks * 0x20)); // magic-number-audit: allow(AudioId) - SPC timer scale, not a sequence ID
-        soundEffectTimerAccumulator = unchecked((byte)soundAccumulator);
-        if (soundAccumulator >= 0x100) // allow(HardwareMagnitude): eight-bit timer carry
+        byte ticks = tick.Ticks;
+        if (tick.SoundEffectsPolled)
         {
-            HandleSoundLibraryCommand(0);
-            HandleSoundLibraryCommand(1);
-            HandleSoundLibraryCommand(2);
+            HandleSoundLibraryCommand(0, tick.Library1);
+            HandleSoundLibraryCommand(1, tick.Library2);
+            HandleSoundLibraryCommand(2, tick.Library3);
             if (echoStoredTime != echoDelay)
                 echoStoredTime++;
         }
@@ -1521,7 +1489,7 @@ public sealed class ManagedSpcPlayer
             }
             while (fastForward != 0);
         }
-        else if (portsToSnes[(byte)ApuPort.Music] != 0)
+        else if (musicPortToSnes != 0)
         {
             for (int index = 0, bit = 1; index < channels.Length; index++, bit <<= 1)
             {

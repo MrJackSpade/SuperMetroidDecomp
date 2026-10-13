@@ -29,6 +29,8 @@ internal static class AudioVerification
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyAudioUploadCatalog), () => VerifyAudioUploadCatalog(retail));
+        Suite(nameof(SpcCommandPortsVerification.VerifySpcCommandPortsMatchEmulatedDriver),
+            () => SpcCommandPortsVerification.VerifySpcCommandPortsMatchEmulatedDriver(retail));
         var invalidMusicData = new CartridgeAudioState();
         invalidMusicData.AdvanceFrame(retail, default);
         invalidMusicData.QueueMusicDelayed8(MusicCommand.LoadData(0x01));

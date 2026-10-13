@@ -35204,6 +35204,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SpcCommandPortsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Program.SpcCommandPorts.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SpcDriverDataRamConstants",
       "kind": "static class",
       "scope": "test",
@@ -54878,6 +54891,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Audio.SpcCommandPorts",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/SpcCommandPorts.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Audio.SpcDriverData",
       "kind": "static class",
       "scope": "product",
@@ -54954,6 +54980,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.SpcDriverTick",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/SpcCommandPorts.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Audio.SpcFixedPoint",
@@ -55133,6 +55172,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectOpcodes.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.SpcSoundEffectPoll",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/SpcCommandPorts.cs"
       ],
       "partial": "none",
       "disposition": "value"

@@ -12,6 +12,12 @@ internal static class SpcDriverData
     internal const int VideoFramesPerSecond = 60;
     internal const int HostStereoFramesPerVideoFrame = HostSampleRate / VideoFramesPerSecond;
     internal const int DspCyclesPerDriverTick = 64;
+
+    /// <summary>
+    /// Added to the driver's eight-bit sound-effect timer on every tick; its carry polls the
+    /// three sound-effect ports, so they are serviced every eighth tick.
+    /// </summary>
+    internal const byte SoundEffectTimerStep = 0x20; // magic-number-audit: allow(AudioId) - SPC timer scale, not a sequence ID
     internal const int MaximumFastForwardTicks = 0x10000;
 
     /// <summary>$1E90: the second half of the $AA/$BB ready signal, left on output port 1 by an upload.</summary>

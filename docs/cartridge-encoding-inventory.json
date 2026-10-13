@@ -21,20 +21,20 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 33280,
+    "RawHexLiteral": 33279,
     "PointerDispatch": 1292,
     "OpaqueWordArray": 1151,
     "CatalogHexLiteral": 101607,
     "JustifiedHexLiteral": 76,
     "OwnedWidthOperation": 122,
     "JustifiedWidthOperation": 3,
-    "class:NumericQuantity": 56344,
+    "class:NumericQuantity": 56343,
     "class:DomainIdentity": 6974,
     "class:ComposableBits": 1902,
     "class:StructuredInstruction": 44541,
     "class:CartridgeAddress": 26739,
     "class:Unknown": 1033,
-    "storageWidthMembers": 1947
+    "storageWidthMembers": 1949
   },
   "subsystems": [
     {
@@ -1584,16 +1584,16 @@
     {
       "name": "Audio",
       "totals": {
-        "RawHexLiteral": 192,
+        "RawHexLiteral": 191,
         "CatalogHexLiteral": 772,
         "JustifiedHexLiteral": 58,
         "OwnedWidthOperation": 1,
-        "class:NumericQuantity": 398,
+        "class:NumericQuantity": 397,
         "class:DomainIdentity": 571,
         "class:ComposableBits": 23,
         "class:CartridgeAddress": 29,
         "class:Unknown": 2,
-        "storageWidthMembers": 162
+        "storageWidthMembers": 163
       },
       "addressInterpretingTypes": [],
       "files": [
@@ -1651,13 +1651,12 @@
           "path": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 47,
-            "JustifiedHexLiteral": 1,
-            "class:NumericQuantity": 14,
+            "RawHexLiteral": 46,
+            "class:NumericQuantity": 12,
             "class:DomainIdentity": 12,
             "class:ComposableBits": 20,
             "class:Unknown": 2,
-            "storageWidthMembers": 37
+            "storageWidthMembers": 36
           }
         },
         {
@@ -1718,11 +1717,19 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Audio/SpcCommandPorts.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "storageWidthMembers": 2
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Audio/SpcDriverData.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 34,
-            "class:NumericQuantity": 32,
+            "JustifiedHexLiteral": 1,
+            "class:NumericQuantity": 33,
             "class:DomainIdentity": 2
           }
         },
@@ -9440,7 +9447,7 @@
         "class:StructuredInstruction": 14290,
         "class:CartridgeAddress": 8155,
         "class:Unknown": 527,
-        "storageWidthMembers": 316
+        "storageWidthMembers": 317
       },
       "addressInterpretingTypes": [
         "",
@@ -21227,6 +21234,13 @@
           "totals": {
             "CatalogHexLiteral": 9,
             "class:StructuredInstruction": 9
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Program.SpcCommandPorts.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "storageWidthMembers": 1
           }
         },
         {

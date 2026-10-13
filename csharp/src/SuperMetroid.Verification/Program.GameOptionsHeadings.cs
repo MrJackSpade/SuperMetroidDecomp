@@ -15,8 +15,10 @@ using SuperMetroid.Core.Spatial;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks the three game-options heading sprites and placement anchors against cartridge instructions.</summary>
 internal static class GameOptionsHeadingsVerification
 {
+    /// <summary>Loads extracted presentation and checks each heading's native identity, parts, and screen anchor.</summary>
     internal static void VerifyGameOptionsHeadings()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -29,6 +31,7 @@ internal static class GameOptionsHeadingsVerification
         Suite(nameof(VerifyGameOptionsHeadingAnchors), () => VerifyGameOptionsHeadingAnchors(rom, document));
     }
 
+    /// <summary>Maps the three native options pages to their editable heading identities.</summary>
     private static string OriginalHeadingName(int index) => index switch
     {
         0 => GameOptionsPresentationDefinitions.PrimaryMenu,
@@ -37,6 +40,7 @@ internal static class GameOptionsHeadingsVerification
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
+    /// <summary>Checks heading table entries, both instruction-list uses, and imported part counts.</summary>
     private static void VerifyGameOptionsHeadingIds(ISnesAddressSpace rom, GameOptionsPresentationDocument document)
     {
         // The original table-entry locations independently identify the native IDs;
@@ -59,6 +63,7 @@ internal static class GameOptionsHeadingsVerification
                 "heading sprite selector bounds");
     }
 
+    /// <summary>Checks per-page X and shared Y setup operands against imported drawing anchors.</summary>
     private static void VerifyGameOptionsHeadingAnchors(ISnesAddressSpace rom, GameOptionsPresentationDocument document)
     {
         AssertEqual((byte)0xa9, GameOptionsHeadingAnchorsRomByte(rom, 0x82f369), "native heading common Y LDA");
@@ -79,9 +84,11 @@ internal static class GameOptionsHeadingsVerification
                 "heading anchor selector bounds");
     }
 
+    /// <summary>Reads a native heading setup opcode for the cartridge comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for game options heading anchors")]
     private static byte GameOptionsHeadingAnchorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Runs the game-options heading sprite and anchor checks.</summary>
     [VerificationCommand("--lookup-options-headings")]
     internal static int LookupOptionsHeadingsCommand()
     {

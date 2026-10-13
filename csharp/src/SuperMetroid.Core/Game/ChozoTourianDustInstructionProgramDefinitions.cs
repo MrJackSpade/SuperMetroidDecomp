@@ -18,9 +18,12 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions
     /// <summary>Reset/randomize loop at $86:AF18, after the initial loop counter.</summary>
     internal const ushort TourianLoop = TourianDescentDust + 4;
 
+    /// <summary>Counts compiled control and timing words across both Chozo effects and Tourian dust.</summary>
     public static int MechanicsWordCount => 31;
+    /// <summary>Counts spritemap operand slots resolved through extracted artwork.</summary>
     public static int PresentationWordCount => 14;
 
+    /// <summary>Reconstructs a native instruction word, including effect-specific timing and loop controls, by ordinal.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -64,6 +67,7 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions
         return new((ushort)(TourianDescentDust + 28 + 2 * (dust - 10)), control);
     }
 
+    /// <summary>Locates a spritemap operand in the footstep, explosion, or statue-dust program.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -71,11 +75,13 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions
         if (index < 10) return (ushort)(SpikeClearingExplosions + 8 + 4 * (index - 4));
         return (ushort)(TourianDescentDust + 14 + 4 * (index - 10));
     }
+    /// <summary>Identifies the projectile effects whose instruction control is compiled here.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate or
         RoomEnemyProjectileKind.TourianStatueDescentDust;
 
+    /// <summary>Looks up a compiled control word by its bank-$86 address, rejecting unowned pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

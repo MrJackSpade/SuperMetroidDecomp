@@ -79,6 +79,7 @@ public sealed class SamusTileTransferState
         // set, and Samus_Draw refreshes the selected definitions during each main-loop pass.
     }
 
+    /// <summary>Splits one installed planar definition across Samus's paired dedicated OBJ VRAM regions.</summary>
     private static void ExecuteInstalledDefinition(SamusBodyTileDefinition definition,
         VramRegion first, VramRegion second)
     {

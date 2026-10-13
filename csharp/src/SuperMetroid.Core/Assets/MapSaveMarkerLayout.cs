@@ -15,7 +15,9 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 public sealed class MapSaveMarkerLayout
 {
+    /// <summary>Only X or Y fields that differ from the compiled station projection, keyed by stable marker identity.</summary>
     private readonly Dictionary<string, (int? X, int? Y)> coordinateOverrides;
+    /// <summary>Retains validated drawing overrides independently of native load targets.</summary>
     private MapSaveMarkerLayout(Dictionary<string, (int? X, int? Y)> coordinateOverrides) =>
         this.coordinateOverrides = coordinateOverrides;
 

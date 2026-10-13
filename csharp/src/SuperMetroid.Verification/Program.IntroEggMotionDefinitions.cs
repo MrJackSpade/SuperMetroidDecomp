@@ -2,8 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled intro egg fragment and slime motion against native tables and actual actor updates.</summary>
 internal static class IntroEggMotionDefinitionsVerification
 {
+    /// <summary>Compares position and velocity words, then checks fixed-point motion through each actor's landing and deletion.</summary>
     internal static void VerifyCompiledIntroEggMotion(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledIntroEggMotionRomByte(rom, address), CompiledIntroEggMotionRomByte(rom, address + 1)));
@@ -75,9 +77,11 @@ internal static class IntroEggMotionDefinitionsVerification
         Console.WriteLine($"Egg motion definitions: twelve position words, 366 velocity words, and {checkedFrames} real actor frames match with all physical-table reads forbidden.");
     }
 
+    /// <summary>Reads native egg motion bytes solely as the cartridge comparison oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled intro egg motion")]
     private static byte CompiledIntroEggMotionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Rejects runtime rereads of compiled fragment positions and motion curves.</summary>
     private static CartridgeReadGuard NewEggMotionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => address is >= 0x8ba97c and < 0x8ba994 or

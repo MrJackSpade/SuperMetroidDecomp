@@ -14,8 +14,10 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks that a wrapping tile shot does not redirect its enemy collision to a remote block alias.</summary>
 internal static class WrapShotEnemiesVerification
 {
+    /// <summary>Hits remote edge tiles in both directions while keeping an enemy eligible, then confirms a real world-space overlap hits it.</summary>
     internal static void VerifyWrapShotEnemySeparation()
     {
         foreach (bool left in new[] { false, true })
@@ -78,6 +80,7 @@ internal static class WrapShotEnemiesVerification
         Console.WriteLine("PASS wrap-shot enemy separation: both remote tile hits spare eligible enemies; world-space controls collide.");
     }
 
+    /// <summary>Runs the remote tile and enemy collision separation reproduction.</summary>
     [VerificationCommand("--wrap-shot-enemies")]
     internal static int WrapShotEnemiesCommand()
     {

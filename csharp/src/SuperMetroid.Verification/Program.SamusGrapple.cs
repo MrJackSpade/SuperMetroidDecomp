@@ -17,10 +17,11 @@ using static SamusRenderingFixtureVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks grapple firing, swing geometry, wall contacts, beam drawing, and release poses.</summary>
 internal static class SamusGrappleVerification
 {
 
-/// <summary>Grapple swing, collision, release, and drawing verification.</summary>
+/// <summary>Checks attached swing motion, collision branches, wall jump, dropped pose, OAM drawing, and release.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
 internal static void VerifySamusGrappleSwingAndRelease()
 {
@@ -1173,6 +1174,7 @@ static void WriteGrappleFlareOrigin(TestAddressSpace bus, int direction, Offset1
 static void WriteGrappleSwingFrame(TestAddressSpace bus, byte angle, byte frame) =>
     WriteTestByte(bus, 0x9bc1c2 + angle, frame);
 
+    /// <summary>Runs the focused Samus grapple movement and presentation check.</summary>
     [VerificationCommand("--samus-grapple")]
     internal static int SamusGrappleCommand()
     {

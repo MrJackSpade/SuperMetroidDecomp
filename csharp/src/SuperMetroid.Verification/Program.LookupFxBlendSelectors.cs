@@ -3,11 +3,13 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static LookupFxPairColorsVerification;
 
+/// <summary>Checks the eight FX blend selectors, cartridge source addresses, and CGRAM application.</summary>
 internal static class LookupFxBlendSelectorsVerification
 {
-    // Original public selector domain/order before conversion at11df17c7.
+    /// <summary>Preserves the original public selector domain and order from before the palette conversion.</summary>
     internal static byte[] OriginalFxBlendIds() => [0x02, 0x22, 0x42, 0x48, 0x62, 0xe2, 0xe8, 0xee];
 
+    /// <summary>Checks selector ordering, document keys, and rejection of all unknown byte values.</summary>
     internal static void VerifyFxBlendSelectorIdentities()
     {
         byte[] original = OriginalFxBlendIds();
@@ -21,6 +23,7 @@ internal static class LookupFxBlendSelectorsVerification
         }
     }
 
+    /// <summary>Checks each indexed source against the native long-load operand and rejects uncatalogued selectors.</summary>
     internal static void VerifyFxBlendSourceAddresses(ISnesAddressSpace rom)
     {
         // Original LDA.l operand at89:AB5F supplies the color-one base.
@@ -35,9 +38,11 @@ internal static class LookupFxBlendSelectorsVerification
         }
     }
 
+    /// <summary>Reads one retail operand byte for the native blend-source address comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for FX blend source addresses")]
     private static byte FxBlendSourceAddressesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks stock and edited three-color blends in CGRAM, including selector zero and malformed documents.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFxBlendPageDispatch(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {

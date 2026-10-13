@@ -7,8 +7,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Provides installed presentation catalogs for message and pause verification fixtures.</summary>
 internal static class RetailPresentationFixtureVerification
 {
+    /// <summary>Binds the installed title, panel, and notice artwork to a new message box state.</summary>
     internal static GameplayMessageBoxState CreateGameplayMessageFixture()
     {
         var maps = RetailPresentationFixture();
@@ -28,6 +30,7 @@ internal static class RetailPresentationFixtureVerification
         AssertTrue(!pause.PageTransitionActive, "pause page switch completes");
     }
 
+    /// <summary>Creates a pause menu using the retail address space and installed map presentation.</summary>
     internal static PauseMenuState CreateRetailPauseFixture(ISnesAddressSpace bus, PauseMenuEntry entry) =>
         InstalledFixtures.CreatePause(bus, entry);
 

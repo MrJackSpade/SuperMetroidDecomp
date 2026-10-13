@@ -37,6 +37,7 @@ internal abstract class GoldenTorizoRightwardInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Encodes the rightward turn, dodge, and alternating walk steps with their native movement callbacks and branches.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd2ad),
         Entry(GoldenTorizoCombatInstructionPointers.DodgeTurningRight),
@@ -94,6 +95,8 @@ internal abstract class GoldenTorizoRightwardInstructionProgramDefinitions
         Frame(4),
         Op((ushort)TorizoInstruction.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0014),
         Op((ushort)CommonEnemyInstruction.Goto, TorizoWalkingRightLeftLegMoving));
+    /// <summary>Counts the interleaved frame selectors in the four rightward lists.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Locates an editable frame selector without exposing adjacent control words.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

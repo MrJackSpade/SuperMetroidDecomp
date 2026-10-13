@@ -13,7 +13,9 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM Samus death graphics transfers → death tile PNG")]
 public static class SamusDeathTileArtworkFiles
 {
+    /// <summary>Current provenance manifest revision for the five death-tile transfers.</summary>
     private const int FormatVersion = 1;
+    /// <summary>Reads strict camel-case manifest JSON and rejects unknown fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -85,5 +87,6 @@ public static class SamusDeathTileArtworkFiles
         }
     }
 
+    /// <summary>Binds the extracted PNG hash to its source cartridge and manifest revision.</summary>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);
 }

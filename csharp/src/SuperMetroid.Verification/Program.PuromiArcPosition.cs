@@ -12,12 +12,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Puromi's negative-sine body arc in the Lower Norfair Pillar room.</summary>
 internal static class PuromiArcPositionVerification
 {
-    // #1269: Puromi's init ($A6:957E), sweep, projectile and sprite-object updates all place
-    // the arc with EightBitNegativeSineMultiplication ($A0:B0C6). Using the positive sine
-    // mirrored every Y offset about the origin: in the 100% movie the Pillar room's body
-    // projectiles spawned at Y $B8 instead of native's $E8.
+    /// <summary>Confirms all eight body projectiles spawn at native Y $E8 using the negative-sine arc.</summary>
     internal static void VerifyPuromiArcPosition()
     {
         const ushort nativeBodyY = 0x00e8;
@@ -37,6 +35,7 @@ internal static class PuromiArcPositionVerification
         Console.WriteLine("Puromi arc position: the arc uses the negative eight-bit sine, matching native spawn Y.");
     }
 
+    /// <summary>Runs the focused Puromi arc-position check.</summary>
     [VerificationCommand("--puromi-arc-position")]
     internal static int PuromiArcPositionCommand()
     {

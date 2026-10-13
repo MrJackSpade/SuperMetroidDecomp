@@ -76,6 +76,7 @@ public static class GameplayBasePaletteFiles
     /// <param name="stockDirectory">Installed stock gameplay base-palette directory.</param>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>Unpacks consecutive cartridge palette words into RGB5 channels for the exported base palettes.</summary>
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int address, int count)
     {
         var colors = new PaletteRgb5[count];
@@ -92,6 +93,7 @@ public static class GameplayBasePaletteFiles
         return colors;
     }
 
+    /// <summary>Records the schema, cartridge identity, and stock palette digest checked on load.</summary>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256,
         string ArtworkSha256);
 }

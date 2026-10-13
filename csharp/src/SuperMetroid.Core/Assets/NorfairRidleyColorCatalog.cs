@@ -23,15 +23,19 @@ public sealed class NorfairRidleyColorCatalog
             content.AppendColorFrames("reveal", revealWords);
         });
 
+    /// <summary>Compiled initial OBJ colors, with shared paint relationships retained by the selector.</summary>
     private readonly NorfairRidleyInitialPaintDefinitions initial;
+    /// <summary>Fifteen ordered arena background rows, excluding the runtime terminator.</summary>
     private readonly NorfairRidleyRevealPaintDefinitions reveal;
 
+    /// <summary>Copies validated initial and reveal RGB5 colors into independent paint selectors.</summary>
     private NorfairRidleyColorCatalog(Bgr555[] initial, Bgr555[][] reveal)
     {
         this.initial = new(initial);
         this.reveal = new(reveal);
     }
 
+    /// <summary>Uses stable camel-case JSON and rejects unknown authoring properties.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -106,6 +110,7 @@ public sealed class NorfairRidleyColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates each RGB5 channel and packs one authored row into SNES color words.</summary>
     private static Bgr555[] Compile(PaletteRgb5[] colors, string label)
     {
         var words = new Bgr555[colors.Length];
@@ -120,6 +125,7 @@ public sealed class NorfairRidleyColorCatalog
         return words;
     }
 
+    /// <summary>Detects repeated JSON property names before deserialization can overwrite color arrays.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate Norfair Ridley color property."));

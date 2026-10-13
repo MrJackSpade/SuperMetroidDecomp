@@ -7,6 +7,7 @@ using SuperMetroid.Core.Game;
 /// <summary>Conspicuous, valid disk edits used only by the paired Samus isolation fixtures.</summary>
 internal static class SamusIsolationArtworkEdits
 {
+    /// <summary>Writes valid body-frame, offset, spritemap, and death-palette overrides while retaining native frame identities and timing.</summary>
     internal static void WriteBody(GameInstallation installation)
     {
         Edit(SamusBodyArtworkFiles.ManifestFileName, document =>
@@ -64,6 +65,7 @@ internal static class SamusIsolationArtworkEdits
         return (stock, compile(editedStream));
     }
 
+    /// <summary>Offsets every JSON entry using the source field's signed or unsigned byte representation.</summary>
     private static void Shift(JsonNode node, int amount, bool signed)
     {
         JsonArray values = node.AsArray();
@@ -74,6 +76,7 @@ internal static class SamusIsolationArtworkEdits
         }
     }
 
+    /// <summary>Inverts every RGB5 color word recursively while preserving the document shape.</summary>
     private static void RecolorWords(JsonNode node)
     {
         JsonArray values = node.AsArray();
@@ -82,6 +85,7 @@ internal static class SamusIsolationArtworkEdits
             else values[index] = values[index]!.GetValue<int>() ^ 0x7fff;
     }
 
+    /// <summary>Inverts RGB5 channels in nested color objects without changing other JSON fields.</summary>
     private static void RecolorRgb(JsonNode node)
     {
         if (node is JsonObject record)

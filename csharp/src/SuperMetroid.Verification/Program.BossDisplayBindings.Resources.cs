@@ -6,8 +6,10 @@ using static BossDisplayBindingsFixtureVerification;
 using static BossDisplayBindingsVerification;
 using static EnemyContentIdentityFixtureVerification;
 
+/// <summary>Checks boss BG2 resource requirements, display bindings, and legacy document inheritance.</summary>
 internal static class BossDisplayBindingsResourcesVerification
 {
+    /// <summary>Rejects missing resources and cross-boss bindings before VRAM writes, then checks schema-26 merge behavior.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyBossDisplayResources(BossDisplayDocuments stock, BossDisplayDocuments edits)
     {

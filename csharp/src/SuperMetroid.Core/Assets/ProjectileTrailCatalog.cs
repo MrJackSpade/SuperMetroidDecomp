@@ -7,9 +7,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable small-OBJ appearance keyed by native trail frame; no timing or movement fields.</summary>
 public sealed class ProjectileTrailCatalog
 {
+    /// <summary>Only authored OBJ attribute words differing from the shared native tile progressions.</summary>
     private readonly Dictionary<ushort, ushort> suppliedAttributes = [];
     /// <summary>Optional installed twelve-tile trail artwork provider retained from loading; resolving appearances neither uploads nor replaces its pixels.</summary>
     public ProjectileTrailAtlas? Tiles { get; }
+    /// <summary>Copies changed frame appearances while retaining an optional installed tile provider.</summary>
     private ProjectileTrailCatalog(Dictionary<ushort, ushort> attributes, ProjectileTrailAtlas? tiles)
     {
         Tiles = tiles;
@@ -39,6 +41,7 @@ public sealed class ProjectileTrailCatalog
         int firstTile = ice ? IceFirstTile : index < 38 ? WaveFirstTile : MissileFirstTile;
         return SnesObjAttributeWord.Create(firstTile + phase, ice ? 6 : 5, 2, SnesTileFlipFlags.None).Raw;
     }
+    /// <summary>Uses stable camel-case output and rejects unknown appearance properties.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -113,6 +116,7 @@ public sealed class ProjectileTrailCatalog
         _ = Load(new MemoryStream(bytes));
         return bytes;
     }
+    /// <summary>Recursively rejects repeated object keys before deserialization could replace a trail frame.</summary>
     private static void ValidateUnique(JsonElement element)
     {
         if (element.ValueKind != JsonValueKind.Object) return;

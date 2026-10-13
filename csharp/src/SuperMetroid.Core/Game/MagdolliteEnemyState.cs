@@ -53,8 +53,10 @@ public enum MagdolliteEnemyFunction : ushort
 /// </summary>
 public sealed class MagdolliteEnemyState
 {
+    /// <summary>Physical head, arm, or hand slot whose variable words back this typed view.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Attaches one typed role to its own native enemy record.</summary>
     internal MagdolliteEnemyState(RoomEnemySlot slot, MagdollitePart part)
     {
         _slot = slot;

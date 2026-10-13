@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Golden Torizo's callable stun controls and separate VRAM transfer descriptors.</summary>
 internal static class GoldenTorizoStunnedDefinitionsVerification
 {
+    /// <summary>Compares 28 control words and four transfer records with the retail bank-$AA bytes.</summary>
     internal static void VerifyGoldenTorizoStunnedDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;
@@ -64,6 +66,7 @@ internal static class GoldenTorizoStunnedDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>Reads a pinned stun-program or transfer-descriptor byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo stunned definitions")]
     private static byte GoldenTorizoStunnedDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

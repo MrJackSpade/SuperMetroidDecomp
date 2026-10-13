@@ -5,7 +5,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Which Chozo statue palette at $AA:E31D (Wrecked Ship) or $AA:E35D (Lower Norfair).</summary>
 internal enum ChozoStatuePalette
 {
+    /// <summary>The two halves of the Wrecked Ship statue palette at $AA:E31D.</summary>
     WreckedShip,
+    /// <summary>The two halves of the Lower Norfair statue palette at $AA:E35D.</summary>
     LowerNorfair,
 }
 
@@ -19,8 +21,10 @@ internal enum ChozoStatuePalette
 /// </summary>
 internal static class ChozoStatuePaintDefinitions
 {
+    /// <summary>Each statue palette contains two sixteen-color material halves.</summary>
     private const int HalfColors = 16;
 
+    /// <summary>Chooses a shared shade or calculates the selected area's half-palette material paint.</summary>
     internal static Bgr555 Color(ChozoStatuePalette palette, int color)
     {
         if ((uint)color >= HalfColors * 2) throw new ArgumentOutOfRangeException(nameof(color));
@@ -35,6 +39,7 @@ internal static class ChozoStatuePaintDefinitions
         };
     }
 
+    /// <summary>Calculates skin and gold colors common to all four statue halves.</summary>
     private static Bgr555? Shared(int local) => local switch
     {
         0 => Pack(0, 0, 14),
@@ -47,6 +52,7 @@ internal static class ChozoStatuePaintDefinitions
         _ => null,
     };
 
+    /// <summary>Calculates first- and second-half grey ramps and their distinct highlight.</summary>
     private static Bgr555 WreckedShip(int local, bool second) => local switch
     {
         >= 4 and <= 7 => second
@@ -57,6 +63,7 @@ internal static class ChozoStatuePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(local)),
     };
 
+    /// <summary>Uses retained Lower Norfair paint, including second-half shades that repeat the first half one step darker.</summary>
     private static Bgr555 LowerNorfair(int local, bool second)
     {
         if (second && local is >= 4 and <= 6) return LowerNorfair(local + 1, false);
@@ -75,15 +82,18 @@ internal static class ChozoStatuePaintDefinitions
         };
     }
 
+    /// <summary>Interpolates each RGB5 channel between authored material endpoints with nearest-integer rounding.</summary>
     private static Bgr555 Ramp((int Red, int Green, int Blue) start, (int Red, int Green, int Blue) end, int step, int steps) =>
         Pack(Nearest(start.Red, end.Red, step, steps), Nearest(start.Green, end.Green, step, steps),
             Nearest(start.Blue, end.Blue, step, steps));
 
+    /// <summary>Rounds one signed shade step to its nearest channel value.</summary>
     private static int Nearest(int start, int end, int step, int steps)
     {
         int delta = end - start;
         return start + Math.Sign(delta) * ((Math.Abs(delta) * step + steps / 2) / steps);
     }
 
+    /// <summary>Forms one typed five-bit statue color from its selected channels.</summary>
     private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

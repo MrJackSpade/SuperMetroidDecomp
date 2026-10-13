@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the twenty intro egg and Baby Metroid frame names, pointers, and part counts.</summary>
 internal static class IntroDiscoveryFrameCatalogVerification
 {
+    /// <summary>Walks native spritemap records and confirms catalog order, asset keys, and index bounds.</summary>
     internal static void VerifyIntroDiscoveryFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["egg-intact", "egg-crack-1", "egg-crack-2", "egg-crack-3",
@@ -41,6 +43,7 @@ internal static class IntroDiscoveryFrameCatalogVerification
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "discovery enumeration agrees with indexing");
     }
 
+    /// <summary>Reads a bank-$8C frame record or the large Baby pointer used by the native catalog.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro discovery frame catalog")]
     private static byte IntroDiscoveryFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

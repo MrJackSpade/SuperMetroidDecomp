@@ -23,13 +23,20 @@ public enum SkulteraEnemyFunction : ushort
 /// </summary>
 public sealed class SkulteraEnemyState
 {
+    /// <summary>Physical enemy record that owns the six common variable words.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot extra-WRAM vertical sine radius words.</summary>
     private readonly ushort[] _radii;
+    /// <summary>Per-slot turn-completion latches set by the animation callback.</summary>
     private readonly ushort[] _turnFinishedFlags;
+    /// <summary>Per-slot signed angle increments negated at each turn.</summary>
     private readonly ushort[] _angleDeltas;
+    /// <summary>Prior successful movement's sine offsets, retained for delta calculation.</summary>
     private readonly ushort[] _previousYOffsets;
+    /// <summary>Current sine offsets used by vertical movement and collision.</summary>
     private readonly ushort[] _currentYOffsets;
 
+    /// <summary>Projects the common slot and shared extra-WRAM arrays at the slot's native index.</summary>
     internal SkulteraEnemyState(
         RoomEnemySlot slot,
         ushort[] radii,

@@ -26,7 +26,8 @@ internal static class CrocomireBodyCollisionDefinitions
     /// <summary>Native bank containing Crocomire's body frames and hitboxes.</summary>
     internal const byte Bank = 0xa4;
 
-private static readonly CollisionRecordRuns<CrocomireBodyCollisionComponent> Frames = CollisionRecordRuns<CrocomireBodyCollisionComponent>.Frames(
+    /// <summary>Four native frame runs containing the fifty physical component lists, with presentation art excluded.</summary>
+    private static readonly CollisionRecordRuns<CrocomireBodyCollisionComponent> Frames = CollisionRecordRuns<CrocomireBodyCollisionComponent>.Frames(
         new(0xbfc4,
         [
             [new(new(3, 11), 0xcb31), new(new(0, 38), 0xcb4d), new(new(-29, 38), 0xcb4d), new(new(0, 0), 0xcc1f), new(new(0, 0), 0xcc1f), new(new(0, -1), 0xcc1f)],
@@ -90,23 +91,38 @@ private static readonly CollisionRecordRuns<CrocomireBodyCollisionComponent> Fra
             [new(new(0, 0), 0xcb15)],
         ]));
 
+    /// <summary>Lower-front body rectangle using the standard touch and shot callbacks.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB07 = [new(-78, 32, -16, 43, 0xb93d, 0xbab4)];
+    /// <summary>Thin horizontal jaw/body contact strip using standard callbacks.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB15 = [new(-95, 11, -16, 11, 0xb93d, 0xbab4)];
+    /// <summary>Lower body rectangle for another mouth pose, retaining the standard callbacks.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB23 = [new(-69, 31, -16, 44, 0xb93d, 0xbab4)];
+    /// <summary>Mid-body rectangle with the standard damage callbacks.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB31 = [new(-60, 18, -16, 32, 0xb93d, 0xbab4)];
+    /// <summary>Wider mid-body rectangle with the standard damage callbacks.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB3F = [new(-80, 13, -16, 27, 0xb93d, 0xbab4)];
+    /// <summary>Raised mouth rectangle whose shot callback differs from the standard body set.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB4F = [new(-95, -6, -16, 27, 0xb93d, 0xb951)];
+    /// <summary>Upper mouth rectangle using the alternate shot callback.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB5F = [new(-59, -9, -16, 5, 0xb93d, 0xb951)];
+    /// <summary>High mouth rectangle used by a raised body pose with alternate shot handling.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB6D = [new(-93, -36, -30, -13, 0xb93d, 0xb951)];
+    /// <summary>Three-piece upper body collision list with separate shot handling for its first piece.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCBC5 = [new(-50, -37, 40, -16, 0x8023, 0xba05), new(-52, -58, 42, -38, 0x8023, 0x802d), new(-32, -13, 40, 0, 0x8023, 0x802d)];
+    /// <summary>Three-piece raised upper-body list with a taller first rectangle.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCBEB = [new(-46, -53, 13, -16, 0x8023, 0xba05), new(-41, -74, 16, -57, 0x8023, 0x802d), new(-37, -16, 16, -3, 0x8023, 0x802d)];
+    /// <summary>Broad high body rectangle whose shot callback is the common no-op.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCC11 = [new(-37, -50, 38, -4, 0xb93d, 0x802d)];
+    /// <summary>Full-height central body rectangle with the main fight shot callback.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCC1F = [new(-38, -48, 37, 52, 0xb93d, 0xb968)];
+    /// <summary>Lower central body rectangle using the alternate shot callback.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCC2D = [new(-38, -4, 42, 52, 0xb93d, 0xb951)];
 
+    /// <summary>Accepts a living-body frame or delegates defeated-body frames to the corpse catalog.</summary>
     internal static bool HasFrame(ushort frame) => Frames.TryGet(frame, out _) ||
         CrocomireCorpseCollisionDefinitions.HasFrame(frame);
 
+    /// <summary>Finds the physical component offsets and hitbox pointers for a living or defeated frame.</summary>
     internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(ushort frame) =>
         Frames.TryGet(frame, out CrocomireBodyCollisionComponent[] components)
             ? components

@@ -17,8 +17,10 @@ using static MapSpritesVerification;
 using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Compares reserve-tank sprites on the pause equipment screen with retail spritemaps.</summary>
 internal static class PauseReserveTanksVerification
 {
+    /// <summary>Checks tank capacity, fill, and flicker combinations at the rendered pixel level, including save restoration.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve-tank tilemaps and spritemaps")]
     internal static void VerifyPauseReserveTanks()
@@ -77,6 +79,7 @@ internal static class PauseReserveTanksVerification
                 }
                 cases++;
 
+                // Draw one tank segment from the retail spritemap table at its native strip position.
                 void Draw(ushort id, int index)
                 {
                     int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c569 + id * 2);
@@ -89,6 +92,7 @@ internal static class PauseReserveTanksVerification
         Console.WriteLine($"Reserve tank strip: {cases} capacity/fill/flicker cases match native rendered sprites.");
     }
 
+    /// <summary>Runs the reserve-tank strip rendering verification.</summary>
     [VerificationCommand("--pause-reserve-tanks")]
     internal static int PauseReserveTanksCommand()
     {

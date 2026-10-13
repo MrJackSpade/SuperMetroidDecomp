@@ -13,8 +13,10 @@ using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using static AssertionsVerification;
 
+/// <summary>Checks that Plasma beams keep their type, damage, direction, and animation after enemy hits.</summary>
 internal static class PlasmaPenetrationVerification
 {
+    /// <summary>Applies two impacts to each charged and uncharged Plasma combination without consuming the shot.</summary>
     internal static void VerifyPlasmaEnemyPenetration()
     {
         var bus = new TestAddressSpace();
@@ -43,6 +45,7 @@ internal static class PlasmaPenetrationVerification
         }
     }
 
+    /// <summary>Runs the focused Plasma penetration check.</summary>
     [VerificationCommand("--plasma-penetration")]
     internal static int PlasmaPenetrationCommand()
     {

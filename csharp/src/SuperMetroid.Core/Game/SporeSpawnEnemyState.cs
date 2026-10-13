@@ -27,9 +27,12 @@ public enum SporeSpawnFunction : ushort
 /// </summary>
 public sealed class SporeSpawnEnemyState
 {
+    /// <summary>Staged CGRAM colors published by Spore Spawn's palette update.</summary>
     private readonly Bgr555[] _targetPalette = new Bgr555[256];
+    /// <summary>Marks staged palette slots so unrelated colors remain untouched.</summary>
     private readonly bool[] _targetPaletteWritten = new bool[256];
 
+    /// <summary>Binds boss-specific state to its live common enemy slot.</summary>
     internal SporeSpawnEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Live common enemy slot owned by the room enemy system; shared by movement, combat, instruction, and stalk-projectile owners.</summary>
@@ -75,12 +78,14 @@ public sealed class SporeSpawnEnemyState
     /// <summary>Defeated-area miniboss flag sampled at room initialization; selects the solid dead body and cleared ceiling instead of the live fight setup.</summary>
     public bool LoadedAsDefeated { get; internal set; }
 
+    /// <summary>Stages one palette color for the next frame effect publication.</summary>
     internal void WriteTargetColor(int index, Bgr555 value)
     {
         _targetPalette[index] = value;
         _targetPaletteWritten[index] = true;
     }
 
+    /// <summary>Publishes only staged colors and clears their pending markers afterward.</summary>
     internal void ConsumeTargetColors(Action<int, Bgr555> write)
     {
         for (int index = 0; index < _targetPalette.Length; index++)

@@ -49,6 +49,7 @@ internal enum EndingGunshipPaletteInk
 /// a separate, narrowly documented nonsense disposition.</remarks>
 internal static class EndingGunshipPaletteColorDefinitions
 {
+    /// <summary>Recognizes an aligned color word in the sixteen-frame reveal and returns its frame and palette slot.</summary>
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
     {
         frame = color = 0;
@@ -91,10 +92,12 @@ internal static class EndingGunshipPaletteColorDefinitions
         return true;
     }
 
+    /// <summary>Uses an explicit edited endpoint when present, otherwise calculates the frame's shared color rule.</summary>
     private static bool Endpoint(int frame, int color, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
     {
         ushort pointer = ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, color);
         return colors.TryGetValue(pointer, out value) || TryCalculatedColor(pointer, colors, out value);
     }
+    /// <summary>Forms one RGB5 value from independently interpolated gunship color channels.</summary>
     private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

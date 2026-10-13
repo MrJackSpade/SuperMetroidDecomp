@@ -72,6 +72,7 @@ public static class CeresDoorVisualFiles
         CeresDoorVisualCatalog.Load(new MemoryStream(tilePng, writable: false),
             new MemoryStream(paletteJson, writable: false));
 
+    /// <summary>Decodes packed cartridge RGB5 words and rejects colors with an unsupported high bit.</summary>
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int sourceAddress,
         int count)
     {

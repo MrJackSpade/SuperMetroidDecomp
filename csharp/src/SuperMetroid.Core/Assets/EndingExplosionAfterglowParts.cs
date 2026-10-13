@@ -10,8 +10,11 @@ namespace SuperMetroid.Core.Assets;
 /// tile selections remain independently editable.</summary>
 internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Supplied tile selectors when they differ from the 37-part stock atlas composition.</summary>
     private readonly int[]? tiles;
+    /// <summary>Number of native cap, wing, and body parts in the complete afterglow frame.</summary>
     private const int StockPartCount = 37;
+    /// <summary>Stores edited tile selectors only when the supplied composition differs from stock.</summary>
     private EndingExplosionAfterglowParts(int[] suppliedTiles)
     {
         bool stock = suppliedTiles.Length == StockPartCount;
@@ -45,8 +48,10 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
         return Atlas(0x1a, 14 - 2 * (index - 29)); // Full equatorial belt.
     }
 
+    /// <summary>Converts a row and column in the sixteen-column OBJ atlas to a character index.</summary>
     private static int Atlas(int row, int column) => row * 16 + column;
 
+    /// <summary>Recalculates the afterglow only for its native pose and supported atlas region, preserving edited tile choices.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer != EndingExplosionSpriteDefinitions.Pointer(EndingExplosionSpriteDefinitions.Pose.Afterglow)) return supplied;
@@ -60,7 +65,9 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
         return supplied.CalculateIfMatching(new EndingExplosionAfterglowParts(tiles));
     }
 
+    /// <summary>Uses the supplied part count for edited compositions and 37 parts for stock art.</summary>
     public int Count => tiles?.Length ?? StockPartCount;
+    /// <summary>Places one cap, wing, or body tile around the screen-centered afterglow origin.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -80,9 +87,11 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
                 SnesObjAttributeWord.Create(tile, 0, 0), true);
         }
     }
+    /// <summary>Enumerates afterglow pieces in native cap, wing, and body draw order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same part order to non-generic collection consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

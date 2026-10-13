@@ -18,8 +18,10 @@ using static GrappleSpriteArtworkVerification;
 using static GrappleTileBindingVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed Grapple PNG transfers and edited tile pixels against native VRAM output.</summary>
 internal static class GrappleTileArtworkVerification
 {
+    /// <summary>Compares every angle's source selection and all uploaded bytes while preserving rope state and OAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple tile transfers and segment tile pointers")]
     internal static void VerifyGrappleTileArtwork(SuperMetroidAddressSpace bus)
@@ -102,6 +104,7 @@ internal static class GrappleTileArtworkVerification
         Console.WriteLine($"Grapple PNG: all 65536 angle selections and {cases} production uploads preserve native OAM, full state and full VRAM; all sixteen edited tiles map exactly.");
     }
 
+    /// <summary>Runs the focused Grapple tile extraction, binding, and upload check.</summary>
     [VerificationCommand("--grapple-tile-artwork")]
     internal static int GrappleTileArtworkCommand()
     {

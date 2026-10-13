@@ -12,13 +12,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Mother Brain's RNG-gated small breath spawn and active-projectile latch.</summary>
 internal static class MotherBrainSmallPurpleBreathVerification
 {
-    // #1269: DrawMotherBrainHead ($A9:9357) spawns the small purple breath ($86:CB3D) whenever
-    // generation is enabled, none is active and the sampled RNG has bit 15 clear. Its
-    // initializer marks it active; its last instruction ($86:CAEE) clears the flag before it
-    // deletes itself. The port never spawned it, so in the 100% movie a projectile slot native
-    // filled stayed empty.
+    /// <summary>
+    /// Confirms the head draw hook spawns one breath when RNG bit 15 is clear, then its
+    /// final instruction releases the active latch before deletion.
+    /// </summary>
     internal static void VerifyMotherBrainSmallPurpleBreath()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -70,6 +70,7 @@ internal static class MotherBrainSmallPurpleBreathVerification
         Console.WriteLine("Mother Brain small purple breath: RNG-gated spawn, one at a time, flag cleared on its last instruction.");
     }
 
+    /// <summary>Runs the focused small purple breath lifecycle check.</summary>
     [VerificationCommand("--mother-brain-small-purple-breath")]
     internal static int MotherBrainSmallPurpleBreathCommand()
     {

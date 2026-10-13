@@ -12,8 +12,10 @@ using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Checks ten named Kraid room PLM visual roles and their independently editable block words.</summary>
 internal static class KraidRoomVisualSelectionVerification
 {
+    /// <summary>Checks frame identity, copied input isolation, bounds, required coverage, and rejection of physical bits.</summary>
     internal static void VerifyKraidRoomVisualSelection()
     {
         // Independent published pointer/ID/shape contract, not production enumeration.
@@ -82,6 +84,7 @@ internal static class KraidRoomVisualSelectionVerification
         Console.WriteLine("Kraid room visual selection: ten roles, all 45 blocks, legacy identity, copied data and validation pass.");
     }
 
+    /// <summary>Runs the Kraid room visual selection checks.</summary>
     [VerificationCommand("--lookup-kraid-room-visual-selection")]
     internal static int LookupKraidRoomVisualSelectionCommand()
     {

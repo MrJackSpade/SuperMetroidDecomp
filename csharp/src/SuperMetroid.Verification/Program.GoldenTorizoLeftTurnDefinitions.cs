@@ -2,8 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Golden Torizo left-turn control words and reused facing-screen art against bank $AA.</summary>
 internal static class GoldenTorizoLeftTurnDefinitionsVerification
 {
+    /// <summary>Compares twelve compiled controls and two visual operands with the retail program.</summary>
     internal static void VerifyGoldenTorizoLeftTurnDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;
@@ -64,6 +66,7 @@ internal static class GoldenTorizoLeftTurnDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>Reads a pinned bank-$AA program byte for the left-turn oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo left turn definitions")]
     private static byte GoldenTorizoLeftTurnDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

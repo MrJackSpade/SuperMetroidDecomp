@@ -4,20 +4,26 @@ using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Kraid fingernail launch velocities and sibling-flag selection against native tables.</summary>
 internal static class KraidNailSiblingVerification
 {
+    /// <summary>Compares the fractional X launch word across sibling velocity signs and RNG offsets.</summary>
     internal static void VerifyKraidNailLaunchXFraction(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 0, value => value.XFraction));
 
+    /// <summary>Compares the whole X launch word across sibling velocity signs and RNG offsets.</summary>
     internal static void VerifyKraidNailLaunchXWhole(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 2, value => value.XWhole));
 
+    /// <summary>Compares the fractional Y launch word across sibling velocity signs and RNG offsets.</summary>
     internal static void VerifyKraidNailLaunchYFraction(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 4, value => value.YFraction));
 
+    /// <summary>Compares the whole Y launch word across sibling velocity signs and RNG offsets.</summary>
     internal static void VerifyKraidNailLaunchYWhole(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 6, value => value.YWhole));
 
+    /// <summary>Reads the native indirect launch record selected by sibling sign and RNG bits for one field.</summary>
     private static void VerifyKraidNailLaunchField(SuperMetroidAddressSpace rom, int fieldOffset,
         Func<(ushort XFraction, ushort XWhole, ushort YFraction, ushort YWhole), ushort> field)
     {
@@ -37,9 +43,11 @@ internal static class KraidNailSiblingVerification
         }
     }
 
+    /// <summary>Reads one native launch-table byte for the field comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail launch field")]
     private static byte KraidNailLaunchFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks both nail slots, sibling flags, RNG preservation, and the actual launch or waiting phase.</summary>
     internal static void VerifyKraidNailSibling(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidNailLaunchXFraction), () => VerifyKraidNailLaunchXFraction(rom));
@@ -86,6 +94,7 @@ internal static class KraidNailSiblingVerification
         Console.WriteLine("Kraid nail sibling: both slots, all RNG/sign words and four sibling flags match native launch handoff without ROM access.");
     }
 
+    /// <summary>Reads native nail launch words solely as the verification oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail sibling")]
     private static byte KraidNailSiblingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

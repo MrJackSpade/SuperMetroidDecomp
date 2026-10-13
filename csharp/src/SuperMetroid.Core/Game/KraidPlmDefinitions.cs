@@ -36,19 +36,24 @@ public static class KraidPlmDefinitions
     /// </summary>
     public static IReadOnlyList<KraidPlmRequest> DefeatedRoom { get; } = new DefeatedRoomSequence();
 
+    /// <summary>Enumerates the ceiling and spike cleanup requests in defeated-room call order.</summary>
     private sealed class DefeatedRoomSequence : IReadOnlyList<KraidPlmRequest>
     {
+        /// <summary>Defeated-room initialization issues two hardcoded PLM requests.</summary>
         public int Count => 2;
+        /// <summary>Selects ceiling cleanup before spike cleanup.</summary>
         public KraidPlmRequest this[int index] => index switch
         {
             0 => ClearCeiling,
             1 => ClearSpikes,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Visits the two cleanup requests in native call order.</summary>
         public IEnumerator<KraidPlmRequest> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes the same cleanup order through non-generic enumeration.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -59,7 +64,9 @@ public static class KraidPlmDefinitions
     /// </summary>
     private sealed class GrowthCeilingSequence : IReadOnlyList<KraidPlmRequest>
     {
+        /// <summary>Nine ceiling blocks are paired with the growth-stage rock centers.</summary>
         public int Count => 9;
+        /// <summary>Selects the block above one rock center and its column-dependent background variant.</summary>
         public KraidPlmRequest this[int index]
         {
             get
@@ -72,10 +79,12 @@ public static class KraidPlmDefinitions
                 return new(new(column, 0x12), header);
             }
         }
+        /// <summary>Visits ceiling mutations in growth-stage callback order.</summary>
         public IEnumerator<KraidPlmRequest> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Exposes growth-stage ordering through non-generic enumeration.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>

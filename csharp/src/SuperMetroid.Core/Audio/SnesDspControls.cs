@@ -100,6 +100,7 @@ internal readonly struct SnesDspGlobalControls(ManagedSnesDsp dsp)
             unchecked((byte)coefficient));
     }
 
+    /// <summary>Writes a typed global register at its exact DSP address.</summary>
     private void Write(DspGlobalRegister register, byte value) => dsp.WriteRegister((byte)register, value);
 }
 
@@ -107,7 +108,9 @@ internal readonly struct SnesDspGlobalControls(ManagedSnesDsp dsp)
 [DspRegisterBoundary("typed controls: one S-DSP voice block")]
 internal readonly struct SnesDspVoiceControls
 {
+    /// <summary>DSP register file receiving writes for the selected voice.</summary>
     private readonly ManagedSnesDsp dsp;
+    /// <summary>Sixteen-byte base address of this voice's register block.</summary>
     private readonly byte block;
 
     /// <summary>Binds voice <paramref name="index"/> (0-7).</summary>
@@ -143,5 +146,6 @@ internal readonly struct SnesDspVoiceControls
     /// <summary>VxGAIN ($x7): the gain mode and value used when ADSR is disabled.</summary>
     public void WriteGain(byte gain) => Write(DspVoiceRegister.Gain, gain);
 
+    /// <summary>Offsets a typed voice register from this voice's sixteen-byte block.</summary>
     private void Write(DspVoiceRegister register, byte value) => dsp.WriteRegister(unchecked((byte)(block + (int)register)), value);
 }

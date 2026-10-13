@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM room and cinematic palette-FX colors → palette-FX presentation")]
 internal static class RoomPaletteFxPresentationExtractor
 {
+    /// <summary>Reads compiled room and cinematic palette-FX source colors and writes their RGB5 presentation document.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

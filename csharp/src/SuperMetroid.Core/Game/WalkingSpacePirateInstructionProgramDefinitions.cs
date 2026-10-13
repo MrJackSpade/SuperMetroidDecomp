@@ -23,20 +23,34 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
     /// <summary><c>InstList_PirateWalking_LookingAround_FacingRight</c> at $B2:FC48.</summary>
     internal const ushort LookingFacingRight = 0xfc48;
 
+    /// <summary>Compiled callbacks, timers, holds, and branches across both flinches and facing halves.</summary>
     public static int MechanicsWordCount => 92;
+    /// <summary>Separately installed extended-spritemap operands interleaved with the control words.</summary>
     public static int PresentationWordCount => 50;
 
-    /// <summary>Walking Space Pirate pose holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
-    private const ushort FlinchHold = 16, WalkHold = 10, AimHold = 24, FireHold = 8, LookHold = 32;
-    /// <summary>$B2:FBA2/FBAA/FBB2: laser Y offsets 8/2/-8 at the gun barrel of each drawn aim pose. The +/-8 symmetry calculates; the barrel heights are placement attached to the artwork (reviewed under #1165).</summary>
-    private const short OuterShotOffset = 8, MiddleShotOffset = 2;
+    /// <summary>Authored sixteen-tick flinch pose before returning to walking (#1165).</summary>
+    private const ushort FlinchHold = 16;
+    /// <summary>Ten-tick walking pose cadence shared with alternate looking poses (#1165).</summary>
+    private const ushort WalkHold = 10;
+    /// <summary>Twenty-four-tick aiming pose before or between laser shots (#1165).</summary>
+    private const ushort AimHold = 24;
+    /// <summary>Eight-tick firing pose also used by the final looking pose (#1165).</summary>
+    private const ushort FireHold = 8;
+    /// <summary>Thirty-two-tick long looking pose alternating with walking holds (#1165).</summary>
+    private const ushort LookHold = 32;
+    /// <summary>First and third gun-barrel heights use symmetric +8/-8 Y offsets (#1165).</summary>
+    private const short OuterShotOffset = 8;
+    /// <summary>Middle laser is placed two pixels below the drawn gun barrel origin (#1165).</summary>
+    private const short MiddleShotOffset = 2;
 
+    /// <summary>Reconstructs one native control address/value pair by ordinal across both facing programs.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
 
+    /// <summary>Locates a visual operand by native address while leaving its artwork separately installed.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -86,18 +100,26 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
         return layout.Result;
     }
 
+    /// <summary>Walks variable-width poses and commands while selecting a mechanics word or visual operand.</summary>
     private ref struct Layout(int requested, bool visual, ushort start)
     {
+        /// <summary>Current bank-$B2 address in the emitted instruction stream.</summary>
         private ushort cursor = start;
-        private int mechanics, presentation;
+        /// <summary>Number of visited control words.</summary>
+        private int mechanics;
+        /// <summary>Number of visited spritemap operands.</summary>
+        private int presentation;
+        /// <summary>Selected address/value pair, with placeholder value for visual operands.</summary>
         internal InstructionMechanicsWord Result { get; private set; }
 
+        /// <summary>Emits a native control word and captures the requested mechanics ordinal.</summary>
         internal void Word(ushort value)
         {
             if (!visual && mechanics == requested) Result = new(cursor, value);
             mechanics++;
             cursor += 2;
         }
+        /// <summary>Emits a timed pose followed by a separately owned visual operand.</summary>
         internal void Pose(ushort duration)
         {
             Word(duration);
@@ -105,11 +127,13 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
             presentation++;
             cursor += 2;
         }
+        /// <summary>Emits the function-change callback and its bank-$B2 AI pointer.</summary>
         internal void InstallFunction(WalkingSpacePirateFunction function)
         {
             Word((ushort)SpacePirateInstruction.PirateWalking_FunctionInY);
             Word((ushort)function);
         }
+        /// <summary>Emits a native branch opcode and its destination list pointer.</summary>
         internal void Goto(ushort target)
         {
             Word((ushort)CommonEnemyInstruction.Goto);
@@ -117,6 +141,7 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
         }
     }
 
+    /// <summary>Finds a compiled bank-$B2 control word by address and rejects presentation-only or unknown words.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0, high = MechanicsWordCount - 1;

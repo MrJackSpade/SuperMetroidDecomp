@@ -8,8 +8,10 @@ using SuperMetroid.Core.Rendering;
 using static CeresFlightArtworkVerification;
 using static MapSpritesVerification;
 
+/// <summary>Checks Ceres flight sprites against native OAM and verifies editable composition behavior.</summary>
 internal static class CeresFlightSpriteArtworkVerification
 {
+    /// <summary>Compares six retail frames, tests a visible star offset edit, and verifies rebind, validation, and stock repair.</summary>
     internal static void VerifyCeresFlightSpriteArtwork(GameInstallation installation,
         SuperMetroidAddressSpace bus, CeresFlightArtworkCatalog stock,
         ISnesAddressSpace guardedBus)

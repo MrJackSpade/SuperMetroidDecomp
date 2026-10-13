@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SamusProjectileRomDataVerification;
 
+/// <summary>Checks compiled charged and uncharged beam sound selectors against the retail table.</summary>
 internal static class ProjectileSoundRoutingVerification
 {
+    /// <summary>Compares all four-bit beam combinations and rejects selectors outside the table.</summary>
     internal static void VerifyProjectileSoundRoutingDefinitions(
         SuperMetroidAddressSpace retail)
     {
@@ -39,6 +41,7 @@ internal static class ProjectileSoundRoutingVerification
             "  Projectile sound routing: 24 authored and 8 bounded adjacent-table observations agree.");
     }
 
+    /// <summary>Guards the compiled bank-$90 sound table against accidental production rereads.</summary>
     internal static MutableCartridgeReadGuard NewProjectileSoundRoutingForbiddenBus(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);

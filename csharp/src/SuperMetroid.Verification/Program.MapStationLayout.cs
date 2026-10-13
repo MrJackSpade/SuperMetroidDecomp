@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks editable station icons against native discovery rules, OAM, and rendered menu pixels.</summary>
 internal static class MapStationLayoutVerification
 {
+    /// <summary>Compares every discovery subset and confirms edited positions change pixels without changing exploration.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyMapStationLayout(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
@@ -100,6 +102,7 @@ internal static class MapStationLayoutVerification
         }
     }
 
+    /// <summary>Rejects native station coordinate and discovery-table reads during installed drawing.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle walking the native missile, energy and map-station coordinate lists to forbid them")]
     private static CartridgeReadGuard NewStationLayoutGuard(ISnesAddressSpace source)
     {

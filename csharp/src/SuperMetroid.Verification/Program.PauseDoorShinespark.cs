@@ -13,8 +13,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+/// <summary>Checks open-door contact during pause fade while Samus remains in a horizontal shinespark.</summary>
 internal static class PauseDoorShinesparkVerification
 {
+    /// <summary>Confirms normal and terminal fade frames publish the door transition in native order without extra source-room movement.</summary>
     internal static void VerifyPauseDoorShinespark()
     {
         foreach (var scenario in new[] { (Brightening: false, Terminal: false), (Brightening: false, Terminal: true), (Brightening: true, Terminal: false), (Brightening: true, Terminal: true) })
@@ -81,6 +83,7 @@ internal static class PauseDoorShinesparkVerification
         Console.WriteLine("Pause-door shinespark: door hits during both fades preserve native normal/terminal state ordering and start transitions without extra source movement.");
     }
 
+    /// <summary>Runs the pause-fade shinespark door contact reproduction.</summary>
     [VerificationCommand("--pause-door-shinespark")]
     internal static int PauseDoorShinesparkCommand()
     {

@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks pause selector timing against native bytecode and editable phase durations.</summary>
 internal static class PauseSelectorDurationsVerification
 {
+    /// <summary>Checks stock timing, per-phase edits, custom cycle lengths, and invalid durations.</summary>
     internal static void VerifyPauseSelectorDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
@@ -49,6 +51,7 @@ internal static class PauseSelectorDurationsVerification
         }
     }
 
+    /// <summary>Compares each installed selector duration with the native timed instruction list.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause selector native durations")]
     internal static void VerifyPauseSelectorNativeDurations(ISnesAddressSpace rom, PauseSelectorPresentation selector)
     {

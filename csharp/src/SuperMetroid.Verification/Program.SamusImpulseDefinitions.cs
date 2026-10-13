@@ -4,8 +4,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Checks Samus bomb-jump and hurt launch impulses against native medium-dependent values.</summary>
 internal static class SamusImpulseDefinitionsVerification
 {
+    /// <summary>Compares bomb launches and knockback transitions across liquid edges, equipment, pose, and direction with physics reads blocked.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus impulse definitions")]
     internal static void VerifySamusImpulseDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -82,6 +84,7 @@ internal static class SamusImpulseDefinitionsVerification
         Console.WriteLine($"Samus impulse definitions: {bombCases} surface/equipment/direction bomb launches and {hurtCases} hurt transitions pass; physics ROM reads forbidden.");
     }
 
+    /// <summary>Allows remaining pose or animation reads in bank $91 while rejecting physics ROM reads and writes.</summary>
     internal static CartridgeReadGuard NewImpulsePoseReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => SnesAddressMath.BankNumber(address) != 0x91,

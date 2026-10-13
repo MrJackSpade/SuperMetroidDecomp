@@ -26,6 +26,15 @@ using static VerificationHelpersVerification;
 
 internal static class RidleyFullMovieVerification
 {
+    /// <summary>The supplied Ridley showcase movie (#1266), replayed by <c>--ridley-full-movie</c>.</summary>
+    internal const string RidleyMoviePath = "csharp/test-fixtures/issue-1266-ridley/Ridley fight showcase.smv";
+
+    /// <summary>SHA-256 of <see cref="RidleyMoviePath"/>.</summary>
+    internal const string RidleyMovieSha256 = "7E12861DC56C5ABED12C2BFA2B00D24BFA418F49F2CE4C027D930CE9A3663F66";
+
+    /// <summary>The committed compact trace of <see cref="RidleyMoviePath"/>.</summary>
+    internal const string RidleyTraceDirectory = "csharp/test-fixtures/replay-traces/ridley";
+
     internal static void VerifyRidleySpinFireball()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -855,11 +864,10 @@ internal static class RidleyFullMovieVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     internal static void VerifyRidleyFullMovie(string directory)
     {
-        var ridleyMovie = ReplayMovie.Load("Ridley", "csharp/test-fixtures/issue-1266-ridley/Ridley fight showcase.smv",
-            "7E12861DC56C5ABED12C2BFA2B00D24BFA418F49F2CE4C027D930CE9A3663F66");
+        var ridleyMovie = ReplayMovie.Load("Ridley", RidleyMoviePath, RidleyMovieSha256);
         byte[] movie = ridleyMovie.Bytes;
-        using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "updates.json")));
-        var root = manifest.RootElement;
+        using var replayTrace = ReplayTrace.OpenCompact(directory, ReplayTraceMemoryCatalog.RidleyShowcase);
+        var root = replayTrace.Updates;
         // v5-v7 only add message-box and boot-entering dispatch evidence; this snapshot movie
         // never reboots, which the integer expectedRecord read below confirms.
         AssertTrue(root.GetProperty("format").GetString() is "super-metroid-gameplay-updates-v7", "converted replay format");
@@ -869,30 +877,25 @@ internal static class RidleyFullMovieVerification
         var updates = root.GetProperty("updates").EnumerateArray().ToArray();
         int length = root.GetProperty("updateCount").GetInt32();
         AssertEqual(length, updates.Length, "converted update count");
-        using var file = File.OpenRead(Path.Combine(directory, "update-boundaries.wram.gz"));
-        AssertEqual(Convert.ToHexString(SHA256.HashData(file)), root.GetProperty("checkpointsSha256").GetString()!, "native checkpoint identity");
-        file.Position = 0;
-        using var trace = new GZipStream(file, CompressionMode.Decompress);
-        var record = new byte[131080];
+        // The compact trace checks its stream against its compact manifest; the manifest's
+        // source capture must be the one the converted manifest names.
+        AssertEqual(replayTrace.SourceCheckpointsSha256, root.GetProperty("checkpointsSha256").GetString()!, "native checkpoint identity");
         int lastNativeRecord = -1;
-        byte[] ReadFrame(int update)
+        NativeCheckpointMemory ReadFrame(int update)
         {
             int wantedRecord = update == 0 ? 0 : updates[update - 1].GetProperty("expectedRecord").GetInt32();
             AssertTrue(wantedRecord > lastNativeRecord, "native checkpoint order remains forward-only");
-            while (lastNativeRecord < wantedRecord)
-            {
-                trace.ReadExactly(record);
-                lastNativeRecord++;
-            }
+            NativeCheckpoint record = replayTrace.Records.Read(wantedRecord);
+            lastNativeRecord = wantedRecord;
             int expectedFrame = update < length ? updates[update].GetProperty("sourceFrame").GetInt32() : 10890;
-            AssertEqual(expectedFrame, BinaryPrimitives.ReadInt32LittleEndian(record), "native input-boundary frame");
+            AssertEqual(expectedFrame, record.SourceFrame, "native input-boundary frame");
             AssertEqual(update < length ? NativeSnapshotMemory.ReadControllerInput : 0,
-                BinaryPrimitives.ReadInt32LittleEndian(record.AsSpan(4)), "native accepted-input boundary or terminal");
-            return record.AsSpan(8).ToArray();
+                record.BoundaryPc, "native accepted-input boundary or terminal");
+            return record.Memory;
         }
-        byte[] memory = ReadFrame(0);
-        ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
-        var (bus, runtime, samus, game) = ImportNativeSnapshot(memory, ridleyMovie.InitialSaveRam);
+        NativeCheckpointMemory memory = ReadFrame(0);
+        ushort W(int address) => memory.Word(address);
+        var (bus, runtime, samus, game) = ImportNativeSnapshot(memory.ToWorkRam(), ridleyMovie.InitialSaveRam);
         var previousHudSelection = typeof(HudState)
             .GetField("_previousSelectedItem", BindingFlags.Instance | BindingFlags.NonPublic)!;
         Array initialPlms = runtime.Plms.SlotTable._slots;
@@ -1004,8 +1007,8 @@ internal static class RidleyFullMovieVerification
                 {
                     var nativeCannon = RidleyNativeCannonDraw(bus, memory, invincibleAtDraw, W(NativeSnapshotMemory.NmiCounter));
                     if (nativeCannon.SpriteWritten)
-                        AssertTrue(ContainsMovieCannonSprite(memory.AsSpan(NativeSnapshotMemory.OamLow, 512),
-                            memory.AsSpan(NativeSnapshotMemory.OamHigh, 32), nativeCannon),
+                        AssertTrue(ContainsMovieCannonSprite(memory.Slice(NativeSnapshotMemory.OamLow, 512),
+                            memory.Slice(NativeSnapshotMemory.OamHigh, 32), nativeCannon),
                             $"update {frame}: native OAM contains reference cannon sprite");
                     // The normalized draw is observed through its outputs: the port OAM must hold the
                     // reference sprite (position and attributes), and the VRAM queue must hold
@@ -1601,7 +1604,7 @@ internal static class RidleyFullMovieVerification
             }
         }
         AssertTrue(pendingLoadedOwners is null, "no deferred loading comparison remains at movie end");
-        AssertTrue(trace.ReadByte() == -1, "trace ends after movie terminal frame");
+        AssertTrue(replayTrace.Records.IsExhausted(), "trace ends after movie terminal frame");
         Console.WriteLine($"Samus body records: {pairedBodyDraws} paired visible updates, {phaseShiftedBodyDraws} hardware-phase-shifted updates, {retainedHiddenBodyRecords} hidden-record retention checks.");
         Console.WriteLine($"Full movie input replay: {length} updates across all 10890 source frames match the currently instrumented fields.");
     }
@@ -1735,6 +1738,6 @@ internal static class RidleyFullMovieVerification
     [VerificationCommand("--ridley-full-movie")]
     internal static int RidleyFullMovieCommand()
     {
-     VerifyRidleyFullMovie(Path.GetFullPath("native-captures/issue-1266-ridley")); return 0; 
+     VerifyRidleyFullMovie(Path.GetFullPath(RidleyTraceDirectory)); return 0; 
     }
 }

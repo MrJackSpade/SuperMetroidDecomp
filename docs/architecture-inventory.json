@@ -4453,6 +4453,32 @@
       "disposition": "stateless"
     },
     {
+      "type": "CompactCheckpointRecords",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/ReplayTrace.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "CompactReplayTraceManifest",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/ReplayTrace.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "CompactWalkOffCollisionVerification",
       "kind": "static class",
       "scope": "test",
@@ -11729,6 +11755,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "FullCheckpointRecords",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/ReplayTrace.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "FullMovieReplayVerification",
@@ -22896,6 +22935,45 @@
       "disposition": "static-functions"
     },
     {
+      "type": "NativeCheckpoint",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/ReplayTrace.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "NativeCheckpointMemory",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/NativeCheckpointMemory.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "NativeCheckpointRecords",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/ReplayTrace.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "NativeConsoleErrorPolicyCheck",
       "kind": "static class",
       "scope": "test",
@@ -26672,6 +26750,71 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "ReplayTrace",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/ReplayTrace.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "ReplayTraceCompactionVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Program.ReplayTraceCompaction.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "ReplayTraceCompactor",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/ReplayTraceCompactor.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "ReplayTraceLayout",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/ReplayTraceLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "ReplayTraceMemoryCatalog",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/ReplayTraceMemoryCatalog.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "ReportedEyeStateFixture",
@@ -104653,6 +104796,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "WorkRamRange",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/ReplayTraceLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "WorkRobotInitialSelectionVerification",

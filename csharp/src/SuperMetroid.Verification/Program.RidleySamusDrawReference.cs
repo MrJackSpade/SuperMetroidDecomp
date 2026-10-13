@@ -21,9 +21,9 @@ internal static class RidleySamusDrawReferenceVerification
     /// <summary>Independent $90:C663 arm-cannon draw/transfer result from native state and ROM.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the $90:C663 arm-cannon draw")]
     internal static RidleyNativeCannonDrawResult RidleyNativeCannonDraw(
-        ISnesAddressSpace rom, byte[] checkpoint, bool invincibleAtDraw, ushort nmi)
+        ISnesAddressSpace rom, NativeCheckpointMemory checkpoint, bool invincibleAtDraw, ushort nmi)
     {
-        ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(checkpoint.AsSpan(address, 2));
+        ushort W(int address) => checkpoint.Word(address);
         if ((W(NativeSnapshotMemory.CannonDrawingMode) & 15) == 0) return default;
         ushort frame = W(NativeSnapshotMemory.CannonFrame);
         if (frame == 0 || (invincibleAtDraw && (nmi & 1) != 0))
@@ -65,9 +65,9 @@ internal static class RidleySamusDrawReferenceVerification
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the $90:85E2/$864E/$8C1F Samus body draw record")]
     internal static (ushort Top, ushort Bottom, ushort X, ushort Y) RidleyNativeBodyRecord(
-        ISnesAddressSpace rom, byte[] checkpoint)
+        ISnesAddressSpace rom, NativeCheckpointMemory checkpoint)
     {
-        ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(checkpoint.AsSpan(address, 2));
+        ushort W(int address) => checkpoint.Word(address);
         if ((W(NativeSnapshotMemory.CeresStatus) & 0x8000) != 0)
             throw new InvalidDataException("Movie body oracle requires a native Mode 7 transform mapping.");
         ushort pose = W(NativeSnapshotMemory.Pose), frame = W(NativeSnapshotMemory.Animation);

@@ -1017,7 +1017,6 @@ csharp/src/SuperMetroid.Verification/GameplayCaptureIntegrationTests.cs	SME6340	
 csharp/src/SuperMetroid.Verification/GameplaySnapshotTests.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Mode7GameplaySnapshotTests.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/MovieDesyncMemory.cs	SME6340	40
-csharp/src/SuperMetroid.Verification/NativeMovieCheckpoints.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/NativeSnapshotMemory.cs	SME6340	303
 csharp/src/SuperMetroid.Verification/PauseSnapshotTests.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/PpuMemorySnapshotTests.cs	SME6340	1

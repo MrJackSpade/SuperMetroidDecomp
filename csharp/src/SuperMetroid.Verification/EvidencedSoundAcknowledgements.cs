@@ -33,13 +33,13 @@ internal sealed class EvidencedSoundAcknowledgements
     private readonly byte[] states = new byte[LibraryCount];
     private readonly byte[] currents = new byte[LibraryCount];
 
-    public EvidencedSoundAcknowledgements(byte[] nativeMemory) => Capture(nativeMemory);
+    public EvidencedSoundAcknowledgements(NativeCheckpointMemory nativeMemory) => Capture(nativeMemory);
 
     /// <summary>
     /// Acknowledgements for the update whose native result is <paramref name="nativeAfter"/>.
     /// A waiting library that left its state saw its echo; one that stayed did not.
     /// </summary>
-    public CartridgeAudioAcknowledgements ForUpdate(CartridgeAudioAcknowledgements spc, byte[] nativeAfter)
+    public CartridgeAudioAcknowledgements ForUpdate(CartridgeAudioAcknowledgements spc, NativeCheckpointMemory nativeAfter)
     {
         byte[] ports = [spc.Port1, spc.Port2, spc.Port3];
         for (int library = 0; library < LibraryCount; library++)
@@ -61,7 +61,7 @@ internal sealed class EvidencedSoundAcknowledgements
     }
 
     /// <summary>Records the native sound-handler state after an update.</summary>
-    public void Capture(byte[] nativeMemory)
+    public void Capture(NativeCheckpointMemory nativeMemory)
     {
         for (int library = 0; library < LibraryCount; library++)
         {

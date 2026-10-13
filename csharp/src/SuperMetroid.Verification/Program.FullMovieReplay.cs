@@ -22,11 +22,11 @@ internal static class FullMovieReplayVerification
     internal const string FullPlaythroughMoviePath = "csharp/test-fixtures/full-100-percent/Super Metroid 100%.smv";
     internal const string FullPlaythroughMovieSha256 = "4D0E6E671E11BD99439AE498210943711135E6CBE8F57D97B2C56815315AE07E";
     private const string LowPercentPlaythroughMoviePath = "csharp/test-fixtures/low-13-percent/13_speedbooster.lsmv";
-    private const string LowPercentPlaythroughMovieSha256 = "1D217BB073309AE44EA3D972C5EC3201BE0EC434C60F034E1E958F94FD1BCDA8";
+    internal const string LowPercentPlaythroughMovieSha256 = "1D217BB073309AE44EA3D972C5EC3201BE0EC434C60F034E1E958F94FD1BCDA8";
     private const string DrunkPlaythroughMoviePath = "csharp/test-fixtures/issue-1275-movies/Samus drunk.smv";
-    private const string DrunkPlaythroughMovieSha256 = "6822B5D0F2D5CD81F7DB3E48E05E8EFE7F0EC2395669E0DDF80B7F5E8FC4DF17";
+    internal const string DrunkPlaythroughMovieSha256 = "6822B5D0F2D5CD81F7DB3E48E05E8EFE7F0EC2395669E0DDF80B7F5E8FC4DF17";
     private const string MotherBrainGlitchMoviePath = "csharp/test-fixtures/issue-1275-movies/mother brain glitch.smv";
-    private const string MotherBrainGlitchMovieSha256 = "C63BF68D4F24F378B2E3E3591281ABC158DDBAEBA113D35A63E3307A32D6E505";
+    internal const string MotherBrainGlitchMovieSha256 = "C63BF68D4F24F378B2E3E3591281ABC158DDBAEBA113D35A63E3307A32D6E505";
 
     internal static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
         VerifyPlaythroughMovie(
@@ -58,7 +58,7 @@ internal static class FullMovieReplayVerification
     /// native WRAM is read-only evidence.
     /// </summary>
     /// <param name="movie">The recorded movie whose starting state and controller timeline are replayed.</param>
-    /// <param name="traceDirectory">Directory containing the native input-consumption timeline and read-only WRAM checkpoints for the supplied movie.</param>
+    /// <param name="traceDirectory">Committed compact trace (see <see cref="ReplayTrace"/>) holding the native input-consumption timeline and read-only WRAM checkpoints for the supplied movie.</param>
     /// <param name="traceFromUpdate">
     /// Diagnostic only: from this update on, print port and native Samus kinematics so a
     /// divergence can be read field by field. Comparison and failure are unchanged.
@@ -77,19 +77,19 @@ internal static class FullMovieReplayVerification
     /// its native checkpoint and failing at the first divergence.
     /// </summary>
     /// <returns>The game and the native WRAM after <paramref name="lastUpdate"/>, which must have a checkpoint.</returns>
-    internal static (SuperMetroidGame Game, byte[] Memory, int UncheckpointedUpdates) ReplayConvertedMovie(
+    internal static (SuperMetroidGame Game, NativeCheckpointMemory Memory, int UncheckpointedUpdates) ReplayConvertedMovie(
         ReplayMovie movie, NativeMovieCheckpoints checkpoints, int? traceFromUpdate, int lastUpdate)
     {
         var updates = checkpoints.Updates;
 
-        byte[] memory = checkpoints.ReadAfter(0) ?? throw new InvalidDataException(
+        NativeCheckpointMemory memory = checkpoints.ReadAfter(0) ?? throw new InvalidDataException(
             "The converted replay has no native checkpoint before its first update.");
         SuperMetroidGame game;
         if (movie.Snapshot is not null)
         {
             // The first input boundary completes the snapshot's frame. Its WRAM is the movie's
             // one initial-state import, alongside the snapshot's own cartridge SRAM.
-            game = ImportNativeSnapshot(memory, movie.InitialSaveRam).Game;
+            game = ImportNativeSnapshot(memory.ToWorkRam(), movie.InitialSaveRam).Game;
         }
         else
         {
@@ -125,7 +125,7 @@ internal static class FullMovieReplayVerification
             // cartridge consumed: it decides whether this update sees a new press.
             if (step.HardwareWaitLatch is { } latched)
                 game.AcceptDoorMusicWaitControllerRead(latched);
-            byte[]? nativeAfter = checkpoints.ReadAfter(update);
+            NativeCheckpointMemory? nativeAfter = checkpoints.ReadAfter(update);
             // A dispatch that jumped into CommonBootSection has no checkpoint of its own, and
             // the clear erases the sound handler's waiting states before the next one. Both
             // updates therefore read the port's SPC model, as a message box's frames do.
@@ -226,7 +226,7 @@ internal static class FullMovieReplayVerification
         return (game, memory, uncheckpointedUpdates);
     }
 
-    private static void TraceMovieSamus(SuperMetroidGame game, byte[] memory, int update, ConvertedMovieUpdate step)
+    private static void TraceMovieSamus(SuperMetroidGame game, NativeCheckpointMemory memory, int update, ConvertedMovieUpdate step)
     {
         var samus = game.RuntimeForVerification?.Player.Samus;
         string Native(int address) => Word(memory, address).ToString("X4");
@@ -306,14 +306,13 @@ internal static class FullMovieReplayVerification
         }
     }
 
-    private static ushort Word(byte[] memory, int address) =>
-        BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
+    private static ushort Word(NativeCheckpointMemory memory, int address) => memory.Word(address);
 
     /// <summary>
     /// Compares the gameplay-outcome fields that reveal desynchronization. Door loading
     /// is atomic in the port, so room-owned state is compared only once gameplay resumes.
     /// </summary>
-    private static List<string> CompareMovieDesyncState(SuperMetroidGame game, byte[] memory)
+    private static List<string> CompareMovieDesyncState(SuperMetroidGame game, NativeCheckpointMemory memory)
     {
         var mismatches = new List<string>();
         void Check(string name, ushort actual, int address)

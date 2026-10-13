@@ -1,5 +1,3 @@
-using System.Buffers.Binary;
-using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text.Json;
 
@@ -14,32 +12,23 @@ internal readonly record struct ConvertedMovieUpdate(
     int? MessageBoxStartFrame, int? MessageBoxEndFrame);
 
 /// <summary>
-/// Read-only view of a converted SMV replay manifest plus its forward-only native
-/// WRAM checkpoint stream. Each retained update maps to the native controller-read
-/// boundary that follows it; the last record is the terminal state.
+/// Read-only view of a converted SMV replay manifest plus its forward-only native WRAM
+/// checkpoints. Each retained update maps to the native controller-read boundary that follows
+/// it; the last record is the terminal state.
 /// </summary>
 internal sealed class NativeMovieCheckpoints : IDisposable
 {
-    public const int WorkRamByteCount = 0x20000;
-    private const int RecordHeaderBytes = 8;
-
-    private readonly FileStream file;
-    private readonly GZipStream trace;
-    private readonly byte[] record = new byte[RecordHeaderBytes + WorkRamByteCount];
+    private readonly ReplayTrace trace;
     private int lastRecord = -1;
 
-    private NativeMovieCheckpoints(string directory, JsonElement root, ConvertedMovieUpdate[] updates)
+    private NativeMovieCheckpoints(ReplayTrace trace, ConvertedMovieUpdate[] updates)
     {
+        this.trace = trace;
         Updates = updates;
+        JsonElement root = trace.Updates;
         SourceFrameCount = root.GetProperty("sourceFrameCount").GetInt32();
         InitialInput = (ushort)root.GetProperty("initialInput").GetInt32();
         InitialRecord = root.GetProperty("initialRecord").GetInt32();
-        file = File.OpenRead(Path.Combine(directory, "update-boundaries.wram.gz"));
-        string checkpointHash = Convert.ToHexString(SHA256.HashData(file));
-        if (checkpointHash != root.GetProperty("checkpointsSha256").GetString())
-            throw new InvalidDataException("Native checkpoint stream does not match the converted manifest.");
-        file.Position = 0;
-        trace = new GZipStream(file, CompressionMode.Decompress);
     }
 
     public IReadOnlyList<ConvertedMovieUpdate> Updates { get; }
@@ -48,11 +37,40 @@ internal sealed class NativeMovieCheckpoints : IDisposable
     /// <summary>Record preceding the first port update; nonzero after a folded power-on prelude.</summary>
     public int InitialRecord { get; }
 
-    /// <summary>Opens a converted replay after checking its format and source-movie identity.</summary>
-    public static NativeMovieCheckpoints Open(string directory, byte[] movie)
+    /// <summary>
+    /// Opens a committed compact trace (<see cref="ReplayTraceMemoryCatalog.MovieDesync"/> layout)
+    /// after checking its identities, its format and its source-movie identity.
+    /// </summary>
+    /// <param name="directory">The compact trace directory.</param>
+    /// <param name="movie">The supplied movie's bytes.</param>
+    public static NativeMovieCheckpoints Open(string directory, byte[] movie) =>
+        Open(ReplayTrace.OpenCompact(directory, ReplayTraceMemoryCatalog.MovieDesync), movie);
+
+    /// <summary>
+    /// Opens a private full native capture, whose checkpoints hold complete WRAM; for diagnostics
+    /// that need more than the compact layout.
+    /// </summary>
+    /// <param name="directory">The full capture directory.</param>
+    /// <param name="movie">The supplied movie's bytes.</param>
+    public static NativeMovieCheckpoints OpenFullCapture(string directory, byte[] movie) =>
+        Open(ReplayTrace.OpenFullCapture(directory), movie);
+
+    private static NativeMovieCheckpoints Open(ReplayTrace trace, byte[] movie)
     {
-        using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "updates.json")));
-        JsonElement root = manifest.RootElement;
+        try
+        {
+            return new NativeMovieCheckpoints(trace, ReadUpdates(trace.Updates, movie));
+        }
+        catch
+        {
+            trace.Dispose();
+            throw;
+        }
+    }
+
+    /// <summary>Reads the converted updates after checking the manifest's format and source-movie identity.</summary>
+    private static ConvertedMovieUpdate[] ReadUpdates(JsonElement root, byte[] movie)
+    {
         string format = root.GetProperty("format").GetString()!;
         // v6 records MessageBox_Routine's return frame, which separates a box's own
         // frames from lag its dispatch runs afterward. v7 splits a dispatch entered
@@ -81,47 +99,38 @@ internal sealed class NativeMovieCheckpoints : IDisposable
                 ? boxEnd.GetInt32() : null)).ToArray();
         if (updates.Length != root.GetProperty("updateCount").GetInt32())
             throw new InvalidDataException("Converted update count disagrees with its update list.");
-        return new NativeMovieCheckpoints(directory, root.Clone(), updates);
+        return updates;
     }
 
     /// <summary>
     /// Returns native WRAM expected after <paramref name="update"/> converted updates, or
     /// null when that update ends without a native checkpoint (see
     /// <see cref="ConvertedMovieUpdate.ExpectedRecord"/>). Calls must move forward; skipped
-    /// records belong to normalized hardware waits.
+    /// records belong to normalized hardware waits. The update-zero record is complete WRAM.
     /// </summary>
-    public byte[]? ReadAfter(int update)
+    public NativeCheckpointMemory? ReadAfter(int update)
     {
         if (update != 0 && Updates[update - 1].ExpectedRecord is null)
             return null;
         int wanted = update == 0 ? InitialRecord : Updates[update - 1].ExpectedRecord!.Value;
         if (wanted <= lastRecord)
             throw new InvalidOperationException("Native checkpoints are forward-only.");
-        while (lastRecord < wanted)
-        {
-            trace.ReadExactly(record);
-            lastRecord++;
-        }
-        int frame = BinaryPrimitives.ReadInt32LittleEndian(record);
-        int pc = BinaryPrimitives.ReadInt32LittleEndian(record.AsSpan(4));
+        NativeCheckpoint record = trace.Records.Read(wanted);
+        lastRecord = wanted;
         bool terminal = update == Updates.Count;
         int expectedFrame = terminal ? SourceFrameCount : Updates[update].SourceFrame;
-        if (frame != expectedFrame || pc != (terminal ? 0 : MovieDesyncMemory.ControllerReadBoundary))
+        if (record.SourceFrame != expectedFrame || record.BoundaryPc != (terminal ? 0 : MovieDesyncMemory.ControllerReadBoundary))
             throw new InvalidDataException(
-                $"Native checkpoint {wanted} is frame {frame} pc {pc:X6}; expected frame {expectedFrame}.");
-        return record.AsSpan(RecordHeaderBytes).ToArray();
+                $"Native checkpoint {wanted} is frame {record.SourceFrame} pc {record.BoundaryPc:X6}; expected frame {expectedFrame}.");
+        return record.Memory;
     }
 
     /// <summary>Confirms the terminal record was the final checkpoint in the stream.</summary>
     public void AssertExhausted()
     {
-        if (trace.ReadByte() != -1)
+        if (!trace.Records.IsExhausted())
             throw new InvalidDataException("Native checkpoint stream continues after the movie's terminal state.");
     }
 
-    public void Dispose()
-    {
-        trace.Dispose();
-        file.Dispose();
-    }
+    public void Dispose() => trace.Dispose();
 }

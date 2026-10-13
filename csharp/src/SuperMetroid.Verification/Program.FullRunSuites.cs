@@ -258,6 +258,7 @@ using static RenderFrameHandoffTestsVerification;
 using static RenderPacketCodecTestsVerification;
 using static RenderPresentationGateTestsVerification;
 using static RenderingAndRoomsVerification;
+using static ReplayTraceCompactionVerification;
 using static ReserveAutoFrontendVerification;
 using static ReserveModeVerification;
 using static ReserveRefillRainbowBeamVerification;
@@ -683,6 +684,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyRoomSetupCodeCatalog), () => VerifyRoomSetupCodeCatalog()),
         new(nameof(VerifyRoomAssetRomData), () => VerifyRoomAssetRomData()),
         new(nameof(VerifyAreaMapAssets), () => VerifyAreaMapAssets()),
+        new(nameof(VerifyReplayTraceCompaction), () => VerifyReplayTraceCompaction()),
         new(nameof(VerifyMapPresentation), () => VerifyMapPresentation()),
         new(nameof(VerifyBackgroundTilemapStreamer), () => VerifyBackgroundTilemapStreamer()),
         new(nameof(VerifyFourBitBackgroundRendering), () => VerifyFourBitBackgroundRendering()),

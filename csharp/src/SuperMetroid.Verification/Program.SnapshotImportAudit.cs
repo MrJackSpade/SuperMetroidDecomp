@@ -22,15 +22,15 @@ internal static class SnapshotImportAuditVerification
     /// state is the reference: importing the same update's native WRAM must reproduce it.
     /// Each listed difference names state the import does not yet carry.
     /// </summary>
-    /// <param name="traceDirectory">The converted 100% movie trace.</param>
+    /// <param name="traceDirectory">The converted 100% movie's private full native capture (complete WRAM at every checkpoint).</param>
     /// <param name="update">The converted update after which the import is audited.</param>
     internal static void AuditSnapshotImport(string traceDirectory, int update)
     {
         var movie = ReplayMovie.Load("100%", FullPlaythroughMoviePath, FullPlaythroughMovieSha256);
-        using var checkpoints = NativeMovieCheckpoints.Open(traceDirectory, movie.Bytes);
+        using var checkpoints = NativeMovieCheckpoints.OpenFullCapture(traceDirectory, movie.Bytes);
         var (replayed, memory, _) = ReplayConvertedMovie(movie, checkpoints, traceFromUpdate: null, update);
         byte[] saveRam = PrivateState.Field<SuperMetroidAddressSpace>(replayed, "bus").SaveRam.ToArray();
-        SuperMetroidGame imported = ImportNativeSnapshot(memory, saveRam).Game;
+        SuperMetroidGame imported = ImportNativeSnapshot(memory.ToWorkRam(), saveRam).Game;
         IReadOnlyList<string> differences = PortStateDiff.Compare(replayed, imported, "game",
             path => path.EndsWith(".bus", StringComparison.Ordinal));
         foreach (string difference in differences)
